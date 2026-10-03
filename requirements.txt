@@ -1,3 +1,4 @@
 cvss>=3.0
 openpyxl>=3.1
 mcp>=1.0
+certifi

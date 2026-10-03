@@ -1,0 +1,48 @@
+{
+  "_comment": "Optional blocks added to the assessment data model in v1.2.0. Absent by default, so v1.1.0 inputs and the MediBec regression are unaffected.",
+  "threat_context": {
+    "snapshot": "threat-context-2026-10-03.json",
+    "retrieved": "2026-10-03",
+    "expires": "2027-01-01",
+    "regions": ["ca", "intl"],
+    "sources": [
+      "CISA KEV catalogVersion 2026.10.02 (1,412 entries)",
+      "FIRST EPSS v4, score date 2026-10-03",
+      "Canadian Centre for Cyber Security advisories, reviewed 2026-10-03",
+      "MITRE ATT&CK v18"
+    ],
+    "accepted_by": "CISO / lead analyst",
+    "accepted_on": "2026-10-03"
+  },
+  "scenarios": [
+    {
+      "id": "S4",
+      "_comment": "threat_basis is recorded per changed parameter, per scenario",
+      "threat_basis": [
+        {
+          "parameter": "Pb(psi,A)",
+          "from": 0.50,
+          "to": 0.70,
+          "ladder_rung": 4,
+          "ladder_label": "Confirmed exploitation of relevant technology",
+          "band": [0.70, 0.80],
+          "evidence": [
+            "CVE-2026-XXXXX in CISA KEV since 2026-08-14; known ransomware campaign use",
+            "EPSS 0.84 (94th percentile) on 2026-10-03"
+          ],
+          "exposure": "Asset inventory section 3.2 confirms two internet-facing appliances of the affected model",
+          "confidence": "Medium",
+          "cvss_unchanged": true,
+          "cvss_note": "Base-only per C2; exploitation evidence routed to Pb(psi,A)"
+        }
+      ],
+      "watch_list": [
+        {
+          "evidence": "CVE-2026-YYYYY in KEV since 2026-09-02",
+          "exposure": "none — product not operated per CMDB",
+          "effect": "no parameter change (C4 exposure gate)"
+        }
+      ]
+    }
+  ]
+}

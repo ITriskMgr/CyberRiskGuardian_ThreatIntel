@@ -5,7 +5,12 @@ Claude Code also reads `CLAUDE.md`, which imports this file.
 
 This repository is the **threat-intelligence edition** of CyberRiskGuardian. It derives from
 CyberRiskGuardian v1.1.0 (`ITriskMgr/CyberRiskGuardian`), which remains unchanged and continues
-to be the stable edition. Install one or the other, not both.
+to be the stable edition. Both may be installed, but **only one should be enabled at a time**:
+their components are namespaced and do not collide, yet two `SessionStart` hooks with
+contradictory guardrails, two MCP servers named `crg-calculator`, and two `cyber-risk-assessment`
+skills with near-identical descriptions make it arbitrary which methodology answers a request.
+Use local or project scope so each edition is enabled only where it is wanted, or
+`claude plugin disable` to switch.
 
 ## Purpose
 CyberRiskGuardian is an AI-assisted cybersecurity risk assessment method and toolkit. It helps

@@ -31,12 +31,17 @@ PROTECTED=(
 
 is_protected() { local f="$1"; for p in "${PROTECTED[@]}"; do [[ "$f" == "$p" ]] && return 0; done; return 1; }
 
+# Junk that may sit untracked in the upstream working copy. Never carry it across.
+JUNK_RE='(^|/)(\.DS_Store|\._.*|\.Rhistory|\.Rapp\.history|\.RData|Thumbs\.db|.*\.swp|.*~)$'
+
 copy_in() {            # copy_in <src dir> <dst dir>
   local s="$1" d="$2"
   [[ -d "$s" ]] || { echo "  skip (absent upstream): $s"; return; }
   mkdir -p "$d"
   while IFS= read -r -d '' f; do
-    local rel="${f#"$s"/}" target="$d/$rel"
+    local rel="${f#"$s"/}"
+    local target="$d/$rel"
+    if [[ "$rel" =~ $JUNK_RE ]]; then echo "  junk  $rel"; continue; fi
     if is_protected "$target"; then echo "  keep  $target"; continue; fi
     mkdir -p "$(dirname "$target")"
     cp -p "$f" "$target"

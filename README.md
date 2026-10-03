@@ -32,12 +32,36 @@ unchanged and continues to be the stable edition.
 | MediBec baseline | 84,491 / 41,104 | **84,491 / 41,104, unchanged** |
 | Threat calibration | — | snapshot lifecycle, Threat Evidence Ladder, revision log |
 
-**Install one or the other, not both.** Both plugins carry a `cyber-risk-assessment` skill and
-overlapping command names; installing them together makes it ambiguous which one answers. The
-plugin ids differ so they can coexist in a marketplace listing, not in one project.
+**Install both if you like — but keep only one enabled at a time.**
+
+Plugin components are namespaced by plugin name, so nothing collides on disk or in the command
+list: you get `/cyberriskguardian:risk-assessment` and
+`/cyberriskguardian-threatintel:risk-assessment` side by side. The problem is only with both
+**enabled** in the same session:
+
+| What | Why it matters |
+|---|---|
+| Two `SessionStart` hooks fire | Their guardrails disagree. This edition enforces CVSS Base-only and the exposure gate; the base edition knows neither |
+| Two MCP servers named `crg-calculator` | Same name, both running |
+| Two `cyber-risk-assessment` skills with near-identical descriptions | Ask for "a risk assessment" without naming the plugin and the choice is arbitrary — fatal for a method whose value is comparability between assessments |
+| Duplicate subagent and output-style names | Ambiguous selection |
+| Double context cost | An enabled plugin is in *every* session, even those that never use it |
+
+### Choose which edition is active
+
+- **Local scope** (cleanest): install each plugin with local scope, so each is enabled only in
+  the repository where you want it. `/plugin` asks for the scope during installation.
+- **Project scope**: record the choice in a repository's committed `.claude/settings.json`, so it
+  applies to everyone working there.
+- **Switch on demand**: `claude plugin disable` in a shell, or the **Installed** tab of `/plugin`,
+  turns a plugin off without uninstalling it.
+- **Project mode, no plugins at all**: open either repository directly with `claude`. Each carries
+  its own `CLAUDE.md` and `.claude/`, which gives complete isolation.
 
 Nothing in this repository changes a formula, so an assessment produced by the base edition
 re-runs here with identical totals. The `threat_context` block is optional and absent by default.
+That makes this edition a **drop-in replacement** rather than a companion: there is no reason to
+run both at once.
 
 ## What's inside
 

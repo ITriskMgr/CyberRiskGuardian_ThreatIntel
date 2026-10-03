@@ -18,6 +18,18 @@ __pycache__/
 .venv/
 node_modules/
 
+# macOS, editor and tooling junk
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.Rhistory
+.Rapp.history
+.RData
+Thumbs.db
+*.swp
+*~
+
 # office and libreoffice artifacts
 ~$*
 .~lock.*

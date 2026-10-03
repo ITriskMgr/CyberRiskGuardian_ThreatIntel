@@ -56,6 +56,19 @@ bash scripts/bootstrap-from-upstream.sh ../CyberRiskGuardian
    too large to commit comfortably, keep KEV in full and prune EPSS rows below 0.01;
    `classify()` degrades gracefully when a CVE is absent from the EPSS table.
 
+### macOS: certificate verification
+
+The python.org build of Python on macOS ships without root certificates, so
+`threat_snapshot.py --refresh` fails with `CERTIFICATE_VERIFY_FAILED`. Install them once:
+
+```bash
+/Applications/Python\ 3.x/Install\ Certificates.command
+```
+
+The script also uses `certifi` when it is importable, which `pip install -r requirements.txt`
+provides. Never work around this by disabling verification: a threat-intelligence snapshot you
+cannot authenticate is worthless as evidence.
+
 ## Verify before the first push
 
 ```bash

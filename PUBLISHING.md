@@ -55,8 +55,12 @@ claude plugin install cyberriskguardian-threatintel@cyberriskguardian-threatinte
 
 Dans la soumission, précisez la relation entre les deux éditions : `cyberriskguardian` reste
 l'édition stable, `cyberriskguardian-threatintel` ajoute la calibration par renseignement. Les
-deux ne doivent pas être installés ensemble dans un même projet — les noms de compétences et de
-commandes se recoupent.
+deux peuvent être installés, mais **un seul doit être activé à la fois** : les composants sont
+préfixés par le nom du plugin et n'entrent pas en collision, mais deux hooks `SessionStart` aux
+garde-fous contradictoires, deux serveurs MCP nommés `crg-calculator` et deux compétences
+`cyber-risk-assessment` aux descriptions quasi identiques rendent arbitraire le choix de la
+méthode qui répond. Recommandez la portée locale ou projet, ou `claude plugin disable` pour
+basculer.
 
 ## Rappels propres à cette édition
 
