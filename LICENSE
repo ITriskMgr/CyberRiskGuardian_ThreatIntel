@@ -1,0 +1,23 @@
+Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+
+CyberRiskGuardian with Threat Live-feed
+© 2026 Marc-André Léger
+SPDX-License-Identifier: CC-BY-NC-4.0
+
+You are free to share and adapt this material for non-commercial purposes, provided you give
+appropriate credit, provide a link to the licence, and indicate if changes were made.
+
+The canonical legal code is published at:
+    https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+-------------------------------------------------------------------------------
+BOOTSTRAP NOTE — remove these lines once the full legal code is in place.
+
+This repository derives from CyberRiskGuardian v1.1.0, which carries the complete CC BY-NC 4.0
+legal code in its own LICENSE file. Copy that file here verbatim:
+
+    cp ../CyberRiskGuardian/LICENSE ./LICENSE
+
+or paste the canonical text from the URL above. A licence file that only summarizes the terms is
+not sufficient for a public release.
+-------------------------------------------------------------------------------

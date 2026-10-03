@@ -1,0 +1,15 @@
+{
+  "name": "cyberriskguardian-threatintel",
+  "displayName": "CyberRiskGuardian with Threat Live-feed",
+  "version": "1.2.0",
+  "description": "AI-assisted, scenario-driven cybersecurity risk assessment with dated, traceable threat-intelligence calibration from CISA KEV and FIRST EPSS. Adds the Threat Evidence Ladder, snapshot lifecycle and threat-driven revision log to the CyberRiskGuardian method.",
+  "author": { "name": "Marc-André Léger" },
+  "license": "CC-BY-NC-4.0",
+  "homepage": "https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel",
+  "repository": "https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel",
+  "keywords": ["cybersecurity", "risk-assessment", "threat-intelligence", "cisa-kev", "epss", "cvss", "governance", "grc"],
+  "skills": "./skills",
+  "commands": "./commands",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

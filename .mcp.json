@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "crg-calculator": {
+      "command": "python3",
+      "args": ["./plugins/cyberriskguardian-threatintel/mcp/crg_server.py"],
+      "env": {}
+    }
+  }
+}

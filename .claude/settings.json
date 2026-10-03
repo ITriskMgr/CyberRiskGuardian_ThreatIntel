@@ -1,0 +1,21 @@
+{
+  "outputStyle": "CyberRiskGuardian Analyst",
+  "env": {
+    "CRG_DEFAULT_APPETITE": "0.30",
+    "CRG_FACTOR": "1000",
+    "CRG_HORIZON_MONTHS": "12",
+    "CRG_CVSS_VERSION": "4.0",
+    "CRG_CVSS_SCOPE": "base-only",
+    "CRG_SNAPSHOT_MAX_AGE_DAYS": "90",
+    "CRG_THREAT_REGIONS": "ca,intl"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python3 *)",
+      "Bash(bash scripts/*)",
+      "Read(./**)",
+      "Edit(./**)",
+      "Write(./**)"
+    ]
+  }
+}

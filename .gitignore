@@ -1,0 +1,23 @@
+# private preferences and local overrides
+CLAUDE.local.md
+.claude/settings.local.json
+
+# generated client deliverables and organization data
+/out/
+/deliverables/
+*.client.json
+*.client.xlsx
+
+# large generated snapshots other than the shipped one
+examples/threat-context/*.json
+!examples/threat-context/threat-context-shipped.json
+
+# python / node
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+
+# office and libreoffice artifacts
+~$*
+.~lock.*

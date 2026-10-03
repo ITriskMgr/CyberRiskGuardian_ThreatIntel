@@ -1,0 +1,54 @@
+# Add to plugins/cyberriskguardian/mcp/crg_server.py — v1.2.0
+#
+# Read-only against a LOCAL snapshot file. Performs no network I/O, so the calculation
+# path stays offline and deterministic (constraint C1).
+
+import datetime as _dt
+import json
+import pathlib
+import sys
+
+_SCRIPTS = pathlib.Path(__file__).resolve().parents[1] / "skills" / "cyber-risk-assessment" / "scripts"
+sys.path.insert(0, str(_SCRIPTS))
+import threat_snapshot as _ts  # noqa: E402
+
+
+@mcp.tool()
+def threat_context(snapshot_path: str, cves: list[str] | None = None,
+                   exposure_confirmed: bool = False) -> dict:
+    """Place CVEs on the CyberRiskGuardian Threat Evidence Ladder using a local snapshot.
+
+    Returns the proposed band for Pb(psi,A) per CVE, plus snapshot freshness. Never returns a
+    point value: the band is deliberate (constraint C3). With exposure_confirmed=False the
+    result carries applies=False, because external intelligence alone may not move a parameter
+    (constraint C4).
+
+    Args:
+        snapshot_path: path to a threat-context-YYYY-MM-DD.json built by threat_snapshot.py.
+        cves: CVE identifiers to classify. Omit for freshness and provenance only.
+        exposure_confirmed: True only where organizational evidence confirms the affected
+            technology is operated.
+    """
+    snap = json.loads(pathlib.Path(snapshot_path).read_text(encoding="utf-8"))
+    today = _dt.date.today().isoformat()
+    expired = snap.get("expires", "9999-12-31") < today
+    out = {
+        "snapshot": {
+            "retrieved": snap.get("retrieved"),
+            "expires": snap.get("expires"),
+            "expired": expired,
+            "regions": snap.get("regions", []),
+            "sources": [{k: s.get(k) for k in ("name", "version", "score_date", "entries") if s.get(k) is not None}
+                        for s in snap.get("sources", [])],
+            "kev_entries": snap.get("kev", {}).get("count"),
+            "epss_entries": snap.get("epss", {}).get("count"),
+        },
+        "ladder": snap.get("threat_evidence_ladder", []),
+        "constraints": snap.get("constraints", {}),
+    }
+    if expired:
+        out["warning"] = ("Snapshot expired (90-day lifetime). Refresh with "
+                          "/refresh-threat-context before relying on it; QC review will fail otherwise.")
+    if cves:
+        out["classification"] = [_ts.classify(c, snap, exposed=exposure_confirmed) for c in cves]
+    return out
