@@ -1,0 +1,1194 @@
+{
+ "schema": "crg-framework-pack/1",
+ "framework": {
+  "id": "ITSP-171",
+  "name": "ITSP.10.171 — Protecting specified information in non-Government of Canada systems and organizations",
+  "short": "ITSP.10.171",
+  "edition": "Second release",
+  "date": "2025-10-28",
+  "origin": "Extracted from the Canadian Centre for Cyber Security publication",
+  "note": "Identifiers and requirement titles only. © His Majesty the King in Right of Canada. The Canadian version of NIST SP 800-171; unallocated identifiers are kept, marked.",
+  "url": "https://www.cyber.gc.ca/en/guidance/protecting-specified-information-non-government-canada-systems-and-organizations-itsp10171"
+ },
+ "controls": [
+  {
+   "id": "03.01.01",
+   "title": "Account management",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.02",
+   "title": "Access enforcement",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.03",
+   "title": "Information flow enforcement",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.04",
+   "title": "Separation of duties",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.05",
+   "title": "Least privilege",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.06",
+   "title": "Least privilege – privileged accounts",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.07",
+   "title": "Least privilege – privileged functions",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.08",
+   "title": "Unsuccessful logon attempts",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.09",
+   "title": "System use notification",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.10",
+   "title": "Device lock",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.11",
+   "title": "Session termination",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.12",
+   "title": "Remote access",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.13",
+   "title": "Not allocated",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.14",
+   "title": "Not allocated",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.15",
+   "title": "Not allocated",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.16",
+   "title": "Wireless access",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.17",
+   "title": "Not allocated",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.18",
+   "title": "Access control for mobile devices",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.19",
+   "title": "Not allocated",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.20",
+   "title": "Use of external systems",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.21",
+   "title": "Not allocated",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.22",
+   "title": "Publicly accessible content",
+   "grp": "03.01 Access control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.02.01",
+   "title": "Literacy training and awareness",
+   "grp": "03.02 Awareness and training",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.02.02",
+   "title": "Role -based training",
+   "grp": "03.02 Awareness and training",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.02.03",
+   "title": "Not allocated",
+   "grp": "03.02 Awareness and training",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.03.01",
+   "title": "Event logging",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.02",
+   "title": "Audit record content",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.03",
+   "title": "Audit record generation",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.04",
+   "title": "Response to audit logging process failures",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.05",
+   "title": "Audit record review, analysis, and reporting",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.06",
+   "title": "Audit record reduction and report generation",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.07",
+   "title": "Time stamps",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.08",
+   "title": "Protection of audit information",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.09",
+   "title": "Not allocated",
+   "grp": "03.03 Audit and accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.04.01",
+   "title": "Baseline configuration",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.02",
+   "title": "Configuration settings",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.03",
+   "title": "Configuration change control",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.04",
+   "title": "Impact analyses",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.05",
+   "title": "Access restrictions for change",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.06",
+   "title": "Least functionality",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.07",
+   "title": "Not allocated",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.04.08",
+   "title": "Authorized software – allow by exception",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.09",
+   "title": "Not allocated",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.04.10",
+   "title": "System component inventory",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.11",
+   "title": "Information location",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.12",
+   "title": "System and component configuration for high -risk areas",
+   "grp": "03.04 Configuration management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.01",
+   "title": "User identification, authentication , and re -authentication",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.02",
+   "title": "Device identification and authentication",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.03",
+   "title": "Multi -factor authentication",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.04",
+   "title": "Replay -resistant authentication",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.05",
+   "title": "Identifier management",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.06",
+   "title": "Not allocated",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.07",
+   "title": "Password management",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.08",
+   "title": "Not allocated",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.09",
+   "title": "Not allocated",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.10",
+   "title": "Not allocated",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.11",
+   "title": "Authentication feedback",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.12",
+   "title": "Authenticator management",
+   "grp": "03.05 Identification and authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.01",
+   "title": "Incident handling",
+   "grp": "03.06 Incident response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.02",
+   "title": "Incident monitoring, reporting , and response assistance",
+   "grp": "03.06 Incident response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.03",
+   "title": "Incident response testing",
+   "grp": "03.06 Incident response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.04",
+   "title": "Incident response training",
+   "grp": "03.06 Incident response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.05",
+   "title": "Incident response plan",
+   "grp": "03.06 Incident response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.07.01",
+   "title": "Not allocated",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.07.02",
+   "title": "Not allocated",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.07.03",
+   "title": "Not allocated",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.07.04",
+   "title": "Maintenance tools",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.07.05",
+   "title": "Non -local maintenance",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.07.06",
+   "title": "Maintenance personnel",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.01",
+   "title": "Media storage",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.02",
+   "title": "Media access",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.03",
+   "title": "Media sanitization",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.04",
+   "title": "Media marking",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.05",
+   "title": "Media transport",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.06",
+   "title": "Not allocated",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.08.07",
+   "title": "Media use",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.08",
+   "title": "Not allocated",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.08.09",
+   "title": "System backup – cryptographic protection",
+   "grp": "03.08 Media protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.09.01",
+   "title": "Personnel screening",
+   "grp": "03.09 Personnel security",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.09.02",
+   "title": "Personnel termination and transfer",
+   "grp": "03.09 Personnel security",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.01",
+   "title": "Physical access authorizations",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.02",
+   "title": "Monitoring physical access",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.03",
+   "title": "Not allocated",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.10.04",
+   "title": "Not allocated",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.10.05",
+   "title": "Not allocated",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.10.06",
+   "title": "Alternate work site",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.07",
+   "title": "Physical access control",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.08",
+   "title": "Access control for transmission",
+   "grp": "03.10 Physical protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.11.01",
+   "title": "Risk assessment",
+   "grp": "03.11 Risk assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.11.02",
+   "title": "Vulnerability monitoring and scanning",
+   "grp": "03.11 Risk assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.11.03",
+   "title": "Not allocated",
+   "grp": "03.11 Risk assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.11.04",
+   "title": "Risk response",
+   "grp": "03.11 Risk assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.01",
+   "title": "Security assessment",
+   "grp": "03.12 Security assessment and monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.02",
+   "title": "Plan of action and milestones",
+   "grp": "03.12 Security assessment and monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.03",
+   "title": "Continuous monitoring",
+   "grp": "03.12 Security assessment and monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.04",
+   "title": "Not allocated",
+   "grp": "03.12 Security assessment and monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.12.05",
+   "title": "Information exchange",
+   "grp": "03.12 Security assessment and monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.01",
+   "title": "Boundary protection",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.02",
+   "title": "Not allocated",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.03",
+   "title": "Not allocated",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.04",
+   "title": "Information in shared system resources",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.05",
+   "title": "Not allocated",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.06",
+   "title": "Network communications – deny by default – allow by exception",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.07",
+   "title": "Not allocated",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.08",
+   "title": "Transmission and storage confidentiality",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.09",
+   "title": "Network disconnect",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.10",
+   "title": "Cryptographic key establishment and management",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.11",
+   "title": "Cryptographic protection",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.12",
+   "title": "Collaborative computing devices and applications",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.13",
+   "title": "Mobile code",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.14",
+   "title": "Not allocated",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.15",
+   "title": "Session authenticity",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.16",
+   "title": "Not allocated",
+   "grp": "03.13 System and communications protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.01",
+   "title": "Flaw remediation",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.02",
+   "title": "Malicious code protection",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.03",
+   "title": "Security alerts, advisories, and directives",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.04",
+   "title": "Not allocated",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.05",
+   "title": "Not allocated",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.06",
+   "title": "System monitoring",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.07",
+   "title": "Not allocated",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Not allocated in this release; the identifier is reserved so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.08",
+   "title": "Information management and retention",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.09",
+   "title": "Dedicated administration workstation",
+   "grp": "03.14 System and information integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.15.01",
+   "title": "Policy and procedures",
+   "grp": "03.15 Planning",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.15.02",
+   "title": "System security plan",
+   "grp": "03.15 Planning",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.15.03",
+   "title": "Rules of behaviour",
+   "grp": "03.15 Planning",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.16.01",
+   "title": "Security engineering principles",
+   "grp": "03.16 System and services acquisition",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.16.02",
+   "title": "Unsupported system components",
+   "grp": "03.16 System and services acquisition",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.16.03",
+   "title": "External system services",
+   "grp": "03.16 System and services acquisition",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.17.01",
+   "title": "Supply chain risk management plan",
+   "grp": "03.17 Supply chain risk management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.17.02",
+   "title": "Acquisition strategies, tools , and methods",
+   "grp": "03.17 Supply chain risk management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.17.03",
+   "title": "Supply chain requirements and processes",
+   "grp": "03.17 Supply chain risk management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  }
+ ]
+}

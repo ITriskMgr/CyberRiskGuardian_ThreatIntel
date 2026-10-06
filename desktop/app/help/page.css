@@ -1,0 +1,64 @@
+/* page.css — the two windows that open outside the application (1.5.6): Step by step and User guide.
+   They are their own pages, so they carry their own base styles rather than the app's chrome. Light
+   and dark follow the system, and the print rules make either one a clean handout.
+   © 2026 Marc-André Léger. CC BY-NC 4.0 */
+:root {
+  --ink: #16202c; --muted: #5b6878; --line: #dde3ea; --bg: #ffffff; --surface: #f6f8fa;
+  --accent: #1f4e79; --accent-ink: #ffffff; --good: #1b6b3a; --warn: #8a5a00; --bad: #a32020;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e6ecf3; --muted: #9aa7b5; --line: #2b3542; --bg: #121820; --surface: #1a212b;
+    --accent: #7fb0e0; --accent-ink: #0d1218; --good: #7cc99a; --warn: #e0b35e; --bad: #e98b8b;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e6ecf3; --muted: #9aa7b5; --line: #2b3542; --bg: #121820; --surface: #1a212b;
+  --accent: #7fb0e0; --accent-ink: #0d1218; --good: #7cc99a; --warn: #e0b35e; --bad: #e98b8b;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 22px 16px 64px; }
+header.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  padding: 10px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+header.top b { font-size: 15px; }
+header.top .sp { flex: 1 1 auto; }
+h1 { font-size: 22px; margin: 18px 0 4px; }
+h2 { font-size: 17px; margin: 26px 0 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+h3 { font-size: 14.5px; margin: 14px 0 4px; }
+p { margin: 6px 0; }
+ul, ol { margin: 6px 0 6px 20px; padding: 0; }
+li { margin: 4px 0; }
+a { color: var(--accent); }
+.lede { color: var(--muted); }
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+.pill { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.pill.warn { color: var(--warn); border-color: var(--warn); }
+.pill.good { color: var(--good); border-color: var(--good); }
+.btn { font: inherit; font-size: 12.5px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.btn:hover { border-color: var(--accent); }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 12px 0; background: var(--surface); }
+.note { background: var(--surface); border-left: 3px solid var(--accent); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+.where { color: var(--accent); font-size: 12.5px; }
+.done { color: var(--muted); font-size: 12.5px; }
+.step { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+.step .n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink); font-size: 12.5px; font-weight: 600; margin-right: 7px; }
+.toc { columns: 2; column-gap: 26px; font-size: 13px; }
+@media (max-width: 620px) { .toc { columns: 1; } .wrap { padding: 16px; } }
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 13px; }
+th, td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: var(--surface); }
+@media print {
+  header.top { display: none; }
+  body { background: #fff; color: #000; }
+  .wrap { max-width: none; padding: 0; }
+  .step, .card { break-inside: avoid; border-color: #bbb; background: #fff; }
+  h2 { break-after: avoid; }
+  a { color: #000; text-decoration: none; }
+}

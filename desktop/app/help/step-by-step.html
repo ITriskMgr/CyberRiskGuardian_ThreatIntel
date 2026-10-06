@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Step by step — CyberRiskGuardian</title>
+<link rel="icon" href="../icons/icon-64.png">
+<link rel="stylesheet" href="page.css">
+<!-- Step by step (1.5.6) — the 12 steps of a complete assessment and the guidelines in detail, in a
+     window of their own so the guide can stay open beside the work. The content is read from the same
+     two modules the application uses (js/process.js, js/guidelines.js): there is no second copy to
+     keep in step. Nothing here touches a workspace; this page only reads and prints.
+     © 2026 Marc-André Léger. CC BY-NC 4.0 -->
+</head>
+<body>
+<header class="top">
+  <b>Step by step</b>
+  <span class="pill warn" id="ver">beta</span>
+  <span class="sp"></span>
+  <button class="btn" id="print">Print</button>
+  <button class="btn" id="close">Close</button>
+</header>
+<div class="wrap" id="wrap"><p class="lede">Loading…</p></div>
+
+<script type="module">
+import { STEPS } from '../js/process.js';
+import { GUIDELINES } from '../js/guidelines.js';
+import { VERSION, CHANNEL } from '../js/version.js';
+import * as i18n from '../js/i18n.js';
+
+const E = (tag, cls, ...kids) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return n;
+};
+
+/* A screen name opens that screen in the application window this one came from. Without an opener
+   (the page was bookmarked or reloaded on its own) it opens the application at that screen instead. */
+function screenLink(route, label) {
+  const a = E('a', null, label);
+  a.href = '../index.html#/' + route;
+  a.addEventListener('click', ev => {
+    const w = window.opener;
+    if (!w || w.closed) return;                       // let the link open the app itself
+    ev.preventDefault();
+    try { w.location.hash = '#/' + route; w.focus(); } catch { window.open(a.href, 'crg-app'); }
+  });
+  return a;
+}
+const joinLinks = screens => screens.flatMap(([r, l], i) => i ? [' · ', screenLink(r, l)] : [screenLink(r, l)]);
+
+function build() {
+  const wrap = document.getElementById('wrap');
+  wrap.replaceChildren(
+    E('h1', null, 'A complete risk assessment, step by step'),
+    E('p', 'lede', 'The 12 steps of the CyberRiskGuardian method, what each one is for, what it needs and when it is done — followed by the guidelines in detail. Click a screen name to open it in the application.'),
+    E('div', 'note', E('b', null, `Beta ${VERSION} — proof of concept`), ' ',
+      E('span', null, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.')));
+
+  const toc = E('ol', 'toc');
+  for (const s of STEPS) {
+    const a = E('a', null, s.title); a.href = '#step-' + s.id;
+    toc.append(E('li', null, a));
+  }
+  wrap.append(E('div', 'card', E('b', null, 'The 12 steps'), toc));
+
+  for (const s of STEPS) {
+    const box = E('div', 'step');
+    box.id = 'step-' + s.id;
+    const n = E('span', 'n', s.n);
+    box.append(E('h3', null, n, s.title));
+    box.append(E('p', null, s.purpose));
+    /* Each label is its own node: a sentence built into one text node ("Done when: " + text) has no
+       catalogue entry and would stay English when the interface is French. */
+    box.append(E('p', 'small', E('b', null, 'What it needs:'), ' ', s.inputs));
+    box.append(E('p', 'where', E('span', null, 'Where:'), ' ', joinLinks(s.screens)));
+    box.append(E('p', 'done', E('span', null, 'Done when:'), ' ', s.done));
+    if (s.tips?.length) box.append(E('ul', 'small', s.tips.map(t => E('li', null, t))));
+    wrap.append(box);
+  }
+
+  wrap.append(E('h2', null, 'Guidelines in detail'),
+    E('p', 'lede', 'Twelve guidelines that keep an assessment simple and consistent. Each one says where it happens, what to do in order, and when it is done.'));
+  const gl = E('ol');
+  for (const g of GUIDELINES) {
+    const li = E('li');
+    li.append(E('p', null, E('b', null, g.h + '. '), g.t));
+    li.append(E('p', 'where', E('span', null, 'Where:'), ' ', g.where));
+    if (g.routes?.length) li.append(E('p', 'small', E('span', null, 'Screens:'), ' ', joinLinks(g.routes)));
+    li.append(E('ol', 'small', g.steps.map(x => E('li', null, x))));
+    li.append(E('p', 'done', E('span', null, 'Done when:'), ' ', g.done));
+    gl.append(li);
+  }
+  wrap.append(gl);
+
+  wrap.append(E('h2', null, 'About this window'),
+    E('p', 'small muted', `CyberRiskGuardian Desktop ${VERSION} ${CHANNEL} · `,
+      E('span', null, 'proof of concept'), ' · CC BY-NC 4.0 · Marc-André Léger. ',
+      E('span', null, 'This page is part of the installed application and works offline. It reads the same step and guideline definitions the application uses, so it cannot drift from what the screens do.')));
+}
+
+document.getElementById('ver').textContent = 'Beta ' + VERSION;
+document.getElementById('print').addEventListener('click', () => window.print());
+document.getElementById('close').addEventListener('click', () => window.close());
+
+build();
+/* The interface language is a preference of this computer, shared with the application window. */
+i18n.init().then(() => { document.title = i18n.tr('Step by step') + ' — CyberRiskGuardian'; i18n.translateTree(document.body); })
+  .catch(err => console.error('i18n', err));
+</script>
+</body>
+</html>

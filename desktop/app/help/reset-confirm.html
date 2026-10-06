@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirm — CyberRiskGuardian</title>
+<link rel="icon" href="../icons/icon-64.png">
+<link rel="stylesheet" href="page.css">
+<!-- Confirm a reset (1.5.6) — a window of its own, deliberately.
+
+     A browser confirm() box is one line and one click, and it is dismissed by reflex. Clearing a case
+     or a workspace cannot be undone, so the question is asked in a separate window that lists exactly
+     what will go, makes the person type the word, and — in multi-user mode — asks for an
+     administrator's PIN.
+
+     This page decides nothing. It receives what to show from the application window, sends back the
+     answer, and shows the result. Everything is verified and performed in the application: the PIN is
+     checked there against the stored hashes, and the reset runs there. Both windows are the same
+     origin and every message is posted to that origin only.
+     © 2026 Marc-André Léger. CC BY-NC 4.0 -->
+<style>
+  .wrap { max-width: 620px; }
+  .danger { border-left-color: var(--bad); }
+  .danger b { color: var(--bad); }
+  ul.goes li { margin: 3px 0; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  input[type=text], input[type=password] { font: inherit; font-size: 13.5px; padding: 7px 9px; width: 100%;
+    border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  label.f { display: block; font-size: 12.5px; color: var(--muted); margin: 12px 0 3px; }
+  .btn.go { background: var(--bad); color: #fff; border-color: var(--bad); }
+  .btn.go[disabled] { opacity: .45; cursor: not-allowed; }
+  .big { font-size: 18px; margin: 0 0 4px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <p class="lede" id="boot">Waiting for the application…</p>
+</div>
+
+<script type="module">
+import * as i18n from '../js/i18n.js';
+const ORIGIN = location.origin;
+const $ = id => document.getElementById(id);
+const E = (tag, cls, ...kids) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return n;
+};
+const wrap = $('wrap');
+let req = null, answered = false;
+
+/* The application window is the only thing allowed to drive this page. */
+function parent() { return window.opener && !window.opener.closed ? window.opener : null; }
+
+function ask(r, problem) {
+  req = r;
+  answered = false;
+  const phrase = r.phrase || 'RESET';
+  wrap.replaceChildren();
+  wrap.append(E('h1', 'big', r.title || 'Confirm'));
+  if (problem) wrap.append(E('div', 'note danger', E('b', null, 'Not done. '), problem));
+  /* The label and the name are separate nodes: a label glued to a value has no catalogue entry and
+     would stay English, and the name itself must never be translated. */
+  if (r.workspace) {
+    const who = E('span', null, r.workspace);
+    who.setAttribute('data-noi18n', '');
+    wrap.append(E('p', 'lede', E('span', null, 'Workspace:'), ' ', who));
+  }
+  if (r.what) wrap.append(E('div', 'note danger', E('b', null, 'This cannot be undone. '), r.what));
+  if (r.lines?.length) {
+    wrap.append(E('p', null, E('b', null, r.linesTitle || 'This will remove:')));
+    wrap.append(E('ul', 'goes', r.lines.map(l => E('li', null, l))));
+  } else {
+    wrap.append(E('p', 'muted', 'There is nothing recorded in this workspace yet, so nothing is lost — it is put back to its starting state.'));
+  }
+  if (r.keeps?.length) {
+    wrap.append(E('p', null, E('b', null, 'This is kept:')));
+    wrap.append(E('ul', 'goes', r.keeps.map(l => E('li', null, l))));
+  }
+  if (r.advice) wrap.append(E('p', 'small muted', r.advice));
+
+  const typed = E('input'); typed.type = 'text'; typed.id = 'typed'; typed.autocomplete = 'off'; typed.spellcheck = false;
+  const word = E('b', null, phrase);
+  word.setAttribute('data-noi18n', '');     // the word to type is the word to type, in any language
+  wrap.append(E('label', 'f', E('span', null, 'To go ahead, type'), ' ', word), typed);
+
+  let pin = null;
+  if (r.requirePin) {
+    pin = E('input'); pin.type = 'password'; pin.id = 'pin'; pin.autocomplete = 'off';
+    wrap.append(E('label', 'f', r.pinLabel || 'Instructor or administrator PIN'), pin);
+  }
+
+  const go = E('button', 'btn go', r.action || 'Reset');
+  go.disabled = true;
+  const cancel = E('button', 'btn', 'Cancel');
+  const msg = E('p', 'small muted');
+  const check = () => { go.disabled = typed.value.trim().toUpperCase() !== phrase.toUpperCase() || (r.requirePin && !pin.value); };
+  typed.addEventListener('input', check);
+  pin?.addEventListener('input', check);
+  go.addEventListener('click', () => {
+    const p = parent();
+    if (!p) { msg.textContent = 'The application window is closed. Nothing was changed.'; return; }
+    go.disabled = true; cancel.disabled = true;
+    msg.textContent = 'Working…';
+    answered = true;
+    p.postMessage({ type: 'crg-reset-answer', ok: true, pin: pin ? pin.value : '', token: r.token }, ORIGIN);
+  });
+  cancel.addEventListener('click', () => { answered = true; parent()?.postMessage({ type: 'crg-reset-answer', ok: false, token: r.token }, ORIGIN); window.close(); });
+  wrap.append(E('div', 'row', go, cancel), msg);
+  typed.focus();
+}
+
+function done(m) {
+  wrap.replaceChildren(
+    E('h1', 'big', m.ok ? 'Done' : 'Not done'),
+    E('div', m.ok ? 'note' : 'note danger', m.message || ''),
+    E('div', 'row', (() => { const b = E('button', 'btn', 'Close'); b.addEventListener('click', () => window.close()); return b; })()));
+}
+
+window.addEventListener('message', ev => {
+  if (ev.origin !== ORIGIN || ev.source !== window.opener) return;
+  const d = ev.data || {};
+  if (d.type === 'crg-reset-request') ask(d.payload || {});
+  else if (d.type === 'crg-reset-result') {
+    /* A wrong PIN is not a failure of the request: ask again rather than make the person reopen it. */
+    if (d.retry && req) ask(req, d.message);
+    else done(d);
+  }
+});
+
+/* The question is asked in the language of the interface. */
+i18n.init().then(() => { document.title = i18n.tr('Confirm') + ' — CyberRiskGuardian'; i18n.translateTree(document.body); })
+  .catch(err => console.error('i18n', err));
+
+/* Tell the application this window is ready. If it never answers, say so rather than hang. */
+const p = parent();
+if (!p) {
+  wrap.replaceChildren(E('h1', 'big', 'Nothing to confirm'),
+    E('p', null, 'This window is opened by CyberRiskGuardian when a reset needs confirming. Open it from Reset data in the application.'));
+} else {
+  p.postMessage({ type: 'crg-reset-ready' }, ORIGIN);
+  setTimeout(() => { if (!req) $('boot') && ($('boot').textContent = 'The application did not answer. Close this window and try again from Reset data.'); }, 4000);
+}
+window.addEventListener('beforeunload', () => { if (!answered) parent()?.postMessage({ type: 'crg-reset-answer', ok: false }, ORIGIN); });
+</script>
+</body>
+</html>

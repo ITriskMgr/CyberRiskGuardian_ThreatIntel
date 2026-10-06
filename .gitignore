@@ -8,9 +8,11 @@ CLAUDE.local.md
 *.client.json
 *.client.xlsx
 
-# large generated snapshots other than the shipped one
-examples/threat-context/*.json
-!examples/threat-context/threat-context-shipped.json
+# large generated snapshots other than the shipped one. Anchored to the plugin's own examples/
+# folder: without the leading slash this also matched desktop/examples/threat-context/, which would
+# have dropped the example snapshot the desktop package ships and broken it silently.
+/examples/threat-context/*.json
+!/examples/threat-context/threat-context-shipped.json
 
 # python / node
 __pycache__/
@@ -33,3 +35,8 @@ Thumbs.db
 # office and libreoffice artifacts
 ~$*
 .~lock.*
+
+# working folder of the desktop sessions: downloaded feeds, briefings and crg-keys.json (API keys).
+# Never committed. If you keep it elsewhere, ignore that path here too.
+/Claude outputs/
+crg-keys.json

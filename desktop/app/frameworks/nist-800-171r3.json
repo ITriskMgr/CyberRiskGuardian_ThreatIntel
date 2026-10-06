@@ -1,0 +1,1185 @@
+{
+ "schema": "crg-framework-pack/1",
+ "framework": {
+  "id": "NIST-171",
+  "name": "NIST SP 800-171 — Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations",
+  "short": "SP 800-171 r3",
+  "edition": "Revision 3",
+  "date": "2024-05-14",
+  "origin": "Extracted from the NIST publication (public domain)",
+  "note": "Identifiers and requirement titles from NIST SP 800-171 Revision 3. Public domain. Withdrawn identifiers are kept, marked, so historical references still resolve.",
+  "url": "https://csrc.nist.gov/pubs/sp/800/171/r3/final"
+ },
+ "controls": [
+  {
+   "id": "03.01.01",
+   "title": "Account Management",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.02",
+   "title": "Access Enforcement",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.03",
+   "title": "Information Flow Enforcement",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.04",
+   "title": "Separation of Duties",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.05",
+   "title": "Least Privilege",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.06",
+   "title": "Least Privilege – Privileged Accounts",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.07",
+   "title": "Least Privilege – Privileged Functions",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.08",
+   "title": "Unsuccessful Logon Attempts",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.09",
+   "title": "System Use Notification",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.10",
+   "title": "Device Lock",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.11",
+   "title": "Session Termination",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.12",
+   "title": "Remote Access",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.13",
+   "title": "Withdrawn",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.14",
+   "title": "Withdrawn",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.15",
+   "title": "Withdrawn",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.16",
+   "title": "Wireless Access",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.17",
+   "title": "Withdrawn",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.18",
+   "title": "Access Control for Mobile Devices",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.19",
+   "title": "Withdrawn",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.20",
+   "title": "Use of External Systems",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.01.21",
+   "title": "Withdrawn",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.01.22",
+   "title": "Publicly Accessible Content",
+   "grp": "03.01 Access Control",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.02.01",
+   "title": "Literacy Training and Awareness",
+   "grp": "03.02 Awareness and Training",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.02.02",
+   "title": "Role- Based Training",
+   "grp": "03.02 Awareness and Training",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.02.03",
+   "title": "Withdrawn",
+   "grp": "03.02 Awareness and Training",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.03.01",
+   "title": "Event Logging",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.02",
+   "title": "Audit Record Content",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.03",
+   "title": "Audit Record Generation",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.04",
+   "title": "Response to Audit Logging Process Failures",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.05",
+   "title": "Audit Record Review, Analysis, and Reporting",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.06",
+   "title": "Audit Record Reduction and Report Generation",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.07",
+   "title": "Time Stamps",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.08",
+   "title": "Protection of Audit Information",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.03.09",
+   "title": "Withdrawn",
+   "grp": "03.03 Audit and Accountability",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.04.01",
+   "title": "Baseline Configuration",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.02",
+   "title": "Configuration Settings",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.03",
+   "title": "Configuration Change Control",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.04",
+   "title": "Impact Analyses",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.05",
+   "title": "Access Restrictions for Change",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.06",
+   "title": "Least Functionality",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.07",
+   "title": "Withdrawn",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.04.08",
+   "title": "Authorized Software – Allow by Exception",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.09",
+   "title": "Withdrawn",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.04.10",
+   "title": "System Component Inventory",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.11",
+   "title": "Information Location",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.04.12",
+   "title": "System and Component Configuration for High- Risk Areas",
+   "grp": "03.04 Configuration Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.01",
+   "title": "User Identification and Authentication",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.02",
+   "title": "Device Identification and Authentication",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.03",
+   "title": "Multi -Factor Authentication",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.04",
+   "title": "Replay -Resistant Authentication",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.05",
+   "title": "Identifier Management",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.06",
+   "title": "Withdrawn",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.07",
+   "title": "Password Management",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.08",
+   "title": "Withdrawn",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.09",
+   "title": "Withdrawn",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.10",
+   "title": "Withdrawn",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.05.11",
+   "title": "Authentication Feedback",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.05.12",
+   "title": "Authenticator Management",
+   "grp": "03.05 Identification and Authentication",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.01",
+   "title": "Incident Handling",
+   "grp": "03.06 Incident Response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.02",
+   "title": "Incident Monitoring, Reporting , and Response Assistance",
+   "grp": "03.06 Incident Response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.03",
+   "title": "Incident Response Testing",
+   "grp": "03.06 Incident Response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.04",
+   "title": "Incident Response Training",
+   "grp": "03.06 Incident Response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.06.05",
+   "title": "Incident Response Plan",
+   "grp": "03.06 Incident Response",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.07.01",
+   "title": "Withdrawn",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.07.02",
+   "title": "Withdrawn",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.07.03",
+   "title": "Withdrawn",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.07.04",
+   "title": "Maintenance Tools",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.07.05",
+   "title": "Nonlocal Maintenance",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.07.06",
+   "title": "Maintenance Personnel",
+   "grp": "03.07 Maintenance",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.01",
+   "title": "Media Storage",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.02",
+   "title": "Media Access",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.03",
+   "title": "Media Sanitization",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.04",
+   "title": "Media Marking",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.05",
+   "title": "Media Transport",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.06",
+   "title": "Withdrawn",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.08.07",
+   "title": "Media Use",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.08.08",
+   "title": "Withdrawn",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.08.09",
+   "title": "System Backup – Cryptographic Protection",
+   "grp": "03.08 Media Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.09.01",
+   "title": "Personnel Screening",
+   "grp": "03.09 Personnel Security",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.09.02",
+   "title": "Personnel Termination and Transfer",
+   "grp": "03.09 Personnel Security",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.01",
+   "title": "Physical Access Authorizations",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.02",
+   "title": "Monitoring Physical Access",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.03",
+   "title": "Withdrawn",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.10.04",
+   "title": "Withdrawn",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.10.05",
+   "title": "Withdrawn",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.10.06",
+   "title": "Alternate Work Site",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.07",
+   "title": "Physical Access Control",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.10.08",
+   "title": "Access Control for Transmission",
+   "grp": "03.10 Physical Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.11.01",
+   "title": "Risk Assessment",
+   "grp": "03.11 Risk Assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.11.02",
+   "title": "Vulnerability Monitoring and Scanning",
+   "grp": "03.11 Risk Assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.11.03",
+   "title": "Withdrawn",
+   "grp": "03.11 Risk Assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.11.04",
+   "title": "Risk Response",
+   "grp": "03.11 Risk Assessment",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.01",
+   "title": "Security Assessment",
+   "grp": "03.12 Security Assessment and Monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.02",
+   "title": "Plan of Action and Milestones",
+   "grp": "03.12 Security Assessment and Monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.03",
+   "title": "Continuous Monitoring",
+   "grp": "03.12 Security Assessment and Monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.12.04",
+   "title": "Withdrawn",
+   "grp": "03.12 Security Assessment and Monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.12.05",
+   "title": "Information Exchange",
+   "grp": "03.12 Security Assessment and Monitoring",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.01",
+   "title": "Boundary Protection",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.02",
+   "title": "Withdrawn",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.03",
+   "title": "Withdrawn",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.04",
+   "title": "Information in Shared System Resources",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.05",
+   "title": "Withdrawn",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.06",
+   "title": "Network Communications – Deny by Default – Allow by Exception",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.07",
+   "title": "Withdrawn",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.08",
+   "title": "Transmission and Storage Confidentiality",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.09",
+   "title": "Network Disconnect",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.10",
+   "title": "Cryptographic Key Establishment and Management",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.11",
+   "title": "Cryptographic Protection",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.12",
+   "title": "Collaborative Computing Devices and Applications",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.13",
+   "title": "Mobile Code",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.14",
+   "title": "Withdrawn",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.13.15",
+   "title": "Session Authenticity",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.13.16",
+   "title": "Withdrawn",
+   "grp": "03.13 System and Communications Protection",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.01",
+   "title": "Flaw Remediation",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.02",
+   "title": "Malicious Code Protection",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.03",
+   "title": "Security Alerts, Advisories, and Directives",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.04",
+   "title": "Withdrawn",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.05",
+   "title": "Withdrawn",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.06",
+   "title": "System Monitoring",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.14.07",
+   "title": "Withdrawn",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "Withdrawn in this revision; the identifier is kept so references still resolve.",
+   "enh": false
+  },
+  {
+   "id": "03.14.08",
+   "title": "Information Management and Retention",
+   "grp": "03.14 System and Information Integrity",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.15.01",
+   "title": "Policy and Procedures",
+   "grp": "03.15 Planning",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.15.02",
+   "title": "System Security Plan",
+   "grp": "03.15 Planning",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.15.03",
+   "title": "Rules of Behavior",
+   "grp": "03.15 Planning",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.16.01",
+   "title": "Security Engineering Principles",
+   "grp": "03.16 System and Services Acquisition",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.16.02",
+   "title": "Unsupported System Components",
+   "grp": "03.16 System and Services Acquisition",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.16.03",
+   "title": "External System Services",
+   "grp": "03.16 System and Services Acquisition",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.17.01",
+   "title": "Supply Chain Risk Management Plan",
+   "grp": "03.17 Supply Chain Risk Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.17.02",
+   "title": "Acquisition Strategies, Tools, and Methods",
+   "grp": "03.17 Supply Chain Risk Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  },
+  {
+   "id": "03.17.03",
+   "title": "Supply Chain Requirements and Processes",
+   "grp": "03.17 Supply Chain Risk Management",
+   "fn": "Prevention",
+   "tags": [],
+   "note": "",
+   "enh": false
+  }
+ ]
+}

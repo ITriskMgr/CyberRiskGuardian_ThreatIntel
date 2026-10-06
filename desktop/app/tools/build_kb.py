@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: CC-BY-NC-4.0
+# Copyright (c) 2026 Marc-André Léger
+"""Regenerate kb.js (MITRE ATT&CK Enterprise + CAPEC links + CWE) for CyberRiskGuardian Desktop.
+
+Inputs, downloaded by the maintainer into the current directory:
+  ea.json     enterprise-attack.json from github.com/mitre/cti (tag ATT&CK-vXX.Y)
+  capec.json  capec/2.1/stix-capec.json from github.com/mitre/cti
+  cwec.xml    the CWE XML catalogue (cwe.mitre.org/data/xml/cwec_latest.xml.zip, unzipped)
+Usage: python3 build_kb.py [output kb.js] [ATT&CK version, e.g. 19.2]   — then update the version strings in NOTICE.md and bump sw.js CACHE.
+"""
+import json, re, sys, xml.etree.ElementTree as ET
+from collections import defaultdict
+d=json.load(open('ea.json'))['objects']
+byid={o['id']:o for o in d}
+def ext(o, src='mitre-attack'):
+    for r in o.get('external_references',[]):
+        if r.get('source_name')==src: return r.get('external_id')
+def live(o): return not o.get('revoked') and not o.get('x_mitre_deprecated')
+def short(t,n=240):
+    t=re.sub(r'\(Citation:[^)]*\)','',t or ''); t=re.sub(r'\[([^\]]+)\]\([^)]*\)',r'\1',t); t=re.sub(r'<[^>]+>','',t)
+    t=' '.join(t.split()); 
+    if len(t)>n: t=t[:n].rsplit(' ',1)[0]+'…'
+    return t
+tac=[o for o in d if o['type']=='x-mitre-tactic' and live(o)]
+matrix=[o for o in d if o['type']=='x-mitre-matrix'][0]
+order=[byid[r] for r in matrix['tactic_refs']]
+TAC=[[ext(t),t['x_mitre_shortname'],t['name']] for t in order]
+tech={}
+for o in d:
+    if o['type']=='attack-pattern' and live(o):
+        tid=ext(o)
+        tech[o['id']]=tid
+TECH={}
+for o in d:
+    if o['id'] in tech:
+        tid=tech[o['id']]
+        TECH[tid]={'n':o['name'],'t':[p['phase_name'] for p in o.get('kill_chain_phases',[]) if p['kill_chain_name']=='mitre-attack'],
+                   'd':short(o.get('description')),'p':o.get('x_mitre_platforms',[]),'g':0,'m':[]}
+mit={}
+for o in d:
+    if o['type']=='course-of-action' and live(o):
+        mid=ext(o)
+        if mid and mid.startswith('M'): mit[o['id']]=mid
+MIT={mit[k]:{'n':byid[k]['name'],'d':short(byid[k].get('description'),200)} for k in mit}
+groups=defaultdict(set)
+for r in d:
+    if r['type']!='relationship' or not live(r): continue
+    s,t=r['source_ref'],r['target_ref']
+    if r['relationship_type']=='mitigates' and s in mit and t in tech:
+        TECH[tech[t]]['m'].append(mit[s])
+    if r['relationship_type']=='uses' and t in tech and s.startswith('intrusion-set'):
+        groups[tech[t]].add(s)
+for k,v in groups.items(): TECH[k]['g']=len(v)
+for k in TECH:
+    TECH[k]['m']=sorted(set(TECH[k]['m']))
+    # sub-techniques inherit nothing; keep
+# CAPEC links technique -> CWE
+c=json.load(open('capec.json'))['objects']
+t2cwe=defaultdict(set); t2capec=defaultdict(set)
+for o in c:
+    if o['type']!='attack-pattern' or o.get('revoked') or o.get('x_capec_status')=='Deprecated': continue
+    refs=o.get('external_references',[])
+    cap=[r['external_id'] for r in refs if r.get('source_name')=='capec']
+    att=[r['external_id'] for r in refs if r.get('source_name')=='ATTACK']
+    cwes=[r['external_id'] for r in refs if r.get('source_name')=='cwe']
+    for a in att:
+        a=a if a.startswith('T') else 'T'+a
+        if a in TECH:
+            for w in cwes: t2cwe[a].add(w)
+            for x in cap: t2capec[a].add(x)
+for k in TECH:
+    if k in t2cwe: TECH[k]['w']=sorted(t2cwe[k], key=lambda s:int(s.split('-')[1]))
+    if k in t2capec: TECH[k]['c']=sorted(t2capec[k], key=lambda s:int(s.split('-')[1]))
+capec_ver=[o for o in c if o['type']=='identity']
+# CWE
+ns={'c':'http://cwe.mitre.org/cwe-7'}
+root=ET.parse('cwec.xml').getroot()
+CWE={}
+for w in root.find('c:Weaknesses',ns):
+    if w.get('Status')=='Deprecated': continue
+    desc=w.find('c:Description',ns)
+    CWE['CWE-'+w.get('ID')]={'n':w.get('Name'),'a':w.get('Abstraction'),'d':short(desc.text if desc is not None else '',200)}
+TOP25=['CWE-79','CWE-787','CWE-89','CWE-352','CWE-22','CWE-125','CWE-78','CWE-416','CWE-862','CWE-434','CWE-94','CWE-20','CWE-77','CWE-287','CWE-269','CWE-502','CWE-200','CWE-863','CWE-918','CWE-119','CWE-476','CWE-798','CWE-190','CWE-400','CWE-306']
+assert all(x in CWE for x in TOP25)
+meta={'attack':{'version':'ATT&CK Enterprise v'+(sys.argv[2] if len(sys.argv)>2 else '19.2'),'modified':matrix['modified'][:10],'techniques':len(TECH),'mitigations':len(MIT),
+  'licence':'© 2015-2026 The MITRE Corporation. Reproduced and distributed with the permission of The MITRE Corporation (ATT&CK Terms of Use).'},
+  'capec':{'version':'CAPEC v3.9 (mitre/cti STIX 2.1)'},
+  'cwe':{'version':'CWE v'+root.get('Version'),'date':root.get('Date'),'entries':len(CWE),'top25':'2024 CWE Top 25',
+  'licence':'CWE is a registered trademark of The MITRE Corporation; content used under the CWE Terms of Use.'}}
+print(meta, sum(1 for k in TECH if 'w' in TECH[k]))
+out='/* Knowledge base: MITRE ATT&CK Enterprise, CAPEC links, CWE. Generated by build_kb.py. See NOTICE.md. */\nself.CRG_KB='+json.dumps({'meta':meta,'tactics':TAC,'tech':TECH,'mit':MIT,'cwe':CWE,'top25':TOP25},separators=(',',':'),ensure_ascii=False)+';\n'
+open(sys.argv[1] if len(sys.argv)>1 else 'kb.js','w').write(out); print(len(out))

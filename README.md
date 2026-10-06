@@ -14,8 +14,8 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 
 People stay accountable for validation and risk decisions.
 
-Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Version **1.2.0**
-(October 2026).
+Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.2.0**
+(October 2026); desktop application **1.5.6 Beta** — see below.
 
 ## Relationship to the base edition
 
@@ -62,6 +62,29 @@ Nothing in this repository changes a formula, so an assessment produced by the b
 re-runs here with identical totals. The `threat_context` block is optional and absent by default.
 That makes this edition a **drop-in replacement** rather than a companion: there is no reason to
 run both at once.
+
+## Desktop application — try it without installing anything else
+
+**[CyberRiskGuardian Desktop 1.5.6 Beta](desktop/)** is a standalone edition of the same method that
+runs entirely in your browser, offline, with your data staying on your computer. It needs neither this
+plugin nor an AI provider, and it shares the engine: the MediBec baseline is the same
+**84,491 / 41,104**, checked at every start.
+
+| | |
+|---|---|
+| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.5.6-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.5.6-beta.zip) — about 2.4 MB, everything included |
+| **Installation instructions** | [`desktop/app/INSTALL.md`](desktop/app/INSTALL.md) — English and French · [print version, Windows and macOS side by side](desktop/app/INSTALL-Windows-macOS-EN-FR.pdf) |
+| **What it does** | [`desktop/README.md`](desktop/README.md) · the full guide in [`desktop/app/USER-GUIDE.md`](desktop/app/USER-GUIDE.md) |
+
+Unpack the zip, double-click `start.bat` (Windows) or `start.command` (macOS), and check that the
+footer reads `engine verified · 84,491 / 41,104` before trusting any number. You need a current
+browser and Python 3 — no account, no licence key, no installer, no administrator rights. It must be
+served over `http://`, which the launchers do on `127.0.0.1` only; double-clicking `index.html` does
+not work.
+
+**This is a beta and a proof of concept, and feedback is welcome** — what the footer said at first
+start, anything that did not open, any wording that is wrong for how you actually work, anything in
+the French interface that reads badly. Open an issue, or write to marcandre@leger.ca.
 
 ## What's inside
 

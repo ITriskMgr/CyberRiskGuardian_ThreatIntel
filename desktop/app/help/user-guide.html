@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User guide — CyberRiskGuardian</title>
+<link rel="icon" href="../icons/icon-64.png">
+<link rel="stylesheet" href="page.css">
+<!-- User guide (1.5.6) — the shipped USER-GUIDE.md, rendered in a window of its own. The guide stays
+     one file: this page reads it rather than holding a second copy that would go stale. Works offline
+     (the service worker precaches both this page and the guide).
+     © 2026 Marc-André Léger. CC BY-NC 4.0 -->
+<style>
+  .layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; }
+  .layout nav.toc2 { position: sticky; top: 56px; max-height: calc(100vh - 80px); overflow: auto;
+    font-size: 12.5px; border-right: 1px solid var(--line); padding-right: 12px; }
+  .layout nav.toc2 a { display: block; padding: 2px 0; color: var(--ink); text-decoration: none; }
+  .layout nav.toc2 a:hover { color: var(--accent); text-decoration: underline; }
+  .layout nav.toc2 a.sub { padding-left: 10px; color: var(--muted); }
+  .doc h1:first-child { margin-top: 0; }
+  .doc pre { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow: auto; }
+  .doc blockquote { margin: 10px 0; padding: 6px 12px; border-left: 3px solid var(--line); color: var(--muted); }
+  .doc img { max-width: 100%; }
+  mark { background: #ffe9a8; color: #16202c; }
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } .layout nav.toc2 { position: static; border-right: 0; max-height: none; } }
+  @media print { .layout { display: block; } .layout nav.toc2 { display: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <b>User guide</b>
+  <span class="pill warn" id="ver">beta</span>
+  <input type="search" id="q" placeholder="Find in the guide" style="font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)">
+  <span class="small muted" id="hits"></span>
+  <span class="sp"></span>
+  <button class="btn" id="print">Print</button>
+  <button class="btn" id="close">Close</button>
+</header>
+<div class="wrap">
+  <div class="layout">
+    <nav class="toc2" id="toc" aria-label="Contents"></nav>
+    <main class="doc" id="doc" data-noi18n><p class="lede">Loading the guide…</p></main>
+  </div>
+</div>
+
+<script type="module">
+import { render } from './md.js';
+import { VERSION } from '../js/version.js';
+import * as i18n from '../js/i18n.js';
+
+const $ = id => document.getElementById(id);
+/* The chrome of this window follows the interface language; the guide itself does not. The guide is
+   written in English and is 120 000 characters long: marking it data-noi18n keeps the translator out
+   of it, which is both correct and the difference between instant and visibly slow. */
+i18n.init().then(() => { document.title = i18n.tr('User guide') + ' — CyberRiskGuardian'; i18n.translateTree(document.body); })
+  .catch(err => console.error('i18n', err));
+$('ver').textContent = 'Beta ' + VERSION;
+$('print').addEventListener('click', () => window.print());
+$('close').addEventListener('click', () => window.close());
+
+const doc = $('doc'), toc = $('toc');
+
+try {
+  const rs = await fetch('../USER-GUIDE.md', { cache: 'no-cache' });
+  if (!rs.ok) throw new Error('HTTP ' + rs.status);
+  const text = await rs.text();
+  doc.replaceChildren();
+  const { headings } = render(text, doc);
+  for (const h of headings) {
+    const a = document.createElement('a');
+    a.href = '#' + h.id; a.textContent = h.text; if (h.level >= 3) a.className = 'sub';
+    toc.append(a);
+  }
+  if (!headings.length) toc.append(Object.assign(document.createElement('p'), { className: 'small muted', textContent: 'No sections found.' }));
+} catch (err) {
+  /* Opened straight from the filesystem (file://), fetch is refused: say so and offer the file. */
+  doc.replaceChildren();
+  const p = document.createElement('p');
+  p.className = 'note';
+  const span = s => Object.assign(document.createElement('span'), { textContent: s });
+  const why = document.createElement('code');
+  why.setAttribute('data-noi18n', '');
+  why.textContent = String(err.message || err);
+  p.append(span('The guide could not be read.'), ' ', why, ' ',
+    span('This window needs the application to be served by its launcher — the same way the app itself is opened. The guide is also readable as a plain file: USER-GUIDE.md in the application folder.'));
+  doc.append(p);
+}
+
+/* Find in the guide: highlight every match and jump to the first, without rebuilding the document. */
+let marks = [];
+function clearMarks() {
+  for (const m of marks) { const t = document.createTextNode(m.textContent); m.replaceWith(t); t.parentNode.normalize(); }
+  marks = [];
+}
+function find(q) {
+  clearMarks();
+  $('hits').textContent = '';
+  if (q.length < 3) return;
+  const needle = q.toLowerCase();
+  const walker = document.createTreeWalker(doc, NodeFilter.SHOW_TEXT);
+  const targets = [];
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    if (n.nodeValue.toLowerCase().includes(needle)) targets.push(n);
+    if (targets.length > 400) break;
+  }
+  for (const n of targets) {
+    const i = n.nodeValue.toLowerCase().indexOf(needle);
+    const after = n.splitText(i);
+    const rest = after.splitText(q.length);
+    const m = document.createElement('mark');
+    m.textContent = after.nodeValue;
+    after.replaceWith(m);
+    marks.push(m);
+    void rest;
+  }
+  $('hits').textContent = marks.length ? marks.length + (marks.length === 1 ? ' match' : ' matches') : 'no match';
+  if (marks[0]) marks[0].scrollIntoView({ block: 'center' });
+}
+let t = null;
+$('q').addEventListener('input', e => { clearTimeout(t); const v = e.target.value.trim(); t = setTimeout(() => find(v), 180); });
+</script>
+</body>
+</html>
