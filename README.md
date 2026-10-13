@@ -19,7 +19,7 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 People stay accountable for validation and risk decisions.
 
 Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.4.0**
-(October 2026); desktop application **1.5.6 Beta** — see below.
+(October 2026); desktop application **1.6.1 Beta** — see below.
 
 ## Relationship to the base edition
 
@@ -70,14 +70,14 @@ run both at once.
 
 ## Desktop application — try it without installing anything else
 
-**[CyberRiskGuardian Desktop 1.5.6 Beta](desktop/)** is a standalone edition of the same method that
+**[CyberRiskGuardian Desktop 1.6.1 Beta](desktop/)** is a standalone edition of the same method that
 runs entirely in your browser, offline, with your data staying on your computer. It needs neither this
 plugin nor an AI provider, and it shares the engine: the MediBec baseline is the same
 **84,491 / 41,104**, checked at every start.
 
 | | |
 |---|---|
-| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.5.6-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.5.6-beta.zip) — about 2.4 MB, everything included |
+| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip) — about 4 MB, everything included |
 | **Installation instructions** | [`desktop/app/INSTALL.md`](desktop/app/INSTALL.md) — English and French · [print version, Windows and macOS side by side](desktop/app/INSTALL-Windows-macOS-EN-FR.pdf) |
 | **What it does** | [`desktop/README.md`](desktop/README.md) · the full guide in [`desktop/app/USER-GUIDE.md`](desktop/app/USER-GUIDE.md) |
 
@@ -87,7 +87,7 @@ browser and Python 3 — no account, no licence key, no installer, no administra
 served over `http://`, which the launchers do on `127.0.0.1` only; double-clicking `index.html` does
 not work.
 
-**This is a beta and a proof of concept, and feedback is welcome** — what the footer said at first
+**This is a beta (1.6.x), anyone interested can test it, and feedback is welcome** — what the footer said at first
 start, anything that did not open, any wording that is wrong for how you actually work, anything in
 the French interface that reads badly. Open an issue, or write to marcandre@leger.ca.
 
@@ -158,7 +158,7 @@ exceptions, deadlines, findings) and detection and response readiness (coverage 
 detection gaps, telemetry health, playbook simulations, approval gaps, regulatory triage) — and
 **never computes risk**. Every number still comes from `crg_calc.py`, so the formulas
 and the MediBec baseline (84,491 / 41,104) are unchanged. Without CRGO, nothing changes. Like the
-rest of this edition, the integration is a **proof of concept**: validate every output before
+rest of this edition, the integration is a **beta**: validate every output before
 organizational use.
 
 **Set up** (pin tag **v0.10.0**). The dss/v1 commands (`graph`, `context`, `submit`) still work with

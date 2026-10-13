@@ -1,13 +1,15 @@
 # CyberRiskGuardian Desktop — with Threat Intel features
 
-**Version 1.5.6 Beta — proof of concept.** For teaching, exploration and method validation. Validate
+**Version 1.6.1 Beta (1.6.x).** For teaching, exploration and method validation. Validate
 every result before it supports a real decision.
 
 A desktop companion to the CyberRiskGuardian method that runs entirely in your browser, offline, with
 your data staying on your computer. Configure the organization (a real company or a classroom business
 case), build and quantify scenarios, link them to MITRE ATT&CK and CVE/CWE, calibrate with a dated
 KEV/EPSS threat-context snapshot, weigh treatment options, track KRIs, position a budget, and export
-to Excel with live formulas.
+to Excel with live formulas. It also covers governance (information security management, ISP management,
+cybersecurity management), compliance management, audit management, and SIEM and SOAR with local imports,
+supported by the [CyberRiskGuardian Ontology (CRGO)](https://w3id.org/crgo/).
 
 ---
 
@@ -15,9 +17,9 @@ to Excel with live formulas.
 
 | | |
 |---|---|
-| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.5.6-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.5.6-beta.zip) — about 2.4 MB, everything included |
+| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip) — about 4 MB, everything included |
 | **Install** | [`app/INSTALL.md`](app/INSTALL.md) — one page, **in English and in French** |
-| **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 11 pages |
+| **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 12 pages |
 
 In short, on **Windows** and **macOS**:
 
@@ -42,7 +44,7 @@ are set in Settings → Links & shared folders. Section 5 of the installation in
 
 ## Feedback welcome
 
-This is a beta and a proof of concept. If you are trying it, the useful things to report are: what the
+This is a beta (1.6.x), and anyone interested is welcome to test it. If you are trying it, the useful things to report are: what the
 footer said at first start, anything that did not open or made no sense, any screen whose wording is
 wrong for how you actually work, and anything in the French interface that reads badly. Open an issue
 here, or write to **marcandre@leger.ca**.
@@ -52,7 +54,7 @@ here, or write to **marcandre@leger.ca**.
 | Path | What it is |
 |---|---|
 | `app/` | The application itself, as it ships: the verified engine, the knowledge base, the teaching case, the framework catalogues, the example threat snapshot, the launchers and the documentation. |
-| `app/USER-GUIDE.md` | The full guide — every screen, the 12 steps of an assessment, the acceptance test. Also readable inside the application: **General → User guide**. |
+| `app/USER-GUIDE.md` | The full guide — every screen, the 13 steps of an assessment, the acceptance test. Also readable inside the application: **Help → User guide**. |
 | `app/CHANGELOG.md` | What each release changed. |
 | `app/INSTALL.md` | Installation, English and French. |
 | `dist/` | The packaged zip, which is exactly the contents of `app/`. |
