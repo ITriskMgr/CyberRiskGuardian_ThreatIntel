@@ -77,7 +77,6 @@ def main():
 
     check("service worker cache", "sw.js", r'const CACHE = "crg-desktop-([\d.]+)"')
     check("helper", "serve.py", r'VERSION = "([\d.]+)"')
-    check("beta pill", "index.html", r'title="Beta ([\d.]+) ')
     check("sidebar footer", "index.html", r'v([\d.]+) Beta')
 
     # No module may hardcode a version of its own any more. Comments that record which release

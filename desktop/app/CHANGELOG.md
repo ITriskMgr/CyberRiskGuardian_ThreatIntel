@@ -1,5 +1,248 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.6.0 Beta (Beta 1.6.x) — 13 October 2026
+
+**Beta 1.6.x.** The application is presented as a beta, version 1.6.0; screens, help and guides describe it as
+it is, without the history of earlier releases (`tools/history_check.py`). `crg.js`, `cvss4.js`, `sample.js` and
+`threat.js` are unchanged; the start-up self-check still requires **84,491 / 41,104**. Workspaces are migrated
+to data version 2 on first start; nothing is recomputed.
+
+### Added
+- **A new side menu** (`js/menu.js`, `js/nav.js`): Start · Organization · Risk assessment · Threats &
+  vulnerabilities · Governance · Compliance management · Audit management · Security operations · Risk
+  Registry · Tools · Settings · Help. Collapsible sections and sub-menus for screens with tabs, a rail mode
+  (« / ») and a drawer (☰) on narrow screens; screens switched off or hidden are left out, with any section
+  left empty.
+- **Help on every screen** (`js/helpdesc.js`): a one-line description under the title and a **?** with the
+  rules of the screen and a link to its section of the user guide (`{#anchor}` headings, checked by
+  `tools/anchor_check.py`).
+- **Settings → Modules** for every feature (ISMS, ISP, cybersecurity management, shared registers, quality
+  review, compliance, audit, SIEM, SOAR, Risk Registry, feeds, ontology, AI assistant, forecasts, budget);
+  **menu access** per user and group covers the new screens; **Settings → Logs**: an access log and a data log
+  (when, who, what, where — never contents, keys or PINs), with retention, CSV export and clearing.
+- **ISP management**: policy library and families, structured editor (clauses, statements with identifier,
+  modality, controls and training), versions frozen with a SHA-256 hash at approval, approver independent of
+  the author, version comparison, applicability rules and assignments, acknowledgements of an exact version,
+  training records, coverage of the versions in force, non-compliance.
+- **Compliance management**: dashboard, sources and obligations (versions, interpretations — privileged ones
+  withheld —, authorities, exemptions), programmes and framework adoption, qualified mappings, campaigns
+  producing determinations backed by evidence (assessor ≠ owner, approver ≠ assessor, frozen on approval),
+  regulatory calendar (event deadlines only from a confirmed incident), submissions with human approval,
+  regulatory change with obligation versions, and the compliance posture in the report.
+- **Audit management**: charter and methodology versions, audit universe, risk-weighted plan frozen on
+  approval, engagements with a state machine, versioned procedure library, workpapers with independent
+  review and sign-off, reproducible sampling, observations and findings, responses and independent
+  follow-up, reports issued as hashed snapshots with addenda, quality and independence, traceability.
+- **Shared registers** of evidence, corrective actions, exceptions and qualified mappings, used by every
+  management module.
+- **Security operations — SIEM** (local files only): telemetry sources and health, detection rules with
+  Sigma import and lifecycle, detection tests, coverage validated only by an effective test, detection gaps,
+  alerts triaged by crown jewel, indicators with source confidence and TLP 2.0, imports recorded with
+  SHA-256 (`crg-siem-import/1`, Sigma, STIX 2.1, CSV; `docs/SIEM-SOAR-IMPORT-FORMAT.md`).
+- **Security operations — SOAR**: cases and incident confirmation by a named person, incidents shared with
+  cybersecurity management, versioned playbooks, approval gates and decisions, manually recorded actions
+  checked against approvals (audit signals), dry-run simulations, lessons learned (`crg-soar-import/1`).
+- **Scenarios from security operations** (`js/secops_seed.js`): Batch scenarios → *From security operations
+  (SIEM & SOAR)* proposes seeds (detection gaps, untested coverage, degraded telemetry, alert clusters,
+  confirmed incidents, cases, approval gaps, unsimulated playbooks, lessons) with their evidence and the
+  parameters they may inform — never a value; *Include security-operations evidence* in AI proposals
+  (TLP-filtered, no source confidence); the Scenario editor's read-only *Security-operations evidence* card.
+- **Settings → Simulation data**: fictional SIEM/SOAR packs for teaching, validated against the case
+  workspace, imported and removable; the bundled **MediBec** pack (three weeks of SOC activity, 40 alerts,
+  ten exercises with expected findings); generation of a new pack with AI (`js/simgen.js`,
+  `docs/SIMULATION-DATA-GUIDE.md`).
+- **CRGO v0.10.0**: the organisation graph carries the policy, compliance, audit, SIEM and SOAR records in
+  CRGO terms; Ontology · CRGO → Organisation link reads the **compliance/v1** and **secops/v1** contexts at an
+  as-of date. The helper finds `CyberRiskGuardian-Ontology*` folders newest first.
+- **Quality review**: QC-14 to QC-18 — no compliance from a mapping, acknowledgement or attestation; no
+  incident inferred from an alert; no response action presented as authorised without a valid approval;
+  TLP:RED and TLP:AMBER+STRICT kept out of reports and exports; source confidence never used as a
+  probability.
+- **Threat context**: the snapshot file (`threat-context-YYYY-MM-DD.json`) explained on the screen — *Use in
+  this workspace* stores it in the workspace (no file), *Download* saves it to the download folder.
+
+### Changed
+- **Data version 2** (`js/migrate.js`): evidence moves to the shared evidence register and policy exceptions
+  to the shared exception register, unchanged; policy statements get an identifier; empty compliance,
+  audit, SIEM and SOAR records are added. The original is kept, as before.
+- Information security management's exceptions are those of the shared exception register.
+- User guide restructured to follow the menu, with an anchor for every screen and tab; README, INSTALL and
+  NOTICE rewritten for the beta, with OCSF, STIX/TAXII, TLP 2.0 and Sigma referenced as formats only.
+
+## 1.5.8 Beta — 12 October 2026
+
+**Proof of concept.** `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the start-up
+self-check still requires **84,491 / 41,104**. Workspaces from earlier releases are migrated to data
+version 1 on first start (see below); nothing is recomputed.
+
+### Added
+- **Data migrations, so entered data survives upgrades** (`js/migrate.js`).
+  - Every workspace carries a data version (`dataVersion`), the release that last saved it
+    (`appVersion`) and a migration journal (`migrationLog`); installation records and backup files
+    carry one too.
+  - At start-up, on workspace import and on restore, each workspace is brought to this release's data
+    version on a copy, in ordered steps; the original is kept on this computer
+    (Backup & restore → *Data versions and migrations* → *Download the copy from before the migration*).
+  - A step that fails leaves the stored workspace untouched and opens it read-only, with the reason.
+    A workspace written by a newer release is never converted backwards: it opens read-only and is never
+    saved over; a newer workspace in a backup is not restored.
+  - `KNOWN_FIELDS` lists every field of a workspace; a test fails when the factory gains a field without
+    a migration step, so the next release cannot forget one.
+  - Data version 1 (this release): the fields earlier releases created lazily are present from the start;
+    imported incidents move to the incident register; policy exceptions take the CRGO exception model;
+    the new governance, audit, management and ontology-link records are added.
+- **CyberRiskGuardian Ontology 0.9.1** (`crgo_client.py`, `crgo_bridge.py`, `js/dss.js`).
+  - The helper finds versioned clones (`CyberRiskGuardian-Ontology-0.9.1`), reports the release, and
+    says when the dss/v1 contract cannot be used (CRGO older than 0.9.1).
+  - **Ontology · CRGO → Organisation link**: the organisation base (a private `https://crg.invalid/…`
+    by default; `https://w3id.org/crgo/` refused), the organisation graph built by CRGO's own bridge
+    (`crg2rdf.py`, with `engine/crg_calc.py`) plus this application's records in CRGO terms, kept in a
+    confidential folder outside any repository; the context of a scenario (`crgo_risk_context`); and
+    write-back of estimated, tolerated, mitigated and residual risk, the ratio and the budget target as
+    **proposals** (`crgo_submit_assessment`), with model version 1.5.8, the inputs and the SHA-256 of the
+    exact input. Refusals are shown as CRGO returns them and nothing is retried.
+  - Scenario editor: obligations by CRGO notation, obligations under other regimes, D3FEND
+    countermeasures, KEV/EPSS exploitation evidence shown as evidence (never a likelihood), and the
+    organisation context with the control evidence by line of defence.
+  - The snapshot (`data/crgo-snapshot.json`) is rebuilt from CRGO v0.9.1: 1,884 scenarios, the 0.9
+    detail of 1,818, the legal instruments and their 19 applicability conditions. New
+    `data/crgo-assurance.json`: SP 800-53A objectives and methods, and the two illustrative work programmes.
+- **Compliance audit and management**: *Legal applicability* (the organisation profile in CRGO terms,
+  evaluated by CRGO's evaluator through the helper or by its port in the browser: applicable, not
+  applicable, potentially applicable — qualified review —, unknown — evidence gap) and
+  *Determinations* (compliance with a provision, with evidence or an explicit gap). The compliance report
+  gains a legal-applicability table and the determinations, and cites the CRGO release.
+- **Cybersecurity management** (module): control testing by assessor line and aspect, with operating
+  effectiveness samples and conflicts between lines kept visible (CRGO CQ-GRCA-08); governing bodies,
+  Three Lines roles and delegations of authority; decision records drafted by the application and decided
+  only by a named person under a delegation valid on the decision date (CQ-06); the incident register with
+  breach-reportability assessments (Loi 25 s. 3.5, GDPR Art. 33), timelines and lessons.
+- **Audit management** (module): engagements with their procedures, results, samples and deviations; SP
+  800-53A objectives and methods for every SP 800-53 control; the illustrative AUD-PAM-001 and
+  AUD-VULN-001 programmes; findings from criterion to management response, corrective action, independent
+  follow-up, closure and reopening; SOC reports with exceptions and CUECs; the evidence register with
+  validity dates and stale-evidence flags.
+- **Information security management** (module): scope, objectives, management reviews, where the parts
+  stand, and policy exceptions — scoped, approved by a named person, compensated, expiring, never waiving a
+  law; an expired exception a scenario counts on is flagged as no longer a mitigation.
+- **Quality review**: thirteen checks run before a report or a write-back (write-backs are proposals,
+  nothing approved without a person, supported ≠ compliant, EPSS ≠ likelihood, unknown applicability,
+  conflicts, expired exceptions, laws not waived, organisation base, fictional data and priors, stale
+  evidence, the engine baseline, licensed standards).
+- Six new guidelines; the modules can be switched off in Settings → Modules.
+
+### Changed
+- *Compliance management* is now *Compliance audit and management*.
+- Imported incidents are kept in the incident register (Cybersecurity management → Incidents) and still
+  shown under Organization → Evidence.
+
+### Verification
+- Self-check **84,491 / 41,104**; the organisation graph built by CRGO's bridge reproduces it.
+- New suites: data migrations on workspaces written by 1.5.4, 1.5.5, 1.5.6 and 1.5.7 builds and a
+  1.3-era record (47) · CRGO dss/v1 acceptance against a real CRGO v0.9.1 server (24) · management modules
+  (20); every earlier suite re-run.
+
+## 1.5.7 Beta — 10 October 2026
+
+**Proof of concept.** `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the start-up
+self-check still requires **84,491 / 41,104**. Workspaces from 1.1–1.5.6 open as they are.
+
+### Added
+- **The CyberRiskGuardian Ontology (CRGO), integrated** — Threats & vulnerabilities → **Ontology · CRGO**.
+  - The application reaches the ontology through **its own MCP server** (`pipeline/mcp/crgo_server.py`,
+    the server Claude uses): the helper starts it as a child process and speaks MCP over stdio with the
+    standard library only (`crgo_client.py`). The command is taken from Settings, else from the
+    `crgo-ontology` entry of the Claude desktop configuration, else from a `CyberRiskGuardian-Ontology`
+    folder found near the application. Only the six read-only tools can be called, and only a script
+    named `crgo_server.py` can be started.
+  - Without the server, the application uses **`data/crgo-snapshot.json`**, the ontology's identification
+    export (CRGO 0.6.0, 1,881 scenarios), queried in the browser by a port of the server's sweep:
+    scoring, near-duplicate merging, per-theme representatives, commonly assessed risks and theme gaps.
+    Every answer says whether the server or the snapshot gave it. `tools/build_crgo.py` rebuilds the
+    snapshot from a CRGO checkout.
+  - **Suggest scenarios** builds the profile from the workspace (sector, asset categories from the
+    inventory, ATT&CK techniques from the register, keywords from the profile), lets you add themes, and
+    sends the ticked suggestions to Batch scenarios marked *[CRGO]*, optionally with the ontology's
+    calibration priors as starting values, each labelled *not organizational evidence*. Scenarios keep
+    their ontology identifier, themes, asset categories, controls (ISO 27002:2022, CSF 2.0, SP 800-53)
+    and Law 25 obligations.
+  - **Explore**: one scenario, controls for a technique, scenarios a control addresses. **Connection**:
+    where the server comes from, start or restart it, set the interpreter and script.
+  - Scenario editor → **Ontology · CRGO** card: the scenario's ontology links, *Find similar ontology
+    scenarios* (and *Link*), *Controls for its techniques*.
+- **Risk Registry** — a new menu section: *Browse & search*, *Contribute risks*, *My contributions*,
+  *Moderation*, *Publish & share* (moved here) and *Registry settings*.
+  - Risks are shared as **risk cards** (`crg-riskcard/1`) in packages (`crg-registry/2`) through a shared
+    folder — Drive, OneDrive or SharePoint synced on each computer — or the helper's outbox. Each
+    installation reads the folder into its own catalogue; `crg-registry/1` packages are read too.
+  - Cards are catalogued by **industry sector** (NAICS-aligned), **sub-sector**, **region** (country and
+    province or state), **size band**, **regulatory regimes**, the ontology's **themes**, **asset
+    categories**, **threat source types** and **impact dimensions**, **ATT&CK techniques**, **controls**,
+    **maturity band**, **severity band**, **evidence level** and **validity**.
+  - Sharing is for **privileged users** (an administrator, or RACI A on step 13). **Anonymization is on
+    by default**; switching it off needs a second confirmation and marks the cards. Region stays at
+    province level (or country), size as a band.
+  - **Moderation** approves or rejects cards and publishes a **curated package**; readers can restrict
+    themselves to moderated cards. **Withdraw** publishes a withdrawal that other installations apply.
+  - Cards used in a workspace land in Batch scenarios marked *[Registry]*, every value at Low confidence
+    with *re-estimate for this organization*.
+- **Security policies (ISP)** — a module (Governance).
+  - Sixteen templates, each a set of policy statements tied to ISO/IEC 27002:2022 and CSF 2.0 controls;
+    *Draft it with AI…*; *Create the whole policy set as drafts*.
+  - Life cycle **draft → in review → approved → published → retired**, with owner, approver, review
+    interval, effective and next-review dates; approval needs A on step 13 or an administrator; a
+    published policy is frozen and *Start a new version* archives it; full history.
+  - **Non-compliance**: non-compliance, violations and exceptions (expiry date and risk acceptor
+    required), severity, owner, corrective action, due date, overdue and expired flags, *Make it a risk*.
+  - *Reviews & approvals*; register CSV; published policies as Markdown.
+- **Compliance** is now a module with four tabs: *Frameworks & checklists* (as before), **Requirements**
+  (your own, from a list, from the ontology's Law 25 and R-22.1 obligations, from published policy
+  statements), **AI-assisted assessment** (rules offline from the SoA, safeguards, measures and
+  policies, or AI that must answer *unknown* without evidence; side-by-side review; *how assessed*
+  recorded) and **Reporting** (one view across frameworks, checklists, requirements and policies,
+  snapshots over time, full report as Markdown or a printable page).
+- **Settings → Modules**: switch Security policies and Compliance on or off; their data is kept.
+- **Editable AI payloads.** Every AI preview shows the instructions and the request in two editable
+  boxes; what is in them when you press Send is what is sent; *Restore the prepared payload*, *Apply the
+  anonymizer*; the AI log records edits.
+- **Creativity of AI answers** — Strict, Balanced, Exploratory, Creative — chosen in the preview or as
+  the workspace default in Settings → AI — local & remote. Written into the payload; changes
+  completeness, never provenance (proposals beyond the documents are ASSUMPTION, *Proposed —*). A
+  matching temperature goes to local models only.
+- **Import from documents, at any time** — a tab of its own in Organization and **Process step 4**
+  (*Import other information from the documents*). Add documents, extract from the new ones only (the
+  default), the profile, the crown jewels and the fourteen other targets in one run; each document
+  records what was extracted from it; the import plan is the step's definition of done.
+
+### Changed
+- **Process has thirteen steps.** Steps 4 to 12 became 5 to 13; RACI rights for the new step are
+  inherited from step 3 for existing users.
+- **Starting a teaching case over** also empties steps 2 (context, appetite rationale, IT budget) and 3
+  (crown jewels, information assets), so they show as *to do*; the instructor chooses the steps per case.
+- *Publish & share* moved from General to the Risk Registry menu.
+- **The user guide is rewritten as a guide to this release**, organized by menu, without release
+  history, and is also available in French (`USER-GUIDE.fr.md`), which the guide window shows when the
+  interface is in French.
+
+### Fixed
+- `tools/i18n_coverage.py` skipped any file named `ontology.js`, including a screen; it now skips only
+  the knowledge-base module.
+- **Every reset removed a workspace's AI settings and its imported incidents**, because neither field
+  belonged to a reset group: a workspace marked *confidential* came back as one that sends to AI, and
+  its AI log was lost. The AI settings now stay with the workspace whatever the scope; imported incidents
+  go with the documents they came from.
+- The French interface catalogue covers every 1.5.7 string (100 %).
+
+### Verification
+- `tools/cache_check.py` (new): every module and data file is in the offline cache.
+- `tools/guide_parts.mjs` (new): the guide's step table and guidelines come from the application's data.
+- Self-check **84,491 / 41,104**. `version_check`, `cache_check` (115 files), `label_check` (348 labels,
+  0 missing), French catalogue 6,524 entries covering 6,258 / 6,258 interface strings.
+- End-to-end suites: reset and teaching case (12) · payload and creativity (12) · import from documents
+  (14) · ontology (17) · Risk Registry (16) · 54-route smoke and modules (57) · ISP and compliance (16) ·
+  French interface and French guide window (32) · every workspace field in a reset group (5) · offline
+  with the service worker (7).
+
 ## 1.5.6 Beta — 6 October 2026
 
 **Proof of concept.** `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the start-up

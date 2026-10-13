@@ -29,17 +29,24 @@ import { today } from './util.js';
 /* ---------------- the fields of a workspace, in groups ---------------- */
 
 /** Never cleared by any scope: without these the record is not a workspace at all. */
-export const IDENTITY = ['schema', 'id', 'created'];
-/** What the workspace is called and what type it is. */
-export const NAMING = ['name', 'kind', 'modified'];
+export const IDENTITY = ['schema', 'id', 'created', 'dataVersion', 'appVersion', 'migrationLog'];  // 1.5.8: the data version and its journal
+/** What the workspace is called and what type it is — and, for a teaching case, which steps the
+    student redoes after starting over (1.5.7; it describes the exercise, so no scope clears it) — and the
+    workspace's AI settings (1.5.7): a reset must never turn a workspace marked confidential back into one
+    that sends to AI, nor erase the log of what was sent. */
+export const NAMING = ['name', 'kind', 'modified', 'teaching', 'ai'];
 /** The organization itself: who they are, what they are worth, what they may spend. */
 export const ORGANIZATION = ['org', 'appetite_rationale', 'crownProv', 'classroom', 'educational',
   'budget', 'budgetYears', 'budgetYear'];
-/** Context documents and what was extracted from them as evidence. */
-export const DOCUMENTS = ['docs', 'importLog'];
+/** Context documents and what was extracted from them as evidence . */
+export const DOCUMENTS = ['docs', 'importLog', 'importPlan'];
 /** The context the assessment is built on — facts about the organization, not conclusions. */
 export const CONTEXT = ['assets', 'assetLog', 'assetScoreHist', 'vulns', 'exposureText', 'discoverySeen',
-  'compliance', 'safeguards', 'maturity', 'snapshot', 'iocWatch', 'feedNotes', 'feedState', 'feedLog', 'library'];
+  'compliance', 'safeguards', 'maturity', 'snapshot', 'iocWatch', 'feedNotes', 'feedState', 'feedLog', 'library', 'ontology', 'isp',
+  // 1.5.8 — governance, risk and compliance records, audits, cybersecurity management (incidents included), ISMS, ontology link
+  'grc', 'audit', 'csm', 'isms', 'crgo',
+  // shared registers, compliance management, SIEM and SOAR
+  'shared', 'cms', 'siem', 'soar'];
 /** The assessment itself and everything derived from it. */
 export const ASSESSMENT = ['excluded', 'decisions', 'measures', 'risks', 'recommendations', 'revisionLog',
   'linkLog', 'linkDraft', 'batchDraft', 'batchSeed', 'batchSpread', 'initPlan', 'published', 'kriHistory'];
@@ -309,8 +316,12 @@ export async function restoreTeaching(wsId, { keepName = true } = {}) {
 
   fresh.id = id; fresh.created = created; fresh.kind = kind;
   if (keepName) fresh.name = name;
+  if (live.teaching) fresh.teaching = structuredClone(live.teaching);
+  const redo = redoSteps(live);
+  migrate(fresh);
+  const clearedSteps = clearSteps(fresh, redo);
   fresh.modified = new Date().toISOString();
-  (fresh.resetLog ||= []).unshift({ date: today(), scope: 'teaching', label: 'Back to the starting point', source: sp.source });
+  (fresh.resetLog ||= []).unshift({ date: today(), scope: 'teaching', label: 'Back to the starting point', source: sp.source, ...(redo.length ? { redo } : {}) });
   migrate(fresh);
 
   await store.put('ws', id, fresh);
@@ -318,7 +329,55 @@ export async function restoreTeaching(wsId, { keepName = true } = {}) {
   /* select() saves the workspace in memory before loading the one asked for, so the stale object has
      to go first: otherwise it is written straight back over the record just restored. */
   if (S.ws?.id === id) { S.ws = null; S.snap = null; await select(id); } else emit('workspace');
-  return { source: sp.source, captured: sp.captured || null, name: fresh.name };
+  return { source: sp.source, captured: sp.captured || null, name: fresh.name, redo, cleared: clearedSteps };
+}
+
+/* ---------------- teaching cases: the steps the student does himself (1.5.7) ----------------
+
+   Up to 1.5.6 "start over" put a teaching case back exactly as it was handed out. The bundled MediBec
+   case and most classroom cases are handed out with the organization profile, the appetite and the
+   crown jewels already filled, so after starting over the Process screen still showed steps 2 and 3
+   as done — the student had nothing left to do there, which is not what an exercise is.
+
+   Starting over now also clears the work of the steps the student is meant to perform. By default
+   those are step 2 (context and risk appetite) and step 3 (crown jewels and information assets); an
+   instructor can change the list per case. The organization's name, its documents and everything
+   else in the starting point stay, so the student can extract the profile again from the documents. */
+
+/** The steps a teaching reset can hand back to the student, with what each one clears. */
+export const REDO_STEPS = [
+  { id: 'context', n: 2, label: 'Describe the context and risk appetite',
+    clears: 'the twelve context fields of the profile, the appetite rationale and the IT budget' },
+  { id: 'assets', n: 3, label: 'Identify crown jewels and information assets',
+    clears: 'the crown jewels and the information-asset inventory' },
+];
+export const DEFAULT_REDO = REDO_STEPS.map(s => s.id);
+/** The context fields step 2 counts (process.js reads the same twelve). */
+export const CONTEXT_FIELDS = ['context', 'mission', 'services', 'processes', 'systems', 'cloud', 'suppliers',
+  'sensitive', 'availability', 'maturity', 'incidents', 'regulations'];
+
+/** Which steps this teaching case hands back to the student. */
+export const redoSteps = (ws = S.ws) => Array.isArray(ws?.teaching?.redo) ? ws.teaching.redo.filter(id => REDO_STEPS.some(s => s.id === id)) : DEFAULT_REDO.slice();
+
+/** Clear, in place, the work of the given steps. Returns the labels of what was cleared. */
+export function clearSteps(ws, ids = DEFAULT_REDO) {
+  const out = [];
+  if (ids.includes('context')) {
+    const blank = blankOrg();
+    for (const k of CONTEXT_FIELDS) ws.org[k] = structuredClone(blank[k]);
+    ws.org.controls = ''; ws.org.notes = '';
+    ws.appetite_rationale = '';
+    ws.budget = { ...(ws.budget || {}), it_budget: 0 };
+    if (ws.assessment && ws.assessment.CASE_APPETITE != null) ws.assessment.APPETITE = 0.30;
+    out.push(REDO_STEPS[0].clears);
+  }
+  if (ids.includes('assets')) {
+    if (ws.assessment) ws.assessment.CROWN = [];
+    ws.crownProv = undefined; delete ws.crownProv;
+    ws.assets = []; ws.assetLog = []; ws.assetScoreHist = undefined; delete ws.assetScoreHist;
+    out.push(REDO_STEPS[1].clears);
+  }
+  return out;
 }
 
 /** One teaching workspace being created or imported: record where it started, once.

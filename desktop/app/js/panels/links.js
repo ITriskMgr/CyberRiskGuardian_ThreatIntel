@@ -1,4 +1,4 @@
-/* Suggested vulnerability links (1.5.3, proof of concept) — a sub-tab of Vulnerabilities, also opened
+/* Suggested vulnerability links (1.5.3) — a sub-tab of Vulnerabilities, also opened
    from the scenario editor for one scenario. Stage 1 (rules, local) and stage 2 (AI, routed by the
    policy in Settings → AI — local & remote) both land in one review list; nothing is linked until the
    analyst accepts it. © 2026 Marc-André Léger. CC BY-NC 4.0 */

@@ -18,112 +18,26 @@
   <div class="brand">
     <img src="icons/icon-64.png" alt="" width="30" height="30">
     <b>CyberRiskGuardian<span>with Threat Live-feed</span></b>
+    <button type="button" class="btn ghost sm" id="nav-rail" aria-pressed="false" title="Collapse the menu">«</button>
   </div>
-
-  <div class="navsec" data-sec="start">
-    <button type="button" class="navgroup" id="navbtn-start" aria-expanded="true" aria-controls="navitems-start">
-      <svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="navgroup-label">Start</span><span class="badge seccount" aria-hidden="true"></span>
-    </button>
-    <div class="navitems" id="navitems-start" role="group" aria-labelledby="navbtn-start">
-      <a class="tab" href="#/process" data-panel="process">Process <span class="badge" id="nb-proc"></span></a>
-    </div>
-  </div>
-
-  <div class="navsec" data-sec="general">
-    <button type="button" class="navgroup" id="navbtn-general" aria-expanded="true" aria-controls="navitems-general">
-      <svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="navgroup-label">General</span><span class="badge seccount" aria-hidden="true"></span>
-    </button>
-    <div class="navitems" id="navitems-general" role="group" aria-labelledby="navbtn-general">
-      <a class="tab" href="#/org" data-panel="org">Organization</a>
-      <a class="tab" href="#/assets" data-panel="assets">Information assets <span class="badge" id="nb-assets"></span></a>
-      <a class="tab" href="#/maturity" data-panel="maturity">Maturity &amp; resilience</a>
-      <a class="tab" href="#/share" data-panel="share">Publish &amp; share</a>
-      <a class="tab" href="#/reset" data-panel="reset">Reset data</a>
-      <a class="tab navout" href="help/step-by-step.html" target="crg-steps" rel="noopener">Step by step <span class="ext" aria-hidden="true">↗</span></a>
-      <a class="tab navout" href="help/user-guide.html" target="crg-guide" rel="noopener">User guide <span class="ext" aria-hidden="true">↗</span></a>
-    </div>
-  </div>
-
-  <div class="navsec" data-sec="assessment">
-    <button type="button" class="navgroup" id="navbtn-assessment" aria-expanded="true" aria-controls="navitems-assessment">
-      <svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="navgroup-label">Assessment</span><span class="badge seccount" aria-hidden="true"></span>
-    </button>
-    <div class="navitems" id="navitems-assessment" role="group" aria-labelledby="navbtn-assessment">
-      <a class="tab" href="#/dashboard" data-panel="dashboard">KRI dashboard</a>
-      <a class="tab" href="#/safeguards" data-panel="safeguards">Existing safeguards <span class="badge" id="nb-sg"></span></a>
-      <a class="tab" href="#/register" data-panel="register">Scenario register <span class="badge" id="nb-scen"></span></a>
-      <a class="tab" href="#/scenario" data-panel="scenario">Scenario editor</a>
-      <a class="tab" href="#/batch" data-panel="batch">Batch scenarios</a>
-      <a class="tab" href="#/calc" data-panel="calc">Risk calculator</a>
-      <a class="tab" href="#/riskreg" data-panel="riskreg">Risk register <span class="badge" id="nb-risks"></span></a>
-      <a class="tab" href="#/mitigation" data-panel="mitigation">Risk mitigation <span class="badge" id="nb-meas"></span></a>
-      <a class="tab" href="#/recs" data-panel="recs">Recommendations</a>
-    </div>
-  </div>
-
-  <div class="navsec" data-sec="threats-and-vulnerabilities">
-    <button type="button" class="navgroup" id="navbtn-threats-and-vulnerabilities" aria-expanded="true" aria-controls="navitems-threats-and-vulnerabilities">
-      <svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="navgroup-label">Threats &amp; vulnerabilities</span><span class="badge seccount" aria-hidden="true"></span>
-    </button>
-    <div class="navitems" id="navitems-threats-and-vulnerabilities" role="group" aria-labelledby="navbtn-threats-and-vulnerabilities">
-      <a class="tab" href="#/threats" data-panel="threats">Threats · ATT&amp;CK <span class="badge" id="nb-tech"></span></a>
-      <a class="tab" href="#/vulns" data-panel="vulns">Vulnerabilities · CVE/CWE <span class="badge" id="nb-vuln"></span></a>
-      <a class="tab" href="#/feeds" data-panel="feeds">Threat feeds &amp; social</a>
-      <a class="tab" href="#/threat" data-panel="threat">Threat context <span class="badge" id="nb-snap"></span></a>
-    </div>
-  </div>
-
-  <div class="navsec" data-sec="governance">
-    <button type="button" class="navgroup" id="navbtn-governance" aria-expanded="true" aria-controls="navitems-governance">
-      <svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="navgroup-label">Governance</span><span class="badge seccount" aria-hidden="true"></span>
-    </button>
-    <div class="navitems" id="navitems-governance" role="group" aria-labelledby="navbtn-governance">
-      <a class="tab" href="#/frameworks" data-panel="frameworks">Frameworks &amp; standards</a>
-      <a class="tab" href="#/compliance" data-panel="compliance">Compliance</a>
-    </div>
-  </div>
-
-  <div class="navsec" data-sec="tools">
-    <button type="button" class="navgroup" id="navbtn-tools" aria-expanded="true" aria-controls="navitems-tools">
-      <svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="navgroup-label">Tools</span><span class="badge seccount" aria-hidden="true"></span>
-    </button>
-    <div class="navitems" id="navitems-tools" role="group" aria-labelledby="navbtn-tools">
-      <a class="tab" href="#/cvss" data-panel="cvss">CVSS v4.0</a>
-      <a class="tab" href="#/budget" data-panel="budget">Budget</a>
-      <a class="tab" href="#/export" data-panel="export">Export · Excel</a>
-      <a class="tab" href="#/ai" data-panel="ai">AI assistant</a>
-      <a class="tab" href="#/forecast" data-panel="forecast">Forecasts</a>
-      <a class="tab" href="#/backup" data-panel="backup">Backup &amp; restore</a>
-      <a class="tab" href="#/settings" data-panel="settings">Settings</a>
-    </div>
-  </div>
-
-  <div class="navsec" data-sec="help">
-    <button type="button" class="navgroup" id="navbtn-help" aria-expanded="true" aria-controls="navitems-help">
-      <svg class="chev" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="navgroup-label">Help</span><span class="badge seccount" aria-hidden="true"></span>
-    </button>
-    <div class="navitems" id="navitems-help" role="group" aria-labelledby="navbtn-help">
-      <a class="tab" href="#/about" data-panel="about">About</a>
-    </div>
-  </div>
+  <div id="navtree"></div>
 
   <div class="spacer"></div>
   <div class="foot">
     <div id="engine-state">engine loading…</div>
-    <div style="margin-top:6px">v1.5.6 Beta · proof of concept<br>CC BY-NC 4.0 · Marc-André Léger</div>
+    <div style="margin-top:6px">v1.6.0 Beta (1.6.x)<br>CC BY-NC 4.0 · Marc-André Léger</div>
   </div>
 </nav>
 
 <div class="mainwrap">
   <header class="topbar">
+    <button type="button" class="btn ghost sm" id="nav-toggle" aria-expanded="false" aria-controls="navtree" title="Menu">☰</button>
     <div class="wsbox">
       <label for="ws-select" class="sr">Workspace</label>
       <select id="ws-select" aria-label="Workspace"></select>
       <span id="ws-kind" class="pill"></span>
     </div>
     <div class="topright">
-      <span id="save-state" class="muted"></span>
-      <span id="beta-pill" class="pill warn" title="Beta 1.5.6 — proof of concept: validate every result before it supports a real decision">Beta · proof of concept</span>
       <span id="lang-box"></span>
       <span id="user-box"></span>
       <button class="btn ghost sm" id="help-toggle" title="Help chatbot">Help</button>
@@ -155,6 +69,16 @@
     <section id="panel-frameworks" hidden></section>
     <section id="panel-compliance" hidden></section>
     <section id="panel-share" hidden></section>
+    <section id="panel-ontology" hidden></section>
+    <section id="panel-registry" hidden></section>
+    <section id="panel-isp" hidden></section>
+    <section id="panel-isms" hidden></section>
+    <section id="panel-csm" hidden></section>
+    <section id="panel-audit" hidden></section>
+    <section id="panel-qc" hidden></section>
+    <section id="panel-shared" hidden></section>
+    <section id="panel-siem" hidden></section>
+    <section id="panel-soar" hidden></section>
     <section id="panel-cvss" hidden></section>
     <section id="panel-budget" hidden></section>
     <section id="panel-export" hidden></section>

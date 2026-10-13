@@ -2,3 +2,8 @@ cvss>=3.0
 openpyxl>=3.1
 mcp>=1.0
 certifi
+# optional, for the CyberRiskGuardian Ontology (CRGO v0.10.0; dss/v1 from v0.9.1) and crgo_contract.py:
+# mcp>=1.2
+# pyoxigraph
+# rdflib
+# jsonschema

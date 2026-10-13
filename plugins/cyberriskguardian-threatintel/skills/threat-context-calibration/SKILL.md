@@ -24,6 +24,12 @@ operative summary.
    to an external endpoint.
 6. **Never touch `δe`, `δm`, `θ`, `μ(E)`.** No feed knows them.
 7. The snapshot **proposes**; a human **accepts**. No automatic re-quantification.
+8. **EPSS is not a scenario likelihood.** An EPSS score is a dated observation about a CVE in the
+   wild. Through the ladder, and only behind the exposure gate, it can place `Pb(ψ,A)` in a band;
+   the score itself is never `Pb(A)` or `Pb(ψ,A)`. A KEV listing says nothing about this
+   organization's systems. CRGO 0.9.x records EPSS the same way, as dated observations
+   (`../cyber-risk-assessment/references/crgo-integration.md`). In the repository,
+   `.claude/rules/evidence-discipline.md` states the same rule.
 
 ## Workflow
 

@@ -7,6 +7,9 @@ import { el, card, kpi, pill, banner, toast, table, download, field, input, n0, 
 import { S, loadAll, emit } from '../state.js';
 import * as B from '../backup.js';
 import * as K from '../catalog.js';
+import * as MIG from '../migrate.js';
+import * as store from '../store.js';
+import { tr } from '../i18n.js';
 
 let inv = null, loaded = null, planned = null, checked = null, chosen = null;
 const opts = { documents: true, snapshots: false, settings: true, frameworks: true };
@@ -18,6 +21,30 @@ export async function render(sec, arg) {
   inv = await B.inventory();
   save(sec);
   restoreUI(sec);
+  await migrations(sec);
+}
+
+/* ---------------- data versions and migrations (1.5.8) ---------------- */
+async function migrations(sec) {
+  sec.append(el('h2', null, 'Data versions and migrations'));
+  sec.append(el('p', 'note', 'Each release that changes how data is stored adds one migration step. At start-up, on import and on restore, every workspace is brought to this release\'s data version on a copy; the original is kept on this computer, the step is journalled, and a workspace written by a newer release opens read-only instead of being converted backwards. Numbers are never recomputed by a migration.'));
+  const ws = S.ws;
+  sec.append(el('div', 'grid g4',
+    kpi('This release reads', tr('data version {0}').replace('{0}', MIG.DATA_VERSION), tr('application {0}').replace('{0}', (await import('../version.js')).VERSION)),
+    kpi('This workspace', tr('data version {0}').replace('{0}', MIG.versionOf(ws)), ws.appVersion ? tr('last saved by {0}').replace('{0}', ws.appVersion) : tr('saved by an earlier version')),
+    kpi('Migrated at start-up', n0((S.migrations || []).filter(m => m.status === 'migrated').length), tr('{0} read-only').replace('{0}', n0(S.readOnly.size)), S.readOnly.size ? 'warn' : 'good'),
+    kpi('Installation records', tr('data version {0}').replace('{0}', S.metaMigration?.to ?? '—'), S.metaMigration?.newer ? 'written by a newer release' : '')));
+  for (const m of (S.migrations || []).filter(m => m.status !== 'migrated'))
+    sec.append(banner(m.status === 'newer' ? 'warn' : 'bad', `${m.name}: ` + (m.status === 'newer' ? tr('written by a newer release — open read-only') : tr('the migration failed — open read-only, nothing was changed')), m.error || ''));
+  const log = ws.migrationLog || [];
+  sec.append(card(el('h3', { style: { marginTop: 0 } }, 'Migration journal of this workspace'),
+    log.length ? table([{ key: 'date', label: 'Date' }, { key: 'from', label: 'From' }, { key: 'to', label: 'To' }, { key: 'by', label: 'Release' },
+      { key: 'steps', label: 'What changed', render: r => el('ul', 'small', ...(r.steps || []).flatMap(st => (st.notes || []).map(n => el('li', null, n)))) }], log, { class: 'compact' })
+      : el('p', 'small muted', 'No migration: this workspace was created by this release.')));
+  const pre = await store.get('blob', 'premig:' + ws.id).catch(() => null);
+  if (pre) sec.append(card(el('p', null, el('b', null, 'The copy from before the migration'), ' — ', tr('kept on this computer since {0}, written by {1}.').replace('{0}', String(pre.saved).slice(0, 10)).replace('{1}', pre.app)),
+    el('p', 'small muted', 'Download it to open it with the version that wrote it, or to compare. It is not included in backups.'),
+    el('button', { class: 'btn ghost', onclick: () => download((ws.name || 'workspace').replace(/[^\w.-]+/g, '_') + `.before-migration.crg-workspace.json`, JSON.stringify(pre.ws, null, 1), 'application/json') }, 'Download the copy from before the migration')));
 }
 
 /* ---------------- make a backup ---------------- */

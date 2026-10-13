@@ -1,12 +1,12 @@
 /* CyberRiskGuardian Desktop — offline cache. Bump CACHE when any file changes.
    Network-first since 1.1.1: when the app is being served, the served files always win, so a new
    version shows at once; the cache is used only when no server is running (installed app offline). */
-const CACHE = "crg-desktop-1.5.6";
+const CACHE = "crg-desktop-1.6.0";
 const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.js", "sample.js", "medibec.js", "kb.js",
   "js/app.js", "js/version.js", "js/nav.js", "js/util.js", "js/store.js", "js/state.js", "js/ontology.js", "js/picker.js", "js/extract.js", "js/snapgen.js",
   "js/charts.js", "js/kri.js", "js/xlsx.js", "js/exportx.js",
   "js/helper.js", "js/catalog.js", "js/recommend.js", "js/backup.js", "js/forecast.js", "js/ai.js", "js/triage.js", "js/feedparse.js", "js/anon.js", "js/registry.js", "js/assets.js", "js/data/controls.js", "js/data/sources.js", "js/data/methods.js", "js/frameworks.js",
-  "js/prefs.js", "js/i18n.js", "js/i18n/fr.js", "js/users.js", "js/process.js", "js/aiui.js", "js/extractor.js", "js/help.js", "js/chat.js", "js/linker.js", "js/importer.js", "USER-GUIDE.md",
+  "js/prefs.js", "js/i18n.js", "js/i18n/fr.js", "js/users.js", "js/process.js", "js/aiui.js", "js/extractor.js", "js/help.js", "js/chat.js", "js/linker.js", "js/importer.js", "USER-GUIDE.md", "USER-GUIDE.fr.md",
   "js/panels/org.js", "js/panels/dashboard.js", "js/panels/register.js", "js/panels/scenario.js", "js/panels/batch.js",
   "js/panels/calc.js", "js/panels/recs.js", "js/panels/threats.js", "js/panels/vulns.js", "js/panels/threatctx.js",
   "js/panels/cvss.js", "js/panels/budget.js", "js/panels/export.js", "js/panels/online.js",
@@ -15,8 +15,13 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "examples/threat-context/threat-context-example.json",
   "js/safeguards.js", "js/maturity.js", "js/variety.js", "js/panels/safeguards.js", "js/panels/maturity.js",
   "js/guidelines.js", "js/reset.js", "js/panels/reset.js",
+  "js/crgo.js", "js/rhub.js", "js/isp.js", "js/modules.js", "js/panels/ontology.js", "js/panels/rhub.js", "js/panels/isp.js", "js/panels/isms.js", "js/panels/csm.js", "js/panels/audit.js", "js/panels/qc.js", "js/panels/ontology_link.js", "js/panels/compliance_legal.js", "js/migrate.js", "js/dss.js", "js/grcui.js", "data/crgo-assurance.json", "js/panels/compliance_plus.js", "data/crgo-snapshot.json",
   "help/page.css", "help/md.js", "help/step-by-step.html", "help/user-guide.html", "help/reset-confirm.html",
-  "manifest.webmanifest", "icons/icon-32.png", "icons/icon-64.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
+  "manifest.webmanifest", "icons/icon-32.png", "icons/icon-64.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png",
+  "js/ams.js", "js/cms.js", "js/helpdesc.js", "js/logs.js", "js/menu.js", "js/shared.js", "js/siem.js", "js/soar.js", "js/panels/audit_findings.js", "js/panels/audit_plan.js", "js/panels/audit_ui.js", "js/panels/audit_work.js", "js/panels/cms.js", "js/panels/isp_common.js", "js/panels/isp_editor.js", "js/panels/isp_people.js", "js/panels/isp_reviews.js", "js/panels/settings_logs.js", "js/panels/settings_sim.js", "js/panels/shared.js", "js/panels/siem.js", "js/panels/siem_alerts.js", "js/panels/siem_rules.js", "js/panels/soar.js", "js/panels/soar_ops.js",
+  "js/secops_seed.js", "js/simgen.js",
+  "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json"
+];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
 });

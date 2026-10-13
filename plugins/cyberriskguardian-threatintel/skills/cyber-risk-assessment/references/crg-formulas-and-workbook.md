@@ -29,6 +29,11 @@ Worked example (guide s.16, MediBec): Pb(A) 0.70, Pb(ψ,A) 0.60, CVSS-B 9.4, δe
 4. **CVSS is a mandatory multiplier.** For non-technical scenarios (insider misuse, detection gaps, supplier concentration, fraud, human error) score a representative weakness and label it *limited applicability*; low CVSS values depress estimated risk for fraud and error scenarios whose impact is carried by the damage estimates.
 5. **Two lenses may disagree.** A simpler normalized score (T × E × I × (1 − control maturity)) with escalation thresholds (e.g. 0.25 executive review, 0.40 Board) often places post-treatment risks inside authority limits that the CRG ratio flags above tolerance. Tie governance thresholds to one method and state which.
 
+## EPSS, KEV and CRGO values are not formula inputs
+- **EPSS is never `Pb(A)` or `Pb(ψ,A)`.** It is a dated probability that a CVE will see exploitation activity somewhere in the next 30 days — an observation about the threat environment, not about this organization or this scenario. Through the Threat Evidence Ladder it can, with confirmed exposure, place `Pb(ψ,A)` in a band; it never becomes the value. CRGO 0.9.x records EPSS as dated observations for the same reason.
+- A **KEV** listing confirms exploitation in the wild; it says nothing about whether this organization runs the affected product. The exposure gate applies.
+- CRGO library and case estimates (`crgo_scenario`, `crgo_risk_context.estimates`) are calibration priors: carry their assumptions, distribution and evidence quality into the rationale, label them **Analyst estimate — validation required**, and never substitute them for the organization's own parameters. CRGO computes no risk; a value written back with `crgo_contract.py submit` is a **proposed** copy of a crg_calc result, not a new calculation.
+
 ## Sensitivity convention
 Lower / central / higher cases: shift Pb(A), Pb(ψ,A), δe, δm by ∓/± 0.10, θ by ±/∓ 0.10 and both reductions by ±/∓ 0.10, clamped to [0.05, 0.99]. Flag scenarios whose classification changes between the lower and higher case; those whose classification is "above" even in the lower case need transfer or formal acceptance rather than more spending.
 

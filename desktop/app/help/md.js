@@ -76,9 +76,13 @@ export function render(text, into) {
     const h = /^(#{1,6})\s+(.*)$/.exec(l);
     if (h) {
       const level = h[1].length;
-      const node = el('h' + Math.min(level, 6), ...inline(h[2].replace(/\s+#+\s*$/, '')));
-      node.id = slug(h[2]);
-      if (level <= 3) heads.push({ id: node.id, text: h[2], level });   // 1 and 2 are sections, 3 are the screens
+      /* "### Title {#anchor}" gives the heading a stable id that the screens' "?" buttons link to,
+         the same in every language. */
+      const am = /\s*\{#([\w-]+)\}\s*$/.exec(h[2]);
+      const text = am ? h[2].slice(0, am.index) : h[2];
+      const node = el('h' + Math.min(level, 6), ...inline(text.replace(/\s+#+\s*$/, '')));
+      node.id = am ? am[1] : slug(text);
+      if (level <= 3) heads.push({ id: node.id, text, level });   // 1 and 2 are sections, 3 are the screens
       nodes.push(node);
       i++;
       continue;

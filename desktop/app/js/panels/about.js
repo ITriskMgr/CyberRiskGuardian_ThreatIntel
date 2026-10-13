@@ -1,4 +1,4 @@
-/* About (1.5.6) — three pages: the creator and the project, the licence in plain terms, and the
+/* About (1.5.6; 1.5.7; 1.5.8) — three pages: the creator and the project, the licence in plain terms, and the
    versions with the engine check.
 
    The licence page is not a copy of the legal code (LICENSE ships that in full). It answers the
@@ -10,7 +10,7 @@
 'use strict';
 import { el, card, banner, kpi, pill } from '../util.js';
 import { HS, probe } from '../helper.js';
-import { VERSION as APP_VERSION, CHANNEL } from '../version.js';
+import { VERSION as APP_VERSION, CHANNEL, SERIES } from '../version.js';
 
 export const VERSION = APP_VERSION;          // one source of truth: js/version.js
 export const REPO = 'https://github.com/ITriskMgr/CyberRiskGuardian';
@@ -29,7 +29,7 @@ export function render(sec, arg) {
   sec.replaceChildren(
     el('div', 'about-head', el('img', { src: 'icons/icon-192.png', alt: '', width: 72, height: 72 }),
       el('div', null, el('h1', null, 'CyberRiskGuardian'), el('div', 'lede', { style: { margin: 0 } }, 'with Threat Intel features — desktop edition'),
-        el('div', 'row', { style: { gap: '6px', marginTop: '6px' } }, pill('Beta ' + VERSION, 'warn'), pill('Proof of concept', 'warn'), pill('CC BY-NC 4.0', '')))));
+        el('div', 'row', { style: { gap: '6px', marginTop: '6px' } }, pill('Beta ' + VERSION, 'warn'), pill('CC BY-NC 4.0', '')))));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
   for (const [k, t] of [['about', 'About'], ['licence', 'Licence'], ['versions', 'Versions']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; render(sec); } }, t));
@@ -66,7 +66,7 @@ function licence(body) {
     el('ul', null,
       el('li', null, el('b', null, 'Attribution (BY). '), 'Credit the author, link to the licence and say whether you changed anything — in a way that does not suggest the author endorses you or your use.'),
       el('li', null, el('b', null, 'NonCommercial (NC). '), 'You may not use the work “primarily for commercial advantage or monetary compensation”. That is the licence\'s own wording: it is about the nature of the use, not the size or the goodwill of the user.')),
-    el('p', 'small muted', 'There is no additional restriction: you may not apply legal terms or technological measures that stop others doing anything the licence permits. The licence carries no warranty — the application is provided as is, and it is a proof of concept.'),
+    el('p', 'small muted', 'There is no additional restriction: you may not apply legal terms or technological measures that stop others doing anything the licence permits. The licence carries no warranty — the application is provided as is, and it is a beta version.'),
     el('ul', null,
       el('li', null, 'Licence summary: ', a(LICENCE_URL)),
       el('li', null, 'Legal code: ', a(LICENCE_CODE)),
@@ -88,7 +88,7 @@ function licence(body) {
       el('li', null, 'E-mail: ', el('a', { href: 'mailto:' + EMAIL }, EMAIL)),
       el('li', null, 'Website: ', a(SITE, 'www.leger.ca')),
       el('li', null, 'LinkedIn: ', a('https://www.linkedin.com/in/itriskmgr', 'linkedin.com/in/itriskmgr'))),
-    el('p', 'note', 'A formal price list will be published. It is not published yet: this project is still in development, and pricing a proof of concept would be premature. Until then, terms are agreed case by case, and early users are treated accordingly.')));
+    el('p', 'note', 'A formal price list will be published. It is not published yet: this project is still in development, and pricing a beta would be premature. Until then, terms are agreed case by case, and early users are treated accordingly.')));
 
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'How to credit it'),
     el('p', 'mono small', 'CyberRiskGuardian by Marc-André Léger, CC BY-NC 4.0, ' + REPO),
@@ -99,7 +99,7 @@ function licence(body) {
 /* ---------------- about ---------------- */
 
 function about(body) {
-  body.append(banner('warn', 'Proof of concept', 'This beta demonstrates the CyberRiskGuardian method and its tooling. It is not a certified product. Results are relative decision-support indicators; validate them before they support a real decision.'));
+  body.append(banner('warn', 'Beta ' + SERIES, 'This beta demonstrates the CyberRiskGuardian method and its tooling. It is not a certified product. Results are relative decision-support indicators; validate them before they support a real decision.'));
 
   body.append(el('div', 'grid g2',
     card(el('h2', { style: { marginTop: 0 } }, 'Creator'),
@@ -131,17 +131,19 @@ function versions(body) {
   const eng = document.getElementById('engine-state')?.textContent || '';
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Versions'),
     el('div', 'grid g4',
-      kpi('Application', VERSION + ' ' + CHANNEL, 'proof of concept'),
+      kpi('Application', VERSION + ' ' + CHANNEL, 'Beta ' + SERIES),
       kpi('Engine', eng.replace(/^engine /, '') || '—', 'crg.js · cvss4.js', /verified|vérifié/.test(eng) ? 'good' : 'warn'),
       kpi('Local helper', HS.helper?.helper || 'not running', HS.helper ? 'serve.py' : 'start with the launcher'),
       kpi('Knowledge base', (self.CRG_KB?.meta?.attack?.version || 'ATT&CK'), 'CAPEC · CWE')),
     el('p', 'small muted', 'The application version comes from one place in the source (js/version.js). The build fails if the helper, the offline cache and this page disagree, so what this screen says is what you are running.')));
 
-  body.append(card(el('h2', { style: { marginTop: 0 } }, 'What this release added'),
+  body.append(card(el('h2', { style: { marginTop: 0 } }, 'What the application covers'),
     el('ul', null,
-      el('li', null, el('b', null, 'General'), ' — one menu section for Organization, Information assets, Maturity & resilience, Publish & share and Reset data, plus the step-by-step guide and the user guide, each in a window of its own.'),
-      el('li', null, el('b', null, 'Reset data'), ' — a teaching case can be put back to its starting point by anyone working it; an administrator can reset a workspace at one of four depths, or delete it. Confirmation happens in its own window, with the word typed out.'),
-      el('li', null, el('b', null, 'Licence'), ' — this page’s neighbour says plainly who may use the application under CC BY-NC 4.0 and whose situation needs a commercial licence.'),
-      el('li', null, el('b', null, 'Keys'), ' — one list of every API key stored on this computer, each removable, in Settings → Feed sources & keys.')),
-    el('p', 'note', 'Beta ' + VERSION + ' — proof of concept. Earlier releases are listed in CHANGELOG.md in the application folder.')));
+      el('li', null, el('b', null, 'Risk assessment'), ' — organization context, information assets, scenarios, the verified risk calculation, mitigation, recommendations, KRIs and budget.'),
+      el('li', null, el('b', null, 'Threats and vulnerabilities'), ' — ATT&CK, CVE/CWE, threat feeds, the KEV/EPSS threat context and the CyberRiskGuardian Ontology (CRGO).'),
+      el('li', null, el('b', null, 'Governance'), ' — information security management, security policies (ISP), cybersecurity management, frameworks and standards, shared registers and quality review.'),
+      el('li', null, el('b', null, 'Compliance management'), ' — obligations and their applicability, compliance determinations backed by evidence, programmes, campaigns, the regulatory calendar and submissions.'),
+      el('li', null, el('b', null, 'Audit management'), ' — charter, audit universe, risk-based plan, engagements, workpapers, findings, recommendations and verified follow-up.'),
+      el('li', null, el('b', null, 'Security operations'), ' — SIEM (telemetry, detection rules, coverage, alerts) and SOAR (cases, playbooks, approvals, simulation), local and without live connectors.')),
+    el('p', 'note', 'Beta ' + SERIES + '. Validate every result before it supports a real decision.')));
 }

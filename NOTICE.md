@@ -17,7 +17,10 @@ Changes in this edition:
   `threat_context` MCP tool and the `threat-intel` rules;
 - CVSS narrowed to **Base score only**, with exploitation evidence routed to `Pb(ψ,A)`;
 - threat-driven revision log, watch list, and four threat-related KRIs;
-- an intel-driven scenario-generation perspective.
+- an intel-driven scenario-generation perspective;
+- from 1.3.0, an optional bridge to the CyberRiskGuardian Ontology (CRGO) through the dss/v1 data
+  contract (`crgo_contract.py`, `crgo-integration.md`), with proposed-only write-backs;
+- from 1.4.0, read-only use of CRGO 0.10.0's compliance/v1 and secops/v1 contracts.
 
 No formula was changed. The MediBec baseline remains 84,491 / 41,104.
 
@@ -62,9 +65,22 @@ LevelBlue/AlienVault OTX; commercial threat-intelligence providers — this pack
 credentials nor retrieves data from them. The analyst supplies any such access and accepts those
 terms directly.
 
+## CyberRiskGuardian Ontology (CRGO)
+Version 1.4.0 can connect to the **CyberRiskGuardian Ontology** (CRGO), © 2026 Marc-André Léger,
+licensed under CC BY-NC 4.0 (https://github.com/ITriskMgr/cyberriskguardian-ontology). The release
+used and cited is **v0.10.0** (2026-10-13; the dss/v1 commands also work with v0.9.1). CRGO
+is a separate work and is **not redistributed** in this repository: the analyst clones it
+(`CyberRiskGuardian-Ontology*/` is git-ignored). Its third-party imports and vocabularies (BFO,
+CCO, PROV-O, OWL-Time, ATT&CK, NIST, ISO/IEC 27002, legal texts and others) keep their own licences
+as stated in CRGO's `NOTICE.md`. Licensed standards (IIA, ISACA, AICPA, COSO, ISO, including ISO 37301 and its 2024 amendment) appear in CRGO
+and in this plugin only as identifiers, official headings and paraphrases; their text is not
+reproduced. Suggested citation in reports: "CyberRiskGuardian Ontology (CRGO) v0.10.0, ontology
+release 0.10.0, Marc-André Léger, CC BY-NC 4.0." The CRGO integration is a proof of concept.
+
 ## Software dependencies
 The dependencies keep their own licences:
 - `cvss`, `openpyxl`, `mcp`;
+- optionally, for CRGO: `pyoxigraph`, `rdflib`, `jsonschema`;
 - `docx` (npm);
 - LibreOffice.
 

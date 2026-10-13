@@ -32,10 +32,7 @@ function snapshotCard(sec) {
     catch (err) { status.replaceChildren(banner('bad', 'Could not read that file', String(err.message || err))); }
   });
   const clear = el('button', { class: 'btn ghost', id: 'snap-clear', onclick: async () => { await setSnapshot(null); toast('Snapshot removed from this workspace'); } }, 'Clear');
-  /* 1.5.5 — the example shipped with the application. Until now every route to a snapshot needed the
-     internet: the helper's download, a KEV file plus an EPSS file you fetched yourself, or
-     threat_snapshot.py. On a machine behind an egress allowlist there was no fourth option, so
-     Process step 4 could not be completed at all. This is that fourth option, and it is labelled
+  /* The example shipped with the application: the route to a snapshot that needs no network, labelled
      loudly enough that it cannot be mistaken for current intelligence. */
   const example = el('button', { class: 'btn ghost', id: 'snap-example', onclick: async e => {
     const b = e.target; b.disabled = true; const was = b.textContent; b.textContent = 'Loading…';
@@ -51,7 +48,8 @@ function snapshotCard(sec) {
     }
   } }, 'Load the bundled example');
   sec.append(card(el('div', 'row', el('div', { style: { flex: '1 1 320px' } }, el('label', null, el('b', null, 'Snapshot'), ' — the JSON produced by ', el('span', 'mono', 'threat_snapshot.py'), ' or by the generator below'), fileIn),
-    S.snap ? el('button', { class: 'btn ghost', onclick: () => download(S.ws.snapshot?.name || 'threat-context.json', JSON.stringify(S.snap), 'application/json') }, 'Download') : null, example, clear), status), detail);
+    S.snap ? el('button', { class: 'btn ghost', onclick: () => download(S.ws.snapshot?.name || 'threat-context.json', JSON.stringify(S.snap), 'application/json') }, 'Download') : null, example, clear), status,
+    el('p', 'small muted', { style: { margin: '8px 0 0' } }, 'A snapshot is one JSON file named ', el('span', 'mono', 'threat-context-YYYY-MM-DD.json'), '. Opening it here stores it in this workspace; Download saves it to your download folder; Clear removes it from this workspace only.')), detail);
 
   const SNAP = S.snap;
   if (!SNAP) {
@@ -59,7 +57,7 @@ function snapshotCard(sec) {
     sec.append(banner('warn', 'No network? Use the bundled example',
       el('div', null,
         el('div', null, 'Every other route to a snapshot needs the internet: the download helper, a KEV file and an EPSS file you fetch yourself, or ',
-          el('span', 'mono', 'threat_snapshot.py'), '. The example shipped with the application needs none of them, and it is enough to place CVEs on the Threat Evidence Ladder, run the exposure join and complete Process step 4.'),
+          el('span', 'mono', 'threat_snapshot.py'), '. The example shipped with the application needs none of them, and it is enough to place CVEs on the Threat Evidence Ladder, run the exposure join and complete Process step 5.'),
         el('div', { style: { marginTop: '4px' } }, el('b', null, 'It carries the CISA KEV catalogue of its build date and a pruned EPSS table'),
           ' — pruned at the ladder\u2019s own rung-1 ceiling, so every row that was dropped would have classified as rung 1 anyway. Classification is identical to the unpruned snapshot; only the exact score of an already-negligible CVE is missing.'))));
     return;
@@ -118,7 +116,8 @@ function generator(sec) {
             const name = 'threat-context-' + snap.retrieved + '.json';
             out.replaceChildren(banner('good', 'Snapshot built', `${n0(kev.count)} KEV entries (catalogue ${kev.catalog_version}), ${n0(snap.epss.count)} EPSS scores kept of ${n0(epss.count)} (score date ${epss.score_date || 'unknown'}). Review the provenance, then use it.`),
               el('div', 'btnrow', el('button', { class: 'btn', onclick: async () => { await setSnapshot(snap, name); toast('Snapshot in use'); } }, 'Use in this workspace'),
-                el('button', { class: 'btn ghost', onclick: () => download(name, JSON.stringify(snap), 'application/json') }, 'Download ' + name)));
+                el('button', { class: 'btn ghost', onclick: () => download(name, JSON.stringify(snap), 'application/json') }, 'Download ' + name)),
+              fileNote(name));
           } catch (e) { out.replaceChildren(banner('bad', 'Could not build the snapshot', String(e.message || e))); }
         } }, 'Build snapshot')), out),
       el('div', null, el('h2', null, 'B · With the Python script'),
@@ -128,6 +127,16 @@ function generator(sec) {
         el('p', 'small', 'Then load the resulting JSON with the Snapshot field above. Use ', el('span', 'mono', '--offline file.json --summary'), ' to inspect an existing snapshot with no network at all.'),
         el('p', 'note', 'Refresh at least every 90 days, and whenever a major campaign or KEV addition affects technology you operate.'))));
   sec.append(d);
+}
+
+/** Where the snapshot goes and what to do with it — said on the screen, at the moment it matters. */
+function fileNote(name) {
+  return el('div', 'opt', { style: { marginTop: '10px' } },
+    el('b', null, 'What each button does with the file'),
+    el('ul', 'small', { style: { margin: '6px 0 0' } },
+      el('li', null, el('b', null, 'Use in this workspace'), ' — stores the snapshot inside this workspace, on this computer (the browser\'s storage). No file is created. It is used at once by the exposure join, the evidence ladder and the scenarios, and it goes with the workspace in backups and exports.'),
+      el('li', null, el('b', null, 'Download ' + name), ' — saves the same snapshot as a file named ', el('span', 'mono', name), ' in your browser\'s download folder (usually Downloads). Keep it to load it into another workspace or another computer with the Snapshot field above, to share it with a colleague, or to archive the evidence that supported a decision.')),
+    el('p', 'small muted', { style: { margin: '6px 0 0' } }, 'The snapshot is valid until the expiry date it carries (90 days by default). After that, build a new one: an expired snapshot is not evidence of the current threat.'));
 }
 
 /* ---------------- exposure join + apply ---------------- */

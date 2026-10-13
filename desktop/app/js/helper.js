@@ -3,6 +3,7 @@
    scheduled task reads the same file), mirrored in the browser so the app works without the helper.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as LOG from './logs.js';
 import * as store from './store.js';
 
 const H = { 'X-CRG': '1' };
@@ -14,7 +15,12 @@ export async function api(path, opts = {}) {
   return r;
 }
 export const apiJson = async (path, opts) => (await api(path, opts)).json();
-export const post = (path, body) => apiJson(path, { method: 'POST', body: JSON.stringify(body || {}) });
+/* Requests that write on this computer are recorded in the data log (the path only — never the body). */
+const WRITES = /^\/api\/(config|keys|outbox|registry|crgo\/(graph|submit)|save|write|docs|files|briefing|sim)/;
+export const post = (path, body) => {
+  if (WRITES.test(path)) LOG.data(path.startsWith('/api/keys') ? 'key stored by the helper' : 'written by the helper', path, path.startsWith('/api/keys') ? String(body?.name || '') : '');
+  return apiJson(path, { method: 'POST', body: JSON.stringify(body || {}) });
+};
 
 export async function probe(force = false) {
   if (HS.helper !== undefined && !force) return HS.helper;

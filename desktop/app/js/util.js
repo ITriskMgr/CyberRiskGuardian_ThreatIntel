@@ -1,5 +1,6 @@
 /* util.js — DOM and formatting helpers. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as LOG from './logs.js';
 
 export const $ = id => document.getElementById(id);
 export const qs = (sel, root = document) => root.querySelector(sel);
@@ -65,6 +66,7 @@ export function card(...kids) { return el('div', 'card', ...kids); }
 
 export function download(name, data, type = 'application/octet-stream') {
   const blob = data instanceof Blob ? data : new Blob([data], { type });
+  LOG.data('file downloaded', name, `${blob.size} bytes`);
   const a = el('a', { href: URL.createObjectURL(blob), download: name });
   document.body.append(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);

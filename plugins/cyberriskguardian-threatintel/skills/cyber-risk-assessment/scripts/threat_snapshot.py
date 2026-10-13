@@ -35,6 +35,7 @@ import gzip
 import io
 import json
 import os
+import re
 import ssl
 import sys
 import urllib.error
@@ -43,7 +44,7 @@ from typing import Any
 
 SCHEMA_VERSION = "crg-threat-context/1"
 DEFAULT_EXPIRY_DAYS = 90          # decision 2, author-approved
-USER_AGENT = "CyberRiskGuardian/1.2.0 (+https://github.com/ITriskMgr/CyberRiskGuardian)"
+USER_AGENT = "CyberRiskGuardian/1.4.0 (+https://github.com/ITriskMgr/CyberRiskGuardian)"
 
 # ---------------------------------------------------------------------------
 # Source registry.  Global sources are always fetched; regional modules are opt-in
@@ -131,6 +132,7 @@ THREAT_EVIDENCE_LADDER = [
 
 EPSS_RUNG4_MIN = 0.50          # or >= 90th percentile
 EPSS_RUNG1_MAX = 0.05
+EPSS_AGE_GUARD_YEARS = 10      # a CVE older than this reaches rung 4 only through KEV
 
 
 _CERT_HINT = (
@@ -202,7 +204,8 @@ def fetch_epss(date: str | None = None, back_days: int = 5) -> dict[str, Any]:
     raise RuntimeError("EPSS could not be retrieved for any recent date")
 
 
-def build(regions: list[str], epss_date: str | None, expiry_days: int) -> dict[str, Any]:
+def build(regions: list[str], epss_date: str | None, expiry_days: int,
+          age_guard: int = EPSS_AGE_GUARD_YEARS) -> dict[str, Any]:
     today = _dt.date.today()
     print("Fetching global sources (bulk, no CVE disclosed)...", file=sys.stderr)
     kev = fetch_kev()
@@ -219,7 +222,7 @@ def build(regions: list[str], epss_date: str | None, expiry_days: int) -> dict[s
                             "note": "analyst-reviewed narrative source; not machine-ingested"})
     return {
         "schema": SCHEMA_VERSION,
-        "generator": "threat_snapshot.py (CyberRiskGuardian 1.2.0)",
+        "generator": "threat_snapshot.py (CyberRiskGuardian 1.4.0)",
         "retrieved": today.isoformat(),
         "expires": (today + _dt.timedelta(days=expiry_days)).isoformat(),
         "regions": regions,
@@ -227,7 +230,8 @@ def build(regions: list[str], epss_date: str | None, expiry_days: int) -> dict[s
         "telemetry_correlation_sources": TELEMETRY_CORRELATION_SOURCES,
         "threat_evidence_ladder": THREAT_EVIDENCE_LADDER,
         "thresholds": {"epss_rung4_min": EPSS_RUNG4_MIN, "epss_rung1_max": EPSS_RUNG1_MAX,
-                       "epss_percentile_rung4_min": 0.90},
+                       "epss_percentile_rung4_min": 0.90,
+                       "epss_age_guard_years": age_guard},
         "kev": {k: v for k, v in kev.items() if k != "cves"} | {"cves": kev["cves"]},
         "epss": {k: v for k, v in epss.items() if k != "scores"} | {"scores": epss["scores"]},
         "constraints": {
@@ -261,6 +265,11 @@ def prune_epss(snap: dict[str, Any], threshold: float) -> dict[str, Any]:
     return snap
 
 
+def _cve_year(cve: str) -> int | None:
+    m = re.match(r"CVE-(\d{4})-", cve.upper())
+    return int(m.group(1)) if m else None
+
+
 def classify(cve: str, snap: dict[str, Any], exposed: bool) -> dict[str, Any]:
     """Place one CVE on the ladder. Returns the proposed band for Pb(psi,A)."""
     kev = snap.get("kev", {}).get("cves", {}).get(cve)
@@ -275,6 +284,16 @@ def classify(cve: str, snap: dict[str, Any], exposed: bool) -> dict[str, Any]:
     elif epss_score is not None and (epss_score >= th.get("epss_rung4_min", EPSS_RUNG4_MIN)
                                      or (percentile or 0) >= th.get("epss_percentile_rung4_min", 0.90)):
         rung, why = 4, f"EPSS {epss_score:.3f} ({percentile:.2%} pct)"
+        # Age guard. EPSS stays high for very old CVEs because automated scanning keeps probing
+        # them, not because a modern organization is credibly exposed. Reaching rung 4 on that
+        # signal alone would overstate the risk, so outside KEV an old CVE is capped at rung 2.
+        guard = th.get("epss_age_guard_years", EPSS_AGE_GUARD_YEARS)
+        year = _cve_year(cve)
+        ref = int((snap.get("retrieved") or "9999")[:4])
+        if guard and year and ref - year > guard:
+            rung = 2
+            why = (f"{why} but the CVE is {ref - year} years old and not in KEV — "
+                   f"age guard applied (over {guard} years), capped at rung 2")
     elif epss_score is not None and epss_score < th.get("epss_rung1_max", EPSS_RUNG1_MAX):
         rung, why = 1, f"EPSS {epss_score:.3f}, not in KEV"
     elif epss_score is None and th.get("epss_pruned_below") is not None:
@@ -333,6 +352,9 @@ def main() -> int:
     p.add_argument("--regions", default="", help="comma list: ca,us,eu,uk,intl")
     p.add_argument("--epss-date", help="YYYY-MM-DD, for reproducing an older snapshot")
     p.add_argument("--expiry-days", type=int, default=DEFAULT_EXPIRY_DAYS)
+    p.add_argument("--age-guard", type=int, default=EPSS_AGE_GUARD_YEARS, metavar="N",
+                   help=f"outside KEV, a CVE older than N years cannot reach rung 4 on EPSS alone "
+                        f"(default {EPSS_AGE_GUARD_YEARS}; 0 disables)")
     p.add_argument("--prune-epss", type=float, metavar="T",
                    help="drop EPSS rows below T (KEV-listed CVEs always kept); works with --refresh "
                         "or with --offline plus -o to shrink an existing snapshot without re-downloading")
@@ -354,7 +376,7 @@ def main() -> int:
         unknown = set(regions) - set(REGIONAL_SOURCES)
         if unknown:
             p.error(f"unknown region(s): {', '.join(sorted(unknown))}")
-        snap = build(regions, a.epss_date, a.expiry_days)
+        snap = build(regions, a.epss_date, a.expiry_days, a.age_guard)
         if a.prune_epss is not None:
             snap = prune_epss(snap, a.prune_epss)
         out = a.out or f"threat-context-{snap['retrieved']}.json"
@@ -366,6 +388,8 @@ def main() -> int:
             snap = json.load(fh)
         if snap.get("schema") != SCHEMA_VERSION:
             print(f"warning: schema {snap.get('schema')} != {SCHEMA_VERSION}", file=sys.stderr)
+        if a.age_guard != EPSS_AGE_GUARD_YEARS or "epss_age_guard_years" not in snap.get("thresholds", {}):
+            snap.setdefault("thresholds", {})["epss_age_guard_years"] = a.age_guard
         if a.prune_epss is not None:
             if not a.out:
                 p.error("--prune-epss with --offline also needs -o to write the pruned snapshot")

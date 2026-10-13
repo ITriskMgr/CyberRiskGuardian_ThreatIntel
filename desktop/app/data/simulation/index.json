@@ -1,0 +1,13 @@
+{
+ "format": "crg-simulation-index/1",
+ "packs": [
+  {
+   "id": "medibec-ransomware-2026",
+   "path": "medibec/manifest.json",
+   "case": "medibec",
+   "title": "MediBec — phishing to ransomware on the EHR (three weeks of SOC activity)",
+   "language": "en",
+   "fictional": true
+  }
+ ]
+}

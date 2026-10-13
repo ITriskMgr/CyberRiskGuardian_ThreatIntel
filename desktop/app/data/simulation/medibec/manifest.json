@@ -1,0 +1,510 @@
+{
+ "format": "crg-simulation-pack/1",
+ "id": "medibec-ransomware-2026",
+ "version": "1.0",
+ "title": "MediBec — phishing to ransomware on the EHR (three weeks of SOC activity)",
+ "case": "medibec",
+ "fictional": true,
+ "language": "en",
+ "created": "2026-10-12",
+ "author": "CyberRiskGuardian teaching material (fictional)",
+ "license": "CC BY-NC 4.0",
+ "description": "Three weeks (21 September – 9 October 2026) of fictional SIEM and SOAR records for the MediBec teaching case: 12 telemetry sources, 13 detection rules with their tests, 40 alerts (noise, false positives and an intrusion chain from a phishing attachment to ransomware on the EHR), 15 indicators with TLP 2.0 markings, 5 playbooks, 4 cases, approvals and recorded actions with deliberate approval gaps.",
+ "asOfHint": "Use an as-of date on or after 2026-10-09. Coverage and telemetry health are computed at the as-of date.",
+ "timezone": "Times are local Eastern time, written without a zone.",
+ "scenarios": [
+  "S1",
+  "S2",
+  "S3",
+  "S4",
+  "S5",
+  "S8",
+  "S12",
+  "S23",
+  "S24",
+  "S27",
+  "S30"
+ ],
+ "crownJewels": [
+  "CJ1",
+  "CJ2",
+  "CJ3",
+  "CJ5",
+  "CJ6",
+  "CJ7"
+ ],
+ "people": [
+  "Émilie Bouchard (fictional)",
+  "Karim Haddad (fictional)",
+  "Nadia Roy (fictional)",
+  "Louis Gagnon (fictional)",
+  "Julie Tremblay (fictional)",
+  "Samuel Côté (fictional)"
+ ],
+ "learningObjectives": [
+  "Distinguish an alert, a case and an incident: no alert or indicator match is an incident until a named person confirms it on a date.",
+  "Prioritise a triage queue by crown jewel and severity rather than by arrival time.",
+  "Recognise benign activity and false positives, and the cost of a mis-triaged true positive.",
+  "Explain why detection coverage counts as validated only with an effective test of the current rule version and healthy telemetry.",
+  "Spot blind spots caused by silent, stale or degraded telemetry and record them as detection gaps.",
+  "Respect TLP 2.0 markings (AMBER+STRICT, RED) when sharing and exporting indicators and alerts.",
+  "Treat source confidence (0–100) as a statement of the producer, never as a probability for the risk model.",
+  "Audit response actions against human approvals: expired, revoked, absent, wrong-authority and not-granted approvals.",
+  "Relate operational evidence to the MediBec risk scenarios (S1, S2, S3, S4, S5) without changing any risk parameter."
+ ],
+ "storyline": [
+  {
+   "day": 1,
+   "date": "2026-09-21",
+   "title": "Normal Monday",
+   "text": "Authorised scanner, backup transfer and a clinician signing in through the Quebec City VPN egress (false positive).",
+   "alerts": [
+    "AL-MB-001",
+    "AL-MB-002",
+    "AL-MB-003"
+   ]
+  },
+  {
+   "day": 2,
+   "date": "2026-09-22",
+   "title": "Background noise",
+   "text": "A patient CD on an imaging workstation and the awareness team's campaign. Unknown to the SOC, the backup log forwarder went silent on 18 September.",
+   "alerts": [
+    "AL-MB-004",
+    "AL-MB-005"
+   ]
+  },
+  {
+   "day": 3,
+   "date": "2026-09-23",
+   "title": "Initial access",
+   "text": "An EHR-themed phishing e-mail with a .docm attachment reaches 14 staff; 13 copies are quarantined, one is opened at the Gatineau clinic. The PowerShell alert is closed as benign by the service desk; the DNS query to the C2 domain stays untriaged. CASE-MB-01 isolates and reimages the workstation and is closed — too early.",
+   "alerts": [
+    "AL-MB-006",
+    "AL-MB-007",
+    "AL-MB-008",
+    "AL-MB-009"
+   ]
+  },
+  {
+   "day": 4,
+   "date": "2026-09-24",
+   "title": "A false alarm",
+   "text": "Failed portal sign-ins after a password-reset mailing.",
+   "alerts": [
+    "AL-MB-010"
+   ]
+  },
+  {
+   "day": 5,
+   "date": "2026-09-25",
+   "title": "Persistence",
+   "text": "Beaconing to 203.0.113.45 and a new scheduled task: both left in the queue.",
+   "alerts": [
+    "AL-MB-011",
+    "AL-MB-012"
+   ]
+  },
+  {
+   "day": 6,
+   "date": "2026-09-26",
+   "title": "Month-end",
+   "text": "A records clerk's authorised report trips the bulk-query rule (false positive).",
+   "alerts": [
+    "AL-MB-013"
+   ]
+  },
+  {
+   "day": 7,
+   "date": "2026-09-27",
+   "title": "MFA fatigue",
+   "text": "At night an administrator receives 11 push prompts and approves the twelfth; sign-in and VPN session from 198.51.100.77.",
+   "alerts": [
+    "AL-MB-014",
+    "AL-MB-015",
+    "AL-MB-016",
+    "AL-MB-017"
+   ]
+  },
+  {
+   "day": 8,
+   "date": "2026-09-28",
+   "title": "Account case",
+   "text": "A service-desk report links the prompts; CASE-MB-02 opens. The approval to disable the account is revoked by the CISO at 14:00, yet the account is disabled at 15:10; the MFA reset is done without approval.",
+   "alerts": [
+    "AL-MB-018"
+   ]
+  },
+  {
+   "day": 9,
+   "date": "2026-09-29",
+   "title": "Lateral movement",
+   "text": "RDP from the Gatineau workstation to an EHR server, then directory reconnaissance. The RDP rule's last test was ineffective, but it fired this time.",
+   "alerts": [
+    "AL-MB-019",
+    "AL-MB-020"
+   ]
+  },
+  {
+   "day": 10,
+   "date": "2026-09-30",
+   "title": "Collection",
+   "text": "The ehr-sync-svc account reads 48,000 patient records; an archive is staged. The standing pre-authorisation for workstation isolation expires tonight.",
+   "alerts": [
+    "AL-MB-021",
+    "AL-MB-022",
+    "AL-MB-023"
+   ]
+  },
+  {
+   "day": 11,
+   "date": "2026-10-01",
+   "title": "Exfiltration",
+   "text": "Upload to files.example.com, and a 38 GB download from the cloud image storage (CASE-MB-04) — whose data-read logs were switched off two days earlier. A partner transfer is a false positive of the same rule.",
+   "alerts": [
+    "AL-MB-024",
+    "AL-MB-025",
+    "AL-MB-026"
+   ]
+  },
+  {
+   "day": 12,
+   "date": "2026-10-02",
+   "title": "Quiet day",
+   "text": "Internet scan noise and a roaming nurse (false positive).",
+   "alerts": [
+    "AL-MB-027",
+    "AL-MB-028"
+   ]
+  },
+  {
+   "day": 13,
+   "date": "2026-10-03",
+   "title": "Recovery inhibition",
+   "text": "Shadow copies deleted on the file server. The backup catalogue is also wiped, but the backup telemetry is silent: no alert.",
+   "alerts": [
+    "AL-MB-029"
+   ]
+  },
+  {
+   "day": 14,
+   "date": "2026-10-04",
+   "title": "Impact",
+   "text": "Encryption of the EHR document share, the scheduling server and clinic workstations; ransom notes; the EHR is down at all clinics. CASE-MB-03 opens; isolations follow — one with an expired pre-authorisation, one approved by a self-approval the import refuses, one approved by someone without authority; a reimage starts although it was rejected.",
+   "alerts": [
+    "AL-MB-030",
+    "AL-MB-031",
+    "AL-MB-032",
+    "AL-MB-033",
+    "AL-MB-034",
+    "AL-MB-035"
+   ]
+  },
+  {
+   "day": 15,
+   "date": "2026-10-05",
+   "title": "Containment",
+   "text": "Servers isolated; a blocked sign-in with the disabled account.",
+   "alerts": [
+    "AL-MB-036"
+   ]
+  },
+  {
+   "day": 16,
+   "date": "2026-10-06",
+   "title": "Noise returns",
+   "text": "The PACS migration job trips the encryption rule (false positive).",
+   "alerts": [
+    "AL-MB-037"
+   ]
+  },
+  {
+   "day": 17,
+   "date": "2026-10-07",
+   "title": "Old intelligence",
+   "text": "A match on an indicator its producer revoked.",
+   "alerts": [
+    "AL-MB-038"
+   ]
+  },
+  {
+   "day": 18,
+   "date": "2026-10-08",
+   "title": "Opportunists",
+   "text": "A patient reports a look-alike appointment e-mail.",
+   "alerts": [
+    "AL-MB-039"
+   ]
+  },
+  {
+   "day": 19,
+   "date": "2026-10-09",
+   "title": "Restore test",
+   "text": "The EHR database restores from the off-site copy. The restore itself still waits for approval.",
+   "alerts": [
+    "AL-MB-040"
+   ]
+  }
+ ],
+ "exercises": [
+  {
+   "id": "EX-01",
+   "question": "Which alerts should an analyst open first on the morning of 4 October, and why?",
+   "screen": "SIEM → Alerts & triage",
+   "route": "#/siem/alerts",
+   "expected": "Critical alerts on crown jewels come first, the latest first: AL-MB-035 (EHR down), AL-MB-033, AL-MB-032, AL-MB-031 (encryption on CJ1 and CJ3), AL-MB-029 (shadow copies on CJ6), then the earlier critical crown-jewel alerts still untriaged — AL-MB-024 (CJ7), AL-MB-021 (CJ1), AL-MB-015 (CJ5). The queue is ordered by crown jewel, then severity weighted by criticality, not by arrival time."
+  },
+  {
+   "id": "EX-02",
+   "question": "Find the true positive that was closed as benign on day 3. What should have happened?",
+   "screen": "SIEM → Alerts & triage",
+   "route": "#/siem/alerts",
+   "expected": "AL-MB-008 (WINWORD spawning PowerShell on WS-GAT-014) was marked benign by the service desk; with AL-MB-009 (DNS to the C2 domain) it should have been escalated, which would have kept CASE-MB-01 open."
+  },
+  {
+   "id": "EX-03",
+   "question": "Which detections are validated, untested, degraded or missing, and why is DR-MB-07 not validated although it was tested?",
+   "screen": "SIEM → Coverage & gaps",
+   "route": "#/siem/coverage",
+   "expected": "Validated: DR-MB-01, 04, 06, 08. Untested: DR-MB-03, DR-MB-10. Degraded: DR-MB-02 (workstation EDR degraded), DR-MB-05 (latest test ineffective), DR-MB-07 (backup telemetry silent), DR-MB-09 (in testing, cloud logs degraded), DR-MB-11 (Wi-Fi source stale). Missing: DR-MB-12 (draft), DR-MB-13 (disabled)."
+  },
+  {
+   "id": "EX-04",
+   "question": "Which telemetry sources are not healthy at the as-of date, and which scenario does each blind spot affect?",
+   "screen": "SIEM → Telemetry sources",
+   "route": "#/siem/sources",
+   "expected": "TS-MB-BKP silent (S3, S2 — backup deletion unseen), TS-MB-WIFI silent because stale (S12), TS-MB-EDRWS degraded (S2), TS-MB-CLOUD degraded (S4)."
+  },
+  {
+   "id": "EX-05",
+   "question": "Which indicators may not be shared outside the SOC, and which ones no longer support any inference?",
+   "screen": "SIEM → Indicators & TLP",
+   "route": "#/siem/intel",
+   "expected": "IND-MB-04 is TLP:AMBER+STRICT and IND-MB-10 is TLP:RED (left out of default exports). IND-MB-13 is revoked and IND-MB-15 expired on 30 September: both are stale."
+  },
+  {
+   "id": "EX-06",
+   "question": "IND-MB-10 has confidence 95. Can you use 0.95 as Pb(A) for scenario S2?",
+   "screen": "SIEM → Indicators & TLP, then Scenario register",
+   "route": "#/siem/intel",
+   "expected": "No. Source confidence is the producer's statement on a 0–100 scale, not a probability; it never feeds a CRG likelihood. The analyst may cite the evidence when reviewing S2, but the parameters are changed only by an analyst decision."
+  },
+  {
+   "id": "EX-07",
+   "question": "Is CASE-MB-03 an incident? What is needed to make it one, and what follows for Quebec Law 25?",
+   "screen": "SOAR → Cases",
+   "route": "#/soar/cases",
+   "expected": "Not yet: no incident confirmation is recorded. A named person confirms it on a date (personal health information involved), which creates the incident in the register; reportability under Law 25 is then undetermined until assessed."
+  },
+  {
+   "id": "EX-08",
+   "question": "Which recorded actions lack a valid approval, and for what reason?",
+   "screen": "SOAR → Actions",
+   "route": "#/soar/actions",
+   "expected": "EXE-MB-03 revoked (APR-MB-03 revoked at 14:00), EXE-MB-04 absent (MFA reset without approval), EXE-MB-06 expired (pre-authorisation APR-MB-02 ended 30 September), EXE-MB-07 absent (APR-MB-04 was a self-approval the import refused), EXE-MB-08 wrong-authority (service desk), EXE-MB-10 not-granted (reimage rejected)."
+  },
+  {
+   "id": "EX-09",
+   "question": "Which playbooks may be relied on in an incident, and which need work?",
+   "screen": "SOAR → Playbooks and Simulations",
+   "route": "#/soar/playbooks",
+   "expected": "PB-MB-01 v2 and PB-MB-03 v1 have a passed simulation of the version in force. PB-MB-02 and PB-MB-05 were never simulated. PB-MB-04 failed its simulation (step ST-2 has no expected evidence). PB-MB-03 v2 is a draft with a containment step that names no gate and no evidence."
+  },
+  {
+   "id": "EX-10",
+   "question": "Write two detection gaps and one corrective action that this storyline justifies, linked to MediBec scenarios.",
+   "screen": "SIEM → Coverage & gaps, Shared registers",
+   "route": "#/siem/coverage",
+   "expected": "For example: GAP-MB-01 (S3, T1490, backup telemetry silent) and GAP-MB-02 (S2, T1567, no validated exfiltration detection); corrective action: monitor the health of every log forwarder and alert when a source goes silent."
+  }
+ ],
+ "expectedImport": {
+  "siem": {
+   "sources": 12,
+   "strategies": 2,
+   "rules": 13,
+   "tests": 12,
+   "indicators": 15,
+   "alerts": 40,
+   "gaps": 3,
+   "coverage": 2,
+   "events": 6
+  },
+  "soar": {
+   "playbooks": 5,
+   "gates": 2,
+   "cases": 4,
+   "approvals": 7,
+   "executions": 11,
+   "simulations": 4,
+   "lessons": 1,
+   "artefacts": 1
+  },
+  "soarSkipped": [
+   {
+    "list": "approvals",
+    "id": "APR-MB-04",
+    "why": "No self-approval (deliberate teaching point)"
+   }
+  ]
+ },
+ "files": [
+  {
+   "path": "siem.json",
+   "format": "crg-siem-import/1",
+   "module": "siem"
+  },
+  {
+   "path": "soar.json",
+   "format": "crg-soar-import/1",
+   "module": "soar"
+  }
+ ],
+ "i18n": {
+  "fr": {
+   "title": "MediBec — de l’hameçonnage au rançongiciel sur le DSE (trois semaines d’activité du COS)",
+   "description": "Trois semaines (21 septembre – 9 octobre 2026) de données SIEM et SOAR fictives pour le cas MediBec : 12 sources de télémétrie, 13 règles de détection et leurs tests, 40 alertes (bruit, faux positifs et une chaîne d’intrusion allant d’une pièce jointe d’hameçonnage au rançongiciel sur le DSE), 15 indicateurs marqués TLP 2.0, 5 guides d’intervention, 4 dossiers, des approbations et des actions consignées comportant des lacunes d’approbation volontaires.",
+   "learningObjectives": [
+    "Distinguer une alerte, un dossier et un incident : aucune alerte ni correspondance d’indicateur n’est un incident tant qu’une personne nommée ne l’a pas confirmé à une date donnée.",
+    "Prioriser une file de triage selon les joyaux de la couronne et la gravité plutôt que selon l’heure d’arrivée.",
+    "Reconnaître l’activité bénigne et les faux positifs, et le coût d’un vrai positif mal trié.",
+    "Expliquer pourquoi une couverture de détection n’est validée que par un test efficace de la version courante de la règle et une télémétrie en bon état.",
+    "Repérer les angles morts causés par une télémétrie silencieuse, périmée ou dégradée et les consigner comme lacunes de détection.",
+    "Respecter les marquages TLP 2.0 (AMBER+STRICT, RED) lors du partage et de l’exportation des indicateurs et des alertes.",
+    "Traiter la confiance de la source (0–100) comme une déclaration du producteur, jamais comme une probabilité pour le modèle de risque.",
+    "Auditer les actions d’intervention au regard des approbations humaines : expirées, révoquées, absentes, sans autorité et non accordées.",
+    "Relier les constats opérationnels aux scénarios de risque de MediBec (S1, S2, S3, S4, S5) sans modifier aucun paramètre de risque."
+   ],
+   "storyline": [
+    {
+     "title": "Lundi ordinaire",
+     "text": "Analyseur de vulnérabilités autorisé, transfert de sauvegarde et un clinicien qui se connecte par la sortie RPV de Québec (faux positif)."
+    },
+    {
+     "title": "Bruit de fond",
+     "text": "Le CD d’un patient sur un poste d’imagerie et la campagne de sensibilisation. À l’insu du COS, le relais des journaux de sauvegarde est silencieux depuis le 18 septembre."
+    },
+    {
+     "title": "Accès initial",
+     "text": "Un courriel d’hameçonnage sur le thème du DSE avec une pièce jointe .docm atteint 14 employés ; 13 copies sont mises en quarantaine, une est ouverte à la clinique de Gatineau. L’alerte PowerShell est fermée comme bénigne par le centre de services ; la requête DNS vers le domaine de commande reste non triée. Le dossier CASE-MB-01 isole et réinstalle le poste, puis est fermé — trop tôt."
+    },
+    {
+     "title": "Fausse alerte",
+     "text": "Des échecs de connexion au portail patient après un envoi de réinitialisation de mots de passe."
+    },
+    {
+     "title": "Persistance",
+     "text": "Balise vers 203.0.113.45 et nouvelle tâche planifiée : les deux restent dans la file."
+    },
+    {
+     "title": "Fin de mois",
+     "text": "Le rapport autorisé d’une commis aux dossiers déclenche la règle d’interrogation massive (faux positif)."
+    },
+    {
+     "title": "Fatigue MFA",
+     "text": "La nuit, un administrateur reçoit 11 demandes d’approbation et approuve la douzième ; connexion et session RPV depuis 198.51.100.77."
+    },
+    {
+     "title": "Dossier de compte",
+     "text": "Un signalement au centre de services relie les demandes ; le dossier CASE-MB-02 est ouvert. L’approbation de désactiver le compte est révoquée par le RSSI à 14 h, mais le compte est désactivé à 15 h 10 ; la réinitialisation MFA est faite sans approbation."
+    },
+    {
+     "title": "Mouvement latéral",
+     "text": "RDP du poste de Gatineau vers un serveur du DSE, puis reconnaissance de l’annuaire. Le dernier test de la règle RDP était inefficace, mais elle s’est déclenchée cette fois."
+    },
+    {
+     "title": "Collecte",
+     "text": "Le compte ehr-sync-svc lit 48 000 dossiers patients ; une archive est préparée. La préautorisation permanente d’isolement des postes expire ce soir."
+    },
+    {
+     "title": "Exfiltration",
+     "text": "Téléversement vers files.example.com et téléchargement de 38 Go depuis le stockage infonuagique d’images (CASE-MB-04) — dont les journaux de lecture ont été désactivés deux jours plus tôt. Un transfert d’un partenaire est un faux positif de la même règle."
+    },
+    {
+     "title": "Journée calme",
+     "text": "Bruit de balayage Internet et une infirmière itinérante (faux positif)."
+    },
+    {
+     "title": "Entrave à la reprise",
+     "text": "Les clichés instantanés sont supprimés sur le serveur de fichiers. Le catalogue de sauvegarde est aussi effacé, mais la télémétrie de sauvegarde est silencieuse : aucune alerte."
+    },
+    {
+     "title": "Impact",
+     "text": "Chiffrement du partage documentaire du DSE, du serveur de rendez-vous et de postes de clinique ; notes de rançon ; le DSE est indisponible dans toutes les cliniques. Le dossier CASE-MB-03 est ouvert ; des isolements suivent — l’un avec une préautorisation expirée, l’un approuvé par une autoapprobation que l’importation refuse, l’un approuvé par une personne sans autorité ; une réinstallation commence alors qu’elle a été refusée."
+    },
+    {
+     "title": "Confinement",
+     "text": "Serveurs isolés ; tentative de connexion bloquée avec le compte désactivé."
+    },
+    {
+     "title": "Retour du bruit",
+     "text": "La tâche de migration de l’archive d’imagerie (PACS) déclenche la règle de chiffrement (faux positif)."
+    },
+    {
+     "title": "Vieux renseignement",
+     "text": "Une correspondance avec un indicateur révoqué par son producteur."
+    },
+    {
+     "title": "Opportunistes",
+     "text": "Un patient signale un courriel de rendez-vous provenant d’un domaine sosie."
+    },
+    {
+     "title": "Test de restauration",
+     "text": "La base du DSE est restaurée depuis la copie hors site. La restauration elle-même attend encore une approbation."
+    }
+   ],
+   "exercises": [
+    {
+     "question": "Quelles alertes un analyste doit-il ouvrir en premier le matin du 4 octobre, et pourquoi ?",
+     "screen": "SIEM → Alertes et tri",
+     "expected": "Les alertes critiques visant un joyau de la couronne passent en premier, la plus récente d’abord : AL-MB-035 (DSE indisponible), AL-MB-033, AL-MB-032, AL-MB-031 (chiffrement sur CJ1 et CJ3), AL-MB-029 (clichés instantanés sur CJ6), puis les alertes critiques antérieures sur des joyaux, toujours non triées — AL-MB-024 (CJ7), AL-MB-021 (CJ1), AL-MB-015 (CJ5). La file est classée par joyau, puis par gravité pondérée par la criticité, et non par heure d’arrivée."
+    },
+    {
+     "question": "Trouvez le vrai positif fermé comme bénin le jour 3. Qu’aurait-il fallu faire ?",
+     "screen": "SIEM → Alertes et tri",
+     "expected": "AL-MB-008 (WINWORD lance PowerShell sur WS-GAT-014) a été marquée bénigne par le centre de services ; avec AL-MB-009 (DNS vers le domaine de commande), elle aurait dû être escaladée, ce qui aurait gardé CASE-MB-01 ouvert."
+    },
+    {
+     "question": "Quelles détections sont validées, non testées, dégradées ou manquantes, et pourquoi DR-MB-07 n’est-elle pas validée bien qu’elle ait été testée ?",
+     "screen": "SIEM → Couverture et lacunes",
+     "expected": "Validées : DR-MB-01, 04, 06, 08. Non testées : DR-MB-03, DR-MB-10. Dégradées : DR-MB-02 (EDR des postes dégradé), DR-MB-05 (dernier test inefficace), DR-MB-07 (télémétrie de sauvegarde silencieuse), DR-MB-09 (en test, journaux infonuagiques dégradés), DR-MB-11 (source Wi-Fi périmée). Manquantes : DR-MB-12 (brouillon), DR-MB-13 (désactivée)."
+    },
+    {
+     "question": "Quelles sources de télémétrie ne sont pas en bon état à la date de référence, et quel scénario chaque angle mort touche-t-il ?",
+     "screen": "SIEM → Sources de télémétrie",
+     "expected": "TS-MB-BKP silencieuse (S3, S2 — suppression des sauvegardes non vue), TS-MB-WIFI silencieuse car périmée (S12), TS-MB-EDRWS dégradée (S2), TS-MB-CLOUD dégradée (S4)."
+    },
+    {
+     "question": "Quels indicateurs ne peuvent pas être partagés hors du COS, et lesquels ne soutiennent plus aucune inférence ?",
+     "screen": "SIEM → Indicateurs et TLP",
+     "expected": "IND-MB-04 est TLP:AMBER+STRICT et IND-MB-10 est TLP:RED (exclus des exportations par défaut). IND-MB-13 est révoqué et IND-MB-15 a expiré le 30 septembre : tous deux sont périmés."
+    },
+    {
+     "question": "IND-MB-10 a une confiance de 95. Pouvez-vous utiliser 0,95 comme Pb(A) pour le scénario S2 ?",
+     "screen": "SIEM → Indicateurs et TLP, puis Registre des scénarios",
+     "expected": "Non. La confiance de la source est la déclaration du producteur sur une échelle de 0 à 100, pas une probabilité ; elle n’alimente jamais une vraisemblance CRG. L’analyste peut citer la preuve en révisant S2, mais seuls ses propres choix modifient les paramètres."
+    },
+    {
+     "question": "CASE-MB-03 est-il un incident ? Que faut-il pour qu’il le devienne, et qu’en découle-t-il pour la Loi 25 ?",
+     "screen": "SOAR → Dossiers",
+     "expected": "Pas encore : aucune confirmation d’incident n’est consignée. Une personne nommée le confirme à une date (renseignements de santé en cause), ce qui crée l’incident au registre ; le caractère déclarable selon la Loi 25 est alors indéterminé jusqu’à son évaluation."
+    },
+    {
+     "question": "Quelles actions consignées n’ont pas d’approbation valide, et pour quel motif ?",
+     "screen": "SOAR → Actions",
+     "expected": "EXE-MB-03 révoquée (APR-MB-03 révoquée à 14 h), EXE-MB-04 absente (réinitialisation MFA sans approbation), EXE-MB-06 expirée (préautorisation APR-MB-02 échue le 30 septembre), EXE-MB-07 absente (APR-MB-04 était une autoapprobation refusée à l’importation), EXE-MB-08 sans autorité (centre de services), EXE-MB-10 non accordée (réinstallation refusée)."
+    },
+    {
+     "question": "Sur quels guides d’intervention peut-on compter lors d’un incident, et lesquels demandent du travail ?",
+     "screen": "SOAR → Guides d’intervention et Simulations",
+     "expected": "PB-MB-01 v2 et PB-MB-03 v1 ont une simulation réussie de la version en vigueur. PB-MB-02 et PB-MB-05 n’ont jamais été simulés. PB-MB-04 a échoué sa simulation (l’étape ST-2 n’a pas de preuve attendue). PB-MB-03 v2 est un brouillon dont une étape de confinement ne nomme ni point d’approbation ni preuve."
+    },
+    {
+     "question": "Rédigez deux lacunes de détection et une mesure corrective que ce scénario justifie, liées aux scénarios de MediBec.",
+     "screen": "SIEM → Couverture et lacunes, Registres partagés",
+     "expected": "Par exemple : GAP-MB-01 (S3, T1490, télémétrie de sauvegarde silencieuse) et GAP-MB-02 (S2, T1567, aucune détection validée de l’exfiltration) ; mesure corrective : surveiller l’état de chaque relais de journaux et alerter dès qu’une source devient silencieuse."
+    }
+   ]
+  }
+ }
+}

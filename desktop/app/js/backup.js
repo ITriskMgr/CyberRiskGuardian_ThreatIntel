@@ -22,6 +22,8 @@ import { S, loadAll } from './state.js';
 import * as FW from './frameworks.js';
 import { today } from './util.js';
 import * as RESET from './reset.js';
+import * as MIG from './migrate.js';
+import { migrate as fillShape } from './state.js';
 
 export const SCHEMA = 'crg-backup/1';
 export const APP = VERSION;
@@ -81,6 +83,7 @@ export async function build({ documents = true, snapshots = false, settings = tr
     // 1.5.6 — the starting point of a teaching case is mostly its document text, so it travels with
     // the documents. Without it, a restored classroom case would lose the state students reset to.
     if (key.startsWith('base:') && !documents) continue;
+    if (key.startsWith('premig:')) continue;        // 1.5.8 — pre-migration copies stay on this computer
     blob[key] = await store.get('blob', k);
   }
   await FW.load();
@@ -101,6 +104,7 @@ export async function build({ documents = true, snapshots = false, settings = tr
   return {
     schema: SCHEMA,
     app: APP,
+    dataVersion: MIG.DATA_VERSION,                 // 1.5.8 — the data version of what the file holds
     created: new Date().toISOString(),
     note,
     contents: {
@@ -180,7 +184,10 @@ export async function plan(obj) {
       else if (a > b) { state = 'older-here'; note = `The backup is newer (${a.slice(0, 16)} against ${b.slice(0, 16)}); restoring brings it forward.`; }
       else { state = 'newer-here'; note = `This browser holds a newer copy (${b.slice(0, 16)} against ${a.slice(0, 16)}); restoring would discard that work.`; }
     }
-    return { id: w.id, name: w.name || w.id, kind: w.kind, state, note,
+    // 1.5.8 — a workspace written by a newer release is not restored: this build cannot read it faithfully.
+    if (MIG.isNewer(w)) { state = 'newer-format'; note = `Written by a newer release (data version ${MIG.versionOf(w)}; this one reads up to ${MIG.DATA_VERSION}). Update the application to restore it.`; }
+    else if (MIG.versionOf(w) < MIG.DATA_VERSION) note += ` It will be brought from data version ${MIG.versionOf(w)} to ${MIG.DATA_VERSION} as it is restored.`;
+    return { id: w.id, name: w.name || w.id, kind: w.kind, state, note, dataVersion: MIG.versionOf(w),
              modified: w.modified, here: cur?.modified || null,
              scenarios: w.assessment?.SCEN?.length || 0,
              recommendations: (w.recommendations || []).length };
@@ -203,6 +210,15 @@ export async function restore(obj, { ids = null, mode = 'merge', frameworks = tr
   const wss = (obj.payload.workspaces || []).filter(w => !ids || ids.includes(w.id));
   const done = { workspaces: 0, blobs: 0, deleted: 0, frameworks: 0, settings: false };
 
+  // 1.5.8 — every restored workspace goes through the data migrations first; a newer one is skipped, and
+  // one that fails to migrate is skipped with its reason, never written half-converted.
+  done.migrated = 0; done.skipped = [];
+  for (let i = wss.length - 1; i >= 0; i--) {
+    const r = MIG.migrateWorkspace(wss[i], { fill: fillShape });
+    if (r.status === 'newer' || r.status === 'failed') { done.skipped.push({ id: wss[i].id, name: wss[i].name, why: r.status === 'newer' ? 'newer data version' : r.error }); wss.splice(i, 1); continue; }
+    if (r.status === 'migrated') done.migrated++;
+    wss[i] = r.ws;
+  }
   for (const w of wss) { await store.put('ws', w.id, w); done.workspaces++; }
 
   const keep = new Set(wss.map(w => w.id));

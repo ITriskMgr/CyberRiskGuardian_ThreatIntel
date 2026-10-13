@@ -82,6 +82,29 @@ estimates.
 | Otherwise, with some exploitation signal | 2 |
 | Sector campaigns documented in region, last 12 months | 3 (or 4 with confirmed technology match) |
 | Exploitation evidence, exposure **not** confirmed | no change — watch-list only |
+| Outside KEV, CVE older than 10 years, however high its EPSS | capped at rung 2 — age guard |
+
+### The age guard
+
+EPSS stays high for very old CVEs because automated scanning keeps probing them, not because a
+modern organization is credibly exposed. On a October 2026 snapshot, **36,800 CVEs outside KEV
+reached rung 4 on EPSS alone, and 51% of them were more than ten years old** — 1999-era entries
+among them, scoring above 0.95.
+
+So outside KEV, a CVE older than `epss_age_guard_years` (default **10**, counted from the
+snapshot's own retrieval year so the result is reproducible) cannot reach rung 4 on EPSS alone;
+it is capped at rung 2, *Known threat activity*, and the evidence line says so explicitly:
+
+> EPSS 0.957 (99.87% pct) but the CVE is 27 years old and not in KEV — age guard applied
+> (over 10 years), capped at rung 2
+
+**A KEV listing always overrides the guard.** Age says nothing about a vulnerability CISA has
+confirmed is being exploited: all 202 pre-2016 KEV entries in that same snapshot stayed on rung 4.
+
+Set `--age-guard N` when building a snapshot, or `0` to disable it. The exposure gate already
+absorbs most of this risk — nobody confirms operating a vulnerable 1999 stack — but a poorly
+maintained inventory can clear the gate in good faith, and then the ladder would propose
+0.70–0.80 for a twenty-seven-year-old vulnerability.
 
 ### What intelligence may never touch
 

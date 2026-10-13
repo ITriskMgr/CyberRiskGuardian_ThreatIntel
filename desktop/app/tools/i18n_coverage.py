@@ -138,7 +138,8 @@ def collect():
     found = {}
     for d in SRC:
         for f in sorted(os.listdir(d)):
-            if not f.endswith('.js') or f in SKIP_FILES or d.endswith('js') and f.startswith('i18n'):
+            # SKIP_FILES are modules of js/ itself: js/panels/ontology.js (1.5.7) is a screen, not the ATT&CK KB
+            if not f.endswith('.js') or (f in SKIP_FILES and d.endswith('js')) or d.endswith('js') and f.startswith('i18n'):
                 continue
             src = open(os.path.join(d, f), encoding='utf-8').read()
             src = re.sub(r"'\s*\+\s*'", '', src); src = re.sub(r'"\s*\+\s*"', '', src)   # 'a ' + 'b' → 'a b'

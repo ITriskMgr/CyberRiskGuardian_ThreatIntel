@@ -33,6 +33,7 @@ import os
 import re
 import socketserver
 import ssl
+import subprocess
 import sys
 import threading
 import time
@@ -43,8 +44,10 @@ import uuid
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crg_feeds  # noqa: E402  (same folder)
+import crgo_client  # noqa: E402  (1.5.7 — the ontology, reached as an MCP server)
 
-VERSION = "1.5.6"
+VERSION = "1.6.0"
+crgo_client.CLIENT_VERSION = VERSION
 ROOT = os.path.dirname(os.path.abspath(__file__))
 def _feeds_dir():
     """CRG_FEEDS_DIR, else the path written in feeds-dir.txt beside this file, else ~/Downloads/CyberRiskGuardian-feeds."""
@@ -267,7 +270,7 @@ AI_DEFAULT_POLICY = {
     "tasks": {"link_vulns": "local", "extract_profile": "workspace", "extract_crown": "workspace",
               "scenarios": "workspace", "analyst": "workspace", "critique": "workspace",
               "briefing": "workspace", "chat": "workspace",
-              "extract_sensitive": "local", "extract_more": "workspace"},
+              "extract_sensitive": "local", "extract_more": "workspace", "simulation_pack": "workspace"},
 }
 
 
@@ -434,6 +437,11 @@ def ai_complete(provider, cfg, body):
     if mock:                                            # test suite only: canned answers from a folder
         task = re.search(r"TASK:\s*([a-z_]+)", str(body.get("prompt") or ""))
         name = (task.group(1) if task else "default") + ".txt"
+        try:                                            # 1.5.7 - the suite checks what was actually sent
+            with open(os.path.join(mock, "_last.json"), "w", encoding="utf-8") as fh:
+                json.dump({k: body.get(k) for k in ("system", "prompt", "temperature", "task")}, fh)
+        except OSError:
+            pass
         try:
             with open(os.path.join(mock, name), encoding="utf-8") as fh:
                 text = fh.read()
@@ -691,6 +699,146 @@ def publish(name, content, target):
     return {"path": path, "folder": folder, "outbox": folder.endswith("registry-outbox")}
 
 
+# ---------------- 1.5.8 — CRGO dss/v1: the organisation graph of a workspace ----------------
+
+def org_dir(ws_id):
+    """Where a workspace's organisation graph lives: CRG_ORG_DIR, else links.org_graph_dir in crg-config.json,
+    else ~/CyberRiskGuardian-confidential/crgo — one sub-folder per workspace. Never inside a git repository,
+    the application folder or the ontology folder: these files describe a client and stay with its deliverables."""
+    cfg = crg_feeds.load_config(FEEDS)
+    root = os.environ.get("CRG_ORG_DIR") or (cfg.get("links") or {}).get("org_graph_dir") or os.path.join("~", "CyberRiskGuardian-confidential", "crgo")
+    root = os.path.abspath(os.path.expanduser(root))
+    wid = re.sub(r"[^A-Za-z0-9_-]", "", str(ws_id or ""))
+    if not wid:
+        raise ValueError("No workspace identifier.")
+    d = os.path.join(root, wid)
+    home = crgo_client.home_of(crgo_client.resolve(cfg, ROOT)) or ""
+    for forbidden in (ROOT, home):
+        if forbidden and (d + os.sep).startswith(os.path.abspath(forbidden) + os.sep):
+            raise ValueError("The organisation graph folder may not be inside the application or the ontology folder: %s" % d)
+    probe = d
+    while True:
+        if os.path.isdir(os.path.join(probe, ".git")):
+            raise ValueError("The organisation graph folder is inside a git repository (%s). Client data never goes into a repository: "
+                             "choose another folder in Settings → Links & shared folders." % probe)
+        parent = os.path.dirname(probe)
+        if parent == probe:
+            break
+        probe = parent
+    return d
+
+
+def crgo_spec():
+    cfg = crg_feeds.load_config(FEEDS)
+    spec = crgo_client.resolve(cfg, ROOT)
+    bad = crgo_client.check(spec)
+    if bad:
+        raise RuntimeError(bad)
+    rel = crgo_client.release(crgo_client.home_of(spec))
+    return spec, rel
+
+
+def crgo_bridge(op, req):
+    """Run crgo_bridge.py with the interpreter of the ontology server (it needs rdflib and CRGO's own code)."""
+    spec, rel = crgo_spec()
+    if not rel.get("contractUsable"):
+        return {"error": True, "code": "CRGO_TOO_OLD", "message": rel.get("contractProblem")}
+    req = dict(req, crgo=crgo_client.home_of(spec))
+    cp = subprocess.run([os.path.expanduser(spec["command"]), os.path.join(ROOT, "crgo_bridge.py"), op], input=json.dumps(req).encode("utf-8"),
+                        capture_output=True, timeout=300)
+    try:
+        out = json.loads(cp.stdout.decode("utf-8"))
+    except ValueError:
+        return {"error": True, "code": "BRIDGE_FAILED", "message": (cp.stderr.decode("utf-8", "replace")[-600:] or "No answer from the bridge.")}
+    out["release"] = rel
+    return out
+
+
+def crgo_contract(op, body):
+    """graph · applicability · context · submit. Every refusal comes back as {error, code, message} for the analyst."""
+    wid = body.get("ws")
+    d = org_dir(wid)
+    if op in ("graph", "applicability"):
+        return crgo_bridge(op, {"dir": d, "base": body.get("base"), "label": body.get("label"), "assessment": body.get("assessment"),
+                                "facts": body.get("facts") or {}, "date": body.get("date")})
+    files = [os.path.join(d, f) for f in ("org.ttl", "orgfacts.ttl") if os.path.isfile(os.path.join(d, f))]
+    if not files:
+        return {"error": True, "code": "NO_GRAPH", "message": "Build the organisation graph first (Ontology · CRGO → Organisation link)."}
+    spec, rel = crgo_spec()
+    if not rel.get("contractUsable"):
+        return {"error": True, "code": "CRGO_TOO_OLD", "message": rel.get("contractProblem")}
+    if op == "context":
+        out = crgo_client.CLIENT.call(spec, "crgo_risk_context", {"org_graph_files": files, "organization": body.get("organization"),
+                                                                   "scenario": body.get("scenario"), "as_of": body.get("as_of")}, contract=True)
+        return {"document": out, "release": rel}
+    if op == "submit":
+        doc = body.get("document") or {}
+        # the helper's own checks come first: a write-back is a proposal, never an approval
+        if doc.get("status") != "proposed":
+            return {"error": True, "code": "STATUS_NOT_PROPOSED", "message": "A write-back must have the status \"proposed\": approval, risk acceptance and funding are human decisions recorded separately."}
+        if re.fullmatch(r"\s*([Tt][Bb][Dd]|[Uu][Nn][Kk][Nn][Oo][Ww][Nn]|[Nn]/?[Aa]|[Tt][Oo][Dd][Oo]|-|\?)?\s*", str(doc.get("modelVersion") or "")):
+            return {"error": True, "code": "MODEL_VERSION_MISSING", "message": "The model version actually used is required (placeholders such as TBD are refused)."}
+        out = crgo_client.CLIENT.call(spec, "crgo_submit_assessment", {"document": doc, "org_graph_files": files}, contract=True)
+        if isinstance(out, dict) and out.get("stored"):
+            with open(os.path.join(d, "write-backs.jsonl"), "a", encoding="utf-8") as fh:
+                fh.write(json.dumps({"at": _now(), "stored": out["stored"], "document": doc}, ensure_ascii=False) + "\n")
+        return {"result": out, "release": rel}
+    if op in ("compliance", "secops"):
+        # 1.6.0 — read contracts compliance/v1 and secops/v1 (CRGO v0.10.0) over the workspace's own graph files.
+        # CRGO's answer (or refusal: UNKNOWN_ORGANISATION, REFERENCE_NAMESPACE, SCHEMA_INVALID) is returned as it came; nothing is retried.
+        if not rel.get("viewsUsable"):
+            return {"error": True, "code": "CRGO_TOO_OLD", "message": rel.get("viewsProblem") or "This view needs CRGO v0.10.0."}
+        org = body.get("organization") or graph_organization(d)
+        if not org:
+            return {"error": True, "code": "NO_GRAPH", "message": "The organisation graph does not declare its base: rebuild it (Ontology · CRGO → Organisation link)."}
+        tool = "crgo_compliance_context" if op == "compliance" else "crgo_secops_context"
+        out = crgo_client.CLIENT.call(spec, tool, {"org_graph_files": files, "organization": org, "as_of": str(body.get("as_of") or "")}, contract=True)
+        return out if isinstance(out, dict) and out.get("error") else {"document": out, "release": rel}
+    return {"error": True, "code": "UNKNOWN_OPERATION", "message": op}
+
+
+def graph_organization(d):
+    """The organisation IRI of a workspace graph: <base>org, the base being the one org.ttl declares (vann:preferredNamespaceUri)."""
+    try:
+        with open(os.path.join(d, "org.ttl"), encoding="utf-8") as fh:
+            m = re.search(r'preferredNamespaceUri\s+"([^"]+)"', fh.read())
+    except OSError:
+        return None
+    return (m.group(1) + "org") if m else None
+
+
+def registry_folder(where):
+    """The shared registry folder (a synced Drive/OneDrive folder set in Settings) or the outbox."""
+    if where == "outbox":
+        return os.path.join(FEEDS, "registry-outbox")
+    cfg = crg_feeds.load_config(FEEDS)
+    local = os.path.expanduser((cfg.get("links") or {}).get("registry_local_dir") or "")
+    if not local or not os.path.isdir(local):
+        raise ValueError("no shared registry folder is set, or it is not reachable on this computer")
+    return local
+
+
+def registry_files():
+    """Registry packages (JSON) visible to this computer, newest first (1.5.7)."""
+    out = {"shared": None, "files": []}
+    for where in ("shared", "outbox"):
+        try:
+            folder = registry_folder(where)
+        except ValueError:
+            continue
+        if where == "shared":
+            out["shared"] = folder
+        if not os.path.isdir(folder):
+            continue
+        for f in os.listdir(folder):
+            p = os.path.join(folder, f)
+            if f.endswith(".json") and not f.startswith(".") and os.path.isfile(p) and SAFE.match(f):
+                out["files"].append({"where": where, "name": f, "bytes": os.path.getsize(p),
+                                     "modified": dt.datetime.fromtimestamp(os.path.getmtime(p)).isoformat(timespec="seconds")})
+    out["files"].sort(key=lambda x: x["modified"], reverse=True)
+    return out
+
+
 def list_dir(sub):
     folder = os.path.join(FEEDS, sub)
     os.makedirs(folder, exist_ok=True)
@@ -820,6 +968,21 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self._json(200, {"state": st, "latest": crg_feeds.latest_files(FEEDS), "digest": dg})
         if path == "/api/suggested":
             return self._json(200, crg_feeds._read_json(os.path.join(FEEDS, "suggested-sources.json"), {"sources": []}))
+        if path == "/api/registry":                     # 1.5.7 — packages in the shared registry folder and the outbox
+            return self._json(200, registry_files())
+        m = re.match(r"^/api/registry/(shared|outbox)/([^/]+)$", path)
+        if m:
+            try:
+                name = urllib.parse.unquote(m.group(2))
+                if not SAFE.match(name) or not name.endswith(".json"):
+                    raise ValueError("bad file name")
+                folder = registry_folder(m.group(1))
+                with open(_safe_join(folder, name), encoding="utf-8") as fh:
+                    return self._json(200, {"name": name, "content": json.load(fh)})
+            except Exception as exc:                    # noqa: BLE001
+                return self._json(404, {"error": str(exc)})
+        if path == "/api/crgo/status":                  # 1.5.7 — where the ontology server is, and whether it runs
+            return self._json(200, crgo_client.status(crg_feeds.load_config(FEEDS), ROOT))
         if path in ("/api/discovery", "/api/outbox"):
             sub = "discovery" if path.endswith("discovery") else "registry-outbox"
             return self._json(200, {"folder": os.path.join(FEEDS, sub), "files": list_dir(sub)})
@@ -946,6 +1109,30 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(200, {"keys": crg_feeds.set_key(body.get("name"), body.get("value"), FEEDS)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(400, {"error": str(exc)})
+        m = re.match(r"^/api/crgo/(graph|applicability|context|submit|compliance|secops)$", path)
+        if m:                                           # 1.5.8 — the dss/v1 contract; 1.6.0 — compliance/v1 and secops/v1
+            try:
+                t0 = time.time()
+                out = crgo_contract(m.group(1), body)
+                sys.stderr.write(f"helper: crgo {m.group(1)} {time.time() - t0:.1f}s\n")
+                return self._json(200, out)
+            except Exception as exc:                    # noqa: BLE001
+                return self._json(200, {"error": True, "code": "HELPER", "message": str(exc)})
+        if path in ("/api/crgo/call", "/api/crgo/restart"):   # 1.5.7 — read-only ontology tools
+            cfg = crg_feeds.load_config(FEEDS)
+            spec = crgo_client.resolve(cfg, ROOT)
+            try:
+                if path.endswith("restart"):
+                    crgo_client.CLIENT.stop()
+                    info = crgo_client.CLIENT.start(spec)
+                    return self._json(200, {"ok": True, "info": info, "source": spec.get("source")})
+                t0 = time.time()
+                out = crgo_client.CLIENT.call(spec, str(body.get("tool") or ""), body.get("args") or {})
+                sys.stderr.write(f"helper: crgo {body.get('tool')} {time.time() - t0:.1f}s\n")
+                return self._json(200, {"result": out, "via": "mcp", "source": spec.get("source"),
+                                        "server": (crgo_client.CLIENT.info or {}).get("server")})
+            except Exception as exc:                    # noqa: BLE001
+                return self._json(502, {"error": str(exc), "via": "mcp", "source": spec.get("source")})
         if path == "/api/suggested/clear":
             crg_feeds._write_json(os.path.join(FEEDS, "suggested-sources.json"), {"schema": "crg-suggested-sources/1", "sources": [], "cleared": _now()})
             return self._json(200, {"ok": True})

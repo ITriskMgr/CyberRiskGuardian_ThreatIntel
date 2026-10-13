@@ -14,6 +14,8 @@ import * as AI from '../ai.js';
 import { spread, coverage, newSeed } from '../variety.js';
 import * as MT from '../maturity.js';
 import { tr } from '../i18n.js';
+import * as SEED from '../secops_seed.js';
+import { pill } from '../util.js';
 
 /** Scenario archetypes: a starting point, not an assessment. Every value is an analytical estimate. */
 export const PATTERNS = [
@@ -65,7 +67,7 @@ export function render(sec) {
   sec.replaceChildren(el('h1', null, 'Batch scenarios'),
     el('p', 'lede', 'Create a batch of candidate scenarios in one pass, review and edit them in the grid, then add the selected ones to the register. Generated values are starting points — every one is an analytical estimate requiring validation.'));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['gen', 'Threat patterns × assets'], ['ai', 'Propose with AI'], ['attack', 'From MITRE ATT&CK'], ['cve', 'From CVE'], ['cwe', 'From CWE'], ['csv', 'Paste or import CSV'], ['blank', 'Blank rows']])
+  for (const [k, t] of [['gen', 'Threat patterns × assets'], ['ai', 'Propose with AI'], ['attack', 'From MITRE ATT&CK'], ['cve', 'From CVE'], ['cwe', 'From CWE'], ['secops', 'From security operations (SIEM & SOAR)'], ['csv', 'Paste or import CSV'], ['blank', 'Blank rows']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(mode === k), onclick: () => { mode = k; render(sec); } }, t));
   sec.append(st);
   const top = el('div'); sec.append(top);
@@ -74,6 +76,7 @@ export function render(sec) {
   if (mode === 'gen') generator(top, drawGrid);
   else if (mode === 'ai') aiProposer(top, drawGrid);
   else if (mode === 'attack' || mode === 'cve' || mode === 'cwe') ontoBuilder(top, drawGrid, mode);
+  else if (mode === 'secops') secopsBuilder(top, drawGrid);
   else if (mode === 'csv') csv(top, drawGrid);
   else top.append(card(el('div', 'btnrow', ...[1, 5, 10, 20].map(n => el('button', { class: 'btn ghost', onclick: () => { for (let i = 0; i < n; i++) draft().push(makeRow({ name: 'New scenario', weak: '', attack: [], cwe: [], p: [0.5, 0.5, 0.5, 0.7, 0.5, 0.5], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N', cons: 0 }, 'asset', 'cybercrime')); draft().slice(-n).forEach(r => { r.name = ''; r.statement = ''; r.assets = ''; r.threat_source = ''; }); touch(); drawGrid(); } }, `Add ${n} blank row${n > 1 ? 's' : ''}`)))));
   drawGrid();
@@ -180,7 +183,7 @@ function generator(top, drawGrid) {
 }
 
 /* ---------------- 1.5.2 — candidates proposed by AI ---------------- */
-const aiSel = { n: 10, brief: '', useAssets: true, docs: true };
+const aiSel = { n: 10, brief: '', useAssets: true, docs: true, secops: false };
 function aiProposer(top, drawGrid) {
   const ws = S.ws;
   const nIn = el('input', { type: 'number', min: 1, max: 30, value: aiSel.n, style: { width: '90px' } });
@@ -189,6 +192,10 @@ function aiProposer(top, drawGrid) {
   brief.value = aiSel.brief; brief.addEventListener('input', () => { aiSel.brief = brief.value; });
   const docsBox = el('input', { type: 'checkbox', checked: aiSel.docs && (ws.docs || []).length > 0, disabled: !(ws.docs || []).length, style: { width: 'auto' } });
   docsBox.addEventListener('change', () => { aiSel.docs = docsBox.checked; });
+  // 1.6.0 — security-operations seeds, TLP-filtered (never TLP:RED or TLP:AMBER+STRICT), shown in the preview
+  const soN = SEED.seeds(ws, { excludeRestricted: true }).seeds.length;
+  const soBox = el('input', { type: 'checkbox', checked: aiSel.secops && soN > 0, disabled: !soN, style: { width: 'auto' } });
+  soBox.addEventListener('change', () => { aiSel.secops = soBox.checked; });
   const st = el('div');
   aiui.status(S.ws, 'scenarios').then(x => st.replaceChildren(x.ok ? el('p', 'note', tr('AI is available') + ' — ' + (AI.isLocal(x.provider) ? tr('local model') : AI.provider(x.provider).label) + '. ' + tr('You will see exactly what is sent before anything leaves this computer.'))
     : banner('warn', 'AI not available', x.why)));
@@ -201,13 +208,17 @@ function aiProposer(top, drawGrid) {
       el('div', { style: { gridColumn: 'span 2' } }, field('Direction (optional)', brief))),
     el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--ink)', margin: '8px 0' } }, docsBox, el('span', null, el('b', null, 'Include the text of the context documents'),
       el('div', 'small muted', (ws.docs || []).length ? `${ws.docs.length} ${tr('document(s) — the full extracted text, shown in the preview (large documents are shortened).')}` : tr('No context document in this workspace.')))),
+    el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--ink)', margin: '8px 0' } }, soBox, el('span', null, el('b', null, 'Include security-operations evidence'),
+      el('div', 'small muted', soN ? `${soN} seed(s) from SIEM and SOAR, summarised in the preview. Nothing marked TLP:RED or TLP:AMBER+STRICT is included, and source confidence is never sent.` : 'No security-operations record suggests a scenario yet.'))),
     crown.length + inv.length ? el('div', 'small muted', { style: { margin: '6px 0' } }, tr('Assets given to the AI:') + ' ', el('span', { 'data-noi18n': '' }, [...new Set([...crown, ...inv])].slice(0, 20).join(' · '))) : null,
     el('div', 'btnrow', { style: { marginTop: '10px' } }, el('button', { class: 'btn', onclick: async () => {
       const x = await aiui.status(S.ws, 'scenarios'); if (!x.ok) { toast(x.why, 'bad'); return; }
       const assets = [...new Set([...crown, ...inv])].slice(0, 20);
       const b = [aiSel.brief, assets.length ? 'Crown jewels and most critical information assets: ' + assets.join('; ') : ''].filter(Boolean).join('\n');
       const docs = aiSel.docs && (ws.docs || []).length ? (await X.corpus(ws, 80000)).text : '';
-      const out = await aiui.request('scenarios', { brief: b, count: aiSel.n, docs }, { title: tr('Scenario proposals — what will be sent') });
+      const secops = aiSel.secops && soN ? SEED.aiSummary(ws) : '';
+      const seedMap = secops ? new Map(SEED.seeds(ws, { excludeRestricted: true }).seeds.map(x => [x.id, x])) : new Map();
+      const out = await aiui.request('scenarios', { brief: b, count: aiSel.n, docs, secops }, { title: tr('Scenario proposals — what will be sent') });
       if (!out) return;
       let parsed;
       try { parsed = AI.parseJson(out.text); } catch (e) { toast(tr('The answer was not machine-readable: ') + e.message, 'bad'); return; }
@@ -221,6 +232,8 @@ function aiProposer(top, drawGrid) {
           cvss_note: 'Default vector for an AI-proposed candidate — set the vector in the scenario editor.', red_p: 0.6, red_i: 0.6, owner: '', pattern: 'ai',
           rat: Object.fromEntries(PARAMS.map(k => [k, (P[k]?.why ? 'AI: ' + P[k].why : 'AI-proposed') + ' — analytical estimate, validation required.'])),
           conf: Object.fromEntries(PARAMS.map(k => [k, ['High', 'Medium', 'Low'].includes(P[k]?.conf) ? P[k].conf : 'Low'])) });
+        const sd = seedMap.get(String(sc.seed || ''));
+        if (sd) Object.assign(draft()[draft().length - 1], { seed: sd.id, seedKind: sd.kind, tlp: sd.tlp, secopsEv: sd.evidence.map(e => ({ kind: e.kind, id: e.id, date: e.date || '', tlp: e.tlp || '' })) });
       }
       AI.decide(out.entryId, 'pending', `${list.length} candidate(s) placed in the batch grid for review`);
       touch(); drawGrid(); toast(list.length + ' ' + tr('AI candidates added to the grid — review them before adding to the register'));
@@ -272,7 +285,8 @@ function renderGrid(box, redraw) {
     const pk = el('input', { type: 'checkbox', checked: r.pick }); pk.addEventListener('change', () => { r.pick = pk.checked; touch(); });
     const cv = el('input', { value: r.cvss || (r.cvss_score ?? ''), class: 'mono', style: { width: '170px' } });
     cv.addEventListener('input', () => { if (/^CVSS:4/i.test(cv.value)) { r.cvss = cv.value; r.cvss_score = null; } else { r.cvss = ''; r.cvss_score = cv.value === '' ? null : Number(cv.value); } touch(); });
-    const links = el('div', 'chips', ...(r.attack || []).map(x => chip(x, { kind: 't', title: techName(x) })), ...(r.cwe || []).map(x => chip(x, { kind: 'c' })), ...(r.cves || []).map(x => chip(x, { kind: 'v' })));
+    const links = el('div', 'chips', ...(r.attack || []).map(x => chip(x, { kind: 't', title: techName(x) })), ...(r.cwe || []).map(x => chip(x, { kind: 'c' })), ...(r.cves || []).map(x => chip(x, { kind: 'v' })),
+      ...(r.secopsEv?.length ? [pill(`${r.secopsEv.length} SIEM/SOAR evidence link(s)`, 'warn')] : []));
     tb.append(el('tr', r.pick ? null : 'off', el('td', 'cb', pk),
       el('td', null, inp('name', '300px'), ta('statement')),
       el('td', null, inp('threat_source', '170px'), inp('assets', '170px')),
@@ -299,7 +313,10 @@ function commit(redraw) {
     const s = blankScenario(nextScenarioId());
     Object.assign(s, { name: r.name || 'Untitled scenario', statement: r.statement || '', threat_source: r.threat_source || '', assets: r.assets || '',
       vulns: String(r.vulns || '').split(/;\s*/).filter(Boolean), attack: r.attack || [], cwe: r.cwe || [], cves: r.cves || [],
-      red_p: Number(r.red_p), red_i: Number(r.red_i), owner: r.owner || '', horizon: r.horizon || '', cvss_note: r.cvss_note || '', origin: (r.docs ? 'From the context documents (reviewed in batch) ' : r.ai ? 'AI-generated (reviewed in batch) ' : 'batch ') + today() });
+      red_p: Number(r.red_p), red_i: Number(r.red_i), owner: r.owner || '', horizon: r.horizon || '', cvss_note: r.cvss_note || '', origin: (r.hubRow ? 'From the shared Risk Registry (reviewed in batch) ' : r.crgo ? `From the CyberRiskGuardian Ontology, ${r.crgo.id} (reviewed in batch) ` : r.docs ? 'From the context documents (reviewed in batch) ' : r.ai ? 'AI-generated (reviewed in batch) ' : r.secops ? 'From security operations — SIEM & SOAR (reviewed in batch) ' : 'batch ') + today() });
+    if (r.secopsEv?.length) s.secops = r.secopsEv.map(e => ({ ...e, seed: r.seed || '' }));   // 1.6.0 — evidence links, never a parameter
+    if (r.secops) { if (r.threat_event) s.threat_event = r.threat_event; if (r.background) s.background = r.background; }
+    if (r.crgo) s.crgo = structuredClone(r.crgo);              // 1.5.7 — ontology keys, controls and obligations travel with it
     for (const k of PARAMS) s.params[k] = { v: Number(r.params[k]), qual: '', rat: (r.rat && r.rat[k]) || 'Batch default — analytical estimate, validation required.', ev: (r.rat && r.rat[k + '_ev']) || '', conf: (r.conf && r.conf[k]) || 'Low' };
     if (r.cvss) s.cvss = r.cvss; else if (r.cvss_score !== null && r.cvss_score !== undefined && r.cvss_score !== '') { s.cvss_score = Number(r.cvss_score); }
     a.SCEN.push(s); added.push(s.id);
@@ -426,4 +443,81 @@ function ontoBuilder(top, drawGrid, kind) {
         aBox, el('div', { style: { marginTop: '10px' } }, extra)),
       card(el('h2', null, '3 · Threat source'), srcSel, info,
         el('div', 'btnrow', { style: { marginTop: '12px' } }, el('button', { class: 'btn', onclick: () => { const rows = build(); if (!rows.length) { toast('Select at least one item', 'bad'); return; } draft().push(...rows); touch(); drawGrid(); toast(rows.length + ' candidates added to the grid'); } }, 'Generate candidates'))))));
+}
+
+/* ---------------- 1.6.0 — from security operations (SIEM & SOAR) ----------------
+   Seeds come from js/secops_seed.js: detection gaps, untested coverage, degraded telemetry, alert
+   clusters, confirmed incidents, open cases, approval gaps, playbooks not simulated and lessons. A
+   ticked seed becomes a draft row in the grid below (never a register entry); its evidence links travel
+   with it to the scenario (s.secops). A seed proposes no number: the parameters stay neutral
+   placeholders until the analyst sets them from the evidence. */
+const so = { asOf: today(), reveal: false, picked: new Set(), kind: 'all' };
+const SEV_KIND = { 'confirmed-incident': 'bad', 'detection-gap': 'bad', 'degraded-telemetry': 'warn', 'alert-cluster': 'warn', 'untested-coverage': 'warn', 'approval-gap': 'bad', case: '', 'unsimulated-playbook': 'warn', lesson: '' };
+const TLP_KIND = { CLEAR: '', GREEN: 'good', AMBER: 'warn', 'AMBER+STRICT': 'bad', RED: 'bad' };
+function secopsBuilder(top, drawGrid) {
+  const ws = S.ws;
+  const res = SEED.seeds(ws, { asOf: so.asOf });
+  const all = res.seeds.map(x => SEED.display(x, so.reveal));
+  const shown = all.filter(x => so.kind === 'all' || x.kind === so.kind);
+  for (const id of [...so.picked]) if (!all.some(x => x.id === id && !x.masked)) so.picked.delete(id);
+  const redo = () => { top.replaceChildren(); secopsBuilder(top, drawGrid); };
+  const asOf = el('input', { type: 'date', value: so.asOf, style: { maxWidth: '170px' } });
+  asOf.addEventListener('change', () => { so.asOf = asOf.value || today(); redo(); });
+  const reveal = el('input', { type: 'checkbox', checked: so.reveal, style: { width: 'auto' } });
+  reveal.addEventListener('change', () => { so.reveal = reveal.checked; redo(); });
+  const kindSel = select([['all', 'Every kind'], ...SEED.KINDS.filter(k => all.some(x => x.kind === k[0]))], so.kind);
+  kindSel.addEventListener('change', () => { so.kind = kindSel.value; redo(); });
+  const nRestricted = res.seeds.filter(x => x.restricted).length;
+  const c = res.counts;
+
+  const rows = shown.map(sd => {
+    const cb = el('input', { type: 'checkbox', checked: so.picked.has(sd.id), disabled: !!sd.masked, style: { width: 'auto', marginTop: '3px' }, 'aria-label': 'Use this seed' });
+    cb.addEventListener('change', () => { cb.checked ? so.picked.add(sd.id) : so.picked.delete(sd.id); btnCount(); });
+    const sc = sd.whatItSuggests.scenario ? S.ws.assessment.SCEN.find(x => x.id === sd.whatItSuggests.scenario) : null;
+    const ev = el('details', null, el('summary', 'small', `Evidence (${sd.evidence.length})`),
+      el('ul', 'small', ...sd.evidence.map(e => el('li', null, el('span', null, e.kind), ' ', el('span', { class: 'mono', 'data-noi18n': '' }, e.id), e.date ? el('span', 'muted', ' · ' + e.date) : null, ' ',
+        e.tlp ? pill('TLP:' + e.tlp, TLP_KIND[e.tlp] || '') : pill('internal record', ''),
+        e.confidence != null ? el('span', 'muted', ` · source confidence ${e.confidence}/100 as stated — not a probability`) : null))));
+    return el('div', { class: 'seedrow', 'data-seed': sd.id, style: { display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '8px 0', borderBottom: '1px solid var(--line)' } }, cb,
+      el('div', { style: { flex: 1 } },
+        el('div', null, pill(SEED.kindLabel(sd.kind), SEV_KIND[sd.kind] || ''), ' ', el('b', sd.masked ? null : { 'data-noi18n': '' }, sd.title), ' ',
+          sd.whatItSuggests.type === 'existing' ? el('span', null, pill('Evidence for an existing scenario', 'good'), ' ', chip(sd.whatItSuggests.scenario, { href: '#/scenario/' + sd.whatItSuggests.scenario })) : pill('New candidate scenario', 'warn'),
+          sd.restricted ? el('span', null, ' ', pill('TLP:' + sd.tlp, 'bad')) : null),
+        sd.techniques.length ? el('div', 'chips', { style: { marginTop: '4px' } }, ...sd.techniques.map(t => chip(t, { kind: 't', title: techName(t) }))) : null,
+        el('div', 'small', sd.masked ? { style: { marginTop: '4px' } } : { style: { marginTop: '4px' }, 'data-noi18n': '' }, sd.chain),
+        sd.scenarios.length ? el('div', 'small muted', 'Scenarios it touches: ', el('span', { 'data-noi18n': '' }, sd.scenarios.join(', '))) : null,
+        el('div', 'small muted', 'May inform (the analyst sets every value): ', el('span', null, sd.informs.map(i => i.label).join(' · ') || '—'),
+          sd.informs.length ? el('span', { 'data-noi18n': '' }, ' — ' + sd.informs.map(i => i.why).join('; ')) : null),
+        sd.notes.length && !sd.masked ? el('div', 'small muted', { 'data-noi18n': '' }, sd.notes.join(' ')) : null,
+        ev,
+        sc && !sd.masked ? el('div', 'btnrow', { style: { marginTop: '4px' } }, el('button', { class: 'btn sm ghost', onclick: () => {
+          const raw = res.seeds.find(x => x.id === sd.id); const n = SEED.attachEvidence(sc, raw); touch();
+          toast(n ? `${n} evidence link(s) recorded on ${sc.id} — no parameter changed` : `Already recorded on ${sc.id}`);
+        } }, `Record the evidence on ${sc.id}`)) : null));
+  });
+
+  const make = el('button', { class: 'btn', onclick: () => {
+    const list = res.seeds.filter(x => so.picked.has(x.id) && (!x.restricted || so.reveal));
+    if (!list.length) { toast('Tick at least one seed', 'bad'); return; }
+    for (const sd of list) draft().push(SEED.toDraft(sd));
+    so.picked.clear(); touch(); drawGrid(); redo();
+    toast(`${list.length} draft candidate(s) added to the grid — review them before adding to the register`);
+  } });
+  const btnCount = () => { make.textContent = `Create ${so.picked.size} draft candidate(s)`; make.disabled = !so.picked.size; };
+  btnCount();
+
+  top.append(card(el('h2', null, 'Scenario seeds from security operations'),
+    el('p', 'note', 'What the SIEM and SOAR records suggest: detection gaps, coverage not validated by a test, degraded telemetry, alert clusters by technique and asset, confirmed incidents, open cases, response actions without a valid approval, playbooks not simulated and lessons learned. A seed proposes a causal chain and names the parameters it may inform; it never proposes a value. Ticked seeds become draft candidates in the grid below — nothing enters the register until you add it.'),
+    banner('warn', 'Analytical estimate — validation required', 'An alert or an indicator match is not an incident: only incidents confirmed in the incident register count. Source confidence is not a probability. Seeds that match an existing scenario (same techniques and crown jewel, or an explicit link) are evidence for it, not new scenarios.'),
+    el('div', 'grid g3', { style: { marginTop: '10px' } }, field('As of', asOf, 'Coverage, telemetry health and alerts are read at this date.'), field('Kind', kindSel),
+      el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--ink)', alignSelf: 'end' } }, reveal,
+        el('span', null, el('b', null, 'Show TLP:RED and TLP:AMBER+STRICT items on this computer'), el('div', 'small muted', 'Off by default. They are never sent to AI.')))),
+    el('div', 'small muted', { style: { margin: '6px 0' } },
+      `${res.seeds.length} seed(s) · ${c.benign} benign and ${c.falsePositive} false-positive alert(s) skipped · ${c.unconfirmedIncidents} recorded incident(s) not confirmed (not counted as incidents) · ${nRestricted} seed(s) with restricted TLP`),
+    shown.length ? el('div', 'scroll-y', { style: { maxHeight: '520px' } }, ...rows)
+      : el('div', 'empty-state', 'No security-operations record suggests a scenario yet. Import SIEM and SOAR data first: ', el('a', { href: '#/siem/import' }, 'SIEM import'), ' · ', el('a', { href: '#/soar/dashboard' }, 'SOAR')),
+    el('div', 'btnrow', { style: { marginTop: '10px' } }, make,
+      el('button', { class: 'btn ghost', onclick: () => { for (const x of shown) if (!x.masked && x.whatItSuggests.type === 'new') so.picked.add(x.id); redo(); } }, 'Tick every new-scenario seed'),
+      el('button', { class: 'btn ghost', onclick: () => { so.picked.clear(); redo(); } }, 'Untick all'),
+      el('a', { class: 'btn ghost', href: '#/siem/coverage' }, 'SIEM coverage & gaps'), el('a', { class: 'btn ghost', href: '#/soar/cases' }, 'SOAR cases'))));
 }

@@ -2,12 +2,19 @@
    The calculation itself is always CRG.calc from the verified crg.js engine.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as LOG from './logs.js';
 import * as store from './store.js';
 import { uid, today, val } from './util.js';
+import * as MIG from './migrate.js';
+import { VERSION } from './version.js';
 
 export const SCHEMA = 'crg-workspace/1';
 const listeners = new Set();
-export const S = { ws: null, list: [], snap: null, persistent: true };
+export const S = { ws: null, list: [], snap: null, persistent: true,
+  /* 1.5.8 — workspaces written by a newer release are open read-only (never saved over), and the outcome
+     of the last migration is kept for the screen that explains it. */
+  readOnly: new Set(), migration: null, migrations: [], metaMigration: null };
+export const isReadOnly = (w = S.ws) => !!w && S.readOnly.has(w.id);
 
 export function on(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 export function emit(what = 'change') { for (const f of listeners) { try { f(what); } catch (e) { console.error(e); } } }
@@ -19,9 +26,9 @@ export function blankOrg() {
     incidents: '', controls: '', notes: '' };
 }
 export function newWorkspace({ name = 'New organization', kind = 'organization', assessment = null, org = null } = {}) {
-  const now = new Date().toISOString();
+  const now = new Date().toISOString(), id = uid('ws');
   return {
-    schema: SCHEMA, id: uid('ws'), name, kind, created: now, modified: now,
+    schema: SCHEMA, id, name, kind, created: now, modified: now,
     org: Object.assign(blankOrg(), org || {}, { name: (org && org.name) || (kind === 'classroom' ? '' : name) }),
     classroom: kind === 'classroom' ? { course: '', case_title: '', team: '', members: '', instructor: '', due: '', notes: '' } : null,
     assessment: assessment || { APPETITE: 0.30, FACTOR: 1000, CURRENCY: 'CAD', PERIOD: 'next 12 months',
@@ -33,6 +40,14 @@ export function newWorkspace({ name = 'New organization', kind = 'organization',
     // 1.4.0
     measures: [], risks: [], assets: [], assetLog: [], compliance: { frameworks: [], soa: {}, checklists: {} },
     iocWatch: [], feedNotes: {}, published: [], library: [],
+    // 1.5.8 — every field a workspace can hold is present from the start, and the data version is recorded
+    recommendations: [], revisionLog: [], linkLog: [], linkDraft: null, batchDraft: null, batchSeed: null, batchSpread: null,
+    safeguards: [], maturity: null, exposureText: '', discoverySeen: {}, feedState: {}, feedLog: [], kriSel: null, kriSelMode: null,
+    userAudit: [], resetLog: [], crownProv: {}, educational: null, importLog: [], importPlan: null, assetScoreHist: [],
+    ontology: { themes: [] }, isp: { policies: [], issues: [], ...MIG.blankIspExtra() }, ai: null, teaching: null,
+    grc: MIG.blankGrc(), audit: MIG.blankAudit(), csm: MIG.blankCsm(), isms: MIG.blankIsms(), crgo: MIG.blankCrgo(id),
+    shared: MIG.blankShared(), cms: MIG.blankCms(), siem: MIG.blankSiem(), soar: MIG.blankSoar(),
+    dataVersion: MIG.DATA_VERSION, appVersion: VERSION, migrationLog: [],
   };
 }
 
@@ -62,15 +77,23 @@ export function medibecWorkspace() {
 let saveT = null;
 export function touch(what = 'change') {
   if (!S.ws) return;
+  if (isReadOnly()) { emit(what); return; }      // 1.5.8 — a newer release's workspace is never saved over
   S.ws.modified = new Date().toISOString();
-  clearTimeout(saveT); saveT = setTimeout(() => store.put('ws', S.ws.id, S.ws).catch(console.error), 300);
+  S.ws.appVersion = VERSION;
+  clearTimeout(saveT); saveT = setTimeout(() => { const w = S.ws; store.put('ws', w.id, w).then(() => LOG.saved(w)).catch(console.error); }, 300);
   emit(what);
 }
-export async function saveNow() { if (S.ws) await store.put('ws', S.ws.id, S.ws); }
+export async function saveNow() { if (S.ws && !isReadOnly()) await store.put('ws', S.ws.id, S.ws); }
 
 export async function loadAll() {
   S.persistent = await store.persistent();
   S.list = (await store.all('ws')).filter(Boolean).sort((a, b) => (b.modified || '').localeCompare(a.modified || ''));
+  // 1.5.8 — installation records and every stored workspace are brought to this release's data version
+  // once, at start-up, so no screen ever meets an older shape. The outcome of each is kept for Backup & restore.
+  S.metaMigration = await MIG.migrateMeta(store).catch(e => ({ error: String(e) }));
+  S.migrations = [];
+  for (let i = 0; i < S.list.length; i++) { S.list[i] = await upgrade(S.list[i]); if (S.migration.status !== 'current') S.migrations.push(S.migration); }
+  S.migration = null;
   if (!S.list.length) {
     const ex = medibecWorkspace();
     await store.put('ws', ex.id, ex); S.list = [ex];
@@ -81,9 +104,9 @@ export async function loadAll() {
 
 export async function select(id, announce = true) {
   await saveNow();
-  const w = (await store.get('ws', id)) || S.list.find(x => x.id === id);
+  let w = (await store.get('ws', id)) || S.list.find(x => x.id === id);
   if (!w) return;
-  migrate(w);
+  w = await upgrade(w);
   S.ws = w;
   S.snap = await store.get('blob', 'snap:' + w.id) || null;
   await store.put('meta', 'current', id);
@@ -92,14 +115,17 @@ export async function select(id, announce = true) {
 
 export async function create(ws) {
   await store.put('ws', ws.id, ws);
+  LOG.data('workspace created', ws.name || ws.id, ws.kind || '', ws.name || '');
   S.list = [ws, ...S.list.filter(x => x.id !== ws.id)];
   await select(ws.id);
 }
 export async function remove(id) {
+  LOG.data('workspace deleted', (S.list.find(w => w.id === id) || {}).name || id);
   const w = await store.get('ws', id);
   for (const d of (w?.docs || [])) await store.del('blob', 'doc:' + d.id);
   await store.del('blob', 'snap:' + id);
   await store.del('blob', 'base:' + id);      // 1.5.6 — the starting point of a teaching case
+  await store.del('blob', 'premig:' + id);    // 1.5.8 — the copy kept from before a migration
   await store.del('ws', id);
   S.list = S.list.filter(x => x.id !== id);
   if (!S.list.length) { const ex = medibecWorkspace(); await store.put('ws', ex.id, ex); S.list = [ex]; }
@@ -127,7 +153,27 @@ export async function docText(id) { return (await store.get('blob', 'doc:' + id)
 export async function setDocText(id, text) { await store.put('blob', 'doc:' + id, text); }
 export async function delDoc(id) { await store.del('blob', 'doc:' + id); }
 
-/** Bring older or imported workspaces up to the current shape without touching numbers. */
+/**
+ * 1.5.8 — run the data migrations on a stored workspace (migrate.js) and save the result, keeping the
+ * original beside it. A workspace from a newer release is opened read-only; a failed migration leaves the
+ * stored workspace untouched and opens it read-only too, so nothing half-converted is ever written.
+ */
+export async function upgrade(w, { persist = true } = {}) {
+  const r = MIG.migrateWorkspace(w, { fill: migrate });
+  S.migration = { id: w.id, name: w.name, status: r.status, from: r.from, to: r.to, steps: r.steps, error: r.error || null };
+  if (r.status === 'newer' || r.status === 'failed') { S.readOnly.add(w.id); return r.ws; }
+  S.readOnly.delete(w.id);
+  if (r.status === 'migrated' && persist) {
+    const key = 'premig:' + w.id;
+    if (!(await store.get('blob', key).catch(() => null))) await store.put('blob', key, { from: r.from, to: r.to, saved: new Date().toISOString(), app: w.appVersion || 'before 1.5.8', ws: r.original });
+    r.ws.crgo ||= MIG.blankCrgo(r.ws.id);
+    await store.put('ws', r.ws.id, r.ws);
+    S.list = S.list.map(x => x.id === r.ws.id ? r.ws : x);
+  }
+  return r.ws;
+}
+
+/** Shape repair after the migrations: fills missing fields with defaults, never touches numbers. */
 export function migrate(w) {
   const def = newWorkspace();
   for (const k of Object.keys(def)) if (w[k] === undefined) w[k] = def[k];
@@ -142,6 +188,14 @@ export function migrate(w) {
   if (!w.compliance || typeof w.compliance !== 'object') w.compliance = { frameworks: [], soa: {}, checklists: {} };
   w.compliance.frameworks ||= []; w.compliance.soa ||= {}; w.compliance.checklists ||= {};
   w.feedNotes ||= {};
+  // 1.5.8 records
+  w.grc = Object.assign(MIG.blankGrc(), w.grc || {}); w.audit = Object.assign(MIG.blankAudit(), w.audit || {});
+  w.csm = Object.assign(MIG.blankCsm(), w.csm || {}); w.isms = Object.assign(MIG.blankIsms(), w.isms || {});
+  w.crgo = Object.assign(MIG.blankCrgo(w.id), w.crgo || {});
+  w.shared = Object.assign(MIG.blankShared(), w.shared || {}); w.cms = Object.assign(MIG.blankCms(), w.cms || {});
+  w.siem = Object.assign(MIG.blankSiem(), w.siem || {}); w.soar = Object.assign(MIG.blankSoar(), w.soar || {});
+  w.isp = Object.assign({ policies: [], issues: [] }, MIG.blankIspExtra(), w.isp || {});
+  w.migrationLog ||= [];
   return w;
 }
 

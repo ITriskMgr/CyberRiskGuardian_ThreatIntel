@@ -6,7 +6,8 @@
 <title>User guide — CyberRiskGuardian</title>
 <link rel="icon" href="../icons/icon-64.png">
 <link rel="stylesheet" href="page.css">
-<!-- User guide (1.5.6) — the shipped USER-GUIDE.md, rendered in a window of its own. The guide stays
+<!-- User guide (1.5.7) — the shipped USER-GUIDE.md (or USER-GUIDE.fr.md when the interface is in French),
+     rendered in a window of its own. The guide stays
      one file: this page reads it rather than holding a second copy that would go stale. Works offline
      (the service worker precaches both this page and the guide).
      © 2026 Marc-André Léger. CC BY-NC 4.0 -->
@@ -49,10 +50,10 @@ import { VERSION } from '../js/version.js';
 import * as i18n from '../js/i18n.js';
 
 const $ = id => document.getElementById(id);
-/* The chrome of this window follows the interface language; the guide itself does not. The guide is
-   written in English and is 120 000 characters long: marking it data-noi18n keeps the translator out
-   of it, which is both correct and the difference between instant and visibly slow. */
-i18n.init().then(() => { document.title = i18n.tr('User guide') + ' — CyberRiskGuardian'; i18n.translateTree(document.body); })
+/* The chrome of this window follows the interface language. The guide exists in English (USER-GUIDE.md)
+   and in French (USER-GUIDE.fr.md, 1.5.7): the window reads the one that matches the interface, and falls
+   back to English. The guide is marked data-noi18n so the interface translator stays out of it. */
+const ready = i18n.init().then(() => { document.title = i18n.tr('User guide') + ' — CyberRiskGuardian'; i18n.translateTree(document.body); })
   .catch(err => console.error('i18n', err));
 $('ver').textContent = 'Beta ' + VERSION;
 $('print').addEventListener('click', () => window.print());
@@ -61,8 +62,12 @@ $('close').addEventListener('click', () => window.close());
 const doc = $('doc'), toc = $('toc');
 
 try {
-  const rs = await fetch('../USER-GUIDE.md', { cache: 'no-cache' });
+  await ready;
+  const fr = i18n.isFR();
+  let rs = fr ? await fetch('../USER-GUIDE.fr.md', { cache: 'no-cache' }).catch(() => null) : null;
+  if (!rs || !rs.ok) rs = await fetch('../USER-GUIDE.md', { cache: 'no-cache' });
   if (!rs.ok) throw new Error('HTTP ' + rs.status);
+  document.documentElement.lang = rs.url.endsWith('.fr.md') ? 'fr' : 'en';
   const text = await rs.text();
   doc.replaceChildren();
   const { headings } = render(text, doc);
@@ -71,13 +76,14 @@ try {
     a.href = '#' + h.id; a.textContent = h.text; if (h.level >= 3) a.className = 'sub';
     toc.append(a);
   }
-  if (!headings.length) toc.append(Object.assign(document.createElement('p'), { className: 'small muted', textContent: 'No sections found.' }));
+  if (location.hash.length > 1) { const t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView({ block: 'start' }); }
+  if (!headings.length) toc.append(Object.assign(document.createElement('p'), { className: 'small muted', textContent: i18n.tr('No sections found.') }));
 } catch (err) {
   /* Opened straight from the filesystem (file://), fetch is refused: say so and offer the file. */
   doc.replaceChildren();
   const p = document.createElement('p');
   p.className = 'note';
-  const span = s => Object.assign(document.createElement('span'), { textContent: s });
+  const span = s => Object.assign(document.createElement('span'), { textContent: i18n.tr(s) });
   const why = document.createElement('code');
   why.setAttribute('data-noi18n', '');
   why.textContent = String(err.message || err);
@@ -113,7 +119,7 @@ function find(q) {
     marks.push(m);
     void rest;
   }
-  $('hits').textContent = marks.length ? marks.length + (marks.length === 1 ? ' match' : ' matches') : 'no match';
+  $('hits').textContent = marks.length ? marks.length + ' ' + i18n.tr(marks.length === 1 ? 'match' : 'matches') : i18n.tr('no match');
   if (marks[0]) marks[0].scrollIntoView({ block: 'center' });
 }
 let t = null;

@@ -2,7 +2,7 @@
    CVSS, treatment and live KRIs. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as linksPanel from './links.js';
-import { el, n0, n2, kpi, banner, card, pill, pillFor, field, select, go, toast, chip, money } from '../util.js';
+import { el, n0, n2, kpi, banner, card, pill, pillFor, field, select, go, toast, chip, money, table } from '../util.js';
 import { S, touch, scen, PARAMS, PARAM_LABEL, PARAM_HELP, allocation, initiatives, nextScenarioId, setIncluded, included } from '../state.js';
 import { linkEditor } from '../picker.js';
 import { tech, tacticName, TACTICS } from '../ontology.js';
@@ -10,6 +10,10 @@ import { classify as ladder } from '../../threat.js';
 import * as AI from '../ai.js';
 import * as aiui from '../aiui.js';
 import { today } from '../util.js';
+import * as CRGO from '../crgo.js';
+import { tr } from '../i18n.js';
+import * as SEED from '../secops_seed.js';
+import { statusAt, TLP_RESTRICTED } from '../siem.js';
 
 const CONS = ['Confidentiality/privacy', 'Integrity', 'Availability', 'Operations', 'Financial', 'Regulatory', 'Reputation', 'Safety'];
 const CONF = ['High', 'Medium', 'Low'];
@@ -173,6 +177,12 @@ export function render(sec, arg) {
       ...(s.intel || []).map((n, i) => el('div', 'docrow', el('div', null, el('b', null, n.date + ' · ' + n.src), ' ', n.url ? el('a', { href: n.url, target: '_blank', rel: 'noopener noreferrer' }, n.title) : n.title),
         el('button', { class: 'btn sm ghost danger', onclick: () => { s.intel.splice(i, 1); touch(); render(sec, s.id); } }, 'Remove')))) : null));
 
+  // 1.5.7 — the ontology: tags, controls and obligations this scenario carries, and what CRGO links to its techniques
+  sec.append(ontologyCard(s, sec));
+
+  // 1.6.0 — what SIEM and SOAR hold about this scenario: evidence only, no parameter changes
+  sec.append(secopsCard(s, sec));
+
   // threat basis
   if (Array.isArray(s.threat_basis) && s.threat_basis.length) {
     sec.append(card(el('h2', null, 'Threat-context basis (audit trail)'), ...s.threat_basis.map((b, i) => el('div', 'docrow',
@@ -317,4 +327,163 @@ function apply(s, sec, rows, picked, edits, cons, pickedCons, attack, takeAttack
   touch();
   toast(`${n} field${n === 1 ? '' : 's'} written — review them`);
   render(sec, s.id);   // the same scenario: render(sec) alone falls back to the first in the register
+}
+
+/* ---------------- 1.5.7 — the ontology card ---------------- */
+function ontologyCard(s, sec) {
+  const out = el('div');
+  const c = s.crgo;
+  const body = [el('h2', null, 'Ontology · CRGO')];
+  if (c) body.push(el('p', 'small', 'Imported from ', el('span', { class: 'mono', 'data-noi18n': '' }, c.id), c.basis ? ` · ${c.basis}` : '', c.imported ? ` · ${c.imported}` : ''),
+    el('div', 'chips', ...(c.themes || []).map(t => chip(t)), ...(c.asset_categories || []).map(t => chip(t)), ...(c.threat_source_types || []).map(t => chip(t))),
+    (c.controls || []).length ? el('div', { style: { marginTop: '8px' } }, el('b', null, 'Controls the ontology links to it: '), el('span', { class: 'small mono', 'data-noi18n': '' }, c.controls.join(', '))) : null,
+    (c.obligations || []).length ? el('div', { style: { marginTop: '6px' } }, el('b', null, 'Quebec Law 25 obligations: '), el('ul', 'small', ...c.obligations.map(o => el('li', { 'data-noi18n': '' }, o)))) : null);
+  else body.push(el('p', 'note', 'Not linked to the ontology. Find the ontology scenarios that resemble it, or the controls the ontology associates with its ATT&CK techniques.'));
+  body.push(el('div', 'btnrow', { style: { marginTop: '8px' } },
+    el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
+      out.replaceChildren(el('p', 'note', 'Asking the ontology…'));
+      try {
+        const words = String(s.name || '').split(/[^\p{L}\p{N}-]+/u).filter(w => w.length > 4).slice(0, 4);
+        const r = await CRGO.call('crgo_identify', { techniques: (s.attack || []).map(t => String(t).split('.')[0]).slice(0, 6), limit: 8 });
+        const r2 = words.length ? await CRGO.call('crgo_identify', { keywords: words, limit: 8 }) : { result: { scenarios: [] } };
+        const seen = new Set(); const list = [...(r.result.scenarios || []), ...(r2.result.scenarios || [])].filter(x => !seen.has(x.id) && seen.add(x.id)).slice(0, 10);
+        out.replaceChildren(card(el('h3', { style: { marginTop: 0 } }, `Similar ontology scenarios (${r.via === 'mcp' ? 'MCP server' : 'snapshot'})`),
+          list.length ? el('ul', 'small', ...list.map(x => el('li', { 'data-noi18n': '' }, el('b', null, x.id), ' ', x.name,
+            el('button', { class: 'btn sm ghost', style: { marginLeft: '8px' }, onclick: () => {
+              s.crgo = { ...CRGO.toBatchRow(x, { usePriors: false }).crgo, linked: today() }; touch(); toast(tr('Linked to') + ' ' + x.id); render(sec, s.id);
+            } }, 'Link')))) : el('div', 'small muted', 'Nothing similar in the ontology.')));
+      } catch (e) { out.replaceChildren(banner('bad', 'The ontology could not answer', String(e.message || e))); }
+    } }, 'Find similar ontology scenarios'),
+    (s.attack || []).length ? el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
+      out.replaceChildren(el('p', 'note', 'Asking the ontology…'));
+      try {
+        const rows = [];
+        for (const t of [...new Set((s.attack || []).map(x => String(x).split('.')[0]))].slice(0, 6)) {
+          const r = await CRGO.call('crgo_controls_for_technique', { technique: t, top: 3 });
+          for (const [fw, l] of Object.entries(r.result.controls || {})) for (const c of l) rows.push({ t, fw, id: c.id, title: c.title, n: c.scenarios });
+        }
+        out.replaceChildren(card(el('h3', { style: { marginTop: 0 } }, 'Controls the ontology associates with these techniques'),
+          el('p', 'small muted', 'How often each control is linked to library scenarios using the technique — a starting list for Risk mitigation, not an assessment of this organization.'),
+          rows.length ? el('table', 'compact', el('thead', null, el('tr', null, ...['Technique', 'Framework', 'Control', 'Scenarios'].map(h => el('th', null, h)))),
+            el('tbody', null, ...rows.map(r => el('tr', null, el('td', 'mono', r.t), el('td', null, r.fw), el('td', { 'data-noi18n': '' }, `${r.id} ${r.title}`), el('td', 'num', String(r.n)))))) : el('div', 'small muted', 'No control found.')));
+      } catch (e) { out.replaceChildren(banner('bad', 'The ontology could not answer', String(e.message || e))); }
+    } }, 'Controls for its techniques') : null,
+    el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go('ontology') }, 'Open the ontology'),
+    // 1.5.8 — CRGO 0.9: other regimes, D3FEND, exploitation evidence; the organisation's own context (dss/v1)
+    c ? el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
+      out.replaceChildren(el('p', 'note', 'Asking the ontology…'));
+      try { const r = await CRGO.call('crgo_scenario', { scenario_id: c.id }); out.replaceChildren(detail09(r.result, r.via)); }
+      catch (e) { out.replaceChildren(banner('bad', 'The ontology could not answer', String(e.message || e))); }
+    } }, 'Other regimes, D3FEND and exploitation evidence') : null,
+    el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
+      const LK = await import('./ontology_link.js'), D = await import('../dss.js');
+      if (!S.ws.crgo?.graph) { out.replaceChildren(localEvidence(s, D)); return; }
+      out.replaceChildren(el('p', 'note', 'Asking the ontology…'));
+      const d = await D.context(s.id, today());
+      out.replaceChildren(d.error ? el('div', null, LK.errorBox(d), localEvidence(s, D)) : LK.contextView(d));
+      if (!d.error) touch();
+    } }, 'Organisation context and control evidence')));
+  body.push(obligationsEditor(s), lifeEvidence(s));
+  return card(...body, out);
+}
+
+/** Loi 25 and other provisions this scenario can trigger, by CRGO notation (e.g. "P-39.1 s. 10"). */
+function obligationsEditor(s) {
+  const inp = el('input', { value: (s.obligations || []).join('; '), 'data-noi18n': '', placeholder: 'P-39.1 s. 10; P-39.1 s. 3.5 (2nd para.)' });
+  inp.addEventListener('change', () => { s.obligations = inp.value.split(';').map(x => x.trim()).filter(Boolean); touch(); });
+  return el('div', { style: { marginTop: '8px' } }, field(tr('Obligations this scenario can trigger (CRGO notations, separated by ;)'), inp,
+    tr('Linked obligations are sent to the ontology with the organisation graph. A control that supports an obligation is not evidence of compliance.')));
+}
+
+/** Confirmed incidents and expired exceptions that bear on this scenario. */
+function lifeEvidence(s) {
+  const ws = S.ws;
+  const inc = (ws.csm?.incidents || []).filter(x => (x.scenarios || []).includes(s.id));
+  const exc = (ws.shared?.exceptions || []).filter(x => (x.scenarios || []).includes(s.id));
+  if (!inc.length && !exc.length) return el('div');
+  return el('div', { style: { marginTop: '8px' } },
+    inc.length ? el('div', 'small', el('b', null, tr('Incidents that inform its likelihood: ')), el('span', { 'data-noi18n': '' }, inc.map(x => `${x.id} ${x.title || ''} (${x.status})`).join(' · ')),
+      el('div', 'muted', tr('An incident informs Pb(A) and Pb(ψ,A); it does not prove them. Cite it in the rationale.'))) : null,
+    exc.length ? el('div', 'small', el('b', null, tr('Policy exceptions it counts on: ')), ...exc.map(x => el('span', null, el('span', { 'data-noi18n': '' }, x.id + ' '), x.expiry && x.expiry < today() ? pill(tr('expired — no longer a mitigation'), 'bad') : pill(tr('until {0}').replace('{0}', x.expiry || '—'), 'warn'), ' '))) : null);
+}
+
+/** Without the organisation graph: the control evidence recorded in this workspace. */
+function localEvidence(s, D) {
+  const ws = S.ws;
+  const rows = (s.controls || []).map((c, i) => ({ c, ...D.controlEvidence(ws, { kind: 'scenario-control', sid: s.id, index: i + 1, text: c }) }));
+  const line = k => tr(D.LINES.find(x => x[0] === k)?.[1] || k), res = k => tr(D.RESULTS.find(x => x[0] === k)?.[1] || k);
+  return card(el('h3', { style: { marginTop: 0 } }, 'Control evidence recorded in this workspace'),
+    el('p', 'small muted', 'Build the organisation graph (Ontology · CRGO → Organisation link) to read the same evidence through the ontology, with obligations and applicability.'),
+    rows.length ? table([{ key: 'c', label: 'Existing control', render: r => el('span', { 'data-noi18n': '' }, r.c) },
+      { key: 'l', label: 'Latest result per line', render: r => el('div', null, ...r.latest.map(a => el('div', 'small', line(a.line), ': ', res(a.result), ' · ', a.date))) },
+      { key: 'f', label: 'Open findings', render: r => r.openFindings.length ? pill(String(r.openFindings.length), 'bad') : '0' },
+      { key: 'k', label: 'Conflict', render: r => r.conflict ? pill('self-assessment contradicted — resolve', 'bad') : '' },
+      { key: 'q', label: 'Confidence in the control', render: r => tr(r.confidence) }], rows, { class: 'compact' }) : el('p', 'small muted', 'No existing control recorded for this scenario.'));
+}
+
+/** The CRGO 0.9 additions of crgo_scenario. EPSS and KEV are evidence of exploitation in the wild, never a likelihood. */
+function detail09(r, via) {
+  const regimes = Object.entries(r.other_regimes || {}).filter(([k]) => k !== 'note');
+  const ex = r.exploitation_evidence;
+  return card(el('h3', { style: { marginTop: 0 } }, tr('Ontology detail ({0})').replace('{0}', via === 'mcp' ? tr('MCP server') : tr('snapshot'))),
+    regimes.length ? el('div', null, el('b', null, 'Obligations under other regimes'), el('ul', 'small', ...regimes.map(([k, l]) => el('li', { 'data-noi18n': '' }, el('b', null, k.replace(/_/g, ' ')), ': ', l.map(x => `${x.id} ${x.title || ''}`).join(' · ')))),
+      el('p', 'small muted', { 'data-noi18n': '' }, r.other_regimes.note || '')) : null,
+    (r.countermeasures_d3fend || []).length ? el('div', null, el('b', null, 'D3FEND countermeasures'), el('div', 'small', { 'data-noi18n': '' }, r.countermeasures_d3fend.map(x => `${x.id} ${x.title} (${x.confidence})`).join(' · '))) : null,
+    ex ? el('div', { style: { marginTop: '6px' } }, el('b', null, 'Exploitation evidence (KEV, EPSS)'),
+      banner('warn', 'Evidence of exploitation in the wild — not a likelihood', 'EPSS is a dated observation about CVEs (probability of exploitation in the next 30 days); KEV lists vulnerabilities exploited somewhere. Neither is a value for Pb(A) or Pb(ψ,A), and neither says anything about this organisation\'s own systems.'),
+      table([{ key: 'id', label: 'Technique or weakness', cls: 'mono' }, { key: 'kev_vulnerabilities', label: 'KEV vulnerabilities', num: true }, { key: 'known_ransomware_use', label: 'Known ransomware use', num: true },
+        { key: 'epss_median', label: 'EPSS median (observation)', num: true }, { key: 'epss_max', label: 'EPSS max (observation)', num: true }], [...(ex.by_technique || []), ...(ex.by_weakness || [])], { class: 'compact' }),
+      el('p', 'small muted', { 'data-noi18n': '' }, ex.source || '')) : null,
+    !regimes.length && !(r.countermeasures_d3fend || []).length && !ex ? el('p', 'small muted', 'No 0.9 detail for this scenario.') : null);
+}
+
+/* ---------------- 1.6.0 — security-operations evidence (read only) ----------------
+   Rules covering the scenario with their coverage status, open detection gaps, recent alerts that are
+   not benign, cases and incidents, playbooks with their simulation status, and the evidence links
+   recorded on the scenario. Nothing here changes a parameter: the analyst cites it in a rationale.
+   TLP:RED and TLP:AMBER+STRICT alerts are masked unless the analyst opts in on this computer. */
+let soReveal = false;
+const COV_KIND = { validated: 'good', untested: 'warn', degraded: 'bad', missing: 'bad' };
+function secopsCard(s, sec) {
+  const ws = S.ws, E = SEED.scenarioEvidence(ws, s);
+  const box = el('div');
+  const hasAny = E.coverage.length || E.gaps.length || E.alerts.length || E.cases.length || E.incidents.length || E.playbooks.length || E.attached.length;
+  const reveal = el('input', { type: 'checkbox', checked: soReveal, style: { width: 'auto' } });
+  reveal.addEventListener('change', () => { soReveal = reveal.checked; box.replaceChildren(...body()); });
+  const masked = a => TLP_RESTRICTED.has(a.tlp || 'AMBER') && !soReveal;
+  const body = () => {
+    const out = [];
+    if (!hasAny) { out.push(el('p', 'small muted', 'No SIEM or SOAR record bears on this scenario yet (rules, gaps, alerts, cases, incidents or playbooks linked to it or to its ATT&CK techniques).')); return out; }
+    if (E.coverage.length) out.push(el('div', { style: { marginTop: '6px' } }, el('b', null, 'Detection coverage'), table([
+      { key: 'technique', label: 'Technique', cls: 'mono' },
+      { key: 'status', label: 'Coverage', render: r => pill(r.status, COV_KIND[r.status] || '') },
+      { key: 'rules', label: 'Rules (status)', render: r => el('span', { 'data-noi18n': '' }, r.rules.map(x => `${x.rule.id} (${statusAt(x.rule, E.asOf)} · ${x.status})`).join(', ') || '—') },
+      { key: 'why', label: 'Why', render: r => el('span', { class: 'small', 'data-noi18n': '' }, [...new Set(r.rules.flatMap(x => x.why || []))].join('; ') || (r.rules.length ? '' : 'no rule')) }], E.coverage, { class: 'compact' })));
+    if (E.gaps.length) out.push(el('div', 'small', { style: { marginTop: '6px' } }, el('b', null, 'Open detection gaps: '), el('span', { 'data-noi18n': '' }, E.gaps.map(g => `${g.id} ${g.technique || ''} ${g.title || ''}`.trim()).join(' · '))));
+    if (E.alerts.length) out.push(el('div', { style: { marginTop: '6px' } }, el('b', null, 'Recent alerts (benign and false positives left out) — not incidents'), table([
+      { key: 'id', label: 'Alert', render: a => el('span', { class: 'mono', 'data-noi18n': '' }, masked(a) ? '•••' : a.id) },
+      { key: 'detected', label: 'Detected', render: a => String(a.detected || '').slice(0, 10) },
+      { key: 'title', label: 'Title', render: a => masked(a) ? el('span', 'muted', 'Masked — restricted TLP') : el('span', { 'data-noi18n': '' }, a.title || '') },
+      { key: 'asset', label: 'Asset', render: a => masked(a) ? '' : el('span', { 'data-noi18n': '' }, a.asset || '—') },
+      { key: 'triage', label: 'Triage', render: a => a.triage || 'new' },
+      { key: 'tlp', label: 'TLP', render: a => pill('TLP:' + (a.tlp || 'AMBER'), TLP_RESTRICTED.has(a.tlp) ? 'bad' : a.tlp === 'AMBER' ? 'warn' : '') }], E.alerts.slice(0, 8), { class: 'compact' }),
+      E.alerts.length > 8 ? el('div', 'small muted', `${E.alerts.length - 8} more in SIEM → Alerts & triage.`) : null));
+    if (E.cases.length || E.incidents.length) out.push(el('div', 'small', { style: { marginTop: '6px' } },
+      E.cases.length ? el('div', null, el('b', null, 'SOAR cases: '), el('span', { 'data-noi18n': '' }, E.cases.map(c => `${c.id} ${c.title || ''} (${c.status || 'open'}${c.incident ? ' → ' + c.incident : ''})`).join(' · '))) : null,
+      E.incidents.length ? el('div', null, el('b', null, 'Incidents: '), ...E.incidents.map(x => el('span', null, el('span', { 'data-noi18n': '' }, `${x.inc.id} ${x.inc.title || ''} `), x.confirmed ? pill('confirmed', 'bad') : pill('not confirmed — not counted as an incident', 'warn'), ' '))) : null));
+    if (E.playbooks.length) out.push(el('div', 'small', { style: { marginTop: '6px' } }, el('b', null, 'Response playbooks: '),
+      ...E.playbooks.map(p => el('span', null, el('span', { 'data-noi18n': '' }, `${p.pb.id} ${p.pb.name || ''} `), p.passed ? pill('simulation passed', 'good') : pill(p.last ? 'last simulation failed or of another version' : 'not simulated', 'warn'), ' '))));
+    if (E.attached.length) out.push(el('div', 'small', { style: { marginTop: '6px' } }, el('b', null, 'Evidence links recorded on this scenario: '),
+      el('span', { 'data-noi18n': '' }, E.attached.map(e => `${e.kind} ${TLP_RESTRICTED.has(e.tlp) && !soReveal ? '•••' : e.id}${e.date ? ' ' + e.date : ''}${e.tlp ? ' TLP:' + e.tlp : ''}`).join(' · '))));
+    return out;
+  };
+  box.replaceChildren(...body());
+  return card({ 'data-secops': '' }, el('h2', null, 'Security-operations evidence'),
+    el('p', 'small muted', 'Evidence for the analyst to cite in a rationale — it changes no parameter. An alert is not an incident; source confidence is not a probability; coverage counts as validated only with an effective detection test.'),
+    hasAny ? el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', color: 'var(--ink)' } }, reveal, el('span', 'small', 'Show TLP:RED and TLP:AMBER+STRICT items on this computer')) : null,
+    box,
+    el('div', 'btnrow', { style: { marginTop: '8px' } },
+      el('a', { class: 'btn sm ghost', href: '#/siem/coverage' }, 'SIEM coverage & gaps'), el('a', { class: 'btn sm ghost', href: '#/siem/alerts' }, 'Alerts & triage'),
+      el('a', { class: 'btn sm ghost', href: '#/soar/cases' }, 'SOAR cases'), el('a', { class: 'btn sm ghost', href: '#/soar/playbooks' }, 'Playbooks'),
+      el('a', { class: 'btn sm ghost', href: '#/batch' }, 'Seeds in Batch scenarios')));
 }

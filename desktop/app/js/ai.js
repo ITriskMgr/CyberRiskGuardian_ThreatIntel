@@ -1,4 +1,4 @@
-/* ai.js — the AI layer (1.5.1 proof of concept; routing policy 1.5.3).
+/* ai.js — the AI layer (routing policy included).
 
    The one place in this application where anything about a workspace can leave the machine, and the
    rules that govern it:
@@ -44,6 +44,9 @@ export const FEATURES = [
   ['analyst', 'AI assistant — analyst', 'Profile, included scenarios with their figures, your question', 'medium', 'workspace'],
   ['critique', 'AI assistant — parameter critique', 'Scenarios with their parameters and rationales', 'medium', 'workspace'],
   ['briefing', 'Weekly threat briefing', 'Triaged feed stories matched to this organization', 'medium', 'workspace'],
+  ['isp_draft', 'Policy drafting (Security policies)', 'Organization profile and the policy or template being drafted', 'medium', 'workspace'],
+  ['simulation_pack', 'Simulation data for teaching (Settings)', 'Organization profile, scenarios (ids, names, ATT&CK), crown jewels and assets', 'medium', 'workspace'],
+  ['compliance_assess', 'Compliance assessment', 'Requirements, safeguards, policies and measures of the workspace; optionally document excerpts', 'high', 'workspace'],
   ['chat', 'Help chatbot — Ask AI', 'Your question, the screen, help passages, a short workspace summary', 'low', 'workspace'],
 ];
 export const MODES = [['workspace', 'Workspace provider'], ['local', 'Local model only'], ['remote', 'Remote provider'], ['off', 'Off']];
@@ -112,6 +115,32 @@ export function route(task, ws = S.ws) {
 }
 
 export const MARK = 'Analytical estimate — validation required.';
+
+/* ---------------- creativity (1.5.7) ----------------
+   How far a proposal may go beyond what the documents say. It changes completeness, never provenance:
+   at every level a value the documents do not support is tagged ASSUMPTION, EXTERNAL or UNKNOWN and
+   never FACT, and nothing becomes a stored value until the analyst accepts it. The level is written
+   into the payload itself, so the preview shows exactly what the model was asked to do. A sampling
+   temperature is sent only to local models: the newer Claude models reject one. */
+export const CREATIVITY = [
+  { id: 'strict', label: 'Strict — documented facts only', temp: 0.1,
+    help: 'Only what the documents state or directly imply. Anything else stays empty (UNKNOWN).',
+    rule: 'CREATIVITY: strict. Report only what the documents state or directly imply. Do not propose assumptions: leave a value empty with tag UNKNOWN when the documents are silent, and list it as a gap.' },
+  { id: 'balanced', label: 'Balanced — facts, then cautious assumptions', temp: 0.3,
+    help: 'The documents first; a cautious assumption where they are silent, labelled as such.',
+    rule: 'CREATIVITY: balanced. Use the documents first. Where they are silent, a cautious ASSUMPTION is acceptable when it is typical of this kind of organization; say why in "source".' },
+  { id: 'exploratory', label: 'Exploratory — fill the gaps with plausible data', temp: 0.6,
+    help: 'Aims for a complete answer: every gap gets a plausible value from the sector, size and region.',
+    rule: 'CREATIVITY: exploratory. Aim for completeness: for every value the documents do not give, propose a plausible ASSUMPTION based on the sector, size, region and the services described, and explain the reasoning in "source" (start it with "Proposed —"). Mark such values confidence Low or Medium.' },
+  { id: 'creative', label: 'Creative — propose what could also be there', temp: 0.9,
+    help: 'Also proposes items the documents do not mention but an organization like this usually has — assets, suppliers, processes, obligations, threats — for you to check.',
+    rule: 'CREATIVITY: creative. Get as much useful information as possible. Besides what the documents say, propose additional plausible items that an organization of this kind typically has (systems, data sets, suppliers, processes, obligations, threat sources, weaknesses), so the analyst can verify them with the organization. Every such item is tagged ASSUMPTION, confidence Low, and its "source" starts with "Proposed —" followed by the reasoning. Be imaginative but realistic; never present a proposal as documented.' },
+];
+export const DEFAULT_CREATIVITY = 'balanced';
+export const creativityLevel = id => CREATIVITY.find(c => c.id === id) || CREATIVITY.find(c => c.id === DEFAULT_CREATIVITY);
+/** Tasks whose answer is a set of proposals the level applies to. */
+export const takesCreativity = task => /^(extract_profile|extract_crown|extract_s_|extract_m_|scenarios$|causal_chain$|onto_|isp_draft$|compliance_assess$)/.test(task);
+export const creativity = (ws = S.ws) => creativityLevel(settings(ws).creativity).id;
 
 /* ---------------- per-workspace settings ---------------- */
 
@@ -279,7 +308,7 @@ export const TASKS = {
   /** K — scenario generation, optionally seeded by feed items already matched locally. */
   scenarios: {
     label: 'Scenario generation',
-    build(ws, { brief = '', count = 8, feedItems = [], docs = '' } = {}) {
+    build(ws, { brief = '', count = 8, feedItems = [], docs = '', secops = '' } = {}) {
       const existing = ws.assessment.SCEN.map(s => `${s.id}: ${s.name}`);
       const body = [
         orgContext(ws), '',
@@ -289,6 +318,9 @@ export const TASKS = {
       if (feedItems.length) body.push('', 'Threat-feed items the application has already matched to this organization:',
         ...feedItems.map(i => `- [${i.source}] ${i.title}${i.date ? ` (${i.date})` : ''}${i.why ? ` — matched because: ${i.why}` : ''}`));
       if (brief) body.push('', 'The analyst adds: ' + brief);
+      // 1.6.0 — security-operations seeds (secops_seed.js aiSummary: TLP-filtered, no source confidence)
+      if (secops) body.push('', secops, 'Use these seeds as evidence: a seed marked as evidence for an existing scenario is not a new scenario.',
+        'Never treat an alert as an incident or a detection gap as a probability. When a proposal is prompted by a seed, put the seed id in "seed".');
       // 1.5.4 — the full text of the context documents, when the analyst includes it
       if (docs) body.push('', 'Context documents of the organization (extracted text; base the scenarios on what they state):', docs);
       body.push('',
@@ -416,6 +448,13 @@ export function prepare(task, ws = S.ws, opts = {}) {
     const ctx = anon.context(ws, anon.DEFAULT_OPTS);
     redacted = anon.text(req.prompt, ctx, anon.DEFAULT_OPTS);
   }
+  const lvl = takesCreativity(task) ? creativityLevel(opts.creativity || settings(ws).creativity) : null;
+  if (lvl) {
+    const rule = lvl.rule + ' Whatever the level, every value keeps its provenance tag and "' + MARK + '" applies to everything that is not FACT.';
+    req.prompt = req.prompt.replace(/\n(DOCUMENTS:)/, '\n' + rule + '\n\n$1');
+    if (!req.prompt.includes(rule)) req.prompt += '\n\n' + rule;
+    if (redacted != null) redacted = anon.text(req.prompt, anon.context(ws, anon.DEFAULT_OPTS), anon.DEFAULT_OPTS);
+  }
   const sent = redacted ?? req.prompt;
   // 1.5.2 — prose comes back in the interface language; content (values taken from documents or the
   // workspace) stays in its own language.
@@ -428,6 +467,8 @@ export function prepare(task, ws = S.ws, opts = {}) {
   return { task, label: t.label, provider: r.provider, mode: r.mode, system, prompt: sent, original: req.prompt,
            web_search: !!req.web_search && r.provider === WEB_SEARCH_PROVIDER && policy().web_search,
            anonymized: !!redacted, json: !!req.json, max_tokens: req.max_tokens,
+           creativity: lvl ? lvl.id : null,
+           temperature: lvl && isLocal(r.provider) ? lvl.temp : undefined,
            bytes: new Blob([system + sent]).size,
            words: sent.split(/\s+/).filter(Boolean).length };
 }
@@ -437,11 +478,13 @@ export async function send(prepared, ws = S.ws) {
   const out = await helper.post('/api/ai', {
     provider: prepared.provider || settings(ws).provider, task: prepared.task, system: prepared.system, prompt: prepared.prompt, max_tokens: prepared.max_tokens,
     web_search: !!prepared.web_search,
+    ...(prepared.temperature != null ? { temperature: prepared.temperature } : {}),
   });
   if (out.error) throw new Error(out.error);
   const entry = record({
     task: prepared.task, label: prepared.label, provider: out.provider, model: out.model,
     bytes: prepared.bytes, anonymized: prepared.anonymized, usage: out.usage,
+    ...(prepared.edited ? { edited: true } : {}), ...(prepared.creativity ? { creativity: prepared.creativity } : {}),
     summary: prepared.prompt.slice(0, 160).replace(/\s+/g, ' '),
   }, ws);
   return { text: out.text, model: out.model, provider: out.provider, usage: out.usage, entryId: entry.id, sources: out.sources || [] };

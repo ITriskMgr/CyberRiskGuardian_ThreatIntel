@@ -1,4 +1,4 @@
-/* AI assistant (1.5.1 proof of concept) — the in-app analyst, parameter critique, scenario
+/* AI assistant (1.5.1) — the in-app analyst, parameter critique, scenario
    generation, and the decision log that records what was sent and what was done with the answer.
 
    The outbound preview is not decoration. It is the only honest way to let someone decide whether to
@@ -11,13 +11,14 @@ import { S, touch, compute, scen } from '../state.js';
 import * as AI from '../ai.js';
 import * as helper from '../helper.js';
 import * as F from '../forecast.js';
+import * as SEED from '../secops_seed.js';
 
 let view = 'analyst';
 let pending = null;            // a prepared payload awaiting the analyst's decision to send
 let answer = null;             // the last answer, by task
 let busy = false;
 const answers = {};
-const draft = { question: '', brief: '', count: 8 };
+const draft = { question: '', brief: '', count: 8, secops: false };
 
 export function render(sec, arg) {
   const ws = S.ws, a = AI.settings(ws);
@@ -220,6 +221,13 @@ function scenarioView(body, sec) {
   const seeds = notes.slice(0, 40);
   const picked = new Set();
   const seedBox = el('div', 'chips');
+  // 1.6.0 — security-operations seeds (TLP-filtered summary; shown in the preview before anything is sent)
+  const soN = SEED.seeds(ws, { excludeRestricted: true }).seeds.length;
+  const soCb = el('input', { type: 'checkbox', checked: draft.secops && soN > 0, disabled: !soN, style: { width: 'auto' } });
+  soCb.addEventListener('change', () => { draft.secops = soCb.checked; });
+  const soCheck = el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--ink)', margin: '8px 0' } }, soCb,
+    el('span', null, el('b', null, 'Include security-operations evidence'),
+      el('div', 'small muted', soN ? `${soN} seed(s) from SIEM and SOAR, summarised in the preview. Nothing marked TLP:RED or TLP:AMBER+STRICT is included, and source confidence is never sent.` : 'No security-operations record suggests a scenario yet.')));
   for (const s of seeds) {
     const lab = el('label', { class: 'chip', style: { cursor: 'pointer' } },
       el('input', { type: 'checkbox', style: { width: 'auto', margin: 0 },
@@ -235,8 +243,9 @@ function scenarioView(body, sec) {
     el('div', 'grid g3', field('How many', n)),
     field('Direction (optional)', b),
     seeds.length ? field('Seed from threat-feed items already matched to this organization', seedBox) : null,
+    soCheck,
     el('div', 'row', el('button', { class: 'btn', onclick: () => prep(sec, 'scenarios',
-      { brief: draft.brief, count: draft.count, feedItems: [...picked] }) }, 'Prepare the request'))));
+      { brief: draft.brief, count: draft.count, feedItems: [...picked], secops: draft.secops && soN ? SEED.aiSummary(ws) : '' }) }, 'Prepare the request'))));
   if (pending?.task === 'scenarios') body.append(previewCard(sec));
 
   const out = answers.scenarios;

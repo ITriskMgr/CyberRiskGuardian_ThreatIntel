@@ -19,7 +19,10 @@ analysts:
 - calibrate likelihood against current, dated threat intelligence;
 - compare residual risk with the organization's risk appetite;
 - design treatment portfolios and cybersecurity budgets;
-- produce decision-ready reports, including a threat-driven revision log.
+- produce decision-ready reports, including a threat-driven revision log;
+- optionally, read legal applicability, control evidence, compliance posture and detection and
+  response readiness from the CyberRiskGuardian Ontology (CRGO 0.10.0) and write results back to it
+  as *proposed*.
 
 Cybersecurity professionals remain responsible for validating assumptions and for final risk
 decisions.
@@ -56,6 +59,7 @@ All methodology lives under `plugins/cyberriskguardian-threatintel/`:
 | **Threat-context calibration and revision log** | `skills/threat-context-calibration/` |
 | Scenario selection (20 steps, Sections A–E, 14 critical rules) | `skills/scenario-selection/` |
 | Budget guideline (4% / 7.8% / 12% of IT budget) | `skills/cyber-budget-calibration/` |
+| **CRGO integration: dss/v1, compliance/v1 and secops/v1 contracts, knowledge status, applicability, control evidence** | `skills/cyber-risk-assessment/references/crgo-integration.md` |
 | Reference textbook: *Introduction to Cybersecurity Governance*, 3rd ed. v2.1g (concepts, frameworks, CRG model in Ch. 6) | `skills/cybersecurity-governance/` |
 
 ### Key formulas (CyberRiskGuardian Excel Guide v1.0c — never modify silently)
@@ -90,13 +94,35 @@ Ratio = Residual ÷ Tolerated  (<0.90 below · 0.90–1.10 approximately at · >
 - Report the snapshot date, the sources, the revision log and the watch list, so staleness is
   visible to the reader.
 
+## CyberRiskGuardian Ontology (CRGO), optional
+- CRGO states facts, links and their review status. It **never computes risk**, and must not be asked
+  to. All numbers still come from `crg_calc.py` or the `crg-calculator` tools.
+- Write-backs (`crgo_submit_assessment`, `crgo_contract.py submit`) are always `proposed`. They are
+  never an approval, a risk acceptance or a funding decision: **Management decision required**.
+- Organisation IRIs use the organisation's own base, never `https://w3id.org/crgo/`; one
+  organisation per graph file; graphs and write-backs stay out of this repository and CRGO's.
+- *Supports compliance with* is not compliance. EPSS is not a scenario likelihood, and KEV presence
+  says nothing about the organization's systems.
+- Unknown applicability stays unknown (**Evidence gap — organizational input required**);
+  *potentially applicable* needs a qualified person. Never legal advice.
+- Licensed standards (IIA, ISACA, AICPA, COSO, ISO) appear only as identifiers, official headings
+  and CRGO paraphrases. Never reproduce their text.
+- With CRGO 0.10.0 (`compliance/v1`, `secops/v1`, read only): a mapping, policy statement,
+  acknowledgement or attestation is never compliance; an alert or indicator match is never an
+  incident or attribution; nothing CRGO returns authorises a response action (approval gaps are
+  audit signals); coverage counts as validated only with an effective detection test; source
+  confidence (e.g. STIX 0–100) is not a probability; respect TLP markings; licensed standards
+  (ISO 37301 and its 2024 amendment, IIA, ISACA…) stay identifiers and paraphrases.
+- Pin CRGO tag **v0.10.0** (dss/v1 works from v0.9.1) and cite its release in reports.
+
 ## Tech stack
 | Area | Tools |
 |---|---|
 | Calculations | Python 3.10+ with `cvss`, `openpyxl`, `mcp`. See `requirements.txt`. |
 | Word reports | Node 18+ with `docx` (`package.json`). |
 | Recalculation and PDF rendering | LibreOffice (headless). |
-| Scripts | `plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/`: `crg_calc.py`, `build_workbook.py`, `budget_calibrator.py`, `threat_snapshot.py`. |
+| Scripts | `plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/`: `crg_calc.py`, `build_workbook.py`, `budget_calibrator.py`, `threat_snapshot.py`, `crgo_contract.py` (CRGO bridge: graph, context, submit, compliance, secops) and `test_crgo_contract.py`. |
+| Ontology (optional) | CRGO v0.10.0 checkout (`./CyberRiskGuardian-Ontology-0.10.0/` or `$CRGO_HOME`), with `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`. MCP server `crgo-ontology` over stdio. |
 | Local calculator server | `plugins/cyberriskguardian-threatintel/mcp/crg_server.py`, an MCP server over stdio. Tools: `crg_risk`, `cvss4_score`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`. |
 
 ## Execution guidelines

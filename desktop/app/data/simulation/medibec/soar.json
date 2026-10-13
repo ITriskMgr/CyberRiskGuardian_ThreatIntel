@@ -1,0 +1,976 @@
+{
+ "format": "crg-soar-import/1",
+ "generated": "2026-10-12T09:00:00",
+ "source": "CyberRiskGuardian simulation pack medibec-ransomware-2026 — FICTIONAL teaching data",
+ "simulation": true,
+ "note": "Every record in this file is fictional. Nothing in it was executed on any system. Times are local (Eastern time), without zone. No incident confirmation is included: students confirm (or not) in the application.",
+ "playbooks": [
+  {
+   "id": "PB-MB-01",
+   "name": "Phishing with a malicious attachment",
+   "purpose": "Contain a delivered malicious attachment and find every recipient. FICTIONAL — simulation data for the MediBec teaching case.",
+   "owner": "Nadia Roy",
+   "category": "social-engineering",
+   "trigger": {
+    "kind": "alert",
+    "conditions": "DR-MB-01 or DR-MB-02 alert"
+   },
+   "scenarios": [
+    "S1",
+    "S2"
+   ],
+   "versions": [
+    {
+     "version": 1,
+     "state": "retired",
+     "published": "2026-02-01",
+     "publishedBy": "Nadia Roy",
+     "steps": [
+      {
+       "id": "ST-1",
+       "name": "Collect",
+       "action": "collect message headers and attachment hash",
+       "riskClass": "read-only",
+       "evidence": "header export and hash in the case"
+      },
+      {
+       "id": "ST-2",
+       "name": "Contain",
+       "action": "isolate workstation",
+       "riskClass": "containment",
+       "gate": "GATE-MB-01",
+       "evidence": "EDR isolation record"
+      }
+     ]
+    },
+    {
+     "version": 2,
+     "state": "published",
+     "published": "2026-08-15",
+     "publishedBy": "Nadia Roy",
+     "steps": [
+      {
+       "id": "ST-1",
+       "name": "Collect",
+       "action": "collect message headers and attachment hash",
+       "riskClass": "read-only",
+       "evidence": "header export and hash in the case"
+      },
+      {
+       "id": "ST-2",
+       "name": "Scope",
+       "action": "search every mailbox for the same message",
+       "riskClass": "read-only",
+       "evidence": "search result export"
+      },
+      {
+       "id": "ST-3",
+       "name": "Purge",
+       "action": "purge the message from all mailboxes",
+       "riskClass": "administrative",
+       "requiresGate": true,
+       "evidence": "purge job report"
+      },
+      {
+       "id": "ST-4",
+       "name": "Contain",
+       "action": "isolate workstation",
+       "riskClass": "containment",
+       "gate": "GATE-MB-01",
+       "evidence": "EDR isolation record"
+      }
+     ]
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "PB-MB-02",
+   "name": "Compromised account and MFA fatigue",
+   "purpose": "Stop an attacker using a valid account. FICTIONAL — simulation data for the MediBec teaching case.",
+   "owner": "Nadia Roy",
+   "category": "unauthorised-access",
+   "trigger": {
+    "kind": "alert",
+    "conditions": "DR-MB-03 or DR-MB-04 alert on a privileged account"
+   },
+   "scenarios": [
+    "S1",
+    "S27"
+   ],
+   "versions": [
+    {
+     "version": 1,
+     "state": "published",
+     "published": "2026-06-10",
+     "publishedBy": "Louis Gagnon",
+     "steps": [
+      {
+       "id": "ST-1",
+       "name": "Collect",
+       "action": "export sign-in and MFA logs",
+       "riskClass": "read-only",
+       "evidence": "log export"
+      },
+      {
+       "id": "ST-2",
+       "name": "Contain",
+       "action": "revoke sessions and disable account",
+       "riskClass": "containment",
+       "gate": "GATE-MB-01",
+       "evidence": "IdP audit entry"
+      },
+      {
+       "id": "ST-3",
+       "name": "Recover",
+       "action": "reset credentials and re-register MFA",
+       "riskClass": "administrative",
+       "requiresGate": true,
+       "evidence": "IdP audit entry and service-desk ticket"
+      },
+      {
+       "id": "ST-4",
+       "name": "Inform",
+       "action": "inform the account owner and their manager",
+       "riskClass": "read-only",
+       "evidence": "message in the case"
+      }
+     ]
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "PB-MB-03",
+   "name": "Ransomware on clinical systems",
+   "purpose": "Contain encryption, protect the backups and restore clinical service. FICTIONAL — simulation data for the MediBec teaching case.",
+   "owner": "Louis Gagnon",
+   "category": "malware",
+   "trigger": {
+    "kind": "alert",
+    "conditions": "DR-MB-07 or DR-MB-08 alert"
+   },
+   "scenarios": [
+    "S2",
+    "S3"
+   ],
+   "versions": [
+    {
+     "version": 1,
+     "state": "published",
+     "published": "2026-05-30",
+     "publishedBy": "Louis Gagnon",
+     "steps": [
+      {
+       "id": "ST-1",
+       "name": "Contain",
+       "action": "isolate affected servers",
+       "riskClass": "containment",
+       "gate": "GATE-MB-01",
+       "criticalAsset": true,
+       "evidence": "EDR isolation records"
+      },
+      {
+       "id": "ST-2",
+       "name": "Contain",
+       "action": "disable compromised accounts",
+       "riskClass": "containment",
+       "gate": "GATE-MB-01",
+       "evidence": "IdP audit entries"
+      },
+      {
+       "id": "ST-3",
+       "name": "Contain",
+       "action": "block indicators at the firewall",
+       "riskClass": "administrative",
+       "evidence": "firewall change record"
+      },
+      {
+       "id": "ST-4",
+       "name": "Preserve",
+       "action": "acquire memory and disk images",
+       "riskClass": "read-only",
+       "evidence": "artefact register entries with SHA-256"
+      },
+      {
+       "id": "ST-5",
+       "name": "Recover",
+       "action": "restore from the off-site backup",
+       "riskClass": "administrative",
+       "requiresGate": true,
+       "criticalAsset": true,
+       "evidence": "restore report verified by the system owner"
+      }
+     ]
+    },
+    {
+     "version": 2,
+     "state": "draft",
+     "steps": [
+      {
+       "id": "ST-1",
+       "name": "Contain",
+       "action": "isolate affected servers",
+       "riskClass": "containment",
+       "gate": "GATE-MB-01",
+       "criticalAsset": true,
+       "evidence": "EDR isolation records"
+      },
+      {
+       "id": "ST-2",
+       "name": "Protect backups",
+       "action": "disconnect the backup network",
+       "riskClass": "containment",
+       "evidence": ""
+      }
+     ]
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "PB-MB-04",
+   "name": "Bulk download from cloud image storage",
+   "purpose": "Stop and scope a possible health-data exfiltration from cloud storage. FICTIONAL — simulation data for the MediBec teaching case.",
+   "owner": "Nadia Roy",
+   "category": "data-exposure",
+   "trigger": {
+    "kind": "alert",
+    "conditions": "DR-MB-09 alert"
+   },
+   "scenarios": [
+    "S4"
+   ],
+   "versions": [
+    {
+     "version": 1,
+     "state": "published",
+     "published": "2026-07-01",
+     "publishedBy": "Nadia Roy",
+     "steps": [
+      {
+       "id": "ST-1",
+       "name": "Collect",
+       "action": "export storage access logs",
+       "riskClass": "read-only",
+       "evidence": "log export"
+      },
+      {
+       "id": "ST-2",
+       "name": "Contain",
+       "action": "revoke sharing links and rotate access keys",
+       "riskClass": "containment",
+       "gate": "GATE-MB-01"
+      },
+      {
+       "id": "ST-3",
+       "name": "Assess",
+       "action": "list the patients whose images were exposed",
+       "riskClass": "read-only",
+       "evidence": "list kept by the privacy officer"
+      }
+     ]
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "PB-MB-05",
+   "name": "Wipe and reimage a workstation",
+   "purpose": "Return an infected workstation to service. FICTIONAL — simulation data for the MediBec teaching case.",
+   "owner": "Julie Tremblay",
+   "category": "malware",
+   "trigger": {
+    "kind": "manual",
+    "conditions": "after evidence is preserved"
+   },
+   "scenarios": [
+    "S2"
+   ],
+   "versions": [
+    {
+     "version": 1,
+     "state": "published",
+     "published": "2026-03-20",
+     "publishedBy": "Julie Tremblay",
+     "steps": [
+      {
+       "id": "ST-1",
+       "name": "Preserve",
+       "action": "acquire disk image",
+       "riskClass": "read-only",
+       "evidence": "artefact register entry"
+      },
+      {
+       "id": "ST-2",
+       "name": "Wipe",
+       "action": "wipe and reimage workstation",
+       "riskClass": "destructive",
+       "gate": "GATE-MB-01",
+       "evidence": "imaging job report"
+      }
+     ]
+    }
+   ],
+   "simulation": true
+  }
+ ],
+ "gates": [
+  {
+   "id": "GATE-MB-01",
+   "name": "Containment and destructive actions need the SOC lead or the CISO",
+   "riskClasses": [
+    "containment",
+    "destructive"
+   ],
+   "authorities": [
+    "Nadia Roy",
+    "Louis Gagnon"
+   ],
+   "scope": "All MediBec systems",
+   "validFrom": "2026-01-01",
+   "simulation": true
+  },
+  {
+   "id": "GATE-MB-02",
+   "name": "Any change on a crown-jewel system also needs IT operations",
+   "riskClasses": [],
+   "criticalAssets": true,
+   "authorities": [
+    "Julie Tremblay",
+    "Louis Gagnon"
+   ],
+   "scope": "Crown jewels CJ1–CJ8",
+   "validFrom": "2026-01-01",
+   "simulation": true
+  }
+ ],
+ "cases": [
+  {
+   "id": "CASE-MB-01",
+   "title": "Malicious .docm opened at the Gatineau clinic (WS-GAT-014)",
+   "source": {
+    "kind": "alert",
+    "id": "AL-MB-006"
+   },
+   "opened": "2026-09-23T08:30",
+   "status": "closed",
+   "severity": "high",
+   "category": "social-engineering",
+   "alerts": [
+    "AL-MB-006",
+    "AL-MB-007",
+    "AL-MB-008"
+   ],
+   "assignee": "Émilie Bouchard",
+   "assets": [],
+   "target": "WS-GAT-014",
+   "activityStart": "2026-09-23T07:51",
+   "statusDates": {
+    "investigating": "2026-09-23T08:45",
+    "contained": "2026-09-23T11:20",
+    "eradicated": "2026-09-24T10:00",
+    "recovered": "2026-09-24T15:00",
+    "closed": "2026-09-25T09:00"
+   },
+   "timeline": [
+    {
+     "at": "2026-09-23T08:45",
+     "by": "Émilie Bouchard",
+     "text": "One recipient opened the attachment; 13 copies quarantined."
+    },
+    {
+     "at": "2026-09-23T11:20",
+     "by": "Émilie Bouchard",
+     "text": "WS-GAT-014 isolated."
+    }
+   ],
+   "closure": "Workstation reimaged; no persistence found. (Closed too early — see the later cases.)",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "CASE-MB-02",
+   "title": "Account takeover of adm.jdupuis through MFA fatigue",
+   "source": {
+    "kind": "alert",
+    "id": "AL-MB-015"
+   },
+   "opened": "2026-09-28T08:10",
+   "status": "eradicated",
+   "severity": "critical",
+   "category": "unauthorised-access",
+   "alerts": [
+    "AL-MB-014",
+    "AL-MB-015",
+    "AL-MB-016",
+    "AL-MB-017",
+    "AL-MB-018"
+   ],
+   "assignee": "Karim Haddad",
+   "assets": [
+    "CJ5"
+   ],
+   "target": "adm.jdupuis",
+   "activityStart": "2026-09-27T22:33",
+   "statusDates": {
+    "investigating": "2026-09-28T09:15",
+    "contained": "2026-09-28T15:20",
+    "eradicated": "2026-10-05T12:00"
+   },
+   "timeline": [
+    {
+     "at": "2026-09-28T09:15",
+     "by": "Karim Haddad",
+     "text": "Service-desk report matches the MFA alerts of the night."
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "CASE-MB-03",
+   "title": "Ransomware encryption of EHR and scheduling servers",
+   "source": {
+    "kind": "alert",
+    "id": "AL-MB-031"
+   },
+   "opened": "2026-10-04T01:05",
+   "status": "contained",
+   "severity": "critical",
+   "category": "malware",
+   "alerts": [
+    "AL-MB-029",
+    "AL-MB-030",
+    "AL-MB-031",
+    "AL-MB-032",
+    "AL-MB-033",
+    "AL-MB-034",
+    "AL-MB-035"
+   ],
+   "assignee": "Nadia Roy",
+   "assets": [
+    "CJ1",
+    "CJ3",
+    "CJ6"
+   ],
+   "target": "SRV-EHR-APP02",
+   "activityStart": "2026-09-23T07:51",
+   "statusDates": {
+    "investigating": "2026-10-04T01:20",
+    "contained": "2026-10-05T04:00"
+   },
+   "timeline": [
+    {
+     "at": "2026-10-04T01:20",
+     "by": "Nadia Roy",
+     "text": "Encryption confirmed on the EHR document share and SRV-SCHED-01."
+    },
+    {
+     "at": "2026-10-04T06:30",
+     "by": "Nadia Roy",
+     "text": "Clinics switched to paper downtime procedures."
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "CASE-MB-04",
+   "title": "Bulk download from cloud image-transfer storage by 203.0.113.88",
+   "source": {
+    "kind": "alert",
+    "id": "AL-MB-024"
+   },
+   "opened": "2026-10-01T08:00",
+   "status": "investigating",
+   "severity": "high",
+   "category": "data-exposure",
+   "alerts": [
+    "AL-MB-024"
+   ],
+   "assignee": "Émilie Bouchard",
+   "assets": [
+    "CJ7"
+   ],
+   "target": "image-transfer-bucket",
+   "statusDates": {
+    "investigating": "2026-10-01T09:30"
+   },
+   "timeline": [
+    {
+     "at": "2026-10-01T09:30",
+     "by": "Émilie Bouchard",
+     "text": "Data-read events are not collected since 29 September (TS-MB-CLOUD degraded)."
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "approvals": [
+  {
+   "id": "APR-MB-01",
+   "kind": "specific",
+   "gate": "GATE-MB-01",
+   "requestedBy": "Émilie Bouchard",
+   "requested": "2026-09-23",
+   "outcome": "approved",
+   "approver": "Nadia Roy",
+   "decidedOn": "2026-09-23T11:05",
+   "validFrom": "2026-09-23T11:05",
+   "validUntil": "2026-09-23",
+   "case": "CASE-MB-01",
+   "action": "isolate workstation",
+   "targets": [
+    "WS-GAT-014"
+   ],
+   "rationale": "Confirmed macro execution. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "APR-MB-02",
+   "kind": "pre-authorisation",
+   "gate": "GATE-MB-01",
+   "requestedBy": "Nadia Roy",
+   "requested": "2026-01-05",
+   "outcome": "approved",
+   "approver": "Louis Gagnon",
+   "decidedOn": "2026-01-06",
+   "validFrom": "2026-01-06",
+   "validUntil": "2026-09-30",
+   "riskClasses": [
+    "containment"
+   ],
+   "scope": "Isolation of clinic workstations by the SOC on a confirmed malware alert",
+   "rationale": "Standing pre-authorisation for 2026 — expired on 30 September and not renewed. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "APR-MB-03",
+   "kind": "specific",
+   "gate": "GATE-MB-01",
+   "requestedBy": "Karim Haddad",
+   "requested": "2026-09-28",
+   "outcome": "approved",
+   "approver": "Nadia Roy",
+   "decidedOn": "2026-09-28T10:00",
+   "validFrom": "2026-09-28T10:00",
+   "validUntil": "2026-09-29",
+   "case": "CASE-MB-02",
+   "action": "revoke sessions and disable account",
+   "targets": [
+    "adm.jdupuis"
+   ],
+   "revokedOn": "2026-09-28T14:00",
+   "revokedBy": "Louis Gagnon",
+   "rationale": "Revoked: the account runs the night pharmacy interface; wait for a replacement account. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "APR-MB-04",
+   "kind": "specific",
+   "gate": "GATE-MB-01",
+   "requestedBy": "Karim Haddad",
+   "requested": "2026-10-04",
+   "outcome": "approved",
+   "approver": "Karim Haddad",
+   "decidedOn": "2026-10-04T02:00",
+   "validFrom": "2026-10-04T02:00",
+   "case": "CASE-MB-03",
+   "action": "disable compromised accounts",
+   "targets": [
+    "ehr-sync-svc"
+   ],
+   "rationale": "Self-approval attempt during the night: the import refuses this record. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "APR-MB-05",
+   "kind": "specific",
+   "gate": "GATE-MB-01",
+   "requestedBy": "Karim Haddad",
+   "requested": "2026-10-04",
+   "outcome": "approved",
+   "approver": "Samuel Côté",
+   "decidedOn": "2026-10-04T02:10",
+   "validFrom": "2026-10-04T02:10",
+   "case": "CASE-MB-03",
+   "action": "isolate affected servers",
+   "targets": [
+    "SRV-EHR-APP03"
+   ],
+   "rationale": "Approved by the service desk, who is not an authority of the gates. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "APR-MB-06",
+   "kind": "specific",
+   "gate": "GATE-MB-01",
+   "requestedBy": "Nadia Roy",
+   "requested": "2026-10-04",
+   "outcome": "approved",
+   "approver": "Louis Gagnon",
+   "decidedOn": "2026-10-04T01:40",
+   "validFrom": "2026-10-04T01:40",
+   "validUntil": "2026-10-06",
+   "case": "CASE-MB-03",
+   "action": "isolate affected servers",
+   "targets": [
+    "SRV-EHR-APP02",
+    "SRV-SCHED-01"
+   ],
+   "rationale": "Encryption in progress on crown-jewel servers. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "APR-MB-07",
+   "kind": "specific",
+   "gate": "GATE-MB-01",
+   "requestedBy": "Julie Tremblay",
+   "requested": "2026-10-04",
+   "outcome": "rejected",
+   "approver": "Louis Gagnon",
+   "decidedOn": "2026-10-04T09:00",
+   "case": "CASE-MB-03",
+   "action": "wipe and reimage workstation",
+   "targets": [
+    "WS-SAG-007"
+   ],
+   "rationale": "Rejected: preserve the disk image first. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "APR-MB-08",
+   "kind": "specific",
+   "gate": "GATE-MB-02",
+   "requestedBy": "Nadia Roy",
+   "requested": "2026-10-08",
+   "outcome": "requested",
+   "case": "CASE-MB-03",
+   "action": "restore from the off-site backup",
+   "targets": [
+    "SRV-EHR-APP02"
+   ],
+   "rationale": "Awaiting the restore test result. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "executions": [
+  {
+   "id": "EXE-MB-01",
+   "attempt": "att-mb-001",
+   "case": "CASE-MB-01",
+   "playbook": "PB-MB-01",
+   "version": 2,
+   "step": "ST-1",
+   "action": "collect message headers and attachment hash",
+   "riskClass": "read-only",
+   "target": "WS-GAT-014",
+   "performedBy": "Émilie Bouchard",
+   "started": "2026-09-23T08:50",
+   "ended": "2026-09-23T09:05",
+   "status": "succeeded",
+   "evidence": [
+    "header export in the case"
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-02",
+   "attempt": "att-mb-002",
+   "case": "CASE-MB-01",
+   "playbook": "PB-MB-01",
+   "version": 2,
+   "step": "ST-4",
+   "action": "isolate workstation",
+   "riskClass": "containment",
+   "target": "WS-GAT-014",
+   "performedBy": "Émilie Bouchard",
+   "started": "2026-09-23T11:10",
+   "ended": "2026-09-23T11:12",
+   "status": "succeeded",
+   "approval": "APR-MB-01",
+   "evidence": [
+    "EDR isolation record"
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-03",
+   "attempt": "att-mb-003",
+   "case": "CASE-MB-02",
+   "playbook": "PB-MB-02",
+   "version": 1,
+   "step": "ST-2",
+   "action": "revoke sessions and disable account",
+   "riskClass": "containment",
+   "target": "adm.jdupuis",
+   "performedBy": "Karim Haddad",
+   "started": "2026-09-28T15:10",
+   "ended": "2026-09-28T15:20",
+   "status": "succeeded",
+   "approval": "APR-MB-03",
+   "evidence": [
+    "IdP audit entry"
+   ],
+   "notes": "Performed after the approval was revoked. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-04",
+   "attempt": "att-mb-004",
+   "case": "CASE-MB-02",
+   "playbook": "PB-MB-02",
+   "version": 1,
+   "step": "ST-3",
+   "action": "reset credentials and re-register MFA",
+   "riskClass": "administrative",
+   "target": "adm.jdupuis",
+   "performedBy": "Samuel Côté",
+   "started": "2026-09-28T16:00",
+   "ended": "2026-09-28T16:20",
+   "status": "succeeded",
+   "evidence": [
+    "service-desk ticket"
+   ],
+   "notes": "No approval was asked for. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-05",
+   "attempt": "att-mb-005",
+   "case": "CASE-MB-03",
+   "playbook": "PB-MB-03",
+   "version": 1,
+   "step": "ST-1",
+   "action": "isolate affected servers",
+   "riskClass": "containment",
+   "target": "SRV-EHR-APP02",
+   "criticalAsset": true,
+   "performedBy": "Nadia Roy",
+   "started": "2026-10-04T01:45",
+   "ended": "2026-10-04T01:50",
+   "status": "succeeded",
+   "approval": "APR-MB-06",
+   "evidence": [
+    "EDR isolation record"
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-06",
+   "attempt": "att-mb-006",
+   "case": "CASE-MB-03",
+   "action": "isolate workstation",
+   "riskClass": "containment",
+   "target": "WS-SAG-007",
+   "performedBy": "Émilie Bouchard",
+   "started": "2026-10-04T01:55",
+   "ended": "2026-10-04T01:57",
+   "status": "succeeded",
+   "approval": "APR-MB-02",
+   "evidence": [
+    "EDR isolation record"
+   ],
+   "notes": "Relied on the 2026 standing pre-authorisation. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-07",
+   "attempt": "att-mb-007",
+   "case": "CASE-MB-03",
+   "playbook": "PB-MB-03",
+   "version": 1,
+   "step": "ST-2",
+   "action": "disable compromised accounts",
+   "riskClass": "containment",
+   "target": "ehr-sync-svc",
+   "performedBy": "Karim Haddad",
+   "started": "2026-10-04T02:05",
+   "ended": "2026-10-04T02:06",
+   "status": "succeeded",
+   "approval": "APR-MB-04",
+   "evidence": [
+    "IdP audit entry"
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-08",
+   "attempt": "att-mb-008",
+   "case": "CASE-MB-03",
+   "playbook": "PB-MB-03",
+   "version": 1,
+   "step": "ST-1",
+   "action": "isolate affected servers",
+   "riskClass": "containment",
+   "target": "SRV-EHR-APP03",
+   "criticalAsset": true,
+   "performedBy": "Karim Haddad",
+   "started": "2026-10-04T02:15",
+   "ended": "2026-10-04T02:18",
+   "status": "partial",
+   "approval": "APR-MB-05",
+   "evidence": [
+    "EDR isolation record (agent timeout)"
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-09",
+   "attempt": "att-mb-009",
+   "case": "CASE-MB-03",
+   "playbook": "PB-MB-03",
+   "version": 1,
+   "step": "ST-3",
+   "action": "block indicators at the firewall",
+   "riskClass": "administrative",
+   "target": "FW-MTL-HUB",
+   "performedBy": "Julie Tremblay",
+   "started": "2026-10-04T02:30",
+   "ended": "2026-10-04T02:40",
+   "status": "succeeded",
+   "evidence": [
+    "firewall change record"
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-10",
+   "attempt": "att-mb-010",
+   "case": "CASE-MB-03",
+   "playbook": "PB-MB-05",
+   "version": 1,
+   "step": "ST-2",
+   "action": "wipe and reimage workstation",
+   "riskClass": "destructive",
+   "target": "WS-SAG-007",
+   "performedBy": "Julie Tremblay",
+   "started": "2026-10-04T09:30",
+   "ended": "2026-10-04T09:35",
+   "status": "cancelled",
+   "approval": "APR-MB-07",
+   "evidence": [],
+   "notes": "Started although the approval was rejected; stopped by the SOC lead. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "EXE-MB-11",
+   "attempt": "att-mb-011",
+   "case": "CASE-MB-04",
+   "playbook": "PB-MB-04",
+   "version": 1,
+   "step": "ST-1",
+   "action": "export storage access logs",
+   "riskClass": "read-only",
+   "target": "image-transfer-bucket",
+   "performedBy": "Émilie Bouchard",
+   "started": "2026-10-01T09:40",
+   "ended": "2026-10-01T10:10",
+   "status": "succeeded",
+   "evidence": [
+    "log export (management events only)"
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "simulations": [
+  {
+   "id": "SIM-MB-01",
+   "playbook": "PB-MB-01",
+   "version": 1,
+   "date": "2026-03-05",
+   "by": "Émilie Bouchard",
+   "result": "passed",
+   "scenario": "S2",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "SIM-MB-02",
+   "playbook": "PB-MB-01",
+   "version": 2,
+   "date": "2026-08-20",
+   "by": "Émilie Bouchard",
+   "result": "passed",
+   "scenario": "S2",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "SIM-MB-03",
+   "playbook": "PB-MB-03",
+   "version": 1,
+   "date": "2026-06-12",
+   "by": "Nadia Roy",
+   "result": "passed",
+   "scenario": "S2",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "SIM-MB-04",
+   "playbook": "PB-MB-04",
+   "version": 1,
+   "date": "2026-07-08",
+   "by": "Émilie Bouchard",
+   "result": "failed",
+   "scenario": "S4",
+   "steps": [
+    {
+     "step": "ST-2",
+     "action": "revoke sharing links and rotate access keys",
+     "riskClass": "containment",
+     "needsApproval": true,
+     "approval": "",
+     "flags": [
+      "needs approval"
+     ],
+     "issues": [
+      "missing expected evidence"
+     ]
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "lessons": [
+  {
+   "id": "LL-MB-01",
+   "case": "CASE-MB-01",
+   "date": "2026-10-07",
+   "by": "Nadia Roy",
+   "scenarios": [
+    "S2",
+    "S8"
+   ],
+   "lesson": "The EDR alert on WINWORD spawning PowerShell (AL-MB-008) was closed as benign by the service desk; the beacon alerts that followed were never triaged. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "artefacts": [
+  {
+   "id": "FA-MB-01",
+   "case": "CASE-MB-03",
+   "kind": "disk-image",
+   "pointer": "evidence-vault://medibec/CASE-MB-03/WS-SAG-007.e01 (fictional)",
+   "sha256": "152609f106ef52a57a5017c313e5fa993384eafd23e942cdf09614dca5efdaf5",
+   "acquired": "2026-10-04T10:15",
+   "acquiredBy": "Karim Haddad",
+   "custody": [
+    "Karim Haddad",
+    "Nadia Roy"
+   ],
+   "simulation": true
+  }
+ ]
+}

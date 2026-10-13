@@ -3,7 +3,7 @@
    and are never reimplemented here. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { $, qsa, el, n0, banner, toast, go } from './util.js';
-import { S, on, loadAll, select, emit } from './state.js';
+import { isReadOnly, S, on, loadAll, select, emit } from './state.js';
 import * as nav from './nav.js';
 import * as FW from './frameworks.js';
 import * as org from './panels/org.js';
@@ -35,13 +35,26 @@ import * as settings from './panels/settings.js';
 import * as processp from './panels/process.js';
 import * as about from './panels/about.js';
 import * as reset from './panels/reset.js';
+import * as ontology from './panels/ontology.js';
+import * as registry from './panels/rhub.js';
+import * as isp from './panels/isp.js';
+import * as isms from './panels/isms.js';
+import * as csm from './panels/csm.js';
+import * as audit from './panels/audit.js';
+import * as qc from './panels/qc.js';
+import * as shared from './panels/shared.js';
+import * as siem from './panels/siem.js';
+import * as soar from './panels/soar.js';
 import * as i18n from './i18n.js';
+import * as MOD from './modules.js';
+import * as LOG from './logs.js';
+import * as HELP from './helpdesc.js';
 import * as users from './users.js';
 import * as chat from './chat.js';
 import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
 
-const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, register, scenario, batch, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, cvss, budget, export: exportp, ai, forecast, backup, settings };
+const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, register, scenario, batch, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, isms, csm, audit, qc, shared, siem, soar, cvss, budget, export: exportp, ai, forecast, backup, settings };
 export const ENGINE = { ok: false };
 
 /* ---------------- engine self-check (unchanged from 1.0.0) ---------------- */
@@ -92,10 +105,15 @@ function route() {
   if (users.active() && !users.me()) { signInScreen(); return; }
   let { name, arg } = parseHash();
   if (users.hiddenPanels().includes(name)) { toast(i18n.tr('Your role gives no access to this screen'), 'bad'); const hp = users.hiddenPanels(); name = !hp.includes('process') ? 'process' : 'about'; arg = null; }
+  /* 1.5.7 — a screen with several menu entries (Risk Registry) marks only the entry of its tab. */
+  const tabArg = (arg || '').split('/')[0];
+  const sameP = qsa('nav .tab').filter(a => a.dataset.panel === name);
+  const exact = sameP.find(a => a.dataset.arg && a.dataset.arg === tabArg) || sameP.find(a => !a.dataset.arg) || sameP[0];
   for (const a of qsa('nav .tab')) {
-    if (a.dataset.panel === name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    if (a === exact) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
   for (const k of Object.keys(PANELS)) $('panel-' + k).hidden = k !== name;
+  if (current?.name !== name || current?.arg !== arg) LOG.access('screen opened', name + (arg ? '/' + arg : ''), '', S.ws?.name || '');
   current = { name, arg };
   chat.setScreen(name);
   draw();
@@ -104,9 +122,24 @@ function route() {
 function draw() {
   if (!current || !S.ws) return;
   const sec = $('panel-' + current.name);
+  // 1.5.7 — a module switched off in Settings → Modules: say so rather than show a half-hidden screen
+  if (MOD.panelOff(current.name)) {
+    const m = MOD.moduleOf(current.name);
+    sec.replaceChildren(el('h1', null, m.label), banner('warn', i18n.tr('This module is switched off'), i18n.tr('Switch it on in Settings → Modules. Its data stays in the workspace while it is off.')),
+      el('div', 'btnrow', el('button', { class: 'btn', onclick: () => { location.hash = '#/settings/modules'; } }, 'Open Settings → Modules')));
+    return;
+  }
   const fail = e => { console.error(e); sec.replaceChildren(banner('bad', 'This screen raised an error', String(e.stack || e))); };
   sec.classList.remove('ro');   // the read-only observer must not lock the new render of another user/step
-  const after = () => users.enforce(sec, current.name, current.arg, banner);
+  const after = () => {
+    HELP.decorate(sec, current.name, current.arg, PANELS[current.name]);
+    users.enforce(sec, current.name, current.arg, banner);
+    // 1.5.8 — a workspace written by a newer release, or whose migration failed, is never saved over
+    if (isReadOnly() && !sec.querySelector('.mig-banner')) {
+      const b = banner('warn', i18n.tr('This workspace is open read-only'), i18n.tr('It was written by a newer release of the application, or it could not be brought to this release. You can look at it, but nothing you change here is saved. Backup & restore → Data versions and migrations says why.'));
+      b.classList.add('mig-banner'); sec.prepend(b);
+    }
+  };
   try { const p = PANELS[current.name].render(sec, current.arg); if (p && p.then) p.then(after, fail); else after(); }
   catch (e) { fail(e); }
 }
@@ -134,9 +167,8 @@ function drawChrome() {
   if (sn?.expires) { const left = Math.round((new Date(sn.expires) - new Date(new Date().toISOString().slice(0, 10))) / 864e5); nb.textContent = left < 0 ? 'expired' : left + 'd'; }
   else nb.textContent = '';
   const nx = nextStep(ws); $('nb-proc').textContent = nx ? nx.s.n + '/12' : '✓';
-  for (const a of qsa('nav .tab')) a.hidden = users.hiddenPanels().includes(a.dataset.panel);
+  nav.visibility(new Set([...users.hiddenPanels(), ...MOD.offPanels()]));
   drawUser();
-  $('save-state').textContent = S.persistent ? i18n.tr('Saved locally') + ' · ' + new Date(ws.modified).toLocaleTimeString(i18n.locale()) : i18n.tr('Not persisted (private window)');
   nav.refresh();
 }
 
@@ -210,8 +242,9 @@ on(what => {
 /* ---------------- boot ---------------- */
 ENGINE.ok = selfCheck();
 nav.init();
+window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { chat.mount(); drawChrome(); route(); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); drawChrome(); route(); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

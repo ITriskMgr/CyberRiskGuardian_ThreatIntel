@@ -40,3 +40,19 @@ Thumbs.db
 # Never committed. If you keep it elsewhere, ignore that path here too.
 /Claude outputs/
 crg-keys.json
+
+# CyberRiskGuardian Ontology (CRGO) clones kept inside the repository folder, e.g.
+# CyberRiskGuardian-Ontology-0.10.0/ (pinned tag v0.10.0), or a symlink to a checkout elsewhere.
+# Separate repository and licence; never committed.
+CyberRiskGuardian-Ontology*/
+/CyberRiskGuardian-Ontology*
+
+# generated organisation graphs, risk contexts, compliance/secops reads and dss/v1 write-backs (crgo_contract.py writes to output/crgo/).
+# They are client data: keep them with the confidential deliverables, never in this repository.
+/output/
+
+# licensed standards downloaded for local reference (CRGO-downloads/); never redistributed.
+/CRGO-downloads/
+
+# the desktop app's pointer to this computer's feeds folder (a local path).
+desktop/app/feeds-dir.txt

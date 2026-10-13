@@ -41,12 +41,17 @@ function compile(cat) {
     if (/\{\d+\}/.test(k)) {
       const order = [...k.matchAll(/\{(\d+)\}|#/g)].map(m => m[1] === undefined ? '#' : +m[1]);
       const src = k.split(/(\{\d+\}|#)/).map(p => p === '#' ? '([+\\-−]?\\d[\\d\\u202f\\u00a0,. ]*\\d|\\d)' : /^\{\d+\}$/.test(p) ? '([\\s\\S]+?)' : p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('');
-      const p = { re: new RegExp('^' + src + '$'), order, fr: v, first: k.split(/\{\d+\}|#/)[0].slice(0, 4) };
+      const p = { re: new RegExp('^' + src + '$'), order, fr: v, first: k.split(/\{\d+\}|#/)[0].slice(0, 4), fixed: k.replace(/\{\d+\}|#/g, '').length };
       patterns.push(p);
+      exact.set(k, v);   // a screen may translate the template itself, then fill it in
       if (p.first.length === 4) { if (!byHead.has(p.first)) byHead.set(p.first, []); byHead.get(p.first).push(p); } else loose.push(p);
     } else if (k.includes('#')) numbered.set(k, v);
     else exact.set(k, v);
   }
+  /* The most specific pattern wins: "{0} of {1} assets" before "{0} of {1}". */
+  const bySpec = (a, b) => b.fixed - a.fixed;
+  for (const l of byHead.values()) l.sort(bySpec);
+  loose.sort(bySpec);
 }
 
 /** Translate one English string (trimmed core); returns null when the catalogue has nothing. */

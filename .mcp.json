@@ -4,6 +4,11 @@
       "command": "python3",
       "args": ["./plugins/cyberriskguardian-threatintel/mcp/crg_server.py"],
       "env": {}
+    },
+    "crgo-ontology": {
+      "command": "python3",
+      "args": ["./CyberRiskGuardian-Ontology-0.10.0/pipeline/mcp/crgo_server.py"],
+      "env": {}
     }
   }
 }

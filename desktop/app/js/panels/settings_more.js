@@ -42,7 +42,7 @@ export function usersView(body, sec, rerender) {
   // users list
   const nm = el('input', { placeholder: 'Name' }), em = el('input', { placeholder: 'E-mail (optional)' }), ti = el('input', { placeholder: 'Title / role (optional)' });
   const pin = el('input', { type: 'password', placeholder: 'Optional PIN', autocomplete: 'new-password' });
-  const tpl = select([['viewer', 'Template: Informed everywhere (viewer)'], ['analyst', 'Template: Analyst (R on steps 1–8, 10–12)'], ['owner', 'Template: Risk owner (A on steps 7–9)'], ['manager', 'Template: Manager (A everywhere)'], ['admin', 'Administrator']], 'analyst');
+  const tpl = select([['viewer', 'Template: Informed everywhere (viewer)'], ['analyst', 'Template: Analyst (R on steps 1–9, 11–13)'], ['owner', 'Template: Risk owner (A on steps 8–10)'], ['manager', 'Template: Manager (A everywhere)'], ['admin', 'Administrator']], 'analyst');
   const TPL = new Proxy({}, { get: (_, k) => () => users.template(k) });
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Users'),
     table([

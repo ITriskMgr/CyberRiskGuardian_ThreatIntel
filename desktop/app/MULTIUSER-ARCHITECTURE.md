@@ -1,15 +1,15 @@
 # Multi-user architecture — CyberRiskGuardian Desktop
 
-*Beta 1.5.2 — proof of concept. Option A ships now; Option B is a design for a later version.*
+*Beta 1.6.x (version 1.6.0). Option A is built into the application; Option B is a design for a later version.*
 
 ## 1. Why two options
 
 Several people take part in a risk assessment: an analyst builds scenarios, a risk owner validates
-them, a manager approves treatment, an auditor reads. 1.5.2 gives each of them a sign-in, a set of
+them, a manager approves treatment, an auditor reads. Option A gives each of them a sign-in, a set of
 rights per process step and a trace of what they did. The open question was where those rules are
 enforced.
 
-| | **Option A — one computer (1.5.2)** | **Option B — team server (later)** |
+| | **Option A — one computer (built)** | **Option B — team server (later)** |
 |---|---|---|
 | Where data lives | IndexedDB of one browser profile | Workspace files held by the helper, on a shared machine |
 | Who enforces rights | The application in the browser | The helper, on every API call |
@@ -52,7 +52,7 @@ C on 9), risk owner (A on 7–9, C elsewhere), manager (A everywhere), administr
 with time, user, action and detail. Workspace-related entries are also copied into the workspace
 (`ws.userAudit`) so they travel with it.
 
-## 3. Option A as built (1.5.2)
+## 3. Option A as built
 
 - `js/users.js` holds `{enabled, users, current, audit}` in the IndexedDB `meta` store under `users`;
   the signed-in user is kept for the browser session only (`sessionStorage`).
@@ -122,7 +122,7 @@ user exactly as today; team mode is opt-in per installation.
    state, the RACI matrix is attached to every imported workspace.
 3. The administrator sends each user a one-time enrolment link.
 
-### 4.7 Out of scope for the proof of concept
+### 4.7 Out of scope for the beta
 
 Hosting, high availability, encryption at rest beyond the disk's, records retention policy and
 privacy impact assessment of a shared deployment — all to be decided by the organization that

@@ -6,7 +6,7 @@
 <title>Step by step — CyberRiskGuardian</title>
 <link rel="icon" href="../icons/icon-64.png">
 <link rel="stylesheet" href="page.css">
-<!-- Step by step (1.5.6) — the 12 steps of a complete assessment and the guidelines in detail, in a
+<!-- Step by step (1.5.6; 13 steps since 1.5.7) — the steps of a complete assessment and the guidelines in detail, in a
      window of their own so the guide can stay open beside the work. The content is read from the same
      two modules the application uses (js/process.js, js/guidelines.js): there is no second copy to
      keep in step. Nothing here touches a workspace; this page only reads and prints.
@@ -25,7 +25,7 @@
 <script type="module">
 import { STEPS } from '../js/process.js';
 import { GUIDELINES } from '../js/guidelines.js';
-import { VERSION, CHANNEL } from '../js/version.js';
+import { VERSION, CHANNEL, SERIES } from '../js/version.js';
 import * as i18n from '../js/i18n.js';
 
 const E = (tag, cls, ...kids) => {
@@ -54,8 +54,8 @@ function build() {
   const wrap = document.getElementById('wrap');
   wrap.replaceChildren(
     E('h1', null, 'A complete risk assessment, step by step'),
-    E('p', 'lede', 'The 12 steps of the CyberRiskGuardian method, what each one is for, what it needs and when it is done — followed by the guidelines in detail. Click a screen name to open it in the application.'),
-    E('div', 'note', E('b', null, `Beta ${VERSION} — proof of concept`), ' ',
+    E('p', 'lede', `The ${STEPS.length} steps of the CyberRiskGuardian method, what each one is for, what it needs and when it is done — followed by the guidelines in detail. Click a screen name to open it in the application.`),
+    E('div', 'note', E('b', null, `Beta ${SERIES}`), ' ',
       E('span', null, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.')));
 
   const toc = E('ol', 'toc');
@@ -63,7 +63,7 @@ function build() {
     const a = E('a', null, s.title); a.href = '#step-' + s.id;
     toc.append(E('li', null, a));
   }
-  wrap.append(E('div', 'card', E('b', null, 'The 12 steps'), toc));
+  wrap.append(E('div', 'card', E('b', null, `The ${STEPS.length} steps`), toc));
 
   for (const s of STEPS) {
     const box = E('div', 'step');
@@ -96,7 +96,7 @@ function build() {
 
   wrap.append(E('h2', null, 'About this window'),
     E('p', 'small muted', `CyberRiskGuardian Desktop ${VERSION} ${CHANNEL} · `,
-      E('span', null, 'proof of concept'), ' · CC BY-NC 4.0 · Marc-André Léger. ',
+      E('span', null, `Beta ${SERIES}`), ' · CC BY-NC 4.0 · Marc-André Léger. ',
       E('span', null, 'This page is part of the installed application and works offline. It reads the same step and guideline definitions the application uses, so it cannot drift from what the screens do.')));
 }
 

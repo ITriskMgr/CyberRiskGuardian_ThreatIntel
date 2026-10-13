@@ -1,0 +1,2390 @@
+{
+ "format": "crg-siem-import/1",
+ "generated": "2026-10-12T09:00:00",
+ "source": "CyberRiskGuardian simulation pack medibec-ransomware-2026 — FICTIONAL teaching data",
+ "tlp": "AMBER",
+ "simulation": true,
+ "note": "Every record in this file is fictional and was written for teaching. Addresses are documentation ranges (RFC 5737, RFC 3849), domains are example.*, hashes are fake. Times are local (Eastern time), without zone.",
+ "sources": [
+  {
+   "id": "TS-MB-IDP",
+   "name": "Identity provider sign-in logs",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ5",
+   "sourceType": "identity provider sign-in log",
+   "ocsfClass": 3002,
+   "dataComponents": [
+    "DC0002"
+   ],
+   "logsource": {
+    "product": "idp",
+    "service": "signin"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-01-10",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-MFA",
+   "name": "MFA push service logs",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ5",
+   "sourceType": "MFA service log",
+   "ocsfClass": 3002,
+   "dataComponents": [
+    "DC0002"
+   ],
+   "logsource": {
+    "product": "mfa",
+    "service": "push"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-02-01",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-VPN",
+   "name": "Remote access gateway logs",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ5",
+   "sourceType": "VPN gateway log",
+   "ocsfClass": 4014,
+   "logsource": {
+    "product": "vpn",
+    "service": "gateway"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-01-10",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-MAIL",
+   "name": "E-mail security gateway",
+   "system": "Simulated SIEM (fictional)",
+   "sourceType": "mail gateway log",
+   "ocsfClass": 4009,
+   "logsource": {
+    "product": "mailgw",
+    "category": "email"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-01-10",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-EDRWS",
+   "name": "EDR telemetry — clinic workstations",
+   "system": "Simulated SIEM (fictional)",
+   "sourceType": "EDR agent telemetry",
+   "ocsfClass": 1007,
+   "dataComponents": [
+    "DC0001"
+   ],
+   "logsource": {
+    "product": "windows",
+    "category": "process_creation"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-01-10",
+     "state": "healthy",
+     "note": "onboarded"
+    },
+    {
+     "date": "2026-09-15",
+     "state": "degraded",
+     "note": "agent update failed on about 30% of Saguenay and Gatineau workstations (fictional)"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-EDRSRV",
+   "name": "EDR telemetry — servers",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ1",
+   "sourceType": "EDR agent telemetry",
+   "ocsfClass": 1007,
+   "dataComponents": [
+    "DC0001"
+   ],
+   "logsource": {
+    "product": "windows",
+    "category": "process_creation",
+    "service": "server"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-01-10",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-EHR",
+   "name": "EHR application audit log",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ1",
+   "sourceType": "application audit log",
+   "ocsfClass": 6005,
+   "logsource": {
+    "product": "ehr",
+    "service": "audit"
+   },
+   "cadenceHours": 2,
+   "healthHistory": [
+    {
+     "date": "2026-03-01",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-FW",
+   "name": "Firewalls — Montreal hub and clinic WAN",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ6",
+   "sourceType": "firewall log",
+   "ocsfClass": 4001,
+   "logsource": {
+    "product": "firewall"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-01-10",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-DNS",
+   "name": "Internal DNS resolver logs",
+   "system": "Simulated SIEM (fictional)",
+   "sourceType": "DNS log",
+   "ocsfClass": 4003,
+   "logsource": {
+    "product": "dns",
+    "category": "dns"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-01-10",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-BKP",
+   "name": "Backup server and catalogue logs",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ6",
+   "sourceType": "backup software log",
+   "ocsfClass": 1008,
+   "logsource": {
+    "product": "backup"
+   },
+   "cadenceHours": 4,
+   "healthHistory": [
+    {
+     "date": "2026-02-01",
+     "state": "healthy",
+     "note": "onboarded"
+    },
+    {
+     "date": "2026-09-18",
+     "state": "silent",
+     "note": "log forwarder stopped after a certificate renewal; nobody noticed (fictional)"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-CLOUD",
+   "name": "Cloud image-transfer storage access logs",
+   "system": "Simulated SIEM (fictional)",
+   "asset": "CJ7",
+   "sourceType": "cloud storage access log",
+   "ocsfClass": 6003,
+   "logsource": {
+    "product": "cloud",
+    "service": "storage"
+   },
+   "cadenceHours": 1,
+   "healthHistory": [
+    {
+     "date": "2026-04-01",
+     "state": "healthy",
+     "note": "onboarded"
+    },
+    {
+     "date": "2026-09-29",
+     "state": "degraded",
+     "note": "only management events collected; data-read events disabled to save cost (fictional)"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "TS-MB-WIFI",
+   "name": "Clinic Wi-Fi controller syslog",
+   "system": "Simulated SIEM (fictional)",
+   "sourceType": "wireless controller syslog",
+   "ocsfClass": 4001,
+   "logsource": {
+    "product": "wifi"
+   },
+   "cadenceHours": 4,
+   "lastSeen": "2026-08-30T17:10:00",
+   "healthHistory": [
+    {
+     "date": "2026-02-01",
+     "state": "healthy",
+     "note": "onboarded"
+    }
+   ],
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "strategies": [
+  {
+   "id": "DS-MB-ACCOUNTS",
+   "name": "Valid-account abuse and MFA fatigue (adapted from ATT&CK)",
+   "techniques": [
+    "T1078",
+    "T1621",
+    "T1133"
+   ],
+   "dataComponents": [
+    "DC0002"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "DS-MB-IMPACT",
+   "name": "Ransomware impact and recovery inhibition (adapted from ATT&CK)",
+   "techniques": [
+    "T1486",
+    "T1490",
+    "T1489"
+   ],
+   "dataComponents": [
+    "DC0001"
+   ],
+   "simulation": true
+  }
+ ],
+ "rules": [
+  {
+   "id": "DR-MB-01",
+   "title": "Macro-enabled Office attachment delivered to a mailbox",
+   "version": "1",
+   "language": "native",
+   "ruleId": "SSIM-R-1001",
+   "status": "production",
+   "level": "high",
+   "owner": "Karim Haddad",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-02-20",
+   "created": "2026-02-10",
+   "techniques": [
+    "T1566.001"
+   ],
+   "scenarios": [
+    "S2",
+    "S1"
+   ],
+   "requiredSources": [
+    "TS-MB-MAIL"
+   ],
+   "detection": "mail.attachment.extension IN (docm, xlsm, pptm) AND mail.verdict != \"quarantined\"",
+   "description": "Macro-enabled Office attachment delivered to a mailbox — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-02",
+   "title": "Office application spawning PowerShell",
+   "version": "1",
+   "language": "sigma",
+   "ruleId": "5f2a0c1e-0000-4000-8000-000000000b02",
+   "status": "production",
+   "level": "high",
+   "owner": "Karim Haddad",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-03-05",
+   "created": "2026-02-25",
+   "techniques": [
+    "T1204.002",
+    "T1059.001"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "requiredSources": [
+    "TS-MB-EDRWS"
+   ],
+   "logsource": {
+    "product": "windows",
+    "category": "process_creation"
+   },
+   "strategy": "",
+   "detection": "selection:\n  ParentImage|endswith:\n    - \\WINWORD.EXE\n    - \\EXCEL.EXE\n  Image|endswith: \\powershell.exe\ncondition: selection",
+   "description": "Office application spawning PowerShell — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-03",
+   "title": "MFA push fatigue — repeated denials followed by an approval",
+   "version": "1",
+   "language": "correlation",
+   "ruleId": "SSIM-R-1003",
+   "status": "production",
+   "level": "critical",
+   "owner": "Karim Haddad",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-06-01",
+   "created": "2026-05-20",
+   "techniques": [
+    "T1621"
+   ],
+   "scenarios": [
+    "S1",
+    "S27"
+   ],
+   "requiredSources": [
+    "TS-MB-MFA",
+    "TS-MB-IDP"
+   ],
+   "strategy": "DS-MB-ACCOUNTS",
+   "detection": "count(mfa.result = \"denied\") >= 5 within 10m by user FOLLOWED BY mfa.result = \"approved\" within 15m",
+   "description": "MFA push fatigue — repeated denials followed by an approval — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-04",
+   "title": "Privileged sign-in from an unusual geography",
+   "version": "2",
+   "language": "native",
+   "ruleId": "SSIM-R-1004",
+   "status": "production",
+   "level": "high",
+   "owner": "Émilie Bouchard",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-05-02",
+   "created": "2026-01-20",
+   "techniques": [
+    "T1078",
+    "T1133"
+   ],
+   "scenarios": [
+    "S1",
+    "S8"
+   ],
+   "requiredSources": [
+    "TS-MB-IDP",
+    "TS-MB-VPN"
+   ],
+   "strategy": "DS-MB-ACCOUNTS",
+   "detection": "signin.user IN privileged_accounts AND geo.country NOT IN user.baseline_countries",
+   "history": [
+    {
+     "date": "2026-01-20",
+     "from": "draft",
+     "to": "testing",
+     "by": "Émilie Bouchard"
+    },
+    {
+     "date": "2026-02-15",
+     "from": "testing",
+     "to": "production",
+     "by": "Nadia Roy"
+    }
+   ],
+   "description": "Privileged sign-in from an unusual geography — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-05",
+   "title": "RDP from a clinic workstation to the server segment",
+   "version": "1",
+   "language": "native",
+   "ruleId": "SSIM-R-1005",
+   "status": "production",
+   "level": "high",
+   "owner": "Karim Haddad",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-03-15",
+   "created": "2026-03-01",
+   "techniques": [
+    "T1021.001"
+   ],
+   "scenarios": [
+    "S2",
+    "S8"
+   ],
+   "requiredSources": [
+    "TS-MB-FW",
+    "TS-MB-EDRSRV"
+   ],
+   "detection": "net.dst_port = 3389 AND src.zone = \"clinic-workstations\" AND dst.zone = \"datacentre-servers\"",
+   "description": "RDP from a clinic workstation to the server segment — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-06",
+   "title": "Bulk patient-record query by a service account",
+   "version": "1",
+   "language": "native",
+   "ruleId": "SSIM-R-1006",
+   "status": "production",
+   "level": "critical",
+   "owner": "Émilie Bouchard",
+   "approvedBy": "Louis Gagnon",
+   "approvedOn": "2026-04-10",
+   "created": "2026-03-20",
+   "techniques": [
+    "T1213",
+    "T1005"
+   ],
+   "scenarios": [
+    "S5",
+    "S10"
+   ],
+   "requiredSources": [
+    "TS-MB-EHR"
+   ],
+   "detection": "ehr.audit.records_read by account > 10 x 30-day baseline within 1h AND account.type = \"service\"",
+   "description": "Bulk patient-record query by a service account — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-07",
+   "title": "Deletion of shadow copies or backup catalogue",
+   "version": "1",
+   "language": "sigma",
+   "ruleId": "5f2a0c1e-0000-4000-8000-000000000b07",
+   "status": "production",
+   "level": "critical",
+   "owner": "Karim Haddad",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-04-20",
+   "created": "2026-04-01",
+   "techniques": [
+    "T1490"
+   ],
+   "scenarios": [
+    "S2",
+    "S3"
+   ],
+   "requiredSources": [
+    "TS-MB-BKP",
+    "TS-MB-EDRSRV"
+   ],
+   "strategy": "DS-MB-IMPACT",
+   "logsource": {
+    "product": "windows",
+    "category": "process_creation",
+    "service": "server"
+   },
+   "detection": "selection_vss:\n  Image|endswith: \\vssadmin.exe\n  CommandLine|contains|all:\n    - delete\n    - shadows\nselection_catalog:\n  EventSource: backup\n  Action: catalog_delete\ncondition: 1 of selection_*",
+   "description": "Deletion of shadow copies or backup catalogue — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-08",
+   "title": "Mass file encryption or rename on file shares",
+   "version": "3",
+   "language": "sigma",
+   "ruleId": "5f2a0c1e-0000-4000-8000-000000000b08",
+   "status": "production",
+   "level": "critical",
+   "owner": "Karim Haddad",
+   "approvedBy": "Louis Gagnon",
+   "approvedOn": "2026-09-12",
+   "created": "2026-02-01",
+   "techniques": [
+    "T1486"
+   ],
+   "scenarios": [
+    "S2",
+    "S3"
+   ],
+   "requiredSources": [
+    "TS-MB-EDRSRV"
+   ],
+   "strategy": "DS-MB-IMPACT",
+   "logsource": {
+    "product": "windows",
+    "category": "file_event",
+    "service": "server"
+   },
+   "detection": "selection:\n  EventType: rename\n  TargetFilename|re: '\\.[a-z0-9]{5,8}$'\ntimeframe: 2m\ncondition: selection | count() by Computer > 200",
+   "description": "Mass file encryption or rename on file shares — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-09",
+   "title": "Large download from the cloud image-transfer storage by an unknown address",
+   "version": "1",
+   "language": "native",
+   "ruleId": "SSIM-R-1009",
+   "status": "testing",
+   "level": "high",
+   "owner": "Émilie Bouchard",
+   "created": "2026-08-15",
+   "techniques": [
+    "T1530",
+    "T1567.002"
+   ],
+   "scenarios": [
+    "S4"
+   ],
+   "requiredSources": [
+    "TS-MB-CLOUD"
+   ],
+   "detection": "cloud.storage.bytes_out > 5 GB within 1h AND src.ip NOT IN partner_ranges",
+   "description": "Large download from the cloud image-transfer storage by an unknown address — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-10",
+   "title": "DNS query or connection matching a threat indicator",
+   "version": "1",
+   "language": "correlation",
+   "ruleId": "SSIM-R-1010",
+   "status": "production",
+   "level": "high",
+   "owner": "Émilie Bouchard",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-07-01",
+   "created": "2026-06-20",
+   "techniques": [
+    "T1071.001",
+    "T1071.004"
+   ],
+   "scenarios": [
+    "S2",
+    "S8"
+   ],
+   "requiredSources": [
+    "TS-MB-DNS",
+    "TS-MB-FW"
+   ],
+   "detection": "dns.query IN indicators.domain OR net.dst_ip IN indicators.ipv4",
+   "description": "DNS query or connection matching a threat indicator — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-11",
+   "title": "Rogue access point broadcasting a MediBec SSID",
+   "version": "1",
+   "language": "native",
+   "ruleId": "SSIM-R-1011",
+   "status": "production",
+   "level": "medium",
+   "owner": "Karim Haddad",
+   "approvedBy": "Nadia Roy",
+   "approvedOn": "2026-02-12",
+   "created": "2026-02-01",
+   "techniques": [
+    "T1200"
+   ],
+   "scenarios": [
+    "S12"
+   ],
+   "requiredSources": [
+    "TS-MB-WIFI"
+   ],
+   "detection": "wifi.event = \"rogue_ap\" AND wifi.ssid LIKE \"MediBec%\"",
+   "description": "Rogue access point broadcasting a MediBec SSID — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-12",
+   "title": "Help-desk MFA reset followed by a sign-in from a new device",
+   "version": "1",
+   "language": "correlation",
+   "ruleId": "SSIM-R-1012",
+   "status": "draft",
+   "level": "high",
+   "owner": "Émilie Bouchard",
+   "created": "2026-09-01",
+   "techniques": [
+    "T1098.005"
+   ],
+   "scenarios": [
+    "S27"
+   ],
+   "requiredSources": [
+    "TS-MB-IDP"
+   ],
+   "detection": "idp.mfa_reset by helpdesk FOLLOWED BY signin from new_device within 2h",
+   "description": "Help-desk MFA reset followed by a sign-in from a new device — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DR-MB-13",
+   "title": "Password spraying against administrative interfaces",
+   "version": "1",
+   "language": "native",
+   "ruleId": "SSIM-R-1013",
+   "status": "disabled",
+   "level": "medium",
+   "owner": "Karim Haddad",
+   "created": "2026-03-01",
+   "techniques": [
+    "T1110.003"
+   ],
+   "scenarios": [
+    "S23"
+   ],
+   "requiredSources": [
+    "TS-MB-FW"
+   ],
+   "detection": "count(distinct user) > 20 with auth.result = failure from one src.ip within 10m",
+   "history": [
+    {
+     "date": "2026-03-01",
+     "from": "draft",
+     "to": "production",
+     "by": "Nadia Roy"
+    },
+    {
+     "date": "2026-05-18",
+     "from": "production",
+     "to": "disabled",
+     "by": "Nadia Roy"
+    }
+   ],
+   "description": "Password spraying against administrative interfaces — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "tests": [
+  {
+   "id": "DT-MB-01",
+   "ruleId": "DR-MB-01",
+   "ruleVersion": "1",
+   "date": "2026-06-18",
+   "tester": "Karim Haddad",
+   "result": "effective",
+   "method": "replay",
+   "fixture": "FX-MAIL-DOCM-01",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-02",
+   "ruleId": "DR-MB-02",
+   "ruleVersion": "1",
+   "date": "2026-03-04",
+   "tester": "Karim Haddad",
+   "result": "effective",
+   "method": "emulation",
+   "fixture": "atomic-T1204.002-office-macro",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-03",
+   "ruleId": "DR-MB-04",
+   "ruleVersion": "1",
+   "date": "2026-02-10",
+   "tester": "Émilie Bouchard",
+   "result": "ineffective",
+   "method": "replay",
+   "notes": "version 1 missed sign-ins through the VPN egress — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-04",
+   "ruleId": "DR-MB-04",
+   "ruleVersion": "2",
+   "date": "2026-05-01",
+   "tester": "Émilie Bouchard",
+   "result": "effective",
+   "method": "replay",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-05",
+   "ruleId": "DR-MB-05",
+   "ruleVersion": "1",
+   "date": "2026-03-14",
+   "tester": "Karim Haddad",
+   "result": "effective",
+   "method": "purple-team",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-06",
+   "ruleId": "DR-MB-05",
+   "ruleVersion": "1",
+   "date": "2026-08-21",
+   "tester": "Karim Haddad",
+   "result": "ineffective",
+   "method": "purple-team",
+   "notes": "RDP through the jump host was not seen: the jump host sits in the server zone — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-07",
+   "ruleId": "DR-MB-06",
+   "ruleVersion": "1",
+   "date": "2026-07-09",
+   "tester": "Émilie Bouchard",
+   "result": "effective",
+   "method": "unit",
+   "fixture": "FX-EHR-BULK-01",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-08",
+   "ruleId": "DR-MB-07",
+   "ruleVersion": "1",
+   "date": "2026-04-19",
+   "tester": "Karim Haddad",
+   "result": "effective",
+   "method": "emulation",
+   "fixture": "atomic-T1490-vssadmin",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-09",
+   "ruleId": "DR-MB-08",
+   "ruleVersion": "2",
+   "date": "2026-05-12",
+   "tester": "Karim Haddad",
+   "result": "effective",
+   "method": "emulation",
+   "notes": "tests version 2 — does not validate version 3 — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-10",
+   "ruleId": "DR-MB-08",
+   "ruleVersion": "3",
+   "date": "2026-09-10",
+   "tester": "Karim Haddad",
+   "result": "effective",
+   "method": "emulation",
+   "fixture": "FX-RANSOM-SIM-03",
+   "notes": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-11",
+   "ruleId": "DR-MB-11",
+   "ruleVersion": "1",
+   "date": "2026-02-11",
+   "tester": "Karim Haddad",
+   "result": "effective",
+   "method": "other",
+   "notes": "test access point at the Montreal head office — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "DT-MB-12",
+   "ruleId": "DR-MB-09",
+   "ruleVersion": "1",
+   "date": "2026-09-02",
+   "tester": "Émilie Bouchard",
+   "result": "ineffective",
+   "method": "replay",
+   "notes": "threshold too high for the partner transfer pattern — FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "indicators": [
+  {
+   "id": "IND-MB-01",
+   "type": "domain-name",
+   "value": "dossiers-medibec.example.net",
+   "name": "Phishing sender domain (EHR-update lure)",
+   "confidence": 85,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "AMBER",
+   "source": "Simulated health-sector ISAC (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1566.001"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-02",
+   "type": "email-addr",
+   "value": "mise-a-jour@dossiers-medibec.example.net",
+   "name": "Phishing sender address",
+   "confidence": 80,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "GREEN",
+   "source": "Simulated health-sector ISAC (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1566.001"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-03",
+   "type": "file:sha256",
+   "value": "148d83d8f1800dabc708f49df4838562ca1d86efc1ac730f0f38dd377defe1e5",
+   "name": "Malicious .docm attachment (fake hash)",
+   "confidence": 90,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "AMBER",
+   "source": "Simulated health-sector ISAC (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1204.002"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-04",
+   "type": "domain-name",
+   "value": "cdn-update.example.org",
+   "name": "Command-and-control domain",
+   "confidence": 75,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "AMBER+STRICT",
+   "source": "Simulated partner CERT (fictional) — share only within the SOC",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1071.001"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-05",
+   "type": "ipv4-addr",
+   "value": "203.0.113.45",
+   "name": "Command-and-control server",
+   "confidence": 70,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "AMBER",
+   "source": "Simulated partner CERT (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1071.001"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-06",
+   "type": "ipv4-addr",
+   "value": "198.51.100.77",
+   "name": "Sign-in source of the account takeover",
+   "confidence": 60,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "GREEN",
+   "source": "MediBec SOC (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1078"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-07",
+   "type": "ipv4-addr",
+   "value": "203.0.113.88",
+   "name": "Address that downloaded the cloud image exports",
+   "confidence": 65,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "AMBER",
+   "source": "MediBec SOC (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1530"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-08",
+   "type": "domain-name",
+   "value": "files.example.com",
+   "name": "File-sharing service used for staging (legitimate service, abused)",
+   "confidence": 40,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "GREEN",
+   "source": "Simulated commercial feed (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1567.002"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-09",
+   "type": "url",
+   "value": "https://files.example.com/u/7f3k2q",
+   "name": "Upload URL used for exfiltration",
+   "confidence": 55,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "AMBER",
+   "source": "MediBec SOC (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1567.002"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-10",
+   "type": "file:sha256",
+   "value": "0b11bd5a06100db7787892b803b38f09ae7fbc2cedbc0ac966af1b0b841d76ec",
+   "name": "Encryptor binary (fake hash)",
+   "confidence": 95,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "RED",
+   "source": "Simulated law-enforcement liaison (fictional) — named recipients only",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1486"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-11",
+   "type": "file:sha256",
+   "value": "60e39b5b72f1fffae3d0a567fa680c3db2fa9ed80c7cb563fdb578780f7a4922",
+   "name": "Ransom note LIRE_MOI.txt (fake hash)",
+   "confidence": 80,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "AMBER",
+   "source": "MediBec SOC (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1486"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-12",
+   "type": "ipv6-addr",
+   "value": "2001:db8:4a::17",
+   "name": "Secondary command-and-control address",
+   "confidence": 50,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "GREEN",
+   "source": "Simulated partner CERT (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1071.001"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-13",
+   "type": "ipv4-addr",
+   "value": "192.0.2.66",
+   "name": "Former scanning address (revoked by the producer)",
+   "confidence": 30,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "CLEAR",
+   "source": "Simulated commercial feed (fictional)",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "revoked": true,
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-14",
+   "type": "domain-name",
+   "value": "medibec-rendezvous.example.com",
+   "name": "Look-alike domain used to phish patients",
+   "confidence": 85,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "CLEAR",
+   "source": "MediBec SOC (fictional) — public warning",
+   "validFrom": "2026-09-20",
+   "validUntil": "2027-03-31",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "techniques": [
+    "T1566.002"
+   ],
+   "simulation": true
+  },
+  {
+   "id": "IND-MB-15",
+   "type": "domain-name",
+   "value": "old-relay.example.net",
+   "name": "Relay domain from an earlier campaign (expired)",
+   "confidence": 50,
+   "confidenceMethod": "STIX 2.1 confidence (0-100) as stated by the fictional producer — not a probability",
+   "tlp": "GREEN",
+   "source": "Simulated health-sector ISAC (fictional)",
+   "validFrom": "2026-03-01",
+   "validUntil": "2026-09-30",
+   "labels": [
+    "simulation",
+    "fictional"
+   ],
+   "simulation": true
+  }
+ ],
+ "alerts": [
+  {
+   "id": "AL-MB-001",
+   "externalId": "SSIM-48101",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Vulnerability scan from the authorised scanner 192.0.2.10",
+   "detected": "2026-09-21T08:12:00",
+   "severity": "low",
+   "triage": "benign",
+   "techniques": [
+    "T1595"
+   ],
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20260921081140-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-09-21T08:11:40",
+     "hash": "sha256:97f0aa58b32a4460a7f51c48187498f648cc19cf910ace21765cdcd3c63adea1"
+    }
+   ],
+   "assignee": "Émilie Bouchard",
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-002",
+   "externalId": "SSIM-48102",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Privileged sign-in from an unusual geography — clinician account via Quebec City VPN egress",
+   "ruleId": "DR-MB-04",
+   "detected": "2026-09-21T09:40:00",
+   "severity": "medium",
+   "asset": "CJ5",
+   "techniques": [
+    "T1078"
+   ],
+   "scenarios": [
+    "S1"
+   ],
+   "triage": "false-positive",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-IDP/20260921093912-1",
+     "sourceId": "TS-MB-IDP",
+     "sourceTime": "2026-09-21T09:39:12",
+     "hash": "sha256:e6892436076d471f534da0dd6bd66b5c78f3aaeff3858110a84efd31847b0a3d"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-003",
+   "externalId": "SSIM-48103",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Large outbound transfer to the off-site backup provider",
+   "detected": "2026-09-22T02:05:00",
+   "severity": "low",
+   "asset": "CJ6",
+   "triage": "benign",
+   "assignee": "Karim Haddad",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20260922020410-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-09-22T02:04:10",
+     "hash": "sha256:6a0e38270c513b0dcee2a2c6f12bd180ed992345b25481c51fc94e67ea46e78a"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-004",
+   "externalId": "SSIM-48104",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "USB mass-storage device on imaging workstation IMG-QC-03 (patient-supplied CD export)",
+   "detected": "2026-09-22T10:15:00",
+   "severity": "low",
+   "asset": "CJ2",
+   "techniques": [
+    "T1091"
+   ],
+   "scenarios": [
+    "S24"
+   ],
+   "triage": "benign",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRWS/20260922101451-1",
+     "sourceId": "TS-MB-EDRWS",
+     "sourceTime": "2026-09-22T10:14:51",
+     "hash": "sha256:e53a532804d4c764d943ee0c1c433cc9e4223b336a6990f2275745db7769ea22"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-005",
+   "externalId": "SSIM-48105",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Bulk e-mail with tracking links (internal awareness campaign)",
+   "detected": "2026-09-22T13:30:00",
+   "severity": "low",
+   "triage": "benign",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-MAIL/20260922132930-1",
+     "sourceId": "TS-MB-MAIL",
+     "sourceTime": "2026-09-22T13:29:30",
+     "hash": "sha256:fb44529b5b136647ad0a261f7ef31231dc2b9d50dd9759169d9593d7416be6ab"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-006",
+   "externalId": "SSIM-48106",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 85,
+   "title": "Macro-enabled attachment Mise_a_jour_dossier_patient.docm delivered — 1 of 14 recipients (Gatineau clinic)",
+   "ruleId": "DR-MB-01",
+   "detected": "2026-09-23T07:58:00",
+   "firstSeen": "2026-09-23T07:51:00",
+   "severity": "high",
+   "techniques": [
+    "T1566.001"
+   ],
+   "scenarios": [
+    "S2",
+    "S1"
+   ],
+   "indicators": [
+    "IND-MB-01",
+    "IND-MB-02",
+    "IND-MB-03"
+   ],
+   "triage": "in-triage",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-MAIL/20260923075102-1",
+     "sourceId": "TS-MB-MAIL",
+     "sourceTime": "2026-09-23T07:51:02",
+     "hash": "sha256:491081f309d7d3dab43da55ba7a41d5ff5ff2bddb83d0bad54f8b29fbfff59c2"
+    },
+    {
+     "ref": "ssiem://events/TS-MB-MAIL/20260923075105-2",
+     "sourceId": "TS-MB-MAIL",
+     "sourceTime": "2026-09-23T07:51:05",
+     "hash": "sha256:af966217fa61a9c94de87670616cd7fb322cf8eeca4d757fd004d19d7f7a9e32"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-007",
+   "externalId": "SSIM-48107",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Macro-enabled attachment quarantined — second wave, Quebec City clinic",
+   "ruleId": "DR-MB-01",
+   "detected": "2026-09-23T08:03:00",
+   "severity": "medium",
+   "techniques": [
+    "T1566.001"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "indicators": [
+    "IND-MB-01"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-MAIL/20260923080240-1",
+     "sourceId": "TS-MB-MAIL",
+     "sourceTime": "2026-09-23T08:02:40",
+     "hash": "sha256:bf30cb6f05ae6468cf5ab363245aad684ba659d01240b8f4455f7c6475068767"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-008",
+   "externalId": "SSIM-48108",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 60,
+   "title": "WINWORD.EXE spawned powershell.exe on WS-GAT-014",
+   "ruleId": "DR-MB-02",
+   "detected": "2026-09-23T08:21:00",
+   "severity": "medium",
+   "techniques": [
+    "T1204.002",
+    "T1059.001"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "triage": "benign",
+   "assignee": "Samuel Côté",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRWS/20260923082044-1",
+     "sourceId": "TS-MB-EDRWS",
+     "sourceTime": "2026-09-23T08:20:44",
+     "hash": "sha256:2184b291aaa3a9749e678306c2bd1cb4d5c25a07962647aac6f5467dceea092a"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-009",
+   "externalId": "SSIM-48109",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "DNS query to indicator domain cdn-update.example.org from WS-GAT-014",
+   "ruleId": "DR-MB-10",
+   "detected": "2026-09-23T08:22:00",
+   "severity": "high",
+   "techniques": [
+    "T1071.004"
+   ],
+   "scenarios": [
+    "S2",
+    "S8"
+   ],
+   "indicators": [
+    "IND-MB-04"
+   ],
+   "triage": "new",
+   "tlp": "AMBER+STRICT",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-DNS/20260923082158-1",
+     "sourceId": "TS-MB-DNS",
+     "sourceTime": "2026-09-23T08:21:58",
+     "hash": "sha256:6bdedee2ba88a4b2d550e138a79514fae6d5bad5a7a12fa712e9713b65f598ff"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-010",
+   "externalId": "SSIM-48110",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Spike of failed patient-portal sign-ins from 192.0.2.0/24 (after a password-reset mailing)",
+   "detected": "2026-09-24T11:00:00",
+   "severity": "medium",
+   "asset": "CJ3",
+   "techniques": [
+    "T1110.004"
+   ],
+   "scenarios": [
+    "S23"
+   ],
+   "triage": "false-positive",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20260924105800-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-09-24T10:58:00",
+     "hash": "sha256:75d0cd5783ad696951b43df6ae8df94f1c512c4a31f85388bd92592bdf6d8762"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-011",
+   "externalId": "SSIM-48111",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Periodic HTTPS beacon from WS-GAT-014 to 203.0.113.45 every 300 s",
+   "ruleId": "DR-MB-10",
+   "detected": "2026-09-25T03:14:00",
+   "firstSeen": "2026-09-23T08:25:00",
+   "severity": "high",
+   "techniques": [
+    "T1071.001"
+   ],
+   "scenarios": [
+    "S2",
+    "S8"
+   ],
+   "indicators": [
+    "IND-MB-05"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20260925031330-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-09-25T03:13:30",
+     "hash": "sha256:d806cf431742eb1977fa14a0ce62e1487c4054677bc30f111644e0da176717c9"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-012",
+   "externalId": "SSIM-48112",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "New scheduled task created on WS-GAT-014",
+   "detected": "2026-09-25T09:30:00",
+   "severity": "medium",
+   "techniques": [
+    "T1053.005"
+   ],
+   "scenarios": [
+    "S8"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRWS/20260925092941-1",
+     "sourceId": "TS-MB-EDRWS",
+     "sourceTime": "2026-09-25T09:29:41",
+     "hash": "sha256:7f321e22265e49dcfb0ec81d24cfb3f657c3a71436d658d029efa6e74b91352a"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-013",
+   "externalId": "SSIM-48113",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Large EHR report export by a medical-records clerk (month-end statistics)",
+   "ruleId": "DR-MB-06",
+   "detected": "2026-09-26T14:20:00",
+   "severity": "medium",
+   "asset": "CJ1",
+   "techniques": [
+    "T1213"
+   ],
+   "scenarios": [
+    "S5"
+   ],
+   "triage": "false-positive",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EHR/20260926141902-1",
+     "sourceId": "TS-MB-EHR",
+     "sourceTime": "2026-09-26T14:19:02",
+     "hash": "sha256:671cc6a090b02651dce0d5c16af74adaa78ca167d0f2a6e4f5cbf9f2fbcf5e22"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-014",
+   "externalId": "SSIM-48114",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "11 MFA push denials in 6 minutes for adm.jdupuis",
+   "ruleId": "DR-MB-03",
+   "detected": "2026-09-27T22:40:00",
+   "severity": "high",
+   "asset": "CJ5",
+   "techniques": [
+    "T1621"
+   ],
+   "scenarios": [
+    "S1"
+   ],
+   "triage": "in-triage",
+   "assignee": "Karim Haddad",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-MFA/20260927223950-1",
+     "sourceId": "TS-MB-MFA",
+     "sourceTime": "2026-09-27T22:39:50",
+     "hash": "sha256:889ecbf61d082f3d921ffdf4f8bd161fea23c60a49d539e28abb24991f80952f"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-015",
+   "externalId": "SSIM-48115",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 90,
+   "title": "MFA push approved after repeated denials for adm.jdupuis",
+   "ruleId": "DR-MB-03",
+   "detected": "2026-09-27T22:47:00",
+   "severity": "critical",
+   "asset": "CJ5",
+   "techniques": [
+    "T1621"
+   ],
+   "scenarios": [
+    "S1"
+   ],
+   "triage": "in-triage",
+   "assignee": "Karim Haddad",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-MFA/20260927224631-1",
+     "sourceId": "TS-MB-MFA",
+     "sourceTime": "2026-09-27T22:46:31",
+     "hash": "sha256:2b359dfddcc356d62a7c448a3e079a9b1b8978fd674efcbae810204686a3c852"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-016",
+   "externalId": "SSIM-48116",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Privileged sign-in of adm.jdupuis from an unusual geography (198.51.100.77)",
+   "ruleId": "DR-MB-04",
+   "detected": "2026-09-27T22:49:00",
+   "severity": "high",
+   "asset": "CJ5",
+   "techniques": [
+    "T1078"
+   ],
+   "scenarios": [
+    "S1",
+    "S8"
+   ],
+   "indicators": [
+    "IND-MB-06"
+   ],
+   "triage": "in-triage",
+   "assignee": "Karim Haddad",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-IDP/20260927224840-1",
+     "sourceId": "TS-MB-IDP",
+     "sourceTime": "2026-09-27T22:48:40",
+     "hash": "sha256:c1a5ef4b661afa5db29553466d478eec81933cb58578bc5ff86c2b2d7bd61861"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-017",
+   "externalId": "SSIM-48117",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Remote-access session for adm.jdupuis from 198.51.100.77",
+   "ruleId": "DR-MB-04",
+   "detected": "2026-09-27T23:05:00",
+   "severity": "high",
+   "asset": "CJ5",
+   "techniques": [
+    "T1133"
+   ],
+   "scenarios": [
+    "S1"
+   ],
+   "indicators": [
+    "IND-MB-06"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-VPN/20260927230420-1",
+     "sourceId": "TS-MB-VPN",
+     "sourceTime": "2026-09-27T23:04:20",
+     "hash": "sha256:7473b17aeed618eeaae84b0aebb1a7243cba0e3e7c1e7b88c3ef64b4ce2abd93"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-018",
+   "externalId": "SSIM-48118",
+   "version": 1,
+   "sourceSystem": "Service desk (fictional)",
+   "confidence": 50,
+   "title": "Service-desk report: night-time MFA prompts on an administrator phone",
+   "detected": "2026-09-28T09:10:00",
+   "severity": "medium",
+   "asset": "CJ5",
+   "techniques": [
+    "T1621"
+   ],
+   "scenarios": [
+    "S1"
+   ],
+   "triage": "in-triage",
+   "assignee": "Karim Haddad",
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-019",
+   "externalId": "SSIM-48119",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "RDP from WS-GAT-014 to SRV-EHR-APP02 with adm.jdupuis",
+   "ruleId": "DR-MB-05",
+   "detected": "2026-09-29T01:12:00",
+   "severity": "high",
+   "asset": "CJ1",
+   "techniques": [
+    "T1021.001"
+   ],
+   "scenarios": [
+    "S2",
+    "S8"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20260929011147-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-09-29T01:11:47",
+     "hash": "sha256:48e3e2f6304f1430dde85b7b39c4b76a16fdb416d1185b06153aaf7af52795e2"
+    },
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20260929011150-2",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-09-29T01:11:50",
+     "hash": "sha256:e45509e40b7877449b263d782e77aa6979116f9271f8840078681762786f7b41"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-020",
+   "externalId": "SSIM-48120",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Directory reconnaissance: LDAP queries for privileged groups from SRV-EHR-APP02",
+   "detected": "2026-09-29T01:30:00",
+   "severity": "medium",
+   "asset": "CJ1",
+   "techniques": [
+    "T1087.002"
+   ],
+   "scenarios": [
+    "S8"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20260929012910-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-09-29T01:29:10",
+     "hash": "sha256:4c8e8d3cbffc3524231c7ba59d2f429616453ce911c717fcf7795917a208b812"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-021",
+   "externalId": "SSIM-48121",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 90,
+   "title": "Service account ehr-sync-svc read 48,000 patient records in 40 minutes (baseline 1,200 per day)",
+   "ruleId": "DR-MB-06",
+   "detected": "2026-09-30T03:02:00",
+   "firstSeen": "2026-09-30T02:20:00",
+   "severity": "critical",
+   "asset": "CJ1",
+   "techniques": [
+    "T1213",
+    "T1005"
+   ],
+   "scenarios": [
+    "S5",
+    "S2"
+   ],
+   "triage": "new",
+   "tlp": "RED",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EHR/20260930030112-1",
+     "sourceId": "TS-MB-EHR",
+     "sourceTime": "2026-09-30T03:01:12",
+     "hash": "sha256:8fc7df4b7701edfb107ef967568e89830b4e432eb699609b2b80da8f60e8eb45"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-022",
+   "externalId": "SSIM-48122",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Archive created in a temporary folder on SRV-EHR-APP02",
+   "detected": "2026-09-30T03:40:00",
+   "severity": "high",
+   "asset": "CJ1",
+   "techniques": [
+    "T1560.001"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20260930033930-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-09-30T03:39:30",
+     "hash": "sha256:bc966edfbd42df2744d998c8d0b2e29ec20f0ffd2e2e355bf10b3b234be671e7"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-023",
+   "externalId": "SSIM-48123",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Antimalware signature update failures at the Saguenay clinic",
+   "detected": "2026-09-30T10:00:00",
+   "severity": "informational",
+   "triage": "benign",
+   "assignee": "Samuel Côté",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRWS/20260930095800-1",
+     "sourceId": "TS-MB-EDRWS",
+     "sourceTime": "2026-09-30T09:58:00",
+     "hash": "sha256:62d089f668e551ef71447d2d1f00b1ea1d6e7037932fa888df4cac98aa63753c"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-024",
+   "externalId": "SSIM-48124",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "38 GB downloaded from the cloud image-transfer storage by 203.0.113.88",
+   "ruleId": "DR-MB-09",
+   "detected": "2026-10-01T02:15:00",
+   "severity": "critical",
+   "asset": "CJ7",
+   "techniques": [
+    "T1530"
+   ],
+   "scenarios": [
+    "S4"
+   ],
+   "indicators": [
+    "IND-MB-07"
+   ],
+   "triage": "in-triage",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-CLOUD/20261001021402-1",
+     "sourceId": "TS-MB-CLOUD",
+     "sourceTime": "2026-10-01T02:14:02",
+     "hash": "sha256:bd6165ddf9b1490d4b9f08e82b34c8f5cd9dded4532c67d8aa6713f6571e9536"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-025",
+   "externalId": "SSIM-48125",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 55,
+   "title": "Upload from SRV-EHR-APP02 to files.example.com",
+   "ruleId": "DR-MB-10",
+   "detected": "2026-10-01T02:20:00",
+   "severity": "high",
+   "asset": "CJ1",
+   "techniques": [
+    "T1567.002"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "indicators": [
+    "IND-MB-08",
+    "IND-MB-09"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20261001021941-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-10-01T02:19:41",
+     "hash": "sha256:d13da85515f694b42591fe7a3a3f462d30bd149531642947a7967bc6d782c0a3"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-026",
+   "externalId": "SSIM-48126",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Scheduled image transfer to the radiology partner flagged as a large download",
+   "ruleId": "DR-MB-09",
+   "detected": "2026-10-01T15:30:00",
+   "severity": "medium",
+   "asset": "CJ7",
+   "techniques": [
+    "T1530"
+   ],
+   "scenarios": [
+    "S4"
+   ],
+   "triage": "false-positive",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-CLOUD/20261001152900-1",
+     "sourceId": "TS-MB-CLOUD",
+     "sourceTime": "2026-10-01T15:29:00",
+     "hash": "sha256:676806f050ba2ec7cf29c5d391926e95a98ac3451387a8c874be997872ccffdf"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-027",
+   "externalId": "SSIM-48127",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Port scan of the patient portal from 192.0.2.200 (internet background noise)",
+   "detected": "2026-10-02T08:00:00",
+   "severity": "low",
+   "asset": "CJ3",
+   "techniques": [
+    "T1595"
+   ],
+   "triage": "benign",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20261002075900-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-10-02T07:59:00",
+     "hash": "sha256:f67a0c1f4219bf12bc79e452368d782b536c835ae1e63f80e383d1edd39f903c"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-028",
+   "externalId": "SSIM-48128",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Unusual geography for a roaming nurse (mobile carrier address)",
+   "ruleId": "DR-MB-04",
+   "detected": "2026-10-02T11:45:00",
+   "severity": "medium",
+   "asset": "CJ5",
+   "techniques": [
+    "T1078"
+   ],
+   "scenarios": [
+    "S1"
+   ],
+   "triage": "false-positive",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-IDP/20261002114430-1",
+     "sourceId": "TS-MB-IDP",
+     "sourceTime": "2026-10-02T11:44:30",
+     "hash": "sha256:b2ab205692083bac9604ccc6be852d8304189e2a775c2322412231b4c420006e"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-029",
+   "externalId": "SSIM-48129",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 95,
+   "title": "vssadmin delete shadows on SRV-FILE-01",
+   "ruleId": "DR-MB-07",
+   "detected": "2026-10-03T23:55:00",
+   "severity": "critical",
+   "asset": "CJ6",
+   "techniques": [
+    "T1490"
+   ],
+   "scenarios": [
+    "S2",
+    "S3"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20261003235448-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-10-03T23:54:48",
+     "hash": "sha256:6136079f451d007e1d9a1346614137fbbb2824496575a79ae3b4e40e4b0e9dfd"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-030",
+   "externalId": "SSIM-48130",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Backup agent service stopped on SRV-FILE-01",
+   "detected": "2026-10-04T00:10:00",
+   "severity": "high",
+   "asset": "CJ6",
+   "techniques": [
+    "T1489"
+   ],
+   "scenarios": [
+    "S3"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20261004000930-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-10-04T00:09:30",
+     "hash": "sha256:44c6bebc7234d329295f069bfd46ff0e6a55f6eb38e311f37cc894b42a2c4571"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-031",
+   "externalId": "SSIM-48131",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 95,
+   "title": "Mass rename to extension .lockmb on the EHR document share",
+   "ruleId": "DR-MB-08",
+   "detected": "2026-10-04T00:32:00",
+   "severity": "critical",
+   "asset": "CJ1",
+   "techniques": [
+    "T1486"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "indicators": [
+    "IND-MB-10"
+   ],
+   "triage": "new",
+   "tlp": "RED",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20261004003140-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-10-04T00:31:40",
+     "hash": "sha256:6d76ec0b6a9d77560d66ae5280b3a5f4b3d346e592ba5f995f70791216f37820"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-032",
+   "externalId": "SSIM-48132",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 95,
+   "title": "Mass file encryption on scheduling server SRV-SCHED-01",
+   "ruleId": "DR-MB-08",
+   "detected": "2026-10-04T00:34:00",
+   "severity": "critical",
+   "asset": "CJ3",
+   "techniques": [
+    "T1486"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20261004003350-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-10-04T00:33:50",
+     "hash": "sha256:d63266c860b623a2d509a62e598b91804eadc0ddcd55e19a002cfa69341e24d2"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-033",
+   "externalId": "SSIM-48133",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 95,
+   "title": "Ransom note LIRE_MOI.txt written to 212 shared folders",
+   "ruleId": "DR-MB-08",
+   "detected": "2026-10-04T00:40:00",
+   "severity": "critical",
+   "asset": "CJ1",
+   "techniques": [
+    "T1486"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "indicators": [
+    "IND-MB-11"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20261004003910-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-10-04T00:39:10",
+     "hash": "sha256:dd3429525c0cccca5bd06490d8eaf82ad245621ccdfbaf22159c9b964c20661a"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-034",
+   "externalId": "SSIM-48134",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "File encryption on clinic workstation WS-SAG-007",
+   "ruleId": "DR-MB-08",
+   "detected": "2026-10-04T00:45:00",
+   "severity": "high",
+   "techniques": [
+    "T1486"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "triage": "new",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRWS/20261004004420-1",
+     "sourceId": "TS-MB-EDRWS",
+     "sourceTime": "2026-10-04T00:44:20",
+     "hash": "sha256:f5ae57efabdef6f45212123894aa99a31312a6ebc47559a438b8a50439c91f6b"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-035",
+   "externalId": "SSIM-48135",
+   "version": 1,
+   "sourceSystem": "Availability monitor (fictional)",
+   "confidence": 100,
+   "title": "EHR application unavailable at all 10 clinics (availability monitor)",
+   "detected": "2026-10-04T06:20:00",
+   "severity": "critical",
+   "asset": "CJ1",
+   "scenarios": [
+    "S2"
+   ],
+   "triage": "in-triage",
+   "assignee": "Nadia Roy",
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-036",
+   "externalId": "SSIM-48136",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Sign-in attempt with the disabled account adm.jdupuis (blocked)",
+   "ruleId": "DR-MB-04",
+   "detected": "2026-10-05T09:00:00",
+   "severity": "low",
+   "asset": "CJ5",
+   "techniques": [
+    "T1078"
+   ],
+   "scenarios": [
+    "S1"
+   ],
+   "triage": "benign",
+   "assignee": "Karim Haddad",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-IDP/20261005085940-1",
+     "sourceId": "TS-MB-IDP",
+     "sourceTime": "2026-10-05T08:59:40",
+     "hash": "sha256:1ac43915f993ee87bdd4754afd2d3efee379642d83ad59c17b2eeda775f5e9cb"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-037",
+   "externalId": "SSIM-48137",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Mass rename by the imaging-archive migration job on the PACS",
+   "ruleId": "DR-MB-08",
+   "detected": "2026-10-06T14:00:00",
+   "severity": "high",
+   "asset": "CJ2",
+   "techniques": [
+    "T1486"
+   ],
+   "scenarios": [
+    "S2"
+   ],
+   "triage": "false-positive",
+   "assignee": "Karim Haddad",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-EDRSRV/20261006135910-1",
+     "sourceId": "TS-MB-EDRSRV",
+     "sourceTime": "2026-10-06T13:59:10",
+     "hash": "sha256:6203f039d6f9fed13d4fbcb010c29c58d19a0654555f8c581ffdcb89a4cabfc1"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-038",
+   "externalId": "SSIM-48138",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 30,
+   "title": "Connection to 192.0.2.66 (indicator revoked by its producer)",
+   "ruleId": "DR-MB-10",
+   "detected": "2026-10-07T10:30:00",
+   "severity": "low",
+   "indicators": [
+    "IND-MB-13"
+   ],
+   "triage": "benign",
+   "assignee": "Émilie Bouchard",
+   "events": [
+    {
+     "ref": "ssiem://events/TS-MB-FW/20261007102955-1",
+     "sourceId": "TS-MB-FW",
+     "sourceTime": "2026-10-07T10:29:55",
+     "hash": "sha256:c5f9bc868ec01f06554b47c42d45e0b495a74f581c79852d1a3dc368b41aee34"
+    }
+   ],
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-039",
+   "externalId": "SSIM-48139",
+   "version": 1,
+   "sourceSystem": "Patient report (fictional)",
+   "confidence": 60,
+   "title": "Patient reports an appointment e-mail from medibec-rendezvous.example.com",
+   "detected": "2026-10-08T16:10:00",
+   "severity": "medium",
+   "asset": "CJ3",
+   "techniques": [
+    "T1566.002"
+   ],
+   "scenarios": [
+    "S30"
+   ],
+   "indicators": [
+    "IND-MB-14"
+   ],
+   "triage": "new",
+   "tlp": "CLEAR",
+   "simulation": true
+  },
+  {
+   "id": "AL-MB-040",
+   "externalId": "SSIM-48140",
+   "version": 1,
+   "sourceSystem": "Simulated SIEM (fictional)",
+   "confidence": 70,
+   "title": "Restore test of the EHR database from the off-site copy completed",
+   "detected": "2026-10-09T08:30:00",
+   "severity": "low",
+   "asset": "CJ6",
+   "scenarios": [
+    "S3"
+   ],
+   "triage": "benign",
+   "assignee": "Nadia Roy",
+   "simulation": true
+  }
+ ],
+ "gaps": [
+  {
+   "id": "GAP-MB-01",
+   "title": "Backup catalogue deletions are not seen: backup telemetry silent since 18 September",
+   "scenario": "S3",
+   "technique": "T1490",
+   "source": "TS-MB-BKP",
+   "owner": "Nadia Roy",
+   "status": "open",
+   "raised": "2026-10-05",
+   "description": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "GAP-MB-02",
+   "title": "No validated detection of data staged to web services",
+   "scenario": "S2",
+   "technique": "T1567",
+   "owner": "Karim Haddad",
+   "status": "open",
+   "raised": "2026-10-06",
+   "description": "FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "GAP-MB-03",
+   "title": "Connected medical devices send no telemetry (certification constraint)",
+   "scenario": "S7",
+   "technique": "T1210",
+   "owner": "Louis Gagnon",
+   "status": "accepted",
+   "raised": "2026-05-15",
+   "description": "Accepted by management until the device-network segmentation project (fictional). FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "coverage": [
+  {
+   "id": "COV-MB-01",
+   "scenario": "S2",
+   "technique": "T1486",
+   "rules": [
+    "DR-MB-08"
+   ],
+   "note": "Declared by the detection engineer — the application computes the status. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  },
+  {
+   "id": "COV-MB-02",
+   "scenario": "S3",
+   "technique": "T1490",
+   "rules": [
+    "DR-MB-07"
+   ],
+   "note": "Declared coverage; see GAP-MB-01. FICTIONAL — simulation data for the MediBec teaching case.",
+   "simulation": true
+  }
+ ],
+ "events": [
+  {
+   "id": "EV-MB-001",
+   "externalRef": "ssiem://events/TS-MB-MAIL/20260923075102-1",
+   "sourceId": "TS-MB-MAIL",
+   "observed": "2026-09-23T07:51:02",
+   "recorded": "2026-09-23T07:51:09",
+   "ocsfClass": 4009,
+   "parser": "mailgw 2.3",
+   "hash": "sha256:7df20d7458732505e9b42156012b3591026e35a869e0a26c128087a3e5abae1e",
+   "simulation": true
+  },
+  {
+   "id": "EV-MB-002",
+   "externalRef": "ssiem://events/TS-MB-EDRWS/20260923082044-1",
+   "sourceId": "TS-MB-EDRWS",
+   "observed": "2026-09-23T08:20:44",
+   "recorded": "2026-09-23T08:21:30",
+   "ocsfClass": 1007,
+   "parser": "edr 5.1",
+   "hash": "sha256:a86cd51c8f056f7ea23f9bac589278c77cabe97619e813e235c8c0c2fc701a9a",
+   "simulation": true
+  },
+  {
+   "id": "EV-MB-003",
+   "externalRef": "ssiem://events/TS-MB-MFA/20260927224631-1",
+   "sourceId": "TS-MB-MFA",
+   "observed": "2026-09-27T22:46:31",
+   "recorded": "2026-09-27T22:46:35",
+   "ocsfClass": 3002,
+   "parser": "mfa 1.4",
+   "hash": "sha256:1077503fd0af86af3da75137594812b8c5fe79bcc37192cd3887885d563f7e0e",
+   "simulation": true
+  },
+  {
+   "id": "EV-MB-004",
+   "externalRef": "ssiem://events/TS-MB-EHR/20260930030112-1",
+   "sourceId": "TS-MB-EHR",
+   "observed": "2026-09-30T03:01:12",
+   "recorded": "2026-09-30T03:02:00",
+   "ocsfClass": 6005,
+   "parser": "ehr-audit 1.0",
+   "hash": "sha256:490a5e6804cb0316d74c5726ad530a42241d092257b3a1ee4d08aa625549435f",
+   "simulation": true
+  },
+  {
+   "id": "EV-MB-005",
+   "externalRef": "ssiem://events/TS-MB-EDRSRV/20261003235448-1",
+   "sourceId": "TS-MB-EDRSRV",
+   "observed": "2026-10-03T23:54:48",
+   "recorded": "2026-10-03T23:55:00",
+   "ocsfClass": 1007,
+   "parser": "edr 5.1",
+   "hash": "sha256:472fa04b00dfcc585f93d07b6aa0d8740b794c18c176efbe4359c31f17e8b179",
+   "simulation": true
+  },
+  {
+   "id": "EV-MB-006",
+   "externalRef": "ssiem://events/TS-MB-EDRSRV/20261004003140-1",
+   "sourceId": "TS-MB-EDRSRV",
+   "observed": "2026-10-04T00:31:40",
+   "recorded": "2026-10-04T00:31:52",
+   "ocsfClass": 1001,
+   "parser": "edr 5.1",
+   "hash": "sha256:b9431d963c1d0b487beae5c90eeaa14ddf25a48bcede9adc00c5a4ff5c61344f",
+   "simulation": true
+  }
+ ]
+}

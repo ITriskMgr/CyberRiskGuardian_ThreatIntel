@@ -1,4 +1,4 @@
-/* users.js — multi-user mode with RACI-based rights (1.5.2, option A of the proof of concept).
+/* users.js — multi-user mode with RACI-based rights (1.5.2, option A).
 
    Option A — one computer, several people. Users, their PIN (stored as a salted SHA-256 hash) and a
    RACI letter per process step live in this browser's storage. The application enforces the rights:
@@ -22,6 +22,7 @@
    Administrators are never restricted.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as LOG from './logs.js';
 import * as store from './store.js';
 import { STEPS, stepOf } from './process.js';
 
@@ -34,6 +35,10 @@ export async function load() {
   const d = await store.get('meta', 'users').catch(() => null);
   Object.assign(U, { enabled: false, users: [], groups: [], audit: [] }, d || {});
   let sid = null; try { sid = sessionStorage.getItem(SESSION); } catch { /* none */ }
+  /* 1.5.7 — a step added in a later release (step 4, Import other information) inherits the user's
+     right on the step it follows, so nobody silently loses or gains rights on an upgrade. */
+  const INHERIT = { import: 'assets' };
+  for (const u of U.users) { u.raci ||= {}; for (const s of STEPS) if (!(s.id in u.raci)) u.raci[s.id] = u.raci[INHERIT[s.id]] || (u.admin ? 'A' : 'I'); }
   U.current = U.enabled ? U.users.find(u => u.id === sid) || null : null;
   return U;
 }
@@ -42,6 +47,7 @@ export async function save() {
   await store.put('meta', 'users', JSON.parse(JSON.stringify(rest)));
 }
 export const me = () => U.current;
+LOG.setWho(() => U.enabled ? (U.current?.name || '') : '');
 export const active = () => U.enabled;
 export const name = () => U.current?.name || '';
 
@@ -52,14 +58,14 @@ export async function hashPin(pin, salt) {
 }
 export async function signIn(id, pin = '') {
   const u = U.users.find(x => x.id === id);
-  if (!u) throw new Error('Unknown user');
-  if (u.pinHash && (await hashPin(pin, u.salt)) !== u.pinHash) throw new Error('Wrong PIN');
+  if (!u) { LOG.access('sign-in failed', String(id), 'unknown user'); throw new Error('Unknown user'); }
+  if (u.pinHash && (await hashPin(pin, u.salt)) !== u.pinHash) { LOG.access('sign-in failed', u.name, 'wrong PIN'); throw new Error('Wrong PIN'); }
   U.current = u;
   try { sessionStorage.setItem(SESSION, u.id); } catch { /* none */ }
-  audit('sign-in', '');
+  audit('sign-in', ''); LOG.access('signed in', u.name);
   return u;
 }
-export function signOut() { audit('sign-out', ''); U.current = null; try { sessionStorage.removeItem(SESSION); } catch { /* none */ } }
+export function signOut() { audit('sign-out', ''); LOG.access('signed out', U.current?.name || ''); U.current = null; try { sessionStorage.removeItem(SESSION); } catch { /* none */ } }
 
 export function newUser(o = {}) {
   return Object.assign({ id: 'u-' + Math.random().toString(36).slice(2, 9), name: '', email: '', title: '', admin: false, raci: Object.fromEntries(STEPS.map(s => [s.id, 'I'])),
@@ -75,7 +81,7 @@ export function template(t) {
 /* ---------------- menu access by group and user (1.5.4) ---------------- */
 export const MENUS = [['process', 'Process'], ['org', 'Organization'], ['dashboard', 'KRI dashboard'], ['assets', 'Information assets'], ['safeguards', 'Existing safeguards'], ['maturity', 'Maturity & resilience'], ['register', 'Scenario register'],
   ['scenario', 'Scenario editor'], ['batch', 'Batch scenarios'], ['calc', 'Risk calculator'], ['riskreg', 'Risk register'], ['mitigation', 'Risk mitigation'], ['recs', 'Recommendations'],
-  ['threats', 'Threats · ATT&CK'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['feeds', 'Threat feeds & social'], ['threat', 'Threat context'], ['frameworks', 'Frameworks & standards'],
+  ['threats', 'Threats · ATT&CK'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['feeds', 'Threat feeds & social'], ['threat', 'Threat context'], ['ontology', 'Ontology · CRGO'], ['registry', 'Risk Registry'], ['frameworks', 'Frameworks & standards'], ['isms', 'Information security management'], ['isp', 'Security policies (ISP)'], ['csm', 'Cybersecurity management'], ['audit', 'Audit management'], ['qc', 'Quality review'], ['shared', 'Shared registers'], ['siem', 'SIEM'], ['soar', 'SOAR'],
   ['compliance', 'Compliance'], ['share', 'Publish & share'], ['reset', 'Reset data'], ['cvss', 'CVSS v4.0'], ['budget', 'Budget'], ['export', 'Export · Excel'], ['ai', 'AI assistant'], ['forecast', 'Forecasts'],
   ['backup', 'Backup & restore'], ['settings', 'Settings'], ['about', 'About']];
 export const MODES = [['default', 'Default (RACI)'], ['full', 'Full'], ['view', 'View only'], ['hidden', 'Hidden']];
@@ -172,5 +178,6 @@ export const hiddenPanels = () => {
 };
 /** Throw unless the current user may approve on this step (used by approval code paths). */
 export function requireApprove(step) {
+  if (!can('approve', step)) { LOG.access('approval refused', step, 'no Approve right'); }
   if (!can('approve', step)) throw new Error(`Approval needs the Approve right (RACI “A”) on step “${STEPS.find(s => s.id === step)?.title || step}”. Your role: ${letter(step) || '—'}.`);
 }

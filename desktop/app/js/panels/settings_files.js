@@ -1,4 +1,4 @@
-/* Settings → Documents & files (1.5.4, proof of concept) — the administrator's view of every document
+/* Settings → Documents & files (1.5.4) — the administrator's view of every document
    added to every workspace on this computer (business cases, profiles, audit reports…): rename,
    recategorize, replace with a new version (the text is extracted again on this computer), open its
    text, delete, and clean up text no workspace refers to any more. In multi-user mode Settings is

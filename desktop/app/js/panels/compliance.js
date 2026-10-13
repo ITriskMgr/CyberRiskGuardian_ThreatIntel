@@ -5,10 +5,13 @@
    Decision support, not legal advice. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { GENERATOR } from '../version.js';
-import { el, n0, n1, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, field, today, debounce } from '../util.js';
+import { el, n0, n1, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, field, today, debounce, go } from '../util.js';
+import * as CP from './compliance_plus.js';
+import * as CMS from './cms.js';
 import { S, touch, compute, scen } from '../state.js';
 import * as K from '../catalog.js';
 
+export { STATUS_EXPORT as STATUS, CSTATUS_EXPORT as CSTATUS };
 export const CHECKLISTS = {
   law25: { name: 'Quebec Law 25 — private sector (Act respecting the protection of personal information in the private sector)', short: 'Law 25', items: [
     ['L25-01', 'Person in charge of the protection of personal information designated (by default the CEO); title and contact published', 'Governance', ['ISO22:5.2', 'ISO22:5.34']],
@@ -66,12 +69,53 @@ export function fwStats(ws, fw) {
     gaps: app.filter(x => x.r.status && x.r.status !== 'implemented').length };
 }
 
-export function render(sec) {
+/* Beta 1.6.x — the compliance management screen: its tabs, in the order of the side menu (js/menu.js).
+   The CMS tabs (dashboard, obligations, programmes, mappings, campaigns, calendar, submissions, changes) are
+   in panels/cms.js; the earlier ones (frameworks & checklists, requirements, legal applicability,
+   determinations, AI-assisted assessment, reporting) keep working as they were. */
+export const TABS = [['dashboard', 'Dashboard'], ['obligations', 'Sources & obligations'], ['applicability', 'Legal applicability'], ['programmes', 'Programmes & frameworks'],
+  ['mappings', 'Mappings'], ['assessment', 'Frameworks & checklists'], ['requirements', 'Requirements'], ['campaigns', 'Campaigns'], ['determinations', 'Determinations'],
+  ['calendar', 'Regulatory calendar'], ['submissions', 'Submissions'], ['changes', 'Regulatory change'], ['ai', 'AI-assisted assessment'], ['report', 'Reporting']];
+const CMS_TABS = ['dashboard', 'obligations', 'programmes', 'mappings', 'campaigns', 'calendar', 'submissions', 'changes'];
+export const HELP = {
+  '': { d: 'Compliance management: obligations and their sources, applicability, programmes, mappings, assessments, determinations with evidence, deadlines, submissions and regulatory change.', g: 'compliance',
+    h: ['Only a dated compliance determination backed by evidence states a compliance state. A mapping, a policy acknowledgement or an attestation never does.', 'Decision support, not legal advice: applicability and interpretations need qualified review.'] },
+  ...CMS.HELP,
+  applicability: { d: 'Legal applicability: the organisation profile evaluated against the conditions of each legal instrument known to CRGO.', g: 'compliance-applicability',
+    h: ['"Potentially applicable" needs a qualified person; "unknown" is an evidence gap and never becomes "not applicable".'] },
+  assessment: { d: 'Statements of applicability for the frameworks followed, and the regulatory checklists, with status, maturity, owners and evidence.', g: 'compliance',
+    h: ['Implementation status of a control is not compliance with an obligation; gaps are linked to the measures and scenarios that close them.'] },
+  requirements: { d: 'The organisation\'s own requirements: laws, contracts, standards and policies, with owner, status and evidence.', g: 'compliance',
+    h: ['Requirements can be imported from a CSV file, from the ontology or from the published policy statements.'] },
+  determinations: { d: 'Compliance determinations: a dated state for a provision or obligation, with evidence or an explicit evidence gap.', g: 'compliance-determinations',
+    h: ['"Satisfied" needs evidence; expired or insufficient evidence is a gap, not support. Determinations made in an approved campaign are frozen.'] },
+  ai: { d: 'Proposals of status and evidence by rules or AI, reviewed item by item before anything is written.', g: 'compliance',
+    h: ['Every proposal is a draft. Legally privileged interpretations are never sent.'] },
+  report: { d: 'The compliance report: frameworks, legal applicability, determinations, compliance posture, requirements and policies.', g: 'compliance-report',
+    h: ['The compliance posture lists each obligation with its applicability, latest determination, evidence status, exceptions without exemption and next deadline. It never states compliance from a mapping.'] },
+};
+
+let ctab = 'dashboard';
+export function render(sec, arg) {
+  const a = String(arg || '').split('/')[0];
+  if (TABS.some(t => t[0] === a)) ctab = a;
+  if (CMS_TABS.includes(ctab)) return CMS.renderTab(sec, ctab, tabs(sec));
+  if (ctab !== 'assessment') return CP.renderTab(sec, ctab, tabs(sec));
+  renderSoa(sec);
+  sec.insertBefore(tabs(sec), sec.children[1] || null);
+}
+function tabs(sec) {
+  const st = el('div', { class: 'subtabs', role: 'tablist' });
+  for (const [k, t] of TABS)
+    st.append(el('button', { role: 'tab', 'aria-selected': String(ctab === k), onclick: () => { ctab = k; go('compliance/' + k); } }, t));
+  return st;
+}
+function renderSoa(sec) {
   const ws = S.ws, C = ws.compliance;
   if (!C.frameworks.length) C.frameworks = ['ISO22', 'CSF2'];
   if (!fwSel || !(C.frameworks.includes(fwSel) || CHECKLISTS[fwSel])) fwSel = C.frameworks[0];
   const regs = (ws.org.regulations || []).join(' ').toLowerCase();
-  sec.replaceChildren(el('h1', null, 'Compliance'), el('p', 'lede', 'Statements of applicability for the control frameworks the organization follows, with implementation status, maturity against target, owners and evidence; gaps are linked to the mitigation measures and scenarios that close them. Regulatory checklists cover Quebec Law 25 and PIPEDA. Decision support — not legal advice.'));
+  sec.replaceChildren(el('h1', null, 'Compliance management'));
   // framework chooser
   const chooser = el('div', 'chips');
   for (const f of FWS()) chooser.append(el('label', { class: 'chip', style: { cursor: 'pointer' } }, el('input', { type: 'checkbox', checked: C.frameworks.includes(f.id), style: { width: 'auto', margin: 0 },
@@ -191,3 +235,5 @@ function reports(ws) {
     el('a', { class: 'btn ghost', href: '#/export' }, 'Excel (Compliance_SoA sheet)…')),
     el('p', 'note', 'Asset-related compliance (inventory, ownership, classification, encryption, EDR, baselines, end of support) is reported in Information assets → Compliance reporting.'));
 }
+
+const STATUS_EXPORT = STATUS, CSTATUS_EXPORT = CSTATUS;

@@ -19,6 +19,7 @@
    the person accepts it. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { S, docText } from './state.js';
+import { today } from './util.js';
 import * as AI from './ai.js';
 import { hints } from './extract.js';
 
@@ -93,9 +94,26 @@ export function normalize(k, raw) {
 }
 
 /* ---------------- the document corpus ---------------- */
+
+/* 1.5.7 — which documents an extraction reads. null = all of them. Organization → Import from
+   documents sets it for one run (for instance: only the documents just added) and clears it at the
+   end; the preview shows the documents by name, so the scope is visible in what is sent. */
+let scopeIds = null;
+export function setScope(ids) { scopeIds = Array.isArray(ids) && ids.length ? [...ids] : null; }
+export const scope = () => scopeIds ? [...scopeIds] : null;
+/** Record, on each document read, what was taken from it. */
+export function markExtracted(ws, label) {
+  const ids = scopeIds || (ws.docs || []).map(d => d.id);
+  for (const d of ws.docs || []) if (ids.includes(d.id)) {
+    d.extracted ||= [];
+    const e = d.extracted.find(x => x.into === label);
+    if (e) e.date = today(); else d.extracted.push({ into: label, date: today() });
+  }
+}
+
 export async function corpus(ws = S.ws, max = 220000) {
   const docs = [];
-  for (const d of ws.docs || []) docs.push({ name: d.name, cat: d.category, text: (await docText(d.id)) || '' });
+  for (const d of ws.docs || []) if (!scopeIds || scopeIds.includes(d.id)) docs.push({ name: d.name, cat: d.category, text: (await docText(d.id)) || '' });
   const per = Math.max(4000, Math.floor(max / Math.max(1, docs.length)));
   const parts = docs.filter(d => d.text.trim()).map(d => `### Document: ${d.name}${d.cat ? ` (${d.cat})` : ''}\n${d.text.length > per ? d.text.slice(0, per) + '\n[…truncated…]' : d.text}`);
   return { docs, text: parts.join('\n\n'), truncated: docs.some(d => d.text.length > per) };

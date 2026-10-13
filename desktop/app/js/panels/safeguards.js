@@ -267,8 +267,8 @@ function resilience(body, sec) {
 /* ---------------- bring controls over ---------------- */
 function bring(body, sec) {
   const ws = S.ws, cands = SG.candidates(ws);
-  body.append(card(el('p', null, 'Until 1.5.5 the existing controls found in your documents were added to the ',
-      el('b', null, 'Risk mitigation'), ' plan as measures marked implemented. That is the treatment portfolio, not an inventory: it is why a recommendation could appear to claim credit for a control you already had, and why nothing could answer who owns a control or when it was last shown to work.'),
+  body.append(card(el('p', null, 'Measures marked implemented in the ',
+      el('b', null, 'Risk mitigation'), ' plan are part of the treatment portfolio, not an inventory of what already protects the organization. Bring them here so each existing control has an owner, a state and a date when it was last shown to work, and so a recommendation never claims credit for a control you already had.'),
     el('p', 'note', 'Nothing is moved for you. Tick what belongs in the inventory. The measure stays in the plan — a measure already implemented contributes nothing to a recommendation, so leaving it there is harmless; remove it if you prefer the plan to hold only what you propose to add.')));
 
   if (!cands.length) {

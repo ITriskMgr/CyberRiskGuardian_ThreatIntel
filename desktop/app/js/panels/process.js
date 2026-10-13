@@ -3,7 +3,7 @@
    simple, and — in multi-user mode — who is Responsible and Accountable for each step.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { VERSION } from '../version.js';
+import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go, kpi, n0 } from '../util.js';
 import { S } from '../state.js';
 import { STEPS, statuses, nextStep, partsOf } from '../process.js';
@@ -20,8 +20,8 @@ export function render(sec) {
   const ws = S.ws, list = statuses(ws), nx = nextStep(ws);
   const done = list.filter(x => x.st === 'done').length, part = list.filter(x => x.st === 'partial').length;
   sec.replaceChildren(el('h1', null, 'Process'),
-    el('p', 'lede', 'The workflow of a complete cybersecurity risk assessment in 12 steps. Each step says what it is for, what it needs and when it is done, shows its status in this workspace, and opens the screens where it is completed.'),
-    banner('warn', `Beta ${VERSION} — proof of concept`, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.'));
+    el('p', 'lede', `The workflow of a complete cybersecurity risk assessment in ${STEPS.length} steps. Each step says what it is for, what it needs and when it is done, shows its status in this workspace, and opens the screens where it is completed.`),
+    banner('warn', `Beta ${SERIES}`, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.'));
   sec.append(el('div', 'grid g4',
     kpi('Steps done', `${done} / ${STEPS.length}`, part ? `${part} in progress` : '', done === STEPS.length ? 'good' : ''),
     kpi('Workspace', ws.name, ws.org?.name || ''),
@@ -86,7 +86,7 @@ function printChecklist(list) {
   const ws = S.ws;
   const esc = s => String(tr(s) ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
   w.document.write(`<!doctype html><html lang="${document.documentElement.lang}"><meta charset="utf-8"><title>${esc('Checklist')} — ${String(ws.name).replace(/[&<>]/g, '')}</title><style>body{font:13px/1.45 system-ui,sans-serif;margin:28px;max-width:800px}h1{font-size:18px}li{margin:10px 0}.s{font-size:11px;color:#555}.w{font-size:11.5px;color:#1f4e79}.st li{margin:2px 0;font-size:12px}h2{font-size:15px;margin-top:22px}</style>
-  <h1>${esc('Risk assessment checklist')} — ${String(ws.name).replace(/[&<>]/g, '')}</h1><p class="s">CyberRiskGuardian Desktop · ${esc(`Beta ${VERSION} (proof of concept)`)} · ${new Date().toISOString().slice(0, 10)}</p><ol>` +
+  <h1>${esc('Risk assessment checklist')} — ${String(ws.name).replace(/[&<>]/g, '')}</h1><p class="s">CyberRiskGuardian Desktop · ${esc(`Beta ${SERIES}`)} · ${new Date().toISOString().slice(0, 10)}</p><ol>` +
     list.map(({ s, st }) => `<li><b>☐ ${esc(s.title)}</b> <span class="s">(${esc(ST[st][0])})</span><br>${esc(s.purpose)}<br><span class="w">${esc('Where:')} ${s.screens.map(([, l]) => esc(l)).join(' · ')}</span><br><span class="s">${esc('Done when:')} ${esc(s.done)}</span></li>`).join('') + '</ol>' +
     `<h2>${esc('Guidelines — a complete assessment, simply')}</h2><ol>` + GUIDELINES.map(g => `<li><b>☐ ${esc(g.h)}.</b> ${esc(g.t)}<br><span class="w">${esc('Where:')} ${esc(g.where)}</span><ol class="st">${g.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol><span class="s">${esc('Done when:')} ${esc(g.done)}</span></li>`).join('') + '</ol>');
   w.document.close(); w.focus(); w.print();

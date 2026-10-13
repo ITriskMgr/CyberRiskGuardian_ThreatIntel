@@ -1,15 +1,15 @@
-/* help.js — the help corpus of the chatbot (1.5.2): a tip for every screen, the 12 process steps and
+/* help.js — the help corpus of the chatbot (1.5.2): a tip for every screen, the process steps and
    frequent questions. Written in English like every interface string; the French catalogue translates
    it on screen and the search matches both languages. The user guide's sections are added at run time.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { VERSION } from './version.js';
+import { VERSION, SERIES } from './version.js';
 import { STEPS } from './process.js';
 import { GUIDELINES } from './panels/process.js';
 
 export const SCREENS = {
-  process: ['Process', 'The 12 steps of a complete risk assessment, the status of each in this workspace and buttons to open the right screen. Start here when you do not know what to do next.'],
-  org: ['Organization', 'Workspaces, the organization profile and risk appetite, crown jewels, the classroom setting, context documents and the evidence imported from them. Use “Extract from documents…” to propose the profile and the crown jewels, then Save; Workspaces → Import from the documents pre-fills the rest of the assessment.'],
+  process: ['Process', 'The 13 steps of a complete risk assessment, the status of each in this workspace and buttons to open the right screen. Start here when you do not know what to do next.'],
+  org: ['Organization', 'Workspaces, the organization profile and risk appetite, crown jewels, the classroom setting, context documents and the evidence imported from them. Use “Extract from documents…” to propose the profile and the crown jewels, then Save; Import from documents adds documents at any time and pre-fills the rest of the assessment.'],
   dashboard: ['KRI dashboard', 'Key risk indicators: the five most in need of attention by default, with gauges and trends. Record a measurement at each review.'],
   assets: ['Information assets', 'The inventory of systems, applications, data and services with criticality, business impact, vulnerabilities, dependencies and blast radius. “Create from profile & crown jewels” starts it.'],
   register: ['Scenario register', 'All scenarios with their risk, ratio and status. Tick or untick to include them in the totals; click one to edit it.'],
@@ -24,15 +24,18 @@ export const SCREENS = {
   feeds: ['Threat feeds & social', 'Feed items triaged into stories that need a decision, are worth watching or are not relevant. Feeds never change a score.'],
   threat: ['Threat context', 'Load or build a KEV/EPSS snapshot and place exposed CVEs on the Threat Evidence Ladder; accept exposure-gated Pb(ψ,A) proposals one by one.'],
   frameworks: ['Frameworks & standards', 'Control catalogues and the methods the assessment follows, with versions and an update mechanism.'],
-  compliance: ['Compliance', 'Statements of applicability, maturity against target, gaps linked to measures, Law 25 and PIPEDA checklists.'],
-  share: ['Publish & share', 'Publish the risk register and scenario registry, anonymized on request; import registries shared by others.'],
+  compliance: ['Compliance', 'A module: statements of applicability, maturity against target, gaps linked to measures, Law 25 and PIPEDA checklists, your own requirements, AI-assisted assessment with evidence, and compliance reporting.'],
+  isp: ['Security policies (ISP)', 'A module: information security policies from sixteen templates or drafted with AI, their life cycle (draft, review, approval, publication, review dates, versions, retirement), and the tracking of non-compliance, violations and exceptions.'],
+  ontology: ['Ontology · CRGO', 'The CyberRiskGuardian Ontology: scenarios linked to ATT&CK, weaknesses, controls and Quebec Law 25 obligations. Suggest scenarios for this organization, explore controls by technique, and see whether the ontology’s MCP server or the shipped snapshot answers.'],
+  registry: ['Risk Registry', 'The shared catalogue of risks contributed by several organizations, searchable by sector, region, size, regulation, theme, asset category and technique; contribute your own anonymized cards; moderation and registry settings.'],
+  share: ['Publish & share', 'Publish the full risk register and scenario registry as one package, anonymized on request; import registries shared by others. In the Risk Registry menu.'],
   cvss: ['CVSS v4.0', 'Base metrics only. Exploitation evidence belongs in Pb(ψ,A), not in the vector.'],
   budget: ['Budget', 'Budget years, initiatives over up to three years, and funding options placed on the appetite-consistent band (4% / 7.8% / 12% of IT).'],
   export: ['Export · Excel', 'The workbook with live formulas, the assessment JSON, the context pack and workspace backups.'],
   ai: ['AI assistant', 'The analyst, parameter critique, scenario generation and the decision log. Every request is shown in full before it is sent.'],
   forecast: ['Forecasts', 'Monte Carlo over the CRG model from parameter ranges, driver chart and KRI projections — decision support, shown apart from the calculated results.'],
   backup: ['Backup & restore', 'One file with every workspace, documents and settings (never API keys), restored with a preview of what changes.'],
-  settings: ['Settings', 'Language, AI — local & remote (routes, providers, tests), users, RACI rights and menu access, documents and files, links and shared folders, feed sources and keys, AI providers, the scheduled task.'],
+  settings: ['Settings', 'Language, modules (Security policies and Compliance on or off), AI — local & remote (routes, providers, tests), users, RACI rights and menu access, documents and files, links and shared folders, feed sources and keys, AI providers, the scheduled task.'],
   reset: ['Reset data', 'Start a teaching case over from its starting point, and — for an administrator — reset or delete a workspace at the level you choose. The stored API keys are kept unless you ask for them to go.'],
   safeguards: ['Existing safeguards', 'The inventory of what already protects the organization: technical measures, business processes, internal controls, awareness programs and others, and what each contributes to the six resilience capabilities.'],
   maturity: ['Maturity & resilience', 'The CSF 2.0 maturity assessment, the resilience capabilities behind θ(ψ,A), the questionnaire and the history of recorded assessments.'],
@@ -48,24 +51,30 @@ export const FAQ = [
   ['How is risk calculated?', 'Estimated risk = Pb(A) × Pb(ψ,A) × CVSS × ((δe + δm)/2) × μ(E) / θ × factor. Tolerated risk uses the appetite instead of the damages. Mitigated = estimated × red_p × red_i; residual = estimated − mitigated. The verified engine does it; AI never does.', 'calc'],
   ['What do the ratio bands mean?', 'Residual / tolerated below 0.90: below tolerance. From 0.90 to 1.10: approximately at tolerance. Above 1.10: above tolerance.', 'calc'],
   ['How many scenarios should I create?', 'About 20 candidates, then keep the 10 most material for detailed analysis. Batch scenarios lets you set the number of candidates.', 'batch'],
-  ['Why are my information assets not offered in Batch scenarios?', 'Since 1.5.2 Batch scenarios lists the crown jewels and the information assets (most critical first). Create assets in Information assets or crown jewels in Organization.', 'batch'],
+  ['Why are my information assets not offered in Batch scenarios?', 'Batch scenarios lists the crown jewels and the information assets (most critical first). Create assets in Information assets or crown jewels in Organization.', 'batch'],
   ['How do I use AI and what leaves my computer?', 'AI is optional. The browser never calls a model: the local helper does, after showing you the exact text. Choose the Claude API or a local model in the AI assistant and Settings; mark a workspace confidential to confirm every call.', 'ai'],
   ['How do I switch the interface to French?', 'Use the EN / FR buttons in the top bar. Only the interface changes; your data and the case documents stay in their original language.', 'settings/general'],
   ['How do I turn on AI answers in this chat?', 'Settings → AI — local & remote → “Let the chatbot use AI”. AI must also be on for the workspace (same page). Without it the chatbot answers from the built-in help.', 'settings/ai'],
   ['How do I link vulnerabilities to scenarios?', 'Vulnerabilities → Suggest links (or “Suggest vulnerabilities for this scenario…” in the scenario editor). Run the rules — on this computer, no AI — then optionally ask AI for more. Review, tick and accept; a link never changes a score by itself. Exposure proposals mark CVEs that an asset lists or runs.', 'vulns/links'],
   ['Where do my AI requests go?', 'Settings → AI — local & remote shows, for each AI feature, whether it uses the local model, the Claude API or nothing, and lets you change it. Vulnerability linking uses the local model by default because it carries the vulnerability list. The helper enforces the same rules.', 'settings/ai'],
   ['How do I test the AI connection?', 'Settings → AI — local & remote → Providers → “Test the Claude API” or “Test the local model”. The test sends a few tokens and no workspace data.', 'settings/ai'],
-  ['How do I import more data from the documents?', 'Organization → Workspaces → Import from the documents: tick the targets (information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, parameter evidence, risks, budget, KRIs, people and roles, classroom), choose AI or rules, click “Start the import”, then review each proposal and click “Add ticked”. Every item keeps its tag and source. You can also tick “Then import more from the documents” when creating a workspace.', 'org/workspaces'],
+  ['How do I add documents to an existing workspace?', 'Organization → Import from documents: drop the new documents there. They are selected on their own, so only they are read; tick what to extract — the profile, the crown jewels or any other target — and click “Start the import”. Existing values are kept unless you tick the proposal that replaces them.', 'org/import'],
+  ['Can I edit what is sent to the AI?', 'Yes. Every AI preview shows the instructions and the request in two editable boxes, with their size. What is in the boxes when you press Send is exactly what is sent; “Restore the prepared payload” undoes your edits and “Apply the anonymizer” replaces names. The AI log records that the payload was edited.', 'settings/ai'],
+  ['How do I make the AI propose more?', 'Choose the creativity in the preview, or its default in Settings → AI — local & remote: Strict keeps to documented facts, Balanced adds cautious assumptions, Exploratory fills every gap with plausible values, Creative also proposes what an organization like this usually has. Every proposal beyond the documents is tagged ASSUMPTION and waits for your decision.', 'settings/ai'],
+  ['What is the ontology and where does it come from?', 'The CyberRiskGuardian Ontology (CRGO) describes risk scenarios, threats, weaknesses, controls and obligations. The application asks its MCP server — the same one Claude uses — through the local helper; without it, it reads the snapshot shipped in data/crgo-snapshot.json. Ontology · CRGO → Connection says which.', 'ontology/connection'],
+  ['How do I share risks with other organizations?', 'Risk Registry → Contribute risks (administrator, or RACI “A” on step 13): tick scenarios, check the catalogue, keep anonymization on, read the preview, then “Share to the registry”. The package goes to the shared registry folder.', 'registry/contribute'],
+  ['How do I switch a module off?', 'Settings → Modules. Security policies (ISP) and Compliance can be switched off; their menu entries disappear and their data stays in the workspaces.', 'settings/modules'],
+  ['How do I import more data from the documents?', 'Organization → Import from documents: tick the targets (information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, parameter evidence, risks, budget, KRIs, people and roles, classroom), choose AI or rules, click “Start the import”, then review each proposal and click “Add ticked”. Every item keeps its tag and source. You can also tick “Then import more from the documents” when creating a workspace.', 'org/import'],
   ['Where are incidents and roles found in the documents kept?', 'Organization → Evidence: incidents, people and roles (with “Create user” in multi-user mode), the spend breakdown and the import log.', 'org/evidence'],
   ['How do I delete or replace a document such as a business case?', 'Settings → Documents & files (administrators): rename, change the category, “Replace…” with a new version (the text is read again; the previous text is kept as an earlier version), “Open text”, “Delete”, or delete several at once.', 'settings/files'],
   ['How do I limit which menus a user or group can see?', 'Settings → Users & RACI → Menu access by group and user account: create groups, tick members, and set each menu to Default (RACI), Full, View only or Hidden for a group or a user. A user’s own setting wins; between groups the most permissive applies.', 'settings/users'],
   ['Why are amounts shown as $123,423 in French?', 'Amounts use one format in every language and on every screen: the English one, $123,423.', 'budget'],
   ['How do users and rights work?', 'Settings → Users & RACI. Each user has a RACI letter per process step: R edits, A edits and approves, C and I view, – hides the step. Administrators manage users. This organizes work on one computer; it is not a security boundary.', 'settings/users'],
-  ['Who can approve a recommendation?', 'In multi-user mode, a user with the Approve right (RACI “A”) on step 9 or an administrator. Approval freezes the figures with the approver and date.', 'recs'],
+  ['Who can approve a recommendation?', 'In multi-user mode, a user with the Approve right (RACI “A”) on step 10 or an administrator. Approval freezes the figures with the approver and date.', 'recs'],
   ['How do I quit the application?', 'Click Exit in the top bar: your work is saved, the local helper stops and the window closes (in a browser tab you can then close the tab).', 'process'],
   ['How do I back up my work?', 'Backup & restore writes one file with every workspace and the settings; API keys are never included.', 'backup'],
   ['What is a crown jewel?', 'An asset, service, data set or process whose loss or compromise would most harm the mission. Scenarios refer to them as affected assets.', 'org/crown'],
-  ['Is this a finished product?', `No. Version ${VERSION} is a beta proof of concept for teaching, exploration and method validation. Validate every result before it supports a real decision.`, 'about'],
+  ['Is this a finished product?', `No. Version ${VERSION} is a beta (${SERIES}) for teaching, exploration and method validation. Validate every result before it supports a real decision.`, 'about'],
 ];
 
 /** The corpus as searchable entries. */

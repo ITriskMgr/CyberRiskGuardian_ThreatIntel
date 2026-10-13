@@ -7,7 +7,7 @@
    in the usual preview — and the answer is labelled as AI. The chatbot never changes data.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { VERSION } from './version.js';
+import { VERSION, SERIES } from './version.js';
 import { el, go, toast } from './util.js';
 import { S, compute } from './state.js';
 import * as prefs from './prefs.js';
@@ -52,7 +52,7 @@ export function search(q, n = 3) {
     let s = 0;
     for (const w of qt) { const idf = corpus._idf(w); if (e._t.includes(w)) s += 3 * idf; const c = e._x.filter(x => x === w).length; if (c) s += idf * (1 + Math.log(c)); }
     if (e.kind === 'guide') s *= 0.7;
-    if (e.kind === 'guideline') s *= 0.8;   // 1.5.4 — long texts: a direct FAQ or screen tip answers first
+    if (e.kind === 'guideline') s *= 0.8;   // long texts: a direct FAQ or screen tip answers first
     if (e.route && e.route.split('/')[0] === screen) s *= 1.15;
     return [s, e];
   }).filter(x => x[0] > 0.8).sort((a, b) => b[0] - a[0]);
@@ -66,7 +66,7 @@ AI.TASKS.chat = {
     const R = compute(ws);
     const st = statuses(ws).map(x => `${x.s.n}. ${x.s.title}: ${x.st}`).join('; ');
     const body = [
-      `The person is on the screen “${SCREENS[scr]?.[0] || scr}” of CyberRiskGuardian Desktop ${VERSION} (beta, proof of concept).`,
+      `The person is on the screen “${SCREENS[scr]?.[0] || scr}” of CyberRiskGuardian Desktop ${VERSION} (beta ${SERIES}).`,
       `Workspace: ${ws.name} (${ws.kind}); ${ws.assessment.SCEN.length} scenarios, ${R.inc.length} included, ${R.counts.above} above tolerance; ${(ws.assets || []).length} information assets; ${(ws.measures || []).length} measures.`,
       `Process status: ${st}.`, '',
       'Built-in help passages that match the question:', ...passages.map(p => `- ${p.title}: ${p.text}`), '',

@@ -1,10 +1,10 @@
-# CyberRiskGuardian Desktop 1.5.6 Beta — Installation
+# CyberRiskGuardian Desktop 1.6.0 Beta (1.6.x) — Installation
 
 **English below · [Français plus bas](#français)**
 
-Proof of concept — for teaching, exploration and method validation. Validate every result before it
+Version 1.6.0 (beta) — for teaching, exploration and method validation. Validate every result before it
 supports a real decision. © 2026 Marc-André Léger · CC BY-NC 4.0. Who may use it without asking and
-whose situation needs a commercial licence: **About → Licence** in the application, or `LICENSE`.
+whose situation needs a commercial licence: **Help → About → Licence** in the application, or `LICENSE`.
 
 ---
 
@@ -16,7 +16,7 @@ whose situation needs a commercial licence: **About → Licence** in the applica
 |---|---|
 | **A current browser** | Chrome or Edge if you want to install it as a desktop application. Safari and Firefox run it in a tab. |
 | **Python 3** | Only to serve the folder on your own machine. macOS and most Linux distributions already have it. On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH**. |
-| **About 6 MB of disk** | Plus your workspaces. The bundled example threat snapshot is about 1.5 MB. |
+| **About 16 MB of disk** | Plus your workspaces. The bundled example threat snapshot is about 1.5 MB, the ontology snapshot about 6.5 MB, the SP 800-53A data about 1.3 MB and the simulation pack for teaching about 0.1 MB. |
 
 No account, no licence key, no installer, no administrator rights. Nothing is written outside the
 folder and your browser’s own storage, and the server listens on `127.0.0.1` only — the application
@@ -24,7 +24,7 @@ is never reachable from your network, even while it is running.
 
 ## 2. Unpack
 
-Unzip **`CyberRiskGuardian_Desktop_v1.5.6-beta.zip`** anywhere you can write — your Documents folder
+Unzip **`CyberRiskGuardian_Desktop_v1.6.0-beta.zip`** anywhere you can write — your Documents folder
 is fine. Keep the folder intact: the application loads its own files by relative path.
 
 ## 3. Start it
@@ -46,7 +46,7 @@ fetches them. **Control-C** stops it.
 By hand, if you prefer:
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.5.6-beta
+cd CyberRiskGuardian_Desktop_v1.6.0-beta
 python3 serve.py 8099
 ```
 
@@ -79,8 +79,9 @@ agrees with the reference.
 | `engine DIVERGES` and a red banner | The engine disagrees with the reference. | **Do not rely on any number.** Restore a clean copy. |
 | `engine error` | An exception during the self-check. | Open the browser console and send me what it says. |
 
-Then open **General → User guide** for everything else, or **General → Step by step** for the 12
-steps of an assessment. Both open in a window of their own and both work offline.
+Then open **Help → User guide** for everything else, or **Help → Step by step** for the 13
+steps of an assessment. Both open in a window of their own and both work offline. Every screen also has a
+**?** beside its title that opens its own help and its section of the guide.
 
 ## 5. Set up your own file locations
 
@@ -140,6 +141,41 @@ settings**. The folder id is shown back to you, so you can check you pasted the 
 Leave them empty and nothing breaks: Publish still writes a file you can download and put wherever you
 like, and the scheduled task reports that the upload step was skipped.
 
+### 5.3 The CyberRiskGuardian Ontology — optional
+
+The application ships with a snapshot of the ontology and needs nothing more. To query the ontology
+through **its own MCP server** — the one Claude uses — install **CRGO v0.10.0** and let the helper find it:
+
+```
+git clone --branch v0.10.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.0
+pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
+```
+
+1. If the `crgo-ontology` server is registered in **Claude** on this computer (Claude desktop → Settings →
+   Developer → Edit Config), the helper reuses that command and its Python. Point its `args` at the new
+   clone's `pipeline/mcp/crgo_server.py`.
+2. Otherwise, a **`CyberRiskGuardian-Ontology*`** folder near the application folder (for example both in
+   `CyberRiskGuardian_ThreatIntel`) is found automatically — versioned clones **newest first** — and started
+   with the helper's Python, which needs the packages above.
+3. Otherwise, set the Python interpreter and the path of `pipeline/mcp/crgo_server.py` in **Ontology ·
+   CRGO → Connection**, then **Save**.
+
+The Connection tab says which applies, which CRGO release it found and what that release supports: scenario
+identification with any release; the organisation context and write-back (dss/v1) from v0.9.1; the
+compliance and security-operations contexts (compliance/v1, secops/v1) with v0.10.0. It starts the server;
+its first start takes about ten to twenty seconds. The organisation graphs and the results written back are
+kept in **`~/CyberRiskGuardian-confidential/crgo/<workspace>`** by default — client data, never inside the
+application, the ontology or any git repository; choose another folder in **Ontology · CRGO → Organisation
+link**.
+
+### 5.4 The Risk Registry folder — only if you share risks
+
+The **Risk Registry** reads and writes risk cards in a shared folder. Use a folder synced on every
+participating computer (Google Drive for desktop, OneDrive, SharePoint) and set it in **Risk Registry →
+Registry settings → Shared registry folder on this computer** — it is the same setting as *Local folder
+synced with the registry* in Settings → Links & shared folders. Without it, contributions go to the
+outbox in the feeds folder, which the scheduled task uploads to the Drive registry folder.
+
 ## 6. Install it as a desktop application (recommended)
 
 With the application open over `http://`:
@@ -151,30 +187,37 @@ You get a windowed application with its own icon that starts without a terminal 
 After replacing the folder with a newer version, serve it once with the launcher so the installed
 application picks up the new files.
 
-## 7. Upgrading from 1.5.x
+## 7. Replacing an earlier copy
 
 1. **Export anything you would hate to lose first** — Backup & restore → *Make a backup* → *Download backup*,
    which writes one file holding every workspace. Your workspaces live in the browser, not in the folder,
    so unzipping a new version does not touch them; a backup is for the day something else does.
-2. Unzip 1.5.6 into a **new** folder beside the old one. Do not unzip over the old folder.
+2. Unzip 1.6.0 into a **new** folder beside the old one. Do not unzip over the old folder.
 3. **Stop the old server** if its terminal window is still open (Control-C). The launchers detect an
    earlier copy on the same port, stop it and say so, but an old window left running is the usual
    reason a browser keeps showing the previous version.
-4. Start 1.5.6 **on the same port** as before — the default 8099 — and your workspaces are there.
-5. **About → Versions** must read `1.5.6 beta`, and the footer `engine verified · 84,491 / 41,104`.
-   If an installed desktop application still shows the old version, reload it once (⌘R / Ctrl-R).
+4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
+   8099 — and your workspaces are there.
+5. **Help → About → Versions** must read `1.6.0 beta`, and the footer `engine verified · 84,491 / 41,104`.
+   If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
    are not in the application folder at all — they are in `crg-keys.json` in the feeds folder — so
-   they survive the upgrade.
+   they survive the change.
 
-Workspaces from 1.1 onwards open as they are. Nothing needs migrating.
+**Your data is migrated, not converted in place.** On its first start the application brings every
+workspace to **data version 2**: evidence records move, unchanged, to the shared evidence register and
+policy exceptions to the shared exception register; empty compliance-management, audit-management, SIEM and
+SOAR records are added. Each workspace is migrated on a copy; the original is kept on this computer
+(**Backup & restore → Data versions and migrations → Download the copy from before the migration**), and the
+migration is journalled. No number is recomputed. A workspace written by a newer application is opened
+read-only and never saved over.
 
 ## 8. If something goes wrong
 
 **8.1 `start.command` opens in a text editor instead of running (macOS).**
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.5.6-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.6.0-beta
 chmod +x start.command start.sh
 ```
 
@@ -203,12 +246,12 @@ its cache with no server at all.
 | What | Where | Survives unzipping a new version? |
 |---|---|---|
 | Workspaces, documents, snapshots | Your browser’s own storage, for the address you use | Yes |
-| Framework catalogues, AI settings, users and rights | The same storage | Yes |
+| Framework catalogues, AI settings, modules, users and rights, the Risk Registry catalogue | The same storage | Yes |
 | API keys | `crg-keys.json` in the feeds folder, readable by your user only (mode 600) | Yes |
 | Downloaded threat sources and briefings | The feeds folder — see section 5.1 | Yes |
 | The application itself | The folder you unzipped | It *is* the folder |
 
-To start a teaching case over, or to clear or delete a workspace, use **General → Reset data**.
+To start a teaching case over, or to clear or delete a workspace, use **Organization → Reset data**.
 
 ---
 
@@ -216,10 +259,10 @@ To start a teaching case over, or to clear or delete a workspace, use **General 
 
 # Français
 
-Preuve de concept — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
+Version 1.6.0 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
 Validez chaque résultat avant qu’il n’appuie une décision réelle. © 2026 Marc-André Léger ·
 CC BY-NC 4.0. Qui peut l’utiliser sans demander et quelles situations exigent une licence
-commerciale : **À propos → Licence** dans l’application, ou le fichier `LICENSE`.
+commerciale : **Aide → À propos → Licence** dans l’application, ou le fichier `LICENSE`.
 
 ## 1. Ce qu’il vous faut
 
@@ -227,7 +270,7 @@ commerciale : **À propos → Licence** dans l’application, ou le fichier `LIC
 |---|---|
 | **Un navigateur à jour** | Chrome ou Edge si vous voulez l’installer comme application de bureau. Safari et Firefox l’exécutent dans un onglet. |
 | **Python 3** | Uniquement pour servir le dossier sur votre propre poste. macOS et la plupart des distributions Linux l’ont déjà. Sous Windows, installez-le depuis [python.org](https://www.python.org/downloads/) et cochez **Add python.exe to PATH**. |
-| **Environ 6 Mo d’espace disque** | Plus vos espaces de travail. L’instantané de menace fourni en exemple pèse environ 1,5 Mo. |
+| **Environ 16 Mo d’espace disque** | Plus vos espaces de travail. L’instantané de menace fourni en exemple pèse environ 1,5 Mo, l’instantané de l’ontologie environ 6,5 Mo, les données SP 800-53A environ 1,3 Mo et le jeu de simulation pédagogique environ 0,1 Mo. |
 
 Aucun compte, aucune clé de licence, aucun programme d’installation, aucun droit d’administrateur.
 Rien n’est écrit en dehors du dossier et du stockage propre à votre navigateur, et le serveur n’écoute
@@ -236,7 +279,7 @@ fonctionne.
 
 ## 2. Décompresser
 
-Décompressez **`CyberRiskGuardian_Desktop_v1.5.6-beta.zip`** à un endroit où vous avez le droit
+Décompressez **`CyberRiskGuardian_Desktop_v1.6.0-beta.zip`** à un endroit où vous avez le droit
 d’écrire ; votre dossier Documents convient. Gardez le dossier intact : l’application charge ses
 propres fichiers par chemin relatif.
 
@@ -260,7 +303,7 @@ téléchargez des sources de menace, l’assistant qui va les chercher. **Contr�
 À la main, si vous préférez :
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.5.6-beta
+cd CyberRiskGuardian_Desktop_v1.6.0-beta
 python3 serve.py 8099
 ```
 
@@ -295,10 +338,10 @@ navigateur est d’accord avec la référence.
 | `moteur DIVERGENT` et une bannière rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
 | `erreur du moteur` | Une exception pendant l’autovérification. | Ouvrez la console du navigateur et envoyez-moi ce qu’elle indique. |
 
-Ouvrez ensuite **Général → Guide de l’utilisateur** pour tout le reste, ou **Général → Pas à pas**
-pour les 12 étapes d’une analyse. Les deux s’ouvrent dans une fenêtre distincte et fonctionnent hors
-ligne. (Le guide de l’utilisateur est en anglais ; l’interface se met en français avec le bouton
-**FR** de la barre supérieure.)
+Ouvrez ensuite **Aide → Guide de l’utilisateur** pour tout le reste, ou **Aide → Pas à pas**
+pour les 13 étapes d’une analyse. Les deux s’ouvrent dans une fenêtre distincte et fonctionnent hors
+ligne; le guide s’affiche en français quand l’interface est en français (bouton **FR** de la barre
+supérieure). Chaque écran a aussi un **?** à côté de son titre, qui ouvre son aide et sa section du guide.
 
 ## 5. Configurer vos propres emplacements de fichiers
 
@@ -352,7 +395,7 @@ ceux qui sont encore vides.
 | Dossier | À quoi il sert | Nécessaire quand |
 |---|---|---|
 | **Google Drive — dossier des flux** | La tâche planifiée y copie le condensé des flux et les résumés qu’elle rédige. | Vous utilisez le breffage hebdomadaire planifié et le voulez dans Drive. |
-| **Google Drive — dossier du registre des risques** | Là où vous partagez les registres publiés et anonymisés avec des collègues. | Vous publiez des registres pour une équipe ou une communauté de pratique. |
+| **Google Drive — dossier du registre partagé des risques** | Là où vous partagez les registres publiés et anonymisés avec des collègues. | Vous publiez des registres pour une équipe ou une communauté de pratique. |
 | **Dossier local synchronisé avec l’un ou l’autre** | Un chemin de Google Drive pour ordinateur. Lorsqu’il est défini, l’application y écrit directement au lieu d’attendre la tâche planifiée. | Vous avez Drive pour ordinateur et voulez une publication immédiate. |
 | **Liste de contrôles (Google Sheets)** | Votre propre liste de contrôles, si vous en tenez une. | Presque jamais — les catalogues fournis n’en ont pas besoin. |
 
@@ -363,6 +406,44 @@ ce qui vous permet de vérifier que vous avez collé la bonne chose.
 
 Laissez-les vides et rien ne casse : Publier écrit toujours un fichier que vous pouvez télécharger et
 déposer où vous voulez, et la tâche planifiée signale que l’étape de téléversement a été sautée.
+
+### 5.3 L’ontologie CyberRiskGuardian — facultatif
+
+L’application est livrée avec un instantané de l’ontologie et n’a besoin de rien d’autre. Pour
+interroger l’ontologie au moyen de **son propre serveur MCP** — celui qu’utilise Claude —, installez
+**CRGO v0.10.0** et laissez l’assistant local le trouver :
+
+```
+git clone --branch v0.10.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.0
+pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
+```
+
+1. Si le serveur `crgo-ontology` est inscrit dans **Claude** sur cet ordinateur (Claude pour ordinateur →
+   Settings → Developer → Edit Config), l’assistant reprend cette commande et son Python. Faites pointer
+   ses `args` vers le `pipeline/mcp/crgo_server.py` du nouveau clone.
+2. Sinon, un dossier **`CyberRiskGuardian-Ontology*`** situé près du dossier de l’application (par exemple
+   les deux dans `CyberRiskGuardian_ThreatIntel`) est trouvé automatiquement — les clones versionnés, **le
+   plus récent d’abord** — et démarré avec le Python de l’assistant, qui a besoin des paquets ci-dessus.
+3. Sinon, indiquez l’interpréteur Python et le chemin de `pipeline/mcp/crgo_server.py` sous
+   **Ontologie · CRGO → Connexion**, puis **Enregistrer**.
+
+L’onglet Connexion indique le cas qui s’applique, la version de CRGO trouvée et ce qu’elle permet :
+l’identification des scénarios avec toute version; le contexte de l’organisation et le renvoi des
+résultats (dss/v1) à partir de v0.9.1; les contextes de conformité et des opérations de sécurité
+(compliance/v1, secops/v1) avec v0.10.0. Il démarre le serveur; son premier démarrage prend de dix à
+vingt secondes. Les graphes de l’organisation et les résultats renvoyés sont conservés par défaut dans
+**`~/CyberRiskGuardian-confidential/crgo/<espace de travail>`** — des données de client, jamais dans
+l’application, l’ontologie ou un dépôt git; choisissez un autre dossier sous **Ontologie · CRGO → Lien avec
+l’organisation**.
+
+### 5.4 Le dossier du registre partagé des risques — seulement si vous partagez des risques
+
+Le **registre partagé des risques** lit et écrit des fiches de risque dans un dossier partagé. Utilisez un
+dossier synchronisé sur chaque ordinateur participant (Google Drive pour ordinateur, OneDrive,
+SharePoint) et indiquez-le sous **Registre partagé des risques → Paramètres du registre → Dossier
+partagé du registre sur cet ordinateur** — c’est le même réglage que *Dossier local synchronisé avec le registre*
+sous Paramètres → Liens et dossiers partagés. Sans lui, les contributions vont à la boîte d’envoi du
+dossier des flux, que la tâche planifiée téléverse dans le dossier Drive du registre.
 
 ## 6. L’installer comme application de bureau (recommandé)
 
@@ -375,37 +456,42 @@ Vous obtenez une application en fenêtre, avec sa propre icône, qui démarre sa
 fonctionne hors ligne. Après avoir remplacé le dossier par une version plus récente, servez-la une
 fois avec le lanceur pour que l’application installée reprenne les nouveaux fichiers.
 
-## 7. Mise à niveau depuis une version 1.5.x
+## 7. Remplacer une copie existante
 
 1. **Exportez d’abord ce que vous ne voudriez pas perdre** — Sauvegarde et restauration → *Faire une
    sauvegarde* → *Télécharger la sauvegarde*, qui écrit un seul fichier contenant tous les espaces
-   de travail. Vos espaces de
-   travail résident dans le navigateur et non dans le dossier : décompresser une nouvelle version ne
-   les touche pas. Une sauvegarde sert pour le jour où autre chose les touchera.
-2. Décompressez la 1.5.6 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
+   de travail. Vos espaces de travail résident dans le navigateur et non dans le dossier : décompresser
+   une nouvelle version ne les touche pas. Une sauvegarde sert pour le jour où autre chose les touchera.
+2. Décompressez la 1.6.0 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
    par-dessus l’ancien dossier.
 3. **Arrêtez l’ancien serveur** si sa fenêtre de terminal est encore ouverte (Contrôle-C). Les
    lanceurs détectent une copie antérieure sur le même port, l’arrêtent et vous le disent, mais une
    ancienne fenêtre restée ouverte est la raison habituelle pour laquelle un navigateur continue
    d’afficher la version précédente.
-4. Démarrez la 1.5.6 **sur le même port** qu’avant — 8099 par défaut — et vos espaces de travail sont
-   là.
-5. **À propos → Versions** doit afficher `1.5.6 beta`, et le pied de page
-   `moteur vérifié · 84,491 / 41,104`. Si une application de bureau installée affiche encore
-   l’ancienne version, rechargez-la une fois (⌘R / Ctrl-R).
+4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
+   défaut — et vos espaces de travail sont là.
+5. **Aide → À propos → Versions** doit afficher `1.6.0 beta`, et le pied de page
+   `moteur vérifié · 84,491 / 41,104`. Si une application de bureau installée affiche une autre
+   version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.
    Vos clés d’API ne sont pas du tout dans le dossier de l’application — elles sont dans
-   `crg-keys.json`, au dossier des flux — et survivent donc à la mise à niveau.
+   `crg-keys.json`, au dossier des flux — et survivent donc au changement.
 
-Les espaces de travail créés depuis la version 1.1 s’ouvrent tels quels. Aucune migration n’est
-nécessaire.
+**Vos données sont migrées, pas converties sur place.** À son premier démarrage, l’application amène chaque
+espace de travail à la **version de données 2** : les éléments probants passent, inchangés, au registre
+partagé des éléments probants et les exceptions aux politiques au registre partagé des exceptions; des
+dossiers vides de gestion de la conformité, de gestion de l’audit, de SIEM et de SOAR sont ajoutés. Chaque
+espace de travail est migré sur une copie; l’original est conservé sur cet ordinateur (**Sauvegarde et
+restauration → Versions des données et migrations → Télécharger la copie d’avant la migration**), et la
+migration est consignée. Aucun chiffre n’est recalculé. Un espace de travail écrit par une application plus
+récente s’ouvre en lecture seule et n’est jamais écrasé.
 
 ## 8. En cas de problème
 
 **8.1 `start.command` s’ouvre dans un éditeur de texte au lieu de s’exécuter (macOS).**
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.5.6-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.6.0-beta
 chmod +x start.command start.sh
 ```
 
@@ -435,10 +521,10 @@ continue de fonctionner à partir de sa cache, sans aucun serveur.
 | Quoi | Où | Survit à la décompression d’une nouvelle version ? |
 |---|---|---|
 | Espaces de travail, documents, instantanés | Le stockage propre à votre navigateur, pour l’adresse que vous utilisez | Oui |
-| Catalogues de référentiels, paramètres d’IA, utilisateurs et droits | Le même stockage | Oui |
+| Catalogues de référentiels, paramètres d’IA, modules, utilisateurs et droits, le catalogue du registre partagé des risques | Le même stockage | Oui |
 | Clés d’API | `crg-keys.json`, au dossier des flux, lisible par votre seul compte (mode 600) | Oui |
 | Sources de menace téléchargées et breffages | Le dossier des flux — voir la section 5.1 | Oui |
 | L’application elle-même | Le dossier que vous avez décompressé | C'*est* le dossier |
 
 Pour recommencer un cas pédagogique, ou pour effacer ou supprimer un espace de travail, utilisez
-**Général → Réinitialiser les données**.
+**Organisation → Réinitialiser les données**.

@@ -2,6 +2,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, $, n0, kpi, banner, card, field, select, chip, download, toast, uid, today, go, copyText, debounce, pill, modal, table } from '../util.js';
+import * as MIG from '../migrate.js';
 import { S, touch, newWorkspace, medibecWorkspace, create, remove, select as selectWs, migrate, docText, setDocText, delDoc, refreshList, saveNow, SCHEMA, emit } from '../state.js';
 import { extractText, hints } from '../extract.js';
 import * as X from '../extractor.js';
@@ -19,8 +20,7 @@ export const DOC_CATS = ['Business case', 'Organization profile', 'Asset invento
 let auto = null, autoCrown = false, autoImport = false, scrollImport = false;   // extraction to open right after a workspace is created
 export function render(sec, arg) {
   if (arg === 'new') tab = 'workspaces';
-  else if (['profile', 'crown', 'docs', 'workspaces', 'class', 'evidence'].includes(arg)) tab = arg;
-  else if (arg === 'import') tab = 'workspaces';
+  else if (['profile', 'crown', 'docs', 'import', 'workspaces', 'class', 'evidence'].includes(arg)) tab = arg;
   const ws = S.ws;
   sec.replaceChildren(
     el('h1', null, 'Organization'),
@@ -29,13 +29,13 @@ export function render(sec, arg) {
   if (ws.kind === 'example') sec.append(banner('warn', 'Teaching example', 'This workspace holds the fictional MediBec case. Create a new workspace to assess another organization or a different business case.'));
   if (ws.kind === 'classroom') sec.append(banner('good', ws.classroom?.educational ? 'Educational case used for training purposes' : 'Classroom case', 'Data in this workspace describes a business case for teaching. Deliverables are labelled fictional.'));
 
-  const tabs = [['profile', 'Profile & appetite'], ['crown', 'Crown jewels'], ['docs', `Context documents (${ws.docs.length})`], ['evidence', 'Evidence'], ['workspaces', 'Workspaces']];
+  const tabs = [['profile', 'Profile & appetite'], ['crown', 'Crown jewels'], ['docs', `Context documents (${ws.docs.length})`], ['import', 'Import from documents'], ['evidence', 'Evidence'], ['workspaces', 'Workspaces']];
   if (ws.kind === 'classroom') tabs.splice(1, 0, ['class', 'Classroom']);
   const st = el('div', { class: 'subtabs', role: 'tablist' });
   for (const [k, t] of tabs) st.append(el('button', { role: 'tab', 'aria-selected': String(tab === k), onclick: () => { if (!leaveProfile()) return; tab = k; go('org/' + k); } }, t));
   sec.append(st);
   const body = el('div'); sec.append(body);
-  ({ profile, crown, docs, workspaces, class: classroom, evidence: IU.evidence }[tab] || profile)(body, arg, sec);
+  ({ profile, crown, docs, workspaces, class: classroom, evidence: IU.evidence, import: (b, a, s) => IU.importTab(b, s, ORG) }[tab] || profile)(body, arg, sec);
 }
 
 /* ---------------- profile (1.5.2: edit a draft, Save / Cancel, extraction with provenance) ---------------- */
@@ -165,14 +165,14 @@ export async function extractProfile(sec, { chain = false } = {}) {
   const ws = S.ws;
   if (!ws.docs.length) { toast(tr('Add context documents first (Context documents tab).'), 'bad'); return; }
   const ch = await chooseMethod(tr('Extract the profile from the documents'), tr('Proposes every field of Profile & appetite from the context documents, each tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN with its source. You accept or edit each value; nothing is saved until you click Save.'), 'extract_profile');
-  if (!ch) return chain && extractCrown(sec);
+  if (!ch) return chain ? extractCrown(sec) : toImport();
   let res;
   try {
     if (ch.method === 'rules') res = await X.byRules(ws);
     else {
       const cp = await X.corpus(ws);
       const out = await aiui.request('extract_profile', { text: cp.text, web: ch.web, fictional: ws.kind !== 'organization' }, { title: tr('Profile extraction — what will be sent') });
-      if (!out) return chain && extractCrown(sec);
+      if (!out) return chain ? extractCrown(sec) : toImport();
       res = X.parseProfile(out.text); res.method = 'ai'; res.model = out.model; res.sources = out.sources; res.entryId = out.entryId;
     }
   } catch (e) { toast(tr('Extraction failed: ') + (e.message || e), 'bad'); return; }
@@ -213,14 +213,44 @@ function reviewProfile(sec, res, chain) {
         }
         for (const r of rows) if (!r.take && r.p.tag === 'UNKNOWN' && X.isEmpty(r.cur)) D.org.prov[r.k] = { tag: 'UNKNOWN', source: 'Not found in the documents', method: res.method, date: today() };
         if (res.entryId) AI.decide(res.entryId, n ? 'accepted' : 'rejected', `${n} field(s) taken into the profile form`);
+        if (n) X.markExtracted(ws, 'Profile & appetite');
         dirty = true; m.close(); tab = 'profile'; render(sec);
         toast(n + ' ' + tr('field(s) filled — review and Save'));
-        if (chain) setTimeout(() => extractCrown(sec), 300);
+        if (chain) setTimeout(() => extractCrown(sec), 300); else setTimeout(toImport, 300);
       } }, 'Put ticked values in the form'),
-      el('button', { class: 'btn ghost', onclick: () => { m.close(); if (res.entryId) AI.decide(res.entryId, 'rejected', 'review cancelled'); if (chain) extractCrown(sec); } }, 'Cancel')));
+      el('button', { class: 'btn ghost', onclick: () => { m.close(); if (res.entryId) AI.decide(res.entryId, 'rejected', 'review cancelled'); if (chain) extractCrown(sec); else toImport(); } }, 'Cancel')));
 }
 
-function toImport() { if (autoImport) { autoImport = false; scrollImport = true; tab = 'workspaces'; go('org/workspaces'); } }
+/* 1.5.7 — the end of the profile → crown jewels chain: on to Import from documents, which starts the
+   ticked targets by itself when the chain was launched from there. A chain that imports nothing more
+   ends here, and the document scope it was given ends with it. */
+function toImport() {
+  if (!autoImport) { X.setScope(null); return false; }
+  const proceed = () => { autoImport = false; if (autoRunNext) IU.armAutoRun(); autoRunNext = false; tab = 'import'; go('org/import'); };
+  /* The profile values are in the form but not saved. Leaving the tab would ask the generic "leave
+     without saving?" question in the middle of the run; ask the right question instead. */
+  if (dirty) {
+    const m = modal(tr('Save the profile before the import continues?'),
+      el('p', null, 'The values you accepted are in the Profile & appetite form but are not saved yet. The import of the other targets continues on Import from documents.'),
+      el('div', 'btnrow', { style: { marginTop: '12px' } },
+        el('button', { class: 'btn', onclick: () => { saveDraft(); m.close(); proceed(); } }, 'Save the profile and continue'),
+        el('button', { class: 'btn ghost', onclick: () => { m.close(); autoImport = false; autoRunNext = false; X.setScope(null); toast(tr('Import paused — save the profile, then open Import from documents')); } }, 'Stay on the profile'),
+        el('button', { class: 'btn ghost danger', onclick: () => { dirty = false; D = null; m.close(); proceed(); } }, 'Discard the profile values and continue')));
+    m.back.onclose = null;
+    return true;
+  }
+  proceed(); return true;
+}
+let autoRunNext = false;
+/** Start an extraction run from Import from documents: profile, then crown jewels, then the ticked targets. */
+function start(sec, { profile, crown, sections }) {
+  IU.preselect(sections);
+  autoImport = sections.length > 0; autoRunNext = autoImport;
+  if (profile) return extractProfile(sec, { chain: crown });
+  if (crown) return extractCrown(sec);
+  return toImport();
+}
+const ORG = { addDocs: (...a) => addDocs(...a), start: o => start(document.getElementById('panel-org'), o) };
 export async function extractCrown(sec) {
   const ws = S.ws;
   if (!ws.docs.length) { toast(tr('Add context documents first (Context documents tab).'), 'bad'); return; }
@@ -257,9 +287,10 @@ export async function extractCrown(sec) {
           ws.crownProv[r.name] = { tag: r.tag, source: r.source, method: ch.method === 'ai' ? 'AI' : 'rules', date: today() }; n++;
         }
         if (meta.entryId) AI.decide(meta.entryId, n ? 'accepted' : 'rejected', `${n} crown jewel(s) added`);
-        touch(); m.close(); toast(n + ' ' + tr('crown jewel(s) added')); if (autoImport) { autoImport = false; scrollImport = true; tab = 'workspaces'; go('org/workspaces'); } else { tab = 'crown'; go('org/crown'); }
+        if (n) X.markExtracted(ws, 'Crown jewels');
+        touch(); m.close(); toast(n + ' ' + tr('crown jewel(s) added')); if (!toImport()) { tab = 'crown'; go('org/crown'); }
       } }, 'Add ticked crown jewels'),
-      el('button', { class: 'btn ghost', onclick: () => { m.close(); if (meta.entryId) AI.decide(meta.entryId, 'rejected', 'cancelled'); if (autoImport) { autoImport = false; scrollImport = true; tab = 'workspaces'; go('org/workspaces'); } } }, 'Cancel')));
+      el('button', { class: 'btn ghost', onclick: () => { m.close(); if (meta.entryId) AI.decide(meta.entryId, 'rejected', 'cancelled'); toImport(); } }, 'Cancel')));
 }
 
 function appetiteHelper(a, appIn, markDirty = touch) {
@@ -349,8 +380,16 @@ function docs(body) {
   const status = el('div');
   const handle = async files => {
     const prog = el('div'); status.replaceChildren(prog);
+    const before = new Set(ws.docs.map(d => d.id));
     const res = await addDocs(ws, files, prog);
-    if (!res.some(r => r.state !== 'good')) status.replaceChildren();
+    const added = ws.docs.filter(d => !before.has(d.id)).map(d => d.id);
+    IU.markFresh(added);
+    /* 1.5.7 — a document added after the workspace exists should not sit unread: offer to extract
+       from it alone, on Import from documents, with the new documents already selected. */
+    const offer = added.length ? card(el('div', 'row', { style: { alignItems: 'center' } },
+      el('div', { style: { flex: 1 } }, el('b', null, `${added.length} document(s) added.`), el('div', 'small muted', 'Extract the profile, the crown jewels or any other target from the new documents only — existing values stay unless you choose otherwise.')),
+      el('button', { class: 'btn', onclick: () => { tab = 'import'; go('org/import'); } }, 'Extract from the new documents…'))) : null;
+    status.replaceChildren(...(res.some(r => r.state !== 'good') ? [prog] : []), ...(offer ? [offer] : []));
     draw();
   };
   fileIn.addEventListener('change', () => handle([...fileIn.files]));
@@ -486,7 +525,13 @@ function workspaces(body, arg, sec) {
     else if (data) {
       if (data.schema === SCHEMA) {
         const texts = data.docTexts || {}; delete data.docTexts;
-        ws = migrate(data); ws.id = uid('ws'); ws.snapshot = null; if (name.value.trim()) ws.name = nm;
+        // 1.5.8 — a workspace file is migrated like a stored one; one written by a newer release is refused
+        // rather than imported half-understood, and a failed migration says why.
+        const r = MIG.migrateWorkspace(data, { fill: migrate });
+        if (r.status === 'newer') throw new Error(tr('This file was written by a newer release of the application (data version {0}; this one reads up to {1}). Update the application to open it.').replace('{0}', r.from).replace('{1}', MIG.DATA_VERSION));
+        if (r.status === 'failed') throw new Error(tr('The file could not be brought to this release: {0}').replace('{0}', r.error));
+        ws = r.ws; ws.id = uid('ws'); ws.snapshot = null; if (name.value.trim()) ws.name = nm;
+        ws.crgo = MIG.blankCrgo(ws.id);
         for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, texts[d.id] || ''); d.id = nid; }
       }
       else if (Array.isArray(data.SCEN)) { ws = newWorkspace({ name: nm, kind: kind.value, assessment: Object.assign({ INITIATIVES: [], KRIS: [], EVIDENCE: [], CANDIDATES: [], CROWN: [] }, data) }); if (data.ORGANIZATION) ws.org.name = data.ORGANIZATION; }
@@ -511,7 +556,7 @@ function workspaces(body, arg, sec) {
       autoImport = exM.checked;
       if (exP.checked) { tab = 'profile'; auto = 'profile'; autoCrown = exC.checked; }
       else if (exC.checked) { tab = 'crown'; auto = 'crown'; }
-      else if (exM.checked) { tab = 'workspaces'; autoImport = false; scrollImport = true; }
+      else if (exM.checked) { tab = 'import'; autoImport = false; }
     } else { tab = 'profile'; toast('Workspace created'); }
     users.audit('workspace created', ws.name, S.ws);
     D = null; dirty = false;
@@ -545,9 +590,10 @@ function workspaces(body, arg, sec) {
         el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!window.confirm('Delete workspace "' + w.name + '" and all its documents, snapshot and history? Export it first if you may need it.')) return; await remove(w.id); toast('Deleted'); } }, 'Delete')))));
   }
   t.append(tb);
-  // 1.5.4 — import more of the assessment from this workspace's documents
-  IU.importCard(body, sec, { setTab: t => { tab = t; }, extractProfile, extractCrown });
-  if (arg === 'import' || scrollImport) { scrollImport = false; setTimeout(() => document.getElementById('import-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }
+  // 1.5.7 — importing from the documents has a tab of its own, usable at any time
+  body.append(card(el('h2', { style: { marginTop: 0 } }, 'Import from the documents'),
+    el('p', 'note', 'Add documents to this workspace at any time and extract from them — the profile, the crown jewels and fourteen other targets — on Organization → Import from documents.'),
+    el('div', 'btnrow', el('button', { class: 'btn', onclick: () => { tab = 'import'; go('org/import'); } }, 'Open Import from documents'))));
   body.append(card(el('h2', null, 'All workspaces on this computer'), el('div', 'tablewrap', t),
     el('p', 'note', 'Workspaces live in this browser\'s local storage for this app. Export a workspace to back it up, move it to another computer or hand in a classroom case. Exports include document text.')));
 }

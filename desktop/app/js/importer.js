@@ -1,5 +1,5 @@
 /* importer.js — import more of the risk assessment from the workspace's context documents (1.5.4,
-   proof of concept).
+  ).
 
    Beyond the profile and the crown jewels (extractor.js), fourteen targets can be pre-filled from the
    same documents, each with the same propose → review → accept approach and the same provenance tags
@@ -21,7 +21,7 @@
 'use strict';
 import { S, touch, initArr, PARAMS } from './state.js';
 import * as AI from './ai.js';
-import { corpus } from './extractor.js';
+import { corpus, scope as X_scope, markExtracted as X_mark } from './extractor.js';
 import { blankAsset, nextAssetId } from './assets.js';
 import { blankMeasure } from './catalog.js';
 import * as K from './catalog.js';
@@ -205,8 +205,10 @@ export const SECTIONS = [
       return out.slice(0, 30);
     },
     apply(items, ws) {
-      ws.incidents ||= []; let n = 0;
-      for (const it of items) { ws.incidents.push({ id: 'INC-' + String(ws.incidents.length + 1).padStart(3, '0'), date: str(it.date, 20), type: str(it.type, 80), asset: str(it.asset, 120), impact: str(it.impact, 300), cause: str(it.cause, 300), prov: prov(it) }); n++; }
+      // 1.5.8 — imported incidents go to the incident register (Cybersecurity management), status "recorded":
+      // an analyst confirms them; an incident informs a scenario's likelihood, it does not prove it.
+      ws.csm ||= { bodies: [], roles: [], delegations: [], decisions: [], incidents: [] }; const R = ws.csm.incidents; let n = 0;
+      for (const it of items) { R.push({ id: 'INC-' + String(R.length + 1).padStart(3, '0'), title: str(it.type, 80) || 'Incident', detected: str(it.date, 20), type: str(it.type, 80), assets: str(it.asset, 120), impact: str(it.impact, 300), cause: str(it.cause, 300), status: 'recorded', confirmed: '', scenarios: [], timeline: [], reportability: {}, lessons: '', source: 'imported', prov: prov(it) }); n++; }
       return n;
     } },
   { id: 'weaknesses', s: true, label: 'Vulnerabilities (named weaknesses)', route: 'vulns', value: 'High',
@@ -445,7 +447,9 @@ export async function byRules(sec, ws = S.ws) {
 /** Apply the ticked items and record the import. */
 export function apply(sec, items, ws = S.ws, by = '') {
   const n = sec.apply(items, ws);
-  (ws.importLog ||= []).unshift({ at: new Date().toISOString(), section: sec.id, label: sec.label, added: n, offered: items.length, method: items[0]?._method || '', by });
+  (ws.importLog ||= []).unshift({ at: new Date().toISOString(), section: sec.id, label: sec.label, added: n, offered: items.length, method: items[0]?._method || '', by,
+    ...(X_scope() ? { docs: X_scope() } : {}) });
+  if (n > 0) X_mark(ws, sec.label);
   ws.importLog = ws.importLog.slice(0, 300);
   touch();
   return n;

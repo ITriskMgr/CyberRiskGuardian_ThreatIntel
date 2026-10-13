@@ -1,4 +1,4 @@
-/* Reset data (1.5.6) — starting over, at the level the person is entitled to choose.
+/* Reset data (1.5.6; teaching steps 1.5.7) — starting over, at the level the person is entitled to choose.
 
    Two audiences on one screen, deliberately separated.
 
@@ -17,7 +17,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, banner, kpi, toast, go } from '../util.js';
-import { S, remove, refreshList } from '../state.js';
+import { S, remove, refreshList, touch } from '../state.js';
 import * as RESET from '../reset.js';
 import * as users from '../users.js';
 import { HS, probe, loadConfig, setKey } from '../helper.js';
@@ -119,9 +119,11 @@ function start(body, sec) {
   }
 
   const go1 = el('button', { class: 'btn danger', disabled: !sp.available, onclick: () => {
+    const redo = RESET.redoSteps(ws);
     const lines = RESET.preview('clean', ws).concat(sp.source === 'bundled'
       ? ['every change you made to the organization profile, the crown jewels and the appetite']
-      : ['every change made since the starting point was recorded']);
+      : ['every change made since the starting point was recorded'],
+      RESET.REDO_STEPS.filter(s => redo.includes(s.id)).map(s => tr('for you to redo — step {0}: {1}').replace('{0}', s.n).replace('{1}', tr(s.clears))));
     confirmInWindow({
       title: tr('Start this case over?'),
       workspace: ws.name,
@@ -145,14 +147,16 @@ function start(body, sec) {
 
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Start this case over'),
     el('p', null, sp.source === 'bundled'
-      ? 'This is the teaching example that ships with the application. Starting over rebuilds it exactly as delivered — all its scenarios, its organization profile and its figures — and removes everything you have added or changed in it.'
+      ? 'This is the teaching example that ships with the application. Starting over rebuilds it as delivered and removes everything you have added or changed in it.'
       : 'Starting over puts this case back to the state it was handed out in, including its documents. Everything you have added or changed is removed.'),
+    redoNote(ws),
     el('p', 'note', 'Only this workspace is affected. Other workspaces, your settings and the stored API keys are untouched.'),
     el('div', 'row', go1,
       el('button', { class: 'btn ghost', onclick: () => go('org/workspaces') }, 'Export this case first'))));
 
   if (isAdmin()) {
     body.append(card(el('h2', { style: { marginTop: 0 } }, 'For the instructor'),
+      redoChooser(sec),
       el('p', null, 'The starting point is what “start over” goes back to. Record it once the case is ready to hand out — with its documents, its profile and whatever scenarios the exercise starts from. Recording it again replaces it, which moves the starting point for everyone using this copy.'),
       el('div', 'row',
         el('button', { class: 'btn', onclick: async () => {
@@ -175,6 +179,34 @@ function start(body, sec) {
           ? 'Multi-user mode is on but no administrator has set a PIN, so no PIN can be asked for. Set one in Settings → Users & RACI to supervise resets.'
           : 'In single-user mode any user of this computer can start the case over. Turn on multi-user mode in Settings → Users & RACI and give an administrator a PIN to require one.')));
   }
+}
+
+/* ---------------- the steps the student redoes (1.5.7) ---------------- */
+
+function redoNote(ws) {
+  const redo = RESET.redoSteps(ws);
+  if (!redo.length) return el('p', 'note', 'The instructor has chosen to keep the profile, the appetite and the crown jewels of the starting point: none of the early steps is handed back to you.');
+  return el('div', null, el('p', null, el('b', null, 'Steps you will do again. '), 'Starting over also empties what these steps produce, so they show as “to do” on the Process screen and you can build them yourself from the case documents:'),
+    el('ul', null, ...RESET.REDO_STEPS.filter(s => redo.includes(s.id)).map(s => el('li', null, el('b', null, `Step ${s.n} — ${s.label}: `), s.clears))));
+}
+
+function redoChooser(sec) {
+  const ws = S.ws;
+  const redo = new Set(RESET.redoSteps(ws));
+  const box = el('div', null, el('h3', null, 'Steps the student redoes after starting over'),
+    el('p', 'small muted', 'Ticked steps are emptied by “start over”, whatever the starting point holds. The organization name, the documents and everything else in the starting point stay.'));
+  for (const s of RESET.REDO_STEPS) {
+    const cb = el('input', { type: 'checkbox', checked: redo.has(s.id), style: { width: 'auto' } });
+    cb.addEventListener('change', () => {
+      if (cb.checked) redo.add(s.id); else redo.delete(s.id);
+      ws.teaching = { ...(ws.teaching || {}), redo: RESET.REDO_STEPS.map(x => x.id).filter(id => redo.has(id)) };
+      touch('teaching');
+      users.audit('teaching steps to redo changed', ws.teaching.redo.join(', ') || 'none', ws);
+    });
+    box.append(el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', margin: '6px 0' } }, cb,
+      el('span', null, el('b', null, tr('Step {0} — {1}').replace('{0}', s.n).replace('{1}', tr(s.label))), el('div', 'small muted', tr('Clears {0}.').replace('{0}', tr(s.clears))))));
+  }
+  return box;
 }
 
 /* ---------------- reset or delete (administrators) ---------------- */
@@ -384,7 +416,7 @@ function about(body) {
       el('li', null, 'Recording a starting point again moves it for everyone using this copy of the app.')),
     el('p', 'small muted', 'Confirmation always happens in a window of its own, with the word typed out. In multi-user mode, if an administrator has a PIN, that PIN is required — so a class can decide that students do not reset unsupervised.')));
 
-  body.append(card(el('h2', { style: { marginTop: 0 } }, 'This is a proof of concept'),
+  body.append(card(el('h2', { style: { marginTop: 0 } }, 'This is a beta version'),
     el('p', null, 'Rights in this edition organize who does what and record who did it. They are not a security boundary: anyone with access to this computer and the browser\'s developer tools can bypass them. Treat the administrator distinction here as a guard against mistakes, not against intent.'),
     el('p', 'small muted', 'Recorded resets of this workspace: ' + ((S.ws.resetLog || []).length || 'none') +
       ((S.ws.resetLog || [])[0] ? ` · last on ${S.ws.resetLog[0].date} (${S.ws.resetLog[0].label})` : ''))));

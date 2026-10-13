@@ -1,4 +1,4 @@
-/* Settings → AI — local & remote (1.5.3, proof of concept). One place for every decision about what may
+/* Settings → AI — local & remote (1.5.3). One place for every decision about what may
    leave this computer for an AI model: the master switches, the route of each AI feature, this
    workspace's AI settings, the help chatbot, and the providers themselves (keys, local endpoint, models,
    connection test). The routing policy is saved in crg-config.json, where the helper enforces it.
@@ -87,7 +87,8 @@ export async function render(body, sec, rerender, providersSection) {
         pnow.local ? 'Requests to it stay on this computer.' : 'Requests to it leave this computer.',
         notReady ? el('span', null, ' ', el('b', null, 'No key is stored for it yet'), ' — add one under Providers below, or choose a provider on this machine.') : null))),
     row(conf, 'Treat as confidential', 'Every call is confirmed individually; consent is never remembered.'),
-    row(an, 'Anonymize before sending', 'Organization, people, assets, hosts and amounts are replaced in the payload; the preview shows the result.')));
+    row(an, 'Anonymize before sending', 'Organization, people, assets, hosts and amounts are replaced in the payload; the preview shows the result.'),
+    creativityField(a)));
 
   // chatbot
   const bot = el('input', { type: 'checkbox', checked: !!prefs.get('chatbotAI'), style: { width: 'auto' }, 'data-ro-ok': '' });
@@ -98,4 +99,14 @@ export async function render(body, sec, rerender, providersSection) {
   // providers (keys, endpoint, models, test)
   body.append(el('h2', { style: { margin: '18px 0 6px' } }, 'Providers'));
   await providersSection(body, sec);
+}
+
+/* 1.5.7 — the default creativity of extraction and proposal answers for this workspace. The preview
+   window offers the same choice for each request. */
+function creativityField(a) {
+  const sel = select(AI.CREATIVITY.map(c => [c.id, c.label]), AI.creativityLevel(a.creativity).id);
+  const help = el('div', 'hint', AI.creativityLevel(sel.value).help);
+  sel.addEventListener('change', () => { a.creativity = sel.value; help.textContent = AI.creativityLevel(sel.value).help; touch('ai'); });
+  return el('div', 'grid g2', el('div', 'field', el('label', null, 'Creativity of extraction and proposals'), sel, help),
+    el('p', 'small muted', tr('Applies to profile and crown-jewel extraction, import from documents, scenario proposals, causal chains and ontology suggestions. Higher levels propose more, including items the documents do not mention; each proposal is tagged ASSUMPTION and waits for your decision.') + ' ' + tr(AI.MARK)));
 }

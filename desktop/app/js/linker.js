@@ -1,4 +1,4 @@
-/* linker.js — suggested links between vulnerabilities and scenarios (1.5.3, proof of concept).
+/* linker.js — suggested links between vulnerabilities and scenarios (1.5.3).
 
    Stage 1 — rules, on this computer, no AI. A register CVE is proposed for a scenario when:
      • asset    the scenario is linked to an inventory asset that lists the CVE, or the CVE's asset /
