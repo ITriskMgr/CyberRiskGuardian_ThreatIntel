@@ -59,7 +59,7 @@ export async function call(tool, args = {}, { prefer = 'auto' } = {}) {
   }
   const snap = await snapshot();
   state.via = 'snapshot';
-  return { result: LOCAL[tool](args, snap), via: 'snapshot', why, version: snap.version, built: snap.built };
+  return { result: LOCAL[tool](args, snap), via: 'snapshot', why, version: snap.release || snap.version, built: snap.built };
 }
 
 /* ---------------- the workspace as an ontology profile ---------------- */

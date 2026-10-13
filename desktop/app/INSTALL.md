@@ -1,8 +1,8 @@
-# CyberRiskGuardian Desktop 1.6.0 Beta (1.6.x) — Installation
+# CyberRiskGuardian Desktop 1.6.1 Beta (1.6.x) — Installation
 
 **English below · [Français plus bas](#français)**
 
-Version 1.6.0 (beta) — for teaching, exploration and method validation. Validate every result before it
+Version 1.6.1 (beta) — for teaching, exploration and method validation. Validate every result before it
 supports a real decision. © 2026 Marc-André Léger · CC BY-NC 4.0. Who may use it without asking and
 whose situation needs a commercial licence: **Help → About → Licence** in the application, or `LICENSE`.
 
@@ -24,7 +24,7 @@ is never reachable from your network, even while it is running.
 
 ## 2. Unpack
 
-Unzip **`CyberRiskGuardian_Desktop_v1.6.0-beta.zip`** anywhere you can write — your Documents folder
+Unzip **`CyberRiskGuardian_Desktop_v1.6.1-beta.zip`** anywhere you can write — your Documents folder
 is fine. Keep the folder intact: the application loads its own files by relative path.
 
 ## 3. Start it
@@ -46,7 +46,7 @@ fetches them. **Control-C** stops it.
 By hand, if you prefer:
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.6.0-beta
+cd CyberRiskGuardian_Desktop_v1.6.1-beta
 python3 serve.py 8099
 ```
 
@@ -192,13 +192,13 @@ application picks up the new files.
 1. **Export anything you would hate to lose first** — Backup & restore → *Make a backup* → *Download backup*,
    which writes one file holding every workspace. Your workspaces live in the browser, not in the folder,
    so unzipping a new version does not touch them; a backup is for the day something else does.
-2. Unzip 1.6.0 into a **new** folder beside the old one. Do not unzip over the old folder.
+2. Unzip 1.6.1 into a **new** folder beside the old one. Do not unzip over the old folder.
 3. **Stop the old server** if its terminal window is still open (Control-C). The launchers detect an
    earlier copy on the same port, stop it and say so, but an old window left running is the usual
    reason a browser keeps showing the previous version.
 4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
    8099 — and your workspaces are there.
-5. **Help → About → Versions** must read `1.6.0 beta`, and the footer `engine verified · 84,491 / 41,104`.
+5. **Help → About → Versions** must read `1.6.1 beta`, and the footer `engine verified · 84,491 / 41,104`.
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
    are not in the application folder at all — they are in `crg-keys.json` in the feeds folder — so
@@ -217,7 +217,7 @@ read-only and never saved over.
 **8.1 `start.command` opens in a text editor instead of running (macOS).**
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.6.0-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.6.1-beta
 chmod +x start.command start.sh
 ```
 
@@ -259,7 +259,7 @@ To start a teaching case over, or to clear or delete a workspace, use **Organiza
 
 # Français
 
-Version 1.6.0 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
+Version 1.6.1 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
 Validez chaque résultat avant qu’il n’appuie une décision réelle. © 2026 Marc-André Léger ·
 CC BY-NC 4.0. Qui peut l’utiliser sans demander et quelles situations exigent une licence
 commerciale : **Aide → À propos → Licence** dans l’application, ou le fichier `LICENSE`.
@@ -279,7 +279,7 @@ fonctionne.
 
 ## 2. Décompresser
 
-Décompressez **`CyberRiskGuardian_Desktop_v1.6.0-beta.zip`** à un endroit où vous avez le droit
+Décompressez **`CyberRiskGuardian_Desktop_v1.6.1-beta.zip`** à un endroit où vous avez le droit
 d’écrire ; votre dossier Documents convient. Gardez le dossier intact : l’application charge ses
 propres fichiers par chemin relatif.
 
@@ -303,7 +303,7 @@ téléchargez des sources de menace, l’assistant qui va les chercher. **Contr�
 À la main, si vous préférez :
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.6.0-beta
+cd CyberRiskGuardian_Desktop_v1.6.1-beta
 python3 serve.py 8099
 ```
 
@@ -462,7 +462,7 @@ fois avec le lanceur pour que l’application installée reprenne les nouveaux f
    sauvegarde* → *Télécharger la sauvegarde*, qui écrit un seul fichier contenant tous les espaces
    de travail. Vos espaces de travail résident dans le navigateur et non dans le dossier : décompresser
    une nouvelle version ne les touche pas. Une sauvegarde sert pour le jour où autre chose les touchera.
-2. Décompressez la 1.6.0 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
+2. Décompressez la 1.6.1 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
    par-dessus l’ancien dossier.
 3. **Arrêtez l’ancien serveur** si sa fenêtre de terminal est encore ouverte (Contrôle-C). Les
    lanceurs détectent une copie antérieure sur le même port, l’arrêtent et vous le disent, mais une
@@ -470,7 +470,7 @@ fois avec le lanceur pour que l’application installée reprenne les nouveaux f
    d’afficher la version précédente.
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
-5. **Aide → À propos → Versions** doit afficher `1.6.0 beta`, et le pied de page
+5. **Aide → À propos → Versions** doit afficher `1.6.1 beta`, et le pied de page
    `moteur vérifié · 84,491 / 41,104`. Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.
@@ -491,7 +491,7 @@ récente s’ouvre en lecture seule et n’est jamais écrasé.
 **8.1 `start.command` s’ouvre dans un éditeur de texte au lieu de s’exécuter (macOS).**
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.6.0-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.6.1-beta
 chmod +x start.command start.sh
 ```
 

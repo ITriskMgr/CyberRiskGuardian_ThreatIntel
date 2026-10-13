@@ -9,7 +9,7 @@ risk-seeking budget band; and export the assessment to **Excel** with live formu
 assessment: policy, compliance and audit management, a local SIEM and SOAR fed by files, the
 **CyberRiskGuardian Ontology** (CRGO v0.10.0) and a shared **Risk Registry**.
 
-**Version 1.6.0 Beta (1.6.x).** For teaching, exploration and method validation; validate every result
+**Version 1.6.1 Beta (1.6.x).** For teaching, exploration and method validation; validate every result
 before it supports a real decision.
 
 **Installing it:** `INSTALL.md` in the folder — one page, in English and in French, including how to set up
@@ -33,7 +33,7 @@ extraction may also ask Claude to **search the web** for missing profile items; 
 extraction dialog. The SIEM and SOAR have **no live connector**: they read files you import. Nothing is sent
 automatically, on a schedule, or in the background, and no network call sits in the calculation path.
 
-© 2026 Marc-André Léger. CC BY-NC 4.0. Version 1.6.0 Beta (1.6.x) — see `CHANGELOG.md`.
+© 2026 Marc-André Léger. CC BY-NC 4.0. Version 1.6.1 Beta (1.6.x) — see `CHANGELOG.md`.
 Who may use it without asking and whose situation needs a commercial licence: Help → About → Licence in the
 application.
 Project: https://github.com/ITriskMgr/CyberRiskGuardian · https://www.leger.ca

@@ -1,5 +1,19 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.6.1 Beta (Beta 1.6.x) — 13 October 2026
+
+Ontology update. `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the self-check still requires
+**84,491 / 41,104**; data version stays 2 (no migration).
+
+### Changed
+- **Offline ontology snapshot rebuilt from CRGO v0.10.0** (`data/crgo-snapshot.json`, `data/crgo-assurance.json`,
+  `tools/build_crgo.py`): 1,884 scenarios, 1,014 SP 800-53A controls with 2,787 objectives. Used when the
+  ontology's MCP server cannot be reached; the scenario library itself is unchanged from 0.9.1.
+- The Connection tab and the "snapshot" label now name the CRGO release (0.10.0) rather than the version of
+  the identification export.
+- **Ontology · CRGO** links to the ontology's documentation (https://w3id.org/crgo/), its interactive map and
+  its source.
+
 ## 1.6.0 Beta (Beta 1.6.x) — 13 October 2026
 
 **Beta 1.6.x.** The application is presented as a beta, version 1.6.0; screens, help and guides describe it as

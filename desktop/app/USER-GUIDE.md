@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — User Guide
 
-**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.6.0 (beta) · Beta 1.6.x**
+**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.6.1 (beta) · Beta 1.6.x**
 
 > **Beta 1.6.x.** This application is a beta for teaching, exploration and method validation. Treat
 > every result as an initial analytical hypothesis and validate it before it supports a real decision.
@@ -84,7 +84,7 @@ the folder and your browser's own storage.
 
 ### 3.1 Unpack
 
-Unzip `CyberRiskGuardian_Desktop_v1.6.0-beta.zip` anywhere you can write. Keep the folder intact: the
+Unzip `CyberRiskGuardian_Desktop_v1.6.1-beta.zip` anywhere you can write. Keep the folder intact: the
 application loads its own files by relative path.
 
 > `INSTALL.md` in the folder is the same instructions on one page, **in English and in French**,
@@ -96,7 +96,7 @@ workspaces are kept by the browser for the exact address you use, not in the fol
 finds them. Your API keys are not in the folder either; they are in `crg-keys.json` in the feeds
 folder, and `feeds-dir.txt` carries that path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
-`1.6.0 beta`.
+`1.6.1 beta`.
 
 ### 3.2 Start it
 
@@ -3076,7 +3076,7 @@ legal advice.
     **84,491 / 41,104** and your workspace, its policies and its requirements are present.
 34. **Help → Step by step** → a separate window with thirteen steps and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About → Versions** reads `1.6.0 beta` and `engine verified · 84,491 / 41,104`; **Licence** names
+35. **Help → About → Versions** reads `1.6.1 beta` and `engine verified · 84,491 / 41,104`; **Licence** names
     CC BY-NC 4.0 and marcandre@leger.ca.
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM
     and SOAR screens, the AI preview and the Import from documents tab are in French; the organization's data

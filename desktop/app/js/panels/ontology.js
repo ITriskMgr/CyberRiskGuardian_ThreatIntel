@@ -36,6 +36,9 @@ export async function render(sec, arg) {
   sec.replaceChildren(el('h1', null, 'Ontology · CRGO'),
     el('p', 'lede', 'The CyberRiskGuardian Ontology: a library of risk scenarios with their ATT&CK techniques, weaknesses, controls (NIST CSF 2.0, SP 800-53, ISO/IEC 27002) and Quebec Law 25 obligations, reached through its own MCP server — the one Claude uses — or, without it, through the snapshot shipped with the application.'),
     banner('warn', 'Calibration priors, not evidence', tr('Ontology values are AI estimates (2023) for a fictitious healthcare organization or instructor values of teaching cases. They are starting points for a discussion with the organization: every value arrives tagged “{0}”.').replace('{0}', tr(C.MARK))));
+  sec.append(el('p', 'small', 'Documentation: ', el('a', { href: 'https://w3id.org/crgo/', target: '_blank', rel: 'noopener noreferrer' }, 'w3id.org/crgo'),
+    ' · ', el('a', { href: 'https://itriskmgr.github.io/CyberRiskGuardian-Ontology/map/', target: '_blank', rel: 'noopener noreferrer' }, 'Interactive ontology map'),
+    ' · ', el('a', { href: 'https://github.com/ITriskMgr/CyberRiskGuardian-Ontology', target: '_blank', rel: 'noopener noreferrer' }, 'Source on GitHub')));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
   for (const [k, t] of [['suggest', 'Suggest scenarios'], ['explore', 'Explore'], ['link', 'Organisation link'], ['connection', 'Connection']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; go('ontology/' + k); } }, t));
@@ -208,7 +211,7 @@ async function connection(body, sec) {
   body.append(el('div', 'grid g4',
     kpi('MCP server', st.running ? 'running' : st.usable ? 'ready' : 'unavailable', st.source ? srcLabel[st.source] || st.source : '', st.running || st.usable ? 'good' : 'warn'),
     kpi('Last answer from', C.state.via === 'mcp' ? 'the MCP server' : C.state.via === 'snapshot' ? 'the snapshot' : '—', C.state.last ? String(C.state.last).slice(0, 16).replace('T', ' ') : ''),
-    kpi('Snapshot', snap ? 'CRGO ' + snap.version : 'missing', snap ? `${n0(snap.scenarios.length)} scenarios · built ${snap.built}` : '', snap ? 'good' : 'bad'),
+    kpi('Snapshot', snap ? 'CRGO ' + (snap.release || snap.version) : 'missing', snap ? `${n0(snap.scenarios.length)} scenarios · built ${snap.built}` : '', snap ? 'good' : 'bad'),
     kpi('Local helper', st.helper === false ? 'not running' : 'running', st.helper === false ? 'start the app with its launcher' : '', st.helper === false ? 'warn' : 'good')));
   if (st.problem) body.append(banner('warn', 'The MCP server cannot be used', st.problem));
   // 1.5.8 — the release of the ontology found, and whether the dss/v1 contract can be used with it

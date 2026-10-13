@@ -46,7 +46,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crg_feeds  # noqa: E402  (same folder)
 import crgo_client  # noqa: E402  (1.5.7 — the ontology, reached as an MCP server)
 
-VERSION = "1.6.0"
+VERSION = "1.6.1"
 crgo_client.CLIENT_VERSION = VERSION
 ROOT = os.path.dirname(os.path.abspath(__file__))
 def _feeds_dir():
