@@ -18,8 +18,8 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 
 People stay accountable for validation and risk decisions.
 
-Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.4.0**
-(October 2026); desktop application **1.6.1 Beta** — see below.
+Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.5.0**
+(October 2026); desktop application **1.7.0 Beta** — see below.
 
 ## Relationship to the base edition
 
@@ -70,14 +70,16 @@ run both at once.
 
 ## Desktop application — try it without installing anything else
 
-**[CyberRiskGuardian Desktop 1.6.1 Beta](desktop/)** is a standalone edition of the same method that
-runs entirely in your browser, offline, with your data staying on your computer. It needs neither this
+**[CyberRiskGuardian Desktop 1.7.0 Beta](desktop/)** is a standalone edition of the same method that
+runs entirely in your browser, offline, with your data staying on your computer. Version 1.7.0 adds the
+**Security Policy Writer** (it drafts the policy set in English and French for ISP management) and a
+**Claude Dashboard** pack for the KRI dashboard (built in Claude with the `crg-dashboard` skill). It needs neither this
 plugin nor an AI provider, and it shares the engine: the MediBec baseline is the same
 **84,491 / 41,104**, checked at every start.
 
 | | |
 |---|---|
-| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip) — about 4 MB, everything included |
+| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.7.0-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.7.0-beta.zip) — about 4 MB, everything included |
 | **Installation instructions** | [`desktop/app/INSTALL.md`](desktop/app/INSTALL.md) — English and French · [print version, Windows and macOS side by side](desktop/app/INSTALL-Windows-macOS-EN-FR.pdf) |
 | **What it does** | [`desktop/README.md`](desktop/README.md) · the full guide in [`desktop/app/USER-GUIDE.md`](desktop/app/USER-GUIDE.md) |
 
@@ -87,7 +89,7 @@ browser and Python 3 — no account, no licence key, no installer, no administra
 served over `http://`, which the launchers do on `127.0.0.1` only; double-clicking `index.html` does
 not work.
 
-**This is a beta (1.6.x), anyone interested can test it, and feedback is welcome** — what the footer said at first
+**This is a beta (1.7.x), anyone interested can test it, and feedback is welcome** — what the footer said at first
 start, anything that did not open, any wording that is wrong for how you actually work, anything in
 the French interface that reads badly. Open an issue, or write to marcandre@leger.ca.
 

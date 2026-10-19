@@ -38,6 +38,7 @@ import * as reset from './panels/reset.js';
 import * as ontology from './panels/ontology.js';
 import * as registry from './panels/rhub.js';
 import * as isp from './panels/isp.js';
+import * as writer from './panels/writer.js';
 import * as isms from './panels/isms.js';
 import * as csm from './panels/csm.js';
 import * as audit from './panels/audit.js';
@@ -54,7 +55,7 @@ import * as chat from './chat.js';
 import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
 
-const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, register, scenario, batch, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, isms, csm, audit, qc, shared, siem, soar, cvss, budget, export: exportp, ai, forecast, backup, settings };
+const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, register, scenario, batch, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, siem, soar, cvss, budget, export: exportp, ai, forecast, backup, settings };
 export const ENGINE = { ok: false };
 
 /* ---------------- engine self-check (unchanged from 1.0.0) ---------------- */

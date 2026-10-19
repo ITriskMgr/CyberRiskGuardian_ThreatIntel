@@ -7,8 +7,8 @@
 ### Components in this project
 | Component | Location | Purpose |
 |---|---|---|
-| Skills | `.claude/skills/` (source: `plugins/cyberriskguardian-threatintel/skills/`) | `cyber-risk-assessment`, `threat-context-calibration`, `scenario-selection`, `cyber-budget-calibration`, `cybersecurity-governance`. They auto-trigger on risk-assessment, threat-intelligence, scenario-selection, budget and governance-concept requests. |
-| Commands | `.claude/commands/` | `/risk-assessment`, `/refresh-threat-context`, `/select-scenarios`, `/calibrate-budget`, `/crg-calc`, `/qc-review` |
+| Skills | `.claude/skills/` (source: `plugins/cyberriskguardian-threatintel/skills/`) | `cyber-risk-assessment`, `threat-context-calibration`, `scenario-selection`, `cyber-budget-calibration`, `cybersecurity-governance`, `crg-dashboard`. They auto-trigger on risk-assessment, threat-intelligence, scenario-selection, budget, governance-concept and dashboard-pack requests. |
+| Commands | `.claude/commands/` | `/risk-assessment`, `/refresh-threat-context`, `/select-scenarios`, `/calibrate-budget`, `/crg-calc`, `/qc-review`, `/crg-dashboard` |
 | Subagents | `.claude/agents/` | `risk-scenario-analyst` (candidates and screening), `risk-quantifier` (parameters, CVSS, KRIs, workbook), `risk-qc-reviewer` (independent read-only review, including snapshot freshness and the exposure gate) |
 | Output styles | `.claude/output-styles/` | `CyberRiskGuardian Analyst` (default via settings), `CyberRiskGuardian Executive Brief` |
 | Rules | `.claude/rules/` | Evidence discipline, data protection and **threat-intel** (always); workbook, report and methodology-maintenance rules (path-gated) |

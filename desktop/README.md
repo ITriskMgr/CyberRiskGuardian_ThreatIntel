@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — with Threat Intel features
 
-**Version 1.6.1 Beta (1.6.x).** For teaching, exploration and method validation. Validate
+**Version 1.7.0 Beta (1.7.x).** For teaching, exploration and method validation. Validate
 every result before it supports a real decision.
 
 A desktop companion to the CyberRiskGuardian method that runs entirely in your browser, offline, with
@@ -17,7 +17,7 @@ supported by the [CyberRiskGuardian Ontology (CRGO)](https://w3id.org/crgo/).
 
 | | |
 |---|---|
-| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.6.1-beta.zip) — about 4 MB, everything included |
+| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.7.0-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.7.0-beta.zip) — about 4 MB, everything included |
 | **Install** | [`app/INSTALL.md`](app/INSTALL.md) — one page, **in English and in French** |
 | **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 12 pages |
 
@@ -44,7 +44,7 @@ are set in Settings → Links & shared folders. Section 5 of the installation in
 
 ## Feedback welcome
 
-This is a beta (1.6.x), and anyone interested is welcome to test it. If you are trying it, the useful things to report are: what the
+This is a beta (1.7.x), and anyone interested is welcome to test it. If you are trying it, the useful things to report are: what the
 footer said at first start, anything that did not open or made no sense, any screen whose wording is
 wrong for how you actually work, and anything in the French interface that reads badly. Open an issue
 here, or write to **marcandre@leger.ca**.

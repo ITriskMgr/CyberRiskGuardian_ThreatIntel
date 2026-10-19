@@ -3,6 +3,20 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## 1.5.0 — 2026-10-19
+
+Plugin 1.5.0, with CyberRiskGuardian Desktop **1.7.0 Beta** (Security Policy Writer 0.1.0 Beta and the Claude
+Dashboard pack). No formula change; MediBec regression unchanged (84,491 / 41,104).
+
+### Added
+- Skill **`crg-dashboard`** and command **`/crg-dashboard`**: build or refresh a Claude Dashboard (dashboard
+  artifact on claude.ai) from the dashboard pack the desktop exports (KRI dashboard → Claude Dashboard):
+  datasets attached with the manifest's titles, descriptions and dates; the pack's page installed; reading
+  rules stated (relative indicators, estimates to validate, acknowledgement is not compliance).
+- Desktop 1.7.0: **Governance → Security Policy Writer** (drafts the policy set for ISP management, CRGO-based
+  legal applicability and control links, facts from documents with OCR, Accept all suggestions, Word export and
+  re-import) — see `desktop/app/CHANGELOG.md`.
+
 ## 1.4.0 — 2026-10-13
 
 Uses the **CyberRiskGuardian Ontology (CRGO) v0.10.0** (pinned tag `v0.10.0`): its read-only

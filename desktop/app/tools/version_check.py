@@ -78,6 +78,13 @@ def main():
     check("service worker cache", "sw.js", r'const CACHE = "crg-desktop-([\d.]+)"')
     check("helper", "serve.py", r'VERSION = "([\d.]+)"')
     check("sidebar footer", "index.html", r'v([\d.]+) Beta')
+    # The Security Policy Writer has a version of its own: the module (js/version.js) and its engine in the
+    # helper (crg_writer/__init__.py) must agree.
+    wv = re.search(r"export const WRITER_VERSION = '([\d.]+)'", read("js/version.js"))
+    ev = re.search(r'VERSION = "([\d.]+)"', read("crg_writer/__init__.py"))
+    found.append(("Security Policy Writer", wv.group(1) if wv else None))
+    if not wv or not ev or wv.group(1) != ev.group(1):
+        bad.append(f"  Security Policy Writer      js/version.js says {wv and wv.group(1)!r}, crg_writer/__init__.py says {ev and ev.group(1)!r}")
 
     # No module may hardcode a version of its own any more. Comments that record which release
     # introduced something are fine, so the comments are removed before the search; what is left is

@@ -1,6 +1,6 @@
 # Multi-user architecture — CyberRiskGuardian Desktop
 
-*Beta 1.6.x (version 1.6.0). Option A is built into the application; Option B is a design for a later version.*
+*Beta 1.7.x (version 1.7.0). Option A is built into the application; Option B is a design for a later version.*
 
 ## 1. Why two options
 

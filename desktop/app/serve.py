@@ -45,8 +45,14 @@ import uuid
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crg_feeds  # noqa: E402  (same folder)
 import crgo_client  # noqa: E402  (1.5.7 — the ontology, reached as an MCP server)
+try:                    # 1.7.0 — the Security Policy Writer engine (standard library only, crg_writer/)
+    import crg_writer  # noqa: E402
+    from crg_writer import api as writer_api  # noqa: E402
+    WRITER_ERROR = ""
+except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
+    crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.6.1"
+VERSION = "1.7.0"
 crgo_client.CLIENT_VERSION = VERSION
 ROOT = os.path.dirname(os.path.abspath(__file__))
 def _feeds_dir():
@@ -270,7 +276,8 @@ AI_DEFAULT_POLICY = {
     "tasks": {"link_vulns": "local", "extract_profile": "workspace", "extract_crown": "workspace",
               "scenarios": "workspace", "analyst": "workspace", "critique": "workspace",
               "briefing": "workspace", "chat": "workspace",
-              "extract_sensitive": "local", "extract_more": "workspace", "simulation_pack": "workspace"},
+              "extract_sensitive": "local", "extract_more": "workspace", "simulation_pack": "workspace",
+              "writer_facts": "workspace", "writer_tailor": "workspace"},
 }
 
 
@@ -952,7 +959,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             keys = crg_feeds.load_keys(FEEDS)
             cfg = crg_feeds.load_config(FEEDS)
             return self._json(200, {"helper": VERSION, "feeds_dir": FEEDS, "sources": list(RUNNERS), "feeds": True,
-                                    "ai": self._ai_state(cfg, keys)})
+                                    "ai": self._ai_state(cfg, keys),
+                                    "writer": crg_writer.VERSION if crg_writer else None, "writer_error": WRITER_ERROR})
+        if path == "/api/writer/meta":                  # 1.7.0 — the Security Policy Writer
+            if not writer_api:
+                return self._json(503, {"error": "The Security Policy Writer engine could not be loaded: " + WRITER_ERROR})
+            code, out = writer_api.handle("meta", {})
+            return self._json(code, out)
         if path == "/api/jobs":
             with lock:
                 return self._json(200, {"jobs": sorted(jobs.values(), key=lambda j: j["started"], reverse=True)})
@@ -1056,6 +1069,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self._json(404, {"error": "unknown endpoint"})
             return
         n = int(self.headers.get("Content-Length") or 0)
+        if n > 100 * 1024 * 1024:
+            return self._json(413, {"error": "request too large"})
         try:
             body = json.loads(self.rfile.read(n) or b"{}")
         except Exception:                               # noqa: BLE001
@@ -1065,6 +1080,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._json(200, {"ok": True, "message": "The helper is stopping."})
             threading.Thread(target=lambda: (time.sleep(0.4), HTTPD and HTTPD.shutdown()), daemon=True).start()
             return
+        m = re.match(r"^/api/writer/([a-z_]{2,40})$", path)
+        if m:                                           # 1.7.0 — Security Policy Writer: stateless, local only
+            if not writer_api:
+                return self._json(503, {"error": "The Security Policy Writer engine could not be loaded: " + WRITER_ERROR})
+            code, out = writer_api.handle(m.group(1), body)
+            if code != 200:
+                sys.stderr.write(f"helper: writer {m.group(1)} → {code}\n")
+            return self._json(code, out)
         if path == "/api/download":
             try:
                 job = start_job(body.get("source"), body.get("params") or {})

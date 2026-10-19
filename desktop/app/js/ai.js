@@ -45,6 +45,8 @@ export const FEATURES = [
   ['critique', 'AI assistant — parameter critique', 'Scenarios with their parameters and rationales', 'medium', 'workspace'],
   ['briefing', 'Weekly threat briefing', 'Triaged feed stories matched to this organization', 'medium', 'workspace'],
   ['isp_draft', 'Policy drafting (Security policies)', 'Organization profile and the policy or template being drafted', 'medium', 'workspace'],
+  ['writer_facts', 'Security Policy Writer — facts from documents', 'Text of the context documents (passages that look like instructions excluded)', 'high', 'workspace'],
+  ['writer_tailor', 'Security Policy Writer — wording of a draft', 'Organization profile and the statements of one draft policy', 'medium', 'workspace'],
   ['simulation_pack', 'Simulation data for teaching (Settings)', 'Organization profile, scenarios (ids, names, ATT&CK), crown jewels and assets', 'medium', 'workspace'],
   ['compliance_assess', 'Compliance assessment', 'Requirements, safeguards, policies and measures of the workspace; optionally document excerpts', 'high', 'workspace'],
   ['chat', 'Help chatbot — Ask AI', 'Your question, the screen, help passages, a short workspace summary', 'low', 'workspace'],

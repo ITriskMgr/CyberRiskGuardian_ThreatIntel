@@ -5,6 +5,7 @@ import { el, n0, n2, kpi, card, pill, field, select, toast, table, today, banner
 import { S, touch, compute } from '../state.js';
 import { allDefs, autoValues, status, series, trend } from '../kri.js';
 import { lineChart, sparkline, gauge } from '../charts.js';
+import { tr } from '../i18n.js';
 
 let selected = 'CRG-01', compare = false;
 const flt = { q: '', status: 'all', kind: 'all', owner: 'all' };
@@ -174,7 +175,7 @@ export function render(sec) {
   drawDetail();
 
   // definitions + history import/export
-  sec.append(defsEditor(sec), historyIO(sec, defs));
+  sec.append(defsEditor(sec), historyIO(sec, defs), claudeDashboard());
 }
 
 /** Rank indicators by need for attention: critical, warning, on target (closest to warning), tracked, no data;
@@ -233,4 +234,21 @@ function historyIO(sec, defs) {
       el('button', { class: 'btn ghost', onclick: () => fileIn.click() }, 'Import CSV…'), fileIn,
       el('button', { class: 'btn ghost danger', onclick: () => { if (!window.confirm('Delete all recorded KRI history for this workspace?')) return; ws.kriHistory = []; touch(); render(sec); } }, 'Clear history')));
   return d;
+}
+
+/* Claude Dashboard: the workspace as a dashboard pack for claude.ai (js/dashpack.js). */
+function claudeDashboard() {
+  const people = el('input', { type: 'checkbox', style: { width: 'auto' } });
+  const msg = el('span', 'small muted');
+  return card(el('h2', null, 'Claude Dashboard'),
+    el('p', null, 'Turn this dashboard into a Claude Dashboard on claude.ai: a page where every figure shows the dataset it comes from, shared with the people you choose. Download the pack, attach it in Claude and ask “Build my CyberRiskGuardian dashboard from this pack” (with the CyberRiskGuardian plugin, the crg-dashboard skill does it). Export a new pack to refresh it.'),
+    el('p', 'note', 'The pack holds four datasets — key risk indicators now and over time, scenarios against tolerance, and security policies with their acknowledgement coverage — and a ready page. It holds no document text. Anyone who can open the Claude Dashboard can read its datasets: share it only with people allowed to see this assessment.'),
+    el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', color: 'var(--ink)', margin: '6px 0' } }, people, 'Include the names of KRI owners'),
+    el('div', 'btnrow', el('button', { class: 'btn', onclick: async e => {
+      e.target.disabled = true;
+      try { const D = await import('../dashpack.js'); const users = await import('../users.js'); const p = await D.pack(S.ws, { by: users.name() || '', people: people.checked });
+        download(p.name, p.blob); msg.textContent = tr('{0} datasets and the page are in {1}.').replace('{0}', p.datasets).replace('{1}', p.name); users.audit('dashboard pack exported', p.name, S.ws); }
+      catch (x) { toast(String(x.message || x), 'bad'); }
+      e.target.disabled = false;
+    } }, 'Download the dashboard pack (.zip)'), msg));
 }

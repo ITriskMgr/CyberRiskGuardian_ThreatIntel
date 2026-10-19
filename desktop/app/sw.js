@@ -1,7 +1,7 @@
 /* CyberRiskGuardian Desktop — offline cache. Bump CACHE when any file changes.
    Network-first since 1.1.1: when the app is being served, the served files always win, so a new
    version shows at once; the cache is used only when no server is running (installed app offline). */
-const CACHE = "crg-desktop-1.6.1";
+const CACHE = "crg-desktop-1.7.0";
 const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.js", "sample.js", "medibec.js", "kb.js",
   "js/app.js", "js/version.js", "js/nav.js", "js/util.js", "js/store.js", "js/state.js", "js/ontology.js", "js/picker.js", "js/extract.js", "js/snapgen.js",
   "js/charts.js", "js/kri.js", "js/xlsx.js", "js/exportx.js",
@@ -19,7 +19,7 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "help/page.css", "help/md.js", "help/step-by-step.html", "help/user-guide.html", "help/reset-confirm.html",
   "manifest.webmanifest", "icons/icon-32.png", "icons/icon-64.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png",
   "js/ams.js", "js/cms.js", "js/helpdesc.js", "js/logs.js", "js/menu.js", "js/shared.js", "js/siem.js", "js/soar.js", "js/panels/audit_findings.js", "js/panels/audit_plan.js", "js/panels/audit_ui.js", "js/panels/audit_work.js", "js/panels/cms.js", "js/panels/isp_common.js", "js/panels/isp_editor.js", "js/panels/isp_people.js", "js/panels/isp_reviews.js", "js/panels/settings_logs.js", "js/panels/settings_sim.js", "js/panels/shared.js", "js/panels/siem.js", "js/panels/siem_alerts.js", "js/panels/siem_rules.js", "js/panels/soar.js", "js/panels/soar_ops.js",
-  "js/secops_seed.js", "js/simgen.js",
+  "js/secops_seed.js", "js/simgen.js", "js/writer.js", "js/panels/writer.js", "js/panels/writer_steps.js", "js/dashpack.js",
   "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json"
 ];
 self.addEventListener("install", e => {

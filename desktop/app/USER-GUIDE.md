@@ -1,8 +1,8 @@
 # CyberRiskGuardian Desktop — User Guide
 
-**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.6.1 (beta) · Beta 1.6.x**
+**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.7.0 (beta) · Beta 1.7.x**
 
-> **Beta 1.6.x.** This application is a beta for teaching, exploration and method validation. Treat
+> **Beta 1.7.x.** This application is a beta for teaching, exploration and method validation. Treat
 > every result as an initial analytical hypothesis and validate it before it supports a real decision.
 
 © 2026 Marc-André Léger · CC BY-NC 4.0 — who may use it without asking, and whose situation needs a
@@ -84,7 +84,7 @@ the folder and your browser's own storage.
 
 ### 3.1 Unpack
 
-Unzip `CyberRiskGuardian_Desktop_v1.6.1-beta.zip` anywhere you can write. Keep the folder intact: the
+Unzip `CyberRiskGuardian_Desktop_v1.7.0-beta.zip` anywhere you can write. Keep the folder intact: the
 application loads its own files by relative path.
 
 > `INSTALL.md` in the folder is the same instructions on one page, **in English and in French**,
@@ -96,7 +96,7 @@ workspaces are kept by the browser for the exact address you use, not in the fol
 finds them. Your API keys are not in the folder either; they are in `crg-keys.json` in the feeds
 folder, and `feeds-dir.txt` carries that path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
-`1.6.1 beta`.
+`1.7.0 beta`.
 
 ### 3.2 Start it
 
@@ -966,6 +966,18 @@ the least-squares slope over all recorded points, read against the KRI's directi
 improving, worsening or stable. Click a KRI for its chart with target, warning and critical lines,
 the change since the previous point, slope per 30 days, and the number of critical breaches.
 
+#### Claude Dashboard {#dashboard-claude}
+
+**Download the dashboard pack (.zip)** turns this dashboard into a *Claude Dashboard* on claude.ai — a page
+where every figure shows the dataset it comes from, shared with the people you choose. The pack holds four
+datasets (key risk indicators now and over time, scenarios against tolerance, security policies with their
+acknowledgement coverage), a ready page and a manifest; no document text, and the names of KRI owners only
+when **Include the names of KRI owners** is ticked. Attach the ZIP in Claude and ask *"Build my
+CyberRiskGuardian dashboard from this pack"* — with the CyberRiskGuardian plugin, the `crg-dashboard` skill
+(or `/crg-dashboard`) does it the same way every time. Export a new pack and ask Claude to refresh the
+dashboard when the numbers change. Anyone who can open the Claude Dashboard can read its datasets: share it
+only with people allowed to see the assessment.
+
 ### 7.3.2 Existing safeguards — what already protects you {#safeguards}
 
 Two different registers answer two different questions. **Risk mitigation** answers *what should we
@@ -1766,6 +1778,98 @@ self-assessment, report by an employee, supplier review), severity, owner, corre
 exception register (**Open the shared exception register**): an exception needs a justification, an expiry
 date and an approver who is not the requester, and it never waives a law. Exceptions still recorded in this
 module are listed with **Move to the shared register**. **Non-compliance register (.csv)** exports the list.
+
+#### Security Policy Writer {#writer}
+
+**Governance → Security Policy Writer** writes the policy set of the organization — the enterprise
+information security policy, topic-specific policies, standards and procedures — in English, French or
+both, from an interview, the organization's own documents and the CyberRiskGuardian Ontology (CRGO).
+**The Writer writes; ISP management manages**: every document it produces is a *draft* in ISP management,
+where it is reviewed, approved (frozen with its SHA-256 hash), published, assigned and acknowledged. Nothing
+is invented: an unknown fact becomes a highlighted placeholder such as `[DECISION: …]`, and a law is used
+only after a named reviewer records that it applies. The Writer has its own version (0.1.0 beta); its engine
+runs in the local helper on this computer, so the launcher must be running.
+
+##### Start {#writer-start}
+
+Where the Writer stands, the **Language of the documents** (English, French, or both — each document is then
+written twice with the same statement identifiers) and the depth of the **Interview** (Express, about twenty
+questions; Standard, about sixty). **Propose answers from the profile and the documents** reads the
+organization profile, the crown jewels and the context documents of the workspace and proposes answers, each
+with its source. **Clear the Writer data** forgets the answers, facts, legal decisions and selection; the
+policies already in ISP management stay.
+
+##### Interview {#writer-interview}
+
+Questions about the organization, grouped in short sections. Each answer shows where it came from — *your
+answer*, *from a document*, *from the organization profile*, or *default accepted* — with who and when.
+**Unknown**, **Not applicable** and **Decide later** are answers too: the drafts then carry a placeholder.
+*Governance observations* are patterns from *Introduction to Cybersecurity Governance* that the answers
+suggest; they are points to discuss, never facts written into a policy.
+
+##### Documents & facts {#writer-documents}
+
+Facts proposed from the context documents (Organization → Context documents) and from the organization
+profile: the question, the proposed value, the **quote** it rests on and where it was found (document, page,
+paragraph). **Confirm** makes it the answer; **Reject** discards it; **Confirm all without conflict**
+confirms the others at once. When two sources disagree they form a *conflict*, and neither value is used
+until you confirm one. Passages that look like instructions to an AI are **set aside**: never read for facts,
+never sent to a model. A scanned file has little or no text: **Read with OCR…** recognizes it on this
+computer (Tesseract and Poppler must be installed; the file is not uploaded anywhere), and facts read by OCR
+get a lower confidence. **Propose more with AI…** sends the documents' text through the usual preview and
+keeps only the facts whose quote is found word for word in the documents.
+
+When you create a workspace from documents (Organization → Workspaces), **Also extract policy facts for the
+Security Policy Writer** does the same reading right away, without AI.
+
+##### Legal applicability {#writer-legal}
+
+Laws, regulations, contracts and frameworks that may apply. For the instruments CRGO knows (P-39.1, A-2.1,
+R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1), the ontology's evaluation of the organisation profile is shown as
+evidence; **Evaluate the profile now** runs it, and **Add them to the CRGO profile** adds the values your
+interview implies (never marking a list complete — unknown stays unknown). Other candidates (sector rules,
+contracts, frameworks) are the Writer's own. For each candidate choose a **Decision** — *Applies*, *Does not
+apply*, *Needs legal review* — and give the **Reviewer (a named person)** and a **Rationale**, then
+**Record**. A clause that depends on a law is drafted only when its candidate *Applies*. This is not legal
+advice.
+
+##### Library {#writer-library}
+
+The 28 documents of the catalogue by level — enterprise policy, topic-specific policies, standards and
+procedures — with their priority, the reasons for it, and the **Scenarios** they address: those of this
+workspace whose ontology controls or measures share a CRGO control with the document (in red when above
+tolerance), and how many scenarios of the CRGO library its controls treat. Tick the documents and **Save the
+selection**; **Use the recommendation** ticks the recommended set again.
+
+##### Decisions {#writer-decisions}
+
+The choices the documents depend on — delays, scopes, approvers, frequencies — grouped by document, each with
+its suggested value. **Accept all suggestions** fills every unanswered decision that has a suggestion and
+records each one as a *default accepted* by you with the date; **Accept the suggestions for this document**
+does the same for one document. Decisions that need legal review, or have no suggestion, are never filled
+automatically: they stay open and are listed for you to decide. Answers already given are never changed.
+
+##### Generate drafts {#writer-generate}
+
+**Generate the drafts** creates or refreshes, for each selected document and language, a draft policy in ISP
+management: the purpose and scope, one clause per section, and one statement per requirement with its
+modality and CRGO control identifiers; policies of one topic share a policy family. Only a draft changes. A
+published document is regenerated as a new version only when you tick **start a new version**; one in review
+or approved is left as it is. A statement someone edited after the last generation — in the Policy editor or
+through Word — is **kept** and reported as *kept as edited*. **Quality checks** list open decisions,
+clauses for legal review, missing parent documents, implementation gaps and disagreeing documents.
+**Improve the wording with AI…** rewords the statements of one draft; a rewording is refused when it changes
+a placeholder, adds a number, changes the modal verb or the length too much, and you tick the ones to apply.
+
+##### Word export & re-import {#writer-word}
+
+**Word (.docx)** writes a native Word document of a policy — document control, contents, numbered clauses and
+statements, open decisions, traceability of every statement to its basis and controls — for any policy of ISP
+management, not only the Writer's (also on the Policy editor). A frozen version can be exported (**Word of v…
+in force**) but never changed. **Re-import from Word…** reads a copy edited in Word: each statement is
+matched by its hidden marker (or by its number when the marker was removed), every change is shown word by
+word — modified, deleted, added, with a change of *must* to *should* flagged — and only the changes you leave
+ticked are applied, to the draft.
 
 ### 7.5.3 Cybersecurity management {#csm}
 
@@ -3076,7 +3180,7 @@ legal advice.
     **84,491 / 41,104** and your workspace, its policies and its requirements are present.
 34. **Help → Step by step** → a separate window with thirteen steps and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About → Versions** reads `1.6.1 beta` and `engine verified · 84,491 / 41,104`; **Licence** names
+35. **Help → About → Versions** reads `1.7.0 beta` and `engine verified · 84,491 / 41,104`; **Licence** names
     CC BY-NC 4.0 and marcandre@leger.ca.
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM
     and SOAR screens, the AI preview and the Import from documents tab are in French; the organization's data

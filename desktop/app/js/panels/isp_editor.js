@@ -27,6 +27,7 @@ export function policyTab(body) {
   const fam = select([['', '—'], ...I.families.map(f => [f.id, f.name || f.id])], p.family || ''); fam.disabled = !ed; fam.setAttribute('data-noi18n', ''); fam.addEventListener('change', () => { p.family = fam.value; ch(); });
   const v = P.inForce(p);
   body.append(card(el('div', 'row', { style: { alignItems: 'center', gap: '8px' } }, el('div', { style: { flex: 1 } }, policyPick(I, p.id, id => C.go('policy', id))), statePill(p.status), pill('v' + p.version, ''),
+      p.writer?.code ? el('a', { class: 'pill good', href: '#/writer/generate', title: tr('Drafted by the Security Policy Writer') }, `${tr('Writer')} · ${p.writer.code} · ${String(p.writer.lang || '').toUpperCase()}`) : null,
       v && v.version !== p.version ? pill(tr('v{0} in force').replace('{0}', v.version), 'good') : null, P.overdue(p) ? pill('review overdue', 'bad') : null),
     !ed ? banner('good', p.status === 'retired' ? 'Retired' : p.status === 'superseded' ? 'Superseded' : 'Frozen text', p.status === 'retired' ? 'This policy is no longer in force. Reinstating it starts a new version.'
       : p.status === 'superseded' ? 'Another policy replaced this one. Its versions stay readable.' : 'An approved or published version is frozen with the SHA-256 hash of its content and is never edited. “Start a new version” opens a draft; the frozen versions stay readable and comparable.') : null,
@@ -39,6 +40,8 @@ export function policyTab(body) {
     field('Purpose', inp('purpose', { rows: 2 })), field('Scope', inp('scope', { rows: 2 })),
     el('div', 'btnrow', { style: { marginTop: '8px' } }, ...lifecycle(p),
       el('button', { class: 'btn ghost', onclick: () => download(`${p.id}-${p.title.replace(/[^\w]+/g, '-')}-v${p.version}.md`, P.toMarkdown(p, ws), 'text/markdown') }, 'Download (.md)'),
+      el('button', { class: 'btn ghost', onclick: async () => { const W = await import('./writer_steps.js'); W.wordExport(ws, p); } }, 'Word (.docx)'),
+      p.status === 'draft' ? el('button', { class: 'btn ghost', onclick: async () => { const W = await import('./writer_steps.js'); W.reimportDialog(ws, p, C.redraw); } }, 'Re-import from Word…') : null,
       ed ? el('button', { class: 'btn ghost', onclick: async () => { const { draftWithAI } = await import('./isp.js'); draftWithAI(null, p); } }, 'Improve with AI…') : null,
       el('button', { class: 'btn ghost', onclick: () => C.go('reviews') }, 'Versions & approvals'),
       p.status === 'draft' && !p.versions.length ? el('button', { class: 'btn ghost danger', onclick: () => { if (!window.confirm(tr('Delete this draft policy?'))) return; I.policies.splice(I.policies.indexOf(p), 1); touch('isp'); C.polId = null; C.go('policies'); } }, 'Delete the draft') : null)));

@@ -6,7 +6,7 @@
       "name": "cyberriskguardian-threatintel",
       "source": "./plugins/cyberriskguardian-threatintel",
       "description": "CyberRiskGuardian with Threat Live-feed — scenario-driven cybersecurity risk assessment with dated, exposure-gated threat-intelligence calibration.",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "license": "CC-BY-NC-4.0",
       "category": "security"
     }

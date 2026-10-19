@@ -41,6 +41,8 @@ export const MENU = [
     sub('isms', 'Information security management', [['overview', 'Overview'], ['exceptions', 'Exceptions']]),
     sub('isp', 'ISP management', [['overview', 'Overview'], ['policies', 'Policy library'], ['policy', 'Policy editor'], ['reviews', 'Versions & approvals'],
       ['applicability', 'Applicability & assignments'], ['acks', 'Acknowledgements & training'], ['issues', 'Non-compliance']]),
+    sub('writer', 'Security Policy Writer', [['start', 'Start'], ['interview', 'Interview'], ['documents', 'Documents & facts'], ['legal', 'Legal applicability'],
+      ['library', 'Library'], ['decisions', 'Decisions'], ['generate', 'Generate drafts'], ['word', 'Word export & re-import']]),
     sub('csm', 'Cybersecurity management', [['tests', 'Control testing'], ['governance', 'Governance'], ['decisions', 'Decisions'], ['incidents', 'Incidents']]),
     T('frameworks', 'Frameworks & standards'),
     sub('shared', 'Shared registers', [['evidence', 'Evidence'], ['actions', 'Corrective actions'], ['exceptions', 'Exceptions'], ['mappings', 'Mappings']]),

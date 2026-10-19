@@ -113,6 +113,9 @@ function policies(body, sec) {
       el('button', { class: 'btn', onclick: () => { const p = P.fromTemplate(tpl.value, ws, byName()); users.audit('policy created', p.id + ' ' + p.title, ws); C.go('policy', p.id); } }, 'Create from the template'),
       el('button', { class: 'btn ghost', onclick: () => draftWithAI(P.template(tpl.value)) }, 'Draft it with AI…'),
       el('button', { class: 'btn ghost', onclick: () => { const p = P.newPolicy({ title: 'New policy', _by: byName() }, ws); C.go('policy', p.id); } }, 'Blank policy'))),
+    el('div', 'banner good', { style: { marginTop: '10px' } }, el('b', null, 'Write a complete policy set for this organization'),
+      el('div', null, tr('The Security Policy Writer interviews the organization, reads its documents, takes legal applicability from the ontology and drafts the enterprise policy, topic policies, standards and procedures in English and French — as drafts in this library.'), ' ',
+        el('a', { href: '#/writer/start' }, tr('Open the Security Policy Writer')))),
     el('div', 'btnrow', { style: { marginTop: '8px' } }, el('button', { class: 'btn ghost sm', onclick: () => {
       const missing = P.TEMPLATES.filter(t => !done.has('template:' + t.id));
       if (!missing.length) { toast(tr('Every template is already in use')); return; }

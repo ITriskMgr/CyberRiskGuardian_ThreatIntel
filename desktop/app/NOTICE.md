@@ -259,5 +259,5 @@ every start; it does not use AI. The AI features inside the application are opti
 they would send before anything leaves the computer, and produce proposals that a person accepts or
 rejects.
 
-Version 1.6.1 is a **beta (Beta 1.6.x)**: treat its results as initial analytical hypotheses and
+Version 1.7.0 is a **beta (Beta 1.7.x)**: treat its results as initial analytical hypotheses and
 validate them before they support a decision.

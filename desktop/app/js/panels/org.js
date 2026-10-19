@@ -496,6 +496,7 @@ function workspaces(body, arg, sec) {
   const exP = el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } });
   const exC = el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } });
   const exM = el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } });
+  const exW = el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } });
   const opt = (c, t, h) => el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--ink)', margin: '6px 0' } }, c, el('span', null, t, h ? el('div', 'small muted', h) : null));
   const fileIn = el('input', { type: 'file', accept: '.json', style: { display: 'none' } });
   const msg = el('div');
@@ -551,6 +552,11 @@ function workspaces(body, arg, sec) {
     if (pending.length) {
       const res = await addDocs(S.ws, pending.splice(0), msg);
       const bad = res.filter(r => r.state !== 'good').length;
+      // 1.7.0 — policy facts for the Security Policy Writer: local rules, proposals only (reviewed in the Writer)
+      if (exW.checked) {
+        try { const WR = await import('../writer.js'); const r = await WR.extractFacts(S.ws); WR.log(S.ws, `Facts proposed at workspace creation: ${r.facts} from ${r.docs} document(s)`, users.name() || ''); toast(tr('{0} policy facts proposed — review them in Security Policy Writer → Documents & facts').replace('{0}', r.facts)); }
+        catch (e) { toast(tr('Policy facts were not read: {0}').replace('{0}', tr(String(e.message || e))), 'bad'); }
+      }
       toast(`Workspace created with ${res.length - bad} document(s) read` + (bad ? `, ${bad} need attention` : ''), bad ? 'bad' : 'good');
       tab = 'docs';
       autoImport = exM.checked;
@@ -574,7 +580,8 @@ function workspaces(body, arg, sec) {
     el('div', { style: { marginTop: '8px' } },
       opt(exP, el('b', null, 'Extract the profile & appetite from these documents after creation'), 'AI (with a preview of what is sent) or rules only; you review every value before saving.'),
       opt(exC, el('b', null, 'Then extract the crown jewels'), 'Proposes crown jewels from the same documents; you choose which to add.'),
-      opt(exM, el('b', null, 'Then import more from the documents'), 'Information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, risks, budget, KRIs, roles, classroom — you choose the targets and review each proposal.')),
+      opt(exM, el('b', null, 'Then import more from the documents'), 'Information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, risks, budget, KRIs, roles, classroom — you choose the targets and review each proposal.'),
+      opt(exW, el('b', null, 'Also extract policy facts for the Security Policy Writer'), 'Classification levels, MFA scope, review cycles, approvers, backup, vulnerability and log rules stated in the documents — each with its quote, proposed in Security Policy Writer → Documents & facts. Read on this computer, without AI.')),
     el('div', 'btnrow', { style: { marginTop: '12px' } }, el('button', { class: 'btn', onclick: () => from.value === 'import' ? fileIn.click() : doCreate().catch(e => msg.replaceChildren(banner('bad', 'Could not create', String(e.message || e)))) }, 'Create workspace'), fileIn), msg));
 
   const t = el('table');

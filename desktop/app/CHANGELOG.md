@@ -1,5 +1,43 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.7.0 Beta (Beta 1.7.x) — 19 October 2026
+
+Adds the **Security Policy Writer** (module version 0.1.0 beta) and the **Claude Dashboard** pack. `crg.js`,
+`cvss4.js`, `sample.js` and `threat.js` are unchanged; the self-check still requires **84,491 / 41,104**; data
+version stays 2 (no migration: the Writer keeps its records inside the ISP record of the workspace).
+
+### Added
+- **Governance → Security Policy Writer** (`js/writer.js`, `js/panels/writer.js`, `js/panels/writer_steps.js`;
+  engine `crg_writer/` in the local helper, standard library only, served at `/api/writer/<operation>`).
+  Eight steps: Start · Interview (Express or Standard) · Documents & facts · Legal applicability · Library ·
+  Decisions · Generate drafts · Word export & re-import. **The Writer writes; ISP management manages**: it
+  creates or refreshes ISP *drafts* — purpose, scope, a clause per section, a statement per requirement with
+  its modality and CRGO control identifiers, policy families per topic — in English, French or both; frozen
+  versions are never changed and edits made after generation are kept.
+- **CRGO in the Writer**: candidate laws carry the CRGO evaluator's state (Compliance → Legal applicability) as
+  evidence and need a named reviewer; the interview proposes values for the CRGO applicability profile;
+  documents show the scenarios of the register and of the CRGO library their controls treat.
+- **Start from documents**: facts proposed with their quote and page/paragraph locator from the context
+  documents and the organization profile, conflicts between documents, passages that look like AI
+  instructions set aside, **OCR** of scanned PDFs and images on the computer (Tesseract; Poppler for PDFs).
+  Creating a workspace from documents offers **Also extract policy facts for the Security Policy Writer**.
+- **Accept all suggestions** in the Writer's Decisions, for all documents or one: fills only unanswered
+  decisions, records each as a default accepted by the person on the date, lists the decisions left open
+  (legal review needed, or no suggestion).
+- **Word (.docx)** and **Re-import from Word…** for every policy of ISP management (Policy editor and the
+  Writer): native Word with document control, numbered statements, open decisions and traceability;
+  re-import matches statements by hidden bookmarks or numbers, shows word-level changes and modality changes,
+  and applies only accepted changes, to the draft.
+- **KRI dashboard → Claude Dashboard**: **Download the dashboard pack (.zip)** — four datasets (KRIs now and over
+  time, scenarios against tolerance, policies with acknowledgement coverage), a manifest and a page written
+  to the Claude Dashboard contract. The plugin's new `crg-dashboard` skill (and `/crg-dashboard`) builds or
+  refreshes the Claude Dashboard from it.
+- AI features `writer_facts` and `writer_tailor` in Settings → AI — local & remote (preview first; facts kept
+  only when their quote is found in the documents; rewording refused when it changes placeholders, numbers,
+  modal verbs or length).
+- Settings → Modules: **Security Policy Writer**; Users & RACI menu access; Help → About → Versions shows the
+  Writer and its engine; `tools/version_check.py` checks that both agree.
+
 ## 1.6.1 Beta (Beta 1.6.x) — 13 October 2026
 
 Ontology update. `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the self-check still requires

@@ -1,8 +1,8 @@
 # CyberRiskGuardian Desktop — Guide de l'utilisateur
 
-**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.6.1 (bêta) · Bêta 1.6.x**
+**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.7.0 (bêta) · Bêta 1.7.x**
 
-> **Bêta 1.6.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
+> **Bêta 1.7.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
 > la validation de la méthode. Traitez chaque résultat comme une hypothèse analytique initiale et
 > validez-le avant qu'il n'appuie une décision réelle.
 
@@ -91,7 +91,7 @@ n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateu
 
 ### 3.1 Décompresser
 
-Décompressez `CyberRiskGuardian_Desktop_v1.6.1-beta.zip` à tout endroit où vous pouvez écrire. Gardez
+Décompressez `CyberRiskGuardian_Desktop_v1.7.0-beta.zip` à tout endroit où vous pouvez écrire. Gardez
 le dossier intact : l'application charge ses propres fichiers par chemin relatif.
 
 > `INSTALL.md`, dans le dossier, reprend les mêmes instructions sur une seule page, **en anglais et en
@@ -104,7 +104,7 @@ exacte que vous utilisez, et non dans le dossier ; le même port les retrouve d
 sont pas non plus dans le dossier ; elles se trouvent dans `crg-keys.json` dans le dossier de flux, et
 `feeds-dir.txt` reporte ce chemin. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos → Versions** n'affiche pas
-`1.6.1 beta`.
+`1.7.0 beta`.
 
 ### 3.2 Le démarrer
 
@@ -1044,6 +1044,20 @@ sens de l'ICR et étiquetée en amélioration, en détérioration ou stable. Cli
 afficher son graphique avec les lignes de cible, d'avertissement et de seuil critique, la variation
 depuis le point précédent, la pente par 30 jours et le nombre de dépassements critiques.
 
+#### Tableau de bord Claude {#dashboard-claude}
+
+**Télécharger le paquet du tableau de bord (.zip)** transforme ce tableau de bord en *tableau de bord Claude*
+sur claude.ai — une page où chaque chiffre indique le jeu de données d'où il provient, partagée avec les
+personnes de votre choix. Le paquet contient quatre jeux de données (indicateurs de risque clés actuels et
+dans le temps, scénarios par rapport à la tolérance, politiques de sécurité et couverture des prises de
+connaissance), une page prête et un manifeste; aucun texte de document, et le nom des responsables des ICR
+seulement si **Inclure le nom des responsables des ICR** est coché. Joignez le ZIP dans Claude et demandez
+*« Build my CyberRiskGuardian dashboard from this pack »* — avec le plugiciel CyberRiskGuardian, la compétence
+`crg-dashboard` (ou `/crg-dashboard`) le fait toujours de la même façon. Exportez un nouveau paquet et
+demandez à Claude d'actualiser le tableau de bord quand les chiffres changent. Quiconque peut ouvrir le
+tableau de bord Claude peut lire ses jeux de données : ne le partagez qu'avec les personnes autorisées à voir
+l'évaluation.
+
 ### 7.3.2 Mesures de protection existantes — ce qui vous protège déjà {#safeguards}
 
 Deux registres distincts répondent à deux questions distinctes. **Atténuation des risques** répond à
@@ -1975,6 +1989,109 @@ exceptions**) : une exception exige une justification, une date d'expiration et
 n'est pas le demandeur, et elle ne déroge jamais à une loi. Les exceptions encore consignées dans ce
 module sont énumérées avec **Déplacer au registre partagé**. **Registre des non-conformités (.csv)**
 exporte la liste.
+
+#### Rédacteur de politiques de sécurité {#writer}
+
+**Gouvernance → Rédacteur de politiques de sécurité** rédige l'ensemble des politiques de l'organisation — la
+politique d'entreprise de sécurité de l'information, les politiques thématiques, les normes et les procédures
+— en anglais, en français ou dans les deux langues, à partir d'une entrevue, des documents de l'organisation
+et de l'ontologie CyberRiskGuardian (CRGO). **Le rédacteur rédige; la gestion des PSI gère** : chaque
+document produit est un *brouillon* dans la gestion des PSI, où il est révisé, approuvé (figé par son
+empreinte SHA-256), publié, affecté et fait l'objet de prises de connaissance. Rien n'est inventé : un fait
+inconnu devient un espace réservé surligné comme `[DÉCISION : …]`, et une loi n'est utilisée qu'après qu'un
+réviseur nommé a consigné qu'elle s'applique. Le rédacteur a sa propre version (0.1.0 bêta); son moteur
+s'exécute dans l'assistant local sur cet ordinateur : le lanceur doit être en marche.
+
+##### Départ {#writer-start}
+
+Où en est le rédacteur, la **Langue des documents** (anglais, français ou les deux — chaque document est alors
+rédigé deux fois avec les mêmes identifiants d'énoncés) et la profondeur de l'**Entrevue** (Express, environ
+vingt questions; Standard, environ soixante). **Proposer des réponses à partir du profil et des documents**
+lit le profil de l'organisation, les actifs essentiels et les documents de contexte de l'espace de travail
+et propose des réponses, chacune avec sa source. **Effacer les données du rédacteur** oublie les réponses,
+les faits, les décisions juridiques et la sélection; les politiques déjà dans la gestion des PSI restent.
+
+##### Entrevue {#writer-interview}
+
+Des questions sur l'organisation, regroupées en courtes sections. Chaque réponse indique sa provenance —
+*votre réponse*, *tirée d'un document*, *tirée du profil de l'organisation* ou *valeur par défaut acceptée*
+— avec qui et quand. **Inconnu**, **Non applicable** et **Décider plus tard** sont aussi des réponses : les
+brouillons portent alors un espace réservé. Les *observations de gouvernance* sont des constats tirés
+d'*Introduction à la gouvernance de la cybersécurité* que les réponses suggèrent; ce sont des points à
+discuter, jamais des faits écrits dans une politique.
+
+##### Documents et faits {#writer-documents}
+
+Des faits proposés à partir des documents de contexte (Organisation → Documents de contexte) et du profil de
+l'organisation : la question, la valeur proposée, la **citation** sur laquelle elle repose et l'endroit où
+elle a été trouvée (document, page, paragraphe). **Confirmer** en fait la réponse; **Rejeter** l'écarte;
+**Confirmer tout ce qui n'est pas en conflit** confirme les autres d'un coup. Quand deux sources se
+contredisent, elles forment un *conflit*, et aucune valeur n'est utilisée avant que vous en confirmiez une.
+Les passages qui ressemblent à des instructions destinées à une IA sont **mis de côté** : jamais lus pour en
+tirer des faits, jamais envoyés à un modèle. Un fichier numérisé contient peu ou pas de texte : **Lire par
+ROC…** le reconnaît sur cet ordinateur (Tesseract et Poppler doivent être installés; le fichier n'est
+téléversé nulle part), et les faits lus par ROC reçoivent une confiance plus faible. **En proposer davantage
+avec l'IA…** envoie le texte des documents par l'aperçu habituel et ne garde que les faits dont la citation
+se trouve mot pour mot dans les documents.
+
+Quand vous créez un espace de travail à partir de documents (Organisation → Espaces de travail), **Extraire
+aussi les faits utiles aux politiques pour le rédacteur de politiques de sécurité** fait la même lecture
+immédiatement, sans IA.
+
+##### Applicabilité juridique {#writer-legal}
+
+Les lois, règlements, contrats et référentiels qui peuvent s'appliquer. Pour les instruments que CRGO connaît
+(P-39.1, A-2.1, R-22.1, LPRPDE, BSIF B-13, RGPD, C-1.1), l'évaluation du profil de l'organisation par
+l'ontologie est présentée comme preuve; **Évaluer le profil maintenant** l'exécute, et **Les ajouter au
+profil CRGO** ajoute les valeurs que votre entrevue implique (sans jamais marquer une liste comme complète —
+l'inconnu reste inconnu). Les autres candidats (règles sectorielles, contrats, référentiels) sont ceux du
+rédacteur. Pour chaque candidat, choisissez une **Décision** — *S'applique*, *Ne s'applique pas*, *Révision
+juridique requise* — et indiquez le **Réviseur (une personne nommée)** et une **Justification**, puis
+**Consigner**. Une clause qui dépend d'une loi n'est rédigée que lorsque son candidat *s'applique*. Ceci ne
+constitue pas un avis juridique.
+
+##### Bibliothèque {#writer-library}
+
+Les 28 documents du catalogue par niveau — politique d'entreprise, politiques thématiques, normes et
+procédures — avec leur priorité, ses raisons et les **scénarios** qu'ils traitent : ceux de cet espace de
+travail dont les mesures de l'ontologie ou les mesures de traitement ont une mesure CRGO en commun avec le
+document (en rouge au-dessus de la tolérance), et le nombre de scénarios de la bibliothèque CRGO que ses
+mesures traitent. Cochez les documents et **Enregistrer la sélection**; **Utiliser la recommandation** coche
+de nouveau l'ensemble recommandé.
+
+##### Décisions {#writer-decisions}
+
+Les choix dont dépendent les documents — délais, portées, approbateurs, fréquences — regroupés par document,
+chacun avec sa valeur suggérée. **Accepter toutes les suggestions** remplit chaque décision sans réponse qui a
+une suggestion et consigne chacune comme *valeur par défaut acceptée* par vous avec la date; **Accepter les
+suggestions pour ce document** fait de même pour un document. Les décisions qui exigent une révision
+juridique, ou qui n'ont pas de suggestion, ne sont jamais remplies automatiquement : elles restent ouvertes et
+sont énumérées pour que vous décidiez. Les réponses déjà données ne sont jamais modifiées.
+
+##### Générer les brouillons {#writer-generate}
+
+**Générer les brouillons** crée ou actualise, pour chaque document sélectionné et chaque langue, un brouillon
+de politique dans la gestion des PSI : l'objet et la portée, une clause par section et un énoncé par exigence
+avec sa modalité et les identifiants de mesures CRGO; les politiques d'un même sujet partagent une famille de
+politiques. Seul un brouillon change. Un document publié n'est régénéré comme nouvelle version que si vous
+cochez **commencer une nouvelle version**; un document en révision ou approuvé est laissé tel quel. Un énoncé
+modifié par quelqu'un après la dernière génération — dans l'éditeur de politiques ou par Word — est
+**conservé** et signalé comme *conservé tel que modifié*. Les **contrôles de qualité** énumèrent les décisions
+ouvertes, les clauses à soumettre à une révision juridique, les documents parents manquants, les écarts de
+mise en œuvre et les documents qui se contredisent. **Améliorer la formulation avec l'IA…** reformule les
+énoncés d'un brouillon; une reformulation est refusée si elle change un espace réservé, ajoute un nombre,
+change le verbe modal ou trop la longueur, et vous cochez celles à appliquer.
+
+##### Exportation et réimportation Word {#writer-word}
+
+**Word (.docx)** écrit un document Word natif d'une politique — contrôle du document, table des matières,
+clauses et énoncés numérotés, décisions ouvertes, traçabilité de chaque énoncé vers son fondement et ses
+mesures — pour toute politique de la gestion des PSI, pas seulement celles du rédacteur (aussi dans l'éditeur
+de politiques). Une version figée peut être exportée (**Word de la v… en vigueur**), jamais modifiée.
+**Réimporter de Word…** lit une copie modifiée dans Word : chaque énoncé est associé par son marqueur caché
+(ou par son numéro si le marqueur a été supprimé), chaque modification est montrée mot à mot — modifiée,
+supprimée, ajoutée, avec un passage de *doit* à *devrait* signalé — et seules les modifications laissées
+cochées sont appliquées, au brouillon.
 
 ### 7.5.3 Gestion de la cybersécurité {#csm}
 
@@ -3482,7 +3599,7 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
 34. **Aide → Pas à pas** → une fenêtre distincte avec treize étapes et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos → Versions** indique `1.6.1 beta` et `moteur vérifié · 84,491 / 41,104` ;
+35. **Aide → À propos → Versions** indique `1.7.0 beta` et `moteur vérifié · 84,491 / 41,104` ;
     **Licence** nomme CC BY-NC 4.0 et marcandre@leger.ca.
 36. Passez l'interface en **FR** : les écrans Ontologie, Registre partagé des risques, Gestion des PSI,
     Gestion de la conformité, SIEM et SOAR, l'aperçu de l'IA et l'onglet Importer des documents sont en
