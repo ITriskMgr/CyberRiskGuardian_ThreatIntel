@@ -3,7 +3,7 @@
 # Copyright (c) 2026 Marc-André Léger
 """Regression and acceptance checks for the CRGO bridge (crgo_contract.py): dss/v1, compliance/v1 and secops/v1.
 
-    python3 test_crgo_contract.py --crgo PATH/TO/CyberRiskGuardian-Ontology-0.10.0 [--assessment medibec30.json]
+    python3 test_crgo_contract.py --crgo PATH/TO/CyberRiskGuardian-Ontology-0.10.1 [--assessment medibec30.json]
 
 Checks: the MediBec regression (84,305 / 41,023) with crg_calc.py; graph -> context of S1 (schema-valid) ->
 residual-risk write-back stored as proposed; status 'approved' and modelVersion 'TBD' refused
@@ -60,7 +60,9 @@ def read_contracts(cc, crgo, nd, tmp):
     def same_as_example(doc, contract, name):
         ex = json.load(open(os.path.join(crgo, "contracts", contract, "examples", name), encoding="utf-8"))
         a, b = dict(doc), dict(ex)
-        a.pop("generatedAt", None); b.pop("generatedAt", None)
+        # generatedAt and ontologyRelease vary by run and by CRGO release; the examples are release-agnostic.
+        for k in ("generatedAt", "ontologyRelease"):
+            a.pop(k, None); b.pop(k, None)
         return canon(a) == canon(b)
 
     def canon(x):
@@ -77,7 +79,7 @@ def read_contracts(cc, crgo, nd, tmp):
     check("compliance: crgo_compliance_context read as of 2026-10-12", r.returncode == 0 and os.path.exists(out_c), r.stderr.strip()[-200:])
     c = json.load(open(out_c, encoding="utf-8"))
     check("compliance: valid against compliance-context.schema.json", views.validate(c, "compliance/v1") == [])
-    check("compliance: same content as CRGO's example (except generatedAt; list order ignored)", same_as_example(c, "compliance/v1", "compliance-context.nordelle.json"))
+    check("compliance: same content as CRGO's example (except generatedAt and ontologyRelease; list order ignored)", same_as_example(c, "compliance/v1", "compliance-context.nordelle.json"))
     ob = {o["id"]: o for o in c["obligations"]}
     check("compliance: Loi 25 s. 10 applicable and partially satisfied",
           ob[S10]["applicability"] == "applicable" and ob[S10]["complianceState"] == "partially-satisfied")
@@ -106,7 +108,7 @@ def read_contracts(cc, crgo, nd, tmp):
     check("secops: crgo_secops_context read as of 2026-10-12", r.returncode == 0 and os.path.exists(out_s), r.stderr.strip()[-200:])
     s = json.load(open(out_s, encoding="utf-8"))
     check("secops: valid against secops-context.schema.json", views.validate(s, "secops/v1") == [])
-    check("secops: same content as CRGO's example (except generatedAt; list order ignored)", same_as_example(s, "secops/v1", "secops-context.nordelle.json"))
+    check("secops: same content as CRGO's example (except generatedAt and ontologyRelease; list order ignored)", same_as_example(s, "secops/v1", "secops-context.nordelle.json"))
     sc = {x["id"]: x for x in s["scenarios"]}
     rw, cr = sc.get(N + "scenario/ransomware", {}), sc.get(N + "scenario/credential-compromise", {})
     check("secops: ransomware coverage validated by a test", any(cv["validatedByTest"] for cv in rw.get("coverage", [])))
@@ -179,13 +181,13 @@ def read_contracts(cc, crgo, nd, tmp):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--crgo", default=os.environ.get("CRGO_HOME") or os.path.join(REPO, "CyberRiskGuardian-Ontology-0.10.0"))
+    ap.add_argument("--crgo", default=os.environ.get("CRGO_HOME") or os.path.join(REPO, "CyberRiskGuardian-Ontology-0.10.1"))
     ap.add_argument("--assessment", default=os.path.join(REPO, "examples", "medibec", "source", "medibec30.json"))
     ap.add_argument("--keep", action="store_true", help="keep the temporary folder")
     a = ap.parse_args()
     crgo = os.path.abspath(a.crgo)
     if not os.path.isfile(os.path.join(crgo, "pipeline", "contracts", "dss.py")):
-        sys.exit("CRGO not found at %s: pass --crgo or set CRGO_HOME (tag v0.10.0)." % crgo)
+        sys.exit("CRGO not found at %s: pass --crgo or set CRGO_HOME (tag v0.10.1)." % crgo)
     sys.path.insert(0, HERE)
     import crg_calc
     import crgo_contract as cc

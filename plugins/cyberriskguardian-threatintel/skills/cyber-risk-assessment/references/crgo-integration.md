@@ -1,4 +1,4 @@
-# CRGO integration (CyberRiskGuardian Ontology 0.10.0, contracts dss/v1, compliance/v1, secops/v1)
+# CRGO integration (CyberRiskGuardian Ontology 0.10.1, contracts dss/v1, compliance/v1, secops/v1)
 
 CyberRiskGuardian v1.4.0. © 2026 Marc-André Léger. CC BY-NC 4.0. Proof of concept: validate every output
 before organizational use.
@@ -13,11 +13,11 @@ factor of 1,000 and the MediBec regression (84,305 / 41,023) are unchanged by CR
 
 | Item | Value |
 |---|---|
-| Release | pinned tag **v0.10.0** (documents report `ontologyRelease: "0.10.0"`; cite "CRGO v0.10.0 (ontology release 0.10.0)"). Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
-| Location | `<repository>/CyberRiskGuardian-Ontology-0.10.0/` (git-ignored), or any path in `CRGO_HOME` |
+| Release | pinned tag **v0.10.1** (documents report `ontologyRelease: "0.10.1"`; cite "CRGO v0.10.1 (ontology release 0.10.1)"). Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
+| Location | `<repository>/CyberRiskGuardian-Ontology-0.10.1/` (git-ignored), or any path in `CRGO_HOME` |
 | Requirements | `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema` |
-| Project `.mcp.json` | `python3 ./CyberRiskGuardian-Ontology-0.10.0/pipeline/mcp/crgo_server.py` |
-| Plugin `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.10.0}/pipeline/mcp/crgo_server.py` |
+| Project `.mcp.json` | `python3 ./CyberRiskGuardian-Ontology-0.10.1/pipeline/mcp/crgo_server.py` |
+| Plugin `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.10.1}/pipeline/mcp/crgo_server.py` |
 | First call | builds a local store in about 10 s |
 | Licence | CRGO is CC BY-NC 4.0, a separate work by the same author; it is not redistributed here |
 
@@ -68,7 +68,7 @@ Record the evidence period, validity date and custodian. Flag stale or out-of-sc
 ## Workflow with `scripts/crgo_contract.py`
 
 ```bash
-CRGO=${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.10.0}
+CRGO=${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.10.1}
 S=plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts
 
 # 1. organisation graph (crg2rdf.py + this skill's crg_calc.py); refuses bases under https://w3id.org/crgo/

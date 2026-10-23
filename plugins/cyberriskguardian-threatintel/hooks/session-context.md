@@ -27,7 +27,7 @@ Threat-intelligence discipline for this edition:
 - Bulk download, join locally. Never send client CVE lists, asset inventories or scenario text
   to an external endpoint.
 
-With the CyberRiskGuardian Ontology (`crgo-ontology`, CRGO v0.10.0; dss/v1 from v0.9.1):
+With the CyberRiskGuardian Ontology (`crgo-ontology`, CRGO v0.10.1; dss/v1 from v0.9.1):
 
 - CRGO states facts and links; it **never computes risk**. Write-backs are always **proposed**,
   never an approval, acceptance or funding decision.

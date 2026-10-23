@@ -9,7 +9,7 @@ description: >
 metadata:
   version: "1.5.0"
   author: "Marc-André Léger (methodology) - packaged with Claude"
-  edition: "Threat Live-feed — adds dated, exposure-gated threat-context calibration; connects to CRGO 0.10.0 (dss/v1, compliance/v1, secops/v1)"
+  edition: "Threat Live-feed — adds dated, exposure-gated threat-context calibration; connects to CRGO 0.10.1 (dss/v1, compliance/v1, secops/v1)"
 ---
 
 # Cybersecurity Risk Assessment (CyberRiskGuardian)
@@ -27,7 +27,7 @@ Remain an analytical assistant, not the decision-maker. Treat AI-generated estim
 3. For governance, risk and compliance concepts (CIA triad, fraud and risk triangles, three lines model, appetite vs tolerance, IPM cycle, KRIs, investment governance) and for the teaching description of the CRG Excel model, use the `cybersecurity-governance` skill. It holds the author's textbook; Chapter 6 covers the CRG model. If a CyberRiskGuardian project knowledge base is attached, also search it for the Excel workbook guide, scenario development guide and data classification guide, and prefer organization-supplied versions over the bundled references.
 4. Review every attached organizational document **before** writing anything.
 5. Ask for the assessment scope, approved risk appetite and deliverable format if not supplied. Ask once — then state assumptions and proceed.
-6. If the `crgo-ontology` MCP server is connected (CyberRiskGuardian Ontology, CRGO, pinned tag **v0.10.0**; dss/v1 works from v0.9.1), read `references/crgo-integration.md`. CRGO states facts, links and their review status — legal applicability, control assessments by assessor line, open findings, incidents, typed cross-references and, from 0.10.0, the organisation's **compliance posture** (`crgo_compliance_context`) and **detection and response readiness** (`crgo_secops_context`) at the assessment date — and **never computes risk**; every number still comes from `crg_calc.py` or the `crg-calculator` tools. Without CRGO the workflow below runs unchanged; with a CRGO older than 0.10.0 the two new reads stop with a clear message and the rest works.
+6. If the `crgo-ontology` MCP server is connected (CyberRiskGuardian Ontology, CRGO, pinned tag **v0.10.1**; dss/v1 works from v0.9.1), read `references/crgo-integration.md`. CRGO states facts, links and their review status — legal applicability, control assessments by assessor line, open findings, incidents, typed cross-references and, from 0.10.0, the organisation's **compliance posture** (`crgo_compliance_context`) and **detection and response readiness** (`crgo_secops_context`) at the assessment date — and **never computes risk**; every number still comes from `crg_calc.py` or the `crg-calculator` tools. Without CRGO the workflow below runs unchanged; with a CRGO older than 0.10.0 the two new reads stop with a clear message and the rest works.
 
 ## Non-negotiable principles
 
@@ -123,7 +123,7 @@ Two rules bite here. **Exposure gate**: exploitation evidence with no organizati
 - `assets/threat-context-block.json` — the optional `threat_context`, `threat_basis` and `watch_list` additions to that model.
 - MCP server `crg-calculator` (plugin `.mcp.json`) — tools `crg_risk`, `cvss4_score`, `cost_effectiveness`, `combine_reductions`, `budget_target`, `budget_check`, `sensitivity`, `threat_context` (read-only against a local snapshot, no network I/O).
 - `hooks/check_labels.py` (plugin) — the label check, run by the PostToolUse and Stop hooks and by `/label-check`: flags missing markers and outdated wording.
-- MCP server `crgo-ontology` (optional; CRGO checkout at `$CRGO_HOME`, default `./CyberRiskGuardian-Ontology-0.10.0`, tag v0.10.0) — `crgo_sweep`, `crgo_identify`, `crgo_scenario`, `crgo_controls_for_technique`, `crgo_scenarios_for_control`, `crgo_list_values`, `crgo_risk_context` (read), `crgo_submit_assessment` (write-back, proposed only), `crgo_compliance_context` and `crgo_secops_context` (read only, dated, tenant-filtered; 0.10.0). First call builds a local store (~10 s).
+- MCP server `crgo-ontology` (optional; CRGO checkout at `$CRGO_HOME`, default `./CyberRiskGuardian-Ontology-0.10.1`, tag v0.10.1) — `crgo_sweep`, `crgo_identify`, `crgo_scenario`, `crgo_controls_for_technique`, `crgo_scenarios_for_control`, `crgo_list_values`, `crgo_risk_context` (read), `crgo_submit_assessment` (write-back, proposed only), `crgo_compliance_context` and `crgo_secops_context` (read only, dated, tenant-filtered; 0.10.0). First call builds a local store (~10 s).
 Dependencies: Python 3.10+, `pip install cvss openpyxl "mcp>=1.2"`; for CRGO also `pyoxigraph rdflib jsonschema`; Node `docx` for Word; LibreOffice for recalculation and rendering.
 
 ## Management report

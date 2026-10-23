@@ -21,7 +21,7 @@ analysts:
 - design treatment portfolios and cybersecurity budgets;
 - produce decision-ready reports, including a threat-driven revision log;
 - optionally, read legal applicability, control evidence, compliance posture and detection and
-  response readiness from the CyberRiskGuardian Ontology (CRGO 0.10.0) and write results back to it
+  response readiness from the CyberRiskGuardian Ontology (CRGO 0.10.1) and write results back to it
   as *proposed*.
 
 Cybersecurity professionals remain responsible for validating assumptions and for final risk
@@ -127,7 +127,7 @@ Cost-effectiveness = (Estimated − Residual) ÷ cost × 1,000   (risk units rem
   audit signals); coverage counts as validated only with an effective detection test; source
   confidence (e.g. STIX 0–100) is not a probability; respect TLP markings; licensed standards
   (ISO 37301 and its 2024 amendment, IIA, ISACA…) stay identifiers and paraphrases.
-- Pin CRGO tag **v0.10.0** (dss/v1 works from v0.9.1) and cite its release in reports.
+- Pin CRGO tag **v0.10.1** (dss/v1 works from v0.9.1) and cite its release in reports.
 
 ## Tech stack
 | Area | Tools |
@@ -136,7 +136,7 @@ Cost-effectiveness = (Estimated − Residual) ÷ cost × 1,000   (risk units rem
 | Word reports | Node 18+ with `docx` (`package.json`). |
 | Recalculation and PDF rendering | LibreOffice (headless). |
 | Scripts | `plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/`: `crg_calc.py`, `test_crg_calc.py`, `build_workbook.py`, `budget_calibrator.py`, `threat_snapshot.py`, `crgo_contract.py` (CRGO bridge: graph, context, submit, compliance, secops) and `test_crgo_contract.py`; `plugins/cyberriskguardian-threatintel/hooks/check_labels.py` (label check). |
-| Ontology (optional) | CRGO v0.10.0 checkout (`./CyberRiskGuardian-Ontology-0.10.0/` or `$CRGO_HOME`), with `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`. MCP server `crgo-ontology` over stdio. |
+| Ontology (optional) | CRGO v0.10.1 checkout (`./CyberRiskGuardian-Ontology-0.10.1/` or `$CRGO_HOME`), with `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`. MCP server `crgo-ontology` over stdio. |
 | Local calculator server | `plugins/cyberriskguardian-threatintel/mcp/crg_server.py`, an MCP server over stdio. Tools: `crg_risk`, `cvss4_score`, `cost_effectiveness`, `combine_reductions`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`. Works with mcp 1.x and 2.x. |
 
 ## Execution guidelines

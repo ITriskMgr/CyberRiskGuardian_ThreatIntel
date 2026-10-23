@@ -3,6 +3,18 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## 1.6.1 — 2026-10-23
+
+Pins the CyberRiskGuardian Ontology to **CRGO v0.10.1** (released 2026-10-23: risk-index labels, Analytical-estimate
+caveats, MediBec S2 and S8 scored AV:L in its scenario library and tests). No method, formula or tool change.
+
+- Setup instructions, citations and the pinned tag use v0.10.1 (`git clone --branch v0.10.1`; cite "CRGO v0.10.1
+  (ontology release 0.10.1)"); `crgo_contract.py` reports v0.10.1 as the pinned tag.
+- Default checkout folder in the project and plugin `.mcp.json`, `crgo_contract.py` and `test_crgo_contract.py`:
+  `./CyberRiskGuardian-Ontology-0.10.1` (or `$CRGO_HOME`, unchanged). A checkout in a `-0.10.0` folder keeps working
+  through `CRGO_HOME`.
+- The minimum releases are unchanged: dss/v1 from v0.9.1, compliance/v1 and secops/v1 from v0.10.0.
+
 ## 1.6.0 — 2026-10-23
 
 Plugin 1.6.0, aligned with the textbook *Introduction to Cybersecurity Governance for Business Technology

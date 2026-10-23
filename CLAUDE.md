@@ -13,7 +13,7 @@
 | Output styles | `.claude/output-styles/` | `CyberRiskGuardian Analyst` (default via settings), `CyberRiskGuardian Executive Brief` |
 | Rules | `.claude/rules/` | Evidence discipline, data protection and **threat-intel** (always); workbook, report and methodology-maintenance rules (path-gated) |
 | Hooks | `.claude/hooks/` (source: plugin `hooks/`) | SessionStart guardrails (`session-context.md`); label check `check_labels.py` on Write/Edit (PostToolUse) and Stop — flags missing markers and outdated wording |
-| MCP | `.mcp.json` | `crg-calculator` — tools `crg_risk`, `cvss4_score`, `cost_effectiveness`, `combine_reductions`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`; `crgo-ontology` (optional, CRGO v0.10.0 clone in `./CyberRiskGuardian-Ontology-0.10.0/`) — `crgo_sweep`, `crgo_identify`, `crgo_scenario`, `crgo_controls_for_technique`, `crgo_scenarios_for_control`, `crgo_list_values`, `crgo_risk_context`, `crgo_submit_assessment`, `crgo_compliance_context`, `crgo_secops_context` |
+| MCP | `.mcp.json` | `crg-calculator` — tools `crg_risk`, `cvss4_score`, `cost_effectiveness`, `combine_reductions`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`; `crgo-ontology` (optional, CRGO v0.10.1 clone in `./CyberRiskGuardian-Ontology-0.10.1/`) — `crgo_sweep`, `crgo_identify`, `crgo_scenario`, `crgo_controls_for_technique`, `crgo_scenarios_for_control`, `crgo_list_values`, `crgo_risk_context`, `crgo_submit_assessment`, `crgo_compliance_context`, `crgo_secops_context` |
 | Settings | `.claude/settings.json` | Output style, environment defaults, permissions, SessionStart guardrail and label-check hooks (do not also enable the plugin in this repository, or the hooks run twice) |
 
 ### How to work

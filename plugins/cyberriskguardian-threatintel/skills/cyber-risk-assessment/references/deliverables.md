@@ -15,7 +15,7 @@ Call the computed values risk indices (estimated, tolerated, mitigated and resid
 One table — ID, scenario (short causal chain), CVSS-B, Re, Rt, pre-treatment ratio, verdict, main information gap — then the candidate count and dispositions, the strongest unselected candidate, the threat-context snapshot date and the decisions required. No treatment, residual or budget figures.
 
 ### Tables added in v1.3.0 (when CRGO is used)
-Cite the CRGO release in *scope and methodology*: "CRGO v0.10.0 (ontology release 0.10.0), contracts dss/v1, compliance/v1 and secops/v1, as of <date>" (with a v0.9.1 checkout: "CRGO v0.9.1 (ontology release 0.9.0), contract dss/v1"). `scripts/crgo_contract.py context --summary` prints both tables from the risk context.
+Cite the CRGO release in *scope and methodology*: "CRGO v0.10.1 (ontology release 0.10.1), contracts dss/v1, compliance/v1 and secops/v1, as of <date>" (with a v0.9.1 checkout: "CRGO v0.9.1 (ontology release 0.9.0), contract dss/v1"). `scripts/crgo_contract.py context --summary` prints both tables from the risk context.
 
 **Legal applicability** (context section; one row per provision or instrument):
 

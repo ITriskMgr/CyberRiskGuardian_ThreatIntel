@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CC-BY-NC-4.0
 # Copyright (c) 2026 Marc-André Léger
 """CyberRiskGuardian <-> CRGO bridge: data contract dss/v1 (CRGO >= 0.9.1) and the read contracts compliance/v1 and
-secops/v1 (CRGO >= 0.10.0). Pinned tag: v0.10.0.
+secops/v1 (CRGO >= 0.10.0). Pinned tag: v0.10.1.
 
 CRGO (CyberRiskGuardian Ontology) states facts, links and their review status. It never computes risk:
 every number written back here comes from this skill's crg_calc.py, run on the exact assessment file.
@@ -58,7 +58,7 @@ PLUGIN_JSON = os.path.join(HERE, "..", "..", "..", ".claude-plugin", "plugin.jso
 REFERENCE_NS = "https://w3id.org/crgo/"
 VANN = "http://purl.org/vocab/vann/preferredNamespaceUri"
 MIN_READ_RELEASE = "0.10.0"   # compliance/v1 and secops/v1; dss/v1 needs 0.9.1
-PINNED_RELEASE = "0.10.0"
+PINNED_RELEASE = "0.10.1"
 PLACEHOLDER = re.compile(r"^\s*(tbd|unknown|n/?a|todo|-|\?)?\s*$", re.I)
 
 KINDS = {  # assessmentKind -> (crg_calc key, unit)
@@ -125,7 +125,7 @@ def crgo_paths(crgo):
         sys.exit("error: %s is not a CRGO checkout (pipeline/contracts/dss.py and pipeline/crg/crg2rdf.py expected). "
                  "Pass --crgo or set CRGO_HOME; pin tag v%s." % (crgo, PINNED_RELEASE))
     if "org-label" not in open(p["crg2rdf"], encoding="utf-8").read():
-        sys.exit("error: this CRGO checkout predates 0.9.1 (crg2rdf.py has no --org-label / declared base). Check out tag v0.10.0 (minimum v0.9.1).")
+        sys.exit("error: this CRGO checkout predates 0.9.1 (crg2rdf.py has no --org-label / declared base). Check out tag v0.10.1 (minimum v0.9.1).")
     return p
 
 
@@ -720,7 +720,7 @@ def cmd_submit(a):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    crgo_help = "CRGO checkout (tag v0.10.0; dss/v1 commands work from v0.9.1); default $CRGO_HOME"
+    crgo_help = "CRGO checkout (tag v0.10.1; dss/v1 commands work from v0.9.1); default $CRGO_HOME"
 
     g = sub.add_parser("graph", help="assessment JSON -> organisation graph (crg2rdf.py)")
     g.add_argument("assessment"); g.add_argument("--crgo", help=crgo_help); g.add_argument("--base", required=True)
