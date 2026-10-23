@@ -1,16 +1,16 @@
 # CyberRiskGuardian Desktop — Guide de l'utilisateur
 
-**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.7.0 (bêta) · Bêta 1.7.x**
+**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.8.0 (bêta) · Bêta 1.8.x**
 
-> **Bêta 1.7.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
+> **Bêta 1.8.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
 > la validation de la méthode. Traitez chaque résultat comme une hypothèse analytique initiale et
 > validez-le avant qu'il n'appuie une décision réelle.
 
-© 2026 Marc-André Léger · CC BY-NC 4.0 — qui peut l'utiliser sans demander, et quelles situations
-exigent une licence commerciale : section 10 ou **Aide → À propos → Licence**.
+© 2026 Marc-André Léger · licence propriétaire, gratuite pour les étudiants et les organismes sans but
+lucratif — quelle licence s'applique : section 10 ou **Aide → À propos → Licence**.
 
 Ce guide couvre l'installation de l'application, son démarrage, la vérification qu'elle est digne de
-confiance avant de vous fier à un chiffre qu'elle produit, la méthode qu'elle suit en treize étapes, et
+confiance avant de vous fier à un chiffre qu'elle produit, la méthode qu'elle suit en dix-neuf étapes, et
 chacun des écrans du menu latéral — des documents de l'organisation jusqu'à la conformité, à l'audit,
 aux opérations de sécurité et au Registre partagé des risques. Chaque écran comporte, à côté de son
 titre, un bouton **?** qui ouvre une courte aide et renvoie à sa section dans ce guide.
@@ -27,7 +27,7 @@ suite :
 | Menu | Ce que vous obtenez |
 |---|---|
 | **Organisation** | Des espaces de travail pour des organisations réelles et des cas pour la classe ; des documents de contexte lus sur votre ordinateur ; le profil, l'appétit pour le risque et les actifs essentiels extraits des documents, avec une étiquette de provenance sur chaque valeur ; des documents ajoutés et extraits à tout moment ; les actifs informationnels ; la maturité et la résilience ; la réinitialisation. |
-| **Évaluation des risques** | Des ICR avec historique ; les mesures de protection existantes ; un registre des scénarios, un éditeur et un générateur de scénarios en lot (y compris des amorces de scénarios issues des opérations de sécurité) ; le calculateur de risque vérifié ; le registre des risques ; des mesures d'atténuation tirées d'ISO/IEC 27002, du NIST et du CIS ; des recommandations avec un processus d'approbation. |
+| **Évaluation des risques** | Le registre des éléments probants ; des ICR avec historique ; les mesures de protection existantes ; un générateur de scénarios en lot (y compris des modèles infonuagiques et des amorces issues des opérations de sécurité) et le **filtrage des scénarios** sur les douze critères de la méthode ; un registre et un éditeur de scénarios avec le CVSS v4.0 par équivalence pour les faiblesses non techniques ; le calculateur de risque vérifié ; le registre des risques ; des mesures d'atténuation tirées d'ISO/IEC 27002:2022, de NIST SP 800-53 et CSF 2.0 et de CIS Controls v8.1 ; des recommandations avec un processus d'approbation ; le **sommaire de gestion**. |
 | **Menaces et vulnérabilités** | MITRE ATT&CK, CAPEC et CWE hors ligne ; le registre des CVE avec CISA KEV et FIRST EPSS ; les instantanés de contexte de menace et l'Échelle des preuves de menace ; des flux de menaces triés dans un bulletin hebdomadaire ; et l'**Ontologie CyberRiskGuardian** (CRGO) — une bibliothèque de scénarios de risque liés à des techniques, des faiblesses, des contrôles et des obligations de la Loi 25 du Québec, ainsi que les contextes de l'organisation, de la conformité et des opérations de sécurité. |
 | **Gouvernance** | La gestion de la sécurité de l'information ; la **gestion des PSI** (bibliothèque de politiques, éditeur structuré, versions figées à l'approbation, applicabilité, prises de connaissance, non-conformités) ; la gestion de la cybersécurité (essais des contrôles, gouvernance, décisions, incidents) ; les cadres et normes ; des **registres partagés** de preuves, de mesures correctives, d'exceptions et de correspondances ; et une **revue de qualité**. |
 | **Gestion de la conformité** | Sources et obligations, applicabilité juridique, programmes et référentiels, correspondances qualifiées, déclarations d'applicabilité et exigences, campagnes et déterminations appuyées par des preuves, calendrier réglementaire, soumissions, changement réglementaire, évaluation assistée par l'IA et production de rapports. |
@@ -58,6 +58,11 @@ exportez. Les exceptions commencent toutes par un clic de votre part :
   un horaire ou en arrière-plan, et aucune IA ne se trouve dans le chemin de calcul.
 - Le **Registre partagé des risques** et **Publier et partager** écrivent des paquets dans un dossier
   partagé uniquement lorsque vous partagez, anonymisés par défaut.
+- La **vérification des mises à jour**, seulement si vous l'activez (la question est posée une fois au
+  premier démarrage) ou si vous cliquez sur **Vérifier maintenant** dans Aide → À propos → Versions :
+  l'assistant demande aux versions GitHub de l'application quelle est la dernière version, à une seule
+  adresse fixe, sans rien envoyer sur vous ou vos espaces de travail. Une version plus récente n'est
+  téléchargée que lorsque vous cliquez sur **Télécharger**, et l'application ne l'installe jamais.
 
 L'**ontologie** est lue sur votre ordinateur : au moyen de son propre serveur MCP, démarré par
 l'assistant local, ou au moyen de l'instantané livré avec l'application. Ni l'un ni l'autre n'envoie
@@ -91,7 +96,7 @@ n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateu
 
 ### 3.1 Décompresser
 
-Décompressez `CyberRiskGuardian_Desktop_v1.7.0-beta.zip` à tout endroit où vous pouvez écrire. Gardez
+Décompressez `CyberRiskGuardian_Desktop_v1.8.0-beta.zip` à tout endroit où vous pouvez écrire. Gardez
 le dossier intact : l'application charge ses propres fichiers par chemin relatif.
 
 > `INSTALL.md`, dans le dossier, reprend les mêmes instructions sur une seule page, **en anglais et en
@@ -104,7 +109,7 @@ exacte que vous utilisez, et non dans le dossier ; le même port les retrouve d
 sont pas non plus dans le dossier ; elles se trouvent dans `crg-keys.json` dans le dossier de flux, et
 `feeds-dir.txt` reporte ce chemin. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos → Versions** n'affiche pas
-`1.7.0 beta`.
+`1.8.0 beta`.
 
 ### 3.2 Le démarrer
 
@@ -197,7 +202,7 @@ secondes environ. Section 7.4.5.
 Le bas de la barre latérale gauche doit afficher :
 
 ```
-moteur vérifié · 84,491 / 41,104
+moteur vérifié · 84,305 / 41,023
 ```
 
 À chaque démarrage, l'application recalcule le cas pédagogique MediBec fourni — 30 scénarios — et
@@ -206,7 +211,7 @@ navigateur est en accord avec l'implémentation de référence.
 
 | Le pied de page affiche | Signification | Que faire |
 |---|---|---|
-| `moteur vérifié · 84,491 / 41,104` | Correct. | Poursuivez. |
+| `moteur vérifié · 84,305 / 41,023` | Correct. | Poursuivez. |
 | `chargement du moteur…` et il y reste | Ouvert comme fichier au lieu d'être servi. | Section 3.2. |
 | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` ne s'est pas chargé. | Décompressez de nouveau ; gardez le dossier intact. |
 | `moteur DIVERGENT` + bandeau rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
@@ -268,12 +273,13 @@ travail :
 |---|---|
 | 0 → 1 | Les champs qui n'étaient créés que lorsqu'un écran les utilisait pour la première fois sont présents dès le départ ; les incidents importés à partir de documents passent au registre des incidents (Gestion de la cybersécurité → Incidents) et demeurent affichés sous Organisation → Preuves ; les exceptions aux politiques reçoivent un périmètre, un approbateur et des contrôles compensatoires ; les enregistrements de gouvernance, d'audit, de gestion de la cybersécurité, du SGSI et du lien avec l'ontologie sont ajoutés, vides. |
 | 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **preuves** passent, inchangés, au registre partagé des preuves (Gouvernance → Registres partagés → Preuves) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
+| 2 → 3 | Seuls les catalogues de contrôles actuels demeurent (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1) : chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou CIS v7.1 — dans les mesures, les déclarations d'applicabilité, les listes de cadres — est mise en correspondance, l'ancien identifiant étant conservé dans une note à côté ; une référence sans correspondance (ou dont le nouvel identifiant a déjà un dossier) est conservée et **signalée pour examen**, jamais supprimée, et la Revue de qualité la signale (QC-23). Les anciens libellés de marqueurs prennent les marqueurs normalisés. Un cas d'enseignement MediBec encore sur les vecteurs AV:N antérieurs de S2 et S8 les conserve — une migration ne change aucun chiffre — et la Revue de qualité (QC-26) indique comment prendre AV:L : Réinitialiser les données → Recommencer. Des dossiers vides de filtrage des scénarios et de sommaire de gestion sont ajoutés (le cas d'enseignement reçoit son filtrage). |
 
 ---
 
-## 6. La méthode en treize étapes
+## 6. La méthode en dix-neuf étapes
 
-**Processus**, le premier élément du menu, énumère les treize étapes d'une évaluation complète avec leur
+**Processus**, le premier élément du menu, énumère les dix-neuf étapes numérotées d'une évaluation complète — celles du chapitre 6 d'*Introduction to Cybersecurity Governance for Business Technology Management*, en sept groupes —, suivies du rapport de gestion et de la revue de qualité, avec leur
 état dans l'espace de travail courant (*à faire*, *en cours*, *terminé*), recommande la suivante et ouvre
 le bon écran en un clic. Chaque étape indique à quoi elle sert, ce dont elle a besoin et quand elle est
 terminée ; une étape comportant plusieurs exigences énumère chacune avec son propre état et l'écran qui
@@ -281,46 +287,58 @@ permet de la régler ; des *Conseils* se déploient sous celle-ci. **Imprimer l
 une liste à cocher qui indique, pour chaque étape et chaque ligne directrice, où elle se déroule. En mode
 multiutilisateur, chaque étape indique aussi qui est Responsable (R) et Approbateur (A).
 
-| # | Étape | Terminée lorsque | Écrans |
+| # | Étape | Terminée quand | Écrans |
 |---|---|---|---|
-| 1 | Configurer l'espace de travail | L'espace de travail a un nom d'organisation et au moins un document de contexte. | Espaces de travail, Documents de contexte |
-| 2 | Décrire le contexte et l'appétit pour le risque | Au moins 8 des 12 champs de contexte sont remplis, l'appétit a une justification et le budget TI est saisi. | Profil et appétit, Mesures de protection existantes, Maturité et résilience |
-| 3 | Repérer les actifs essentiels et les actifs informationnels | Au moins 3 actifs essentiels ou 5 actifs informationnels, avec responsables et classification. | Actifs essentiels, Actifs informationnels |
-| 4 | Importer les autres informations des documents | Chaque cible cochée dans le plan d'importation a été revue au moins une fois. | Importer des documents, Documents de contexte |
-| 5 | Recueillir les menaces et vulnérabilités | Un instantané du contexte de menace est chargé et le registre des vulnérabilités contient les CVE exposées de l'organisation. | Menaces · ATT&CK, Vulnérabilités · CVE/CWE, Flux de menaces et réseaux sociaux, Contexte de menace |
-| 6 | Élaborer des scénarios de risque | Au moins 10 scénarios au registre (20 candidats, les 10 plus importants conservés). | Scénarios en lot, Registre des scénarios, Éditeur de scénarios, Suggérer des liens de vulnérabilité |
-| 7 | Quantifier chaque scénario | 80 % des paramètres des scénarios inclus sont accompagnés d'une justification. | Éditeur de scénarios, CVSS v4.0, Prévisions |
-| 8 | Évaluer par rapport à la tolérance | Les scénarios inclus se calculent sans erreur et chacun a une décision de la direction consignée. | Calculateur de risque, Tableau de bord des ICR, Registre des risques |
-| 9 | Sélectionner des mesures d'atténuation | Chaque scénario au-dessus de la tolérance est couvert par au moins une mesure. | Atténuation des risques |
-| 10 | Recommander et approuver | Au moins une recommandation est approuvée et chaque risque a une décision de traitement. | Recommandations, Registre des risques |
-| 11 | Aligner le budget | L'année budgétaire est remplie et les initiatives sont réparties. | Budget |
-| 12 | Surveiller avec des ICR | Au moins une mesure est consignée. | Tableau de bord des ICR, Prévisions |
-| 13 | Produire des rapports, démontrer la conformité et partager | Un cadre de conformité est évalué, et une politique de sécurité est publiée ou des risques ont été partagés. | Exporter · Excel, Gestion de la conformité, Gestion des PSI, Cadres et normes, Registre partagé des risques, Publier et partager |
+| 1 | Constituer le registre des éléments probants | L’espace de travail a un nom d’organisation, au moins un document de contexte et au moins une entrée dans le registre des éléments probants. | Registre des éléments probants, Documents de contexte, Importer des documents, Espaces de travail |
+| 2 | Décrire le contexte et identifier les actifs essentiels | Au moins 8 des 12 champs de contexte sont remplis, et il y a au moins 3 actifs essentiels ou 5 actifs informationnels. | Profil et appétit, Actifs essentiels, Actifs informationnels, Mesures de protection existantes, Maturité et résilience |
+| 3 | Définir la portée, l’horizon et le contexte de menace | La période d’évaluation est indiquée, un instantané du contexte de menace est chargé et le registre des vulnérabilités contient au moins une entrée. | Profil et appétit, Contexte de menace, Vulnérabilités · CVE/CWE, Menaces · ATT&CK, Flux de menaces et réseaux sociaux |
+| 4 | Fixer l’appétit pour le risque et les critères d’importance | L’appétit est strictement entre 0 et 1 avec une justification, le budget TI est saisi et les critères d’importance sont rédigés. | Profil et appétit, Budget |
+| 5 | Générer les scénarios candidats | Au moins 20 candidats (environ 25 à 40 pour un portefeuille de dix ; 20 correspond à la version rapide des laboratoires). | Scénarios en lot, Filtrage des scénarios, Ontologie · CRGO |
+| 6 | Filtrer les candidats | Chaque candidat a ses douze notes et une décision. | Filtrage des scénarios |
+| 7 | Sélectionner les scénarios les plus importants | Au moins une famille est retenue, chaque sélection fondée sur le jugement a sa justification et chaque exclusion signalée est examinée. | Familles, Schémas de pondération, Matrice de couverture, Portefeuille final |
+| 8 | Développer chaque scénario retenu en chaîne causale | Au moins 10 scénarios dans le registre, et chaque scénario inclus nomme sa source de menace, ses vulnérabilités et les actifs touchés. | Registre des scénarios, Éditeur de scénarios, Suggérer des liens de vulnérabilité |
+| 9 | Estimer les six paramètres | 80 % des paramètres des scénarios inclus sont accompagnés d'une justification. | Éditeur de scénarios, Prévisions |
+| 10 | Noter la faiblesse représentative avec le CVSS v4.0 | Chaque scénario inclus a un score CVSS valide, et chaque score par équivalence a toutes ses justifications. | CVSS v4.0, Éditeur de scénarios |
+| 11 | Calculer le risque estimé et le risque toléré | Les scénarios inclus se calculent sans erreur. | Calculateur de risque, Registre des scénarios |
+| 12 | Concevoir les mesures d’atténuation | Chaque scénario au-dessus de la tolérance est couvert par au moins une mesure. | Atténuation des risques |
+| 13 | Identifier les contrôles partagés | Chaque initiative touche au moins un scénario, de sorte que son coût est réparti sans double comptage. | Contrôles partagés, Atténuation des risques |
+| 14 | Recalculer le risque atténué et le risque résiduel | Chaque scénario inclus au-dessus de la tolérance avant traitement porte des réductions de probabilité et d’impact. | Calculateur de risque, Registre des scénarios |
+| 15 | Effectuer l’analyse de sensibilité | La sensibilité d’au moins un scénario est consignée comme examinée. | Calculateur de risque, Prévisions |
+| 16 | Prioriser les scénarios et les traitements | Chaque scénario inclus a une décision de la direction consignée. | Registre des risques, Recommandations |
+| 17 | Constituer le portefeuille d’investissement | Au moins une recommandation est approuvée. | Recommandations, Registre des risques |
+| 18 | Calibrer le budget de cybersécurité | L'année budgétaire est remplie et les initiatives sont réparties. | Budget |
+| 19 | Définir les indicateurs clés de risque | Au moins un ICR est entièrement défini et au moins une mesure est consignée. | Tableau de bord des ICR, Prévisions |
+| Rapport | Rapport de gestion, revue de qualité et partage | Le sommaire de gestion a été exporté et la revue de qualité ne montre aucun contrôle en échec. | Sommaire de gestion, Revue de qualité, Exporter · Excel, Gestion de la conformité, Gestion des PSI, Registre partagé des risques, Publier et partager |
+
+Les étapes conservent leurs identifiants dans la matrice RACI du mode multiutilisateur : une étape ajoutée à une numérotation antérieure hérite des droits que ses utilisateurs avaient sur l'étape dont elle provient.
 
 **Lignes directrices qui simplifient l'évaluation** — chacune est détaillée dans la section suivante, avec les écrans, les étapes et le moment où elle est terminée ; le même texte figure dans la page Processus (ouvrez une ligne directrice), dans la fenêtre Pas à pas et dans la liste de contrôle imprimable.
 
 1. **Partir des documents.** Créez l'espace de travail avec tous les documents du cas et laissez « Extraire des documents » proposer le profil et les actifs essentiels. Acceptez, modifiez ou rejetez chaque valeur, puis enregistrez.
-2. **Résolvez d'abord les valeurs UNKNOWN.** Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir ; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
-3. **En générer 20, en garder 10.** Dans Scénarios par lot, générez une vingtaine de candidats (règles ou IA), révisez-les dans la grille et conservez les 10 plus importants au registre. Dix est le point de départ ; le nombre augmente avec la maturité de l'organisation.
-4. **Consulter l'ontologie avant d'écrire à partir de zéro.** L'ontologie CyberRiskGuardian contient des scénarios déjà reliés à ATT&CK, à des faiblesses, à des contrôles et à des obligations de la Loi 25 du Québec. Demandez-lui les scénarios qui conviennent à l'organisation, gardez ceux qui sont pertinents et écrivez les autres vous-même.
-5. **Rédigez des chaînes causales, pas des noms de menaces.** Source de menace → faiblesse → actif → événement → conséquence. « Rançongiciel » à lui seul n'est pas un scénario. L'IA peut ébaucher la chaîne ; vous l'acceptez champ par champ.
-6. **Consignez ce qui vous protège déjà, puis mesurez la résilience qui en résulte.** Une analyse sans relevé des contrôles existants doit deviner θ. Inventoriez ce qui est en vigueur, notez-le selon les six capacités qui définissent θ, et laissez les deux instruments diverger ouvertement.
-7. **Soyez honnête quant à la confiance.** Donnez à chaque paramètre une justification et un niveau de confiance ; Prévisions transforme une faible confiance en intervalles plus larges.
-8. **Laisser le moteur calculer.** Le risque résiduel et le ratio proviennent du moteur vérifié ; l'IA et les flux proposent, ils ne modifient jamais un score.
-9. **Traiter d'abord ce qui dépasse la tolérance.** Utilisez Atténuation des risques → Propositions sur les scénarios au-dessus de la tolérance ; les mesures partagées sont comptées une seule fois.
-10. **Obtenir les approbations de la personne redevable.** Les recommandations et les acceptations de risque sont approuvées par la personne qui approuve (RACI « A »).
-11. **Tenir un coût de base et un budget.** Saisissez le budget TI, les dépenses actuelles en cybersécurité et le coût de base (fonctionnement) ; l'écran Budget indique où se situe chaque option.
-12. **Enregistrer les ICR à chaque revue.** Quatre mesures suffisent pour que la projection de l'ICR indique si un seuil sera franchi.
-13. **Anonymiser ce qui sort.** Le registre partagé des risques et Publier et partager anonymisent par défaut ; un cas de classe est étiqueté fictif automatiquement.
-14. **Apprendre d'organisations comme la vôtre, et redonner.** Le registre partagé des risques rassemble des fiches de risque contribuées par d'autres organisations, classées par secteur, région, taille, réglementation, thème, catégorie d'actif et technique. Consultez-le avant de finaliser vos scénarios ; contribuez les vôtres, anonymisés.
-15. **Garder les politiques vivantes.** Une politique qui n'est jamais revue cesse de décrire ce que fait l'organisation. Rédigez les politiques à partir des gabarits, faites-les approuver, publiez-les, revoyez-les selon le calendrier et consignez chaque dérogation.
-16. **Évaluer la conformité avec des preuves.** Un statut de conformité est une affirmation ; ce sont les preuves qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des preuves, acceptez ce que vous pouvez défendre et produisez le rapport.
-17. **Savoir quelles lois s'appliquent — et dire ce qui n'est pas connu.** Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée ; « inconnu » signifie qu'un fait manque — une lacune de preuve, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
-18. **Tester les contrôles de façon indépendante et garder les conflits en vue.** Un contrôle ne vaut que par les éléments probants démontrant qu'il fonctionne. Consignez les essais par ligne de défense et par aspect ; lorsqu'un résultat indépendant contredit l'autoévaluation de la direction, les deux restent visibles jusqu'à ce qu'une personne tranche.
-19. **Auditer en fonction de critères et assurer un suivi indépendant.** Une constatation d'audit énonce le critère, le constat, la cause et l'effet, avec des éléments probants. Elle n'est fermée qu'après qu'un suivi indépendant a vérifié la mesure corrective.
-20. **Décider en vertu des pouvoirs délégués, et garder les exceptions honnêtes.** Accepter un risque, financer un traitement ou accorder une exception à une politique est une décision de la direction, prise par une personne nommée en vertu d'une délégation valide à cette date. L'application rédige ; les personnes décident. Une exception ne déroge jamais à une loi et cesse d'atténuer le risque à son expiration.
-21. **Lire le contexte de l'ontologie, ne renvoyer que des propositions.** Au moyen du contrat dss/v1, l'ontologie renvoie le contexte de l'organisation pour un scénario — obligations, applicabilité, éléments probants des contrôles par ligne, constatations ouvertes — et consigne les résultats de cette application comme propositions. Elle ne calcule jamais un risque, et un renvoi des résultats n'est jamais une approbation.
-22. **Effectuer la revue de qualité avant que quoi que ce soit ne sorte.** Avant un rapport ou un renvoi des résultats, vérifiez que rien n'est qualifié d'approuvé, de conforme ou de probable sans une personne, des éléments probants ou le bon type de données à l'appui.
+2. **Résolvez d'abord les valeurs UNKNOWN.** Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
+3. **Numéroter chaque source dans le registre des éléments probants.** Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est une preuve indicative à valider, jamais un incident confirmé.
+4. **Filtrer sur douze critères, puis regrouper.** Notez chaque candidat de 1 à 5 sur les douze critères avec une justification d’une ligne. Le total sur 60 est une aide au filtrage ; les indicateurs d’escalade gardent en vue les scénarios graves mais improbables, et les familles empêchent une seule technique de dominer.
+5. **Générer 25 à 40, filtrer, en garder 10.** Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20 ; 20 correspond à la version rapide des laboratoires), filtrez-les dans Filtrage des scénarios et gardez les 10 plus importants dans le registre. Dix est un point de départ ; le nombre augmente avec la maturité de l’organisation.
+6. **Consulter l'ontologie avant d'écrire à partir de zéro.** L'ontologie CyberRiskGuardian contient des scénarios déjà reliés à ATT&CK, à des faiblesses, à des contrôles et à des obligations de la Loi 25 du Québec. Demandez-lui les scénarios qui conviennent à l'organisation, gardez ceux qui sont pertinents et écrivez les autres vous-même.
+7. **Rédigez des chaînes causales, pas des noms de menaces.** Source de menace → faiblesse → actif → événement → conséquence. « Rançongiciel » à lui seul n'est pas un scénario. L'IA peut ébaucher la chaîne ; vous l'acceptez champ par champ.
+8. **Consignez ce qui vous protège déjà, puis mesurez la résilience qui en résulte.** Une analyse sans relevé des contrôles existants doit deviner θ. Inventoriez ce qui est en vigueur, notez-le selon les six capacités qui définissent θ, et laissez les deux instruments diverger ouvertement.
+9. **Soyez honnête quant à la confiance.** Donnez à chaque paramètre une justification et un niveau de confiance; Prévisions transforme une faible confiance en intervalles plus larges.
+10. **Laisser le moteur calculer.** Le risque résiduel et le ratio proviennent du moteur vérifié; l'IA et les flux proposent, ils ne modifient jamais un score.
+11. **Traiter d'abord ce qui dépasse la tolérance.** Utilisez Atténuation des risques → Propositions sur les scénarios au-dessus de la tolérance; les mesures partagées sont comptées une seule fois.
+12. **Obtenir les approbations de la personne redevable.** Les recommandations et les acceptations de risque sont approuvées par la personne qui approuve (RACI « A »).
+13. **Tenir un coût de base et un budget.** Saisissez le budget TI, les dépenses actuelles en cybersécurité et le coût de base (fonctionnement); l'écran Budget indique où se situe chaque option.
+14. **Enregistrer les ICR à chaque revue.** Quatre mesures suffisent pour que la projection de l'ICR indique si un seuil sera franchi.
+15. **Anonymiser ce qui sort.** Le registre partagé des risques et Publier et partager anonymisent par défaut; un cas de classe est étiqueté fictif automatiquement.
+16. **Apprendre d'organisations comme la vôtre, et redonner.** Le registre partagé des risques rassemble des fiches de risque contribuées par d'autres organisations, classées par secteur, région, taille, réglementation, thème, catégorie d'actif et technique. Consultez-le avant de finaliser vos scénarios; contribuez les vôtres, anonymisés.
+17. **Garder les politiques vivantes.** Une politique qui n'est jamais revue cesse de décrire ce que fait l'organisation. Rédigez les politiques à partir des gabarits, faites-les approuver, publiez-les, revoyez-les selon le calendrier et consignez chaque dérogation.
+18. **Évaluer la conformité avec des preuves.** Un statut de conformité est une affirmation; ce sont les preuves qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des preuves, acceptez ce que vous pouvez défendre et produisez le rapport.
+19. **Savoir quelles lois s'appliquent — et dire ce qui n'est pas connu.** Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée; « inconnu » signifie qu'un fait manque — une lacune de preuve, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
+20. **Tester les contrôles de façon indépendante et garder les conflits en vue.** Un contrôle ne vaut que par les éléments probants démontrant qu'il fonctionne. Consignez les essais par ligne de défense et par aspect; lorsqu'un résultat indépendant contredit l'autoévaluation de la direction, les deux restent visibles jusqu'à ce qu'une personne tranche.
+21. **Auditer en fonction de critères et assurer un suivi indépendant.** Une constatation d'audit énonce le critère, le constat, la cause et l'effet, avec des éléments probants. Elle n'est fermée qu'après qu'un suivi indépendant a vérifié la mesure corrective.
+22. **Décider en vertu des pouvoirs délégués, et garder les exceptions honnêtes.** Accepter un risque, financer un traitement ou accorder une exception à une politique est une décision de la direction, prise par une personne nommée en vertu d'une délégation valide à cette date. L'application rédige; les personnes décident. Une exception ne déroge jamais à une loi et cesse d'atténuer le risque à son expiration.
+23. **Lire le contexte de l'ontologie, ne renvoyer que des propositions.** Au moyen du contrat dss/v1, l'ontologie renvoie le contexte de l'organisation pour un scénario — obligations, applicabilité, éléments probants des contrôles par ligne, constatations ouvertes — et consigne les résultats de cette application comme propositions. Elle ne calcule jamais un risque, et un renvoi des résultats n'est jamais une approbation.
+24. **Ouvrir le rapport sur les décisions.** Le sommaire de gestion obtient des décisions : il dit ce que la direction doit décider, combien de scénarios sont au-dessus, environ à et sous la tolérance avant et après traitement, ce que coûte le portefeuille par rapport au budget et ce qui reste incertain.
+25. **Effectuer la revue de qualité avant que quoi que ce soit ne sorte.** Avant un rapport ou un renvoi des résultats, vérifiez que rien n'est qualifié d'approuvé, de conforme ou de probable sans une personne, des éléments probants ou le bon type de données à l'appui.
 
 ### Les lignes directrices en détail — une évaluation complète, simplement
 
@@ -330,289 +348,327 @@ Les libellés entre guillemets sont les noms exacts des boutons, onglets et opti
 
 Créez l'espace de travail avec tous les documents du cas et laissez « Extraire des documents » proposer le profil et les actifs essentiels. Acceptez, modifiez ou rejetez chaque valeur, puis enregistrez.
 
-*Où :* Organisation → Espaces de travail → Nouvel espace de travail ; Organisation → Importer des documents
+*Où :* Organisation → Espaces de travail → Nouvel espace de travail; Organisation → Importer des documents
 
-1. Saisissez le nom de l'espace de travail ; choisissez « Organisation réelle » ou « Cas d'affaires pour la classe » ; pour l'enseignement, cochez « Cas pédagogique utilisé à des fins de formation ».
+1. Saisissez le nom de l'espace de travail; choisissez “Organisation réelle” ou “Cas d'affaires pour la classe”; pour l'enseignement, cochez “Cas pédagogique utilisé à des fins de formation”.
 2. Déposez tous les documents du cas (Word, PDF, Excel, PowerPoint, texte) dans la zone des documents.
-3. Cochez « Extraire le profil et l'appétit de ces documents après la création », « Puis extraire les actifs essentiels » et, pour aller plus loin, « Puis importer d'autres éléments des documents » ; cliquez sur « Créer l'espace de travail ».
-4. Choisissez « Utiliser l'IA (aperçu avant l'envoi) » — vous voyez le texte exact avant tout envoi — ou « Règles seulement (sans IA, hors ligne) ».
-5. Dans la revue, modifiez toute valeur, cochez celles à conserver et cliquez sur « Mettre les valeurs cochées dans le formulaire » ; vérifiez les champs et cliquez sur « Enregistrer ».
-6. Examinez les actifs essentiels et cliquez sur « Ajouter les actifs essentiels cochés ».
-7. Dans l'aperçu, modifiez au besoin le contenu envoyé — retirez ce qui ne doit pas sortir, ajoutez du contexte — et choisissez la créativité de la réponse : « Stricte » s'en tient aux faits documentés, « Créative » propose aussi ce qu'une organisation comme celle-ci possède habituellement, étiqueté ASSUMPTION pour que vous le vérifiiez.
-8. Ouvrez ensuite Organisation → « Importer des documents » (étape 4 du processus) : cochez les cibles (actifs informationnels, BIA, tiers, contrôles existants, conformité, incidents, faiblesses, scénarios candidats, preuves des paramètres, risques, budget, KRI, personnes et rôles, classe), cliquez sur « Démarrer l'importation » et, pour chaque cible, cochez puis cliquez sur « Ajouter les cochés ».
-9. De nouveaux documents plus tard : déposez-les sur « Importer des documents ». Ils sont sélectionnés seuls, de sorte que seuls eux sont lus ; cochez ce qu'il faut extraire et cliquez sur « Démarrer l'importation ». Les valeurs existantes sont conservées, sauf si vous cochez la proposition qui les remplace.
+3. Cochez “Extraire le profil et l'appétit de ces documents après la création”, “Puis extraire les actifs essentiels” et, pour aller plus loin, “Puis importer d'autres éléments des documents”; cliquez sur “Créer l'espace de travail”.
+4. Choisissez “Utiliser l'IA (aperçu avant l'envoi)” — vous voyez le texte exact avant tout envoi — ou “Règles seulement (sans IA, hors ligne)”.
+5. Dans la revue, modifiez toute valeur, cochez celles à conserver et cliquez sur “Mettre les valeurs cochées dans le formulaire”; vérifiez les champs et cliquez sur “Enregistrer”.
+6. Examinez les actifs essentiels et cliquez sur “Ajouter les actifs essentiels cochés”.
+7. Dans l'aperçu, modifiez au besoin le contenu envoyé — retirez ce qui ne doit pas sortir, ajoutez du contexte — et choisissez la créativité de la réponse : « Stricte » s'en tient aux faits documentés, « Créative » propose aussi ce qu'une organisation comme celle-ci possède habituellement, étiqueté ASSUMPTION pour que vous le vérifiiez.
+8. Ouvrez ensuite Organisation → « Importer des documents » (étape 1 du processus) : cochez les cibles (actifs informationnels, BIA, tiers, contrôles existants, conformité, incidents, faiblesses, scénarios candidats, preuves des paramètres, risques, budget, KRI, personnes et rôles, classe), cliquez sur « Démarrer l'importation » et, pour chaque cible, cochez puis cliquez sur « Ajouter les cochés ».
+9. De nouveaux documents plus tard : déposez-les sur « Importer des documents ». Ils sont sélectionnés seuls, de sorte que seuls eux sont lus; cochez ce qu'il faut extraire et cliquez sur « Démarrer l'importation ». Les valeurs existantes sont conservées, sauf si vous cochez la proposition qui les remplace.
 
-*Terminé lorsque :* Les étapes 1 à 4 du processus indiquent Fait : un nom et au moins un document ; au moins 8 des 12 champs de contexte, une justification de l'appétit et le budget TI ; les actifs essentiels ; chaque cible du plan d'importation revue.
+*Terminé quand :* Les étapes 1, 2 et 4 du processus indiquent Terminé : un nom, au moins un document et le registre des éléments probants ; au moins 8 des 12 champs de contexte et les actifs essentiels ; l’appétit et sa justification, le budget TI et les critères d’importance.
 
 #### 2. Résolvez d'abord les valeurs UNKNOWN
 
-Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir ; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
+Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
 
-*Où :* Organisation → Profil et appétit (et Éléments probants pour les enregistrements importés)
+*Où :* Organisation → Profil et appétit (et Éléments probants pour les enregistrements importés)
 
 1. Lisez l'étiquette colorée à côté de chaque libellé de champ.
-2. UNKNOWN : recueillez l'information, saisissez-la et cliquez sur « Enregistrer ».
-3. ASSUMPTION et EXTERNAL : faites-les valider par l'organisation ; survolez l'étiquette pour voir la source (document ou page Web). Un astérisque après l'étiquette signifie que la valeur a été modifiée après l'extraction.
-4. Lorsque la direction n'a pas approuvé d'appétit, utilisez l'« Estimateur d'appétit » au bas de l'onglet ; son résultat est indiqué comme une estimation analytique.
+2. UNKNOWN : recueillez l'information, saisissez-la et cliquez sur “Enregistrer”.
+3. ASSUMPTION et EXTERNAL : faites-les valider par l'organisation; survolez l'étiquette pour voir la source (document ou page Web). Un astérisque après l'étiquette signifie que la valeur a été modifiée après l'extraction.
+4. Lorsque la direction n'a pas approuvé d'appétit, utilisez l'“Estimateur d'appétit” au bas de l'onglet; son résultat est indiqué comme une estimation analytique.
 
-*Terminé lorsque :* Aucune étiquette UNKNOWN ne subsiste sur les champs sur lesquels repose l'évaluation.
+*Terminé quand :* Aucune étiquette UNKNOWN ne subsiste sur les champs sur lesquels repose l'évaluation.
 
-#### 3. En générer 20, en garder 10
+#### 3. Numéroter chaque source dans le registre des éléments probants
 
-Dans Scénarios par lot, générez une vingtaine de candidats (règles ou IA), révisez-les dans la grille et conservez les 10 plus importants au registre. Dix est le point de départ ; le nombre augmente avec la maturité de l'organisation.
+Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est une preuve indicative à valider, jamais un incident confirmé.
 
-*Où :* Scénarios en lot
+*Où :* Évaluation des risques → Registre des éléments probants
 
-1. Règles : dans « Modèles de menace × actifs », cochez les modèles, puis « Cocher les joyaux de la couronne + les 5 plus critiques », choisissez les sources de menace, réglez « Nombre de candidats » à 20 et cliquez sur « Générer des candidats ». Laissez « Varier les modèles et les actifs » coché pour que les candidats se répartissent sur la grille au lieu de répéter une seule menace ; « Rebrasser » en tire un ensemble différent et le germe le reproduit.
-2. IA : sous « Proposer avec l'IA », indiquez le nombre, ajoutez une orientation au besoin, laissez « Inclure le texte des documents de contexte » coché et cliquez sur « Proposer des candidats » (aperçu d'abord).
-3. Également disponibles : « À partir de MITRE ATT&CK », « À partir de CVE », « À partir de CWE » et les scénarios candidats importés des documents (marqués [Docs]).
-4. Dans la grille, modifiez les noms, les énoncés et les paramètres, cochez les 10 plus importants et cliquez sur « Ajouter … sélectionnés au registre ». Dix est le nombre de départ recommandé, pas un plafond : portez-en davantage à mesure que la maturité en cybersécurité de l'organisation augmente et qu'elle peut tenir à jour plus de scénarios — Maturité et résilience suggère un nombre d'après le niveau que vous avez mesuré, et explique pourquoi.
+1. Registre des éléments probants → « Ajouter une preuve » : le titre, le type (documentée, exercice ou simulation, apport d’expert, externe), ce qu’elle appuie et sa force.
+2. « Ajouter les documents de contexte » propose une entrée par document de l’espace de travail ; modifiez chacune avant de la conserver.
+3. Citez les numéros E dans la colonne Preuves de chaque paramètre de l’Éditeur de scénarios ; le registre indique où chaque entrée est citée.
+
+*Terminé quand :* L’étape 1 du processus indique Terminé, et chaque justification de paramètre cite un numéro E ou est qualifiée d’hypothèse.
+
+#### 4. Filtrer sur douze critères, puis regrouper
+
+Notez chaque candidat de 1 à 5 sur les douze critères avec une justification d’une ligne. Le total sur 60 est une aide au filtrage ; les indicateurs d’escalade gardent en vue les scénarios graves mais improbables, et les familles empêchent une seule technique de dominer.
+
+*Où :* Évaluation des risques → Filtrage des scénarios
+
+1. « Candidats et notes » : pour chaque candidat, donnez les douze notes, la justification, les indicateurs d’escalade, la confiance de sélection et une décision (Retenir, Regrouper, Examiner, Reporter).
+2. « Familles » : groupez les variantes d’une même exposition, nommez chaque famille avec son énoncé causal plus fort et cochez les familles retenues pour le portefeuille.
+3. « Schémas de pondération » : lisez les rangs selon les pondérations égale, axée sur l’impact, axée sur la preuve et axée sur la décision ; écrivez pourquoi chaque famille « retenue par jugement » est conservée, et examinez chaque candidat signalé pour « examen explicite ».
+4. « Matrice de couverture » et « Liste de surveillance et plan » : cherchez les angles morts, donnez à chaque candidat surveillé son déclencheur de promotion et planifiez comment chaque scénario retenu sera validé, par qui et pour quand.
+5. « Portefeuille final » : répondez aux six questions « pourquoi ce scénario ? », puis « Créer le scénario » dans le registre pour chaque famille retenue pas encore liée.
+
+*Terminé quand :* Les étapes 6 et 7 du processus indiquent Terminé : chaque candidat est noté et a une décision, et chaque jugement et chaque exclusion signalée est expliqué.
+
+#### 5. Générer 25 à 40, filtrer, en garder 10
+
+Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20 ; 20 correspond à la version rapide des laboratoires), filtrez-les dans Filtrage des scénarios et gardez les 10 plus importants dans le registre. Dix est un point de départ ; le nombre augmente avec la maturité de l’organisation.
+
+*Où :* Scénarios en lot
+
+1. Règles : dans « Modèles de menace × actifs », cochez les modèles, puis « Cocher les actifs essentiels + les 5 plus critiques », choisissez les sources de menace, réglez « Nombre de candidats » à 30 et cliquez sur « Générer des candidats ». Gardez « Varier les modèles et les actifs » coché pour que les candidats se répartissent dans la grille au lieu de répéter une seule menace ; « Rebrasser » tire un autre ensemble et la graine le reproduit.
+2. IA : sous “Proposer avec l'IA”, indiquez le nombre, ajoutez une orientation au besoin, laissez “Inclure le texte des documents de contexte” coché et cliquez sur “Proposer des candidats” (aperçu d'abord).
+3. Également disponibles : “À partir de MITRE ATT&CK”, “À partir de CVE”, “À partir de CWE” et les scénarios candidats importés des documents (marqués [Docs]).
+4. Dans la grille, modifiez les noms, les énoncés et les paramètres, cochez les 10 plus importants et cliquez sur « Ajouter … sélectionnés au registre ». Dix est le nombre de départ recommandé, pas un plafond : portez-en davantage à mesure que la maturité en cybersécurité de l'organisation augmente et qu'elle peut tenir à jour plus de scénarios — Maturité et résilience suggère un nombre d'après le niveau que vous avez mesuré, et explique pourquoi.
 5. Dans le registre des scénarios, les cases à cocher incluent ou excluent des scénarios des totaux.
 
-*Terminé lorsque :* L'étape 6 du processus indique Fait : au moins 10 scénarios au registre.
+*Terminé quand :* Les étapes 5 et 8 du processus indiquent Terminé : au moins 20 candidats, et au moins 10 scénarios au registre sous forme de chaînes causales complètes.
 
-#### 4. Consulter l'ontologie avant d'écrire à partir de zéro
+#### 6. Consulter l'ontologie avant d'écrire à partir de zéro
 
 L'ontologie CyberRiskGuardian contient des scénarios déjà reliés à ATT&CK, à des faiblesses, à des contrôles et à des obligations de la Loi 25 du Québec. Demandez-lui les scénarios qui conviennent à l'organisation, gardez ceux qui sont pertinents et écrivez les autres vous-même.
 
-*Où :* Ontologie · CRGO → Suggérer des scénarios ; Scénarios en lot ; Éditeur de scénarios
+*Où :* Ontologie · CRGO → Suggérer des scénarios; Scénarios en lot; Éditeur de scénarios
 
-1. Ontologie · CRGO → « Suggérer des scénarios » : vérifiez le secteur, les techniques ATT&CK et les mots-clés tirés de l'espace de travail, cochez les catégories d'actifs présentes et les thèmes préoccupants, puis cliquez sur « Suggérer des scénarios ».
-2. Lisez « Thèmes sans scénario » : les thèmes sans scénario dans l'ontologie sont ceux à écrire vous-même.
-3. Cochez les suggestions qui conviennent, gardez « Utiliser les valeurs a priori de l'ontologie comme valeurs de départ » si vous voulez un point de départ étalonné, et cliquez sur « Ajouter les cochés aux scénarios en lot » ; revoyez-les et conservez-les dans la grille comme tout autre candidat.
-4. Pour un scénario que vous avez écrit vous-même : Éditeur de scénarios → « Trouver des scénarios semblables dans l'ontologie » pour le relier, et « Contrôles pour ses techniques » pour une liste de départ de contrôles.
-5. Les valeurs a priori de l'ontologie ne sont pas des preuves organisationnelles : réestimez chaque paramètre avec l'organisation. L'onglet Connexion indique si la réponse vient du serveur de l'ontologie ou de l'instantané fourni avec l'application.
+1. Ontologie · CRGO → « Suggérer des scénarios » : vérifiez le secteur, les techniques ATT&CK et les mots-clés tirés de l'espace de travail, cochez les catégories d'actifs présentes et les thèmes préoccupants, puis cliquez sur « Suggérer des scénarios ».
+2. Lisez « Thèmes sans scénario » : les thèmes sans scénario dans l'ontologie sont ceux à écrire vous-même.
+3. Cochez les suggestions qui conviennent, gardez « Utiliser les valeurs a priori de l'ontologie comme valeurs de départ » si vous voulez un point de départ étalonné, et cliquez sur « Ajouter les cochés aux scénarios en lot »; revoyez-les et conservez-les dans la grille comme tout autre candidat.
+4. Pour un scénario que vous avez écrit vous-même : Éditeur de scénarios → « Trouver des scénarios semblables dans l'ontologie » pour le relier, et « Contrôles pour ses techniques » pour une liste de départ de contrôles.
+5. Les valeurs a priori de l'ontologie ne sont pas des preuves organisationnelles : réestimez chaque paramètre avec l'organisation. L'onglet Connexion indique si la réponse vient du serveur de l'ontologie ou de l'instantané fourni avec l'application.
 
-*Terminé lorsque :* Le registre couvre les thèmes pertinents de l'ontologie, et les scénarios qui en sont tirés sont réestimés pour cette organisation.
+*Terminé quand :* Le registre couvre les thèmes pertinents de l'ontologie, et les scénarios qui en sont tirés sont réestimés pour cette organisation.
 
-#### 5. Rédigez des chaînes causales, pas des noms de menaces
+#### 7. Rédigez des chaînes causales, pas des noms de menaces
 
-Source de menace → faiblesse → actif → événement → conséquence. « Rançongiciel » à lui seul n'est pas un scénario. L'IA peut ébaucher la chaîne ; vous l'acceptez champ par champ.
+Source de menace → faiblesse → actif → événement → conséquence. « Rançongiciel » à lui seul n'est pas un scénario. L'IA peut ébaucher la chaîne ; vous l'acceptez champ par champ.
 
-*Où :* Éditeur de scénario → Chaîne causale
+*Où :* Éditeur de scénario → Chaîne causale
 
 1. Rédigez l'énoncé en une ou deux phrases : source de menace → faiblesse → actif → événement → conséquence.
-2. Ou laissez l'IA l'ébaucher : dans la carte Chaîne causale, cliquez sur « L'ébaucher avec l'IA… », lisez l'aperçu de ce qui serait exactement envoyé, puis envoyez. Un scénario à la fois — une chaîne est une argumentation au sujet de cette organisation, pas un traitement par lot.
-3. Dans la révision, chaque champ proposé est affiché à côté de ce que le scénario contient actuellement. Les champs vides sont cochés pour vous ; un champ qui remplacerait du texte existant reste décoché et l'indique. Modifiez n'importe quelle ébauche sur place, puis cliquez sur « Appliquer les champs cochés » — rien n'est écrit avant, et ce que vous acceptez est consigné au journal des révisions.
+2. Ou laissez l'IA l'ébaucher : dans la carte Chaîne causale, cliquez sur « L'ébaucher avec l'IA… », lisez l'aperçu de ce qui serait exactement envoyé, puis envoyez. Un scénario à la fois — une chaîne est une argumentation au sujet de cette organisation, pas un traitement par lot.
+3. Dans la révision, chaque champ proposé est affiché à côté de ce que le scénario contient actuellement. Les champs vides sont cochés pour vous ; un champ qui remplacerait du texte existant reste décoché et l'indique. Modifiez n'importe quelle ébauche sur place, puis cliquez sur « Appliquer les champs cochés » — rien n'est écrit avant, et ce que vous acceptez est consigné au journal des révisions.
 4. Remplissez ou vérifiez la source de menace, l'événement déclencheur, les vulnérabilités ou conditions prédisposantes, les actifs, les processus, les contrôles existants, la séquence et les conséquences.
-5. Liez des techniques ATT&CK, des CWE et des CVE ; « Suggérer des vulnérabilités pour ce scénario… » ouvre Vulnérabilités → Suggérer des liens pour ce scénario.
+5. Liez des techniques ATT&CK, des CWE et des CVE; “Suggérer des vulnérabilités pour ce scénario…” ouvre Vulnérabilités → Suggérer des liens pour ce scénario.
 
-*Terminé lorsque :* Chaque scénario du registre se lit comme une chaîne causale complète.
+*Terminé quand :* Chaque scénario du registre se lit comme une chaîne causale complète.
 
-#### 6. Consignez ce qui vous protège déjà, puis mesurez la résilience qui en résulte
+#### 8. Consignez ce qui vous protège déjà, puis mesurez la résilience qui en résulte
 
 Une analyse sans relevé des contrôles existants doit deviner θ. Inventoriez ce qui est en vigueur, notez-le selon les six capacités qui définissent θ, et laissez les deux instruments diverger ouvertement.
 
-*Où :* Mesures de protection existantes ; Maturité et résilience
+*Où :* Mesures de protection existantes ; Maturité et résilience
 
-1. Mesures de protection existantes → « Ajouter une mesure de protection » : nommez-la, fixez l'état, nommez un responsable imputable, et énoncez la portée ainsi que ce qu'elle ne couvre pas.
-2. Sous « Contribution à la résilience », notez la mesure pour chaque capacité. Une mesure marquée « Planifiée » ne compte pour rien avant d'être en fonction.
-3. Consignez la date du dernier test et son résultat ; une absence de preuve depuis douze mois est signalée comme périmée.
-4. Si vos contrôles existants sont encore dans le plan d'atténuation, « Récupérer des contrôles » les énumère et « Verser les éléments cochés à l'inventaire » déplace ceux que vous cochez.
-5. Mesures de protection existantes → « Couverture de la résilience » montre d'où vient la résilience et propose un θ. Rien ne change avant que vous l'appliquiez à un scénario.
-6. Maturité et résilience → « Maturité (CSF 2.0) » : notez les catégories qui comptent, par rapport à une cible. Laissez une catégorie vide plutôt que de la deviner. « Remplir les non notées d'après l'inventaire » propose un niveau là où des mesures pointent vers une catégorie du CSF.
-7. Maturité et résilience → « Résilience (θ) » : répondez aux dix-huit questions. « Inconnu » est une vraie réponse et elle est exclue du score.
-8. Maturité et résilience → « Les deux lectures » : lisez l'écart entre le questionnaire et l'inventaire. Le θ le plus bas est proposé ; appliquez-le par scénario.
-9. « Enregistrer » conserve une entrée datée pour que la prochaine évaluation puisse être comparée à celle-ci.
+1. Mesures de protection existantes → « Ajouter une mesure de protection » : nommez-la, fixez l'état, nommez un responsable imputable, et énoncez la portée ainsi que ce qu'elle ne couvre pas.
+2. Sous « Contribution à la résilience », notez la mesure pour chaque capacité. Une mesure marquée « Planifiée » ne compte pour rien avant d'être en fonction.
+3. Consignez la date du dernier test et son résultat ; une absence de preuve depuis douze mois est signalée comme périmée.
+4. Si vos contrôles existants sont encore dans le plan d'atténuation, « Récupérer des contrôles » les énumère et « Verser les éléments cochés à l'inventaire » déplace ceux que vous cochez.
+5. Mesures de protection existantes → « Couverture de la résilience » montre d'où vient la résilience et propose un θ. Rien ne change avant que vous l'appliquiez à un scénario.
+6. Maturité et résilience → « Maturité (CSF 2.0) » : notez les catégories qui comptent, par rapport à une cible. Laissez une catégorie vide plutôt que de la deviner. « Remplir les non notées d'après l'inventaire » propose un niveau là où des mesures pointent vers une catégorie du CSF.
+7. Maturité et résilience → « Résilience (θ) » : répondez aux dix-huit questions. « Inconnu » est une vraie réponse et elle est exclue du score.
+8. Maturité et résilience → « Les deux lectures » : lisez l'écart entre le questionnaire et l'inventaire. Le θ le plus bas est proposé ; appliquez-le par scénario.
+9. « Enregistrer » conserve une entrée datée pour que la prochaine évaluation puisse être comparée à celle-ci.
 
-*Terminé lorsque :* L'inventaire couvre ce qui est en vigueur, et le θ de chaque scénario important provient de l'évaluation plutôt que de la mémoire.
+*Terminé quand :* L'inventaire couvre ce qui est en vigueur, et le θ de chaque scénario important provient de l'évaluation plutôt que de la mémoire.
 
-#### 7. Soyez honnête quant à la confiance
+#### 9. Soyez honnête quant à la confiance
 
-Donnez à chaque paramètre une justification et un niveau de confiance ; Prévisions transforme une faible confiance en intervalles plus larges.
+Donnez à chaque paramètre une justification et un niveau de confiance; Prévisions transforme une faible confiance en intervalles plus larges.
 
-*Où :* Éditeur de scénarios → les six paramètres ; Prévisions
+*Où :* Éditeur de scénarios → les six paramètres; Prévisions
 
 1. Pour chacun des six paramètres, indiquez la valeur, une justification, les éléments probants et une confiance (Élevée, Moyenne, Faible). Les éléments probants importés des documents s'ajoutent à ces champs, jamais comme un nombre.
-2. Prévisions → « Plages de paramètres » → « Proposer des plages là où aucune n'est définie » (Faible ±0.15, Moyenne ±0.10, Élevée ±0.05), puis « Monte-Carlo » → « Lancer la prévision ».
-3. Facultatif : Assistant IA → « Critique des paramètres » signale la confiance que les éléments probants n'appuient pas.
+2. Prévisions → “Plages de paramètres” → “Proposer des plages là où aucune n'est définie” (Faible ±0.15, Moyenne ±0.10, Élevée ±0.05), puis “Monte-Carlo” → “Lancer la prévision”.
+3. Facultatif : Assistant IA → “Critique des paramètres” signale la confiance que les éléments probants n'appuient pas.
 
-*Terminé lorsque :* L'étape 7 du processus indique Fait : 80 % des paramètres des scénarios inclus portent une justification.
+*Terminé quand :* L’étape 9 du processus indique Terminé : 80 % des paramètres des scénarios inclus portent une justification.
 
-#### 8. Laisser le moteur calculer
+#### 10. Laisser le moteur calculer
 
-Le risque résiduel et le ratio proviennent du moteur vérifié ; l'IA et les flux proposent, ils ne modifient jamais un score.
+Le risque résiduel et le ratio proviennent du moteur vérifié; l'IA et les flux proposent, ils ne modifient jamais un score.
 
-*Où :* Calculateur de risque ; pied de page
+*Où :* Calculateur de risque; pied de page
 
-1. Vérifiez que le pied de page indique « moteur vérifié · 84,491 / 41,104 » à chaque démarrage.
+1. Vérifiez que le pied de page indique “moteur vérifié · 84,305 / 41,023” à chaque démarrage.
 2. Lisez le risque estimé, toléré, atténué et résiduel, le ratio et sa bande dans le calculateur de risque.
-3. Seules les propositions acceptées modifient une valeur ; Contexte des menaces → « Changements proposés de Pb(ψ,A) » est la seule voie entre le renseignement sur les menaces et une note, pour les CVE exposés seulement.
+3. Seules les propositions acceptées modifient une valeur; Contexte des menaces → “Changements proposés de Pb(ψ,A)” est la seule voie entre le renseignement sur les menaces et une note, pour les CVE exposés seulement.
 
-*Terminé lorsque :* Les chiffres que vous rapportez proviennent du calculateur de risque.
+*Terminé quand :* Les chiffres que vous rapportez proviennent du calculateur de risque.
 
-#### 9. Traiter d'abord ce qui dépasse la tolérance
+#### 11. Traiter d'abord ce qui dépasse la tolérance
 
-Utilisez Atténuation des risques → Propositions sur les scénarios au-dessus de la tolérance ; les mesures partagées sont comptées une seule fois.
+Utilisez Atténuation des risques → Propositions sur les scénarios au-dessus de la tolérance; les mesures partagées sont comptées une seule fois.
 
-*Où :* Recommandations → Besoin de traitement ; Atténuation des risques
+*Où :* Recommandations → Besoin de traitement; Atténuation des risques
 
-1. Recommandations → « Besoin de traitement » : le verdict par rapport à la tolérance et un objectif de traitement par scénario.
-2. Atténuation des risques → « Propositions » : cochez les scénarios au-dessus de la tolérance et cliquez sur « Ajouter les propositions cochées au plan » (ou choisissez des contrôles dans « Catalogue de contrôles »). Les contrôles existants importés des documents y figurent déjà comme mis en œuvre, avec des réductions nulles tant que vous ne les définissez pas.
-3. « Plan d'atténuation » : définissez le coût et les réductions de vraisemblance / d'impact ; cochez les mesures à mettre en œuvre et cliquez sur « → Nouvelle ébauche de recommandation ».
-4. Une mesure couvrant plusieurs scénarios n'est comptée qu'une fois — voir Recommandations → « Contrôles partagés ».
+1. Recommandations → “Besoin de traitement” : le verdict par rapport à la tolérance et un objectif de traitement par scénario.
+2. Atténuation des risques → “Propositions” : cochez les scénarios au-dessus de la tolérance et cliquez sur “Ajouter les propositions cochées au plan” (ou choisissez des contrôles dans “Catalogue de contrôles”). Les contrôles existants importés des documents y figurent déjà comme mis en œuvre, avec des réductions nulles tant que vous ne les définissez pas.
+3. “Plan d'atténuation” : définissez le coût et les réductions de vraisemblance / d'impact; cochez les mesures à mettre en œuvre et cliquez sur “→ Nouvelle ébauche de recommandation”.
+4. Une mesure couvrant plusieurs scénarios n'est comptée qu'une fois — voir Recommandations → “Contrôles partagés”.
 
-*Terminé lorsque :* L'étape 9 du processus indique Fait : chaque scénario au-dessus de la tolérance a au moins une mesure.
+*Terminé quand :* L’étape 12 du processus indique Terminé : chaque scénario au-dessus de la tolérance a au moins une mesure.
 
-#### 10. Obtenir les approbations de la personne redevable
+#### 12. Obtenir les approbations de la personne redevable
 
 Les recommandations et les acceptations de risque sont approuvées par la personne qui approuve (RACI « A »).
 
-*Où :* Recommandations → Recommandations ; Registre des risques
+*Où :* Recommandations → Recommandations; Registre des risques
 
-1. Recommandations → « Recommandations » : faites passer l'ébauche par Brouillon → En revue → Approuvé, avec l'approbateur et une note ; l'approbation fige les chiffres.
-2. Registre des risques → le risque → « Acceptation formelle » (« Accepté par », « Justification, conditions, référence d'approbation »).
-3. En mode multi-utilisateur (Paramètres → « Utilisateurs et RACI »), seul A à l'étape 10, ou un administrateur, approuve et accepte ; l'approbation d'une mesure exige A à l'étape 9. « Accès aux menus par groupe et par compte utilisateur » peut restreindre ou ouvrir davantage les écrans. « Changer d'utilisateur » se trouve dans la barre supérieure.
+1. Recommandations → “Recommandations” : faites passer l'ébauche par Brouillon → En revue → Approuvé, avec l'approbateur et une note; l'approbation fige les chiffres.
+2. Registre des risques → le risque → “Acceptation formelle” (“Accepté par”, “Justification, conditions, référence d'approbation”).
+3. En mode multi-utilisateur (Paramètres → « Utilisateurs et RACI »), seul un A à l’étape 17, ou un administrateur, approuve et accepte ; approuver une mesure exige un A à l’étape 12. « Accès au menu par groupe et compte d’utilisateur » peut restreindre ou ouvrir davantage les écrans. « Changer d’utilisateur » se trouve dans la barre supérieure.
 
-*Terminé lorsque :* L'étape 10 du processus indique Fait : au moins une recommandation approuvée et chaque risque a une décision de traitement.
+*Terminé quand :* Les étapes 16 et 17 du processus indiquent Terminé : chaque scénario inclus a une décision de la direction et au moins une recommandation est approuvée.
 
-#### 11. Tenir un coût de base et un budget
+#### 13. Tenir un coût de base et un budget
 
-Saisissez le budget TI, les dépenses actuelles en cybersécurité et le coût de base (fonctionnement) ; l'écran Budget indique où se situe chaque option.
+Saisissez le budget TI, les dépenses actuelles en cybersécurité et le coût de base (fonctionnement); l'écran Budget indique où se situe chaque option.
 
-*Où :* Organisation → Profil et appétit (en bas) ; Budget
+*Où :* Organisation → Profil et appétit (en bas); Budget
 
-1. Saisissez « Budget TI total (salaires inclus) », « Budget de cybersécurité (dépenses actuelles) » et « Coût de base (fonctionnement) de la sécurité », puis « Enregistrer ».
-2. Budget : renseignez l'année budgétaire et répartissez les initiatives sur un maximum de trois ans ; les projets importés des documents figurent déjà comme initiatives.
-3. Le graphique à bandes place chaque option de financement entre aversion au risque (4 % des TI), neutralité (7,8 %) et recherche du risque (12 %).
+1. Saisissez “Budget TI total (salaires inclus)”, “Budget de cybersécurité (dépenses actuelles)” et “Coût de base (fonctionnement) de la sécurité”, puis “Enregistrer”.
+2. Budget : renseignez l'année budgétaire et répartissez les initiatives sur un maximum de trois ans; les projets importés des documents figurent déjà comme initiatives.
+3. Le graphique de bande place chaque option de financement par rapport à la cible cohérente avec l’appétit — bonne pratique : 12 % des TI à un appétit de 0,30, 7,8 % à 0,50, 4 % à 0,70, interpolée entre ces points.
 
-*Terminé lorsque :* L'étape 11 du processus indique Fait : l'année budgétaire est remplie et les initiatives sont réparties.
+*Terminé quand :* L’étape 18 du processus indique Terminé : l’année budgétaire est remplie et les initiatives sont réparties.
 
-#### 12. Enregistrer les ICR à chaque revue
+#### 14. Enregistrer les ICR à chaque revue
 
 Quatre mesures suffisent pour que la projection de l'ICR indique si un seuil sera franchi.
 
-*Où :* Tableau de bord des ICR ; Prévisions → Projections des ICR
+*Où :* Tableau de bord des ICR; Prévisions → Projections des ICR
 
-1. Tableau de bord des ICR : « Enregistrer une mesure », ou « Enregistrer les valeurs calculées et saisies » pour tout capter d'un coup. Les indicateurs importés des documents constituent le premier relevé.
-2. Prévisions → « Projections des ICR » : à partir de 4 relevés, la tendance avec une bande de 95 % et l'indication d'un éventuel dépassement de seuil.
+1. Tableau de bord des ICR : “Enregistrer une mesure”, ou “Enregistrer les valeurs calculées et saisies” pour tout capter d'un coup. Les indicateurs importés des documents constituent le premier relevé.
+2. Prévisions → “Projections des ICR” : à partir de 4 relevés, la tendance avec une bande de 95 % et l'indication d'un éventuel dépassement de seuil.
 
-*Terminé lorsque :* L'étape 12 du processus indique Fait : au moins une mesure consignée.
+*Terminé quand :* L’étape 19 du processus indique Terminé : au moins un ICR entièrement défini et au moins une mesure consignée.
 
-#### 13. Anonymiser ce qui sort
+#### 15. Anonymiser ce qui sort
 
-Le registre partagé des risques et Publier et partager anonymisent par défaut ; un cas de classe est étiqueté fictif automatiquement.
+Le registre partagé des risques et Publier et partager anonymisent par défaut; un cas de classe est étiqueté fictif automatiquement.
 
-*Où :* Registre partagé des risques → Contribuer des risques ; Publier et partager → Publier un paquet ; Paramètres → IA — locale et distante
+*Où :* Registre partagé des risques → Contribuer des risques; Publier et partager → Publier un paquet; Paramètres → IA — locale et distante
 
-1. Registre partagé des risques → « Contribuer des risques » : l'anonymisation est activée par défaut ; la désactiver demande une confirmation et les fiches indiquent qu'elles ne sont pas anonymisées.
-2. Publier et partager → « Publier un paquet » : choisissez la portée et le format, cochez « Anonymiser ce paquet », lisez « Vérifiez ces éléments avant de publier », puis « Publier dans le registre partagé ».
+1. Registre partagé des risques → « Contribuer des risques » : l'anonymisation est activée par défaut; la désactiver demande une confirmation et les fiches indiquent qu'elles ne sont pas anonymisées.
+2. Publier et partager → “Publier un paquet” : choisissez la portée et le format, cochez “Anonymiser ce paquet”, lisez “Vérifiez ces éléments avant de publier”, puis “Publier dans le registre partagé”.
 3. Les cas de classe et les cas pédagogiques sont indiqués comme fictifs dans les exportations et le classeur.
-4. Pour l'IA : Paramètres → IA — locale et distante → « Anonymiser avant l'envoi », ou « Appliquer l'anonymiseur » dans l'aperçu d'une seule requête — où vous pouvez aussi modifier le contenu envoyé avant qu'il parte.
+4. Pour l'IA : Paramètres → IA — locale et distante → « Anonymiser avant l'envoi », ou « Appliquer l'anonymiseur » dans l'aperçu d'une seule requête — où vous pouvez aussi modifier le contenu envoyé avant qu'il parte.
 
-*Terminé lorsque :* Rien d'identifiant ne quitte l'ordinateur sans une décision.
+*Terminé quand :* Rien d'identifiant ne quitte l'ordinateur sans une décision.
 
-#### 14. Apprendre d'organisations comme la vôtre, et redonner
+#### 16. Apprendre d'organisations comme la vôtre, et redonner
 
-Le registre partagé des risques rassemble des fiches de risque contribuées par d'autres organisations, classées par secteur, région, taille, réglementation, thème, catégorie d'actif et technique. Consultez-le avant de finaliser vos scénarios ; contribuez les vôtres, anonymisés.
+Le registre partagé des risques rassemble des fiches de risque contribuées par d'autres organisations, classées par secteur, région, taille, réglementation, thème, catégorie d'actif et technique. Consultez-le avant de finaliser vos scénarios; contribuez les vôtres, anonymisés.
 
-*Où :* Registre partagé des risques → Parcourir et rechercher ; Contribuer des risques ; Modération
+*Où :* Registre partagé des risques → Parcourir et rechercher; Contribuer des risques; Modération
 
-1. Registre partagé des risques → « Paramètres du registre » : définissez le dossier partagé du registre (un dossier synchronisé avec Drive, OneDrive ou SharePoint) et un alias de contributeur, puis « Enregistrer ».
-2. « Parcourir et rechercher » → « Lire le dossier partagé », puis « Organisations comme la mienne » pour filtrer selon votre secteur et votre pays ; cochez « Fiches modérées seulement » pour le catalogue validé.
-3. Cochez les fiches pertinentes et cliquez sur « Utiliser les fiches cochées dans cet espace de travail » : elles vont aux Scénarios en lot, où chaque valeur est réestimée pour cette organisation.
-4. Pour contribuer (administrateur, ou RACI « A » à l'étape 13) : « Contribuer des risques » → cochez des scénarios, vérifiez le catalogue, gardez « Anonymiser avant de partager (activé par défaut) » coché, lisez l'aperçu et cliquez sur « Partager dans le registre ».
-5. Un modérateur approuve ou rejette les nouvelles fiches sous « Modération » et publie le paquet validé.
+1. Registre partagé des risques → « Paramètres du registre » : définissez le dossier partagé du registre (un dossier synchronisé avec Drive, OneDrive ou SharePoint) et un alias de contributeur, puis « Enregistrer ».
+2. « Parcourir et rechercher » → « Lire le dossier partagé », puis « Organisations comme la mienne » pour filtrer selon votre secteur et votre pays; cochez « Fiches modérées seulement » pour le catalogue validé.
+3. Cochez les fiches pertinentes et cliquez sur « Utiliser les fiches cochées dans cet espace de travail » : elles vont aux Scénarios en lot, où chaque valeur est réestimée pour cette organisation.
+4. Pour contribuer (administrateur, ou RACI « A » à l'étape Rapport) : « Contribuer des risques » → cochez des scénarios, vérifiez le catalogue, gardez « Anonymiser avant de partager (activé par défaut) » coché, lisez l'aperçu et cliquez sur « Partager dans le registre ».
+5. Un modérateur approuve ou rejette les nouvelles fiches sous « Modération » et publie le paquet validé.
 
-*Terminé lorsque :* Les scénarios reflètent ce que des pairs ont observé, et ce que vous partagez part anonymisé.
+*Terminé quand :* Les scénarios reflètent ce que des pairs ont observé, et ce que vous partagez part anonymisé.
 
-#### 15. Garder les politiques vivantes
+#### 17. Garder les politiques vivantes
 
 Une politique qui n'est jamais revue cesse de décrire ce que fait l'organisation. Rédigez les politiques à partir des gabarits, faites-les approuver, publiez-les, revoyez-les selon le calendrier et consignez chaque dérogation.
 
-*Où :* Politiques de sécurité (PSI) → Politiques ; Éditeur de politiques ; Non-conformités ; Revues et approbations
+*Où :* Gestion des PSI → Bibliothèque des politiques; Éditeur de politiques; Versions et approbations; Non-conformités
 
-1. Politiques de sécurité (PSI) → « Créer à partir du gabarit » (ou « L'ébaucher avec l'IA… », ou « Créer tout le jeu de politiques en brouillons »).
-2. Éditeur de politiques : adaptez les énoncés et leurs contrôles, nommez le responsable et l'approbateur, puis « Soumettre pour revue », « Approuver » (RACI « A » à l'étape 13 ou un administrateur) et « Publier ».
-3. Une politique publiée est figée : « Commencer une nouvelle version » ouvre un brouillon et conserve le texte publié dans l'historique.
-4. Non-conformités → « Consigner » : chaque dérogation constatée par un audit, un incident ou la surveillance, avec sa gravité, son responsable, sa mesure corrective et son échéance ; une dérogation acceptée devient une exception avec une date d'expiration et le nom de la personne qui accepte le risque. « En faire un risque » l'ajoute au registre des risques.
-5. « Revues et approbations » liste ce qui attend une approbation et ce dont la revue est due.
+1. Gestion des PSI → Bibliothèque des politiques → « Créer à partir du gabarit » (ou « L'ébaucher avec l'IA… », ou « Créer tout le jeu de politiques en brouillons »).
+2. Éditeur de politique : adaptez les énoncés et leurs contrôles, nommez le responsable et l’approbateur, puis « Soumettre pour examen », « Approuver » (RACI « A » à l’étape Rapport ou un administrateur) et « Publier ».
+3. Une politique publiée est figée : « Commencer une nouvelle version » ouvre un brouillon et conserve le texte publié dans l'historique.
+4. Non-conformités → « Consigner » : chaque dérogation constatée par un audit, un incident ou la surveillance, avec sa gravité, son responsable, sa mesure corrective et son échéance; une dérogation acceptée devient une exception avec une date d'expiration et le nom de la personne qui accepte le risque. « En faire un risque » l'ajoute au registre des risques.
+5. « Versions et approbations » liste ce qui attend une approbation et ce dont la revue est due.
 
-*Terminé lorsque :* Chaque politique en vigueur est publiée, dans son délai de revue, et chaque dérogation ouverte a un responsable et une date.
+*Terminé quand :* Chaque politique en vigueur est publiée, dans son délai de revue, et chaque dérogation ouverte a un responsable et une date.
 
-#### 16. Évaluer la conformité avec des preuves
+#### 18. Évaluer la conformité avec des preuves
 
-Un statut de conformité est une affirmation ; ce sont les preuves qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des preuves, acceptez ce que vous pouvez défendre et produisez le rapport.
+Un statut de conformité est une affirmation; ce sont les preuves qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des preuves, acceptez ce que vous pouvez défendre et produisez le rapport.
 
-*Où :* Conformité → Exigences ; Évaluation assistée par l'IA ; Rapports
+*Où :* Conformité → Exigences; Évaluation assistée par l'IA; Rapports
 
-1. Conformité → « Cadres et listes de contrôle » : choisissez les cadres suivis et remplissez la déclaration d'applicabilité.
-2. « Exigences » : ajoutez les vôtres — lois, contrats, normes — ou « Ajouter les obligations de la Loi 25 et du R-22.1 » de l'ontologie et « Ajouter les énoncés des politiques publiées ».
-3. « Évaluation assistée par l'IA » : choisissez la portée, la méthode — Règles (hors ligne) ou IA (aperçu d'abord) — et cliquez sur « Proposer » ; modifiez les preuves et cliquez sur « Appliquer les propositions cochées ».
-4. « Rapports » : « Enregistrer un instantané » à chaque revue, puis « Rapport de conformité complet (.md) » ou « Rapport imprimable ».
+1. Conformité → « Cadres et listes de contrôle » : choisissez les cadres suivis et remplissez la déclaration d'applicabilité.
+2. « Exigences » : ajoutez les vôtres — lois, contrats, normes — ou « Ajouter les obligations de la Loi 25 et du R-22.1 » de l'ontologie et « Ajouter les énoncés des politiques publiées ».
+3. « Évaluation assistée par l'IA » : choisissez la portée, la méthode — Règles (hors ligne) ou IA (aperçu d'abord) — et cliquez sur « Proposer »; modifiez les preuves et cliquez sur « Appliquer les propositions cochées ».
+4. « Rapports » : « Enregistrer un instantané » à chaque revue, puis « Rapport de conformité complet (.md) » ou « Rapport imprimable ».
 
-*Terminé lorsque :* Chaque exigence applicable a un statut et les preuves qui le soutiennent, et le rapport est classé.
+*Terminé quand :* Chaque exigence applicable a un statut et les preuves qui le soutiennent, et le rapport est classé.
 
-#### 17. Savoir quelles lois s'appliquent — et dire ce qui n'est pas connu
+#### 19. Savoir quelles lois s'appliquent — et dire ce qui n'est pas connu
 
-Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée ; « inconnu » signifie qu'un fait manque — une lacune de preuve, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
+Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée; « inconnu » signifie qu'un fait manque — une lacune de preuve, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
 
-*Où :* Conformité → Applicabilité juridique ; Déterminations
+*Où :* Conformité → Applicabilité juridique; Déterminations
 
-1. Conformité → « Applicabilité juridique » : cochez le type d'organisation, les lieux où elle est établie, offre des services ou surveille des comportements, ajoutez ses activités de traitement avec leurs catégories de données, et cochez ce que le profil énumère de façon complète.
-2. « Évaluer dans le navigateur » (ou « Évaluer avec CRGO (assistant local) ») : lisez les conditions non résolues de chaque instrument inconnu et recueillez les faits manquants.
-3. « Déterminations » : consignez la conformité à chaque disposition avec ses éléments probants, ou la lacune de preuve. Un contrôle qui appuie une obligation ne constitue pas la conformité.
+1. Conformité → « Applicabilité juridique » : cochez le type d'organisation, les lieux où elle est établie, offre des services ou surveille des comportements, ajoutez ses activités de traitement avec leurs catégories de données, et cochez ce que le profil énumère de façon complète.
+2. « Évaluer dans le navigateur » (ou « Évaluer avec CRGO (assistant local) ») : lisez les conditions non résolues de chaque instrument inconnu et recueillez les faits manquants.
+3. « Déterminations » : consignez la conformité à chaque disposition avec ses éléments probants, ou la lacune de preuve. Un contrôle qui appuie une obligation ne constitue pas la conformité.
 
-*Terminé lorsque :* Chaque instrument est applicable, non applicable, ou signalé pour une revue par une personne qualifiée ou comme lacune de preuve, et chaque disposition touchée par les scénarios a une détermination.
+*Terminé quand :* Chaque instrument est applicable, non applicable, ou signalé pour une revue par une personne qualifiée ou comme lacune de preuve, et chaque disposition touchée par les scénarios a une détermination.
 
-#### 18. Tester les contrôles de façon indépendante et garder les conflits en vue
+#### 20. Tester les contrôles de façon indépendante et garder les conflits en vue
 
-Un contrôle ne vaut que par les éléments probants démontrant qu'il fonctionne. Consignez les essais par ligne de défense et par aspect ; lorsqu'un résultat indépendant contredit l'autoévaluation de la direction, les deux restent visibles jusqu'à ce qu'une personne tranche.
+Un contrôle ne vaut que par les éléments probants démontrant qu'il fonctionne. Consignez les essais par ligne de défense et par aspect; lorsqu'un résultat indépendant contredit l'autoévaluation de la direction, les deux restent visibles jusqu'à ce qu'une personne tranche.
 
-*Où :* Gestion de la cybersécurité → Essais des contrôles ; Éditeur de scénarios
+*Où :* Gestion de la cybersécurité → Essais des contrôles; Éditeur de scénarios
 
-1. Gestion de la cybersécurité → « Essais des contrôles » → « Ajouter » : le contrôle soumis à l'essai, la date, la ligne d'évaluation, l'aspect (conception, mise en œuvre, fonctionnement) et le résultat ; pour l'efficacité du fonctionnement, la période, la population, l'échantillon et les écarts.
-2. « Éléments probants des contrôles par ligne de défense » présente le dernier résultat de chaque ligne, les constatations ouvertes et les conflits.
-3. Dans l'éditeur de scénarios, « Contexte de l'organisation et éléments probants des contrôles » présente les mêmes éléments probants pour les contrôles du scénario : utilisez-les dans la justification de θ et des réductions.
+1. Gestion de la cybersécurité → « Essais des contrôles » → « Ajouter » : le contrôle soumis à l'essai, la date, la ligne d'évaluation, l'aspect (conception, mise en œuvre, fonctionnement) et le résultat; pour l'efficacité du fonctionnement, la période, la population, l'échantillon et les écarts.
+2. « Éléments probants des contrôles par ligne de défense » présente le dernier résultat de chaque ligne, les constatations ouvertes et les conflits.
+3. Dans l'éditeur de scénarios, « Contexte de l'organisation et éléments probants des contrôles » présente les mêmes éléments probants pour les contrôles du scénario : utilisez-les dans la justification de θ et des réductions.
 
-*Terminé lorsque :* Les contrôles sur lesquels reposent les scénarios ont été soumis à des essais par une ligne indépendante, et aucun conflit ne reste non résolu.
+*Terminé quand :* Les contrôles sur lesquels reposent les scénarios ont été soumis à des essais par une ligne indépendante, et aucun conflit ne reste non résolu.
 
-#### 19. Auditer en fonction de critères et assurer un suivi indépendant
+#### 21. Auditer en fonction de critères et assurer un suivi indépendant
 
 Une constatation d'audit énonce le critère, le constat, la cause et l'effet, avec des éléments probants. Elle n'est fermée qu'après qu'un suivi indépendant a vérifié la mesure corrective.
 
-*Où :* Gestion de l'audit → Missions ; Programmes · SP 800-53A ; Constatations ; Rapports SOC et éléments probants
+*Où :* Gestion de l'audit → Missions; Programmes · SP 800-53A; Constatations; Rapports SOC et éléments probants
 
-1. Gestion de l'audit → « Programmes · SP 800-53A » : consultez les objectifs d'évaluation d'un contrôle, ou « Planifier une mission avec ce programme » (les programmes sont illustratifs).
-2. « Missions » → « Procédures » : chargez ou rédigez les procédures, consignez leurs résultats, l'échantillon et les écarts, puis « Consigner une constatation » lorsqu'une exception a été relevée.
-3. « Constatations » : remplissez le critère, le constat, la cause, l'effet et l'importance, la réponse de la direction et la mesure corrective ; ne fermez qu'avec un suivi indépendant.
-4. « Rapports SOC et éléments probants » : consignez les rapports d'assurance des organisations de services avec leurs exceptions et leurs contrôles complémentaires attendus de l'entité utilisatrice (CUEC), ainsi que le registre des éléments probants avec les dates de validité.
+1. Gestion de l'audit → « Programmes · SP 800-53A » : consultez les objectifs d'évaluation d'un contrôle, ou « Planifier une mission avec ce programme » (les programmes sont illustratifs).
+2. « Procédures · SP 800-53A » et « Feuilles de travail et échantillonnage » : chargez ou rédigez les procédures, consignez leurs résultats, l'échantillon et les écarts, puis « Consigner une observation » lorsqu'une exception a été relevée; validez-la comme constatation dans « Observations et constatations ».
+3. « Constatations » : remplissez le critère, le constat, la cause, l'effet et l'importance, la réponse de la direction et la mesure corrective; ne fermez qu'avec un suivi indépendant.
+4. « Rapports SOC et éléments probants » : consignez les rapports d'assurance des organisations de services avec leurs exceptions et leurs contrôles complémentaires attendus de l'entité utilisatrice (CUEC), ainsi que le registre des éléments probants avec les dates de validité.
 
-*Terminé lorsque :* Chaque constatation a un responsable, une date d'échéance et une réponse, et les constatations fermées ont fait l'objet d'un suivi indépendant.
+*Terminé quand :* Chaque constatation a un responsable, une date d'échéance et une réponse, et les constatations fermées ont fait l'objet d'un suivi indépendant.
 
-#### 20. Décider en vertu des pouvoirs délégués, et garder les exceptions honnêtes
+#### 22. Décider en vertu des pouvoirs délégués, et garder les exceptions honnêtes
 
-Accepter un risque, financer un traitement ou accorder une exception à une politique est une décision de la direction, prise par une personne nommée en vertu d'une délégation valide à cette date. L'application rédige ; les personnes décident. Une exception ne déroge jamais à une loi et cesse d'atténuer le risque à son expiration.
+Accepter un risque, financer un traitement ou accorder une exception à une politique est une décision de la direction, prise par une personne nommée en vertu d'une délégation valide à cette date. L'application rédige; les personnes décident. Une exception ne déroge jamais à une loi et cesse d'atténuer le risque à son expiration.
 
-*Où :* Gestion de la cybersécurité → Gouvernance ; Décisions ; Gestion de la sécurité de l'information → Exceptions aux politiques
+*Où :* Gestion de la cybersécurité → Gouvernance; Décisions; Gestion de la sécurité de l'information → Exceptions aux politiques
 
-1. Gestion de la cybersécurité → « Gouvernance » : les organes de gouvernance, les rôles par ligne, et les délégations de pouvoirs avec leur portée et leurs dates.
-2. « Décisions » → « Rédiger des fiches de décision pour les scénarios au-delà de la tolérance », puis laissez le décideur consigner la décision en vertu d'une délégation valide.
-3. Gestion de la sécurité de l'information → « Exceptions aux politiques » : périmètre, approbateur, contrôles compensatoires, expiration et scénarios qui comptent sur chacune.
+1. Gestion de la cybersécurité → « Gouvernance » : les organes de gouvernance, les rôles par ligne, et les délégations de pouvoirs avec leur portée et leurs dates.
+2. « Décisions » → « Rédiger des fiches de décision pour les scénarios au-delà de la tolérance », puis laissez le décideur consigner la décision en vertu d'une délégation valide.
+3. Gestion de la sécurité de l'information → « Exceptions aux politiques » : périmètre, approbateur, contrôles compensatoires, expiration et scénarios qui comptent sur chacune.
 
-*Terminé lorsque :* Chaque risque supérieur à la tolérance a une fiche de décision établie par une personne ayant un pouvoir valide, et aucun scénario ne compte sur une exception expirée.
+*Terminé quand :* Chaque risque supérieur à la tolérance a une fiche de décision établie par une personne ayant un pouvoir valide, et aucun scénario ne compte sur une exception expirée.
 
-#### 21. Lire le contexte de l'ontologie, ne renvoyer que des propositions
+#### 23. Lire le contexte de l'ontologie, ne renvoyer que des propositions
 
 Au moyen du contrat dss/v1, l'ontologie renvoie le contexte de l'organisation pour un scénario — obligations, applicabilité, éléments probants des contrôles par ligne, constatations ouvertes — et consigne les résultats de cette application comme propositions. Elle ne calcule jamais un risque, et un renvoi des résultats n'est jamais une approbation.
 
-*Où :* Ontologie · CRGO → Lien avec l'organisation ; Connexion
+*Où :* Ontologie · CRGO → Lien avec l'organisation; Connexion
 
-1. Ontologie · CRGO → « Connexion » : le serveur doit être CRGO v0.9.1 ou une version ultérieure.
-2. « Lien avec l'organisation » : définissez la base de l'organisation (jamais https://w3id.org/crgo/) et le dossier confidentiel, puis « Construire le graphe de l'organisation » ; les totaux doivent être égaux à ceux de cette application.
-3. « Lire le contexte » pour un scénario, puis cochez des scénarios et des quantités et « Envoyer les résultats cochés sous forme de propositions ». Un refus est affiché tel qu'il a été reçu ; corrigez-en la cause plutôt que de modifier les données.
+1. Ontologie · CRGO → « Connexion » : le serveur doit être CRGO v0.9.1 ou une version ultérieure.
+2. « Lien avec l'organisation » : définissez la base de l'organisation (jamais https://w3id.org/crgo/) et le dossier confidentiel, puis « Construire le graphe de l'organisation »; les totaux doivent être égaux à ceux de cette application.
+3. « Lire le contexte » pour un scénario, puis cochez des scénarios et des quantités et « Envoyer les résultats cochés sous forme de propositions ». Un refus est affiché tel qu'il a été reçu; corrigez-en la cause plutôt que de modifier les données.
 
-*Terminé lorsque :* Les résultats que l'organisation souhaite consigner se trouvent dans son graphe proposé, avec la version du modèle, les intrants et le hachage des intrants.
+*Terminé quand :* Les résultats que l'organisation souhaite consigner se trouvent dans son graphe proposé, avec la version du modèle, les intrants et le hachage des intrants.
 
-#### 22. Effectuer la revue de qualité avant que quoi que ce soit ne sorte
+#### 24. Ouvrir le rapport sur les décisions
+
+Le sommaire de gestion obtient des décisions : il dit ce que la direction doit décider, combien de scénarios sont au-dessus, environ à et sous la tolérance avant et après traitement, ce que coûte le portefeuille par rapport au budget et ce qui reste incertain.
+
+*Où :* Rapport → Sommaire de gestion
+
+1. Sommaire de gestion : inscrivez chaque décision demandée sur sa propre ligne, les principales limites et les prochaines étapes.
+2. Lisez le tableau du portefeuille et le résiduel par rapport à la tolérance ; chaque chiffre provient du moteur vérifié.
+3. « Exporter le sommaire (.md) » ou « Sommaire imprimable » : joignez le classeur (Exporter · Excel) — le sommaire concorde avec lui à l’unité près.
+
+*Terminé quand :* Le sommaire est exporté et la revue de qualité ne montre aucun contrôle en échec.
+
+#### 25. Effectuer la revue de qualité avant que quoi que ce soit ne sorte
 
 Avant un rapport ou un renvoi des résultats, vérifiez que rien n'est qualifié d'approuvé, de conforme ou de probable sans une personne, des éléments probants ou le bon type de données à l'appui.
 
-*Où :* Gouvernance → Revue de qualité
+*Où :* Gouvernance → Revue de qualité
 
-1. Gouvernance → « Revue de qualité » : lisez chaque vérification échouée et ouvrez l'écran qui permet de la corriger.
+1. Gouvernance → « Revue de qualité » : lisez chaque vérification échouée et ouvrez l'écran qui permet de la corriger.
 
-*Terminé lorsque :* Aucune vérification n'échoue, et celles qui demandent de l'attention sont expliquées dans le rapport.
+*Terminé quand :* Aucune vérification n'échoue, et celles qui demandent de l'attention sont expliquées dans le rapport.
 
 ---
 
@@ -647,7 +703,7 @@ correspondante, dans sa propre fenêtre.
 
 ### 7.1 Démarrer — Processus {#process}
 
-Section 6. Les fiches d'étape avec leur état dans l'espace de travail, la prochaine étape recommandée,
+Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétit et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*). Les fiches d'étape avec leur état dans l'espace de travail, la prochaine étape recommandée,
 les lignes directrices en détail et la liste de contrôle imprimable. Le bandeau du haut rappelle que
 l'application est une version bêta et que chaque résultat est une hypothèse analytique à valider.
 
@@ -759,7 +815,7 @@ confirmées*. L'extraction du texte et les indices n'utilisent aucune IA.
 #### Importer des documents — à tout moment
 
 **Organisation → Importer des documents** est l'endroit où les documents deviennent une évaluation ;
-c'est l'étape 4 du Processus. L'écran fonctionne de la même façon, que l'espace de travail ait été créé
+elle fait partie de l'étape 1 du Processus. L'écran fonctionne de la même façon, que l'espace de travail ait été créé
 il y a une minute ou que l'évaluation date de plusieurs mois : de nouvelles informations arrivent — un
 rapport d'audit, une liste de fournisseurs, un nouvel incident — et vous les extrayez sans ressaisie et
 sans perturber ce qui s'y trouve déjà.
@@ -793,8 +849,8 @@ et l'acheminement de ses requêtes d'IA :
 | Personnes et rôles | Organisation → Preuves ; *Créer l'utilisateur* en mode multiutilisateur | oui | responsables proposés, RACI de départ |
 | Contexte de classe | l'onglet Classe | oui | |
 
-Les cibles cochées ici constituent le **plan d'importation** de l'étape 4 du Processus : l'étape est
-terminée lorsque chaque cible du plan a été examinée au moins une fois. Choisissez la **Méthode** — IA
+Les cibles cochées ici constituent le **plan d'importation**, présenté comme parties facultatives de
+l'étape 1 du Processus, chacune cochée une fois examinée. Choisissez la **Méthode** — IA
 (aperçu avant l'envoi) ou Règles seulement, sans IA, hors ligne (lorsqu'une règle existe) — et cliquez
 sur **Démarrer l'importation**. Le profil s'ouvre en premier, puis les actifs essentiels, puis chaque
 cible à tour de rôle ; chacune ouvre sa revue : modifiez, cochez, **Ajouter les cochés**. Si les valeurs
@@ -989,15 +1045,47 @@ profond.
 
 ### 7.3 Évaluation des risques
 
-L'évaluation proprement dite : les indicateurs, ce qui protège déjà l'organisation, les scénarios, le
-calcul, les risques, le traitement et les recommandations.
+L'évaluation proprement dite : les preuves, les indicateurs, ce qui protège déjà l'organisation, les
+candidats et leur filtrage, les scénarios, le calcul, les risques, le traitement, les recommandations et le
+sommaire de gestion.
 
-### 7.3.1 Tableau de bord des ICR {#dashboard}
+### 7.3.1 Registre des éléments probants {#evidence}
+
+Les sources sur lesquelles repose l'évaluation — l'étape 1 du Processus. Chaque ligne a un identifiant
+(**E1**, **E2**…), la source, son **type** — *documentée* (politiques, schémas d'architecture, rapports
+d'audit, contrats), *exercice ou simulation* (injects de table ronde, journaux d'exemple), *apport d'expert*
+ou *externe* (rapports de menace, statistiques sectorielles) —, ce qu'elle appuie, sa **force** (forte,
+modérée, faible), sa **classification** (preuve organisationnelle vérifiée, preuve externe ou sectorielle,
+jugement d'expert, hypothèse, inconnu — validation requise), une date et un gardien.
+
+- **Ajouter une preuve** ouvre l'éditeur ; **Modifier** sur une ligne la change. Un identifiant s'écrit E1,
+  E2… ; une source exige un titre.
+- **Ajouter les documents de contexte** propose une entrée par document de l'espace de travail, marquée
+  *Lacune d'information — validation organisationnelle requise* tant que vous n'avez pas indiqué ce que le
+  document appuie.
+- **Cité dans** montre où chaque entrée est citée : les preuves et justifications des six paramètres dans
+  l'Éditeur de scénarios, la justification CVSS et les justifications du filtrage. Un numéro E cité mais
+  absent du registre est signalé en haut.
+- **Exporter (.csv)** écrit le registre avec ses citations.
+
+Deux règles s'appliquent partout. Le matériel d'exercice ou de simulation est une **preuve indicative à
+valider, jamais un incident confirmé**. Les valeurs d'un formateur, d'un gabarit ou d'un étalonnage sont des
+aides à la calibration, pas des preuves organisationnelles. Le registre alimente le critère de filtrage
+*force de la preuve* et la confiance de chaque paramètre ; l'exportation Excel l'écrit dans la feuille
+*Evidence*.
+
+Ce registre est celui de l'évaluation. Le **registre partagé des preuves** des modules de gestion
+(Gouvernance → Registres partagés → Preuves) consigne les preuves de conformité avec leur période et leur
+validité ; c'est un autre dossier.
+
+### 7.3.2 Tableau de bord des ICR {#dashboard}
 
 Deux types d'indicateurs clés de risque :
 
 - Les **ICR calculés** (CRG-01 … CRG-10) proviennent de l'espace de travail lui-même : ratio
-  résiduel/toléré du portefeuille, scénarios au-dessus de la tolérance, risque résiduel total, âge de
+  risque/tolérance du portefeuille, scénarios au-dessus de la tolérance, l'indice de risque résiduel total
+  (affiché à titre de référence : un indice de risque est calculé à partir d'estimations et **n'est pas un
+  ICR**), âge de
   l'instantané, part des scénarios importants dont la Pb(ψ,A) repose sur le renseignement et est
   conditionnée par l'exposition, CVE exposées figurant au KEV, couverture de la correspondance ATT&CK,
   scénarios au-dessus de la tolérance dont le traitement est financé, décisions consignées, et dépenses
@@ -1058,7 +1146,7 @@ demandez à Claude d'actualiser le tableau de bord quand les chiffres changent. 
 tableau de bord Claude peut lire ses jeux de données : ne le partagez qu'avec les personnes autorisées à voir
 l'évaluation.
 
-### 7.3.2 Mesures de protection existantes — ce qui vous protège déjà {#safeguards}
+### 7.3.3 Mesures de protection existantes — ce qui vous protège déjà {#safeguards}
 
 Deux registres distincts répondent à deux questions distinctes. **Atténuation des risques** répond à
 *que devrions-nous ajouter, combien cela coûterait-il, qu'est-ce que cela nous apporterait*. **Mesures
@@ -1092,7 +1180,7 @@ base dans Budget. Ajoutez le personnel et les frais généraux que l'inventaire 
 
 *Où :* Mesures de protection existantes → Inventaire · Couverture de la résilience · Récupérer des contrôles · Méthode
 
-### 7.3.3 Registre des scénarios {#register}
+### 7.3.4 Registre des scénarios {#register}
 
 Tous les scénarios avec leurs menaces (pastilles ATT&CK), leurs vulnérabilités (pastilles CWE et CVE),
 leur CVSS, leur risque estimé et résiduel, leur ratio et leur statut. Les pastilles ouvrent la
@@ -1101,7 +1189,7 @@ cocher inclut le scénario dans les totaux ou l'en exclut. **Charger un JSON d'�
 les scénarios ou les ajoute à la suite (les ID en conflit sont renumérotés) ; **Exporter en JSON
 (crg_calc.py)** écrit le fichier que lit `crg_calc.py`.
 
-### 7.3.4 Éditeur de scénarios — consulter et modifier un scénario {#scenario}
+### 7.3.5 Éditeur de scénarios — consulter et modifier un scénario {#scenario}
 
 Tout ce qui concerne un scénario sur un seul écran, avec ses ICR recalculés au fil de la saisie :
 
@@ -1115,7 +1203,11 @@ Tout ce qui concerne un scénario sur un seul écran, avec ses ICR recalculés a
 - **Quantification.** Les six paramètres avec leur valeur, leur justification, leurs preuves et leur
   niveau de confiance.
 - **CVSS v4.0 (base seulement)** — modifiez le vecteur ici ou dans le calculateur CVSS, puis
-  enregistrez-le dans le scénario.
+  enregistrez-le dans le scénario. *Origine du score* indique s'il s'agit du score d'une vulnérabilité
+  technique ou d'un score **par équivalence** pour une faiblesse non technique : alors le type de faiblesse
+  et une justification d'une ligne pour chaque métrique, avec la mention *applicabilité limitée* et le
+  marqueur *Estimation analytique — validation requise* (section 7.10.1). Un score enregistré qui ne
+  concorde pas avec son vecteur est signalé.
 - **Traitement** — réduction de la probabilité et de l'impact, ensemble de traitement, initiatives qui
   visent le scénario, ou coût manuel de l'année 1.
 - **Fondement du contexte de menace** — la piste d'audit rédigée lorsqu'une proposition de Pb(ψ,A) est
@@ -1158,9 +1250,9 @@ marquées TLP:RED ou TLP:AMBER+STRICT sont masquées à moins que vous ne cochie
 TLP:RED et TLP:AMBER+STRICT sur cet ordinateur*. Des boutons mènent à Couverture et lacunes du SIEM, à
 Alertes et tri, aux dossiers SOAR, aux Guides d'intervention et aux amorces dans Scénarios en lot.
 
-### 7.3.5 Scénarios en lot — créer de nombreux scénarios à la fois {#batch}
+### 7.3.6 Scénarios en lot — créer de nombreux scénarios à la fois {#batch}
 
-- **Générer à partir de menaces × actifs.** Cochez des modèles de menace (dix-huit archétypes comme
+- **Générer à partir de menaces × actifs.** Cochez des modèles de menace (vingt-deux archétypes, dont les modèles infonuagiques — stockage mal configuré, vol de jetons, abus de fédération d'identité, panne d'un fournisseur SaaS critique, clé ou secret exposé dans l'infrastructure en tant que code, défaillance de l'isolement des locataires ou compromission du fournisseur infonuagique —, et comme
   l'hameçonnage visant les identifiants, le rançongiciel, l'exploitation d'équipements de périphérie, la
   mauvaise configuration infonuagique, la compromission d'un fournisseur, la fraude par compromission de
   courriel d'affaires (BEC), la destruction des sauvegardes…) ou ajoutez n'importe quelle technique
@@ -1186,7 +1278,7 @@ Alertes et tri, aux dossiers SOAR, aux Guides d'intervention et aux amorces dans
 - **À partir de l'ontologie et du Registre partagé des risques.** Ontologie · CRGO → *Ajouter les
   cochés aux scénarios en lot* (marqués *[CRGO]*) et Registre partagé des risques → *Utiliser les fiches
   cochées dans cet espace de travail* (marqués *[Registre]*) aboutissent également ici.
-- **Proposer avec l'IA.** Choisissez le nombre de candidats (1 à 30) et, au besoin, une orientation
+- **Proposer avec l'IA.** Choisissez le nombre de candidats (1 à 40) et, au besoin, une orientation
   (« mettre l'accent sur les fournisseurs », « TO dans les usines »). Le profil de l'organisation, les
   actifs essentiels et les actifs informationnels sont envoyés — affichés d'abord dans l'aperçu
   habituel. Chaque candidat revient avec une chaîne causale complète et les six paramètres, chacun
@@ -1209,6 +1301,11 @@ Alertes et tri, aux dossiers SOAR, aux Guides d'intervention et aux amorces dans
   incidents non confirmés par une personne ne sont pas comptés comme incidents ; les amorces TLP:RED et
   TLP:AMBER+STRICT restent masquées à moins que vous ne cochiez *Afficher les éléments TLP:RED et
   TLP:AMBER+STRICT sur cet ordinateur*.
+
+**Combien, et ensuite.** Environ 25 à 40 candidats pour un portefeuille de dix, jamais moins de 20 (20
+correspond à la version rapide des laboratoires). **Ajouter les lignes cochées comme candidats au filtrage**
+envoie les lignes cochées au Filtrage des scénarios (section 7.3.7) avec la stratégie qui les a produites ;
+**Ajouter … sélectionnés au registre** les ajoute directement comme scénarios.
 
 Dans **Proposer avec l'IA**, cocher **Inclure les preuves des opérations de sécurité** ajoute à la
 requête un résumé de ces amorces — affiché dans l'aperçu comme tout le reste. Il est filtré : les
@@ -1245,7 +1342,67 @@ La répartition repose sur un **germe** ; le germe est affiché et conservé av
 cité dans un rapport peut être reconstitué. *Varier les modèles et les actifs* peut être décoché pour
 obtenir le classement strict.
 
-### 7.3.6 Calculateur de risque {#calc}
+### 7.3.7 Filtrage des scénarios {#screening}
+
+Les étapes 5 à 7 du Processus, telles que les décrit le chapitre 5 du manuel : des candidats filtrés sur
+douze critères, regroupés en familles, mis à l'épreuve selon quatre schémas de pondération, vérifiés pour la
+couverture, puis le portefeuille final — **normalement dix scénarios**. Les candidats sont les *Candidates*
+de l'évaluation (la même liste que la feuille Candidates du classeur) ; Scénarios en lot → **Ajouter les
+lignes cochées comme candidats au filtrage** ajoute des lignes de la grille, et **Ajouter un candidat** en
+ajoute un à la main.
+
+**Combien.** Environ **25 à 40 candidats pour un portefeuille de dix**, jamais moins de **20** (20
+correspond à la version rapide des laboratoires) ; le bandeau du haut indique où en est l'espace de travail.
+Une bonne population utilise au moins trois des cinq **stratégies de génération** — descendante, ascendante,
+axée sur la menace, axée sur les dépendances et générique localisée —, consignées pour chaque candidat.
+
+**Candidats et notes.** **Score** ouvre la fiche d'un candidat : les douze critères notés de 1 (très
+faible) à 5 (très élevé) — criticité d'affaires, criticité de l'actif, pertinence de la menace, exposition ou
+vulnérabilité, impact potentiel, réglementaire et juridique, résilience opérationnelle, dépendance et
+concentration, force de la preuve (5 = preuve organisationnelle directe, 1 = hypothèse seulement), vélocité
+du risque, incertitude sur les contrôles et utilité pour la décision —, avec une justification d'une ligne,
+les **indicateurs d'escalade**, la **confiance de sélection** (élevée, moyenne, faible), le fondement de
+preuve dominant et une **décision** : *Retenir*, *Regrouper* (dans une famille), *Examiner* (examen
+explicite) ou *Reporter*. Le total sur 60 est une **aide au filtrage, pas une règle mécanique**. Ne classez
+pas selon le CVSS. **Exporter le filtrage (.csv)** écrit chaque note, chaque total et chaque note pondérée.
+
+**Indicateurs d'escalade.** Sécurité des personnes, interruption d'un service essentiel, perte catastrophique
+de données, défaillance organisationnelle systémique, conséquences graves pour la vie privée, manquement
+réglementaire majeur, perte financière existentielle, compromission d'une infrastructure à privilèges élevés,
+destruction des capacités de sauvegarde ou de reprise, défaillance simultanée des environnements principal et
+de reprise, concentration critique de la chaîne d'approvisionnement, propagation à plusieurs unités ou
+territoires. Un candidat signalé ne peut être écarté pour sa seule faible probabilité : l'écarter exige un
+**examen de l'exclusion** consigné sur sa fiche, ou une place sur la liste de surveillance — **Décision de la
+direction requise**.
+
+**Familles.** Les variantes d'une même exposition sont regroupées dans une famille, représentée par un
+énoncé causal plus fort ; deux candidats restent distincts quand leurs actifs, acteurs de menace,
+conséquences, contrôles, responsables ou décisions de traitement diffèrent sensiblement. Cochez **Retenue
+pour le portefeuille** pour les familles du portefeuille final.
+
+**Schémas de pondération.** Chaque famille prend la note pondérée la plus élevée de ses membres, de sorte que
+les variantes ne s'additionnent pas. Les rangs selon les schémas **égal**, **axé sur l'impact**, **axé sur la
+preuve** et **axé sur la décision** sont présentés côte à côte. Une famille retenue qui n'est pas parmi les
+dix premières dans chaque schéma est **retenue par jugement** : écrivez pourquoi. Un candidat non retenu qui
+se classe parmi les dix premiers dans un schéma exige un **examen explicite**.
+
+**Matrice de couverture.** Les familles retenues par rapport aux catégories — confidentialité, intégrité,
+disponibilité, identité, rançongiciel, infonuagique et SaaS, tiers, initiés, applications et API,
+infrastructure, terminaux, TO/IdO/dispositifs médicaux, vie privée, fraude et compromission de courriel
+d'affaires, résilience, IA et sécurité des personnes. Une lacune est une question à trancher, pas un quota à
+remplir.
+
+**Liste de surveillance et plan.** Les candidats écartés mais encore importants, chacun avec son déclencheur
+de promotion et son responsable, et le **plan de collecte des preuves** : comment chaque scénario retenu sera
+validé, par qui et pour quand.
+
+**Portefeuille final.** Pour chaque famille retenue, les six questions **« pourquoi ce scénario ? »** et
+**Créer le scénario**, qui l'ajoute au registre avec son énoncé regroupé ; ses paramètres sont ensuite
+estimés dans l'Éditeur de scénarios (étape 9 du Processus). Le cas d'enseignement MediBec fournit son
+filtrage : 45 candidats, dix familles, P05 et P10 retenues par jugement et C31 sur la liste de surveillance
+pour examen explicite.
+
+### 7.3.8 Calculateur de risque {#calc}
 
 **Tableau du portefeuille.** Le risque de chaque scénario — Pb(A), Pb(ψ,A), CVSS, risque estimé,
 toléré, atténué et résiduel, ratio, statut et coût de l'année 1 attribué — avec une **case à cocher
@@ -1271,11 +1428,21 @@ Les initiatives partagées sont réparties également entre les scénarios *incl
 sorte qu'exclure un scénario reporte sa part d'un contrôle partagé sur les autres plutôt que de la
 perdre.
 
-**Calcul d'un seul scénario.** Cliquez sur une ligne pour charger le scénario : chaque étape de la
-formule, les cas de sensibilité à ±0.10 et le rapport coût-efficacité. Modifiez les valeurs comme dans
-un bac à sable, puis enregistrez-les dans le scénario ou comme nouveau scénario.
+**Calcul d'un seul scénario.** Cliquez sur une ligne pour charger le scénario : chaque étape de la
+formule, le score CVSS-B, le **ratio avant traitement** (estimé ÷ toléré) à côté du **ratio
+risque/tolérance** (résiduel ÷ toléré), les cas de sensibilité à ±0,10 et le rapport coût-efficacité en
+unités de risque retirées par tranche de 1 000 $. Modifiez les valeurs comme dans un bac à sable, puis
+enregistrez-les dans le scénario ou comme nouveau scénario. **Consigner l'examen de sensibilité** indique
+que la sensibilité du scénario a été examinée (étape 15 du Processus).
 
-### 7.3.7 Registre des risques {#riskreg}
+**Chaque donnée d'entrée est vérifiée.** Pb(A), Pb(ψ,A), δe, δm, μ(E) et les réductions doivent être
+entre 0 et 1, θ dans (0, 1], l'appétit strictement entre 0 et 1, δm au moins égal à δe, et un score CVSS —
+un vecteur ou un score de 0 à 10 — est **obligatoire** : un champ CVSS vide est signalé *CVSS requis*,
+jamais calculé comme 0. Un score enregistré à côté d'un vecteur est recalculé à partir du vecteur et un
+désaccord est signalé (Éditeur de scénarios et Revue de qualité QC-21) ; le score enregistré est utilisé
+tant que vous ne le modifiez pas.
+
+### 7.3.9 Registre des risques {#riskreg}
 
 Les risques sont ce dont la direction est responsable ; les scénarios sont la façon de les quantifier.
 *Créer à partir des scénarios* crée un risque par scénario avec ses techniques, ses CWE/CVE, ses actifs
@@ -1288,12 +1455,10 @@ journalisée dans l'historique du risque. La carte de chaleur (inhérente, actue
 des principaux risques figurent au-dessus du registre. *Actualiser les cotes à partir des scénarios*
 met à jour les cotes actuelle et cible après une modification des paramètres.
 
-### 7.3.8 Atténuation des risques {#mitigation}
+### 7.3.10 Atténuation des risques {#mitigation}
 
-- **Catalogue de contrôles.** Votre liste (Controls_list.xlsx : ISO/IEC 27002:2013, les
-  sous-catégories du NIST CSF 1.1 étiquetées « NIST 800-53 » dans la feuille, CIS v7.1 — numérotation
-  corrigée et sept lignes signalées), ISO/IEC 27002:2022, NIST SP 800-53 Rev. 5 (avec les améliorations
-  sur demande), NIST CSF 2.0, CIS Controls v8.1, les mesures d'atténuation ATT&CK, les mesures CRG, et
+- **Catalogue de contrôles.** Les éditions actuelles : ISO/IEC 27002:2022, NIST SP 800-53 Rev. 5 (avec
+  les améliorations sur demande), NIST CSF 2.0, CIS Controls v8.1, les mesures d'atténuation ATT&CK, les mesures CRG, et
   tout catalogue que vous avez chargé dans *Cadres et normes* (section 7.5.4) — SP 800-171 r3,
   ITSP.10.171, COBIT 2019 ou votre propre importation. Recherchez, filtrez par cadre, par fonction ou
   par capacité, cochez des contrôles et faites *Ajouter* pour les intégrer à une mesure nouvelle ou
@@ -1309,8 +1474,10 @@ met à jour les cotes actuelle et cible après une modification des paramètres.
   **écart de contrôle**, une **faiblesse** d'un contrôle existant, ou un problème de **maturité**. Ces
   trois éléments sont ce qui transforme une mesure en une recommandation qui se lit comme une décision
   plutôt que comme une liste d'achats.
-- **Effet sur chaque scénario.** Les mesures sont combinées par scénario selon **red_p = 1 − ∏(1 − rp)**
-  et **red_i = 1 − ∏(1 − ri)** ; le moteur vérifié applique ensuite la convention du classeur atténué =
+- **Effet sur chaque scénario.** Plusieurs mesures sur le même levier se combinent selon la **règle du
+  produit**, celle de la méthode dans tous les outils : **red_p = 1 − ∏(1 − rp)** et **red_i = 1 − ∏(1 − ri)**
+  — les réductions de probabilité ensemble, les réductions d'impact ensemble, chaque coefficient entre 0
+  et 1, de sorte que le résultat ne dépasse jamais 1 ; le moteur vérifié applique ensuite la convention du classeur atténué =
   estimé × red_p × red_i. Le tableau affiche le ratio actuel et le ratio avec les mesures. **Appliquer**
   écrit les valeurs combinées dans le scénario avec une entrée de révision ; **Annuler les
   modifications** rétablit les valeurs précédentes. Comme la convention multiplie les deux réductions,
@@ -1322,7 +1489,7 @@ met à jour les cotes actuelle et cible après une modification des paramètres.
 - **→ Recommandation**. Cochez les mesures qui vont ensemble et appuyez sur ce bouton : une **ébauche de
   recommandation** est créée à partir d'elles, regroupant leurs scénarios, leurs coûts, leur horizon,
   la correspondance avec les cadres de référence et la réduction qu'elles permettraient d'obtenir.
-  Poursuivez dans *Recommandations → Registre* (section 7.3.9). Cocher une mesure ne fait que mettre à
+  Poursuivez dans *Recommandations → Registre* (section 7.3.11). Cocher une mesure ne fait que mettre à
   jour la barre d'actions — le tableau n'est pas redessiné, de sorte que votre position de défilement et
   tout éditeur ouvert sont conservés.
 - **Propositions.** Pour les scénarios sélectionnés, des capacités sont proposées à partir des mesures
@@ -1336,7 +1503,7 @@ met à jour les cotes actuelle et cible après une modification des paramètres.
   scénarios ou les contrôles inconnus sont signalés, le reste est ajouté sous forme de mesures
   *Proposé* avec les réductions par scénario de Claude.
 
-### 7.3.9 Recommandations — les options que l'organisation peut envisager {#recs}
+### 7.3.11 Recommandations — les options que l'organisation peut envisager {#recs}
 
 **Besoin de traitement** (premier onglet). Avant qu'un contrôle soit proposé, cet onglet indique pour
 chaque scénario inclus si son risque résiduel est **inférieur**, **approximativement égal** ou
@@ -1359,8 +1526,11 @@ dans cet onglet que cela est dit clairement. Parcourez-le avant les tableaux d'o
 Sous les options : les initiatives liées au scénario avec leur coût et leur rapport coût-efficacité,
 les mesures d'atténuation ATT&CK pour ses techniques et les mesures CRG qui les mettent en œuvre, ainsi
 que la **décision de la direction** — option retenue, responsable, horizon et justification,
-enregistrée dans le registre des décisions. Une décision qui s'écarte de la suggestion est légitime ;
-consignez-en la raison.
+enregistrée dans le registre des décisions. Une décision qui s'écarte de la suggestion est légitime ;
+consignez-en la raison. Un **transfert** consigne aussi la **part des pertes couverte** (0–1) — ce que
+l'assurance ou le contrat couvrirait, à titre informatif seulement : elle ne réduit jamais l'indice de
+risque, et le préjudice aux personnes et aux opérations demeure — et l'**approbateur** du transfert ; la
+Revue de qualité signale un transfert sans approbateur (QC-25).
 
 **Contrôles partagés** classe les initiatives selon le nombre de scénarios qu'elles servent et la
 réduction du risque qui leur est attribuée, et les mesures d'atténuation ATT&CK selon le risque
@@ -1415,6 +1585,29 @@ constituer un seul programme, ou réellement en constituer quatre.
 avec le décideur, à la modifier sur place à partir de ce que vous entendez, et seulement ensuite à la
 faire passer à l'examen et à l'approbation. Le journal de discussion de chaque recommandation sert
 exactement à cela.
+
+### 7.3.12 Sommaire de gestion {#summary}
+
+Une page qui obtient des décisions — l'étape *Rapport* du Processus. Elle commence par les **décisions
+demandées** : celles que l'évaluation fait elle-même ressortir (approuver l'appétit lorsqu'il est une
+estimation, chaque scénario encore au-dessus de la tolérance après traitement, l'écart par rapport au budget
+cohérent avec l'appétit, le portefeuille à financer, les candidats signalés exclus sans examen, les
+transferts sans approbateur) et celles que vous ajoutez, une par ligne. Chacune est exportée avec le marqueur
+**Décision de la direction requise**.
+
+Ensuite : combien de scénarios sont **au-dessus, environ à et sous la tolérance avant et après
+traitement**, avec les totaux estimé, toléré et résiduel ; le **portefeuille et le budget** — coût de la
+première année du portefeuille recommandé, cible cohérente avec l'appétit, dépense actuelle et écart ; les
+**principaux risques** avec leur ratio risque/tolérance et leur décision ; les **marqueurs** — valeurs de
+paramètres présentées comme estimations, valeurs sans référence de preuve, scores CVSS d'applicabilité
+limitée et chaque **Lacune d'information — validation organisationnelle requise** ; les **limites** et les
+**prochaines étapes**.
+
+Chaque chiffre est lu dans le moteur vérifié au moment de l'affichage de la page, de sorte que le sommaire
+concorde à l'unité près avec le classeur. **Exporter le sommaire (.md)** et **Sommaire imprimable**
+consignent la date de l'exportation (le Processus indique l'étape Rapport terminée une fois le sommaire
+exporté et la revue de qualité réussie). Un cas d'enseignement est indiqué comme fictif dans l'exportation.
+Joignez le classeur Excel (Exporter · Excel).
 
 ### 7.4 Menaces et vulnérabilités
 
@@ -1624,7 +1817,7 @@ dans Contexte de menace.
 l'application — environ 1,5 Mo — et le bouton à côté du sélecteur de fichier le charge en un clic. Il
 contient le **catalogue CISA KEV complet à sa date de construction (1 733 entrées), 38 533 scores EPSS,
 l'Échelle des preuves de menace, les seuils et les contraintes**. C'est suffisant pour placer des CVE
-sur l'échelle, exécuter la jointure d'exposition et terminer l'étape 5 du Processus sur une machine sans
+sur l'échelle, exécuter la jointure d'exposition et terminer l'étape 3 du Processus sur une machine sans
 aucun accès à Internet.
 
 La table EPSS est **élaguée au plafond de l'échelon 1 de l'échelle elle-même** (0.05), en conservant
@@ -2222,7 +2415,7 @@ Dix-huit vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte 
 | QC-09 | La base de l'organisation appartient à l'organisation. |
 | QC-10 | Les cas fictifs et les valeurs a priori de l'ontologie ne sont pas des éléments probants d'étalonnage. |
 | QC-11 | Les preuves sont à jour. |
-| QC-12 | Le moteur reproduit la base de référence MediBec (84,491 / 41,104). |
+| QC-12 | Le moteur reproduit la base de référence MediBec (84,305 / 41,023). |
 | QC-13 | Les normes sous licence sont citées par identifiant seulement. |
 | QC-14 | Aucune obligation n'est déclarée conforme sur la foi d'une correspondance, d'une prise de connaissance ou d'une attestation : chaque détermination *satisfaite* repose sur une preuve à jour du registre partagé. |
 | QC-15 | Aucun incident n'est inféré d'une alerte : chaque incident est confirmé par une personne nommée, à une date. |
@@ -2742,7 +2935,7 @@ forme de paquet.
 
 **Utilisateurs privilégiés seulement** : en mode utilisateur unique, la seule personne ; en mode
 multiutilisateur, un administrateur ou un utilisateur détenant le rôle **A** (Approbateur) à
-l'étape 13. Les autres peuvent parcourir.
+l'étape Rapport. Les autres peuvent parcourir.
 
 1. **Les risques à partager** — cochez des scénarios de l'espace de travail.
 2. **Leur classement au catalogue** — rempli à partir du profil (secteur, sous-secteur, région, taille,
@@ -2801,11 +2994,28 @@ modération sont conservées).
 
 ### 7.10.1 CVSS v4.0 {#cvss}
 
-Un calculateur de score de base. Les métriques Threat et Environmental sont délibérément absentes.
+Un calculateur de score de base (CVSS-B). Les métriques Threat et Environmental sont délibérément absentes.
 Collez un vecteur pour le charger, l'envoyer au calculateur de risque ou — lorsque l'outil est ouvert à
 partir d'un scénario — l'y enregistrer.
 
+**Par équivalence (faiblesse non technique).** Une faiblesse de processus, de personnes, de gouvernance,
+physique, de tiers ou de configuration n'a pas de CVE, mais la formule exige un score CVSS. Dans cet
+onglet, choisissez le **type de faiblesse** ; chaque métrique de base présente la question à poser à la
+faiblesse (qui peut l'atteindre et d'où, faut-il déjouer une protection, une victime doit-elle agir,
+qu'advient-il du processus et en aval) et une **justification d'une ligne** à rédiger. Enregistré dans un
+scénario, le score porte la mention **applicabilité limitée** et le marqueur **Estimation analytique —
+validation requise**, dans l'Éditeur de scénarios, le registre et chaque exportation (la feuille Excel
+*CVSS_Basis* donne la justification de chaque métrique). L'Éditeur de scénarios offre le même choix sous
+*Origine du score* ; la Revue de qualité met en échec un score par équivalence dont une métrique n'est pas
+justifiée (QC-22). Appliquez l'équivalence de la même façon dans tout le portefeuille, et ne l'ajustez jamais
+pour obtenir un classement préféré.
+
 ### 7.10.2 Budget — années, projets pluriannuels et fourchettes, de l'aversion pour le risque à la recherche du risque {#budget}
+
+**La règle.** La bonne pratique fixe une **cible ponctuelle**, et non une plage : 12 % du budget TI total
+(salaires compris) à un appétit de 0,30, 7,8 % à 0,50 et 4 % à 0,70, interpolée linéairement entre ces
+points et maintenue à la valeur extrême au-delà. Le critère est l'écart par rapport à cette cible, qui est
+remonté plutôt que réconcilié en silence.
 
 **Années budgétaires.** Choisissez l'**année budgétaire** en haut ; le tableau énumère chaque année avec
 son budget TI total, les dépenses de cybersécurité prévues, les dépenses de cybersécurité réelles, le
@@ -2901,7 +3111,7 @@ unique. Lancez ensuite les essais : vous obtenez le risque médian du portefeui
 
 La propriété utile : un espace de travail auquel on n'a pas touché donne une prévision **exactement**
 égale à son résultat calculé. Si vous lancez 10 000 essais sur MediBec sans aucune plage définie, la
-médiane est de 41 104 — pas approximativement. Il s'agit d'une vérification de l'outil de prévision, et
+médiane est de 41 023 — pas approximativement. Il s'agit d'une vérification de l'outil de prévision, et
 non d'une coïncidence, et c'est la première chose à essayer.
 
 Des plages peuvent être **proposées** à partir de la confiance déjà consignée pour chaque paramètre,
@@ -3250,7 +3460,7 @@ l'application :
 
 | Entrée | Ce qui s'ouvre |
 |---|---|
-| **Pas à pas** ↗ | Une fenêtre distincte présentant les treize étapes — à quoi chacune sert, ce dont elle a besoin, quand elle est terminée — et les lignes directrices en détail. Imprimable, fonctionne hors ligne. Cliquer sur le nom d'un écran ouvre cet écran dans la fenêtre de l'application. |
+| **Pas à pas** ↗ | Une fenêtre distincte présentant les dix-neuf étapes, le rapport et la revue de qualité — à quoi chacune sert, ce dont elle a besoin, quand elle est terminée — et les lignes directrices en détail. Imprimable, fonctionne hors ligne. Cliquer sur le nom d'un écran ouvre cet écran dans la fenêtre de l'application. |
 | **Guide de l'utilisateur** ↗ | Ce guide, dans une fenêtre distincte, avec une table des matières et une boîte de recherche — en français lorsque l'interface est en français. Imprimable, fonctionne hors ligne. |
 
 Ce sont des fenêtres plutôt que des onglets afin qu'un guide puisse rester à côté du travail, et les
@@ -3261,11 +3471,25 @@ application ; sinon, les entrées s'ouvrent dans des onglets.
 ### 7.12.2 À propos {#about}
 
 **À propos** (groupe Aide) comporte trois pages. **À propos** nomme le créateur, son courriel
-(marcandre@leger.ca), le site Web du projet (www.leger.ca) et le dépôt GitHub
-(github.com/ITriskMgr/CyberRiskGuardian), et reconnaît l'utilisation de l'IA générative dans la
-conception de l'application. **Licence** explique la licence CC BY-NC 4.0, puis répond à la question
-que les gens se posent réellement — voir la section 10. **Versions** énumère l'application, le moteur
-vérifié, l'assistant local et la base de connaissances.
+(marcandre@leger.ca), le site Web du projet (www.leger.ca), le site du produit (cyberriskguardian.ca,
+sales@cyberriskguardian.ca) et le dépôt GitHub (github.com/ITriskMgr/CyberRiskGuardian), et reconnaît
+l'utilisation de l'IA générative dans la conception de l'application. **Licence** indique qui peut utiliser
+l'application gratuitement et quelle licence s'applique aux autres — voir la section 10. **Versions**
+énumère l'application, le moteur vérifié, l'assistant local et la base de connaissances, et contient
+**Mises à jour** :
+
+- **Rechercher les mises à jour au démarrage** — désactivé tant que vous ne l'activez pas ; l'application pose
+  la question une fois, au premier démarrage. Lorsqu'elle est activée, l'assistant interroge les versions
+  GitHub de l'application (github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel) à chaque démarrage, à une seule
+  adresse fixe, sans envoyer de données.
+- **Vérifier maintenant** interroge immédiatement, quel que soit le réglage.
+- Lorsqu'une version plus récente existe, un bandeau indique **La version x.y.z est disponible**, avec
+  **Notes de version** et **Télécharger**, qui enregistre le ZIP de la version dans le dossier des flux comme
+  un téléchargement de flux. Rien n'est décompressé ni installé : sauvegardez (Sauvegarde et restauration),
+  décompressez le ZIP dans un nouveau dossier, quittez, démarrez la nouvelle version avec son lanceur et
+  vérifiez le moteur dans le pied de page (section 12).
+- Sans l'assistant, sans réseau, lorsqu'aucune version n'est publiée ou lorsque GitHub limite le nombre de
+  requêtes, la vérification le dit et ne change rien.
 
 **Quitter** (barre supérieure) enregistre votre travail, arrête l'assistant local et ferme la fenêtre.
 Dans un onglet de navigateur que l'application n'a pas ouvert elle-même, fermez l'onglet lorsque l'écran
@@ -3431,29 +3655,30 @@ c'est l'application qui a raison.
 
 ## 10. Licence — qui peut l'utiliser
 
-**À propos → Licence.** L'application est sous licence **CC BY-NC 4.0** : vous pouvez la partager et
-l'adapter, avec attribution, et non « principalement à des fins commerciales ou de compensation
-monétaire ». La page énumère les situations, parce que « non commercial » est un terme de licence et non
-un jugement sur qui mérite un logiciel gratuit.
+**À propos → Licence.** À partir de la version qui suit la 1.7.0, CyberRiskGuardian Desktop est un
+**logiciel propriétaire** : il fait l'objet d'une licence, non d'une vente. Les versions jusqu'à la
+1.7.0 ont été publiées sous CC BY-NC 4.0 et demeurent disponibles sous cette licence. L'**édition
+communautaire** — la méthode CyberRiskGuardian, le plugiciel Core pour Claude, la compétence du manuel de
+gouvernance, l'exemple MediBec et le matériel pédagogique gratuit — demeure gratuite sous CC BY-NC 4.0.
 
-**Autorisé sans demande :** les étudiants pour leurs propres travaux, y compris la remise du résultat
-pour évaluation ; l'usage personnel et privé ; les organismes sans but lucratif et les ONG qui évaluent
-leur propre cyberrisque ; la recherche et le matériel pédagogique que vous rédigez vous-même, avec
-attribution ; et **l'évaluation pendant au plus 30 jours** par toute organisation, afin de décider
-d'acquérir une licence.
+**Gratuit :** les étudiants, pour leur apprentissage personnel, y compris la remise du résultat pour
+évaluation; les organismes sans but lucratif — organismes de bienfaisance enregistrés et personnes
+morales sans but lucratif — qui évaluent leur propre cyberrisque (les collèges, les universités et les
+organismes publics n'en font pas partie); et **l'évaluation pendant au plus 30 jours** par toute
+organisation, afin de décider d'acquérir une licence.
 
-**Nécessite une licence commerciale :** les cégeps, collèges, universités et autres établissements
-d'enseignement qui l'utilisent pour donner de l'enseignement — les étudiants du cours sont couverts,
-l'établissement ne l'est pas ; les ministères et organismes gouvernementaux de tout ordre ; les sociétés
-d'État et autres entreprises publiques ; les entreprises et sociétés de toute taille, y compris les
-cabinets-conseils, les auditeurs et les conseillers qui l'utilisent pour des mandats clients ; et tout ce
-qui est intégré à un produit ou à un service payant.
+**Exige une licence :** les collèges, cégeps et universités prennent la **Licence éducative** (l'édition
+éducative), à un tarif considérablement réduit qui comprend l'installation et la personnalisation,
+l'application de bureau actuelle et l'édition Enseignant du matériel pédagogique, et leurs étudiants sont
+couverts par celle-ci. Les entreprises, consultants, fournisseurs de services gérés (MSSP),
+ministères et organismes publics, sociétés d'État, et tout ce qui est intégré à un produit ou à un
+service payant prennent la **Licence commerciale** — les éditions professionnelles : Professionnel, Équipe, Entreprise ou MSSP.
 
-Écrivez à **marcandre@leger.ca** en précisant ce que vous souhaitez faire. Une grille tarifaire
-officielle sera publiée ; elle n'est pas encore publiée, car le projet est toujours en développement, et
-les conditions sont convenues au cas par cas d'ici là. Le résumé de la licence sur la page n'est que
-cela — la licence elle-même est le code juridique Creative Commons, fourni intégralement dans `LICENSE`,
-et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue un avis juridique.
+Les licences Professionnel et Équipe s'achètent en ligne sur **cyberriskguardian.ca**; le
+paiement est traité par Paddle, revendeur et commerçant officiel. Les licences éducative, Entreprise et
+MSSP sont offertes sur soumission : écrivez à **sales@cyberriskguardian.ca**. Les licences elles-mêmes, en
+français et en anglais, se trouvent dans le dossier `licences` de l'application et sur la page produit;
+elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis juridique.
 
 ---
 
@@ -3461,13 +3686,13 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
 
 **Le moteur et le cas**
 
-1. Le pied de page indique `moteur vérifié · 84,491 / 41,104`.
+1. Le pied de page indique `moteur vérifié · 84,305 / 41,023`.
 2. Le **Registre des scénarios** de l'espace de travail MediBec affiche 30 scénarios, un total estimé de
-   84 491 et un résiduel de 41 104.
+   84 305 et un résiduel de 41 023.
 3. **Calculateur de risque** → décochez S1. Le nombre inclus passe à 29/30 et les totaux baissent.
    Rechargez la page : S1 est toujours exclu. Cochez-le de nouveau.
-4. **Processus** affiche treize étapes, l'étape 4 indiquant *Importer les autres informations des
-   documents*, ainsi que le bandeau rappelant que l'application est une version bêta.
+4. **Processus** affiche dix-neuf étapes en sept groupes et l'étape *Rapport*, l'étape 6 indiquant *Filtrer
+   les candidats*, ainsi que le bandeau rappelant que l'application est une version bêta.
 
 **Organisation et documents**
 
@@ -3485,7 +3710,7 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
    *Actifs informationnels*, choisissez *Règles seulement* et **Démarrer l'importation** : seul le
    nouveau document est lu, la revue s'ouvre, **Ajouter les cochés** ; le document indique maintenant
    *Déjà extrait vers : Actifs informationnels* et les cibles du plan d'importation apparaissent à
-   l'étape 4 du Processus.
+   l'étape 1 du Processus.
 
 **Menaces, vulnérabilités et ontologie**
 
@@ -3535,11 +3760,11 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
     Rétablir, avec un coût annuel de fonctionnement : les indicateurs l'affichent et **Budget** propose
     son coût de fonctionnement comme base.
 20. **Maturité et résilience → Maturité (CSF 2.0)** → cotez les 22 catégories à 3 : *Scénarios que cela
-    suggère* passe à 20 et l'étape 6 du Processus indique *environ 20 pour cette organisation*.
+    suggère* passe à 20 et l'étape 7 du Processus indique *environ 20 pour cette organisation*.
 21. **Prévisions → Monte-Carlo**, sans aucune plage de paramètres définie, 10 000 essais : la médiane
-    indique **41 104** exactement.
-22. **Exporter · Excel** → *Tous les scénarios* : les totaux de la feuille Analyse indiquent 84 491 et
-    41 104 et se recalculent lorsque l'appétit change dans la feuille Parameters.
+    indique **41 023** exactement.
+22. **Exporter · Excel** → *Tous les scénarios* : les totaux de la feuille Analyse indiquent 84 305 et
+    41 023 et se recalculent lorsque l'appétit change dans la feuille Parameters.
 
 **Le Registre partagé des risques**
 
@@ -3583,10 +3808,10 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
 **Cas d'enseignement et réinitialisation**
 
 31. **Réinitialiser les données** sur l'exemple MediBec → *Recommencer* énumère les *Étapes que vous
-    referez* : l'étape 2 et l'étape 3. **Recommencer ce cas…**, tapez `RECOMMENCER` : le registre compte
-    de nouveau 30 scénarios et le Processus affiche les étapes 2 et 3 comme *à faire*. Sous *Pour
-    l'enseignant*, décochez les deux étapes et recommencez de nouveau : les étapes 2 et 3 sont revenues
-    telles que livrées.
+    referez* : les deux parties de l'étape 2 (le contexte, et les actifs essentiels et informationnels).
+    **Recommencer ce cas…**, tapez `RECOMMENCER` : le registre compte de nouveau 30 scénarios et le
+    Processus affiche l'étape 2 comme *à faire*. Sous *Pour l'enseignant*, décochez les deux et recommencez
+    de nouveau : l'étape 2 est revenue telle que livrée.
 32. **Réinitialiser les données → Réinitialiser ou supprimer** → choisissez chacun des quatre niveaux et
     observez le changement de *Ce que ceci supprimerait* ; les clés sont signalées comme *conservées par
     cette réinitialisation*.
@@ -3594,13 +3819,15 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
 **Installation**
 
 33. **Sauvegarde et restauration** → créez une sauvegarde ; restaurez-la dans un deuxième profil de
-    navigateur : le pied de page indique **84,491 / 41,104** et votre espace de travail, ses politiques
+    navigateur : le pied de page indique **84,305 / 41,023** et votre espace de travail, ses politiques
     et ses exigences sont présents.
-34. **Aide → Pas à pas** → une fenêtre distincte avec treize étapes et les lignes directrices ; **Aide →
+34. **Aide → Pas à pas** → une fenêtre distincte avec les dix-neuf étapes, le rapport et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos → Versions** indique `1.7.0 beta` et `moteur vérifié · 84,491 / 41,104` ;
-    **Licence** nomme CC BY-NC 4.0 et marcandre@leger.ca.
+35. **Aide → À propos → Versions** indique `1.8.0 beta` et `moteur vérifié · 84,305 / 41,023` ;
+    **Licence** nomme la licence propriétaire, les quatre fichiers de licence, cyberriskguardian.ca et
+    sales@cyberriskguardian.ca ; **Vérifier maintenant** sous *Mises à jour* répond (une version plus
+    récente, la dernière version, ou pourquoi elle ne peut le dire).
 36. Passez l'interface en **FR** : les écrans Ontologie, Registre partagé des risques, Gestion des PSI,
     Gestion de la conformité, SIEM et SOAR, l'aperçu de l'IA et l'onglet Importer des documents sont en
     français ; les données de l'organisation restent dans leur propre langue.
@@ -3620,9 +3847,9 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
 
 **Données, ontologie et qualité**
 
-40. **Sauvegarde et restauration → Versions des données et migrations** : version des données 2 ;
+40. **Sauvegarde et restauration → Versions des données et migrations** : version des données 3 ;
     importez une exportation d'espace de travail plus ancienne qui contenait des enregistrements de
-    preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 2, les
+    preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 3, les
     preuves se trouvent dans **Registres partagés → Preuves**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
 41. **Ontologie · CRGO → Connexion** nomme CRGO v0.10.0 ; *Lien avec l'organisation* → *Construire le
@@ -3662,13 +3889,29 @@ et c'est lui qui prévaut là où les deux diffèrent. Rien de ceci ne constitue
     **Paramètres → Données de simulation → Retirer les données de simulation** : les registres SIEM et
     SOAR sont de nouveau vides.
 
-Si les cinquante vérifications réussissent, l'installation est saine.
+**Preuves, filtrage et sommaire**
+
+51. **Registre des éléments probants** sur MediBec énumère E1 à E12 avec leur type ; **Cité dans** montre
+    les paramètres qui citent chacune.
+52. **Filtrage des scénarios** affiche 45 candidats, C01 à 52 / 60 et C02 à 56 ; **Schémas de pondération**
+    montre P05 *Retenu par jugement* et C31 *Examen explicite* ; **Matrice de couverture** montre *Fraude /
+    compromission de courriel d'affaires* non couverte.
+53. **CVSS v4.0 → Par équivalence (faiblesse non technique)** ouvert depuis un scénario : enregistrez sans
+    justifier chaque métrique — le message énumère celles qui manquent et la Revue de qualité met QC-22 en
+    échec.
+54. **Calculateur de risque** → videz le champ CVSS : *Impossible de calculer — CVSS requis*, jamais un indice
+    de 0.
+55. **Sommaire de gestion** énumère les décisions demandées avec *Décision de la direction requise* ;
+    **Exporter le sommaire (.md)** écrit le fichier et le Processus indique l'étape Rapport terminée une fois la
+    revue de qualité réussie.
+
+Si les cinquante-cinq vérifications réussissent, l'installation est saine.
 
 ---
 
 ## 12. Mise à jour
 
-Remplacez le dossier par la nouvelle version et démarrez-la avec son propre lanceur sur le même port ;
+**Aide → À propos → Versions → Vérifier maintenant** (ou la vérification au démarrage, si vous l'avez activée) indique si une version plus récente existe et télécharge son ZIP dans le dossier des flux lorsque vous cliquez sur **Télécharger**. Ensuite : sauvegardez (Sauvegarde et restauration → Télécharger la sauvegarde), décompressez le ZIP dans un **nouveau dossier**, quittez l'application en cours et démarrez la nouvelle version avec son propre lanceur sur le même port ;
 le lanceur arrête toute copie antérieure qui sert encore ce port. Les espaces de travail demeurent dans
 le navigateur : à son premier démarrage, la nouvelle version les migre sur une copie et conserve les
 originaux (section 5.1). Si vous modifiez vous-même l'application, incrémentez `CACHE` dans `sw.js` et,
@@ -3716,19 +3959,19 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | Le tri n'affiche rien | Aucun fichier de flux chargé pour la période. | Flux de menaces → Sources et téléchargements → *Télécharger maintenant les éléments cochés* ou *Charger les fichiers les plus récents*. |
 | Une CVE qui vous importe se trouve dans *À surveiller* | Son exposition n'est pas confirmée. | C'est le filtre d'exposition qui fonctionne. Confirmez-la sur l'actif dans Vulnérabilités, puis relancez le tri. |
 | La synthèse de la tâche planifiée est absente | Aucun `briefings/triage-profile.json` dans le dossier des flux. | Flux de menaces → Tri → *Exporter le profil pour la tâche planifiée*, puis relancez la tâche. |
-| L'étape 5 du Processus ne passe pas au vert | Elle comporte deux moitiés : un instantané **et** au moins une entrée dans le registre des vulnérabilités. L'étape nomme les deux et propose l'écran correspondant à chacune. | Contexte de menace → **Charger l'exemple fourni** (aucun réseau) ; Vulnérabilités → **Ajouter une faiblesse sans CVE** si vous n'avez aucune sortie de balayeur. |
+| L'étape 3 du Processus ne passe pas au vert | Elle comporte trois parties : la période d'évaluation, un instantané **et** au moins une entrée dans le registre des vulnérabilités. L'étape nomme les deux et propose l'écran correspondant à chacune. | Contexte de menace → **Charger l'exemple fourni** (aucun réseau) ; Vulnérabilités → **Ajouter une faiblesse sans CVE** si vous n'avez aucune sortie de balayeur. |
 | *EPSS below 0.05 (pruned from this snapshot)* sur une CVE qui vous importe | La table EPSS de l'exemple fourni est élaguée au plafond de l'échelon 1 de l'échelle, de sorte qu'un score négligeable est absent plutôt qu'enregistré. La classification est la même dans les deux cas. | Rien à corriger. Pour le score exact, chargez votre propre instantané produit par `threat_snapshot.py`, ou construisez-en un dans l'application à partir d'un fichier KEV et d'un fichier EPSS que vous avez téléchargés. |
 | L'instantané d'exemple est daté et expirera | Il a une date de construction fixe, et les instantanés expirent 90 jours après leur récupération. | Téléchargez vos propres sources avant de vous fier à un chiffre ; l'écran et l'indicateur d'ancienneté le disent tous deux. |
 | Ontologie · CRGO répond *instantané* alors que l'ontologie est installée | L'assistant local n'a pas trouvé le serveur, ou son Python ne dispose pas du paquet `mcp` ou `pyoxigraph`. | Ontologie · CRGO → Connexion : lisez *Le serveur MCP ne peut pas être utilisé* ; définissez l'interpréteur que Claude utilise pour celui-ci (par exemple `/usr/local/bin/python3`) et le chemin de `crgo_server.py`, ou exécutez `pip install "mcp>=1.2" pyoxigraph` pour le Python de l'assistant local. |
 | La première réponse de l'ontologie prend dix secondes ou plus | Le serveur construit son magasin à partir des fichiers de l'ontologie lors de son premier démarrage. | Patientez une fois ; les réponses suivantes sont immédiates tant que l'assistant local fonctionne. *Démarrer le serveur* dans l'onglet Connexion le fait à l'avance. |
 | *Lire le dossier partagé* ne trouve rien | Aucun dossier de registre partagé n'est défini, il n'est pas synchronisé sur cet ordinateur, ou l'assistant local ne fonctionne pas. | Registre partagé des risques → Paramètres du registre → *Dossier partagé du registre sur cet ordinateur* ; vérifiez que le dossier existe et qu'il est synchronisé ; démarrez l'application avec son lanceur. |
-| *Contribuer des risques* indique *Utilisateurs privilégiés seulement* | En mode multiutilisateur, le partage exige un administrateur ou le RACI **A** à l'étape 13. | Adressez-vous à un administrateur, ou faites accorder le droit dans Paramètres → Utilisateurs et RACI. |
+| *Contribuer des risques* indique *Utilisateurs privilégiés seulement* | En mode multiutilisateur, le partage exige un administrateur ou le RACI **A** à l'étape Rapport. | Adressez-vous à un administrateur, ou faites accorder le droit dans Paramètres → Utilisateurs et RACI. |
 | Une fiche du Registre affiche *non anonymisée* | Son contributeur a désactivé l'anonymisation. | Lisez-la comme une information identifiable ; un modérateur peut la rejeter. |
 | *Gestion des PSI*, *Gestion de la conformité*, *SIEM* ou un autre écran a disparu du menu | La fonctionnalité est désactivée, ou masquée pour vous. | Paramètres → Modules ; ou Paramètres → Utilisateurs et RACI → Accès aux menus. Les données sont toujours dans l'espace de travail. |
 | Toute une section du menu a disparu | Tous ses écrans sont désactivés ou masqués. | Comme ci-dessus. |
 | Une politique publiée ne peut pas être modifiée | Le texte publié est figé à dessein. | *Commencer une nouvelle version* : la version publiée demeure dans l'historique. |
-| *Approuver* est refusé pour une politique | L'approbation exige le RACI **A** à l'étape 13 ou un administrateur. | Faites-la approuver par la personne redevable. |
-| Après *Recommencer ce cas*, les étapes 2 et 3 affichent *à faire* | Le paramètre de l'enseignant redonne ces étapes à l'étudiant. | C'est voulu : extrayez de nouveau le profil et les actifs essentiels des documents du cas. Un enseignant peut le modifier sous *Pour l'enseignant*. |
+| *Approuver* est refusé pour une politique | L'approbation exige le RACI **A** à l'étape Rapport ou un administrateur. | Faites-la approuver par la personne redevable. |
+| Après *Recommencer ce cas*, l'étape 2 affiche *à faire* | Le paramètre de l'enseignant redonne ces étapes à l'étudiant. | C'est voulu : extrayez de nouveau le profil et les actifs essentiels des documents du cas. Un enseignant peut le modifier sous *Pour l'enseignant*. |
 | Importer des documents ne lit qu'un seul document | Les documents qui viennent d'être ajoutés sont les seuls sélectionnés par défaut. | Cochez les autres, ou *Sélectionner tous les documents*. |
 | Bandeau rouge `moteur DIVERGENT` | Le moteur est en désaccord avec les totaux de référence. | Arrêtez. Restaurez une copie propre. |
 | *Cet espace de travail est ouvert en lecture seule* | Il a été écrit par une application plus récente, ou sa migration a échoué. | Sauvegarde et restauration → Versions des données et migrations en indique la raison ; ouvrez-le avec l'application plus récente, ou envoyez l'erreur au soutien technique. Rien n'a été modifié. |

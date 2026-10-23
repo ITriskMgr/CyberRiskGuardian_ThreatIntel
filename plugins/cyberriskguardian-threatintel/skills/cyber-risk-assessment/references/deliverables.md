@@ -7,7 +7,12 @@
 - Keep one data model (JSON, see `assets/scenario-template.json`) as the single source of truth for both the workbook and the report so numbers cannot diverge.
 
 ## Report outline
-Executive summary · scope and methodology (incl. evidence register, formulas and, when used, the CRGO release) · organizational and technology context (crown jewels) · legal applicability and compliance posture (when CRGO is used) · risk appetite (with appetite sensitivity table) · scenario development and selection (candidates, screening, consolidation, watch list) · scenario portfolio table · detailed scenarios (statement, stakeholders, background, threat, vulnerabilities, assets, existing controls with control evidence (result, assessor line, date), detection and response readiness (CRGO 0.10.0), narrative, event sequence, consequences, parameter table with rationale/evidence/confidence, CVSS vector and metric rationale, calculation table, treatment and result callout) · cross-scenario analysis · sensitivity · prioritization and treatment portfolio · cybersecurity budget · implementation roadmap · KRIs · cross-check with any organization-native scoring method · assumptions, limitations, methodological notes · management decisions required.
+Executive summary · scope and methodology (incl. evidence register, formulas and, when used, the CRGO release) · organizational and technology context (crown jewels) · legal applicability and compliance posture (when CRGO is used) · risk appetite (with appetite sensitivity table) · scenario development and selection (candidates, screening, consolidation, watch list) · scenario portfolio table · detailed scenarios (statement, stakeholders, background, threat, vulnerabilities, assets, existing controls with control evidence (result, assessor line, date), detection and response readiness (CRGO 0.10.0), narrative, event sequence, consequences, parameter table with rationale/evidence/confidence, CVSS vector and metric rationale, calculation table, treatment and result callout) · cross-scenario analysis · sensitivity · prioritization and treatment portfolio · cybersecurity budget · implementation roadmap · KRIs · cross-check with any organization-native scoring method · assumptions, limitations, methodological notes · management decisions required (each marked **Management decision required**).
+
+Call the computed values risk indices (estimated, tolerated, mitigated and residual risk, risk-to-tolerance ratio), never KRIs; the KRIs section lists measured indicators only. In the treatment portfolio, record transfer (insurance, contract terms) as a costed line with the share of loss covered and the approver, claiming no reduction. Run the label check (`/label-check`) on every deliverable before release.
+
+### Quick-scan summary (`/crg-quick-scan`)
+One table — ID, scenario (short causal chain), CVSS-B, Re, Rt, pre-treatment ratio, verdict, main information gap — then the candidate count and dispositions, the strongest unselected candidate, the threat-context snapshot date and the decisions required. No treatment, residual or budget figures.
 
 ### Tables added in v1.3.0 (when CRGO is used)
 Cite the CRGO release in *scope and methodology*: "CRGO v0.10.0 (ontology release 0.10.0), contracts dss/v1, compliance/v1 and secops/v1, as of <date>" (with a v0.9.1 checkout: "CRGO v0.9.1 (ontology release 0.9.0), contract dss/v1"). `scripts/crgo_contract.py context --summary` prints both tables from the risk context.
@@ -17,7 +22,7 @@ Cite the CRGO release in *scope and methodology*: "CRGO v0.10.0 (ontology releas
 | Provision | Instrument | Applicability | Unresolved conditions | Compliance state | Evidence gap |
 |---|---|---|---|---|---|
 
-- Applicability is one of: applicable · not applicable · **potentially applicable — qualified review required** · **unknown — Evidence gap — organizational input required**. Never print unknown as not applicable. If no obligation is linked, say so as an evidence gap.
+- Applicability is one of: applicable · not applicable · **potentially applicable — qualified review required** · **unknown — Information gap — organizational validation required**. Never print unknown as not applicable. If no obligation is linked, say so as an **Information gap — organizational validation required**.
 - Compliance state comes only from a recorded compliance determination with its evidence or explicit evidence gap. A control that *supports compliance with* a provision never makes the row "compliant".
 - State that this is an evaluation over the stated organisation profile, not legal advice. Cite provisions by identifier and official heading only.
 
@@ -37,7 +42,7 @@ Both come from read-only contracts dated to the assessment date (`--as-of`): `sc
 - A state recorded on evidence that is **expired**, **judged insufficient** or absent is reported as a **gap, not compliance**; partially satisfied and unsatisfied are gaps too.
 - *Exceptions without exemption*: active exceptions whose `provisionsWithoutExemption` includes the obligation — a compliance exposure, since only an authority grants an exemption.
 - *Next deadline*: earliest unanswered deadline with its computed due time; mark it **overdue** when the due time has passed. List deadlines tied to the programme rather than an obligation below the table, with overdue review of directive versions and findings with overdue corrective actions.
-- Applicability wording as in the Legal applicability table (unknown → evidence gap; potentially applicable → qualified review required). Not legal advice.
+- Applicability wording as in the Legal applicability table (unknown → Information gap — organizational validation required; potentially applicable → qualified review required). Not legal advice.
 
 **Detection and response readiness** (cross-scenario analysis, and in each detailed scenario's existing controls; one row per scenario in `secops/v1`):
 

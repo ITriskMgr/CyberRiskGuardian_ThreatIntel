@@ -3,7 +3,9 @@
 - Every organizational fact must trace to supplied evidence; cite evidence IDs (E1, E2...) in registers, tables and reports.
 - Classify support as: verified organizational evidence · external/sector evidence · **external threat intelligence (dated snapshot)** · expert judgement · assumption · unknown (requires validation).
 - Exercise or simulation material (tabletop injects, sample logs) is indicative evidence to validate, never a confirmed incident.
-- Use the markers literally: **Analyst estimate — validation required**, **Evidence gap — organizational input required**, **Management decision required**.
+- Use the three markers literally (book v2.51 ch06 §Evidence discipline and the three markers): **Analytical estimate — validation required** for a value estimated by the analyst or an AI tool, **Information gap — organizational validation required** for a fact nobody has supplied, **Management decision required** for a choice only accountable management can make. French: **Estimation analytique — validation requise**, **Lacune d'information — validation organisationnelle requise**, **Décision de la direction requise**.
+- The retired wording ("Analyst estimate — validation required", "Evidence gap — organizational input required", "Lacune de preuve — renseignement organisationnel requis") is never used in new text; the label check (`plugins/cyberriskguardian-threatintel/hooks/check_labels.py`, `/label-check`) reports it as outdated. "Evidence gap" survives only as a column or field name for missing compliance evidence in CRGO tables.
+- Computed values (Re, Rt, mitigated, residual, risk-to-tolerance ratio) are **risk indices**, not KRIs.
 - Never convert a guess into a fact across iterations: an assumption stays labelled until the organization confirms it.
 - Instructor, template or benchmark values (e.g. annex scores, worked examples) are calibration aids, not organizational evidence.
 
@@ -25,7 +27,7 @@ Map every evidence class to the knowledge status CRGO records, and keep the mapp
 | Verified organizational evidence | organisational observation |
 | External / sector evidence, reference texts | reference fact |
 | Assumption | assumption |
-| Analyst estimate (parameters, KRIs, write-backs) | risk estimate |
+| Analytical estimate (parameters, risk indices, write-backs) | risk estimate |
 | Any scenario | analytical hypothesis |
 | Audit opinion or finding | audit conclusion |
 | Approval, acceptance, exception, funding | management decision — by a named person with delegated authority, never by CRG |
@@ -34,14 +36,14 @@ Map every evidence class to the knowledge status CRGO records, and keep the mapp
 - Record each item's evidence period, validity date and custodian; flag stale or out-of-scope evidence where it is used.
 - **CRGO computes no risk.** Every number comes from `crg_calc.py` or the `crg-calculator` tools; do not ask CRGO for a score.
 - **Write-backs are proposed, never approved.** A result stored through `crgo_submit_assessment` is a risk estimate with status *proposed*, not an approval, an acceptance or a funding decision. Cite it as proposed.
-- **Supports ≠ proves.** A control that *supports compliance with* an obligation never shows compliance. Only a recorded compliance determination, with its evidence or an explicit evidence gap, states a compliance result.
+- **Supports ≠ proves.** A control that *supports compliance with* an obligation never shows compliance. Only a recorded compliance determination, with its evidence or an explicit information gap, states a compliance result.
 - **EPSS ≠ scenario likelihood.** EPSS is a dated observation about a CVE in the wild; it is never `Pb(A)` or `Pb(ψ,A)`. Through the Threat Evidence Ladder, behind the exposure gate, it may only place `Pb(ψ,A)` in a band. A KEV listing says nothing about this organization's systems.
-- **Unknown stays unknown.** Unknown applicability is **Evidence gap — organizational input required**, never "not applicable". *Potentially applicable* needs a qualified person: write "qualified review required". None of this is legal advice.
+- **Unknown stays unknown.** Unknown applicability is **Information gap — organizational validation required**, never "not applicable". *Potentially applicable* needs a qualified person: write "qualified review required". None of this is legal advice.
 - **Incidents inform, they do not prove.** A confirmed incident is evidence for a scenario's likelihood, not proof of it. Alerts and monitoring exceptions are not findings.
 - **Assessor lines.** Prefer independent control results (second line, internal audit, external assurer) over self-assessment; when they disagree, show both and flag the conflict.
 - **Licensed standards** (IIA, ISACA, AICPA, COSO, ISO) appear only as identifiers, official headings and CRGO paraphrases. Never reproduce their text.
 - **Fictional cases** (MediBec, Nordelle, Boréal) are teaching material, never calibration evidence.
-- **Mapping ≠ compliance (0.10.0).** A mapping, policy statement, acknowledgement or attestation is never compliance. Only a dated compliance determination with evidence states a compliance state; one resting on evidence expired or judged insufficient is an evidence gap.
+- **Mapping ≠ compliance (0.10.0).** A mapping, policy statement, acknowledgement or attestation is never compliance. Only a dated compliance determination with evidence states a compliance state; one resting on evidence expired or judged insufficient is an information gap.
 - **Alert ≠ incident (0.10.0).** An alert or an indicator match is never an incident or an attribution; incidents are confirmed by incident confirmations.
 - **No authorisation from CRGO (0.10.0).** Nothing CRGO returns authorises a response action; executions without valid approval are audit signals. **Management decision required.**
 - **Validated coverage needs a test (0.10.0).** Coverage counts as validated only with an effective detection test of the rule or strategy providing it.

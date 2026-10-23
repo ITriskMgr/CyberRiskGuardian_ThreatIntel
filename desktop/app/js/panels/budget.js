@@ -5,6 +5,7 @@ import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, table, sele
 import * as SG from '../safeguards.js';
 import { S, touch, compute, initiatives, initPlan, commitments, selectBudgetYear, addBudgetYear, ensureBudgetYears, thisYear } from '../state.js';
 import { bandChart, frontierChart, yearsChart } from '../charts.js';
+import { tr } from '../i18n.js';
 
 
 const shortMoney = x => x >= 1e6 ? '$' + (x / 1e6).toFixed(x >= 1e7 ? 0 : 1) + 'M' : x >= 1e3 ? '$' + Math.round(x / 1e3) + 'k' : '$' + Math.round(x);
@@ -128,9 +129,10 @@ function body(out) {
   k.append(kpi('Appetite-consistent target', (target * 100).toFixed(1) + '%', money(Math.round(target * it))),
     kpi('Current spend', (pct * 100).toFixed(2) + '%', money(spend)),
     kpi('Gap to target', money(Math.round(target * it - spend)), spend >= target * it ? 'at or above target' : 'shortfall'),
-    kpi('Band status', pill(status, status === 'Within band' ? 'good' : 'warn'), `guideline ${B.min * 100}%–${B.max * 100}%`),
+    kpi('Band status', pill(status, status === 'Within band' ? 'good' : 'warn'), tr('best-practice point targets 12% / 7.8% / 4% at appetite 0.30 / 0.50 / 0.70')),
     kpi('Implied appetite', implied == null ? 'below floor' : implied.toFixed(2), implied == null ? 'spend under the 4% floor' : 'what this spend level implies'));
   out.append(k);
+  out.append(el('p', 'note', 'Best practice: the appetite-consistent target is a point, not a range — 12% of the total IT budget (salaries included) at appetite 0.30, 7.8% at 0.50 and 4% at 0.70, interpolated linearly in between and held at the end value outside. The test is the gap to that target, not whether the spend falls somewhere between 4% and 12%.'));
   if (implied != null && Math.abs(implied - app) >= 0.1) out.append(banner('warn', 'Spend and appetite disagree', `The stated appetite is ${app.toFixed(2)} but the spend implies ${implied.toFixed(2)}. Escalate the inconsistency rather than silently reconciling it.`));
   if (implied == null) out.append(banner('warn', 'Spend below the guideline floor', `At ${(pct * 100).toFixed(2)}% of IT the organization is more risk-seeking than the band describes. That is a management decision to make explicitly, not a default.`));
 
@@ -187,7 +189,7 @@ function body(out) {
       { key: 'id', label: 'Scenario', render: s => el('a', { href: '#/scenario/' + s.id }, s.id + ' ' + (s.name || '').slice(0, 60)) },
       { key: 'step', label: 'Y1 cost', num: true, render: s => money(s.step) },
       { key: 'gain', label: 'Risk reduced', num: true, render: s => n0(s.gain) },
-      { key: 'ce', label: 'CE / $1k', num: true, render: s => n2(s.ce) },
+      { key: 'ce', label: 'CE per $1,000', num: true, render: s => n2(s.ce) },
       { key: 'cost', label: 'Cumulative', num: true, render: s => money(s.cost) },
       { key: 'st', label: 'Status after', render: s => pill(s.row.cls, pillFor(s.row.cls)) },
       { key: 'band', label: 'Funded within', render: s => pill(fundedBy(s.cost), s.cost <= envs[0].x ? 'good' : s.cost <= envs[2].x ? 'warn' : 'bad') },

@@ -7,7 +7,7 @@ CRGO is an OWL 2 ontology (BFO-2020, CCO) with SKOS vocabularies that gives form
 about 1,900 generic scenarios linked to ATT&CK, CSF 2.0, SP 800-53 r5, ISO/IEC 27002:2022, Loi 25 and other
 regimes, plus a local MCP server. **CRGO states facts, links and their review status. It never computes
 risk.** Every number comes from `scripts/crg_calc.py` or the `crg-calculator` MCP tools. The formulas, the
-factor of 1,000 and the MediBec regression (84,491 / 41,104) are unchanged.
+factor of 1,000 and the MediBec regression (84,305 / 41,023) are unchanged by CRGO.
 
 ## Connecting
 
@@ -35,7 +35,7 @@ observations, `other_regimes`), `crgo_controls_for_technique`, `crgo_scenarios_f
 3. Organisation IRIs use the organisation's own base, never `https://w3id.org/crgo/`. One organisation per graph file. Use a base the organisation controls, or a private one for tests (`urn:` or `https://example.org/<org>/`).
 4. *Supports compliance with* is not compliance. A mapped control supports an obligation; only a recorded compliance determination with its evidence states a compliance result.
 5. EPSS is not a scenario likelihood. It is a dated observation about a CVE and is never `Pb(A)` or `Pb(ψ,A)`. A KEV listing says nothing about this organization's systems; the exposure gate still applies.
-6. Unknown applicability stays unknown (**Evidence gap — organizational input required**). *Potentially applicable* needs a qualified person (**qualified review required**). Neither is legal advice.
+6. Unknown applicability stays unknown (**Information gap — organizational validation required**). *Potentially applicable* needs a qualified person (**qualified review required**). Neither is legal advice.
 7. Licensed standards (IIA, ISACA, AICPA, COSO, ISO) appear only as identifiers, official headings and CRGO paraphrases. Never reproduce their text.
 8. Nordelle, Boréal and MediBec are fictional and are not calibration evidence.
 9. Organisation graphs, risk contexts, compliance and secops reads, and write-backs are client data. Keep them with the confidential deliverables (`output/crgo/` is git-ignored), never in this repository or in CRGO's.
@@ -57,7 +57,7 @@ Additions for CRGO 0.10.0 (brief 0.10.0, section 4):
 | Verified organizational evidence | organisational observation |
 | External / sector evidence, reference texts | reference fact |
 | Assumption | assumption |
-| Analyst estimate (parameters, KRIs) | risk estimate |
+| Analytical estimate (parameters, risk indices) | risk estimate |
 | Scenario (any) | analytical hypothesis |
 | Audit opinion or finding | audit conclusion |
 | Approval, acceptance, exception, funding | management decision (by a named person, never by CRG) |
@@ -122,7 +122,7 @@ CRGO's synthetic Nordelle files (`tests/samples/nordelle-pca.ttl`, `nordelle-sec
 | Field | Use in CRG |
 |---|---|
 | `obligations[].applicability`, `complianceState`, `determinedOn` | Compliance posture table (step 2): the latest recorded determination, never a mapping |
-| `obligations[].evidenceStatus` | step 1: *expired*, *judged-insufficient* or *none* → evidence gap, not support; a state on such evidence is reported as a gap |
+| `obligations[].evidenceStatus` | step 1: *expired*, *judged-insufficient* or *none* → Information gap — organizational validation required, not support; a state on such evidence is reported as a gap |
 | `obligations[].supportingStatements` (mapping type, review state, version), `implementingMeasures` (latest result) | why a control is relevant; never proof of compliance |
 | `obligations[].openFindings`, `findings[].overdueActions`, `rootCauses` | step 2 and step 8: weak control operation; overdue actions are treatment candidates (12–14) |
 | `directiveVersions[].reviewOverdue` | governance gap (policy or standard past its review date) |
@@ -175,7 +175,7 @@ Pass the output file to `context` as an extra `--graph`.
 
 Converted CRG assessments carry no legal obligation unless the CRG data names one (link scenarios to
 provisions such as `P-39.1 s. 10`) or the evaluator runs on a profile. An empty obligations list is therefore
-an **evidence gap**, not "not applicable".
+an **Information gap — organizational validation required**, not "not applicable".
 
 ## Control evidence (step 8)
 

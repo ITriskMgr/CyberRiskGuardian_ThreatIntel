@@ -1,5 +1,106 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.8.0 Beta (Beta 1.8.x) — 23 October 2026
+
+Aligns the application with the textbook *Introduction to Cybersecurity Governance for Business Technology
+Management*, v2.51 (CyberRiskGuardian 1.8.0 decisions). **The self-check now requires 84,305 / 41,023**: MediBec S2 and
+S8 use AV:L (the malicious document is delivered by e-mail but opened locally, FIRST CVSS v4.0 user guide), 9.3 and
+9.2; no verdict changes. Data version **3** (migration step 2 → 3). `crg.js` gains input validation; the formulas are
+unchanged.
+
+### Added
+- **Risk assessment → Evidence register** (`js/panels/evidence.js`): `assessment.EVIDENCE` viewed and edited — E-numbers,
+  type (documented, exercise or simulation, SME input, external), what it supports, strength, classification, date,
+  custodian; where each entry is cited; one entry proposed per context document; CSV export. Process step 1.
+- **Risk assessment → Scenario screening** (`js/screening.js`, `js/panels/screening.js`; Settings → Modules): the twelve
+  criteria of ch05 scored 1–5 with rationale, total /60 as a screening aid, the twelve mandatory escalation flags,
+  selection confidence and disposition, the five generation strategies, families (a family takes its best member),
+  the equal / impact-led / evidence-led / decision-led weighting schemes with *selected by judgment* and *explicit
+  review* flags, the coverage matrix, the watch list with promotion triggers, the evidence-collection plan, the final
+  portfolio with the six "why this scenario?" questions and *Create the scenario*; CSV export. The MediBec teaching case
+  ships its screening (45 candidates, ten families; `medibec-screening.js`, from the selection workbook). Batch
+  scenarios → **Add the ticked rows as screening candidates**.
+- **CVSS by equivalency** for non-technical weaknesses (`js/equiv.js`): CVSS v4.0 → *By equivalency (non-technical
+  weakness)* and Scenario editor → *How the score was obtained*: weakness type, the question of each Base metric and a
+  one-line justification per metric; the score is labelled **limited applicability** and carries **Analytical estimate —
+  validation required** in the editor and every export (Excel: *CVSS basis* column on Analyse, new *CVSS_Basis* sheet).
+- **Risk assessment → Management summary** (`js/panels/summary.js`): decisions requested (from the assessment and typed),
+  scenarios above / approximately at / below tolerance before and after treatment, portfolio and budget against the
+  appetite-consistent target, top risks, markers, limitations and next steps; export as Markdown or printable page.
+- **Update check** (opt-in, off by default; asked once at first start): the helper (`serve.py`, `GET /api/update/check`)
+  asks the GitHub *latest release* API of ITriskMgr/CyberRiskGuardian_ThreatIntel at one fixed address, with no data
+  sent; a banner *Version x.y.z is available* with the release notes and **Download** (the release ZIP saved in the feeds
+  folder as a helper job, `POST /api/download {source: "update"}`); **Check now** and the setting under Help → About →
+  Versions; no helper, no network, no release and GitHub rate limits are reported plainly. Nothing is installed.
+  `js/updates.js`, `js/updateui.js`.
+- Batch scenarios: four more cloud causal-chain patterns — identity federation abuse, outage of a critical SaaS supplier,
+  key or secret exposed in infrastructure-as-code, tenant-isolation failure or cloud-provider compromise.
+- Recommendations → management decision: a **Transfer** records the **share of loss covered** (0–1, informational, never a
+  reduction) and its **approver**.
+- Risk calculator: **pre-treatment ratio** beside the risk-to-tolerance ratio; **Record the sensitivity review** (Process
+  step 15).
+- Quality review: QC-19 standard markers, QC-20 valid inputs and a CVSS for every scenario, QC-21 stored CVSS score vs its
+  vector, QC-22 equivalency justified, QC-23 no reference on a superseded catalogue, QC-24 flagged candidates reviewed and
+  judgments explained, QC-25 transfers approved, QC-26 teaching case on the current MediBec vectors.
+- Organization profile: **Materiality criteria** (Process step 4). `js/markers.js`: the three markers in one place, with
+  detection of outdated wording. `tools/build_legacy_map.py`, `js/data/legacy-map.js`.
+- `engine/crg_calc.py`: the same validation, `cvss_check`, `combine` (product rule) and `cost_effectiveness`.
+
+### Changed
+- **Process: the nineteen steps of the book** (ch06) in seven groups, then the management report and the quality review
+  (*Report*). Step identifiers stay the keys of the RACI matrix; each new step inherits the rights its users had on the
+  step it came from (`process.js INHERIT`). The menu badge reads *n/19*. Help, Step by step, guidelines, RACI templates and
+  the guides follow the new numbering.
+- **Input validation** (`crg.js`, decision 4): Pb(A), Pb(ψ,A), δe, δm, μ(E), rp, ri in [0, 1]; θ in (0, 1]; appetite strictly
+  in (0, 1); δm ≥ δe; CVSS required, 0–10 — a blank CVSS field is *CVSS required*, never computed as 0 (calculator, editor,
+  save-back). A stored score is recomputed from its vector and a disagreement flagged.
+- **Markers:** *Information gap — organizational validation required* replaces *Evidence gap — organizational input
+  required* (dss.js and the ontology screens); *Analytical estimate — validation required* in the Excel export and the AI
+  prompts (em dash); a standalone Information-gap marker on the evidence register, the maturity questionnaire and the
+  summary; French *Lacune d’information — validation organisationnelle requise*.
+- **Control catalogues:** only ISO/IEC 27002:2022, NIST SP 800-53 Rev. 5, NIST CSF 2.0 and CIS Controls v8.1 ship; the legacy
+  analyst list (ISO/IEC 27002:2013, NIST CSF 1.1, CIS v7.1) is removed. Migration 2 → 3 maps every legacy reference (ISO/IEC
+  27002:2022 Annex B correspondence; NIST CSF 1.1 → 2.0 crosswalk; CIS v7.1 → v8.1 at control level), keeps the old
+  identifier in a note and flags what has no correspondence for review (QC-23) — never drops it.
+- **Terminology:** computed values are *risk indices* (CRG-03 *Total residual risk index — a risk index, not a KRI*);
+  *risk-to-tolerance ratio*; μ(E) *organizational criticality (expected utility)*; *risk units removed per $1,000*;
+  CVSS labelled *CVSS-B*.
+- **Candidate guidance:** about 25 to 40 candidates for a portfolio of ten, never fewer than 20 (20 = the quick lab
+  version); the AI proposer goes up to 40.
+- **Budget wording:** best-practice point targets 12% / 7.8% / 4% at appetite 0.30 / 0.50 / 0.70, interpolated — the test
+  is the gap to the target, not "within 4–12%".
+- **Package aggregation** documented as the product rule 1 − ∏(1 − rᵢ) per lever (unchanged behaviour).
+- **Editions and contacts:** Community Edition (method, Core plugin, textbook skill, MediBec, teaching package — CC BY-NC
+  4.0), Educational edition (Educational Licence: installation, customization, the current desktop application, the
+  Educator Edition), Professional editions (Commercial Licence); product site cyberriskguardian.ca and
+  sales@cyberriskguardian.ca for licences.
+- **Licence.** From this build, CyberRiskGuardian Desktop is proprietary software: free for students
+  (personal learning) and non-profit organisations, with a 30-day evaluation for any organization; the
+  Educational Licence for colleges, CEGEPs and universities; the Commercial Licence (Professional, Team,
+  Enterprise, MSSP) for everyone else. Versions up to 1.7.0 remain under CC BY-NC 4.0.
+- **Help → About → Licence** rewritten (EN/FR): who uses it free, which licence applies to everyone
+  else, links to the four licence files and to the product site (cyberriskguardian.ca); the About header pill
+  reads *Proprietary licence*; the navigation footer no longer names CC BY-NC 4.0.
+- `LICENSE`, `NOTICE.md`, `INSTALL.md` and the user guides (section 10, EN/FR) follow the new licence.
+- Security Policy Writer: the governance patterns cite the textbook's Chapter 21 (People, organizational design and
+  accountability), v2.51 numbering.
+- Settings → Network allowlist lists api.github.com, github.com and objects.githubusercontent.com (update check, only
+  when switched on).
+
+### Migration
+- Data version 3. Legacy catalogue references mapped or flagged (journalled in the workspace and in
+  `catalogueMigration`); outdated marker wordings modernized; empty `screening`, `mgmtSummary` and `catalogueMigration`
+  records (KNOWN_FIELDS, reset groups ASSESSMENT and IDENTITY). The MediBec teaching case of an existing workspace
+  receives its screening. Numbers are never changed by the migration: a stored MediBec case keeps its AV:N vectors and
+  QC-26 says how to take the current case (Reset data → Start over).
+
+### Licence
+- `licences/` — the Commercial and Educational Licences in English and French (PDF).
+
+### Not yet done
+- Licence-key activation and the first-run licence dialog are designed (project doc
+  claude/package/desktop-app-licence-page.md) but not built; the application does not check licences.
+
 ## 1.7.0 Beta (Beta 1.7.x) — 19 October 2026
 
 Adds the **Security Policy Writer** (module version 0.1.0 beta) and the **Claude Dashboard** pack. `crg.js`,

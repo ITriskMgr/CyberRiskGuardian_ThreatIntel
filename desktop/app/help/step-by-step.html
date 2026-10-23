@@ -54,7 +54,7 @@ function build() {
   const wrap = document.getElementById('wrap');
   wrap.replaceChildren(
     E('h1', null, 'A complete risk assessment, step by step'),
-    E('p', 'lede', `The ${STEPS.length} steps of the CyberRiskGuardian method, what each one is for, what it needs and when it is done — followed by the guidelines in detail. Click a screen name to open it in the application.`),
+    E('p', 'lede', 'The nineteen steps of the CyberRiskGuardian method, then the management report and the quality review: what each one is for, what it needs and when it is done — followed by the guidelines in detail. Click a screen name to open it in the application.'),
     E('div', 'note', E('b', null, `Beta ${SERIES}`), ' ',
       E('span', null, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.')));
 
@@ -63,7 +63,7 @@ function build() {
     const a = E('a', null, s.title); a.href = '#step-' + s.id;
     toc.append(E('li', null, a));
   }
-  wrap.append(E('div', 'card', E('b', null, `The ${STEPS.length} steps`), toc));
+  wrap.append(E('div', 'card', E('b', null, 'The nineteen steps, the report and the quality review'), toc));
 
   for (const s of STEPS) {
     const box = E('div', 'step');

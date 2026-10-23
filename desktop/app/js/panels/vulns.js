@@ -67,7 +67,7 @@ function register(body, _, sec) {
       touch(); toast(`${n} added, ${ids.length - n} updated`); render(sec);
     } }, 'Add'),
     el('button', { class: 'btn ghost', onclick: () => { let n = 0; for (const s of ws.assessment.SCEN) for (const c of s.cves || []) if (!V.some(v => v.id === c)) { V.push({ id: c, kind: 'CVE', title: '', product: '', asset: '', exposed: false, source: 'Linked from ' + s.id, added: today(), cwe: [], notes: '' }); n++; } touch(); toast(n + ' CVEs pulled from scenarios'); render(sec); } }, 'Pull CVEs linked in scenarios'),
-    /* 1.5.5 — not every organization has scanner output, and the register half of Process step 5 asks
+    /* 1.5.5 — not every organization has scanner output, and the register half of Process step 3 asks
        for an entry, not for a CVE. A weakness you know about belongs here: "the billing server still
        runs an unsupported OS" is a vulnerability whether or not anyone has given it a number. */
     el('button', { class: 'btn ghost', onclick: () => {

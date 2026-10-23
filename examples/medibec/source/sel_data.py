@@ -210,7 +210,7 @@ DISP = {  # Select / Consolidate / Consider / Defer -> target
     "C31": ("Consider", "Watch list - explicit management review (escalation flags)"),
     "C21": ("Consider", "Promote if a patient portal is confirmed"),
     "C18": ("Defer", "Watch list - standard finance controls"), "C33": ("Defer", "Watch list - communications controls"),
-    "C10": ("Defer", "Watch list"), "C19": ("Defer", "Standard control (MDM)"), "C25": ("Defer", "Evidence gap - telehealth use"),
+    "C10": ("Defer", "Watch list"), "C19": ("Defer", "Standard control (MDM)"), "C25": ("Defer", "Information gap - telehealth use"),
     "C28": ("Defer", "Standard control (disposal)"), "C37": ("Defer", "Low materiality"), "C38": ("Defer", "Out of scope"), "C39": ("Defer", "Out of scope (physical)"),
 }
 assert set(DISP) == {c[0] for c in M.CANDIDATES} == set(SCORES), set(SCORES) ^ set(DISP)

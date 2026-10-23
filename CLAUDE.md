@@ -8,12 +8,13 @@
 | Component | Location | Purpose |
 |---|---|---|
 | Skills | `.claude/skills/` (source: `plugins/cyberriskguardian-threatintel/skills/`) | `cyber-risk-assessment`, `threat-context-calibration`, `scenario-selection`, `cyber-budget-calibration`, `cybersecurity-governance`, `crg-dashboard`. They auto-trigger on risk-assessment, threat-intelligence, scenario-selection, budget, governance-concept and dashboard-pack requests. |
-| Commands | `.claude/commands/` | `/risk-assessment`, `/refresh-threat-context`, `/select-scenarios`, `/calibrate-budget`, `/crg-calc`, `/qc-review`, `/crg-dashboard` |
-| Subagents | `.claude/agents/` | `risk-scenario-analyst` (candidates and screening), `risk-quantifier` (parameters, CVSS, KRIs, workbook), `risk-qc-reviewer` (independent read-only review, including snapshot freshness and the exposure gate) |
+| Commands | `.claude/commands/` | `/risk-assessment`, `/crg-quick-scan`, `/refresh-threat-context`, `/select-scenarios`, `/calibrate-budget`, `/crg-calc`, `/qc-review`, `/label-check`, `/crg-dashboard` |
+| Subagents | `.claude/agents/` | `risk-scenario-analyst` (candidates and screening), `risk-quantifier` (parameters, CVSS, risk indices, workbook), `risk-qc-reviewer` (independent read-only review, including snapshot freshness and the exposure gate) |
 | Output styles | `.claude/output-styles/` | `CyberRiskGuardian Analyst` (default via settings), `CyberRiskGuardian Executive Brief` |
 | Rules | `.claude/rules/` | Evidence discipline, data protection and **threat-intel** (always); workbook, report and methodology-maintenance rules (path-gated) |
-| MCP | `.mcp.json` | `crg-calculator` — tools `crg_risk`, `cvss4_score`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`; `crgo-ontology` (optional, CRGO v0.10.0 clone in `./CyberRiskGuardian-Ontology-0.10.0/`) — `crgo_sweep`, `crgo_identify`, `crgo_scenario`, `crgo_controls_for_technique`, `crgo_scenarios_for_control`, `crgo_list_values`, `crgo_risk_context`, `crgo_submit_assessment`, `crgo_compliance_context`, `crgo_secops_context` |
-| Settings | `.claude/settings.json` | Model, output style, environment defaults, permissions, SessionStart guardrail hook |
+| Hooks | `.claude/hooks/` (source: plugin `hooks/`) | SessionStart guardrails (`session-context.md`); label check `check_labels.py` on Write/Edit (PostToolUse) and Stop — flags missing markers and outdated wording |
+| MCP | `.mcp.json` | `crg-calculator` — tools `crg_risk`, `cvss4_score`, `cost_effectiveness`, `combine_reductions`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`; `crgo-ontology` (optional, CRGO v0.10.0 clone in `./CyberRiskGuardian-Ontology-0.10.0/`) — `crgo_sweep`, `crgo_identify`, `crgo_scenario`, `crgo_controls_for_technique`, `crgo_scenarios_for_control`, `crgo_list_values`, `crgo_risk_context`, `crgo_submit_assessment`, `crgo_compliance_context`, `crgo_secops_context` |
+| Settings | `.claude/settings.json` | Output style, environment defaults, permissions, SessionStart guardrail and label-check hooks (do not also enable the plugin in this repository, or the hooks run twice) |
 
 ### How to work
 - For a full assessment, follow the `cyber-risk-assessment` skill. It hands off to the others:
@@ -22,8 +23,8 @@
   - budget → `cyber-budget-calibration`.
 - Check the threat-context snapshot **before** quantifying. Absent or over 90 days old means
   refresh first with `/refresh-threat-context`.
-- Use the MCP tools or `scripts/crg_calc.py` for every number, and never compute KRIs or CVSS
-  scores by hand.
+- Use the MCP tools or `scripts/crg_calc.py` for every number, and never compute risk indices or
+  CVSS scores by hand.
 - Delegation:
   - **`risk-scenario-analyst`** — the document-heavy scenario generation and screening step,
     including the intel-driven generation perspective.

@@ -122,7 +122,7 @@ export function toMarkdown(p) {
     }
   }
   if (p.scenarios) {
-    L.push('', '## Scenario registry', '', '| ID | Scenario | Pb(A) | Pb(ψ,A) | δe | δm | θ | μ(E) | Residual / tolerated | Classification |', '|---|---|---|---|---|---|---|---|---|---|');
+    L.push('', '## Scenario registry', '', '| ID | Scenario | Pb(A) | Pb(ψ,A) | δe | δm | θ | μ(E) | Risk-to-tolerance ratio | Classification |', '|---|---|---|---|---|---|---|---|---|---|');
     for (const s of p.scenarios) L.push(`| ${s.id} | ${s.name} | ${s.params.PbA?.v} | ${s.params.Pbx?.v} | ${s.params.De?.v} | ${s.params.Dm?.v} | ${s.params.Th?.v} | ${s.params.Mu?.v} | ${s.results ? s.results.ratio : '—'} | ${s.results?.classification || '—'} |`);
     for (const s of p.scenarios) L.push('', `### ${s.id} — ${s.name}`, s.statement || '', '', `- ATT&CK: ${(s.attack || []).join(', ') || '—'} · CWE: ${(s.cwe || []).join(', ') || '—'} · CVE: ${(s.cves || []).map(c => c.id).join(', ') || '—'}`);
   }

@@ -52,7 +52,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.7.0"
+VERSION = "1.8.0"
 crgo_client.CLIENT_VERSION = VERSION
 ROOT = os.path.dirname(os.path.abspath(__file__))
 def _feeds_dir():
@@ -669,7 +669,93 @@ def run_feeds(job, params, ev):
     return "feeds-digest.json", {"records": ok}
 
 
-RUNNERS = {"kev": run_kev, "epss": run_epss, "nvd": run_nvd, "feeds": run_feeds}
+# ---------------------------------------------------------------- update check (1.8.0, opt-in)
+# The only place the application asks whether a newer release exists. Off by default; the person switches it
+# on (asked once at first start) or clicks "Check now". The request goes to one fixed URL — the GitHub
+# releases list of the repository that publishes the desktop — with no query, no identifier and no
+# workspace data; the User-Agent names the product only, not the version. A release is never installed: the
+# person downloads the ZIP asset to the feeds folder and upgrades by hand (backup → new folder → restart).
+UPDATE_REPO = "ITriskMgr/CyberRiskGuardian_ThreatIntel"
+UPDATE_URL = os.environ.get("CRG_UPDATE_URL") or f"https://api.github.com/repos/{UPDATE_REPO}/releases?per_page=30"
+# Only a release carrying the desktop ZIP counts; the same repository also publishes plugin releases.
+DESKTOP_ASSET = re.compile(r"^CyberRiskGuardian_Desktop_v(\d+\.\d+\.\d+)[A-Za-z0-9._-]*\.zip$")
+UPDATE_UA = "CyberRiskGuardian-Desktop-update-check"
+UPDATE_DOWNLOAD_HOSTS = ("https://github.com/" + UPDATE_REPO + "/releases/download/",
+                         "https://objects.githubusercontent.com/", "https://release-assets.githubusercontent.com/")
+_update_cache = {}
+
+
+def _vtuple(v):
+    m = re.search(r"(\d+)\.(\d+)\.(\d+)", str(v or ""))
+    return tuple(int(x) for x in m.groups()) if m else None
+
+
+def update_check():
+    """Ask GitHub for the latest release; return what the banner needs, or why it could not tell."""
+    out = {"current": VERSION, "checked": _now(), "source": UPDATE_URL if os.environ.get("CRG_UPDATE_URL") else f"github.com/{UPDATE_REPO}/releases"}
+    req = urllib.request.Request(UPDATE_URL, headers={"User-Agent": UPDATE_UA, "Accept": "application/vnd.github+json"})
+    try:
+        with urllib.request.urlopen(req, timeout=15, context=_ctx() if UPDATE_URL.startswith("https") else None) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        remaining = exc.headers.get("X-RateLimit-Remaining") if exc.headers else None
+        if exc.code == 404:
+            return {**out, "status": "none", "message": "No release has been published yet."}
+        if exc.code == 429 or (exc.code == 403 and remaining == "0"):
+            reset = exc.headers.get("X-RateLimit-Reset") if exc.headers else None
+            when = dt.datetime.fromtimestamp(int(reset)).isoformat(timespec="minutes") if reset and reset.isdigit() else ""
+            return {**out, "status": "rate-limited", "retry": when, "message": "GitHub limits how often it can be asked. Try again later."}
+        return {**out, "status": "error", "code": exc.code, "message": "GitHub answered with an error."}
+    except (urllib.error.URLError, OSError, TimeoutError) as exc:
+        if "CERTIFICATE_VERIFY_FAILED" in str(exc):
+            return {**out, "status": "error", "message": CERT_HINT}
+        return {**out, "status": "offline", "message": "The release page could not be reached (no network, or the network blocks api.github.com)."}
+    except ValueError:
+        return {**out, "status": "error", "message": "The answer was not a release description."}
+    releases = data if isinstance(data, list) else [data]
+    releases = [r for r in releases if isinstance(r, dict) and not r.get("draft")]
+    if not releases:
+        return {**out, "status": "none", "message": "No release has been published yet."}
+    best = None
+    for rel in releases:
+        for a in rel.get("assets") or []:
+            m = DESKTOP_ASSET.match(str(a.get("name", "")))
+            if m and (best is None or _vtuple(m.group(1)) > best[0]):
+                best = (_vtuple(m.group(1)), rel, a)
+    if not best:
+        return {**out, "status": "none", "message": "No desktop release is available yet: the published releases have no ZIP file attached for the desktop."}
+    latest, data, asset = best
+    tag = data.get("tag_name") or ""
+    res = {**out, "status": "ok", "latest": ".".join(map(str, latest)), "tag": tag, "name": data.get("name") or tag,
+           "newer": latest > (_vtuple(VERSION) or (0, 0, 0)), "notes_url": data.get("html_url") or f"https://github.com/{UPDATE_REPO}/releases",
+           "published": data.get("published_at") or "", "prerelease": bool(data.get("prerelease")),
+           "asset": {"name": asset["name"], "size": asset.get("size")}}
+    _update_cache.clear()
+    if asset:
+        _update_cache.update(name=asset["name"], url=asset.get("browser_download_url") or "", latest=res["latest"])
+    return res
+
+
+def run_update(job, params, ev):
+    """Download the release ZIP found by the last check into the feeds folder. Never unpacked, never run."""
+    if not _update_cache.get("url"):
+        raise RuntimeError("Check for updates first: no release asset is known.")
+    url, name = _update_cache["url"], os.path.basename(_update_cache["name"])
+    if not (url.startswith(UPDATE_DOWNLOAD_HOSTS) or (os.environ.get("CRG_UPDATE_URL") and url.startswith("http://127.0.0.1"))):
+        raise RuntimeError("The release asset is not on the expected GitHub address; nothing was downloaded.")
+    if not SAFE.match(name) or not name.lower().endswith(".zip"):
+        raise RuntimeError("Unexpected asset name.")
+    _update(job, message=f"Downloading {name}…", progress=0.1)
+    req = urllib.request.Request(url, headers={"User-Agent": UPDATE_UA, "Accept": "application/octet-stream"})
+    with urllib.request.urlopen(req, timeout=300, context=_ctx() if url.startswith("https") else None) as r:
+        data = r.read()
+    if ev.is_set():
+        raise InterruptedError()
+    path = _write(job, name, data)
+    return name, {"records": len(data), "path": path, "version": _update_cache.get("latest")}
+
+
+RUNNERS = {"kev": run_kev, "epss": run_epss, "nvd": run_nvd, "feeds": run_feeds, "update": run_update}
 
 SAFE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._ -]{0,120}$")
 
@@ -891,8 +977,8 @@ def start_job(source, params):
         try:
             name, info = RUNNERS[source](job, dict(params), ev)
             _update(job, status="done", progress=1.0, file=name, finished=_now(),
-                    message=f"Saved {name} in Downloads/CyberRiskGuardian-feeds",
-                    **{k: v for k, v in info.items() if k in ("records", "score_date", "catalog_version")})
+                    message=f"Saved {name} in {FEEDS}" if source == "update" else f"Saved {name} in Downloads/CyberRiskGuardian-feeds",
+                    **{k: v for k, v in info.items() if k in ("records", "score_date", "catalog_version", "path", "version")})
         except InterruptedError:
             _update(job, status="cancelled", message="Cancelled.", finished=_now())
         except Exception as exc:                        # noqa: BLE001
@@ -909,7 +995,7 @@ def list_files():
         if (f.startswith(".") or f.endswith((".part", ".tmp")) or f in ("manifest.json", "feeds-digest.json", "suggested-sources.json")
                 or f.startswith("crg-") or not os.path.isfile(p)):            # 1.4.0 settings and feed state are not catalogue files
             continue
-        kind = "kev" if f.startswith("kev") or f.startswith("known_exploited") else "epss" if f.startswith("epss") else "nvd" if f.startswith("nvd") else "other"
+        kind = "kev" if f.startswith("kev") or f.startswith("known_exploited") else "epss" if f.startswith("epss") else "nvd" if f.startswith("nvd") else "release" if f.lower().endswith(".zip") else "other"
         st = os.stat(p)
         out.append({"name": f, "kind": kind, "bytes": st.st_size, "modified": dt.datetime.fromtimestamp(st.st_mtime).isoformat(timespec="seconds")})
     return out
@@ -966,6 +1052,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(503, {"error": "The Security Policy Writer engine could not be loaded: " + WRITER_ERROR})
             code, out = writer_api.handle("meta", {})
             return self._json(code, out)
+        if path == "/api/update/check":                 # 1.8.0 — opt-in update check (fixed URL, nothing sent)
+            return self._json(200, update_check())
         if path == "/api/jobs":
             with lock:
                 return self._json(200, {"jobs": sorted(jobs.values(), key=lambda j: j["started"], reverse=True)})

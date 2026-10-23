@@ -3,9 +3,10 @@
 # Copyright (c) 2026 Marc-André Léger
 """CyberRiskGuardian calculation engine.
 
-Implements the KRI formulas of the CyberRiskGuardian Excel Guide v1.0c (s.11) without modification,
+Implements the risk-index formulas of the CyberRiskGuardian Excel Guide v1.0c (s.11) without modification,
 CVSS v4.0 base scoring (via the `cvss` package), tolerance classification, sensitivity shifts,
 the case-style normalized cross-check and the cybersecurity budget calibration rule.
+Inputs are validated (1.8.0): 0-1 ranges, θ in (0, 1], appetite in (0, 1), δm ≥ δe, CVSS required.
 
 Usage:
     python3 crg_calc.py scenarios.json [--appetite 0.30] [--factor 1000] [--json]
@@ -29,21 +30,108 @@ def cvss4(vector):
     return float(v.base_score), v.severities()[0]
 
 
+LABEL = {"PbA": "Pb(A)", "Pbx": "Pb(ψ,A)", "De": "δe", "Dm": "δm", "Th": "θ", "Mu": "μ(E)"}
+
+
+def _blank(x):
+    return x is None or (isinstance(x, str) and not x.strip())
+
+
+def _num(x):
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return float("nan")
+    return v
+
+
+def cvss_of(s):
+    """The CVSS score the formula uses: the stored score, else the score of the vector.
+    Blank is an error ("CVSS required"), never 0; a score outside 0-10 is an error."""
+    sid = s.get("id") or "Scenario"
+    if not _blank(s.get("cvss_score")):
+        c = _num(s.get("cvss_score"))
+        if not (0 <= c <= 10):
+            raise ValueError(f"{sid}: CVSS score must be a number from 0.0 to 10.0")
+        return c
+    if not _blank(s.get("cvss")):
+        return cvss4(str(s["cvss"]).strip())[0]
+    raise ValueError(f"{sid}: CVSS required - provide a CVSS v4.0 vector or score")
+
+
+def cvss_check(s):
+    """Recompute the score from the vector and compare it with a stored score (a flag, never a change)."""
+    stored = None if _blank(s.get("cvss_score")) else _num(s.get("cvss_score"))
+    computed = None
+    if not _blank(s.get("cvss")):
+        try:
+            computed = cvss4(str(s["cvss"]).strip())[0]
+        except Exception:                                   # noqa: BLE001
+            computed = None
+    agree = None if stored is None or computed is None else abs(stored - computed) < 0.05
+    return {"stored": stored, "computed": computed, "agree": agree}
+
+
+def validate(s, appetite=DEFAULT_APPETITE, factor=DEFAULT_FACTOR):
+    """Every input rule (decision 4); returns the list of problems, empty when the scenario is valid."""
+    sid = s.get("id") or "Scenario"
+    out = []
+    p = {}
+    for k in ("PbA", "Pbx", "De", "Dm", "Th", "Mu"):
+        v = (s.get("params") or {}).get(k)
+        v = v.get("v") if isinstance(v, dict) else v
+        p[k] = float("nan") if _blank(v) else _num(v)
+    for k in ("PbA", "Pbx", "De", "Dm", "Mu"):
+        if not (0 <= p[k] <= 1):
+            out.append(f"{sid}: {LABEL[k]} must be within 0-1")
+    if not (0 < p["Th"] <= 1):
+        out.append(f"{sid}: resilience θ must be in (0, 1]")
+    if p["De"] == p["De"] and p["Dm"] == p["Dm"] and p["Dm"] < p["De"]:
+        out.append(f"{sid}: δm must be at least δe")
+    for k in ("red_p", "red_i"):
+        r = float("nan") if _blank(s.get(k)) else _num(s.get(k))
+        if not (0 <= r <= 1):
+            out.append(f"{sid}: {k} must be within 0-1 (a reduction above 1 is invalid)")
+    a = _num(appetite)
+    if not (0 < a < 1):
+        out.append("Appetite must be strictly between 0 and 1")
+    if not (_num(factor) > 0):
+        out.append("The multiplication factor must be greater than 0")
+    try:
+        cvss_of(s)
+    except Exception as exc:                                # noqa: BLE001
+        out.append(str(exc))
+    return out
+
+
+def combine(reductions):
+    """Combined reduction of several measures on the same lever: 1 - prod(1 - r_i) (product rule)."""
+    keep = 1.0
+    for r in reductions:
+        r = _num(r)
+        if not (0 <= r <= 1):
+            raise ValueError("each reduction must be within 0-1")
+        keep *= 1 - r
+    return 1 - keep
+
+
+def cost_effectiveness(est, res, cost):
+    """Risk units removed per $1,000: (Re - Residual) / cost x 1,000."""
+    return (est - res) / cost * 1000 if cost and cost > 0 else None
+
+
 def calc(s, appetite=DEFAULT_APPETITE, factor=DEFAULT_FACTOR):
     """Estimated, tolerated, mitigated, residual risk and ratios for one scenario dict."""
-    p = {k: v["v"] if isinstance(v, dict) else v for k, v in s["params"].items()}
-    c = s.get("cvss_score")
-    if c is None:
-        c = cvss4(s["cvss"])[0]
-    if not (0 < p["Th"] <= 1):
-        raise ValueError(f'{s.get("id")}: resilience (Th) must be in (0, 1]')
-    for k in ("red_p", "red_i"):
-        if not (0 <= s[k] <= 1):
-            raise ValueError(f'{s.get("id")}: {k} must be within 0-1 (a reduction above 1 is invalid)')
+    errs = validate(s, appetite, factor)
+    if errs:
+        raise ValueError("; ".join(errs))
+    p = {k: float(v["v"] if isinstance(v, dict) else v) for k, v in s["params"].items()}
+    c = cvss_of(s)
+    rp, ri = float(s["red_p"]), float(s["red_i"])
     base = p["PbA"] * p["Pbx"] * c * p["Mu"] / p["Th"] * factor
     est = base * (p["De"] + p["Dm"]) / 2
     tol = base * appetite
-    mit = est * s["red_p"] * s["red_i"]
+    mit = est * rp * ri
     res = est - mit
     return dict(cvss=c, est=est, tol=tol, mit=mit, res=res, ratio=res / tol, pre_ratio=est / tol)
 

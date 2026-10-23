@@ -31,9 +31,10 @@ export const MENU = [
   { id: 'organization', label: 'Organization', items: [
     T('org', 'Organization profile'), T('assets', 'Information assets', { badge: 'nb-assets' }), T('maturity', 'Maturity & resilience'), T('reset', 'Reset data')] },
   { id: 'assessment', label: 'Risk assessment', items: [
-    T('dashboard', 'KRI dashboard'), T('safeguards', 'Existing safeguards', { badge: 'nb-sg' }), T('register', 'Scenario register', { badge: 'nb-scen' }),
-    T('scenario', 'Scenario editor'), T('batch', 'Batch scenarios'), T('calc', 'Risk calculator'), T('riskreg', 'Risk register', { badge: 'nb-risks' }),
-    T('mitigation', 'Risk mitigation', { badge: 'nb-meas' }), T('recs', 'Recommendations')] },
+    T('evidence', 'Evidence register'), T('dashboard', 'KRI dashboard'), T('safeguards', 'Existing safeguards', { badge: 'nb-sg' }),
+    T('batch', 'Batch scenarios'), sub('screening', 'Scenario screening', [['candidates', 'Candidates & scores'], ['families', 'Families'], ['weights', 'Weighting schemes'], ['coverage', 'Coverage matrix'], ['watch', 'Watch list & plan'], ['final', 'Final portfolio']]),
+    T('register', 'Scenario register', { badge: 'nb-scen' }), T('scenario', 'Scenario editor'), T('calc', 'Risk calculator'), T('riskreg', 'Risk register', { badge: 'nb-risks' }),
+    T('mitigation', 'Risk mitigation', { badge: 'nb-meas' }), T('recs', 'Recommendations'), T('summary', 'Management summary')] },
   { id: 'threats', label: 'Threats & vulnerabilities', items: [
     T('threats', 'Threats · ATT&CK', { badge: 'nb-tech' }), T('vulns', 'Vulnerabilities · CVE/CWE', { badge: 'nb-vuln' }), T('feeds', 'Threat feeds & social'),
     T('threat', 'Threat context', { badge: 'nb-snap' }), T('ontology', 'Ontology · CRGO')] },

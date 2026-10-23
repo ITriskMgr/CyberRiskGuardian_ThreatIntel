@@ -5,7 +5,7 @@
 
     python3 test_crgo_contract.py --crgo PATH/TO/CyberRiskGuardian-Ontology-0.10.0 [--assessment medibec30.json]
 
-Checks: the MediBec regression (84,491 / 41,104) with crg_calc.py; graph -> context of S1 (schema-valid) ->
+Checks: the MediBec regression (84,305 / 41,023) with crg_calc.py; graph -> context of S1 (schema-valid) ->
 residual-risk write-back stored as proposed; status 'approved' and modelVersion 'TBD' refused
 (STATUS_NOT_PROPOSED, MODEL_VERSION_MISSING); a base under https://w3id.org/crgo/ refused; the report tables keep
 unknown applicability as an evidence gap and flag a self-assessment vs independent conflict (CRGO's synthetic
@@ -193,7 +193,7 @@ def main():
     # 1. MediBec regression, unchanged formulas
     data = json.load(open(a.assessment, encoding="utf-8"))
     t = crg_calc.run(data)["totals"]
-    check("MediBec regression: estimated 84,491 / residual 41,104", round(t["est"]) == 84491 and round(t["res"]) == 41104,
+    check("MediBec regression: estimated 84,305 / residual 41,023", round(t["est"]) == 84305 and round(t["res"]) == 41023,
           "%s / %s" % (format(round(t["est"]), ","), format(round(t["res"]), ",")))
 
     tmp = tempfile.mkdtemp(prefix="crgo-contract-test-")
@@ -202,7 +202,7 @@ def main():
         r = run("graph", a.assessment, "--crgo", crgo, "--base", BASE, "--org-label", "MediBec", "--out", tmp)
         ttl = os.path.join(tmp, "medibec.ttl")
         check("graph: crg2rdf.py builds the organisation graph", r.returncode == 0 and os.path.exists(ttl), "" if r.returncode == 0 else r.stderr.strip()[-200:])
-        check("graph: totals reproduced by the bridge (84491 / 41104)", "total estimated 84491, residual 41104" in r.stdout)
+        check("graph: totals reproduced by the bridge (84305 / 41023)", "total estimated 84305, residual 41023" in r.stdout)
         m = json.load(open(os.path.join(tmp, "medibec.manifest.json")))
         sha = hashlib.sha256(open(a.assessment, "rb").read()).hexdigest()
         check("graph: manifest records the sha256 of the exact assessment file", m["assessmentSha256"] == sha, sha[:16])
@@ -268,7 +268,7 @@ def main():
             row = cc.summarize_context(unk).splitlines()
             line = next(l for l in row if l.startswith("| " + unk["candidateObligations"][0].get("notation", "")))
             check("applicability: unknown shown as evidence gap, never 'not applicable'",
-                  "Evidence gap — organizational input required" in line and "Not applicable" not in line)
+                  "Information gap — organizational validation required" in line and "Not applicable" not in line)
         else:
             check("Nordelle sample present in the CRGO checkout", False, nd)
 

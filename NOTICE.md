@@ -20,9 +20,13 @@ Changes in this edition:
 - an intel-driven scenario-generation perspective;
 - from 1.3.0, an optional bridge to the CyberRiskGuardian Ontology (CRGO) through the dss/v1 data
   contract (`crgo_contract.py`, `crgo-integration.md`), with proposed-only write-backs;
-- from 1.4.0, read-only use of CRGO 0.10.0's compliance/v1 and secops/v1 contracts.
+- from 1.4.0, read-only use of CRGO 0.10.0's compliance/v1 and secops/v1 contracts;
+- from 1.6.0, alignment with the textbook v2.51 (three markers, 19 steps, validated calculator,
+  product rule for combined measures, budget point targets), the `/crg-quick-scan` command and the
+  label check.
 
-No formula was changed. The MediBec baseline remains 84,491 / 41,104.
+No risk formula was changed. In 1.6.0 the MediBec S2 and S8 vectors were scored AV:L (a malicious
+document opened locally); the MediBec baseline is now 84,305 / 41,023, with no verdict change.
 
 ## What is covered
 - The CyberRiskGuardian methodology, including:
@@ -35,13 +39,14 @@ No formula was changed. The MediBec baseline remains 84,491 / 41,104.
   repository.
 - The scripts, including `threat_snapshot.py`, and the MCP calculator server.
 - The textbook *Introduction to Cybersecurity Governance for Business Technology Management*,
-  3rd edition, version 2.1g (August 2026), in
+  3rd edition, version 2.51 (October 2026), with its CyberRiskGuardian appendix, multiple-choice answer key,
+  references and bibliography, in
   `plugins/cyberriskguardian-threatintel/skills/cybersecurity-governance/references/`.
 - The fictional MediBec teaching case and the example deliverables in `examples/medibec/`.
 
 ## Suggested attribution
 > *CyberRiskGuardian with Threat Live-feed* and *Introduction to Cybersecurity Governance*
-> (3rd ed., v2.1g) by Marc-André Léger, licensed under CC BY-NC 4.0
+> (3rd ed., v2.51) by Marc-André Léger, licensed under CC BY-NC 4.0
 > (https://creativecommons.org/licenses/by-nc/4.0/). Changes: <describe your changes>.
 
 ## Third-party material
@@ -66,7 +71,7 @@ credentials nor retrieves data from them. The analyst supplies any such access a
 terms directly.
 
 ## CyberRiskGuardian Ontology (CRGO)
-Version 1.4.0 can connect to the **CyberRiskGuardian Ontology** (CRGO), © 2026 Marc-André Léger,
+Since version 1.4.0 the plugin can connect to the **CyberRiskGuardian Ontology** (CRGO), © 2026 Marc-André Léger,
 licensed under CC BY-NC 4.0 (https://github.com/ITriskMgr/cyberriskguardian-ontology). The release
 used and cited is **v0.10.0** (2026-10-13; the dss/v1 commands also work with v0.9.1). CRGO
 is a separate work and is **not redistributed** in this repository: the analyst clones it
@@ -86,8 +91,8 @@ The dependencies keep their own licences:
 
 ## Notes
 - Creative Commons does not recommend its licences for software. The scripts are licensed under
-  CC BY-NC 4.0 at the author's choice. Contact the author if you need different terms for the
-  code or for commercial use.
+  CC BY-NC 4.0 at the author's choice. For different terms, commercial use, the Educational Licence
+  or the professional editions, see https://cyberriskguardian.ca or write to sales@cyberriskguardian.ca.
 - The book and the generated assessments were produced with the assistance of generative AI. The
   estimates they contain are illustrative and must be validated before any organizational use.
 - Threat-intelligence snapshots capture third-party data at a point in time. Before redistributing

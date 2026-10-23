@@ -41,6 +41,8 @@ export const MODULES = [
     what: 'The CyberRiskGuardian Ontology: scenario identification, organisation context, compliance and security-operations contexts, write-back as proposals.' },
   { id: 'ai', group: 'Other features', label: 'AI assistant', panels: ['ai'], def: true,
     what: 'The in-app analyst, parameter critique and scenario generation — the payload is shown before anything is sent.' },
+  { id: 'screening', group: 'Other features', label: 'Scenario screening', panels: ['screening'], def: true,
+    what: 'Twelve screening criteria with rationale, escalation flags, families, four weighting schemes, the coverage matrix, the watch list and the final portfolio (Process steps 6 and 7).' },
   { id: 'forecast', group: 'Other features', label: 'Forecasts', panels: ['forecast'], def: true,
     what: 'Forecasts of KRIs and risk over the coming periods.' },
   { id: 'budget', group: 'Other features', label: 'Budget', panels: ['budget'], def: true,

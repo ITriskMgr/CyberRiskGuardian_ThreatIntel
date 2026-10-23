@@ -31,7 +31,8 @@ export function importTab(body, sec, org) {
   const plan = new Set(PR.importPlan(ws));
   if (!autoRun) pick.sel = new Set([...plan]);
   const docSel = new Set(fresh.size ? [...fresh].filter(id => ws.docs.some(d => d.id === id)) : ws.docs.map(d => d.id));
-  const tgt = { profile: PR.STEP.context.status(ws) !== 'done', crown: PR.STEP.assets.status(ws) !== 'done' };
+  const ctxParts = PR.partsOf(PR.STEP.context, ws) || [];   // step 2: [context fields, crown jewels or assets]
+  const tgt = { profile: !ctxParts[0]?.ok, crown: !ctxParts[1]?.ok };
   const status = el('div');
 
   // 1. the documents
@@ -96,7 +97,7 @@ export function importTab(body, sec, org) {
     org.start({ profile: tgt.profile, crown: tgt.crown, sections });
   } }, 'Start the import');
   body.append(card({ id: 'import-card' }, el('h2', { style: { marginTop: 0 } }, '2. What to extract'),
-    el('p', 'note', 'Proposals, each tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN with its source, that you review, edit and accept. Nothing is written before you add it, existing values are never replaced without your choice, and extraction never sets a risk parameter. The targets ticked below are the import plan of Process step 4.'),
+    el('p', 'note', 'Proposals, each tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN with its source, that you review, edit and accept. Nothing is written before you add it, existing values are never replaced without your choice, and extraction never sets a risk parameter. The targets ticked below are the import plan of Process step 1.'),
     el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, ''), el('th', null, 'Target'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...first, ...rows))),
     el('div', 'grid g2', { style: { marginTop: '10px' } }, el('label', null, el('span', null, 'Method'), meth),
       el('div', 'small muted', { style: { alignSelf: 'end' } }, 'The creativity of AI answers is chosen in each preview, and its default in Settings → AI — local & remote.')),

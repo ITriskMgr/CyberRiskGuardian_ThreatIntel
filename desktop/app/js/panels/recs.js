@@ -5,6 +5,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as users from '../users.js';
+import { tr } from '../i18n.js';
 import { el, n0, n2, kpi, card, pill, pillFor, field, select, chip, toast, table, today, banner, val } from '../util.js';
 import { S, touch, compute, initiatives, initObj, initArr, INIT_COLS, scen } from '../state.js';
 import { tech, mitigation, measuresForTechniques, MEASURES } from '../ontology.js';
@@ -41,6 +42,7 @@ export function horizonBucket(i) {
 export function render(sec, arg) {
   if (arg && REC.byId(arg)) { recId = arg; view = 'register'; }
   else if (arg && scen(arg)) { focus = arg; view = 'scenarios'; }
+  else if (arg && ['need', 'register', 'scenarios', 'shared', 'roadmap', 'portfolio', 'decisions'].includes(arg)) view = arg;   // 1.8.0 — a tab can be opened by route (Process step 13)
   sec.replaceChildren(el('h1', null, 'Recommendations'),
     el('p', 'lede', 'Options the organization can consider for each scenario — mitigate, transfer, avoid or accept — with the measures that address it, the controls shared across scenarios and a phased roadmap. Suggestions follow transparent rules on the tolerance ratios; they are decision support, and the decision belongs to management.'));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
@@ -74,8 +76,17 @@ function scenarios(body, sec) {
     const own = el('input', { value: dec.owner ?? s.owner ?? '', placeholder: 'Accountable owner' });
     const hor = el('input', { value: dec.horizon ?? s.horizon ?? '', placeholder: 'e.g. 0-6 months' });
     const note = el('textarea', { rows: 2, placeholder: 'Rationale, conditions, approval reference' }); note.value = dec.note || '';
-    const save = () => { S.ws.decisions[r.id] = { option: decSel.value, owner: own.value, horizon: hor.value, note: note.value, date: today(), ratio: r.ratio, cls: r.cls }; touch(); };
-    for (const x of [decSel, own, hor, note]) x.addEventListener('change', () => { save(); toast('Decision recorded for ' + r.id); });
+    // 1.8.0 — a transfer records the share of loss covered (informational: never a reduction of the risk index) and its approver
+    const share = el('input', { type: 'number', min: 0, max: 1, step: 0.05, value: dec.share ?? '', placeholder: '0–1', class: 'dec-share' });
+    const appr = el('input', { value: dec.approver || '', placeholder: 'Name and role of the approver', class: 'dec-approver' });
+    const trBox = el('div', { class: 'grid g2', hidden: decSel.value !== 'Transfer' }, field('Share of loss covered (0–1, informational)', share, 'What the insurance or contract would cover. It is never a reduction: the risk index and the harm to people and operations stay as they are.'), field('<b>Approver</b> of the transfer', appr));
+    const save = () => {
+      const sv = share.value === '' ? null : Number(share.value);
+      if (sv !== null && !(sv >= 0 && sv <= 1)) { toast(tr('The share of loss covered must be within 0–1'), 'bad'); return false; }
+      S.ws.decisions[r.id] = { option: decSel.value, owner: own.value, horizon: hor.value, note: note.value, date: today(), ratio: r.ratio, cls: r.cls,
+        ...(decSel.value === 'Transfer' ? { share: sv, approver: appr.value.trim() } : {}) };
+      touch(); return true; };
+    for (const x of [decSel, own, hor, note, share, appr]) x.addEventListener('change', () => { trBox.hidden = decSel.value !== 'Transfer'; if (save()) toast('Decision recorded for ' + r.id); });
     d.append(el('ul', 'small', ...sg.why.map(w => el('li', null, w))), optCards,
       el('div', 'cols2', { style: { marginTop: '14px' } },
         el('div', null,
@@ -84,14 +95,14 @@ function scenarios(body, sec) {
             { key: 'id', label: 'ID', cls: 'mono' }, { key: 'name', label: 'Initiative' }, { key: 'owner', label: 'Owner' },
             { key: 'y1', label: 'Y1 total', num: true, render: i => money(i.y1) }, { key: 'n', label: 'Shared by', num: true, render: i => i.scenarios.length + ' scen.' },
           ], linked, { class: 'compact' }) : el('p', 'note', 'No initiative linked — add or link one in the Initiative portfolio tab or the scenario editor.'),
-          el('div', 'small muted', { style: { marginTop: '8px' } }, `Allocated Year-1 cost: ${money(r.cost)} · cost-effectiveness ${r.ce != null ? n2(r.ce) + ' risk units per $1k' : '—'} · treatment: ${s.treatment || '—'}`)),
+          el('div', 'small muted', { style: { marginTop: '8px' } }, `Allocated Year-1 cost: ${money(r.cost)} · cost-effectiveness ${r.ce != null ? n2(r.ce) + ' risk units removed per $1,000' : '—'} · treatment: ${s.treatment || '—'}`)),
         el('div', null,
           el('h2', null, `ATT&CK mitigations for the linked techniques (${mits.length})`),
           mits.length ? el('div', 'chips', ...mits.map(m => chip(m.id + ' ' + m.name, { title: m.desc, href: m.url }))) : el('p', 'note', 'Link ATT&CK techniques to the scenario to see the relevant mitigations.'),
           meas.length ? el('div', { style: { marginTop: '10px' } }, el('div', 'small muted', 'CRG measures implementing them:'), el('div', 'chips', ...meas.map(m => chip(m.name + ' · ' + m.fn)))) : null,
           sg.also.includes('Transfer') ? el('div', 'chips', { style: { marginTop: '6px' } }, chip('Cyber insurance (risk transfer) · Transfer')) : null)),
       el('h2', null, 'Management decision'),
-      el('div', 'grid g4', field('<b>Option chosen</b>', decSel), field('Owner', own), field('Horizon', hor), field('Rationale', note)),
+      el('div', 'grid g4', field('<b>Option chosen</b>', decSel), field('Owner', own), field('Horizon', hor), field('Rationale', note)), trBox,
       el('p', 'note', `Suggestion basis: appetite ${R.appetite}, tolerance band ${CRG.BAND_LOW}–${CRG.BAND_HIGH}. Quantitative results are relative indicators, not loss predictions.`));
     body.append(d);
   }
@@ -110,7 +121,7 @@ function shared(body) {
     { key: 'n', label: 'Scenarios', num: true, render: i => n0(i.sc.length), sort: i => i.sc.length },
     { key: 'y1', label: 'Year-1 cost', num: true, render: i => money(i.y1) },
     { key: 'gain', label: 'Attributed reduction', num: true, render: i => n0(i.gain) },
-    { key: 'ce', label: 'CE / $1k', num: true, render: i => i.ce != null ? n2(i.ce) : '—', sort: i => i.ce ?? -1 },
+    { key: 'ce', label: 'CE per $1,000', num: true, render: i => i.ce != null ? n2(i.ce) : '—', sort: i => i.ce ?? -1 },
     { key: 'sc', label: 'Addresses', sortable: false, render: i => el('div', 'chips', ...i.sc.map(id => chip(id, { href: '#/scenario/' + id, title: rowBy[id]?.name }))) },
   ], its, { sortKey: 'n', sortDir: -1, class: 'compact' }) : el('p', 'note', 'No initiatives linked to included scenarios.'),
   el('p', 'note', 'Attributed reduction splits each scenario\'s mitigated risk equally across the initiatives in its package — an approximation for ranking, so a shared control is never credited twice.')));

@@ -266,8 +266,8 @@ APPLICABILITY_TEXT = {
     "applicable": "Applicable (CRGO evaluation over the profile; not legal advice)",
     "not-applicable": "Not applicable (CRGO evaluation over the profile; not legal advice)",
     "potentially-applicable": "Potentially applicable: qualified review required",
-    "unknown": "Unknown: Evidence gap — organizational input required",
-    "not-assessed": "Not assessed: Evidence gap — organizational input required",
+    "unknown": "Unknown: Information gap — organizational validation required",
+    "not-assessed": "Not assessed: Information gap — organizational validation required",
 }
 INDEPENDENT = ("second-line", "internal-audit", "external")
 
@@ -297,12 +297,12 @@ def summarize_context(doc):
                    ", ".join(c.rsplit("/", 1)[-1] for c in o.get("unresolvedConditions", [])) or "-", comp,
                    o.get("evidenceGap", "-")))
     if not obs:
-        out.append("| none linked | - | No obligation is linked to this scenario in the organisation graph: Evidence gap — organizational input required (this is not 'not applicable') | - | - | - |")
+        out.append("| none linked | - | No obligation is linked to this scenario in the organisation graph: Information gap — organizational validation required (this is not 'not applicable') | - | - | - |")
     out += ["", "Control evidence", "", "| Control | Status | Control evidence (result · assessor line · aspect · date) | Open findings | Conflict |",
             "|---|---|---|---|---|"]
     for c in doc.get("controlLinks", []):
         ev = "; ".join("%s · %s · %s · %s" % (a["result"], a["line"], a.get("aspect", "aspect not stated"), a["assessedOn"])
-                       for a in c.get("latestAssessments", [])) or "no assessment recorded: Evidence gap — organizational input required"
+                       for a in c.get("latestAssessments", [])) or "no assessment recorded: Information gap — organizational validation required"
         lines = {a["line"] for a in c.get("latestAssessments", [])}
         if lines and not lines & set(INDEPENDENT):
             ev += " (%s: lower-grade evidence, no independent result)" % (
@@ -448,9 +448,9 @@ def compliance_gaps(doc, labels=None):
         elif st in ("partially-satisfied", "unsatisfied"):
             gaps.append((o["id"], "%s: %s (determination of %s)" % (n, STATE_TEXT[st], o.get("determinedOn", "?"))))
         elif st in ("not-assessed", "undetermined"):
-            gaps.append((o["id"], "%s: compliance %s: Evidence gap — organizational input required" % (n, STATE_TEXT[st])))
+            gaps.append((o["id"], "%s: compliance %s: Information gap — organizational validation required" % (n, STATE_TEXT[st])))
         if o["applicability"] in ("unknown", "not-assessed"):
-            gaps.append((o["id"], "%s: applicability %s: Evidence gap — organizational input required" % (n, o["applicability"].replace("-", " "))))
+            gaps.append((o["id"], "%s: applicability %s: Information gap — organizational validation required" % (n, o["applicability"].replace("-", " "))))
         elif o["applicability"] == "potentially-applicable":
             gaps.append((o["id"], "%s: potentially applicable: qualified review required" % n))
     for e in doc["exceptions"]:
@@ -489,8 +489,8 @@ def summarize_compliance(doc, labels=None):
         elif o["complianceState"] in ("partially-satisfied", "unsatisfied"):
             st += ": GAP"
         app = {"potentially-applicable": "potentially applicable: qualified review required",
-               "unknown": "unknown: Evidence gap — organizational input required",
-               "not-assessed": "not assessed: Evidence gap — organizational input required"}.get(o["applicability"], o["applicability"].replace("-", " "))
+               "unknown": "unknown: Information gap — organizational validation required",
+               "not-assessed": "not assessed: Information gap — organizational validation required"}.get(o["applicability"], o["applicability"].replace("-", " "))
         exc = [_name(e["id"], labels) for e in doc["exceptions"] if e.get("active") and o["id"] in e.get("provisionsWithoutExemption", [])]
         dls = sorted((d for d in doc["deadlines"] if o["id"] in d["deadlineFor"] and not d["answered"]), key=lambda d: d.get("due") or "9999")
         if dls:
@@ -501,7 +501,7 @@ def summarize_compliance(doc, labels=None):
         out.append("| %s | %s | %s | %s | %s | %s |" % (_name(o["id"], labels), app, st, EVIDENCE_TEXT[o["evidenceStatus"]],
                                                        "; ".join(exc) or "-", nd))
     if not doc["obligations"]:
-        out.append("| none recorded | - | - | - | - | No obligation in the organisation graph: Evidence gap — organizational input required |")
+        out.append("| none recorded | - | - | - | - | No obligation in the organisation graph: Information gap — organizational validation required |")
     other = [d for d in doc["deadlines"] if not any(o["id"] in d["deadlineFor"] for o in doc["obligations"]) and not d["answered"]]
     if other:
         out += ["", "Other open deadlines: " + "; ".join(_deadline(d, labels) for d in other)]
@@ -556,13 +556,13 @@ def summarize_secops(doc, labels=None):
     for s in doc["scenarios"]:
         cov = "; ".join(("yes: validated by an effective detection test (%s)" if c["validatedByTest"] else
                          "no: " + c["status"] + ", no effective detection test (%s)") % (", ".join(c.get("techniques", [])) or "-")
-                        for c in s["coverage"]) or "no coverage recorded: Evidence gap — organizational input required"
+                        for c in s["coverage"]) or "no coverage recorded: Information gap — organizational validation required"
         gaps = "; ".join(_name(g, labels) for g in s["detectionGaps"]) or "-"
         pbs = "; ".join("%s: %s" % (_name(p["id"], labels), "yes, passed" if p["simulationPassed"] else "NO, not passed")
                         for p in s["playbooks"]) or "no playbook recorded"
         out.append("| %s | %s | %s | %s |" % (_name(s["id"], labels), cov, gaps, pbs))
     if not doc["scenarios"]:
-        out.append("| none recorded | - | - | No scenario in the organisation graph: Evidence gap — organizational input required |")
+        out.append("| none recorded | - | - | No scenario in the organisation graph: Information gap — organizational validation required |")
     out += ["", "Evidence for detective and response controls (audit signals, not authorisations; no incident inferred from an alert):"]
     out += ["- " + t for _, t in secops_gaps(doc, labels)]
     out += ["", "Caveats: " + " ".join(doc.get("caveats", []))]

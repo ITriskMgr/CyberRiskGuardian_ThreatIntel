@@ -78,5 +78,5 @@ Done. Manual steps remain — see BOOTSTRAP.md:
   3. add the external-intel provenance tag to .claude/rules/evidence-discipline.md
   4. add the three snapshot checks to the risk-qc-reviewer agent
   5. generate examples/threat-context/threat-context-shipped.json
-  6. verify the MediBec baseline still reports 84,491 / 41,104
+  6. verify the MediBec baseline reports 84,305 / 41,023 (S2/S8 scored AV:L)
 NEXT

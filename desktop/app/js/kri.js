@@ -9,9 +9,9 @@ import * as SG from './safeguards.js';
 
 /** Threshold spec: {dir: 'down'|'up', target, warn, crit} — 'down' = lower is better. */
 export const AUTO = [
-  { id: 'CRG-01', name: 'Portfolio residual / tolerated ratio', unit: 'ratio', dir: 'down', target: 0.9, warn: 0.9, crit: 1.1, risk: 'All included scenarios', method: 'Σ residual ÷ Σ tolerated (verified engine)', fmt: 2 },
+  { id: 'CRG-01', name: 'Portfolio risk-to-tolerance ratio', unit: 'ratio', dir: 'down', target: 0.9, warn: 0.9, crit: 1.1, risk: 'All included scenarios', method: 'Σ residual ÷ Σ tolerated (verified engine)', fmt: 2 },
   { id: 'CRG-02', name: 'Scenarios above tolerance', unit: 'count', dir: 'down', target: 0, warn: 1, crit: 3, risk: 'All included scenarios', method: 'Residual/Tolerated > 1.10', fmt: 0 },
-  { id: 'CRG-03', name: 'Total residual risk', unit: 'units', dir: 'down', target: null, warn: null, crit: null, risk: 'All included scenarios', method: 'Σ residual (relative units)', fmt: 0 },
+  { id: 'CRG-03', name: 'Total residual risk index (a risk index, not a KRI)', unit: 'units', dir: 'down', target: null, warn: null, crit: null, risk: 'All included scenarios', method: 'Σ residual (relative units)', fmt: 0 },
   { id: 'CRG-04', name: 'Threat-context snapshot age', unit: 'days', dir: 'down', target: 90, warn: 75, crit: 90, risk: 'Threat calibration', method: 'Today − snapshot retrieval date', fmt: 0 },
   { id: 'CRG-05', name: 'Material scenarios with exposure-gated intel-backed Pb(ψ,A)', unit: '%', dir: 'up', target: 80, warn: 80, crit: 50, risk: 'Material scenarios', method: 'Scenarios untreated ≥ 0.90 with a threat_basis entry ÷ material scenarios', fmt: 0 },
   { id: 'CRG-06', name: 'Exposed CVEs listed in CISA KEV', unit: 'count', dir: 'down', target: 0, warn: 1, crit: 3, risk: 'Exploitation of known vulnerabilities', method: 'Register CVEs with exposure confirmed and KEV-listed in the snapshot', fmt: 0 },

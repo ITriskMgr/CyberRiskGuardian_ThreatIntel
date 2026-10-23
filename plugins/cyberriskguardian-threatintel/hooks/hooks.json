@@ -1,11 +1,36 @@
 {
+  "description": "CyberRiskGuardian with Threat Live-feed: load the methodology and threat-intelligence guardrails at session start, and check outputs for the three standard markers and outdated wording (label check).",
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "cat \"${CLAUDE_PLUGIN_ROOT}/hooks/session-context.md\" 2>/dev/null || true"
+            "command": "cat \"${CLAUDE_PLUGIN_ROOT}/hooks/session-context.md\" 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/check_labels.py\" 2>/dev/null || true",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/check_labels.py\" 2>/dev/null || true",
+            "timeout": 15
           }
         ]
       }

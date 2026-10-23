@@ -1,5 +1,5 @@
 /* Scenario editor — view and edit one scenario: causal chain, ATT&CK and CWE/CVE links, quantification,
-   CVSS, treatment and live KRIs. © 2026 Marc-André Léger. CC BY-NC 4.0 */
+   CVSS, treatment and live risk indices. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as linksPanel from './links.js';
 import { el, n0, n2, kpi, banner, card, pill, pillFor, field, select, go, toast, chip, money, table } from '../util.js';
@@ -14,6 +14,7 @@ import * as CRGO from '../crgo.js';
 import { tr } from '../i18n.js';
 import * as SEED from '../secops_seed.js';
 import { statusAt, TLP_RESTRICTED } from '../siem.js';
+import * as EQ from '../equiv.js';
 
 const CONS = ['Confidentiality/privacy', 'Integrity', 'Availability', 'Operations', 'Financial', 'Regulatory', 'Reputation', 'Safety'];
 const CONF = ['High', 'Medium', 'Low'];
@@ -49,7 +50,7 @@ export function render(sec, arg) {
       S.ws.excluded = S.ws.excluded.filter(x => x !== s.id); delete S.ws.decisions[s.id]; touch(); toast('Deleted ' + s.id); go('register');
     } }, 'Delete'))));
 
-  // live KRIs
+  // live risk indices
   const liveBox = el('div');
   const live = () => {
     liveBox.replaceChildren();
@@ -57,11 +58,14 @@ export function render(sec, arg) {
     try { r = CRG.calc(s, a.APPETITE, a.FACTOR); }
     catch (e) { liveBox.append(banner('bad', 'Cannot calculate this scenario yet', String(e.message || e))); return; }
     const cls = CRG.classify(r.ratio), al = allocation()[s.id];
-    const st = el('div', 'kpi ' + pillFor(cls)); st.append(el('div', 'k', 'Residual / tolerated'));
+    const st = el('div', 'kpi ' + pillFor(cls)); st.append(el('div', 'k', 'Risk-to-tolerance ratio'));
     const v = el('div', 'v'); v.append(n2(r.ratio) + ' ', pill(cls, pillFor(cls))); st.append(v);
-    liveBox.append(el('div', 'grid g6', kpi('CVSS Base', n2(r.cvss)), kpi('Estimated', n0(r.est)), kpi('Tolerated', n0(r.tol)),
-      kpi('Residual', n0(r.res)), st, kpi('Year-1 treatment', al?.y1 ? money(al.y1) : '—', al?.y1 ? 'CE ' + n2((r.est - r.res) / al.y1 * 1000) + ' / $1k' : 'no initiative linked')));
+    liveBox.append(el('div', 'grid g6', kpi(EQ.isEquiv(s) ? 'CVSS-B by equivalency' : 'CVSS-B', n2(r.cvss), s.cvss_limited || EQ.isEquiv(s) ? EQ.LIMITED : ''), kpi('Estimated', n0(r.est)), kpi('Tolerated', n0(r.tol)),
+      kpi('Residual', n0(r.res)), st, kpi('Year-1 treatment', al?.y1 ? money(al.y1) : '—', al?.y1 ? 'CE ' + n2((r.est - r.res) / al.y1 * 1000) + ' ' + tr('risk units removed per $1,000') : 'no initiative linked')));
     if (r.mit > r.est) liveBox.append(banner('bad', 'Mitigation exceeds estimated risk', 'Revise the reduction estimates.'));
+    // 1.8.0 — a stored score is checked against its vector; a disagreement is flagged, never corrected silently
+    const cc = CRG.cvssCheck(s);
+    if (cc.agree === false) liveBox.append(banner('warn', 'The stored CVSS score disagrees with its vector', tr('Stored {0}, the vector scores {1}. The stored score is used until you change it.').replace('{0}', n2(cc.stored)).replace('{1}', n2(cc.computed))));
   };
   const ch = () => { touch(); live(); };
   sec.append(liveBox); live();
@@ -153,8 +157,9 @@ export function render(sec, arg) {
   const manual = el('input', { type: 'number', step: 1000, value: s.cost_y1_manual || '', placeholder: 'used only when no initiative is linked' });
   manual.addEventListener('input', () => { s.cost_y1_manual = Number(manual.value) || 0; ch(); });
   sec.append(el('div', 'cols2',
-    card(el('h2', null, 'CVSS v4.0 (Base only)'), field('<b>Vector</b>', vec), el('div', 'grid g2', field('Score override', score, 'Leave empty to compute from the vector'),
+    card(el('h2', null, 'CVSS v4.0 (Base only, CVSS-B)'), field('<b>Vector</b>', vec), el('div', 'grid g2', field('Score override', score, 'Leave empty to compute from the vector'),
       el('div', { style: { alignSelf: 'end' } }, el('button', { class: 'btn ghost', onclick: () => go('cvss/' + encodeURIComponent(s.cvss || '') + '|' + s.id) }, 'Edit in CVSS calculator'))),
+      equivBox(s, ch, vec),
       field('CVSS rationale', T('cvss_note', 3)),
       el('p', 'note', 'Threat metrics (E:A/P/U) are not used: exploitation evidence belongs in Pb(ψ,A).')),
     card(el('h2', null, 'Treatment'), el('div', 'grid g2', field('<b>Probability reduction</b>', red('red_p')), field('<b>Impact reduction</b>', red('red_i'))),
@@ -486,4 +491,33 @@ function secopsCard(s, sec) {
       el('a', { class: 'btn sm ghost', href: '#/siem/coverage' }, 'SIEM coverage & gaps'), el('a', { class: 'btn sm ghost', href: '#/siem/alerts' }, 'Alerts & triage'),
       el('a', { class: 'btn sm ghost', href: '#/soar/cases' }, 'SOAR cases'), el('a', { class: 'btn sm ghost', href: '#/soar/playbooks' }, 'Playbooks'),
       el('a', { class: 'btn sm ghost', href: '#/batch' }, 'Seeds in Batch scenarios')));
+}
+
+/* 1.8.0 — CVSS by equivalency (book ch06): weakness type, one justification per metric, the label
+   "limited applicability" and the estimate marker, stored with the scenario and shown in exports. */
+function equivBox(s, ch, vec) {
+  const box = el('div', { class: 'equiv', style: { margin: '8px 0' } });
+  const draw = () => {
+    box.replaceChildren();
+    const m = select([['technical', 'Technical vulnerability (CVE, CWE, configuration flaw)'], ['equivalency', 'By equivalency — non-technical weakness']], EQ.isEquiv(s) ? 'equivalency' : 'technical');
+    m.addEventListener('change', () => { EQ.setMode(s, m.value); ch(); draw(); });
+    const lim = el('input', { type: 'checkbox', checked: !!s.cvss_limited, disabled: EQ.isEquiv(s), style: { width: 'auto' } });
+    lim.addEventListener('change', () => { s.cvss_limited = lim.checked; s.cvss_limited_manual = lim.checked; ch(); });
+    box.append(field('<b>How the score was obtained</b>', m),
+      el('label', { style: { display: 'flex', gap: '6px', alignItems: 'center', color: 'var(--ink)', fontSize: '13px' } }, lim, 'Limited applicability (shown beside the score in every export)'));
+    if (!EQ.isEquiv(s)) return;
+    const e = EQ.ensure(s);
+    const ty = select([['', 'Choose the kind of weakness'], ...EQ.WEAKNESS_TYPES], e.type || '');
+    ty.addEventListener('change', () => { e.type = ty.value; ch(); draw(); });
+    const vm = EQ.metricsOf(s.cvss);
+    const g = EQ.gaps(s);
+    box.append(el('div', 'chips', pill(EQ.LIMITED, 'warn'), pill(EQ.MARK, 'warn')), field('<b>Weakness type</b>', ty),
+      el('details', { open: g.length > 0 }, el('summary', null, tr('Justification of each metric') + (g.length ? ` — ${tr('missing')}: ${g.join(', ')}` : ' ✓')),
+        el('div', 'grid g2', ...EQ.METRICS.map(k => { const t = el('textarea', { rows: 1, placeholder: EQ.QUESTIONS[k] }); t.value = e.just[k] || '';
+          t.addEventListener('input', () => { e.just[k] = t.value; touch(); }); t.addEventListener('change', draw);
+          return field(`<b>${k}:${vm[k] || '?'}</b> <span class="small muted">${EQ.QUESTIONS[k]}</span>`, t); }))));
+  };
+  vec.addEventListener('change', draw);
+  draw();
+  return box;
 }

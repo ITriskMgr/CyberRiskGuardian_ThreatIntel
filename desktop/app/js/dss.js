@@ -26,7 +26,7 @@ import * as SIEM from './siem.js';
 import * as SOAR from './soar.js';
 
 export const CONTRACT = 'dss/v1';
-export const GAP = 'Evidence gap — organizational input required.';
+export const GAP = 'Information gap — organizational validation required.';
 export const QUALIFIED = 'Qualified review required (potentially applicable).';
 export const MGMT = 'Management decision required.';
 

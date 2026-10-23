@@ -12,6 +12,9 @@
      no incident inferred from an alert · no response action presented as authorised without a valid approval
      (approval gaps are audit signals) · TLP:RED and TLP:AMBER+STRICT material kept out of reports · source
      confidence never used as a probability.
+   1.8.0 (book v2.51): standard markers · valid inputs and a CVSS for every scenario · stored scores agree with
+     their vectors · equivalency justified · no reference left on a superseded catalogue · screening flags reviewed ·
+     transfers approved.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, table, kpi, n0, go, today } from '../util.js';
@@ -21,6 +24,9 @@ import { conflictsOf, delegationOk } from './csm.js';
 import { expiredReliance } from './isms.js';
 import { tr } from '../i18n.js';
 import * as SOAR from '../soar.js';
+import * as MK from '../markers.js';
+import * as EQ from '../equiv.js';
+import * as SCR from '../screening.js';
 
 /** Every check: { id, title, state: 'pass'|'warn'|'fail', detail, fix (route) }. */
 export function checks(ws = S.ws) {
@@ -69,8 +75,8 @@ export function checks(ws = S.ws) {
   const stale = (ws.shared?.evidence || []).filter(e => e.validUntil && e.validUntil < today());
   add('QC-11', 'Evidence is current', stale.length ? 'warn' : 'pass', stale.length ? stale.map(e => e.id).join(', ') : tr('No evidence past its validity date.'), 'audit/assurance');
   let ok = false;
-  try { const r = self.CRG.run(self.CRG_SAMPLE); ok = Math.round(r.totals.est) === 84491 && Math.round(r.totals.res) === 41104; } catch { ok = false; }
-  add('QC-12', 'The engine reproduces the MediBec baseline (84,491 / 41,104)', ok ? 'pass' : 'fail', ok ? tr('Verified at start-up.') : tr('The engine self-check did not pass: no number should be used.'), 'about');
+  try { const r = self.CRG.run(self.CRG_SAMPLE); ok = Math.round(r.totals.est) === 84305 && Math.round(r.totals.res) === 41023; } catch { ok = false; }
+  add('QC-12', 'The engine reproduces the MediBec baseline (84,305 / 41,023)', ok ? 'pass' : 'fail', ok ? tr('Verified at start-up.') : tr('The engine self-check did not pass: no number should be used.'), 'about');
   add('QC-13', 'Licensed standards are cited by identifier only', 'pass', tr('IIA, ISACA, AICPA, COSO and ISO texts are not stored in the application; reports cite identifiers and headings. Check text you paste yourself.'), null);
   // 1.6.0 — CRGO 0.10.0 brief §4
   const c14 = compliantWithoutEvidence(ws);
@@ -88,6 +94,34 @@ export function checks(ws = S.ws) {
   const c18 = confidenceAsProbability(ws);
   add('QC-18', 'Source confidence is never used as a probability', c18.length ? 'fail' : 'pass',
     c18.length ? tr('A likelihood rationale relies on a source confidence (STIX 0–100, feed or indicator confidence): {0}').replace('{0}', c18.join(', ')) : tr('No likelihood is set from a source confidence; it is a statement of the producer, not a probability.'), 'scenario');
+  // 1.8.0 — the book v2.51 alignment
+  const old = MK.findOutdated(ws);
+  add('QC-19', 'The three markers use the standard wording', old.length ? 'warn' : 'pass',
+    old.length ? tr('Outdated marker wording in {0} place(s), e.g. {1}: use “{2}”.').replace('{0}', old.length).replace('{1}', old[0].path || '—').replace('{2}', old[0].use) : tr('Analytical estimate — validation required · Information gap — organizational validation required · Management decision required.'), 'register');
+  const inc = ws.assessment.SCEN.filter(s => !(ws.excluded || []).includes(s.id));
+  const invalid = inc.map(s => ({ s, e: CRG.validate(s, ws.assessment.APPETITE, ws.assessment.FACTOR) })).filter(x => x.e.length);
+  add('QC-20', 'Every input is within its valid range, and every scenario has a CVSS score', invalid.length ? 'fail' : 'pass',
+    invalid.length ? invalid.slice(0, 6).map(x => x.e.join('; ')).join(' · ') : tr('Probabilities, damages, criticality and reductions within 0–1; θ in (0, 1]; appetite strictly between 0 and 1; δm ≥ δe; CVSS present and within 0–10.'), 'calc');
+  const mism = inc.filter(s => CRG.cvssCheck(s).agree === false);
+  add('QC-21', 'A stored CVSS score agrees with its vector', mism.length ? 'warn' : 'pass',
+    mism.length ? mism.map(s => { const c = CRG.cvssCheck(s); return `${s.id}: ${c.stored} ≠ ${c.computed}`; }).join(', ') : tr('Every stored score matches the score of its vector (or no score is stored).'), 'scenario');
+  const eqg = inc.filter(s => EQ.isEquiv(s) && EQ.gaps(s).length);
+  add('QC-22', 'Scores by equivalency are justified metric by metric and labelled limited applicability', eqg.length ? 'fail' : 'pass',
+    eqg.length ? eqg.map(s => `${s.id} (${EQ.gaps(s).join(', ')})`).join(' · ') : tr('{0} scenario(s) scored by equivalency, each with its justifications, the label and the marker.').replace('{0}', inc.filter(EQ.isEquiv).length), 'cvss');
+  const legacy = (ws.catalogueMigration || []).filter(d => d.review);
+  add('QC-23', 'No control reference is left on a superseded catalogue', legacy.length ? 'warn' : 'pass',
+    legacy.length ? tr('{0} reference(s) to ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 could not be mapped and need review: {1}').replace('{0}', legacy.length).replace('{1}', [...new Set(legacy.map(d => d.from))].slice(0, 6).join(', ')) : tr('Only ISO/IEC 27002:2022, NIST CSF 2.0 and CIS Controls v8.1 are referenced.'), 'mitigation');
+  const sa = SCR.analysis(ws);
+  add('QC-24', 'Flagged candidates are not excluded without review; judgment-based selections say why', sa.flaggedUnreviewed.length || sa.judgmentMissing.length ? 'fail' : sa.list.length < 20 ? 'warn' : 'pass',
+    sa.flaggedUnreviewed.length || sa.judgmentMissing.length ? tr('Exclusions without review: {0}. Judgments without rationale: {1}.').replace('{0}', sa.flaggedUnreviewed.map(c => c.id).join(', ') || '—').replace('{1}', sa.judgmentMissing.map(u => u.id).join(', ') || '—')
+      : sa.list.length < 20 ? tr('{0} candidate(s): the method asks for at least 20 (about 25 to 40 for ten scenarios).').replace('{0}', sa.list.length) : tr('Every flagged candidate left out is reviewed or watched, and every judgment is explained.'), 'screening/watch');
+  const tx = Object.entries(ws.decisions || {}).filter(([, d]) => d?.option === 'Transfer' && !String(d.approver || '').trim());
+  add('QC-25', 'Every transfer names its approver and claims no reduction', tx.length ? 'warn' : 'pass',
+    tx.length ? tr('Transfers without an approver: {0}').replace('{0}', tx.map(([k]) => k).join(', ')) : tr('A transfer records the share of loss covered for information and its approver; it never reduces the risk index.'), 'recs');
+  const AVN = ['CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L'];
+  const oldCase = ws.kind === 'example' && ws.assessment.SCEN.some(x => (x.id === 'S2' || x.id === 'S8') && AVN.includes(x.cvss));
+  add('QC-26', 'The teaching case carries the current MediBec vectors', oldCase ? 'warn' : 'pass',
+    oldCase ? tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): Reset data → Start over takes them.') : tr('Not a teaching case on the earlier vectors.'), 'reset');
   return out;
 }
 

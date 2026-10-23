@@ -11,7 +11,7 @@ set in English and French for ISP management to manage), a local SIEM and SOAR f
 **CyberRiskGuardian Ontology** (CRGO v0.10.0), a shared **Risk Registry**, and a pack that turns the KRI
 dashboard into a **Claude Dashboard** on claude.ai.
 
-**Version 1.7.0 Beta (1.7.x).** For teaching, exploration and method validation; validate every result
+**Version 1.8.0 Beta (1.8.x).** For teaching, exploration and method validation; validate every result
 before it supports a real decision.
 
 **Installing it:** `INSTALL.md` in the folder — one page, in English and in French, including how to set up
@@ -30,12 +30,12 @@ accepted) by the launcher's helper or the scheduled task; sharing a registry pac
 default — to the shared folder you chose; and a request you send to an AI provider — the Claude API, OpenAI,
 Gemini, Azure OpenAI, GitHub Models, a model on this machine, or one your organization added — always
 previewed first and described below. One example threat-context snapshot ships with the application, so the
-Threat Evidence Ladder and Process step 5 work with no network at all. With the Claude provider an
+Threat Evidence Ladder and Process step 3 work with no network at all. The optional **update check**, if you switch it on, asks this project's GitHub releases for the latest version through the helper — one fixed address, nothing sent. With the Claude provider an
 extraction may also ask Claude to **search the web** for missing profile items; you choose it in the
 extraction dialog. The SIEM and SOAR have **no live connector**: they read files you import. Nothing is sent
 automatically, on a schedule, or in the background, and no network call sits in the calculation path.
 
-© 2026 Marc-André Léger. CC BY-NC 4.0. Version 1.7.0 Beta (1.7.x) — see `CHANGELOG.md`.
+© 2026 Marc-André Léger. Proprietary licence, free for students and non-profit organisations. Version 1.8.0 Beta (1.8.x) — see `CHANGELOG.md`.
 Who may use it without asking and whose situation needs a commercial licence: Help → About → Licence in the
 application.
 Project: https://github.com/ITriskMgr/CyberRiskGuardian · https://www.leger.ca
@@ -49,7 +49,7 @@ and `crg.js` matches `crg_calc.py` on MediBec. A third implementation of the for
 third thing to keep in step with `crg_calc.py`, and reproducibility is the point of the method.
 
 On every start the app recomputes the bundled MediBec case and compares the totals with
-**84,491 / 41,104**. The footer shows the result. If the engine ever diverges, a red banner says
+**84,305 / 41,023**. The footer shows the result. If the engine ever diverges, a red banner says
 so and tells you not to rely on any number until it matches again.
 
 ## Run it
@@ -104,20 +104,23 @@ links to its section of the user guide.
 
 | Section | Screen | What it is for |
 |---|---|---|
-| Start | **Process** | The 13 steps of a complete risk assessment with their status in this workspace, the next recommended step, buttons to the right screens, guidelines and a printable checklist. |
-| Organization | **Organization profile** | Workspaces (with several Word/PDF documents imported at creation); profile, obligations, crown jewels, appetite and budget; classroom setting; context documents with local text extraction and keyword hints; **Import from documents** — add documents at any time and extract the profile, the crown jewels and fourteen other targets from them alone (step 4); evidence. |
+| Start | **Process** | The nineteen steps of a complete risk assessment (the textbook's, in seven groups) and the report, with their status in this workspace, the next recommended step, buttons to the right screens, guidelines and a printable checklist. |
+| Organization | **Organization profile** | Workspaces (with several Word/PDF documents imported at creation); profile, obligations, crown jewels, appetite and budget; classroom setting; context documents with local text extraction and keyword hints; **Import from documents** — add documents at any time and extract the profile, the crown jewels and fourteen other targets from them alone (step 1); evidence. |
 | | **Information assets** | Inventory linked to scenarios and risks; discovery imports and drop folder; software and data; classification and criticality; BIA; dynamic risk; vulnerability and configuration correlation; endpoint status; dependency graph and blast radius; lifecycle; audit trail; asset compliance. |
 | | **Maturity & resilience** | NIST CSF 2.0 maturity — six functions, 22 categories, scored 0–5 against a target — and an eighteen-question resilience instrument on the six capabilities θ is defined as; the two readings of θ shown with the gap named; dated history; the scenario count the measured level suggests. |
-| | **Reset data** | Put a teaching case back to its starting point, handing steps 2 and 3 back to the student, or — as an administrator — reset a workspace at one of four depths or delete it, with what would go counted before you confirm. |
-| Risk assessment | **KRI dashboard** | Top 5 indicators by default (worst first), gauges with thresholds, search and multi-select, recorded measurements, trends and charts. |
+| | **Reset data** | Put a teaching case back to its starting point, handing step 2 (context and crown jewels) back to the student, or — as an administrator — reset a workspace at one of four depths or delete it, with what would go counted before you confirm. |
+| Risk assessment | **Evidence register** | The sources of the assessment numbered E1, E2…, typed documented / exercise / SME input / external, with strength and where each is cited. |
+| | **KRI dashboard** | Top 5 indicators by default (worst first), gauges with thresholds, search and multi-select, recorded measurements, trends and charts. |
 | | **Existing safeguards** | What already protects the organization: owner, state, scope and what it does not cover, framework controls, annual run cost, last shown to work. Proposes θ from the six resilience capabilities; feeds the budget baseline. |
+| | **Scenario screening** | Candidates scored on the twelve criteria (total /60), escalation flags, families, four weighting schemes with judgment flags, coverage matrix, watch list and evidence plan, final portfolio of ten. |
 | | **Scenario register** | Every scenario with threat and vulnerability links, status, search, include/exclude, JSON load and export. |
-| | **Scenario editor** | One scenario completely, with live KRIs, AI-drafted causal chain, ontology card and a read-only **security-operations evidence** card. |
+| | **Scenario editor** | One scenario completely, with live risk indices, CVSS by equivalency for non-technical weaknesses, AI-drafted causal chain, ontology card and a read-only **security-operations evidence** card. |
 | | **Batch scenarios** | Candidates from threat patterns, AI, ATT&CK techniques, register CVEs or CWE weaknesses, CSV — and **scenario seeds from security operations** (detection gaps, untested coverage, degraded telemetry, alert clusters, confirmed incidents, approval gaps…), which propose a causal chain and the parameters they may inform, never a value. |
 | | **Risk calculator** | Risk of every scenario with search, filters and include/exclude; what-if appetite; full single-scenario calculation with sensitivity. |
 | | **Risk register** | Risks with threats, vulnerabilities, assets, scenarios and measures; inherent / current / target ratings; treatment, review and acceptance; heat map; history. |
-| | **Risk mitigation** | Control catalogues (your list, ISO/IEC 27002:2022, SP 800-53 r5, CSF 2.0, CIS v8.1, ATT&CK mitigations, and any catalogue loaded in Frameworks); measures with cost, likelihood/impact reductions, effect category, action verb and gap type; combined 1 − ∏(1 − r); proposals; Ask Claude. |
-| | **Recommendations** | Treatment need (the residual-to-tolerance verdict first); mitigate / transfer / avoid / accept per scenario; the register from draft to completion with an approval gate that freezes the figures; consolidation; shared controls; roadmap; initiative portfolio; decision register. |
+| | **Risk mitigation** | Control catalogues (ISO/IEC 27002:2022, SP 800-53 r5, CSF 2.0, CIS v8.1, ATT&CK mitigations, and any catalogue loaded in Frameworks); measures with cost, likelihood/impact reductions, effect category, action verb and gap type; combined by the product rule 1 − ∏(1 − r); proposals; Ask Claude. |
+| | **Recommendations** | Treatment need (the residual-to-tolerance verdict first); mitigate / transfer / avoid / accept per scenario; the register from draft to completion with an approval gate that freezes the figures; consolidation; shared controls; roadmap; initiative portfolio; decision register (a transfer records the share of loss covered and its approver). |
+| | **Management summary** | One page for management: decisions requested, residual against tolerance before and after treatment, portfolio and budget, top risks, markers, limitations; Markdown or print. |
 | Threats & vulnerabilities | **Threats · ATT&CK** | ATT&CK Enterprise v19.2 matrix, technique detail with mitigations and CWE links, coverage map, Navigator export. |
 | | **Vulnerabilities · CVE/CWE** | CVE register (exposure gate) enriched with KEV/EPSS/ladder; download of KEV, EPSS and NVD through the launcher's helper; NVD, CVE JSON 5 and scanner imports; CWE explorer; vulnerability ↔ scenario link suggestions (rules, then optional AI). |
 | | **Threat feeds & social** | Triage first — stories bucketed *needs a decision* / *worth watching* / *not relevant* with the reason stated, and a weekly briefing written without AI; sources matched to this organization; IOC watch list (CSV, STIX 2.1); triage profile for the scheduled task. |
@@ -329,4 +332,6 @@ prevents the divergence.
 
 ## Licence
 
-CC BY-NC 4.0. See `LICENSE` and `NOTICE.md`.
+Proprietary licence from this release — free for students and non-profit organisations, Educational Licence
+for institutions, Commercial Licence for everyone else; versions up to 1.7.0 remain CC BY-NC 4.0. See `LICENSE`,
+`licences/` and `NOTICE.md`; product site cyberriskguardian.ca, sales@cyberriskguardian.ca.

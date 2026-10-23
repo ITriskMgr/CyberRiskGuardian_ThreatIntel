@@ -1,4 +1,4 @@
-/* app.js — CyberRiskGuardian Desktop 1.5.2 entry point: engine self-check, router, workspace switcher.
+/* app.js — CyberRiskGuardian Desktop entry point: engine self-check, router, workspace switcher, update check.
    The calculation engines (crg.js, cvss4.js) are reused verbatim from the verified mobile app
    and are never reimplemented here. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
@@ -46,6 +46,10 @@ import * as qc from './panels/qc.js';
 import * as shared from './panels/shared.js';
 import * as siem from './panels/siem.js';
 import * as soar from './panels/soar.js';
+import * as evidence from './panels/evidence.js';
+import * as screening from './panels/screening.js';
+import * as summary from './panels/summary.js';
+import * as UPUI from './updateui.js';
 import * as i18n from './i18n.js';
 import * as MOD from './modules.js';
 import * as LOG from './logs.js';
@@ -55,11 +59,11 @@ import * as chat from './chat.js';
 import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
 
-const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, register, scenario, batch, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, siem, soar, cvss, budget, export: exportp, ai, forecast, backup, settings };
+const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
 export const ENGINE = { ok: false };
 
-/* ---------------- engine self-check (unchanged from 1.0.0) ---------------- */
-const EXPECTED = { est: 84491, res: 41104 };
+/* ---------------- engine self-check (MediBec reference: 84,305 / 41,023 since 1.8.0, S2 and S8 at AV:L) ---------------- */
+const EXPECTED = { est: 84305, res: 41023 };
 function selfCheck() {
   const out = $('engine-banner'), state = $('engine-state');
   if (typeof CRG === 'undefined' || typeof CVSS4 === 'undefined') {
@@ -167,7 +171,7 @@ function drawChrome() {
   const nb = $('nb-snap');
   if (sn?.expires) { const left = Math.round((new Date(sn.expires) - new Date(new Date().toISOString().slice(0, 10))) / 864e5); nb.textContent = left < 0 ? 'expired' : left + 'd'; }
   else nb.textContent = '';
-  const nx = nextStep(ws); $('nb-proc').textContent = nx ? nx.s.n + '/12' : '✓';
+  const nx = nextStep(ws); $('nb-proc').textContent = nx ? (nx.s.n === 'R' ? 'R' : nx.s.n + '/19') : '✓';
   nav.visibility(new Set([...users.hiddenPanels(), ...MOD.offPanels()]));
   drawUser();
   nav.refresh();
@@ -245,7 +249,7 @@ ENGINE.ok = selfCheck();
 nav.init();
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); drawChrome(); route(); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

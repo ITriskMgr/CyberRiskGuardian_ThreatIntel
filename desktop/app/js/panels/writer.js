@@ -153,7 +153,7 @@ async function interview(body, { ws, w, by, redraw }) {
     kpi('Required', `${n0(iv.progress.required_done)} / ${n0(iv.progress.required)}`, iv.progress.minimum_complete ? tr('minimum answered') : tr('answer these first'), iv.progress.minimum_complete ? 'good' : 'warn'),
     kpi('Document prefix', iv.prefix, tr('used in document numbers')), kpi('Organization', iv.org_name || '—', tr('as answered'))));
   if (iv.observations.length) body.append(card(el('h2', { style: { marginTop: 0 } }, 'Governance observations'),
-    el('p', 'note', 'Patterns from Introduction to Cybersecurity Governance that the answers suggest. They are points to discuss, never facts written into a policy.'),
+    el('p', 'note', 'Patterns from Introduction to Cybersecurity Governance (Chapter 21) that the answers suggest. They are points to discuss, never facts written into a policy.'),
     el('ul', null, ...iv.observations.map(o => el('li', null, pill(o.severity === 'high' ? 'high' : o.severity === 'medium' ? 'medium' : 'low', o.severity === 'high' ? 'bad' : 'warn'), ' ', noi(o.text))))));
   const byCode = new Map(iv.questions.map(q => [q.code, q]));
   for (const s of iv.sections) {

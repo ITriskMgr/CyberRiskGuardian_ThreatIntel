@@ -16,7 +16,7 @@ export function lifecycle(p) {
   const ws = S.ws;
   return (P.FLOW[p.status] || []).map(([to, lab]) => el('button', { class: 'btn' + (to === 'retired' || (to === 'draft' && p.status !== 'published' && p.status !== 'retired') ? ' ghost' : ''), onclick: async () => {
     try {
-      if (to === 'approved' && !canApprove()) throw new Error(tr('Approving a policy needs the Approve right (RACI “A”) on step 13, or an administrator.'));
+      if (to === 'approved' && !canApprove()) throw new Error(tr('Approving a policy needs the Approve right (RACI “A”) on the Report step, or an administrator.'));
       if (to === 'review' && !p.statements.length) throw new Error(tr('Add at least one policy statement first.'));
       let by = byName();
       if (!users.active() && (to === 'review' || to === 'approved')) {

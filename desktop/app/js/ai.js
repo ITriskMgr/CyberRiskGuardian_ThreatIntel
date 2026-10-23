@@ -236,9 +236,9 @@ Rules you must follow:
 - You do not calculate risk. The application's verified engine does. Never state a residual risk or a
   ratio you were not given.
 - Never invent organizational facts. If something is not in the material provided, say
-  "Information gap - organizational validation required" and name what is missing.
+  "Information gap — organizational validation required" and name what is missing.
 - Distinguish documented facts from assumptions and from your own estimates. Label every estimate
-  "Analytical estimate - validation required".
+  "Analytical estimate — validation required".
 - CVSS is Base-only here; exploitation evidence belongs in Pb(psi,A), never in the CVSS vector.
 - You propose. The analyst decides. Say so where a proposal would change a stored value.
 - Be concise and specific. Cite the scenario, measure or indicator identifiers you used.`;

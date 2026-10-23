@@ -1,5 +1,5 @@
 {
- "_comment": "CyberRiskGuardian data model. One file drives crg_calc.py, build_workbook.py and the report. Values below are a fictional example - replace them. Params: PbA=Pb(A), Pbx=Pb(psi,A), De=expected damage, Dm=maximum damage, Th=resilience, Mu=criticality; each {v, qual, rat, ev, conf}. red_p/red_i = probability/impact reduction of the treatment package (0-1).",
+ "_comment": "CyberRiskGuardian data model. One file drives crg_calc.py, build_workbook.py and the report. Values below are a fictional example - replace them. Params: PbA=Pb(A), Pbx=Pb(psi,A), De=expected damage, Dm=maximum damage, Th=resilience, Mu=criticality; each {v, qual, rat, ev, conf}. red_p/red_i = probability/impact reduction of the treatment package (0-1; several measures on one lever combine as 1 - prod(1 - r_i)). cvss = CVSS v4.0 Base vector (required; the score is recomputed from it). Optional transfer = {instrument, share_covered 0-1, approver, premium}: informational, never a reduction; the decision is a Management decision required.",
  "APPETITE": 0.30,
  "FACTOR": 1000,
  "CASE_APPETITE": 0.40,
@@ -43,7 +43,8 @@
    "inits": ["I01"],
    "treatment": "Phishing-resistant MFA and conditional access.",
    "owner": "CIO",
-   "horizon": "0-6 months"
+   "horizon": "0-6 months",
+   "transfer": {"instrument": "Cyber insurance (placeholder until a broker quotation)", "share_covered": null, "approver": "", "premium": null}
   }
  ],
  "INITIATIVES": [

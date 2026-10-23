@@ -12,6 +12,7 @@ import * as aiui from '../aiui.js';
 import * as X from '../extractor.js';
 import * as AI from '../ai.js';
 import { spread, coverage, newSeed } from '../variety.js';
+import * as SCR from '../screening.js';
 import * as MT from '../maturity.js';
 import { tr } from '../i18n.js';
 import * as SEED from '../secops_seed.js';
@@ -20,7 +21,7 @@ import { pill } from '../util.js';
 /** Scenario archetypes: a starting point, not an assessment. Every value is an analytical estimate. */
 export const PATTERNS = [
   { key: 'phish', name: 'Credential phishing and MFA bypass', src: 'cybercrime', weak: 'push-based MFA without phishing resistance and limited conditional access', attack: ['T1566.002', 'T1621', 'T1078'], cwe: ['CWE-308', 'CWE-287'], cons: 0, p: [0.8, 0.5, 0.5, 0.8, 0.45, 0.8], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:A/VC:H/VI:H/VA:N/SC:H/SI:L/SA:L' },
-  { key: 'ransom', name: 'Ransomware with data exfiltration', src: 'ransomware', weak: 'flat network, standing administrative privileges and reachable backups', attack: ['T1566.001', 'T1021.001', 'T1486', 'T1490', 'T1567'], cwe: ['CWE-269'], cons: 1, p: [0.7, 0.5, 0.7, 0.95, 0.35, 0.9], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' },
+  { key: 'ransom', name: 'Ransomware with data exfiltration', src: 'ransomware', weak: 'flat network, standing administrative privileges and reachable backups', attack: ['T1566.001', 'T1021.001', 'T1486', 'T1490', 'T1567'], cwe: ['CWE-269'], cons: 1, p: [0.7, 0.5, 0.7, 0.95, 0.35, 0.9], cvss: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', note: 'AV:L: the malicious document is delivered by e-mail but opened locally.' },
   { key: 'edge', name: 'Exploitation of an unpatched internet-facing system', src: 'opportunistic', weak: 'unpatched or end-of-life internet-facing software', attack: ['T1190', 'T1133'], cwe: ['CWE-1395'], cons: 1, p: [0.7, 0.45, 0.55, 0.85, 0.4, 0.8], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N' },
   { key: 'brute', name: 'Credential stuffing against exposed administrative interfaces', src: 'opportunistic', weak: 'exposed administrative interfaces without MFA or rate limiting', attack: ['T1110.004', 'T1133'], cwe: ['CWE-307', 'CWE-521'], cons: 0, p: [0.75, 0.4, 0.5, 0.8, 0.45, 0.75], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N' },
   { key: 'cloud', name: 'Misconfigured cloud storage exposes data', src: 'opportunistic', weak: 'publicly accessible or weakly authenticated cloud storage', attack: ['T1530', 'T1567.002'], cwe: ['CWE-732', 'CWE-284'], cons: 0, p: [0.6, 0.45, 0.55, 0.8, 0.45, 0.75], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N' },
@@ -33,6 +34,11 @@ export const PATTERNS = [
   { key: 'ddos', name: 'Denial of service on online services', src: 'hacktivist', weak: 'no upstream DDoS protection for public services', attack: ['T1498', 'T1499'], cwe: ['CWE-400'], cons: 1, p: [0.55, 0.45, 0.35, 0.65, 0.5, 0.6], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:L' },
   { key: 'backup', name: 'Backups destroyed, preventing recovery', src: 'ransomware', weak: 'backups in the production identity domain, not immutable', attack: ['T1490', 'T1485'], cwe: ['CWE-732'], cons: 2, p: [0.5, 0.5, 0.6, 0.9, 0.35, 0.9], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:H' },
   { key: 'web', name: 'Web application flaw exposes records', src: 'opportunistic', weak: 'insufficient authorization checks and input validation', attack: ['T1190'], cwe: ['CWE-639', 'CWE-89'], cons: 0, p: [0.6, 0.4, 0.5, 0.8, 0.45, 0.7], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:L/VA:N/SC:N/SI:N/SA:N' },
+  // 1.8.0 — cloud scenario patterns (causal chains for cloud and SaaS exposures)
+  { key: 'federation', name: 'Identity federation abuse grants access to the cloud tenant', src: 'nation', weak: 'a trusted external identity provider or federation trust that can mint tokens, without monitoring of federated sign-ins', attack: ['T1484.002', 'T1606.002', 'T1078.004'], cwe: ['CWE-287', 'CWE-345'], cons: 0, p: [0.35, 0.4, 0.65, 0.95, 0.35, 0.9], cvss: 'CVSS:4.0/AV:N/AC:H/AT:P/PR:H/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' },
+  { key: 'saas', name: 'Outage of a critical SaaS supplier halts a business process', src: 'supplier', weak: 'a single SaaS provider for a critical process, without an exit plan, data export or tested workaround', attack: [], cwe: [], cons: 1, p: [0.45, 0.5, 0.5, 0.85, 0.4, 0.85], cvss: 'CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H', note: 'Limited CVSS applicability: representative weakness is the dependency on one SaaS provider (equivalency).' },
+  { key: 'iac', name: 'Key or secret exposed in infrastructure-as-code enables tenant access', src: 'opportunistic', weak: 'cloud keys and secrets committed in infrastructure-as-code templates or pipelines, without secret scanning or rotation', attack: ['T1552.001', 'T1078.004', 'T1530'], cwe: ['CWE-798', 'CWE-312'], cons: 0, p: [0.55, 0.45, 0.55, 0.85, 0.45, 0.8], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:L/SC:H/SI:L/SA:N' },
+  { key: 'tenant', name: 'Tenant-isolation failure or cloud-provider compromise exposes data', src: 'nation', weak: 'reliance on the provider’s tenant isolation for sensitive data, without customer-managed keys or provider-incident playbooks', attack: ['T1199', 'T1530', 'T1078.004'], cwe: ['CWE-668'], cons: 0, p: [0.2, 0.35, 0.65, 0.95, 0.35, 0.9], cvss: 'CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:H/SI:H/SA:N', note: 'Limited CVSS applicability: the weakness sits with the cloud provider (third-party equivalency).' },
   { key: 'secret', name: 'Exposed API key or secret enables data access', src: 'opportunistic', weak: 'secrets in code, logs or configuration without rotation', attack: ['T1552.001', 'T1530'], cwe: ['CWE-798'], cons: 0, p: [0.55, 0.45, 0.5, 0.8, 0.45, 0.7], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N' },
   { key: 'device', name: 'Lost or stolen device exposes data', src: 'insider-err', weak: 'unencrypted or unmanaged portable devices', attack: ['T1005'], cwe: ['CWE-311'], cons: 0, p: [0.7, 0.35, 0.3, 0.6, 0.55, 0.5], cvss: 'CVSS:4.0/AV:P/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N' },
   { key: 'sabotage', name: 'Malicious administrator sabotages systems', src: 'insider-mal', weak: 'standing privileged access without separation of duties', attack: ['T1078', 'T1485', 'T1489'], cwe: ['CWE-269'], cons: 1, p: [0.3, 0.5, 0.6, 0.95, 0.35, 0.9], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' },
@@ -41,7 +47,7 @@ export const PATTERNS = [
 
 const srcLabel = id => THREAT_SOURCES.find(t => t.id === id)?.label || id;
 let mode = 'gen';
-const sel = { patterns: new Set(['phish', 'ransom', 'edge']), sources: 'pattern', assets: new Set(), extraAsset: '', custom: [], n: 10 };
+const sel = { patterns: new Set(['phish', 'ransom', 'edge']), sources: 'pattern', assets: new Set(), extraAsset: '', custom: [], n: 30 };
 
 /* 1.5.5 — the candidates are chosen for variety as well as rank. The seed and the choice live with
    the workspace, not with this module, so they survive a reload and travel in an export: a set of
@@ -161,7 +167,8 @@ function generator(top, drawGrid) {
         `Covering ${c.patterns} pattern${c.patterns === 1 ? '' : 's'} and ${c.assets} asset${c.assets === 1 ? '' : 's'}` +
         (c.sources > 1 ? ` and ${c.sources} threat sources` : '') +
         `; the most frequent pattern is ${Math.round(c.topPatternShare * 100)}% of the set.`) : null,
-      k > 80 ? el('div', 'small muted', 'That is a lot: the methodology suggests about 20 candidates, then the 10 most material — and more as the organization\u2019s maturity grows.') : null);
+      k > 80 ? el('div', 'small muted', 'That is a lot: the methodology suggests about 25 to 40 candidates for a portfolio of ten, then the 10 most material — and more as the organization\u2019s maturity grows.') : null,
+      k > 0 && k < 20 ? el('div', 'small muted', 'Fewer than 20 candidates: the method asks for at least 20 (about 25 to 40 for a portfolio of ten).') : null);
   }
   count();
   top.append(el('div', 'cols2',
@@ -170,7 +177,7 @@ function generator(top, drawGrid) {
       card(el('h2', null, '2 · Assets and services'), aBox, el('div', { style: { marginTop: '10px' } }, extra)),
       card(el('h2', null, '3 · Threat sources'), srcSel,
         el('div', 'row', { style: { marginTop: '10px', alignItems: 'center' } }, el('label', { style: { margin: 0 } }, el('b', null, 'Number of candidates')), nIn,
-          ...[10, 20, 30, 50].map(v => el('button', { class: 'btn sm ghost', onclick: () => { sel.n = v; nIn.value = v; count(); } }, String(v))),
+          ...[20, 30, 40, 50].map(v => el('button', { class: 'btn sm ghost', onclick: () => { sel.n = v; nIn.value = v; count(); } }, String(v))),
           // 1.5.5 — the number this organization should carry, from the maturity it measured.
           (() => { const g = MT.scenarioGuidance(ws);
             return el('button', { class: 'btn sm', title: g.why,
@@ -183,11 +190,12 @@ function generator(top, drawGrid) {
 }
 
 /* ---------------- 1.5.2 — candidates proposed by AI ---------------- */
-const aiSel = { n: 10, brief: '', useAssets: true, docs: true, secops: false };
+const aiSel = { n: 30, brief: '', useAssets: true, docs: true, secops: false };
 function aiProposer(top, drawGrid) {
   const ws = S.ws;
-  const nIn = el('input', { type: 'number', min: 1, max: 30, value: aiSel.n, style: { width: '90px' } });
-  nIn.addEventListener('input', () => { aiSel.n = Math.max(1, Math.min(30, Math.round(+nIn.value || 10))); });
+  // 1.8.0 — up to 40 proposals: about 25 to 40 candidates for a portfolio of ten, never fewer than 20
+  const nIn = el('input', { type: 'number', min: 1, max: 40, value: aiSel.n, style: { width: '90px' } });
+  nIn.addEventListener('input', () => { aiSel.n = Math.max(1, Math.min(40, Math.round(+nIn.value || 30))); });
   const brief = el('textarea', { rows: 3, placeholder: 'Optional direction — e.g. focus on suppliers, a new telehealth service, insider risk, the clinics network' });
   brief.value = aiSel.brief; brief.addEventListener('input', () => { aiSel.brief = brief.value; });
   const docsBox = el('input', { type: 'checkbox', checked: aiSel.docs && (ws.docs || []).length > 0, disabled: !(ws.docs || []).length, style: { width: 'auto' } });
@@ -204,7 +212,7 @@ function aiProposer(top, drawGrid) {
   top.append(card(el('h2', null, 'Propose candidate scenarios with AI'),
     el('p', 'note', 'AI proposes candidate scenarios relevant to this case — complete causal chains with the six parameters, a reason and a confidence for each — from the organization profile, the crown jewels and information assets, and the scenarios already in the register (which it does not repeat). They land in the grid below, marked AI-generated and unreviewed; nothing enters the register until you add it. Analytical estimate — validation required.'),
     st,
-    el('div', 'grid g3', field('<b>Number of candidates</b> (1–30)', nIn, 'The methodology suggests about 20 candidates, then the 10 most material.'),
+    el('div', 'grid g3', field('<b>Number of candidates</b> (1–40)', nIn, 'The methodology suggests about 25 to 40 candidates (never fewer than 20), then the 10 most material.'),
       el('div', { style: { gridColumn: 'span 2' } }, field('Direction (optional)', brief))),
     el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--ink)', margin: '8px 0' } }, docsBox, el('span', null, el('b', null, 'Include the text of the context documents'),
       el('div', 'small muted', (ws.docs || []).length ? `${ws.docs.length} ${tr('document(s) — the full extracted text, shown in the preview (large documents are shortened).')}` : tr('No context document in this workspace.')))),
@@ -301,9 +309,25 @@ function renderGrid(box, redraw) {
     el('div', 'tablewrap', t),
     el('div', 'btnrow', { style: { marginTop: '12px' } },
       el('button', { class: 'btn', disabled: !picked.length, onclick: () => commit(redraw) }, `Add ${picked.length} selected to the register`),
+      el('button', { class: 'btn ghost', id: 'batch-to-screening', disabled: !picked.length, onclick: () => toScreening(redraw) }, 'Add the ticked rows as screening candidates'),
       el('button', { class: 'btn ghost', onclick: () => { S.ws.batchDraft = rows.filter(r => !r.pick); touch(); redraw(); } }, 'Discard selected'),
       el('button', { class: 'btn ghost danger', onclick: () => { if (window.confirm('Clear the whole grid?')) { S.ws.batchDraft = []; touch(); redraw(); } } }, 'Clear grid')),
-    el('p', 'note', 'Tip: the methodology recommends generating about 20 candidates, then selecting the 10 most material for detailed analysis. Avoid duplicates and overly generic scenarios.')));
+    el('p', 'note', 'Tip: generate about 25 to 40 candidates for a portfolio of ten (never fewer than 20; 20 is the quick lab version), screen them in Scenario screening, then develop the 10 most material. Duplicates are consolidated into families during screening.')));
+}
+
+/* 1.8.0 — the grid feeds the screening: the ticked rows become candidates (assessment.CANDIDATES), each with
+   its one-sentence causal chain, the strategy that produced it, and no score yet. */
+const STRATEGY_OF = { gen: 'BU', ai: 'TD', attack: 'TH', cve: 'TH', cwe: 'BU', secops: 'BU', csv: 'GL', blank: '' };
+function toScreening(redraw) {
+  const rows = draft(), keep = [], ids = [];
+  for (const r of rows) {
+    if (!r.pick) { keep.push(r); continue; }
+    ids.push(SCR.addCandidate({ name: r.name || '', source: r.threat_source || '', vuln: r.vulns || '', assets: r.assets || '', consequence: r.statement || '', ref: r.pattern || '', status: 'Candidate',
+      note: r.cvss_note || '', strategy: r.pattern ? [r.pattern.startsWith('custom-') ? 'TH' : 'BU'] : (STRATEGY_OF[mode] ? [STRATEGY_OF[mode]] : []) }));
+  }
+  S.ws.batchDraft = keep; touch(); redraw();
+  toast(tr('{0} candidate(s) added to the screening').replace('{0}', ids.length));
+  go('screening/candidates');
 }
 
 function commit(redraw) {
@@ -430,7 +454,7 @@ function ontoBuilder(top, drawGrid, kind) {
     }
     return out;
   };
-  function count() { const n = build().length; info.textContent = `${n} candidate${n === 1 ? '' : 's'} will be generated` + (n > 60 ? ' — consider narrowing: about 20 candidates, then the 10 most material.' : '.'); }
+  function count() { const n = build().length; info.textContent = `${n} candidate${n === 1 ? '' : 's'} will be generated` + (n > 60 ? ' — consider narrowing: about 25 to 40 candidates, then the 10 most material.' : '.'); }
   drawList(); drawChosen();
   const title = { attack: 'MITRE ATT&CK techniques', cve: 'CVEs from the vulnerability register', cwe: 'CWE weaknesses' }[kind];
   const how = { attack: 'Each technique becomes a scenario with its CWE weaknesses (via CAPEC). Pb(A) starts from ATT&CK prevalence — flagged as a prior, not evidence.',

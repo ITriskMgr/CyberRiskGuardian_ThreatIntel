@@ -2,11 +2,18 @@
 'use strict';
 import { el, n2, kpi, banner, card, pill, field, copyText, go, toast } from '../util.js';
 import { S, touch, scen } from '../state.js';
+import * as EQ from '../equiv.js';
+import { tr } from '../i18n.js';
 
 const CVSS_LABEL = { AV: 'Attack Vector', AC: 'Attack Complexity', AT: 'Attack Requirements', PR: 'Privileges Required', UI: 'User Interaction',
   VC: 'Vuln. Confidentiality', VI: 'Vuln. Integrity', VA: 'Vuln. Availability', SC: 'Subseq. Confidentiality', SI: 'Subseq. Integrity', SA: 'Subseq. Availability' };
 const DEFAULT = { AV: 'N', AC: 'L', AT: 'N', PR: 'N', UI: 'N', VC: 'H', VI: 'H', VA: 'H', SC: 'N', SI: 'N', SA: 'N' };
 let picked = Object.assign({}, DEFAULT);
+/* 1.8.0 — scoring by equivalency for a non-technical weakness (book ch06): a question per metric, a
+   justification per metric, the label "limited applicability" and the estimate marker. */
+let mode = 'technical';
+let eq = { type: '', just: {} };
+let lastTarget = null;
 
 function parseVec(v) {
   const out = {};
@@ -16,11 +23,22 @@ function parseVec(v) {
 
 export function render(sec, arg) {
   let target = null;
-  if (arg) { const [v, sid] = arg.split('|'); const p = parseVec(v); if (Object.keys(p).length) picked = Object.assign({}, DEFAULT, p); target = sid && scen(sid) ? sid : null; }
+  if (arg) { const [v, sid] = arg.split('|'); const p = parseVec(v); if (Object.keys(p).length) picked = Object.assign({}, DEFAULT, p); target = sid && scen(sid) ? sid : null;
+    if (target && target !== lastTarget) { lastTarget = target; const ts = scen(target); mode = EQ.isEquiv(ts) ? 'equivalency' : 'technical'; eq = JSON.parse(JSON.stringify(ts.cvss_equiv || { type: '', just: {} })); eq.just ||= {}; } }
   sec.replaceChildren(el('h1', null, 'CVSS v4.0 Base score'),
     el('p', 'lede', el('span', null, 'Base metrics only. Threat metrics (', el('span', 'mono', 'E:A'), ', ', el('span', 'mono', 'E:P'), ', ', el('span', 'mono', 'E:U'),
       ') and Environmental metrics are deliberately absent — the CRG formula multiplies CVSS and ', el('span', 'mono', 'Pb(ψ,A)'), ', so exploitation evidence counted in both compounds.')));
-  const grid = el('div', 'grid g4', { id: 'cvss-metrics' });
+  const st = el('div', { class: 'subtabs', role: 'tablist' });
+  for (const [k, t] of [['technical', 'Technical vulnerability'], ['equivalency', 'By equivalency (non-technical weakness)']])
+    st.append(el('button', { role: 'tab', 'aria-selected': String(mode === k), onclick: () => { mode = k; render(sec, target ? CVSS4.build(picked) + '|' + target : null); } }, t));
+  sec.append(st);
+  if (mode === 'equivalency') {
+    const ty = el('select', { id: 'cv-eq-type' }, new Option(tr('Choose the kind of weakness'), ''), ...EQ.WEAKNESS_TYPES.map(([v, l]) => new Option(tr(l), v, false, eq.type === v)));
+    ty.addEventListener('change', () => { eq.type = ty.value; });
+    sec.append(card(el('p', null, 'For a process, people, governance, physical, third-party or configuration weakness, map the weakness onto each Base metric by analogy and justify every choice in one line. The score is a documented analogy, not a measurement: it is labelled “limited applicability” and carries the marker “Analytical estimate — validation required”.'),
+      field('<b>Weakness type</b>', ty), el('div', 'chips', pill(EQ.LIMITED, 'warn'), pill(EQ.MARK, 'warn'))));
+  }
+  const grid = el('div', mode === 'equivalency' ? 'grid g2' : 'grid g4', { id: 'cvss-metrics' });
   const vec = el('input', { type: 'text', id: 'cvss-vector', class: 'mono' });
   const out = el('div', 'grid g3', { id: 'cvss-out' });
   const update = () => {
@@ -29,19 +47,26 @@ export function render(sec, arg) {
     out.replaceChildren();
     let sc; try { sc = CVSS4.score(vec.value); } catch (e) { out.append(banner('bad', 'Invalid vector', String(e.message || e))); return; }
     const sev = CVSS4.severity(sc);
-    out.append(kpi('Base score', n2(sc)), kpi('Severity', pill(sev, sc >= 7 ? 'bad' : sc >= 4 ? 'warn' : 'good')), kpi('Metric group', 'Base only', 'Threat and Environmental deliberately absent'));
+    out.append(kpi(mode === 'equivalency' ? 'CVSS-B by equivalency' : 'CVSS-B', n2(sc), mode === 'equivalency' ? EQ.LIMITED : ''), kpi('Severity', pill(sev, sc >= 7 ? 'bad' : sc >= 4 ? 'warn' : 'good')), kpi('Metric group', 'Base only', 'Threat and Environmental deliberately absent'));
   };
   for (const m of CVSS4.BASE) {
     const s = el('select', { id: 'cv-' + m });
     for (const v of CVSS4.VALUES[m]) s.append(new Option(v, v, false, picked[m] === v));
     s.addEventListener('change', update);
-    grid.append(field(`<b>${m}</b> ${CVSS_LABEL[m] || ''}`, s));
+    if (mode === 'equivalency') {
+      const j = el('textarea', { rows: 2, id: 'cv-just-' + m, placeholder: tr('One-line justification') });
+      j.value = eq.just[m] || ''; j.addEventListener('input', () => { eq.just[m] = j.value; });
+      grid.append(card(field(`<b>${m}</b> ${CVSS_LABEL[m] || ''}`, s), el('div', 'small muted', EQ.QUESTIONS[m]), j));
+    } else grid.append(field(`<b>${m}</b> ${CVSS_LABEL[m] || ''}`, s));
   }
   vec.addEventListener('change', () => { const p = parseVec(vec.value); for (const [k, v] of Object.entries(p)) { const s = document.getElementById('cv-' + k); if (s) s.value = v; } update(); });
   const copyBtn = el('button', { class: 'btn ghost', id: 'cvss-copy', onclick: () => copyText(vec.value, copyBtn) }, 'Copy');
   sec.append(card(grid, el('div', 'row', { style: { marginTop: '14px' } },
     el('div', { style: { flex: '1 1 420px' } }, field('<b>Vector</b> — paste one to load it', vec)), copyBtn,
     el('button', { class: 'btn ghost', id: 'cvss-send', onclick: () => { go('calc'); setTimeout(() => { const i = document.getElementById('p-cvss'); if (i) { i.value = vec.value; document.getElementById('risk-run')?.click(); } }, 60); } }, 'Send to calculator'),
-    target ? el('button', { class: 'btn', onclick: () => { const s = scen(target); s.cvss = vec.value; delete s.cvss_score; touch(); toast('Vector saved to ' + target); go('scenario/' + target); } }, 'Save to ' + target) : null)), out);
+    target ? el('button', { class: 'btn', id: 'cvss-save', onclick: () => { const s = scen(target); s.cvss = vec.value; delete s.cvss_score;
+      if (mode === 'equivalency') { EQ.setMode(s, 'equivalency'); s.cvss_equiv = JSON.parse(JSON.stringify(eq)); s.cvss_limited = true; const g = EQ.gaps(s); if (g.length) toast(tr('Saved — still missing a justification for: {0}').replace('{0}', g.join(', ')), 'bad'); else toast('Vector and justifications saved to ' + target); }
+      else { if (EQ.isEquiv(s)) EQ.setMode(s, 'technical'); toast('Vector saved to ' + target); }
+      touch(); go('scenario/' + target); } }, 'Save to ' + target) : null)), out);
   update();
 }

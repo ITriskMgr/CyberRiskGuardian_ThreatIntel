@@ -15,7 +15,7 @@
    package format is the contract it will keep.
 
    Who may share. In single-user mode, the one person. In multi-user mode, an administrator or a user
-   holding the Accountable right (RACI "A") on step 13 — report, demonstrate compliance and share.
+   holding the Accountable right (RACI "A") on the Report step — management report, quality review and sharing.
 
    Anonymization is on by default and cannot be switched off silently: turning it off asks for a
    second confirmation, and the card then says it is not anonymized. Anonymized cards keep their

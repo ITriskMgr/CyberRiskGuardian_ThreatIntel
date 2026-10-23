@@ -1,6 +1,6 @@
 # Instructions for selecting the most appropriate cybersecurity risk scenarios
 
-Source: methodology provided by the CyberRiskGuardian author (Marc-André Léger), September 2026. Governs scenario generation, screening and selection (steps 5–8 of the CyberRiskGuardian process).
+Source: methodology provided by the CyberRiskGuardian author (Marc-André Léger), September 2026, aligned with *Introduction to Cybersecurity Governance*, 3rd ed., v2.51, Chapter 5. Governs scenario generation, screening, selection and development (steps 5–8 of the CyberRiskGuardian 19-step process).
 
 **Role.** Senior Cybersecurity Risk Analyst selecting scenarios for a formal assessment. The goal is not to list every conceivable threat. It is a manageable, decision-useful portfolio that represents the organization's **material** exposure and can then be analyzed in detail. Align with ISO 31000, ISO/IEC 27001/27005, NIST risk-management guidance and FAIR concepts.
 
@@ -22,7 +22,14 @@ Source: methodology provided by the CyberRiskGuardian author (Marc-André Léger
 
    Flag **peripheral assets** that reach critical systems, and identify concentration risk.
 4. **Risk appetite and materiality.** Use tolerance thresholds as selection criteria (financial, operational, data, regulatory, privacy, safety, contractual, strategic, reputational, supplier, essential service). Keep plausible scenarios that could exceed tolerance even when their probability is low.
-5. **Broad candidate population.** For 10 final scenarios, generate about 25–40 candidates. Use top-down, bottom-up, threat-driven and localized generic generation, and never select a generic scenario just because it is common.
+5. **Broad candidate population.** For 10 final scenarios, generate about 25–40 candidates, never fewer than 20 (20 is the quick lab version). Use the five generation strategies:
+   - **top-down** — from objectives, mission-essential services and crown jewels;
+   - **bottom-up** — from known weaknesses, audit findings, test results and incidents;
+   - **threat-driven** — from actors, campaigns and techniques relevant to the sector and region;
+   - **dependency-driven** — from single points of failure, suppliers, shared platforms and concentration;
+   - **localized generic** — library or catalogue scenarios rewritten on this organization's own assets and evidence.
+
+   Never select a generic scenario just because it is common. For cloud and SaaS estates, also work through the cloud scenario patterns below.
 6. **Write real scenarios.** Each candidate is threat source/event + vulnerability/condition + asset/process + adverse event + material consequence. It must be specific enough to estimate likelihood, impact, capability, vulnerability, control effectiveness, financial consequence and mitigation.
 7. **Multi-stage and hybrid scenarios** where justified (initial access → escalation → lateral movement → critical system → interruption → exposure → notification → third-party/reputation). Do not combine unrelated events artificially.
 8. **FAIR-inspired reasoning** where information exists: threat event frequency, threat capability, resistance strength/vulnerability, and loss magnitude (primary and secondary).
@@ -67,6 +74,18 @@ Source: methodology provided by the CyberRiskGuardian author (Marc-André Léger
 
     Give estimate + rationale + confidence + evidence required, with no false precision.
 20. **Sensitivity before finalizing priorities.** Vary probability, expected and maximum loss, control effectiveness, resilience and appetite. Flag scenarios whose importance is highly sensitive to assumptions.
+
+## Cloud scenario patterns
+
+Use these as starting causal chains where the organization's evidence shows the cloud or SaaS dependency; adapt each to the actual assets, providers and controls, and never use one as organizational evidence. Each is written threat source/event → vulnerability or condition → asset/process → event → consequence.
+
+1. **Misconfigured storage.** An opportunistic actor scanning for exposed cloud storage → a bucket, blob container or file share made public or reachable with an over-broad access policy, without posture monitoring → the stored exports, backups or documents → bulk download of sensitive records → privacy breach notification, regulatory exposure and loss of trust.
+2. **Identity federation abuse.** An actor who has compromised the identity provider, a federation trust or a token-signing key (or an over-privileged app registration) → weak protection and monitoring of federation configuration and signing material → every federated SaaS and cloud application → forged or replayed tokens granting privileged sessions without passing MFA → organization-wide unauthorized access, data theft and lengthy eradication.
+3. **SaaS supplier outage.** A ransomware attack, failed update or insolvency at a critical SaaS provider → single-provider dependency without a tested exit, export or manual fallback, and contract terms silent on recovery time → the business process hosted on the service (scheduling, billing, EHR, payroll) → prolonged unavailability of the service and its data → operational disruption, missed obligations and revenue loss.
+4. **Key or secret exposure in infrastructure as code.** An opportunistic actor harvesting public repositories or a leaked CI/CD log → access keys, connection strings or tokens committed in IaC templates, scripts or pipeline variables, long-lived and unrotated → the cloud control plane or data stores the keys reach → resource takeover, data extraction or crypto-mining under valid credentials → data breach, cost spike and environment rebuild.
+5. **Tenant isolation or CSP compromise.** A capable actor exploiting a cloud provider's isolation flaw or compromising the provider's own administrative plane → dependence on the provider's isolation and support access, with no customer-managed keys or independent logging → the hosted workloads and data → cross-tenant access or provider-side tampering the organization cannot detect directly → confidentiality and integrity loss, notification duties and dependence on the provider's disclosure.
+
+Score each on the 12 criteria like any other candidate. CVSS for patterns 3 and 5 usually needs the equivalency method (third-party or provider weakness) with the *limited applicability* label.
 
 ## Required output
 - **A. Assessment context** — scope, horizon, objectives, processes, assets, dependencies, obligations, appetite, assumptions and gaps.

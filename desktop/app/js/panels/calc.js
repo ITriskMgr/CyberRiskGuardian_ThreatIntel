@@ -4,6 +4,7 @@
 import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, go, val, select, money } from '../util.js';
 import { techName } from '../ontology.js';
 import { S, touch, compute, setIncluded, scen, blankScenario, nextScenarioId, PARAMS } from '../state.js';
+import { tr } from '../i18n.js';
 
 let whatIf = { appetite: null, factor: null };
 let loaded = null;   // scenario id loaded in the single calculator
@@ -127,14 +128,17 @@ function singleCalc(box) {
       : el('div', 'note', { style: { marginTop: 0, marginBottom: '10px' } }, 'Ad-hoc calculation. Click a row above to load a scenario.'),
     el('div', 'grid g3',
       field('<b>Pb(A)</b> threat present', ins.PbA), field('<b>Pb(ψ,A)</b> exploitation', ins.Pbx), field('<b>δe</b> expected damage', ins.De),
-      field('<b>δm</b> maximum damage', ins.Dm), field('<b>θ</b> resilience <span class="mono">(0,1]</span>', ins.Th), field('<b>μ(E)</b> criticality', ins.Mu)),
+      field('<b>δm</b> maximum damage', ins.Dm), field('<b>θ</b> resilience <span class="mono">(0,1]</span>', ins.Th), field('<b>μ(E)</b> organizational criticality', ins.Mu)),
     el('div', 'grid g3', { style: { marginTop: '14px' } },
       field('Appetite', ins.app), field('Factor', ins.factor), field('Probability reduction', ins.redp), field('Impact reduction', ins.redi),
-      field('Mitigation cost (for cost-effectiveness)', ins.cost), field('CVSS v4.0 Base score or vector', ins.cvss)),
+      field('Mitigation cost (for cost-effectiveness)', ins.cost), field('CVSS v4.0 Base (CVSS-B) score or vector', ins.cvss)),
     el('div', 'btnrow', { style: { marginTop: '14px' } },
       el('button', { class: 'btn', id: 'risk-run', onclick: () => run(ins, out) }, 'Calculate'),
-      s ? el('button', { class: 'btn ghost', onclick: () => { saveBack(s, ins); toast('Saved to ' + s.id); } }, 'Save values to ' + s.id) : null,
-      el('button', { class: 'btn ghost', onclick: () => { const n = blankScenario(nextScenarioId()); n.name = s ? s.name + ' (variant)' : 'Calculator scenario'; saveBack(n, ins); a.SCEN.push(n); touch(); toast('Created ' + n.id); go('scenario/' + n.id); } }, 'Save as new scenario'))), out);
+      s ? el('button', { class: 'btn ghost', onclick: () => { try { saveBack(s, ins); toast('Saved to ' + s.id); } catch (e) { toast(e.message, 'bad'); } } }, 'Save values to ' + s.id) : null,
+      // 1.8.0 — Process step 15: the sensitivity cases of this scenario were read and their consequence noted
+      s ? el('button', { class: 'btn ghost', id: 'sens-record', onclick: () => { const L = (a.SENS_IDS ||= []); if (!L.includes(s.id)) L.push(s.id); touch(); toast(tr('Sensitivity review recorded for {0}').replace('{0}', s.id)); } },
+        (a.SENS_IDS || []).includes(s.id) ? tr('Sensitivity reviewed ✓') : 'Record the sensitivity review') : null,
+      el('button', { class: 'btn ghost', onclick: () => { const n = blankScenario(nextScenarioId()); n.name = s ? s.name + ' (variant)' : 'Calculator scenario'; try { saveBack(n, ins); } catch (e) { toast(e.message, 'bad'); return; } a.SCEN.push(n); touch(); toast('Created ' + n.id); go('scenario/' + n.id); } }, 'Save as new scenario'))), out);
   run(ins, out);
 }
 function loadedCost(id) { try { return compute().rows.find(r => r.id === id)?.cost || 0; } catch { return 0; } }
@@ -142,24 +146,30 @@ function saveBack(s, ins) {
   for (const k of PARAMS) { s.params[k] = Object.assign({}, typeof s.params[k] === 'object' ? s.params[k] : {}, { v: Number(ins[k].value) }); }
   s.red_p = Number(ins.redp.value); s.red_i = Number(ins.redi.value);
   const cv = ins.cvss.value.trim();
-  if (/^CVSS:4\.0\//i.test(cv)) { s.cvss = cv; delete s.cvss_score; } else s.cvss_score = Number(cv);
+  // 1.8.0 — a blank CVSS is "CVSS required", never 0: nothing is saved until a vector or a score is given.
+  if (!cv) throw new Error(tr('CVSS required — provide a CVSS v4.0 vector or score'));
+  if (/^CVSS:4\.0\//i.test(cv)) { s.cvss = cv; delete s.cvss_score; }
+  else { const n = Number(cv.replace(',', '.')); if (!Number.isFinite(n) || n < 0 || n > 10) throw new Error(tr('CVSS score must be a number from 0.0 to 10.0')); s.cvss_score = n; }
   touch();
 }
 
 function run(ins, out) {
   out.replaceChildren();
-  const g = k => Number(ins[k].value);
+  // 1.8.0 — an empty field is missing, not 0: the engine reports it instead of computing an index of 0.
+  const g = k => { const v = String(ins[k].value ?? '').trim(); return v === '' ? NaN : Number(v); };
   const cv = ins.cvss.value.trim();
   const s = { id: 'calculator', params: { PbA: g('PbA'), Pbx: g('Pbx'), De: g('De'), Dm: g('Dm'), Th: g('Th'), Mu: g('Mu') }, red_p: g('redp'), red_i: g('redi') };
-  if (/^CVSS:4\.0\//i.test(cv)) s.cvss = cv; else s.cvss_score = Number(cv);
+  if (/^CVSS:4\.0\//i.test(cv)) s.cvss = cv; else if (cv) s.cvss_score = Number(cv.replace(',', '.'));
   let r, sens;
   try { r = CRG.calc(s, g('app'), g('factor')); sens = CRG.sensitivity(s, 0.10, g('app'), g('factor')); }
   catch (e) { out.append(banner('bad', 'Cannot calculate', String(e.message || e))); return; }
   const cls = CRG.classify(r.ratio);
   const k = el('div', 'grid g4');
-  const rk = el('div', 'kpi'); rk.append(el('div', 'k', 'Residual / tolerated'));
+  const rk = el('div', 'kpi'); rk.append(el('div', 'k', 'Risk-to-tolerance ratio'));
   const rv = el('div', 'v'); rv.append(n2(r.ratio) + ' ', pill(cls, pillFor(cls))); rk.append(rv);
-  k.append(kpi('CVSS Base', n2(r.cvss)), kpi('Estimated', n0(r.est)), kpi('Tolerated', n0(r.tol)), kpi('Mitigated', n0(r.mit)), kpi('Residual', n0(r.res)), rk);
+  const pcls = CRG.classify(r.pre_ratio);
+  k.append(kpi('CVSS-B', n2(r.cvss)), kpi('Estimated', n0(r.est)), kpi('Tolerated', n0(r.tol)), kpi('Mitigated', n0(r.mit)), kpi('Residual', n0(r.res)), rk,
+    kpi('Pre-treatment ratio', n2(r.pre_ratio), tr(pcls), pillFor(pcls)));
   out.append(k);
   const cost = g('cost');
   const c = el('div', 'card'); c.style.marginTop = '16px';
@@ -173,7 +183,7 @@ Tolerated = ${g('PbA')} × ${g('Pbx')} × ${n2(r.cvss)} × ${g('app')} × ${g('M
 Mitigated = ${n2(r.est)} × ${g('redp')} × ${g('redi')} = ${n2(r.mit)}
 Residual  = ${n2(r.est)} − ${n2(r.mit)} = ${n2(r.res)}
 Ratio     = ${n2(r.res)} ÷ ${n2(r.tol)} = ${n2(r.ratio)}` +
-    (cost > 0 ? `\nCost-effectiveness = ((${n2(r.est)} − ${n2(r.res)}) ÷ ${n0(cost)}) × 1000 = ${n2((r.est - r.res) / cost * 1000)} risk-score units per $1,000` : '');
+    (cost > 0 ? `\nCost-effectiveness = ((${n2(r.est)} − ${n2(r.res)}) ÷ ${n0(cost)}) × 1000 = ${n2((r.est - r.res) / cost * 1000)} risk units removed per $1,000` : '');
   c.append(pre);
   if (r.mit > r.est) c.append(banner('bad', 'Mitigation exceeds estimated risk', 'The reduction estimates are wrong. Revise them rather than reporting a negative or absolute-valued residual.'));
   c.append(el('div', 'note', 'Risk units are not dollars. They are relative decision-support indicators.'));

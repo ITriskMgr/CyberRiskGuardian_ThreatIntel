@@ -16,7 +16,8 @@ for part in skills commands agents output-styles; do
 done
 
 mkdir -p .claude/hooks
-[[ -f "$SRC/hooks/session-context.md" ]] && cp -p "$SRC/hooks/session-context.md" .claude/hooks/ \
-  && echo "synced .claude/hooks/session-context.md"
+for f in session-context.md check_labels.py; do
+  [[ -f "$SRC/hooks/$f" ]] && cp -p "$SRC/hooks/$f" .claude/hooks/ && echo "synced .claude/hooks/$f"
+done
 
-echo "Rules and settings are project-level and are not synced."
+echo "Rules and settings are project-level and are not synced (.claude/settings.json runs the same SessionStart and label-check hooks)."

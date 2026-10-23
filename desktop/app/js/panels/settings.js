@@ -17,7 +17,8 @@ import { HS, probe, loadConfig, saveConfig, setKey, apiJson, post, DEFAULT_LINKS
 
 let view = 'general';
 const FREQ = [['hourly', 'Hourly'], ['6h', 'Every 6 hours'], ['12h', 'Every 12 hours'], ['daily', 'Daily'], ['weekly', 'Weekly'], ['manual', 'Manual only']];
-const BASE_DOMAINS = [['raw.githubusercontent.com', 'CISA KEV mirror (GitHub)'], ['www.cisa.gov', 'CISA KEV'], ['epss.empiricalsecurity.com', 'FIRST EPSS'], ['services.nvd.nist.gov', 'NVD CVE API']];
+const BASE_DOMAINS = [['raw.githubusercontent.com', 'CISA KEV mirror (GitHub)'], ['www.cisa.gov', 'CISA KEV'], ['epss.empiricalsecurity.com', 'FIRST EPSS'], ['services.nvd.nist.gov', 'NVD CVE API'],
+  ['api.github.com', 'Update check (only when switched on)'], ['github.com', 'Release download (only when you click Download)'], ['objects.githubusercontent.com', 'Release download (GitHub file storage)']];
 
 const catalogue = () => (HS.catalogue.length ? HS.catalogue : (self.CRG_SOURCES || []));
 function allSources() {

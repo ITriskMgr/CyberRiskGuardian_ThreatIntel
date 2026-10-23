@@ -24,7 +24,7 @@
 'use strict';
 import * as LOG from './logs.js';
 import * as store from './store.js';
-import { STEPS, stepOf } from './process.js';
+import { STEPS, stepOf, INHERIT, PANEL_STEP } from './process.js';
 
 export const LETTERS = [['R', 'Responsible — view and edit'], ['A', 'Accountable — view, edit and approve'], ['C', 'Consulted — view'], ['I', 'Informed — view'], ['-', 'No access']];
 const RIGHTS = { R: ['view', 'edit'], A: ['view', 'edit', 'approve'], C: ['view'], I: ['view'], '-': [] };
@@ -37,7 +37,7 @@ export async function load() {
   let sid = null; try { sid = sessionStorage.getItem(SESSION); } catch { /* none */ }
   /* 1.5.7 — a step added in a later release (step 4, Import other information) inherits the user's
      right on the step it follows, so nobody silently loses or gains rights on an upgrade. */
-  const INHERIT = { import: 'assets' };
+  // 1.8.0 — the nineteen steps of the book: each new step inherits the right on the step it came from.
   for (const u of U.users) { u.raci ||= {}; for (const s of STEPS) if (!(s.id in u.raci)) u.raci[s.id] = u.raci[INHERIT[s.id]] || (u.admin ? 'A' : 'I'); }
   U.current = U.enabled ? U.users.find(u => u.id === sid) || null : null;
   return U;
@@ -73,14 +73,14 @@ export function newUser(o = {}) {
 }
 /** Starting rights by template (used by Settings → Users & RACI and by roles imported from documents). */
 export function template(t) {
-  const m = { viewer: () => 'I', analyst: id => id === 'recommend' ? 'C' : 'R', owner: id => ['evaluate', 'treat', 'recommend'].includes(id) ? 'A' : 'C', manager: () => 'A', admin: () => 'A' };
+  const m = { viewer: () => 'I', analyst: id => id === 'recommend' ? 'C' : 'R', owner: id => ['evaluate', 'treat', 'residual', 'prioritize', 'recommend'].includes(id) ? 'A' : 'C', manager: () => 'A', admin: () => 'A' };
   const f = m[t] || m.viewer;
   return Object.fromEntries(STEPS.map(s => [s.id, f(s.id)]));
 }
 
 /* ---------------- menu access by group and user (1.5.4) ---------------- */
-export const MENUS = [['process', 'Process'], ['org', 'Organization'], ['dashboard', 'KRI dashboard'], ['assets', 'Information assets'], ['safeguards', 'Existing safeguards'], ['maturity', 'Maturity & resilience'], ['register', 'Scenario register'],
-  ['scenario', 'Scenario editor'], ['batch', 'Batch scenarios'], ['calc', 'Risk calculator'], ['riskreg', 'Risk register'], ['mitigation', 'Risk mitigation'], ['recs', 'Recommendations'],
+export const MENUS = [['process', 'Process'], ['org', 'Organization'], ['dashboard', 'KRI dashboard'], ['assets', 'Information assets'], ['safeguards', 'Existing safeguards'], ['maturity', 'Maturity & resilience'], ['evidence', 'Evidence register'], ['register', 'Scenario register'],
+  ['scenario', 'Scenario editor'], ['batch', 'Batch scenarios'], ['screening', 'Scenario screening'], ['calc', 'Risk calculator'], ['riskreg', 'Risk register'], ['mitigation', 'Risk mitigation'], ['recs', 'Recommendations'], ['summary', 'Management summary'],
   ['threats', 'Threats · ATT&CK'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['feeds', 'Threat feeds & social'], ['threat', 'Threat context'], ['ontology', 'Ontology · CRGO'], ['registry', 'Risk Registry'], ['frameworks', 'Frameworks & standards'], ['isms', 'Information security management'], ['isp', 'Security policies (ISP)'], ['writer', 'Security Policy Writer'], ['csm', 'Cybersecurity management'], ['audit', 'Audit management'], ['qc', 'Quality review'], ['shared', 'Shared registers'], ['siem', 'SIEM'], ['soar', 'SOAR'],
   ['compliance', 'Compliance'], ['share', 'Publish & share'], ['reset', 'Reset data'], ['cvss', 'CVSS v4.0'], ['budget', 'Budget'], ['export', 'Export · Excel'], ['ai', 'AI assistant'], ['forecast', 'Forecasts'],
   ['backup', 'Backup & restore'], ['settings', 'Settings'], ['about', 'About']];
@@ -168,9 +168,9 @@ export function enforce(sec, panel, arg, banner) {
 export const hiddenPanels = () => {
   if (!U.enabled || !U.current || U.current.admin) return [];
   const steps = STEPS.filter(s => (U.current.raci?.[s.id] || 'I') === '-').map(s => s.id);
-  const byRaci = Object.entries({ org: 'context', dashboard: 'monitor', assets: 'assets', register: 'scenarios', scenario: 'quantify', batch: 'scenarios', calc: 'evaluate', riskreg: 'recommend',
-    mitigation: 'treat', recs: 'recommend', threats: 'threats', vulns: 'threats', feeds: 'threats', threat: 'threats', frameworks: 'report', compliance: 'report', share: 'report',
-    cvss: 'quantify', budget: 'budget', export: 'report', forecast: 'monitor' }).filter(([, st]) => steps.includes(st)).map(([p]) => p);
+  // 1.8.0 — the step of each screen comes from process.js (PANEL_STEP), so the nineteen steps hide what they should
+  const byRaci = ['org', 'dashboard', 'assets', 'evidence', 'register', 'scenario', 'batch', 'screening', 'calc', 'riskreg', 'mitigation', 'recs', 'summary', 'threats', 'vulns', 'feeds', 'threat',
+    'frameworks', 'compliance', 'share', 'cvss', 'budget', 'export', 'forecast'].filter(p => PANEL_STEP[p] !== undefined && steps.includes(stepOf(p, '')));
   // 1.5.4 — menu access: Hidden hides, Full or View only shows the menu even when RACI says “–”
   const out = new Set(byRaci);
   for (const [p] of MENUS) { const m = menuMode(p); if (m === 'hidden') out.add(p); else if (m === 'full' || m === 'view') out.delete(p); }

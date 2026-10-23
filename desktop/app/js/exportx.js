@@ -18,6 +18,7 @@ import { combined, effect, control } from './catalog.js';
 import { crgOf, level, score } from './registry.js';
 import { soaRows } from './panels/compliance.js';
 import { criticality, dynamic, scenariosOf } from './assets.js';
+import * as EQ from './equiv.js';
 
 const F = (f, v) => ({ f, v });
 const BLUE = { color: '0000FF' }, GRN = { color: '008000' }, B = { bold: true }, HDR = { bold: true, color: 'FFFFFF', fill: '1F3864', wrap: true, valign: 'center' }, TTL = { bold: true, size: 14, border: false };
@@ -26,7 +27,7 @@ const L = c => col(c - 1);   // 1-based column letter, as in build_workbook.py
 function header(sh, r, cols, widths) { cols.forEach((c, j) => sh.set(r - 1, j, c, HDR)); if (widths) sh.widthsFrom(widths); }
 function put(sh, r, c, v, style = {}, fmt) { sh.set(r - 1, c - 1, v, Object.assign({}, style, fmt ? { fmt } : {})); }
 
-export const OPTIONAL_SHEETS = ['Sensitivity', 'Case_View', 'Scenarios', 'Candidates', 'KRIs', 'Evidence', 'Organization', 'Threats', 'Vulnerabilities', 'Recommendations', 'KRI_History', 'Budget', 'Threat_Context',
+export const OPTIONAL_SHEETS = ['Sensitivity', 'Case_View', 'Scenarios', 'Candidates', 'KRIs', 'CVSS_Basis', 'Evidence', 'Organization', 'Threats', 'Vulnerabilities', 'Recommendations', 'KRI_History', 'Budget', 'Threat_Context',
   'Risk_Register', 'Measures', 'Compliance_SoA', 'Assets'];
 export const SCOPES = {
   included: ['Scenarios included in the Risk calculator', r => r.inc],
@@ -99,7 +100,7 @@ export async function buildWorkbook(opts = {}) {
   /* Parameters */
   const wp = wb.sheet('Parameters');
   wp.set(0, 0, 'Global parameters', TTL);
-  const prow = [['Risk appetite (analyst estimate)', APPETITE, ws.appetite_rationale || 'Analyst estimate - validation required.'],
+  const prow = [['Risk appetite (analytical estimate)', APPETITE, ws.appetite_rationale || 'Analytical estimate — validation required.'],
     ['Multiplication factor', FACTOR, 'Constant across all scenarios (Excel Guide worked example).'],
     ["Tolerance band - lower bound of 'approximately at'", CRG.BAND_LOW, 'Ratio < this = below tolerance'],
     ["Tolerance band - upper bound of 'approximately at'", CRG.BAND_HIGH, 'Ratio > this = above tolerance'],
@@ -112,7 +113,7 @@ export async function buildWorkbook(opts = {}) {
 
   /* Inputs */
   const wi = wb.sheet('Inputs');
-  wi.set(0, 0, 'Scenario inputs (0-1 scale unless stated) - Analyst estimates, validation required', TTL);
+  wi.set(0, 0, 'Scenario inputs (0-1 scale unless stated) — Analytical estimate — validation required', TTL);
   header(wi, 3, ['ID', 'Scenario', 'Pb(A)', 'Pb(psi,A)', 'de', 'dm', 'theta', 'mu(E)', 'CVSS v4.0 vector', 'CVSS-B', 'Prob. reduction', 'Impact reduction',
     'Conf Pb(A)', 'Conf Pb(psi,A)', 'Conf de', 'Conf dm', 'Conf theta', 'Conf mu', 'ATT&CK techniques', 'CWE', 'CVE'], [6, 60, 8, 9, 7, 7, 7, 7, 62, 8, 10, 10, 8, 9, 8, 8, 8, 8, 40, 22, 22]);
   const IR0 = 4;
@@ -164,11 +165,11 @@ export async function buildWorkbook(opts = {}) {
   /* Analyse (inserted as 2nd sheet) */
   const wa = wb.sheet('Analyse');
   wb.sheets.splice(wb.sheets.indexOf(wa), 1); wb.sheets.splice(1, 0, wa);
-  wa.set(0, 0, 'Analyse - CyberRiskGuardian KRIs (Excel Guide v1.0c formulas)', TTL);
+  wa.set(0, 0, 'Analyse - CyberRiskGuardian risk indices (Excel Guide v1.0c formulas)', TTL);
   wa.set(1, 0, 'Green = linked from Inputs / Portfolio / Parameters; black = formula.', { border: false });
   header(wa, 4, ['ID', 'Scenario', 'Pb(A)', 'Pb(psi,A)', 'CVSS-B', 'de', 'dm', 'mu(E)', 'theta', 'Appetite', 'Factor', 'Estimated risk', 'Tolerated risk', 'Pre-treatment ratio',
-    'Allocated Y1 cost', 'Prob. reduction', 'Impact reduction', 'Mitigated', 'Residual', 'Residual / Tolerated', 'Classification', 'Cost-effectiveness (per $1k)', 'Validity (P,Q in 0-1)'],
-    [6, 52, 7, 8, 7, 6, 6, 7, 7, 8, 8, 11, 11, 10, 12, 9, 9, 11, 11, 10, 24, 12, 10]);
+    'Allocated Y1 cost', 'Prob. reduction', 'Impact reduction', 'Mitigated', 'Residual', 'Risk-to-tolerance ratio', 'Classification', 'Cost-effectiveness (risk units removed per $1,000)', 'Validity (P,Q in 0-1)', 'CVSS basis'],
+    [6, 52, 7, 8, 7, 6, 6, 7, 7, 8, 8, 11, 11, 10, 12, 9, 9, 11, 11, 10, 24, 12, 10, 40]);
   const A0 = 5;
   const tot = { est: 0, tol: 0, mit: 0, res: 0, cost: 0 };
   rows.forEach((x, idx) => {
@@ -189,6 +190,7 @@ export async function buildWorkbook(opts = {}) {
     put(wa, r, 21, F(`IF(T${r}<${BLO},"Below tolerance",IF(T${r}<=${BHI},"Approximately at tolerance","Above tolerance"))`, x.cls));
     put(wa, r, 22, F(`IF(O${r}=0,0,(L${r}-S${r})/O${r}*1000)`, cost ? (est - res) / cost * 1000 : 0), {}, '0.00');
     put(wa, r, 23, F(`IF(AND(P${r}>=0,P${r}<=1,Q${r}>=0,Q${r}<=1),"OK","CHECK")`, 'OK'));
+    put(wa, r, 24, EQ.exportLabel(s), { wrap: true });   // 1.8.0 — "limited applicability" and equivalency shown beside the score
     tot.est += est; tot.tol += tol; tot.mit += mit; tot.res += res; tot.cost += cost;
   });
   const AN = A0 + N - 1, t = AN + 1;
@@ -269,7 +271,10 @@ export async function buildWorkbook(opts = {}) {
   register('KRIs', ['ID', 'KRI', 'Scenarios', 'Measurement', 'Data source', 'Owner', 'Frequency', 'Target', 'Warning', 'Critical', 'Current value', 'Status'], [8, 44, 12, 34, 24, 20, 11, 12, 12, 14, 12, 12],
     [...(A.KRIS || []).map(k => { const d = defs.find(x => x.id === k[0]); const v = lastRec?.values?.[k[0]]; return [...k.slice(0, 10), v ?? '', d ? status(d, v).label : '']; }),
       ...defs.filter(d => !d.manual).map(d => [d.id, d.name, d.risk, d.method, 'CyberRiskGuardian (computed)', 'Risk analyst', 'Each recording', d.target ?? '', d.warn ?? '', d.crit ?? '', Number.isFinite(cur[d.id]) ? +cur[d.id].toFixed(4) : '', status(d, cur[d.id]).label])]);
-  register('Evidence', ['ID', 'Source', 'Basis', 'Content used'], [6, 60, 30, 100], [...(A.EVIDENCE || []), ...(ws.docs || []).map((d, i) => ['D' + (i + 1), d.name, d.category, `Context document uploaded ${d.added}; ${d.words} words extracted (${d.type})`])]);
+  // 1.8.0 — the CVSS basis of every scenario, with the justification of each metric when scored by equivalency
+  register('CVSS_Basis', ['ID', 'Scenario', 'CVSS-B', 'Vector', 'Basis', 'Weakness type', 'Justification per metric'], [6, 40, 8, 60, 44, 22, 90],
+    rows.map(x => [x.s.id, x.s.name || '', x.cvss, x.s.cvss || '', EQ.exportLabel(x.s), EQ.isEquiv(x.s) ? EQ.typeLabel(x.s.cvss_equiv?.type) : '', EQ.justificationText(x.s, EQ.metricsOf(x.s.cvss))]));
+  register('Evidence', ['ID', 'Source', 'Basis', 'Content used', 'Strength', 'Classification', 'Date', 'Custodian'], [6, 60, 30, 100, 12, 28, 12, 20], [...(A.EVIDENCE || []), ...(ws.docs || []).map((d, i) => ['D' + (i + 1), d.name, d.category, `Context document uploaded ${d.added}; ${d.words} words extracted (${d.type})`])]);
 
   /* Organization */
   const wo = wb.sheet('Organization');

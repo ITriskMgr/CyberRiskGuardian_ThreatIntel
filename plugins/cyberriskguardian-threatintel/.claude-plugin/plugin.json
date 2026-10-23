@@ -1,8 +1,8 @@
 {
   "name": "cyberriskguardian-threatintel",
   "displayName": "CyberRiskGuardian with Threat Live-feed",
-  "version": "1.5.0",
-  "description": "AI-assisted, scenario-driven cybersecurity risk assessment with dated, traceable threat-intelligence calibration from CISA KEV and FIRST EPSS. Adds the Threat Evidence Ladder, snapshot lifecycle and threat-driven revision log to the CyberRiskGuardian method, and connects to the CyberRiskGuardian Ontology (CRGO 0.10.0) through the dss/v1 data contract (legal applicability, control evidence by assessor line, proposed-only write-backs) and the read-only compliance/v1 and secops/v1 contracts (compliance posture, detection and response readiness).",
+  "version": "1.6.0",
+  "description": "AI-assisted, scenario-driven cybersecurity risk assessment with dated, traceable threat-intelligence calibration from CISA KEV and FIRST EPSS. Adds the Threat Evidence Ladder, snapshot lifecycle and threat-driven revision log to the CyberRiskGuardian method, and connects to the CyberRiskGuardian Ontology (CRGO 0.10.0) through the dss/v1 data contract (legal applicability, control evidence by assessor line, proposed-only write-backs) and the read-only compliance/v1 and secops/v1 contracts (compliance posture, detection and response readiness). Aligned with the textbook Introduction to Cybersecurity Governance, 3rd ed., v2.51: 19-step workflow, validated calculator, quick scan and label check.",
   "author": { "name": "Marc-André Léger" },
   "license": "CC-BY-NC-4.0",
   "homepage": "https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel",

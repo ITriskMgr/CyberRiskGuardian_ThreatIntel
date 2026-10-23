@@ -1,12 +1,18 @@
 {
   "name": "cyberriskguardian-threatintel-marketplace",
-  "owner": { "name": "Marc-André Léger", "url": "https://github.com/ITriskMgr" },
+  "owner": {
+    "name": "Marc-André Léger",
+    "url": "https://github.com/ITriskMgr"
+  },
+  "metadata": {
+    "description": "CyberRiskGuardian with Threat Live-feed: scenario-driven cybersecurity risk assessment aligned with the textbook Introduction to Cybersecurity Governance (3rd ed., v2.51)."
+  },
   "plugins": [
     {
       "name": "cyberriskguardian-threatintel",
       "source": "./plugins/cyberriskguardian-threatintel",
       "description": "CyberRiskGuardian with Threat Live-feed — scenario-driven cybersecurity risk assessment with dated, exposure-gated threat-intelligence calibration.",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "license": "CC-BY-NC-4.0",
       "category": "security"
     }

@@ -83,3 +83,10 @@ if __name__ == "__main__":
     json.dump(dict(APPETITE=APPETITE, FACTOR=FACTOR, CASE_APPETITE=CASE_APPETITE, EVIDENCE=EVIDENCE, CROWN=CROWN,
                    CANDIDATES=CANDIDATES, INITIATIVES=INITIATIVES, SCEN=SCEN, KRIS=KRIS, SENS=SENS,
                    TOT_INITIAL=TOT_INITIAL, TOT_RECUR=TOT_RECUR), open("data30.json", "w"), ensure_ascii=False, indent=1)
+    # medibec30.json: the regression input for crg_calc.py (same model plus period, source and sensitivity IDs)
+    json.dump(dict(APPETITE=APPETITE, FACTOR=FACTOR, CASE_APPETITE=CASE_APPETITE, EVIDENCE=EVIDENCE, CROWN=CROWN,
+                   CANDIDATES=CANDIDATES, INITIATIVES=INITIATIVES, SCEN=SCEN, KRIS=KRIS, SENS=SENS,
+                   TOT_INITIAL=TOT_INITIAL, TOT_RECUR=TOT_RECUR, SENS_IDS=SENS_IDS,
+                   PERIOD="next 12 months (October 2026 - September 2027)",
+                   SOURCE="MediBec Business Case v2.0b (fictional teaching case)"),
+              open("medibec30.json", "w"), ensure_ascii=False)

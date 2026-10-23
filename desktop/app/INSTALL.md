@@ -1,10 +1,10 @@
-# CyberRiskGuardian Desktop 1.7.0 Beta (1.7.x) — Installation
+# CyberRiskGuardian Desktop 1.8.0 Beta (1.8.x) — Installation
 
 **English below · [Français plus bas](#français)**
 
-Version 1.7.0 (beta) — for teaching, exploration and method validation. Validate every result before it
-supports a real decision. © 2026 Marc-André Léger · CC BY-NC 4.0. Who may use it without asking and
-whose situation needs a commercial licence: **Help → About → Licence** in the application, or `LICENSE`.
+Version 1.8.0 (beta) — for teaching, exploration and method validation. Validate every result before it
+supports a real decision. © 2026 Marc-André Léger · proprietary licence, free for students and non-profit organisations. Who
+needs which licence: **Help → About → Licence** in the application, or `LICENSE` and the `licences` folder.
 
 ---
 
@@ -25,7 +25,7 @@ is never reachable from your network, even while it is running.
 
 ## 2. Unpack
 
-Unzip **`CyberRiskGuardian_Desktop_v1.7.0-beta.zip`** anywhere you can write — your Documents folder
+Unzip **`CyberRiskGuardian_Desktop_v1.8.0-beta.zip`** anywhere you can write — your Documents folder
 is fine. Keep the folder intact: the application loads its own files by relative path.
 
 ## 3. Start it
@@ -47,7 +47,7 @@ fetches them. **Control-C** stops it.
 By hand, if you prefer:
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.7.0-beta
+cd CyberRiskGuardian_Desktop_v1.8.0-beta
 python3 serve.py 8099
 ```
 
@@ -65,7 +65,7 @@ another port.
 The bottom of the left sidebar must read:
 
 ```
-engine verified · 84,491 / 41,104
+engine verified · 84,305 / 41,023
 ```
 
 At every start the application recomputes the bundled MediBec teaching case — 30 scenarios — and
@@ -74,7 +74,7 @@ agrees with the reference.
 
 | The footer reads | What it means | What to do |
 |---|---|---|
-| `engine verified · 84,491 / 41,104` | Correct. | Carry on. |
+| `engine verified · 84,305 / 41,023` | Correct. | Carry on. |
 | `engine loading…`, and it stays | Opened as a file instead of being served. | Section 3. |
 | `engine missing` | `crg.js`, `cvss4.js` or `sample.js` did not load. | Unzip again and keep the folder intact. |
 | `engine DIVERGES` and a red banner | The engine disagrees with the reference. | **Do not rely on any number.** Restore a clean copy. |
@@ -188,27 +188,49 @@ You get a windowed application with its own icon that starts without a terminal 
 After replacing the folder with a newer version, serve it once with the launcher so the installed
 application picks up the new files.
 
-## 7. Replacing an earlier copy
+## 7. Upgrading from 1.7.x (or an earlier copy)
+
+If you switched it on, **Help → About → Versions → Check now** (or the check at start-up) tells you when a newer
+release exists and downloads its ZIP into your feeds folder; nothing is installed for you. The steps are the
+same either way:
+
 
 1. **Export anything you would hate to lose first** — Backup & restore → *Make a backup* → *Download backup*,
    which writes one file holding every workspace. Your workspaces live in the browser, not in the folder,
    so unzipping a new version does not touch them; a backup is for the day something else does.
-2. Unzip 1.7.0 into a **new** folder beside the old one. Do not unzip over the old folder.
+2. Unzip 1.8.0 into a **new** folder beside the old one. Do not unzip over the old folder.
 3. **Stop the old server** if its terminal window is still open (Control-C). The launchers detect an
    earlier copy on the same port, stop it and say so, but an old window left running is the usual
    reason a browser keeps showing the previous version.
 4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
    8099 — and your workspaces are there.
-5. **Help → About → Versions** must read `1.7.0 beta`, and the footer `engine verified · 84,491 / 41,104`.
+5. **Help → About → Versions** must read `1.8.0 beta`, and the footer `engine verified · 84,305 / 41,023`
+   (1.7.x read 84,491 / 41,104: the MediBec reference changed because S2 and S8 now use AV:L, as the textbook does).
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
    are not in the application folder at all — they are in `crg-keys.json` in the feeds folder — so
    they survive the change.
 
+7. At the first start, answer the question **Check for updates at start-up?** — *No* keeps the application
+   from asking GitHub anything; you can change it later in Help → About → Versions.
+8. Open **Governance → Quality review**: QC-23 lists any control reference that could not be mapped to the
+   current catalogues (see below), and QC-26 says whether your copy of the MediBec teaching case still carries
+   the earlier S2 and S8 vectors (**Reset data → Start over** takes the current case).
+
+**What changes for your work in 1.8.0.** The Process follows the nineteen steps of the textbook (multi-user
+rights carry over: each new step inherits the rights of the step it came from); the legacy control lists
+(ISO/IEC 27002:2013, NIST CSF 1.1, CIS v7.1) are no longer shipped; every input is validated, and a scenario
+without a CVSS score is reported as *CVSS required* instead of being computed as 0; the evidence register,
+the scenario screening and the management summary are new screens.
+
 **Your data is migrated, not converted in place.** On its first start the application brings every
-workspace to **data version 2**: evidence records move, unchanged, to the shared evidence register and
-policy exceptions to the shared exception register; empty compliance-management, audit-management, SIEM and
-SOAR records are added. Each workspace is migrated on a copy; the original is kept on this computer
+workspace to **data version 3**. From an older copy, evidence records move, unchanged, to the shared evidence
+register and policy exceptions to the shared exception register, and empty compliance-management,
+audit-management, SIEM and SOAR records are added (data version 2). Then (data version 3) every reference to
+ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 is mapped to ISO/IEC 27002:2022, NIST CSF 2.0 or CIS Controls v8.1,
+the old identifier kept in a note; a reference with no correspondence is kept and flagged for review, never
+dropped; outdated marker wordings take the standard markers; empty screening and management-summary records
+are added. Each workspace is migrated on a copy; the original is kept on this computer
 (**Backup & restore → Data versions and migrations → Download the copy from before the migration**), and the
 migration is journalled. No number is recomputed. A workspace written by a newer application is opened
 read-only and never saved over.
@@ -218,7 +240,7 @@ read-only and never saved over.
 **8.1 `start.command` opens in a text editor instead of running (macOS).**
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.7.0-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.8.0-beta
 chmod +x start.command start.sh
 ```
 
@@ -260,10 +282,10 @@ To start a teaching case over, or to clear or delete a workspace, use **Organiza
 
 # Français
 
-Version 1.7.0 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
+Version 1.8.0 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
 Validez chaque résultat avant qu’il n’appuie une décision réelle. © 2026 Marc-André Léger ·
-CC BY-NC 4.0. Qui peut l’utiliser sans demander et quelles situations exigent une licence
-commerciale : **Aide → À propos → Licence** dans l’application, ou le fichier `LICENSE`.
+licence propriétaire, gratuite pour les étudiants et les organismes sans but lucratif. Quelle licence
+s’applique : **Aide → À propos → Licence** dans l’application, ou `LICENSE` et le dossier `licences`.
 
 ## 1. Ce qu’il vous faut
 
@@ -281,7 +303,7 @@ fonctionne.
 
 ## 2. Décompresser
 
-Décompressez **`CyberRiskGuardian_Desktop_v1.7.0-beta.zip`** à un endroit où vous avez le droit
+Décompressez **`CyberRiskGuardian_Desktop_v1.8.0-beta.zip`** à un endroit où vous avez le droit
 d’écrire ; votre dossier Documents convient. Gardez le dossier intact : l’application charge ses
 propres fichiers par chemin relatif.
 
@@ -305,7 +327,7 @@ téléchargez des sources de menace, l’assistant qui va les chercher. **Contr�
 À la main, si vous préférez :
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.7.0-beta
+cd CyberRiskGuardian_Desktop_v1.8.0-beta
 python3 serve.py 8099
 ```
 
@@ -325,7 +347,7 @@ Le bas de la barre latérale gauche doit afficher ceci (les nombres gardent le m
 toutes les langues) :
 
 ```
-moteur vérifié · 84,491 / 41,104
+moteur vérifié · 84,305 / 41,023
 ```
 
 À chaque démarrage, l’application recalcule le cas pédagogique MediBec fourni — 30 scénarios — et
@@ -334,7 +356,7 @@ navigateur est d’accord avec la référence.
 
 | Le pied de page affiche | Ce que cela signifie | Quoi faire |
 |---|---|---|
-| `moteur vérifié · 84,491 / 41,104` | Tout est correct. | Continuez. |
+| `moteur vérifié · 84,305 / 41,023` | Tout est correct. | Continuez. |
 | `chargement du moteur…`, et cela persiste | Ouvert comme fichier au lieu d’être servi. | Section 3. |
 | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` n’a pas été chargé. | Décompressez de nouveau et gardez le dossier intact. |
 | `moteur DIVERGENT` et une bannière rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
@@ -458,13 +480,18 @@ Vous obtenez une application en fenêtre, avec sa propre icône, qui démarre sa
 fonctionne hors ligne. Après avoir remplacé le dossier par une version plus récente, servez-la une
 fois avec le lanceur pour que l’application installée reprenne les nouveaux fichiers.
 
-## 7. Remplacer une copie existante
+## 7. Passer de la 1.7.x (ou d’une copie antérieure) à la 1.8.0
+
+Si vous l’avez activée, **Aide → À propos → Versions → Vérifier maintenant** (ou la vérification au démarrage)
+vous indique qu’une version plus récente existe et télécharge son ZIP dans votre dossier des flux ; rien n’est
+installé à votre place. Les étapes sont les mêmes dans les deux cas :
+
 
 1. **Exportez d’abord ce que vous ne voudriez pas perdre** — Sauvegarde et restauration → *Faire une
    sauvegarde* → *Télécharger la sauvegarde*, qui écrit un seul fichier contenant tous les espaces
    de travail. Vos espaces de travail résident dans le navigateur et non dans le dossier : décompresser
    une nouvelle version ne les touche pas. Une sauvegarde sert pour le jour où autre chose les touchera.
-2. Décompressez la 1.7.0 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
+2. Décompressez la 1.8.0 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
    par-dessus l’ancien dossier.
 3. **Arrêtez l’ancien serveur** si sa fenêtre de terminal est encore ouverte (Contrôle-C). Les
    lanceurs détectent une copie antérieure sur le même port, l’arrêtent et vous le disent, mais une
@@ -472,17 +499,38 @@ fois avec le lanceur pour que l’application installée reprenne les nouveaux f
    d’afficher la version précédente.
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
-5. **Aide → À propos → Versions** doit afficher `1.7.0 beta`, et le pied de page
-   `moteur vérifié · 84,491 / 41,104`. Si une application de bureau installée affiche une autre
+5. **Aide → À propos → Versions** doit afficher `1.8.0 beta`, et le pied de page
+   `moteur vérifié · 84,305 / 41,023` (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
+   parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.
    Vos clés d’API ne sont pas du tout dans le dossier de l’application — elles sont dans
    `crg-keys.json`, au dossier des flux — et survivent donc au changement.
 
+7. Au premier démarrage, répondez à la question **Rechercher les mises à jour au démarrage ?** — *Non* empêche
+   l’application de demander quoi que ce soit à GitHub ; vous pourrez changer d’avis dans Aide → À propos →
+   Versions.
+8. Ouvrez **Gouvernance → Revue de qualité** : QC-23 énumère les références de contrôles qui n’ont pu être mises
+   en correspondance avec les catalogues actuels (voir plus bas), et QC-26 indique si votre copie du cas
+   d’enseignement MediBec porte encore les anciens vecteurs de S2 et S8 (**Réinitialiser les données →
+   Recommencer** applique le cas actuel).
+
+**Ce qui change pour votre travail en 1.8.0.** Le Processus suit les dix-neuf étapes du manuel (les droits du
+mode multiutilisateur sont conservés : chaque nouvelle étape hérite des droits de l’étape dont elle provient) ;
+les anciennes listes de contrôles (ISO/IEC 27002:2013, NIST CSF 1.1, CIS v7.1) ne sont plus fournies ; chaque
+donnée d’entrée est validée, et un scénario sans score CVSS est signalé *CVSS requis* au lieu d’être calculé
+comme 0 ; le registre des éléments probants, le filtrage des scénarios et le sommaire de gestion sont de
+nouveaux écrans.
+
 **Vos données sont migrées, pas converties sur place.** À son premier démarrage, l’application amène chaque
-espace de travail à la **version de données 2** : les éléments probants passent, inchangés, au registre
-partagé des éléments probants et les exceptions aux politiques au registre partagé des exceptions; des
-dossiers vides de gestion de la conformité, de gestion de l’audit, de SIEM et de SOAR sont ajoutés. Chaque
+espace de travail à la **version de données 3**. À partir d’une copie plus ancienne, les éléments probants
+passent, inchangés, au registre partagé des éléments probants et les exceptions aux politiques au registre
+partagé des exceptions, et des dossiers vides de gestion de la conformité, de gestion de l’audit, de SIEM et
+de SOAR sont ajoutés (version 2). Puis (version 3) chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou
+CIS v7.1 est mise en correspondance avec ISO/IEC 27002:2022, NIST CSF 2.0 ou CIS Controls v8.1, l’ancien
+identifiant étant conservé dans une note ; une référence sans correspondance est conservée et signalée pour
+examen, jamais supprimée ; les anciens libellés de marqueurs prennent les marqueurs normalisés ; des dossiers
+vides de filtrage et de sommaire de gestion sont ajoutés. Chaque
 espace de travail est migré sur une copie; l’original est conservé sur cet ordinateur (**Sauvegarde et
 restauration → Versions des données et migrations → Télécharger la copie d’avant la migration**), et la
 migration est consignée. Aucun chiffre n’est recalculé. Un espace de travail écrit par une application plus
@@ -493,7 +541,7 @@ récente s’ouvre en lecture seule et n’est jamais écrasé.
 **8.1 `start.command` s’ouvre dans un éditeur de texte au lieu de s’exécuter (macOS).**
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.7.0-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.8.0-beta
 chmod +x start.command start.sh
 ```
 

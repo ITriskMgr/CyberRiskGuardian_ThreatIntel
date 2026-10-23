@@ -233,7 +233,7 @@ export const SCENARIO_ANCHORS = [
 export function scenarioGuidance(ws = S.ws) {
   const m = maturity(ws);
   const level = m.overall;
-  if (level === null) return { n: 10, level: null, why: 'Maturity has not been assessed. The methodology’s starting point is about 20 candidates and the 10 most material.', measured: false };
+  if (level === null) return { n: 10, level: null, why: 'Maturity has not been assessed. The methodology’s starting point is about 25 to 40 candidates (never fewer than 20) and the 10 most material.', measured: false };
   let row = SCENARIO_ANCHORS[0];
   for (const r of SCENARIO_ANCHORS) if (level >= r[0]) row = r;
   return { n: row[1], level: +level.toFixed(2), why: row[2], measured: true,

@@ -36,7 +36,7 @@ wp = wb.create_sheet("Budget_Params")
 wp["A1"] = "Cybersecurity budget guideline and appetite mapping"; wp["A1"].font = TTL
 header(wp, 3, ["Parameter", "Value", "Source / note"], [58, 16, 100])
 params = [
-    ("Total IT budget incl. salaries (CAD)", B["IT_BUDGET"], MONEY, "Business case s.4 (E3). Evidence gap - appears high for a 15-person IT team; validate with Finance."),
+    ("Total IT budget incl. salaries (CAD)", B["IT_BUDGET"], MONEY, "Business case s.4 (E3). Information gap - appears high for a 15-person IT team; validate with Finance."),
     ("Guideline floor - risk seeking (% of IT budget)", B["BAND"]["min"], "0.0%", "User-supplied guideline."),
     ("Guideline median - risk neutral", B["BAND"]["median"], "0.0%", "User-supplied guideline."),
     ("Guideline ceiling - risk averse", B["BAND"]["max"], "0.0%", "User-supplied guideline."),

@@ -23,7 +23,7 @@ export function emit(what = 'change') { for (const f of listeners) { try { f(wha
 export function blankOrg() {
   return { name: '', context: '', sector: '', size: '', employees: '', region: '', mission: '', services: '', processes: '',
     systems: '', cloud: '', suppliers: '', regulations: [], sensitive: '', availability: '', maturity: '',
-    incidents: '', controls: '', notes: '' };
+    incidents: '', controls: '', notes: '', materiality: '' };
 }
 export function newWorkspace({ name = 'New organization', kind = 'organization', assessment = null, org = null } = {}) {
   const now = new Date().toISOString(), id = uid('ws');
@@ -47,6 +47,8 @@ export function newWorkspace({ name = 'New organization', kind = 'organization',
     ontology: { themes: [] }, isp: { policies: [], issues: [], ...MIG.blankIspExtra() }, ai: null, teaching: null,
     grc: MIG.blankGrc(), audit: MIG.blankAudit(), csm: MIG.blankCsm(), isms: MIG.blankIsms(), crgo: MIG.blankCrgo(id),
     shared: MIG.blankShared(), cms: MIG.blankCms(), siem: MIG.blankSiem(), soar: MIG.blankSoar(),
+    // 1.8.0
+    screening: MIG.blankScreening(), mgmtSummary: MIG.blankSummary(), catalogueMigration: [],
     dataVersion: MIG.DATA_VERSION, appVersion: VERSION, migrationLog: [],
   };
 }
@@ -70,6 +72,9 @@ export function medibecWorkspace() {
   ws.budgetYears = null; ensureBudgetYears(ws);
   ws.appetite_rationale = 'Healthcare provider handling personal health information under Quebec Law 25: low appetite (0.30). Analytical estimate — validation required.';
   ws.classroom = null;
+  // 1.8.0 — the screening of the 45 candidates into ten families, from the case's selection workbook
+  if (self.CRG_MEDIBEC_SCREENING) ws.screening = JSON.parse(JSON.stringify(self.CRG_MEDIBEC_SCREENING));
+  ws.org.materiality = 'Any credible threat to clinical decisions or patient safety; any exposure of health information for many patients; any loss of clinical systems at several clinics beyond a working day. Analytical estimate — validation required.';
   return ws;
 }
 
@@ -195,6 +200,8 @@ export function migrate(w) {
   w.shared = Object.assign(MIG.blankShared(), w.shared || {}); w.cms = Object.assign(MIG.blankCms(), w.cms || {});
   w.siem = Object.assign(MIG.blankSiem(), w.siem || {}); w.soar = Object.assign(MIG.blankSoar(), w.soar || {});
   w.isp = Object.assign({ policies: [], issues: [] }, MIG.blankIspExtra(), w.isp || {});
+  w.screening = Object.assign(MIG.blankScreening(), w.screening || {}); w.mgmtSummary = Object.assign(MIG.blankSummary(), w.mgmtSummary || {});
+  if (!Array.isArray(w.catalogueMigration)) w.catalogueMigration = [];
   w.migrationLog ||= [];
   return w;
 }
@@ -252,7 +259,7 @@ export const PARAM_HELP = {
   Pbx: 'Probability that the threat exploits the weakness',
   De: 'Expected damage (normalized)', Dm: 'Maximum plausible damage (normalized)',
   Th: 'Organizational resilience — prevent, detect, contain, respond, recover (0,1]',
-  Mu: 'Criticality of the affected service or asset to the mission' };
+  Mu: 'Organizational criticality (expected utility) of the affected service or asset' };
 
 export function normalizeScenario(s) {
   s.params = s.params || {};

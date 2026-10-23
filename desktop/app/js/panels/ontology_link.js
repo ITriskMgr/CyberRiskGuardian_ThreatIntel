@@ -144,7 +144,7 @@ export function contextView(d) {
         { key: 'k', label: 'Conflict', render: c => D.conflictOf(c.latestAssessments || [], c.openFindings || []).conflict ? pill('self-assessment contradicted — resolve', 'bad') : '' }], d.controlLinks || [], { class: 'compact' })),
     card(el('h3', { style: { marginTop: 0 } }, 'Estimates and their evidence'),
       table([{ key: 'k', label: 'Estimate', render: e => e.kind }, { key: 'v', label: 'Value', num: true, render: e => String(e.value) }, { key: 'c', label: 'Confidence', render: e => e.confidence || '—' },
-        { key: 'q', label: 'Evidence quality', render: e => e.evidenceQuality ? (['low', 'very-low'].includes(e.evidenceQuality) ? pill(tr(e.evidenceQuality) + ' — ' + tr('Analyst estimate — validation required'), 'warn') : tr(e.evidenceQuality)) : '—' },
+        { key: 'q', label: 'Evidence quality', render: e => e.evidenceQuality ? (['low', 'very-low'].includes(e.evidenceQuality) ? pill(tr(e.evidenceQuality) + ' — ' + tr('Analytical estimate — validation required'), 'warn') : tr(e.evidenceQuality)) : '—' },
         { key: 'a', label: 'Assumptions', render: e => el('span', { class: 'small', 'data-noi18n': '' }, (e.assumptions || []).map(a => a.label).join('; ')) }], d.estimates || [], { class: 'compact' })),
     el('ul', 'small muted', ...(d.caveats || []).map(c => el('li', { 'data-noi18n': '' }, c))));
 }

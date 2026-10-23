@@ -29,7 +29,7 @@ import { today } from './util.js';
 /* ---------------- the fields of a workspace, in groups ---------------- */
 
 /** Never cleared by any scope: without these the record is not a workspace at all. */
-export const IDENTITY = ['schema', 'id', 'created', 'dataVersion', 'appVersion', 'migrationLog'];  // 1.5.8: the data version and its journal
+export const IDENTITY = ['schema', 'id', 'created', 'dataVersion', 'appVersion', 'migrationLog', 'catalogueMigration'];  // 1.5.8: the data version and its journal
 /** What the workspace is called and what type it is — and, for a teaching case, which steps the
     student redoes after starting over (1.5.7; it describes the exercise, so no scope clears it) — and the
     workspace's AI settings (1.5.7): a reset must never turn a workspace marked confidential back into one
@@ -49,7 +49,9 @@ export const CONTEXT = ['assets', 'assetLog', 'assetScoreHist', 'vulns', 'exposu
   'shared', 'cms', 'siem', 'soar'];
 /** The assessment itself and everything derived from it. */
 export const ASSESSMENT = ['excluded', 'decisions', 'measures', 'risks', 'recommendations', 'revisionLog',
-  'linkLog', 'linkDraft', 'batchDraft', 'batchSeed', 'batchSpread', 'initPlan', 'published', 'kriHistory'];
+  'linkLog', 'linkDraft', 'batchDraft', 'batchSeed', 'batchSpread', 'initPlan', 'published', 'kriHistory',
+  // 1.8.0 — scenario screening and the management summary
+  'screening', 'mgmtSummary'];
 /** Key risk indicators as designed (not their measurements, which go with the assessment). */
 export const KRI_DEFS = ['kriDefs', 'kriSel', 'kriSelMode'];
 /** Who did what in this workspace, in multi-user mode. */
@@ -348,7 +350,7 @@ export async function restoreTeaching(wsId, { keepName = true } = {}) {
 export const REDO_STEPS = [
   { id: 'context', n: 2, label: 'Describe the context and risk appetite',
     clears: 'the twelve context fields of the profile, the appetite rationale and the IT budget' },
-  { id: 'assets', n: 3, label: 'Identify crown jewels and information assets',
+  { id: 'assets', n: 2, label: 'Identify crown jewels and information assets',
     clears: 'the crown jewels and the information-asset inventory' },
 ];
 export const DEFAULT_REDO = REDO_STEPS.map(s => s.id);

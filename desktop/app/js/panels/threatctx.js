@@ -57,7 +57,7 @@ function snapshotCard(sec) {
     sec.append(banner('warn', 'No network? Use the bundled example',
       el('div', null,
         el('div', null, 'Every other route to a snapshot needs the internet: the download helper, a KEV file and an EPSS file you fetch yourself, or ',
-          el('span', 'mono', 'threat_snapshot.py'), '. The example shipped with the application needs none of them, and it is enough to place CVEs on the Threat Evidence Ladder, run the exposure join and complete Process step 5.'),
+          el('span', 'mono', 'threat_snapshot.py'), '. The example shipped with the application needs none of them, and it is enough to place CVEs on the Threat Evidence Ladder, run the exposure join and complete Process step 3.'),
         el('div', { style: { marginTop: '4px' } }, el('b', null, 'It carries the CISA KEV catalogue of its build date and a pruned EPSS table'),
           ' — pruned at the ladder\u2019s own rung-1 ceiling, so every row that was dropped would have classified as rung 1 anyway. Classification is identical to the unpruned snapshot; only the exact score of an already-negligible CVE is missing.'))));
     return;

@@ -1,4 +1,4 @@
-/* CVSS v4.0 base score (CVSS-B) for CyberRiskGuardian Mobile.
+/* CVSS v4.0 base score (CVSS-B) for CyberRiskGuardian — the desktop and mobile applications.
  * Port of the FIRST.ORG / Red Hat reference algorithm (as implemented in the Python "cvss" package),
  * restricted to base metrics. Lookup tables (c) 2023 FIRST.ORG, Inc., Red Hat and contributors, BSD-2-Clause.
  * Port (c) 2026 Marc-André Léger, CC BY-NC 4.0. */

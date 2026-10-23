@@ -77,7 +77,7 @@ claude plugin validate .claude-plugin/marketplace.json
 
 # the baseline must be untouched
 python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/crg_calc.py \
-        examples/medibec/source/medibec30.json            # 84,491 / 41,104
+        examples/medibec/source/medibec30.json            # 84,305 / 41,023 (S2/S8 AV:L since 1.6.0; 84,491 / 41,104 before)
 
 # the snapshot must work with no network
 python3 .../threat_snapshot.py --offline examples/threat-context/threat-context-shipped.json --summary

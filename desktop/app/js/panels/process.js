@@ -1,4 +1,5 @@
-/* Process (1.5.2) — the workflow of a complete risk assessment in 12 steps, the status of each step
+/* Process — the workflow of a complete risk assessment in the book's nineteen steps (seven groups), then the
+   management report and the quality review; the status of each step
    in this workspace, buttons that open the screens where it is done, guidelines to keep the process
    simple, and — in multi-user mode — who is Responsible and Accountable for each step.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
@@ -6,7 +7,7 @@
 import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go, kpi, n0 } from '../util.js';
 import { S } from '../state.js';
-import { STEPS, statuses, nextStep, partsOf } from '../process.js';
+import { STEPS, GROUPS, statuses, nextStep, partsOf } from '../process.js';
 import { tr } from '../i18n.js';
 import * as users from '../users.js';
 import * as MT from '../maturity.js';
@@ -20,20 +21,22 @@ export function render(sec) {
   const ws = S.ws, list = statuses(ws), nx = nextStep(ws);
   const done = list.filter(x => x.st === 'done').length, part = list.filter(x => x.st === 'partial').length;
   sec.replaceChildren(el('h1', null, 'Process'),
-    el('p', 'lede', `The workflow of a complete cybersecurity risk assessment in ${STEPS.length} steps. Each step says what it is for, what it needs and when it is done, shows its status in this workspace, and opens the screens where it is completed.`),
+    el('p', 'lede', 'The workflow of a complete cybersecurity risk assessment: nineteen numbered steps in seven groups, then the management report and the quality review. Each step says what it is for, what it needs and when it is done, shows its status in this workspace, and opens the screens where it is completed.'),
     banner('warn', `Beta ${SERIES}`, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.'));
   sec.append(el('div', 'grid g4',
     kpi('Steps done', `${done} / ${STEPS.length}`, part ? `${part} in progress` : '', done === STEPS.length ? 'good' : ''),
     kpi('Workspace', ws.name, ws.org?.name || ''),
     kpi('Scenarios', n0(ws.assessment.SCEN.length), 'in the register'),
-    kpi('Next recommended step', nx ? `${nx.s.n}. ${tr(nx.s.title)}` : 'All steps done', nx ? ST[nx.st][0] : '', nx ? 'warn' : 'good')));
+    kpi('Next recommended step', nx ? (nx.s.n === 'R' ? tr(nx.s.title) : `${nx.s.n}. ${tr(nx.s.title)}`) : 'All steps done', nx ? ST[nx.st][0] : '', nx ? 'warn' : 'good')));
   if (nx) sec.append(card({ class: 'card next-step' }, el('div', 'row', { style: { alignItems: 'center' } },
-    el('div', { style: { flex: 1 } }, el('b', null, `Next: step ${nx.s.n} — ${nx.s.title}`), el('div', 'small muted', nx.s.done)),
+    el('div', { style: { flex: 1 } }, el('b', null, nx.s.n === 'R' ? tr('Next: {0}').replace('{0}', tr(nx.s.title)) : `Next: step ${nx.s.n} — ${nx.s.title}`), el('div', 'small muted', nx.s.done)),
     ...nx.s.screens.map(([r, l], i) => el('button', { class: 'btn' + (i ? ' ghost' : ''), 'data-ro-ok': '', onclick: () => go(r) }, 'Open ' + l)))));
 
   // the flow
   const flow = el('ol', { class: 'process-flow' });
+  let lastG = null;
   for (const { s, st } of list) {
+    if (s.g !== lastG) { lastG = s.g; const g = GROUPS.find(x => x[0] === s.g); if (g) flow.append(el('li', { class: 'pgroup', style: { listStyle: 'none', margin: '14px 0 4px', fontWeight: 600, color: 'var(--ink-2, inherit)' } }, g[1])); }
     const R = users.active() ? users.holders(s.id, 'R').map(u => u.name) : [];
     const A = users.active() ? users.holders(s.id, 'A').map(u => u.name) : [];
     flow.append(el('li', { class: 'pstep ' + st, id: 'step-' + s.id },
@@ -50,13 +53,13 @@ export function render(sec) {
         (() => { const ps = partsOf(s, S.ws); if (!ps) return null;
           return el('ul', 'small', { style: { margin: '6px 0 0', paddingLeft: '18px' } }, ...ps.map(x =>
             el('li', { style: { margin: '2px 0' } },
-              el('span', null, x.ok ? '✓ ' : '◻ '), x.ok ? el('span', null, x.what) : el('b', null, x.what),
+              el('span', null, x.ok ? '✓ ' : '◻ '), x.ok || x.optional ? el('span', null, x.what) : el('b', null, x.what), x.optional ? el('span', 'muted', ' ' + tr('(optional)')) : null,
               x.hint && !x.ok ? el('div', 'muted', x.hint) : null,
               !x.ok && x.fix ? el('button', { class: 'btn xs ghost', 'data-ro-ok': '', style: { marginTop: '2px' },
                 onclick: () => go(x.fix[0]) }, 'Open ' + x.fix[1]) : null))); })(),
         // 1.5.5 — step 5 says how many scenarios this organization should carry, from the maturity it
         // measured rather than from a generic ten.
-        s.id === 'scenarios' ? (() => { const g = MT.scenarioGuidance(S.ws);
+        s.id === 'select' ? (() => { const g = MT.scenarioGuidance(S.ws);
           return el('div', 'small muted', el('b', null, 'How many: '),
             g.measured ? `about ${g.n} for this organization — measured maturity ${g.level} of 5 (${g.assessed}). ${g.why}`
               : `about ${g.n} to begin with. ${g.why} Assess the maturity and this number follows the level you measure.`,

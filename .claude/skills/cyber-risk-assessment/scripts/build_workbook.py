@@ -17,16 +17,21 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.comments import Comment
 from openpyxl.utils import get_column_letter as L
 from openpyxl.formatting.rule import CellIsRule
-from crg_calc import BAND_LOW, BAND_HIGH, cvss4
+from crg_calc import BAND_LOW, BAND_HIGH, cvss4, run as _crg_run, CRGInputError
 
 _ap = argparse.ArgumentParser()
 _ap.add_argument("scenarios"); _ap.add_argument("output"); _ap.add_argument("--title", default="CyberRiskGuardian Risk Assessment Workbook")
 _a = _ap.parse_args()
 D = json.load(open(_a.scenarios, encoding="utf-8"))
 SCEN = D["SCEN"]
-for _s in SCEN:
-    if "cvss_score" not in _s:
-        _s["cvss_score"] = cvss4(_s["cvss"])[0]
+try:                                    # same validation as crg_calc.py (CRG 1.8.0 decision 4)
+    _chk = _crg_run(D)
+except CRGInputError as _e:
+    sys.exit("Input validation failed:\n  - " + "\n  - ".join(_e.errors))
+for _s, _r in zip(SCEN, _chk["results"]):
+    _s["cvss_score"] = _r["cvss"]       # score recomputed from the vector; a disagreeing stored score is flagged
+for _w in _chk["warnings"]:
+    print("Warning:", _w)
 APPETITE = D.get("APPETITE", 0.30); FACTOR = D.get("FACTOR", 1000); CASE_APPETITE = D.get("CASE_APPETITE", APPETITE)
 INITIATIVES = [tuple(i) for i in D.get("INITIATIVES", [])]
 EVIDENCE = [tuple(e) for e in D.get("EVIDENCE", [])]; CANDIDATES = [tuple(c) for c in D.get("CANDIDATES", [])]; KRIS = [tuple(k) for k in D.get("KRIS", [])]
@@ -69,14 +74,15 @@ ws["A1"] = _a.title; ws["A1"].font = TTL
 lines = [
     f"Assessment period: {D.get('PERIOD', 'next 12 months')}. Currency: {D.get('CURRENCY', 'CAD')}. Cost basis: Year-1 = initial implementation + first-year recurring.",
     f"Source: {D.get('SOURCE', 'organizational evidence supplied')}. Formulas: CyberRiskGuardian Excel Guide v1.0c (s.11), used without modification.",
-    "All parameter values, CVSS vectors, costs and reductions are ANALYST ESTIMATES - VALIDATION REQUIRED. Scores are relative decision-support indicators, not loss predictions.",
+    "All parameter values, CVSS vectors, costs and reductions: Analytical estimate — validation required. Missing facts: Information gap — organizational validation required. Acceptance, transfer and funding: Management decision required.",
+    "The computed values are risk indices (relative decision-support indicators), not KRIs and not loss predictions. KRIs are the measured indicators on the KRIs sheet.",
     "",
     "Colour legend:  blue text = input you may edit  |  black = formula  |  green = link to another sheet  |  yellow fill = key assumption.",
     "",
     "Sheets:",
     "  Parameters  - risk appetite, multiplication factor, tolerance band (edit here).",
     f"  Inputs      - {N} scenarios: quantitative parameters, CVSS v4.0 vector/score, reductions, confidence.",
-    "  Analyse     - estimated, tolerated, mitigated, residual risk, ratio, classification, cost-effectiveness (live formulas).",
+    "  Analyse     - estimated, tolerated, mitigated, residual risk, risk-to-tolerance ratio, classification, cost-effectiveness (live formulas).",
     f"  Portfolio   - {len(INITIATIVES)} initiatives, costs and scenario mapping; shared costs split equally across scenarios addressed (no double-counting).",
     f"  Sensitivity - lower / central / higher cases for {len(SENS_IDS)} key scenarios (all parameters shifted by +/- delta).",
     "  Case_View   - case-native escalation view (s.8 of the case): T x E x I x (1 - C), with the 0.25 / 0.40 escalation thresholds.",
@@ -86,8 +92,8 @@ lines = [
     "  Estimated = Pb(A) x Pb(psi,A) x CVSS x ((de + dm)/2) x mu(E) / theta x Factor",
     "  Tolerated = Pb(A) x Pb(psi,A) x CVSS x Appetite x mu(E) / theta x Factor",
     "  Mitigated = Estimated x ProbabilityReduction x ImpactReduction ;  Residual = Estimated - Mitigated",
-    "  Ratio = Residual / Tolerated ;  Cost-effectiveness = (Estimated - Residual) / Cost x 1000",
-    "Note: the template computes Residual as ABS(L - R). Because both reductions are kept within 0-1, L - R is always >= 0 and the two are identical; a validity check column is included.",
+    "  Risk-to-tolerance ratio = Residual / Tolerated (< 0.90 below, 0.90-1.10 approximately at, > 1.10 above tolerance) ;  Cost-effectiveness = (Estimated - Residual) / Cost x 1000",
+    "Residual uses the guard MAX(0, Estimated - Mitigated) (never ABS). Each reduction must stay within 0-1; several measures on the same lever combine as 1 - (1 - r1) x (1 - r2) x ... (product rule), never by adding them. The Validity column flags a reduction outside 0-1 or a missing CVSS score.",
     "",
     "How to use: change blue cells on Parameters / Inputs / Portfolio, then recalculate (Formulas > Calculate Now if manual).",
 ]
@@ -98,7 +104,7 @@ ws.column_dimensions["A"].width = 150
 # ------------------------------------------------------------------ Parameters
 wp = wb.create_sheet("Parameters")
 wp["A1"] = "Global parameters"; wp["A1"].font = TTL
-rows = [("Risk appetite (analyst estimate)", APPETITE, "Analyst estimate - validation required. Case states 0.40 normalized tolerance; see report s.4."),
+rows = [("Risk appetite (estimated, strictly between 0 and 1)", APPETITE, "Analytical estimate — validation required. Case states 0.40 normalized tolerance; see report s.4."),
         ("Multiplication factor", FACTOR, "Constant across all scenarios (Excel Guide worked example)."),
         ("Tolerance band - lower bound of 'approximately at'", BAND_LOW, "Ratio < this = below tolerance"),
         ("Tolerance band - upper bound of 'approximately at'", BAND_HIGH, "Ratio > this = above tolerance"),
@@ -114,7 +120,7 @@ APP, FAC, BLO, BHI, CAPP, DELTA, TEXEC, TBOARD = ["Parameters!$B$%d" % r for r i
 
 # ------------------------------------------------------------------ Inputs
 wi = wb.create_sheet("Inputs")
-wi["A1"] = "Scenario inputs (0-1 scale unless stated) - Analyst estimates, validation required"; wi["A1"].font = TTL
+wi["A1"] = "Scenario inputs (0-1 scale unless stated) - Analytical estimate — validation required"; wi["A1"].font = TTL
 cols = ["ID", "Scenario", "Pb(A)", "Pb(psi,A)", "de", "dm", "theta", "mu(E)", "CVSS v4.0 vector", "CVSS-B", "Prob. reduction", "Impact reduction",
         "Conf Pb(A)", "Conf Pb(psi,A)", "Conf de", "Conf dm", "Conf theta", "Conf mu"]
 header(wi, 3, cols, [6, 60, 8, 9, 7, 7, 7, 7, 62, 8, 10, 10, 8, 9, 8, 8, 8, 8])
@@ -158,15 +164,15 @@ for j in range(N):
 put(wpo, tr + 1, 2, "Check: sum of scenario allocations - portfolio Year-1 total (should be 0)")
 put(wpo, tr + 1, 8, f"=SUM(K{tr}:{LASTF}{tr})-H{tr}", fmt="$#,##0;($#,##0);-")
 wpo.cell(row=tr + 3, column=2, value="Allocation assumption: each initiative's Year-1 cost is split equally across the scenarios it addresses, so shared controls are never charged in full to several scenarios.").font = BLK
-wpo.cell(row=tr + 4, column=2, value="Cyber-insurance premium is excluded (Evidence gap - broker quotation required).").font = BLK
+wpo.cell(row=tr + 4, column=2, value="Cyber-insurance premium is excluded (Information gap — broker quotation required). Transfer is a costed line and a management decision; it claims no reduction.").font = BLK
 
 # ------------------------------------------------------------------ Analyse
 wa = wb.create_sheet("Analyse", 1)
-wa["A1"] = "Analyse - CyberRiskGuardian KRIs (Excel Guide v1.0c formulas)"; wa["A1"].font = TTL
+wa["A1"] = "Analyse - CyberRiskGuardian risk indices (Excel Guide v1.0c formulas; not KRIs)"; wa["A1"].font = TTL
 wa["A2"] = "Green = linked from Inputs / Portfolio / Parameters; black = formula."; wa["A2"].font = BLK
 ac = ["ID", "Scenario", "Pb(A)", "Pb(psi,A)", "CVSS-B", "de", "dm", "mu(E)", "theta", "Appetite", "Factor",
       "Estimated risk", "Tolerated risk", "Pre-treatment ratio", "Allocated Y1 cost", "Prob. reduction", "Impact reduction",
-      "Mitigated", "Residual", "Residual / Tolerated", "Classification", "Cost-effectiveness (per $1k)", "Validity (P,Q in 0-1)"]
+      "Mitigated", "Residual", "Risk-to-tolerance ratio", "Classification", "Cost-effectiveness (risk units removed per $1,000)", "Validity (P,Q in 0-1; CVSS present)"]
 header(wa, 4, ac, [6, 52, 7, 8, 7, 6, 6, 7, 7, 8, 8, 11, 11, 10, 12, 9, 9, 11, 11, 10, 24, 12, 10])
 A0 = 5
 for idx, s in enumerate(SCEN):
@@ -183,11 +189,11 @@ for idx, s in enumerate(SCEN):
     put(wa, r, 15, f"=Portfolio!{col}{tr}", GRN, "$#,##0")
     put(wa, r, 16, f"=Inputs!K{ir}", GRN, "0.00"); put(wa, r, 17, f"=Inputs!L{ir}", GRN, "0.00")
     put(wa, r, 18, f"=L{r}*P{r}*Q{r}", fmt="#,##0")
-    put(wa, r, 19, f"=L{r}-R{r}", fmt="#,##0")
+    put(wa, r, 19, f"=MAX(0,L{r}-R{r})", fmt="#,##0")
     put(wa, r, 20, f"=S{r}/M{r}", fmt="0.00")
     put(wa, r, 21, f'=IF(T{r}<{BLO},"Below tolerance",IF(T{r}<={BHI},"Approximately at tolerance","Above tolerance"))')
     put(wa, r, 22, f"=IF(O{r}=0,0,(L{r}-S{r})/O{r}*1000)", fmt="0.00")
-    put(wa, r, 23, f'=IF(AND(P{r}>=0,P{r}<=1,Q{r}>=0,Q{r}<=1),"OK","CHECK")')
+    put(wa, r, 23, f'=IF(ISBLANK(Inputs!J{ir}),"CVSS required",IF(AND(P{r}>=0,P{r}<=1,Q{r}>=0,Q{r}<=1),"OK","CHECK"))')
 AN = A0 + len(SCEN) - 1
 t = AN + 1
 put(wa, t, 2, "Portfolio totals", B)
@@ -202,7 +208,7 @@ wa.conditional_formatting.add(rng, CellIsRule(operator="greaterThan", formula=[B
 wa.conditional_formatting.add(rng, CellIsRule(operator="between", formula=[BLO, BHI], fill=amb))
 wa.conditional_formatting.add(rng, CellIsRule(operator="lessThan", formula=[BLO], fill=gr))
 wa.freeze_panes = "C5"
-wa.cell(row=t + 2, column=2, value="Interpretation: Residual/Tolerated simplifies to ((de+dm)/2) x (1 - P x Q) / Appetite - CVSS, probabilities, resilience and criticality scale magnitude (ranking) but cancel out of the tolerance test.").font = BLK
+wa.cell(row=t + 2, column=2, value="Interpretation: the risk-to-tolerance ratio simplifies to ((de+dm)/2) x (1 - P x Q) / Appetite - CVSS, probabilities, resilience and criticality scale magnitude (ranking) but cancel out of the tolerance test. Below tolerance (< 0.90) needs P x Q > 1 - 0.90 x Appetite / average damage; ratio <= 1.00 needs P x Q >= 1 - Appetite / average damage.").font = BLK
 
 # ------------------------------------------------------------------ Sensitivity
 wsn = wb.create_sheet("Sensitivity")
@@ -224,7 +230,7 @@ for sid in SENS_IDS:
         put(wsn, r, 11, cl(f"Inputs!K{ir}-C{r}"), fmt="0.00"); put(wsn, r, 12, cl(f"Inputs!L{ir}-C{r}"), fmt="0.00")
         put(wsn, r, 13, f"=D{r}*E{r}*J{r}*((F{r}+G{r})/2)*I{r}/H{r}*{FAC}", fmt="#,##0")
         put(wsn, r, 14, f"=D{r}*E{r}*J{r}*{APP}*I{r}/H{r}*{FAC}", fmt="#,##0")
-        put(wsn, r, 15, f"=M{r}-M{r}*K{r}*L{r}", fmt="#,##0")
+        put(wsn, r, 15, f"=MAX(0,M{r}-M{r}*K{r}*L{r})", fmt="#,##0")
         put(wsn, r, 16, f"=O{r}/N{r}", fmt="0.00")
         put(wsn, r, 17, f'=IF(P{r}<{BLO},"Below tolerance",IF(P{r}<={BHI},"Approximately at tolerance","Above tolerance"))')
         r += 1

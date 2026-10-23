@@ -3,6 +3,68 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## 1.6.0 — 2026-10-23
+
+Plugin 1.6.0, aligned with the textbook *Introduction to Cybersecurity Governance for Business Technology
+Management*, 3rd ed., **v2.51**, for CyberRiskGuardian Desktop **1.8.0 Beta** (see `desktop/app/CHANGELOG.md`).
+No risk formula changed. **MediBec regression: 84,305 / 41,023** (was 84,491 / 41,104): S2 and S8 now score the
+malicious e-mailed document **AV:L** (opened locally, FIRST CVSS v4.0 user guide) — S2 9.3, S8 9.2; no verdict
+changes (12 above, 11 approximately at, 7 below tolerance).
+
+### Changed
+- **Markers** everywhere (SessionStart hook, rules, skills, master spec, agents, output styles, CRGO bridge tables,
+  MediBec sources and deliverables): **Analytical estimate — validation required**, **Information gap —
+  organizational validation required**, **Management decision required**, with the French equivalents. The old
+  "Analyst estimate" / "Evidence gap — organizational input required" wording is retired.
+- **Workflow** numbered as the book's **19 steps** (11 = estimated and tolerated risk; 12–14 = measures, shared
+  controls, residual and ratio; 18 = budget; 19 = KRIs); steps 0 and 20 marked as Threat Live-feed additions. The
+  master task specification is reorganized by step and records the 1.8.0 decisions.
+- **Scenarios**: about 25–40 candidates for ten, never fewer than 20; five generation strategies (top-down,
+  bottom-up, threat-driven, dependency-driven, localized generic); 12 screening criteria.
+- **Terminology**: computed values are **risk indices** (never KRIs); μ(E) = organizational criticality (expected
+  utility); "risk-to-tolerance ratio".
+- **Below-tolerance design rule**: ratio ≤ 1.00 needs rp × ri ≥ 1 − A ÷ average damage; below tolerance needs
+  rp × ri > 1 − 0.90 × A ÷ average damage.
+- **Several measures**: combined with the **product rule** 1 − ∏(1 − rᵢ) per lever, never added.
+- **Budget**: point targets 12% / 7.8% / 4% of total IT budget incl. salaries at appetite 0.30 / 0.50 / 0.70,
+  linear in between, as best practice; current spending plus portfolio compared with the target (gap, implied
+  appetite). `budget_calibrator.py` gains `--current` and `--portfolio`; the QC reviewer, executive brief and
+  budget skill no longer test "within 4–12%".
+- **Formulas reference** (`crg-formulas-and-workbook.md`) rewritten for the v2-6 Excel template (factor 1,000,
+  CVSS required with its vector, MAX(0) residual guard, product rule, ISO/IEC 27002:2022 + NIST CSF 2.0 + CIS
+  v8.1) and the book's worked example with AV:L (Re 3,554.46, Rt 1,777.23, residual 1,937.18, ratio 1.09,
+  cost-effectiveness 26.09); CVSS equivalency method for non-technical weaknesses.
+- **Textbook skill** `cybersecurity-governance` 2.0.0: references replaced by the v2.51 text (chapters 1–21
+  without gap, CRG appendix, MCQ answer key, references, bibliography); citation and index rewritten.
+- `build_workbook.py`: validates with crg_calc, residual guard MAX(0, …), "risk indices" and "risk-to-tolerance
+  ratio" labels, CVSS-required check, current markers.
+- MediBec example: S2/S8 vectors and notes; `data.py` and `data30.py` now also write `data.json` and
+  `medibec30.json`; JSON models and all deliverables regenerated and recalculated (0 formula errors).
+- Contacts: product site cyberriskguardian.ca, licence enquiries sales@cyberriskguardian.ca; editions named as in
+  the book (Community Edition, Educational edition, Professional editions).
+
+### Added
+- **Input validation** in `crg_calc.py` and the `crg-calculator` MCP server: Pb(A), Pb(ψ,A), δe, δm, μ(E), rp, ri
+  in [0, 1]; θ in (0, 1]; appetite strictly in (0, 1); δm ≥ δe; CVSS required (0–10, a blank is an error); the
+  CVSS score is recomputed from the vector and a disagreeing stored score is flagged. All errors are reported at
+  once.
+- **Cost-effectiveness** in `crg_calc` output and `crg_risk`; MCP tools `cost_effectiveness` and
+  `combine_reductions`; `budget_target` takes `current_spend` and `portfolio_cost`; `budget_check` takes the
+  appetite; `threat_context` is now part of `crg_server.py` (the snippet is merged and removed). The server runs
+  with mcp 1.x (FastMCP) and 2.x (MCPServer).
+- `scripts/test_crg_calc.py`: MediBec regression, the book's ch06 worked example and sensitivity, design
+  thresholds, budget example, validation and product-rule checks.
+- **`/crg-quick-scan`**: 25–40 candidates screened, 10 selected, one table with the pre-treatment ratio and
+  verdict (no treatment).
+- **Label check**: `hooks/check_labels.py` as PostToolUse and Stop hooks and the **`/label-check`** command;
+  flags missing markers and outdated wording (retired markers, indices called KRIs, "4–12%" band, ABS residual,
+  10,000 factor, 1.25 threshold). The project `.claude/settings.json` runs the same hooks.
+- **Cloud scenario patterns** (misconfigured storage, identity federation abuse, SaaS supplier outage, key or
+  secret exposure in IaC, tenant isolation or CSP compromise) as causal chains in the scenario-selection
+  instructions.
+- **Transfer record**: share of loss covered (0–1) and approver on transfer decisions — informational, never a
+  reduction.
+
 ## 1.5.0 — 2026-10-19
 
 Plugin 1.5.0, with CyberRiskGuardian Desktop **1.7.0 Beta** (Security Policy Writer 0.1.0 Beta and the Claude

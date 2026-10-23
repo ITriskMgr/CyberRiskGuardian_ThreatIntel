@@ -14,7 +14,8 @@
      • A record written by a NEWER release (a higher data version than this build knows) is never
        migrated downwards and never saved over: the workspace opens read-only, with an explanation.
      • Numbers are never recomputed or rescaled by a migration: parameters, reductions, KRIs and
-       decisions are carried as they are. The engine self-check (84,491 / 41,104) runs on the result.
+       decisions are carried as they are. The engine self-check (84,305 / 41,023) runs on the result.
+       (1.8.0: the shipped MediBec case has S2 and S8 at AV:L, as the book; stored copies are not rewritten.)
      • KNOWN_FIELDS lists every top-level field of a workspace at this data version. A test fails when
        the workspace factory gains a field that is not listed here — so adding a field forces the
        decision of how older workspaces get it (a new step, and a new DATA_VERSION).
@@ -29,11 +30,18 @@
         acknowledgements, training), compliance management, audit management, SIEM and SOAR.
         Evidence moves from grc.evidence to shared.evidence and policy exceptions from isp.issues to
         shared.exceptions, unchanged.
+     3  1.8.0 — only the current control catalogues ship (ISO/IEC 27002:2022, NIST CSF 2.0, CIS v8.1):
+        references to ISO/IEC 27002:2013, NIST CSF 1.1 and CIS v7.1 are mapped (js/data/legacy-map.js) with
+        the old identifier kept in a note, or flagged for review when no correspondence exists — never
+        dropped; outdated marker wordings take the standard markers; a MediBec teaching case still on the AV:N
+        vectors of S2 and S8 keeps them (a migration changes no number) and is told how to take AV:L; empty scenario-screening and management-summary records are added.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { VERSION } from './version.js';
+import { LEGACY } from './data/legacy-map.js';
+import * as MK from './markers.js';
 
-export const DATA_VERSION = 2;
+export const DATA_VERSION = 3;
 
 /** Every top-level field of a workspace at DATA_VERSION (the test compares the factory with this list). */
 export const KNOWN_FIELDS = [
@@ -50,6 +58,8 @@ export const KNOWN_FIELDS = [
   'grc', 'audit', 'csm', 'isms', 'crgo',
   // 1.6.0
   'shared', 'cms', 'siem', 'soar',
+  // 1.8.0
+  'screening', 'mgmtSummary', 'catalogueMigration',
 ];
 
 /* ---------------- the 1.5.8 records ---------------- */
@@ -111,6 +121,96 @@ export const blankCms = () => ({
 export const blankSiem = () => ({ sources: [], rules: [], tests: [], coverage: [], gaps: [], alerts: [], indicators: [], imports: [] });
 /** SOAR — local: manual recorded actions and dry-run simulation only. */
 export const blankSoar = () => ({ cases: [], playbooks: [], gates: [], approvals: [], executions: [], simulations: [], lessons: [] });
+
+/* ---------------- the 1.8.0 records ---------------- */
+
+/** Scenario screening (book ch05): scores, flags, families, watch list and evidence plan. */
+export const blankScreening = () => ({
+  cands: {},                    // candidate id → { scores[12], rat, flags[], conf, basis, disp, target, strategy[], exclReview }
+  families: [],                 // { id, name, statement, members[], selected, rationale, judgment, coverage[], scenario }
+  watch: [],                    // { id, trigger, owner }
+  plan: [],                     // evidence-collection plan: { activity, scenarios, owner, due }
+  updated: null,
+});
+/** Management summary (book ch06): what the screen cannot compute — the decisions asked and the limitations. */
+export const blankSummary = () => ({ decisions: [], limitations: '', nextSteps: '', preparedBy: '', date: null });
+
+/* ---------------- legacy control catalogues (1.8.0) ---------------- */
+
+const LEGACY_FW = Object.keys(LEGACY);
+const KEY_RE = /^(USR-ISO13|USR-CSF11|USR-CIS71):(.+)$/;
+/** The current-edition key for a legacy control key, or null when no correspondence exists. */
+export function mapLegacyKey(key) {
+  const m = KEY_RE.exec(String(key)); if (!m) return undefined;
+  const L = LEGACY[m[1]], id = m[2];
+  if (L.map) return L.map[id] ? L.to + ':' + L.map[id] : null;
+  const maj = String(id).split('.')[0];
+  return L.byPrefix?.[maj] ? L.to + ':' + L.byPrefix[maj] : null;
+}
+/** Walk a workspace and replace every legacy reference; returns the list of what was done. */
+export function migrateLegacyControls(w) {
+  const done = [];
+  const tag = (obj, from, to, path) => {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return;
+    (obj.legacyControls ||= []).push({ from, to, note: to ? `${from} (legacy) → ${to}` : `${from} (legacy): no correspondence in the current editions — review` });
+    if (!to) obj.needsReview = true;
+  };
+  const walk = (v, path, parent, depth) => {
+    if (depth > 14 || !v || typeof v !== 'object') return;
+    if (Array.isArray(v)) {
+      for (let i = 0; i < v.length; i++) {
+        const x = v[i];
+        if (typeof x === 'string') {
+          const to = mapLegacyKey(x);
+          if (to !== undefined) { done.push({ path: `${path}[${i}]`, from: x, to }); tag(parent, x, to, path); if (to) v[i] = to; }
+          else if (LEGACY_FW.includes(x)) { const nf = LEGACY[x].to; done.push({ path: `${path}[${i}]`, from: x, to: nf }); v[i] = nf; }
+        } else walk(x, `${path}[${i}]`, x && typeof x === 'object' && !Array.isArray(x) ? x : parent, depth + 1);
+      }
+      // a framework list or a control list may now hold the same identifier twice
+      if (v.every(x => typeof x === 'string')) { const u = [...new Set(v)]; if (u.length !== v.length) v.splice(0, v.length, ...u); }
+      return;
+    }
+    for (const k of Object.keys(v)) {
+      if (k === 'legacyControls') continue;
+      const x = v[k];
+      const tk = mapLegacyKey(k);
+      if (tk !== undefined) {                       // a record keyed by control (statement of applicability)
+        const clash = !!tk && (tk in v);
+        done.push({ path: `${path}.${k}`, from: k, to: tk, ...(clash ? { merged: true } : {}) });
+        if (tk && !clash) { v[tk] = x; delete v[k]; if (x && typeof x === 'object') tag(x, k, tk); }
+        else if (x && typeof x === 'object') {   // kept under its old key: unmapped, or the new key already holds a record
+          tag(x, k, clash ? null : tk);
+          if (clash) { x.legacyControls[x.legacyControls.length - 1].note = `${k} (legacy) corresponds to ${tk}, which already has a record — kept under the old key; review and merge`; x.needsReview = true; }
+        }
+        continue;
+      }
+      if (typeof x === 'string') {
+        const to = mapLegacyKey(x);
+        if (to !== undefined) { done.push({ path: `${path}.${k}`, from: x, to }); tag(v, x, to); if (to) v[k] = to; }
+        else if (k === 'fw' && LEGACY_FW.includes(x)) {
+          const id = v.id, to2 = mapLegacyKey(x + ':' + id);
+          done.push({ path: `${path}.${k}`, from: x + ':' + id, to: to2 });
+          tag(v, x + ':' + id, to2);
+          if (to2) { const [nf, nid] = [to2.split(':')[0], to2.slice(to2.indexOf(':') + 1)]; v.fw = nf; v.id = nid; }
+        }
+      } else walk(x, `${path}.${k}`, x && typeof x === 'object' && !Array.isArray(x) ? x : v, depth + 1);
+    }
+  };
+  walk(w, '', w, 0);
+  return done;
+}
+
+/** Replace outdated marker wordings in a workspace (strings only; numbers are never touched). */
+function modernizeMarkers(v, depth = 0) {
+  let n = 0;
+  if (depth > 14 || !v || typeof v !== 'object') return 0;
+  for (const k of Object.keys(v)) {
+    const x = v[k];
+    if (typeof x === 'string') { const y = MK.modernize(x); if (y !== x) { v[k] = y; n++; } }
+    else n += modernizeMarkers(x, depth + 1);
+  }
+  return n;
+}
 
 export const blankCrgo = id => ({ base: defaultBase(id), label: '', graph: null, contexts: {}, writeBacks: [] });
 /** A private base that can never collide with a real namespace: the .invalid domain is reserved (RFC 2606). */
@@ -183,6 +283,32 @@ export const MIGRATIONS = [
       w.audit = Object.assign(blankAudit(), w.audit || {});
       w.cms ||= blankCms(); w.siem ||= blankSiem(); w.soar ||= blankSoar();
       note('empty compliance-management, audit-management, SIEM and SOAR records added');
+    },
+  },
+  {
+    from: 2, to: 3, release: '1.8.0',
+    title: 'Data version 2 → 3: current control catalogues only, standard markers, scenario screening and management summary',
+    up(w, note) {
+      const done = migrateLegacyControls(w);
+      const mapped = done.filter(d => d.to && !d.merged).length, unmapped = done.filter(d => !d.to || d.merged);
+      w.catalogueMigration = done.map(d => ({ ...d, date: new Date().toISOString().slice(0, 10), review: !d.to || !!d.merged }));
+      if (mapped) note(`${mapped} reference(s) to ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 mapped to ISO/IEC 27002:2022, NIST CSF 2.0 or CIS v8.1; the old identifier is kept in a note`);
+      if (unmapped.length) note(`${unmapped.length} legacy reference(s) kept and flagged for review (no correspondence, or a record already under the new identifier): ${[...new Set(unmapped.map(d => d.from))].slice(0, 8).join(', ')}`);
+      const mk = modernizeMarkers(w);
+      if (mk) note(`${mk} text(s) given the standard markers (Analytical estimate — validation required; Information gap — organizational validation required)`);
+      // The shipped teaching case follows the book: the e-mailed document of S2 and S8 is opened locally (AV:L).
+      if (w.kind === 'example') {
+        const AVN = { 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H': 1, 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L': 1 };
+        // A migration never changes a number, so the vectors are left as they are and the case says how to
+        // take the current ones: Reset data → Start over (the Quality review lists it too, QC-26).
+        const n = (w.assessment?.SCEN || []).filter(sc => (sc.id === 'S2' || sc.id === 'S8') && AVN[sc.cvss]).length;
+        if (n) note(`teaching case: S2 and S8 keep the AV:N vectors of the earlier case (numbers are never changed by a migration); Reset data → Start over takes the AV:L vectors of the current case`);
+      }
+      w.screening ||= blankScreening(); w.mgmtSummary ||= blankSummary(); w.catalogueMigration ||= [];
+      const seed = globalThis.CRG_MEDIBEC_SCREENING;
+      if (w.kind === 'example' && seed && !Object.keys(w.screening.cands || {}).length && (w.assessment?.CANDIDATES || []).length === 45) {
+        w.screening = JSON.parse(JSON.stringify(seed)); note('teaching case: the screening of its 45 candidates into ten families added');
+      } else note('empty scenario-screening and management-summary records added');
     },
   },
 ];

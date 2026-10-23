@@ -1,13 +1,13 @@
 # Notice
 
-CyberRiskGuardian Desktop — © 2026 Marc-André Léger. Licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). Attribution: "CyberRiskGuardian by Marc-André Léger, CC BY-NC 4.0, https://github.com/ITriskMgr/CyberRiskGuardian".
-
-Who may use the application without asking, and whose situation needs a commercial licence, is set
-out in `LICENSE` and on the application's **Help → About → Licence** page: students for their own coursework,
-personal use, non-profits and NGOs, and evaluation for up to 30 days are covered; educational
-institutions, government bodies, Crown corporations, businesses of any size and anything embedded in a
-product or paid service need a licence (marcandre@leger.ca). That page and this notice are summaries;
-the Creative Commons legal code in `LICENSE` governs.
+CyberRiskGuardian Desktop — © 2026 Marc-André Léger. All rights reserved. From the release after 1.7.0
+the application is proprietary software, licensed under the CyberRiskGuardian Commercial Licence or
+Educational Licence (French and English texts in the `licences` folder). Students, for personal
+learning, and non-profit organisations, for their own risk management, use it free; any organization
+may evaluate it for up to 30 days. Versions up to 1.7.0 remain available under CC BY-NC 4.0, and the
+CyberRiskGuardian method, the Core plugin for Claude and the governance textbook remain under
+CC BY-NC 4.0. Summary: `LICENSE` and **Help → About → Licence**. Tiers and prices:
+https://www.leger.ca/cyberriskguardian/ · marcandre@leger.ca.
 
 ## Third-party material
 

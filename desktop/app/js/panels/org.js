@@ -139,6 +139,7 @@ function profile(body, arg, sec) {
     F('Cybersecurity budget (current spend)', B(b, 'spend', { type: 'number', step: 10000 }), 'Everything spent on cybersecurity this year: staff, tools, services, projects', 'spend'),
     F('Baseline (run) security cost', B(b, 'baseline', { type: 'number', step: 10000 }), 'The part of that spend needed just to keep existing security running: salaries of the current security staff, licence renewals, existing managed services, maintenance. It covers no new treatment.', 'baseline'),
   ), F('Appetite rationale', B(D, 'appetite_rationale', { rows: 2, placeholder: 'Why this value — industry, sensitivity, regulation, impact on individuals, financial capacity…' }), null, 'appetite_rationale'),
+  F('Materiality criteria', B(D.org, 'materiality', { rows: 2, placeholder: 'Which consequences matter enough to justify a scenario — e.g. any credible threat to clinical decisions, any exposure of health information for many patients' }), 'The appetite translated into what must stay on the scenario list even when its probability is low (Process step 4).'),
   appetiteHelper(a, appIn, markDirty)));
   if (auto === 'profile') { auto = null; const c = autoCrown; autoCrown = false; setTimeout(() => extractProfile(sec, { chain: c }), 50); }
 }

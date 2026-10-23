@@ -6,11 +6,11 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 
 - selecting scenarios, including an intel-driven generation perspective;
 - calibrating likelihood against current exploitation evidence (CISA KEV, FIRST EPSS);
-- quantifying risk with the CyberRiskGuardian formulas and CVSS v4.0 Base scores;
+- quantifying risk with the CyberRiskGuardian formulas (risk indices) and CVSS v4.0 Base scores, every input validated;
 - comparing residual risk with appetite;
 - designing the treatment portfolio;
 - calibrating the budget to appetite;
-- producing management reports with a **threat-driven revision log**;
+- producing management reports with a **threat-driven revision log**, a one-table quick scan, and a label check for the three standard markers;
 - optionally, reading legal applicability, control evidence, findings, compliance posture and
   detection and response readiness from the **CyberRiskGuardian Ontology (CRGO 0.10.0)** and writing
   results back to it as *proposed* — see
@@ -18,8 +18,10 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 
 People stay accountable for validation and risk decisions.
 
-Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.5.0**
-(October 2026); desktop application **1.7.0 Beta** — see below.
+Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.6.0**
+(October 2026), aligned with the textbook *Introduction to Cybersecurity Governance for Business Technology
+Management*, 3rd ed., **v2.51**; desktop application **1.8.0 Beta** — see below. Product site:
+[cyberriskguardian.ca](https://cyberriskguardian.ca) · licence enquiries: sales@cyberriskguardian.ca.
 
 ## Relationship to the base edition
 
@@ -31,9 +33,9 @@ unchanged and continues to be the stable edition.
 |---|---|---|
 | Repository | `CyberRiskGuardian` | `CyberRiskGuardian_ThreatIntel` |
 | Plugin id | `cyberriskguardian` | `cyberriskguardian-threatintel` |
-| Version | 1.1.0 | 1.4.0 |
-| Formulas | identical | identical |
-| MediBec baseline | 84,491 / 41,104 | **84,491 / 41,104, unchanged** |
+| Version | 1.1.0 | 1.6.0 |
+| Formulas | identical | identical (package reductions combined with the product rule 1 − ∏(1 − rᵢ)) |
+| MediBec baseline | 84,305 / 41,023 with S2/S8 scored AV:L | **84,305 / 41,023** |
 | Threat calibration | — | snapshot lifecycle, Threat Evidence Ladder, revision log |
 | Ontology (CRGO) | — | optional: dss/v1 risk context and proposed write-backs (1.3.0); compliance/v1 and secops/v1 reads (1.4.0) |
 
@@ -64,34 +66,48 @@ list: you get `/cyberriskguardian:risk-assessment` and
   its own `CLAUDE.md` and `.claude/`, which gives complete isolation.
 
 Nothing in this repository changes a formula, so an assessment produced by the base edition
-re-runs here with identical totals. The `threat_context` block is optional and absent by default.
+re-runs here with identical totals (as long as both editions carry the same MediBec vectors). The `threat_context` block is optional and absent by default.
 That makes this edition a **drop-in replacement** rather than a companion: there is no reason to
 run both at once.
 
 ## Desktop application — try it without installing anything else
 
-**[CyberRiskGuardian Desktop 1.7.0 Beta](desktop/)** is a standalone edition of the same method that
-runs entirely in your browser, offline, with your data staying on your computer. Version 1.7.0 adds the
+**[CyberRiskGuardian Desktop 1.8.0 Beta](desktop/)** is a standalone edition of the same method that
+runs entirely in your browser, offline, with your data staying on your computer. It includes the
 **Security Policy Writer** (it drafts the policy set in English and French for ISP management) and a
 **Claude Dashboard** pack for the KRI dashboard (built in Claude with the `crg-dashboard` skill). It needs neither this
 plugin nor an AI provider, and it shares the engine: the MediBec baseline is the same
-**84,491 / 41,104**, checked at every start.
+**84,305 / 41,023**, checked at every start. See [`desktop/README.md`](desktop/README.md) for what this version adds.
 
 | | |
 |---|---|
-| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.7.0-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.7.0-beta.zip) — about 4 MB, everything included |
+| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.8.0-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.8.0-beta.zip) — everything included |
 | **Installation instructions** | [`desktop/app/INSTALL.md`](desktop/app/INSTALL.md) — English and French · [print version, Windows and macOS side by side](desktop/app/INSTALL-Windows-macOS-EN-FR.pdf) |
 | **What it does** | [`desktop/README.md`](desktop/README.md) · the full guide in [`desktop/app/USER-GUIDE.md`](desktop/app/USER-GUIDE.md) |
 
 Unpack the zip, double-click `start.bat` (Windows) or `start.command` (macOS), and check that the
-footer reads `engine verified · 84,491 / 41,104` before trusting any number. You need a current
+footer reads `engine verified · 84,305 / 41,023` before trusting any number. You need a current
 browser and Python 3 — no account, no licence key, no installer, no administrator rights. It must be
 served over `http://`, which the launchers do on `127.0.0.1` only; double-clicking `index.html` does
 not work.
 
-**This is a beta (1.7.x), anyone interested can test it, and feedback is welcome** — what the footer said at first
+**This is a beta (1.8.x), anyone interested can test it, and feedback is welcome** — what the footer said at first
 start, anything that did not open, any wording that is wrong for how you actually work, anything in
-the French interface that reads badly. Open an issue, or write to marcandre@leger.ca.
+the French interface that reads badly. Open an issue, or write to sales@cyberriskguardian.ca.
+
+## Editions
+
+The method is the same in every edition (textbook v2.51, appendix §Editions):
+- **Community Edition** (free, CC BY-NC 4.0) — this repository and the base repository: students for their own
+  coursework, including graded work; non-profit organizations for their own risk; instructors may adapt the free
+  materials for non-commercial teaching, with attribution.
+- **Educational edition** (Educational Licence) — colleges, CEGEPs and universities as institutions, at a reduced
+  price, with installation and customization, the current desktop application and the Educator Edition of the
+  teaching materials.
+- **Professional editions** — companies, consultants, MSSPs and government bodies.
+
+The desktop application has its own licence (see `desktop/app/LICENSE`). Product information:
+[cyberriskguardian.ca](https://cyberriskguardian.ca); licence enquiries: sales@cyberriskguardian.ca.
 
 ## What's inside
 
@@ -106,23 +122,26 @@ CyberRiskGuardian_ThreatIntel/
 ├── PUBLISHING.md
 ├── .mcp.json                     # Project MCP config: crg-calculator, and crgo-ontology (CRGO clone)
 ├── .claude/
-│   ├── settings.json             # Model, output style, env defaults, permissions
-│   ├── rules/threat-intel.md     # ten enforcement rules for threat intelligence
-│   └── skills/ commands/ agents/ output-styles/   # (synced from the plugin)
+│   ├── settings.json             # Model, output style, env defaults, permissions, SessionStart and label-check hooks
+│   ├── rules/                    # evidence discipline, data protection, threat intel (ten rules), workbook, report, maintenance
+│   └── skills/ commands/ agents/ output-styles/ hooks/   # (synced from the plugin)
 ├── .claude-plugin/marketplace.json
 ├── plugins/cyberriskguardian-threatintel/        # THE PLUGIN — single source of truth
 │   ├── .claude-plugin/plugin.json
-│   ├── hooks/{hooks.json, session-context.md}
-│   ├── commands/refresh-threat-context.md
-│   ├── mcp/threat_context_tool.py.snippet
+│   ├── hooks/{hooks.json, session-context.md, check_labels.py}   # guardrails + label check
+│   ├── commands/                 # risk-assessment, crg-quick-scan, select-scenarios, crg-calc, calibrate-budget,
+│   │                             # qc-review, label-check, refresh-threat-context, crg-dashboard
+│   ├── mcp/crg_server.py         # crg-calculator MCP server (offline)
 │   └── skills/
 │       ├── cyber-risk-assessment/
 │       │   ├── references/threat-context.md        # constraints, ladder, six source layers
 │       │   ├── references/crgo-integration.md      # CRGO 0.10.0: dss/v1, compliance/v1, secops/v1
+│       │   ├── scripts/crg_calc.py, test_crg_calc.py # engine (validated inputs) and its self-checks
 │       │   ├── scripts/threat_snapshot.py          # the only component that touches the network
 │       │   ├── scripts/crgo_contract.py            # CRGO bridge: graph, context, submit (proposed), compliance, secops
 │       │   ├── scripts/test_crgo_contract.py       # CRGO acceptance checks
 │       │   └── assets/threat-context-block.json    # data-model additions
+│       ├── cybersecurity-governance/            # the textbook v2.51 as a reference skill
 │       └── threat-context-calibration/SKILL.md
 ├── examples/threat-context/      # the shipped snapshot
 └── scripts/{bootstrap-from-upstream.sh, sync-project-config.sh}
@@ -151,7 +170,7 @@ claude plugin install cyberriskguardian-threatintel@cyberriskguardian-threatinte
 
 ## CyberRiskGuardian Ontology (CRGO) — optional
 
-Version 1.4.0 can work with the **CyberRiskGuardian Ontology** (CRGO), a separate OWL 2 ontology and
+Since version 1.4.0 the plugin can work with the **CyberRiskGuardian Ontology** (CRGO), a separate OWL 2 ontology and
 local MCP server by the same author. CRGO states facts, links and their review status — legal
 applicability (Loi 25, A-2.1, R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1), control assessments by
 assessor line, audit findings, incidents, typed mappings to ATT&CK, CSF 2.0, SP 800-53 and ISO/IEC
@@ -159,7 +178,7 @@ assessor line, audit findings, incidents, typed mappings to ATT&CK, CSF 2.0, SP 
 exceptions, deadlines, findings) and detection and response readiness (coverage validated by test,
 detection gaps, telemetry health, playbook simulations, approval gaps, regulatory triage) — and
 **never computes risk**. Every number still comes from `crg_calc.py`, so the formulas
-and the MediBec baseline (84,491 / 41,104) are unchanged. Without CRGO, nothing changes. Like the
+and the MediBec baseline (84,305 / 41,023) are unaffected by CRGO. Without CRGO, nothing changes. Like the
 rest of this edition, the integration is a **beta**: validate every output before
 organizational use.
 
@@ -195,7 +214,7 @@ python3 $S/test_crgo_contract.py --crgo CyberRiskGuardian-Ontology-0.10.0    # a
 Rules that come with it: write-backs are always *proposed* and never an approval, acceptance or
 funding decision; organisation IRIs use the organisation's own base, never `https://w3id.org/crgo/`;
 *supports compliance* is not compliance; EPSS is not a scenario likelihood; unknown applicability stays
-an evidence gap and *potentially applicable* needs qualified review; licensed standards (IIA, ISACA,
+an information gap and *potentially applicable* needs qualified review; licensed standards (IIA, ISACA,
 AICPA, COSO, ISO) appear only as identifiers, official headings and CRGO paraphrases. With 0.10.0: a
 mapping, policy statement, acknowledgement or attestation is never compliance; an alert or indicator
 match is never an incident or attribution; nothing CRGO returns authorises a response action; coverage
@@ -212,8 +231,10 @@ are respected; ISO 37301, IIA, ISACA stay identifiers and paraphrases. Reports c
 | "Refresh the threat intelligence" / `/refresh-threat-context` | New snapshot, exposure-gated recalibration of `Pb(A)` and `Pb(ψ,A)`, revision log |
 | "Is this assessment still current?" | Snapshot age, what moved since the last snapshot, and why |
 | "Select the most material scenarios" / `/select-scenarios` | Sections A–E scenario-selection workbook |
-| "Determine the appropriate cybersecurity budget" / `/calibrate-budget` | Appetite-consistent budget vs the 4% / 7.8% / 12% guideline |
-| `/crg-calc …` | KRIs for one scenario |
+| "Give me a quick scan of <org>" / `/crg-quick-scan` | 25–40 candidates screened on 12 criteria, 10 selected, one table with the pre-treatment ratio and verdict (no treatment) |
+| "Determine the appropriate cybersecurity budget" / `/calibrate-budget` | Current spending plus portfolio against the appetite-consistent point target (12% / 7.8% / 4% of IT budget at appetite 0.30 / 0.50 / 0.70, linear), gap and implied appetite |
+| `/crg-calc …` | Risk indices for one scenario (validated inputs, CVSS recomputed from the vector, cost-effectiveness) |
+| `/label-check <files>` | Flags missing markers (*Analytical estimate — validation required*, *Information gap — organizational validation required*, *Management decision required*) and outdated wording; also runs as PostToolUse and Stop hooks |
 | `/qc-review <files>` | Independent read-only review, including snapshot freshness, the exposure gate and, with CRGO, write-backs and applicability wording |
 | "What obligations apply and how good is the control evidence for S1?" (CRGO connected) | `crgo_risk_context`: Legal applicability table and Control evidence by assessor line; no risk score |
 | "What is our compliance posture and detection readiness at the assessment date?" (CRGO 0.10.0) | `crgo_compliance_context` / `crgo_secops_context`: Compliance posture and Detection and response readiness tables; gaps reported as gaps, approval gaps as audit signals |
@@ -267,8 +288,9 @@ Rung 5 means an **incident**, not a prospective risk: invoke incident response f
 2. Validate:
    - `claude plugin validate plugins/cyberriskguardian-threatintel/.claude-plugin/plugin.json`
    - `claude plugin validate .claude-plugin/marketplace.json`
-3. Regression-check: `crg_calc.py examples/medibec/source/medibec30.json` must still report total
-   estimated **84,491** and residual **41,104** with no `threat_context` block.
+3. Regression-check: `crg_calc.py examples/medibec/source/medibec30.json` must report total
+   estimated **84,305** and residual **41,023** with no `threat_context` block, and
+   `test_crg_calc.py` must pass.
 4. Confirm `threat_snapshot.py --offline` works with networking disabled, and that no network
    import exists in `crg_calc.py`, `build_workbook.py`, `budget_calibrator.py` or the `crg_risk`
    MCP path.

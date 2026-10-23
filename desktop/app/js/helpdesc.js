@@ -11,7 +11,7 @@ import { tr } from './i18n.js';
 import * as i18n from './i18n.js';
 
 export const HELP = {
-  process: { d: 'The thirteen steps of a complete risk assessment, where you are, and what to do next.', g: 'process',
+  process: { d: 'The nineteen steps of a complete risk assessment, then the report and the quality review: where you are, and what to do next.', g: 'process',
     h: ['Each step says what it is for, which screens it uses and when it is done. The badge in the menu shows the next step.', 'Print the checklist to follow an assessment on paper or in a classroom.'] },
   org: { d: 'The organization: mission, services, crown jewels, obligations, risk appetite, workspaces and imports from documents.', g: 'org',
     h: ['Everything the assessment rests on starts here. Facts come from the organization; anything estimated is labelled "Analytical estimate — validation required".', 'Use Import from documents to propose values from your own files; nothing is stored until you accept it.'] },

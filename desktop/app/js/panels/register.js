@@ -1,4 +1,4 @@
-/* Scenario register — every scenario with its threats, vulnerabilities and computed KRIs.
+/* Scenario register — every scenario with its threats, vulnerabilities and computed risk indices (risk indices are not KRIs).
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, n0, n2, kpi, banner, card, pill, pillFor, chip, table, download, toast, go, select } from '../util.js';

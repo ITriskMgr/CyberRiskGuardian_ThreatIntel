@@ -4,6 +4,7 @@
    as, and cross-checked against the inventory of existing safeguards. Nothing here changes a stored
    value: θ is proposed and the analyst accepts it per scenario. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as MK from '../markers.js';
 import { el, card, pill, select, toast, table, banner, field, kpi, n1, n2, today, go } from '../util.js';
 import { S, touch, scen } from '../state.js';
 import * as MT from '../maturity.js';
@@ -96,7 +97,8 @@ function resilienceView(body, sec) {
     kpi('Weakest', qt.weak && qt.weak.length ? qt.weak[0] : '—', qt.weak && qt.weak.length > 1 ? `and ${qt.weak.length - 1} more` : 'nothing scored low')));
 
   body.append(card(el('p', 'note', 'Three questions per capability, about what the organization can demonstrate rather than what it owns — “we have backups” is not an answer to whether it can recover. ',
-    el('b', null, 'Unknown'), ' is a real answer: it is recorded as an information gap and left out of the score, instead of being counted as a zero nobody verified.')));
+    el('b', null, 'Unknown'), ' is a real answer: it is recorded as an information gap and left out of the score, instead of being counted as a zero nobody verified.'),
+    r.unknown ? el('div', 'chips', pill(MK.INFO_GAP, 'warn')) : null));
 
   for (const c of r.caps) {
     const invCov = SG.capabilityCoverage(ws).find(x => x.key === c.key);
@@ -250,7 +252,7 @@ function about(body) {
       el('li', null, 'θ is proposed, never applied. Putting it on a scenario is an act with a revision-log entry.'),
       el('li', null, 'Every figure is an ', el('b', null, 'analytical estimate — validation required'), '.')),
     el('h2', null, 'How many scenarios the assessment should carry'),
-    el('p', null, 'The guidance starts everyone at about 20 candidates and the 10 most material. How many to carry after that depends on how many an organization can keep current, which is what maturity measures — so the Process page and Batch scenarios take their suggested number from the measured level rather than repeating a generic 10. These are stated anchors, not a formula:'),
+    el('p', null, 'The guidance starts everyone at about 25 to 40 candidates (never fewer than 20) and the 10 most material. How many to carry after that depends on how many an organization can keep current, which is what maturity measures — so the Process page and Batch scenarios take their suggested number from the measured level rather than repeating a generic 10. These are stated anchors, not a formula:'),
     table([{ key: 'from', label: 'Measured maturity', render: r => '≥ ' + r[0] },
            { key: 'n', label: 'Scenarios', num: true, render: r => String(r[1]) },
            { key: 'why', label: 'Why', render: r => r[2] }],

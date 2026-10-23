@@ -134,7 +134,7 @@ async function refresh() {
 /* ---------------- contribute ---------------- */
 async function contribute(body, sec) {
   const ws = S.ws;
-  if (!RH.privileged()) { body.append(banner('bad', 'Privileged users only', 'Sharing risks with other organizations needs an administrator or the Accountable right (RACI “A”) on step 13 — Report, demonstrate compliance and share. You can still browse the registry.')); return; }
+  if (!RH.privileged()) { body.append(banner('bad', 'Privileged users only', 'Sharing risks with other organizations needs an administrator or the Accountable right (RACI “A”) on the Report step — management report, quality review and sharing. You can still browse the registry.')); return; }
   const redraw = () => { body.replaceChildren(); contribute(body, sec); };
   const base = (contrib.cat && contrib.cat._ws === ws.id) ? contrib.cat : (contrib.cat = { ...(await RH.catalogDefaults(ws)), _ws: ws.id });
   const scen = ws.assessment.SCEN;
@@ -222,7 +222,7 @@ async function mine(body, sec) {
 
 /* ---------------- moderation ---------------- */
 async function moderate(body, sec) {
-  if (!RH.privileged()) { body.append(banner('bad', 'Privileged users only', 'Moderation needs an administrator or the Accountable right (RACI “A”) on step 13.')); return; }
+  if (!RH.privileged()) { body.append(banner('bad', 'Privileged users only', 'Moderation needs an administrator or the Accountable right (RACI “A”) on the Report step.')); return; }
   const redraw = () => { body.replaceChildren(); moderate(body, sec); };
   const all = Object.values(RH.H.entries);
   const pending = all.filter(c => RH.modState(c) === 'pending');

@@ -6,9 +6,9 @@ MediBec is a fictional private medical centre (Montreal head office, 10 clinics)
 | Setting | Value |
 |---|---|
 | Horizon | 12 months |
-| Risk appetite | 0.30 (analyst estimate; the case states 0.40) |
+| Risk appetite | 0.30 (Analytical estimate — validation required; the case states 0.40) |
 | Factor | 1,000 |
-| CVSS | v4.0 |
+| CVSS | v4.0 Base (CVSS-B); S2 and S8 score the malicious e-mailed document as AV:L (opened locally, FIRST user guide) |
 | Classification band | ±10% around a ratio of 1.0 |
 
 ## Deliverables (`deliverables/`)
@@ -23,10 +23,10 @@ MediBec is a fictional private medical centre (Montreal head office, 10 clinics)
 
 **30 scenarios**
 - After treatment: 12 above tolerance, 11 approximately at, 7 below.
-- Total estimated risk 84,491 against residual 41,104, a 51% reduction.
+- Total estimated risk 84,305 against residual 41,023, a 51% reduction (S2 and S8 scored AV:L, CVSS-B 9.3 and 9.2).
 
 **Budget**
-- Current spend is about 0.9% of the IT budget, below the 4% floor.
+- Current spend is about 0.9% of the IT budget, below the lowest best-practice point target (4%).
 - The risk-driven budget is 5.1–5.5%, which implies an appetite of about 0.64.
 - The recommended ramp is 7% / 9.5% / 12%.
 
@@ -38,7 +38,7 @@ MediBec is a fictional private medical centre (Montreal head office, 10 clinics)
 ## Rebuild (`source/`)
 Run from `source/`; outputs go to `../output/`.
 ```
-python3 data.py && python3 data30.py && python3 budget.py     # data models + JSON
+python3 data.py && python3 data30.py && python3 budget.py     # data models + data.json, data30.json, medibec30.json, budget.json
 python3 build_xlsx.py; python3 build_xlsx30.py; python3 build_xlsx_budget.py; python3 build_sel.py
 node build_docx.js; node build_docx30.js; node build_docx30b.js
 ```
@@ -49,8 +49,8 @@ Before running:
 
 **Regression check:**
 ```
-python3 ../../../plugins/cyberriskguardian/skills/cyber-risk-assessment/scripts/crg_calc.py medibec30.json
+python3 ../../../plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/crg_calc.py medibec30.json
 ```
-It must print total estimated 84,491 and residual 41,104.
+It must print total estimated 84,305 and residual 41,023.
 
 The input case document is in `input/`. All scores are illustrative analyst estimates for teaching, not empirical benchmarks.

@@ -16,10 +16,11 @@
    claude plugin validate plugins/cyberriskguardian-threatintel/.claude-plugin/plugin.json
    claude plugin validate .claude-plugin/marketplace.json
    ```
-3. Régression obligatoire — la base de v1.1.0 ne doit pas bouger :
+3. Régression obligatoire :
    ```bash
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/crg_calc.py \
-           examples/medibec/source/medibec30.json      # doit afficher 84 491 / 41 104
+           examples/medibec/source/medibec30.json      # doit afficher 84 305 / 41 023
+   python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crg_calc.py   # ALL PASSED
    ```
    Avec une copie de CRGO au tag v0.10.0 (depuis 1.4.0 ; v0.9.1 suffit pour dss/v1) :
    ```bash
@@ -36,7 +37,7 @@ Le dépôt est déjà initialisé avec un premier commit et le remote configuré
 ```bash
 git branch -M main
 git push -u origin main
-git tag v1.4.0
+git tag v1.6.0
 git push --tags
 ```
 

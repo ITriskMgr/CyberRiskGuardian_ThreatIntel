@@ -154,7 +154,7 @@ self.CRG_METHODS = {
       short: 'CRG', body: 'Marc-André Léger', edition: 'Excel guide v1.0c §11', date: '',
       kind: 'Quantification model',
       role: 'Estimated, tolerated, mitigated and residual risk from Pb(A), Pb(ψ,A), CVSS Base, δe, δm, θ, μ(E), the risk appetite and a scale factor; interpretation through the residual-to-tolerance ratio.',
-      crg: 'The authoritative calculation for this application. Implemented in the verified crg.js engine, which reproduces the MediBec baseline 84,491 / 41,104 on every start-up.',
+      crg: 'The authoritative calculation for this application. Implemented in the verified crg.js engine, which reproduces the MediBec baseline 84,305 / 41,023 on every start-up.',
       claims: true,
       licence: 'CC BY-NC 4.0.',
       url: '',

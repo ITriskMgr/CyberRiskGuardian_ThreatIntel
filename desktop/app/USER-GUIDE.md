@@ -1,15 +1,15 @@
 # CyberRiskGuardian Desktop — User Guide
 
-**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.7.0 (beta) · Beta 1.7.x**
+**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.8.0 (beta) · Beta 1.8.x**
 
-> **Beta 1.7.x.** This application is a beta for teaching, exploration and method validation. Treat
+> **Beta 1.8.x.** This application is a beta for teaching, exploration and method validation. Treat
 > every result as an initial analytical hypothesis and validate it before it supports a real decision.
 
-© 2026 Marc-André Léger · CC BY-NC 4.0 — who may use it without asking, and whose situation needs a
-commercial licence: section 10 or **Help → About → Licence**.
+© 2026 Marc-André Léger · proprietary licence, free for students and non-profit organisations — who
+needs which licence: section 10 or **Help → About → Licence**.
 
 This guide covers installing the application, starting it, verifying that it can be trusted before
-you rely on any number it produces, the method it follows in thirteen steps, and every screen of the
+you rely on any number it produces, the method it follows in nineteen steps, and every screen of the
 side menu — from the organization's documents to compliance, audit, security operations and the shared
 Risk Registry. Every screen has a **?** button beside its title that opens a short help and links to its
 section here.
@@ -25,7 +25,7 @@ assessment from end to end and to keep it alive afterwards:
 | Menu | What you get |
 |---|---|
 | **Organization** | Workspaces for real organizations and classroom cases; context documents read on your computer; the profile, risk appetite and crown jewels extracted from the documents with a provenance tag on every value; documents added and extracted at any time; information assets; maturity and resilience; reset. |
-| **Risk assessment** | KRIs with history; existing safeguards; a scenario register, editor and batch builder (including scenario seeds from security operations); the verified risk calculator; the risk register; mitigation measures from ISO/IEC 27002, NIST and CIS; recommendations with an approval workflow. |
+| **Risk assessment** | The evidence register; KRIs with history; existing safeguards; a batch builder (including cloud patterns and scenario seeds from security operations) and **scenario screening** on the twelve criteria of the method; a scenario register and editor with CVSS v4.0 by equivalency for non-technical weaknesses; the verified risk calculator; the risk register; mitigation measures from ISO/IEC 27002:2022, NIST SP 800-53 and CSF 2.0 and CIS Controls v8.1; recommendations with an approval workflow; the **management summary**. |
 | **Threats & vulnerabilities** | MITRE ATT&CK, CAPEC and CWE offline; the CVE register with CISA KEV and FIRST EPSS; threat-context snapshots and the Threat Evidence Ladder; threat feeds triaged into a weekly briefing; and the **CyberRiskGuardian Ontology** (CRGO) — a library of risk scenarios linked to techniques, weaknesses, controls and Quebec Law 25 obligations, and the organisation, compliance and security-operations contexts. |
 | **Governance** | Information security management; **ISP management** (policy library, structured editor, versions frozen at approval, applicability, acknowledgements, non-compliance); cybersecurity management (control testing, governance, decisions, incidents); frameworks and standards; **shared registers** of evidence, corrective actions, exceptions and mappings; and a **quality review**. |
 | **Compliance management** | Sources and obligations, legal applicability, programmes and frameworks, qualified mappings, statements of applicability and requirements, campaigns and determinations backed by evidence, the regulatory calendar, submissions, regulatory change, AI-assisted assessment and reporting. |
@@ -53,6 +53,10 @@ feed, calculate, forecast or export. The exceptions all start with a click of yo
   is sent automatically, on a schedule or in the background, and no AI sits in the calculation path.
 - The **Risk Registry** and **Publish & share** write packages to a shared folder only when you share,
   anonymized by default.
+- The **update check**, only if you switch it on (asked once at first start) or click **Check now** in
+  Help → About → Versions: the helper asks the GitHub releases of the application for the latest version,
+  at one fixed address, sending nothing about you or your workspaces. A newer release is downloaded only
+  when you click **Download**, and never installed by the application.
 
 The **ontology** is read on your computer: through its own MCP server, started by the helper, or
 through the snapshot shipped with the application. Neither sends anything anywhere.
@@ -84,7 +88,7 @@ the folder and your browser's own storage.
 
 ### 3.1 Unpack
 
-Unzip `CyberRiskGuardian_Desktop_v1.7.0-beta.zip` anywhere you can write. Keep the folder intact: the
+Unzip `CyberRiskGuardian_Desktop_v1.8.0-beta.zip` anywhere you can write. Keep the folder intact: the
 application loads its own files by relative path.
 
 > `INSTALL.md` in the folder is the same instructions on one page, **in English and in French**,
@@ -96,7 +100,7 @@ workspaces are kept by the browser for the exact address you use, not in the fol
 finds them. Your API keys are not in the folder either; they are in `crg-keys.json` in the feeds
 folder, and `feeds-dir.txt` carries that path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
-`1.7.0 beta`.
+`1.8.0 beta`.
 
 ### 3.2 Start it
 
@@ -184,7 +188,7 @@ seconds. Section 7.4.5.
 The bottom of the left sidebar must read:
 
 ```
-engine verified · 84,491 / 41,104
+engine verified · 84,305 / 41,023
 ```
 
 On every start the app recomputes the bundled MediBec teaching case — 30 scenarios — and compares
@@ -193,7 +197,7 @@ agrees with the reference implementation.
 
 | Footer reads | Meaning | What to do |
 |---|---|---|
-| `engine verified · 84,491 / 41,104` | Correct. | Proceed. |
+| `engine verified · 84,305 / 41,023` | Correct. | Proceed. |
 | `engine loading…` and it stays there | Opened as a file instead of served. | Section 3.2. |
 | `engine missing` | `crg.js`, `cvss4.js` or `sample.js` did not load. | Re-unzip; keep the folder intact. |
 | `engine DIVERGES` + red banner | The engine disagrees with the reference. | **Do not rely on any number.** Restore a clean copy. |
@@ -241,18 +245,21 @@ added; nothing else in the application rewrites older data.
   banner on every screen, and nothing you change is saved over it. A backup file is refused when it was
   written by a newer application, and a newer workspace inside a backup is not restored.
 
-The current data version is **2**. The two steps are journalled in each workspace:
+The current data version is **3**. The three steps are journalled in each workspace:
 
 | Step | What it does |
 |---|---|
 | 0 → 1 | Fields created only when a screen first used them are present from the start; incidents imported from documents move to the incident register (Cybersecurity management → Incidents) and remain listed under Organization → Evidence; policy exceptions gain a scope, an approver and compensating controls; the governance, audit, cybersecurity-management, ISMS and ontology-link records are added, empty. |
 | 1 → 2 | The **shared registers** are created. **Evidence** records move, unchanged, to the shared evidence register (Governance → Shared registers → Evidence); **policy exceptions** move, unchanged, to the shared exception register, each linked to its policy. Policy statements receive a stable identifier, their modality left to be stated. Empty compliance-management, audit-management, SIEM and SOAR records are added. |
+| 2 → 3 | Only the current control catalogues remain (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1): every reference to ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 — in measures, statements of applicability, framework lists — is mapped to its correspondence, the old identifier kept in a note beside it; a reference with no correspondence (or whose new identifier already has a record) is kept and **flagged for review**, never dropped, and the Quality review lists it (QC-23). Outdated marker wordings take the standard markers. A MediBec teaching case still on the earlier AV:N vectors of S2 and S8 keeps them — a migration changes no number — and the Quality review (QC-26) says how to take AV:L: Reset data → Start over. Empty scenario-screening and management-summary records are added (the teaching case receives its screening). |
 
 ---
 
-## 6. The method in thirteen steps
+## 6. The method in nineteen steps
 
-**Process**, the first item of the menu, lists the thirteen steps of a complete assessment with their
+**Process**, the first item of the menu, lists the nineteen numbered steps of a complete assessment —
+the steps of chapter 6 of *Introduction to Cybersecurity Governance for Business Technology Management*,
+in seven groups — followed by the management report and the quality review, with their
 status in the current workspace (*to do*, *in progress*, *done*), recommends the next one and opens the
 right screen in one click. Each step says what it is for, what it needs and when it is done; a step with
 several requirements lists each one with its own state and the screen that fixes it; *Tips* expand under
@@ -261,44 +268,56 @@ happens. In multi-user mode each step also shows who is Responsible and Accounta
 
 | # | Step | Done when | Screens |
 |---|---|---|---|
-| 1 | Set up the workspace | The workspace has an organization name and at least one context document. | Workspaces, Context documents |
-| 2 | Describe the context and risk appetite | At least 8 of the 12 context fields are filled, the appetite has a rationale and the IT budget is entered. | Profile & appetite, Existing safeguards, Maturity & resilience |
-| 3 | Identify crown jewels and information assets | At least 3 crown jewels or 5 information assets, with owners and classification. | Crown jewels, Information assets |
-| 4 | Import other information from the documents | Every target ticked in the import plan has been reviewed at least once. | Import from documents, Context documents |
-| 5 | Gather threats and vulnerabilities | A threat-context snapshot is loaded and the vulnerability register holds the organization’s exposed CVEs. | Threats · ATT&CK, Vulnerabilities · CVE/CWE, Threat feeds & social, Threat context |
-| 6 | Develop risk scenarios | At least 10 scenarios in the register (20 candidates, the 10 most material kept). | Batch scenarios, Scenario register, Scenario editor, Suggest vulnerability links |
-| 7 | Quantify each scenario | 80% of the parameters of the included scenarios carry a rationale. | Scenario editor, CVSS v4.0, Forecasts |
-| 8 | Evaluate against tolerance | The included scenarios compute without error and each has a management decision recorded. | Risk calculator, KRI dashboard, Risk register |
-| 9 | Select mitigation measures | Every scenario above tolerance is covered by at least one measure. | Risk mitigation |
-| 10 | Recommend and approve | At least one recommendation is approved and every risk has a treatment decision. | Recommendations, Risk register |
-| 11 | Align the budget | The budget year is filled and the initiatives are allocated. | Budget |
-| 12 | Monitor with KRIs | At least one measurement is recorded. | KRI dashboard, Forecasts |
-| 13 | Report, demonstrate compliance and share | A compliance framework is assessed, and a security policy is published or risks have been shared. | Export · Excel, Compliance management, ISP management, Frameworks & standards, Risk Registry, Publish & share |
+| 1 | Build the evidence register | The workspace has an organization name, at least one context document and at least one entry in the evidence register. | Evidence register, Context documents, Import from documents, Workspaces |
+| 2 | Describe the context and identify the crown jewels | At least 8 of the 12 context fields are filled, and there are at least 3 crown jewels or 5 information assets. | Profile & appetite, Crown jewels, Information assets, Existing safeguards, Maturity & resilience |
+| 3 | Define the scope, the horizon and the threat context | The assessment period is stated, a threat-context snapshot is loaded and the vulnerability register holds at least one entry. | Profile & appetite, Threat context, Vulnerabilities · CVE/CWE, Threats · ATT&CK, Threat feeds & social |
+| 4 | Set the risk appetite and the materiality criteria | The appetite is strictly between 0 and 1 with a rationale, the IT budget is entered and the materiality criteria are written. | Profile & appetite, Budget |
+| 5 | Generate candidate scenarios | At least 20 candidates (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). | Batch scenarios, Scenario screening, Ontology · CRGO |
+| 6 | Screen the candidates | Every candidate has its twelve scores and a disposition. | Scenario screening |
+| 7 | Select the most material scenarios | At least one family is selected, every judgment-based selection has its rationale, and every flagged exclusion is reviewed. | Families, Weighting schemes, Coverage matrix, Final portfolio |
+| 8 | Develop each selected scenario as a causal chain | At least 10 scenarios in the register, and every included scenario names its threat source, vulnerabilities and affected assets. | Scenario register, Scenario editor, Suggest vulnerability links |
+| 9 | Estimate the six parameters | 80% of the parameters of the included scenarios carry a rationale. | Scenario editor, Forecasts |
+| 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score, and every score by equivalency has all its justifications. | CVSS v4.0, Scenario editor |
+| 11 | Calculate estimated and tolerated risk | The included scenarios compute without error. | Risk calculator, Scenario register |
+| 12 | Design mitigation measures | Every scenario above tolerance is covered by at least one measure. | Risk mitigation |
+| 13 | Identify shared controls | Every initiative addresses at least one scenario, so its cost is allocated without double-counting. | Shared controls, Risk mitigation |
+| 14 | Recalculate mitigated and residual risk | Every included scenario above tolerance before treatment carries probability and impact reductions. | Risk calculator, Scenario register |
+| 15 | Run the sensitivity analysis | At least one scenario’s sensitivity is recorded as reviewed. | Risk calculator, Forecasts |
+| 16 | Prioritize scenarios and treatments | Every included scenario has a management decision recorded. | Risk register, Recommendations |
+| 17 | Assemble the investment portfolio | At least one recommendation is approved. | Recommendations, Risk register |
+| 18 | Calibrate the cybersecurity budget | The budget year is filled and the initiatives are allocated. | Budget |
+| 19 | Define key risk indicators | At least one KRI is fully defined and at least one measurement is recorded. | KRI dashboard, Forecasts |
+| Report | Management report, quality review and sharing | The management summary has been exported and the quality review shows no failed check. | Management summary, Quality review, Export · Excel, Compliance management, ISP management, Risk Registry, Publish & share |
+
+The steps keep their identifiers in the RACI matrix of multi-user mode: a step added to an earlier numbering inherits the rights its users had on the step it came from.
 
 **Guidelines that make the assessment simpler** — each is detailed in the next section, with the screens, the steps and when it is done; the same text is on the Process page (open a guideline), in the Step by step window and in the printable checklist.
 
 1. **Start from the documents.** Create the workspace with all the case documents and let “Extract from documents” propose the profile and the crown jewels. Accept, edit or reject each value, then Save.
 2. **Resolve the UNKNOWN values first.** Extracted values are tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN. UNKNOWN items are the information still to collect; ASSUMPTION and EXTERNAL values need validation by the organization.
-3. **Generate 20, keep 10.** In Batch scenarios generate about 20 candidates (rules or AI), review them in the grid, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
-4. **Look in the ontology before writing from scratch.** The CyberRiskGuardian Ontology holds scenarios already linked to ATT&CK, weaknesses, controls and Quebec Law 25 obligations. Ask it for the scenarios that fit the organization, keep the relevant ones, and write the rest yourself.
-5. **Write causal chains, not threat names.** Threat source → weakness → asset → event → consequence. “Ransomware” alone is not a scenario. AI can draft the chain; you accept it field by field.
-6. **Record what already protects you, then measure the resilience it adds up to.** An assessment with no record of existing controls has to guess at θ. Inventory what is in force, score it against the six capabilities θ is defined as, and let the two instruments disagree in the open.
-7. **Be honest about confidence.** Give every parameter a rationale and a confidence level; Forecasts turns low confidence into wider ranges.
-8. **Let the engine calculate.** Residual risk and the ratio come from the verified engine; AI and feeds propose, they never change a score.
-9. **Treat what is above tolerance first.** Use Risk mitigation → Proposals on the scenarios above tolerance; shared measures are counted once.
-10. **Get approvals from the accountable person.** Recommendations and risk acceptances are approved by the person who is Accountable (RACI “A”).
-11. **Keep a baseline and a budget.** Enter the IT budget, the current cybersecurity spend and the baseline (run) cost; the Budget screen shows where each option lands.
-12. **Record KRIs at every review.** Four readings are enough for the KRI projection to say whether a threshold will be crossed.
-13. **Anonymize what leaves.** The Risk Registry and Publish & share anonymize by default; a classroom case is labelled fictional automatically.
-14. **Learn from organizations like yours, and give back.** The Risk Registry gathers risk cards contributed by other organizations, catalogued by sector, region, size, regulation, theme, asset category and technique. Read it before you finish your scenarios; contribute your own, anonymized.
-15. **Keep the policies alive.** A policy that is never reviewed stops describing what the organization does. Write the policies from the templates, have them approved, publish them, review them on schedule, and record every departure from them.
-16. **Assess compliance with evidence.** A compliance status is a claim; the evidence is what makes it true. Record the requirements that apply, let rules or AI propose a status from the evidence, accept what you can stand behind, and report.
-17. **Know which laws apply — and say what is not known.** Describe the organization in the ontology’s terms and let CRGO’s evaluator say which instruments apply. "Potentially applicable" needs a qualified person; "unknown" means a fact is missing — an evidence gap, never "not applicable". None of it is legal advice.
-18. **Test controls independently, and keep conflicts in view.** A control is as good as the evidence that it works. Record tests by line of defence and aspect; when an independent result contradicts management’s self-assessment, both stay visible until a person resolves it.
-19. **Audit against criteria and follow up independently.** An audit finding states the criterion, the condition, the cause and the effect, with evidence. It closes only after an independent follow-up has verified the corrective action.
-20. **Decide under authority, and keep exceptions honest.** Accepting a risk, funding a treatment or granting a policy exception is a management decision, made by a named person under a delegation valid on that date. The application drafts; people decide. An exception never waives a law and stops mitigating when it expires.
-21. **Read the ontology’s context, write back proposals only.** Through the dss/v1 contract the ontology returns the organisation’s context for a scenario — obligations, applicability, control evidence by line, open findings — and records this application’s results as proposals. It never computes a risk, and a write-back is never an approval.
-22. **Run the quality review before anything leaves.** Before a report or a write-back, check that nothing is called approved, compliant or likely without a person, evidence or the right kind of data behind it.
+3. **Number every source in the evidence register.** Every organizational fact cites an E-number; anything that cannot be cited is labelled as an assumption. Exercise material is indicative evidence to validate, never a confirmed incident.
+4. **Screen on twelve criteria, then consolidate.** Score every candidate 1 to 5 on the twelve criteria with a one-line rationale. The total out of 60 is a screening aid; escalation flags keep severe but improbable scenarios in view, and families stop one technique from dominating.
+5. **Generate 25 to 40, screen, keep 10.** In Batch scenarios generate about 25 to 40 candidates (never fewer than 20; 20 is the quick lab version), screen them in Scenario screening, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
+6. **Look in the ontology before writing from scratch.** The CyberRiskGuardian Ontology holds scenarios already linked to ATT&CK, weaknesses, controls and Quebec Law 25 obligations. Ask it for the scenarios that fit the organization, keep the relevant ones, and write the rest yourself.
+7. **Write causal chains, not threat names.** Threat source → weakness → asset → event → consequence. “Ransomware” alone is not a scenario. AI can draft the chain; you accept it field by field.
+8. **Record what already protects you, then measure the resilience it adds up to.** An assessment with no record of existing controls has to guess at θ. Inventory what is in force, score it against the six capabilities θ is defined as, and let the two instruments disagree in the open.
+9. **Be honest about confidence.** Give every parameter a rationale and a confidence level; Forecasts turns low confidence into wider ranges.
+10. **Let the engine calculate.** Residual risk and the ratio come from the verified engine; AI and feeds propose, they never change a score.
+11. **Treat what is above tolerance first.** Use Risk mitigation → Proposals on the scenarios above tolerance; shared measures are counted once.
+12. **Get approvals from the accountable person.** Recommendations and risk acceptances are approved by the person who is Accountable (RACI “A”).
+13. **Keep a baseline and a budget.** Enter the IT budget, the current cybersecurity spend and the baseline (run) cost; the Budget screen shows where each option lands.
+14. **Record KRIs at every review.** Four readings are enough for the KRI projection to say whether a threshold will be crossed.
+15. **Anonymize what leaves.** The Risk Registry and Publish & share anonymize by default; a classroom case is labelled fictional automatically.
+16. **Learn from organizations like yours, and give back.** The Risk Registry gathers risk cards contributed by other organizations, catalogued by sector, region, size, regulation, theme, asset category and technique. Read it before you finish your scenarios; contribute your own, anonymized.
+17. **Keep the policies alive.** A policy that is never reviewed stops describing what the organization does. Write the policies from the templates, have them approved, publish them, review them on schedule, and record every departure from them.
+18. **Assess compliance with evidence.** A compliance status is a claim; the evidence is what makes it true. Record the requirements that apply, let rules or AI propose a status from the evidence, accept what you can stand behind, and report.
+19. **Know which laws apply — and say what is not known.** Describe the organization in the ontology’s terms and let CRGO’s evaluator say which instruments apply. "Potentially applicable" needs a qualified person; "unknown" means a fact is missing — an evidence gap, never "not applicable". None of it is legal advice.
+20. **Test controls independently, and keep conflicts in view.** A control is as good as the evidence that it works. Record tests by line of defence and aspect; when an independent result contradicts management’s self-assessment, both stay visible until a person resolves it.
+21. **Audit against criteria and follow up independently.** An audit finding states the criterion, the condition, the cause and the effect, with evidence. It closes only after an independent follow-up has verified the corrective action.
+22. **Decide under authority, and keep exceptions honest.** Accepting a risk, funding a treatment or granting a policy exception is a management decision, made by a named person under a delegation valid on that date. The application drafts; people decide. An exception never waives a law and stops mitigating when it expires.
+23. **Read the ontology’s context, write back proposals only.** Through the dss/v1 contract the ontology returns the organisation’s context for a scenario — obligations, applicability, control evidence by line, open findings — and records this application’s results as proposals. It never computes a risk, and a write-back is never an approval.
+24. **Lead the report with the decisions.** The management summary obtains decisions: it says what management must decide, how many scenarios are above, approximately at and below tolerance before and after treatment, what the portfolio costs against the budget, and what remains uncertain.
+25. **Run the quality review before anything leaves.** Before a report or a write-back, check that nothing is called approved, compliant or likely without a person, evidence or the right kind of data behind it.
 
 ### Guidelines in detail — a complete assessment, simply
 
@@ -317,10 +336,10 @@ Create the workspace with all the case documents and let “Extract from documen
 5. In the review, edit any value, tick those to keep and click “Put ticked values in the form”; check the fields and click “Save”.
 6. Review the crown jewels and click “Add ticked crown jewels”.
 7. In the preview, edit the payload if needed — remove what should not leave, add context — and choose the creativity of the answer: “Strict” keeps to documented facts, “Creative” also proposes what an organization like this usually has, tagged ASSUMPTION for you to check.
-8. Then open Organization → “Import from documents” (Process step 4): tick the targets (information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, parameter evidence, risks, budget, KRIs, people and roles, classroom), click “Start the import”, and for each target tick and click “Add ticked”.
+8. Then open Organization → “Import from documents” (Process step 1): tick the targets (information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, parameter evidence, risks, budget, KRIs, people and roles, classroom), click “Start the import”, and for each target tick and click “Add ticked”.
 9. New documents later: drop them on “Import from documents”. They are selected on their own, so only they are read; tick what to extract and click “Start the import”. Existing values are kept unless you tick the proposal that replaces them.
 
-*Done when:* Process steps 1 to 4 show Done: a name and at least one document; at least 8 of the 12 context fields, an appetite rationale and the IT budget; the crown jewels; every target of the import plan reviewed.
+*Done when:* Process steps 1, 2 and 4 show Done: a name, at least one document and the evidence register; at least 8 of the 12 context fields and the crown jewels; the appetite with its rationale, the IT budget and the materiality criteria.
 
 #### 2. Resolve the UNKNOWN values first
 
@@ -335,21 +354,47 @@ Extracted values are tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN. UN
 
 *Done when:* No UNKNOWN tag left on the fields the assessment relies on.
 
-#### 3. Generate 20, keep 10
+#### 3. Number every source in the evidence register
 
-In Batch scenarios generate about 20 candidates (rules or AI), review them in the grid, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
+Every organizational fact cites an E-number; anything that cannot be cited is labelled as an assumption. Exercise material is indicative evidence to validate, never a confirmed incident.
+
+*Where:* Risk assessment → Evidence register
+
+1. Evidence register → “Add evidence”: the title, the type (documented, exercise or simulation, SME input, external), what it supports and its strength.
+2. “Add the context documents” proposes one entry per document of the workspace; edit each before keeping it.
+3. Cite the E-numbers in the Evidence column of each parameter in the Scenario editor; the register shows where each entry is cited.
+
+*Done when:* Process step 1 shows Done, and every parameter rationale cites an E-number or is labelled an assumption.
+
+#### 4. Screen on twelve criteria, then consolidate
+
+Score every candidate 1 to 5 on the twelve criteria with a one-line rationale. The total out of 60 is a screening aid; escalation flags keep severe but improbable scenarios in view, and families stop one technique from dominating.
+
+*Where:* Risk assessment → Scenario screening
+
+1. “Candidates & scores”: for each candidate give the twelve scores, the rationale, the escalation flags, the selection confidence and a disposition (Select, Consolidate, Consider, Defer).
+2. “Families”: group the variants of the same exposure, name each family with its stronger causal statement and tick the families selected for the portfolio.
+3. “Weighting schemes”: read the ranks under equal, impact-led, evidence-led and decision-led weights; write why each family “selected by judgment” is kept, and review each candidate flagged for “explicit review”.
+4. “Coverage matrix” and “Watch list & plan”: check for blind spots, give each watched candidate its promotion trigger, and plan how each selected scenario will be validated, by whom and by when.
+5. “Final portfolio”: answer the six “why this scenario?” questions, then “Create the scenario” in the register for each selected family not yet linked.
+
+*Done when:* Process steps 6 and 7 show Done: every candidate is scored and has a disposition, and every judgment and flagged exclusion is explained.
+
+#### 5. Generate 25 to 40, screen, keep 10
+
+In Batch scenarios generate about 25 to 40 candidates (never fewer than 20; 20 is the quick lab version), screen them in Scenario screening, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
 
 *Where:* Batch scenarios
 
-1. Rules: on “Threat patterns × assets” tick the patterns, then “Tick crown jewels + 5 most critical”, choose the threat sources, set “Number of candidates” to 20 and click “Generate candidates”. Keep “Vary the patterns and assets” ticked so the candidates spread across the grid instead of repeating one threat; “Reshuffle” draws a different set and the seed reproduces it.
+1. Rules: on “Threat patterns × assets” tick the patterns, then “Tick crown jewels + 5 most critical”, choose the threat sources, set “Number of candidates” to 30 and click “Generate candidates”. Keep “Vary the patterns and assets” ticked so the candidates spread across the grid instead of repeating one threat; “Reshuffle” draws a different set and the seed reproduces it.
 2. AI: on “Propose with AI” set the number, add a direction if useful, keep “Include the text of the context documents” ticked and click “Propose candidates” (preview first).
 3. Also available: “From MITRE ATT&CK”, “From CVE”, “From CWE”, and the candidate scenarios imported from the documents (marked [Docs]).
 4. In the grid, edit names, statements and parameters, tick the 10 most material and click “Add … selected to the register”. Ten is the recommended starting number, not a ceiling: carry more as the organization’s cybersecurity maturity grows and it can keep more scenarios current — Maturity & resilience suggests a number from the level you measured, and says why.
 5. In the Scenario register, the checkboxes include or exclude scenarios from the totals.
 
-*Done when:* Process step 6 shows Done: at least 10 scenarios in the register.
+*Done when:* Process steps 5 and 8 show Done: at least 20 candidates, and at least 10 scenarios in the register as complete causal chains.
 
-#### 4. Look in the ontology before writing from scratch
+#### 6. Look in the ontology before writing from scratch
 
 The CyberRiskGuardian Ontology holds scenarios already linked to ATT&CK, weaknesses, controls and Quebec Law 25 obligations. Ask it for the scenarios that fit the organization, keep the relevant ones, and write the rest yourself.
 
@@ -363,7 +408,7 @@ The CyberRiskGuardian Ontology holds scenarios already linked to ATT&CK, weaknes
 
 *Done when:* The register covers the ontology’s relevant themes, and the scenarios taken from it are re-estimated for this organization.
 
-#### 5. Write causal chains, not threat names
+#### 7. Write causal chains, not threat names
 
 Threat source → weakness → asset → event → consequence. “Ransomware” alone is not a scenario. AI can draft the chain; you accept it field by field.
 
@@ -377,7 +422,7 @@ Threat source → weakness → asset → event → consequence. “Ransomware”
 
 *Done when:* Every scenario in the register reads as a complete causal chain.
 
-#### 6. Record what already protects you, then measure the resilience it adds up to
+#### 8. Record what already protects you, then measure the resilience it adds up to
 
 An assessment with no record of existing controls has to guess at θ. Inventory what is in force, score it against the six capabilities θ is defined as, and let the two instruments disagree in the open.
 
@@ -395,7 +440,7 @@ An assessment with no record of existing controls has to guess at θ. Inventory 
 
 *Done when:* The inventory covers what is in force, and a θ on each material scenario comes from the assessment rather than from memory.
 
-#### 7. Be honest about confidence
+#### 9. Be honest about confidence
 
 Give every parameter a rationale and a confidence level; Forecasts turns low confidence into wider ranges.
 
@@ -405,21 +450,21 @@ Give every parameter a rationale and a confidence level; Forecasts turns low con
 2. Forecasts → “Parameter ranges” → “Propose ranges where none are set” (Low ±0.15, Medium ±0.10, High ±0.05), then “Monte Carlo” → “Run forecast”.
 3. Optional: AI assistant → “Parameter critique” points out confidence the evidence does not support.
 
-*Done when:* Process step 7 shows Done: 80% of the parameters of the included scenarios carry a rationale.
+*Done when:* Process step 9 shows Done: 80% of the parameters of the included scenarios carry a rationale.
 
-#### 8. Let the engine calculate
+#### 10. Let the engine calculate
 
 Residual risk and the ratio come from the verified engine; AI and feeds propose, they never change a score.
 
 *Where:* Risk calculator; footer
 
-1. Check the footer reads “engine verified · 84,491 / 41,104” at every start.
+1. Check the footer reads “engine verified · 84,305 / 41,023” at every start.
 2. Read estimated, tolerated, mitigated and residual risk, the ratio and its band in the Risk calculator.
 3. Only accepted proposals change a value; Threat context → “Proposed Pb(ψ,A) changes” is the only path from threat intelligence to a score, for exposed CVEs only.
 
 *Done when:* The figures you report come from the Risk calculator.
 
-#### 9. Treat what is above tolerance first
+#### 11. Treat what is above tolerance first
 
 Use Risk mitigation → Proposals on the scenarios above tolerance; shared measures are counted once.
 
@@ -430,9 +475,9 @@ Use Risk mitigation → Proposals on the scenarios above tolerance; shared measu
 3. “Mitigation plan”: set cost and likelihood / impact reductions; tick the measures to implement and click “→ New draft recommendation”.
 4. A measure covering several scenarios is costed once — see Recommendations → “Shared controls”.
 
-*Done when:* Process step 9 shows Done: every scenario above tolerance has at least one measure.
+*Done when:* Process step 12 shows Done: every scenario above tolerance has at least one measure.
 
-#### 10. Get approvals from the accountable person
+#### 12. Get approvals from the accountable person
 
 Recommendations and risk acceptances are approved by the person who is Accountable (RACI “A”).
 
@@ -440,11 +485,11 @@ Recommendations and risk acceptances are approved by the person who is Accountab
 
 1. Recommendations → “Recommendations”: move the draft through Draft → In review → Approved, with the approver and a note; approval freezes the figures.
 2. Risk register → the risk → “Formal acceptance” (“Accepted by”, “Rationale, conditions, approval reference”).
-3. In multi-user mode (Settings → “Users & RACI”) only A on step 10, or an administrator, approves and accepts; approving a measure needs A on step 9. “Menu access by group and user account” can further restrict or open screens. “Switch user” is in the top bar.
+3. In multi-user mode (Settings → “Users & RACI”) only A on step 17, or an administrator, approves and accepts; approving a measure needs A on step 12. “Menu access by group and user account” can further restrict or open screens. “Switch user” is in the top bar.
 
-*Done when:* Process step 10 shows Done: at least one recommendation approved and every risk has a treatment decision.
+*Done when:* Process steps 16 and 17 show Done: every included scenario has a management decision and at least one recommendation is approved.
 
-#### 11. Keep a baseline and a budget
+#### 13. Keep a baseline and a budget
 
 Enter the IT budget, the current cybersecurity spend and the baseline (run) cost; the Budget screen shows where each option lands.
 
@@ -452,11 +497,11 @@ Enter the IT budget, the current cybersecurity spend and the baseline (run) cost
 
 1. Enter “Total IT budget (incl. salaries)”, “Cybersecurity budget (current spend)” and “Baseline (run) security cost”, then “Save”.
 2. Budget: fill the budget year and allocate the initiatives over up to three years; projects imported from the documents are already listed as initiatives.
-3. The band chart places each funding option between risk-averse (4% of IT), neutral (7.8%) and risk-seeking (12%).
+3. The band chart places each funding option against the appetite-consistent target — best practice: 12% of IT at appetite 0.30, 7.8% at 0.50, 4% at 0.70, interpolated in between.
 
-*Done when:* Process step 11 shows Done: the budget year is filled and the initiatives are allocated.
+*Done when:* Process step 18 shows Done: the budget year is filled and the initiatives are allocated.
 
-#### 12. Record KRIs at every review
+#### 14. Record KRIs at every review
 
 Four readings are enough for the KRI projection to say whether a threshold will be crossed.
 
@@ -465,9 +510,9 @@ Four readings are enough for the KRI projection to say whether a threshold will 
 1. KRI dashboard: “Record a measurement”, or “Record computed + entered values” to capture everything at once. Metrics imported from the documents are the first reading.
 2. Forecasts → “KRI projections”: from 4 readings, the trend with a 95% band and whether a threshold will be crossed.
 
-*Done when:* Process step 12 shows Done: at least one measurement recorded.
+*Done when:* Process step 19 shows Done: at least one KRI fully defined and at least one measurement recorded.
 
-#### 13. Anonymize what leaves
+#### 15. Anonymize what leaves
 
 The Risk Registry and Publish & share anonymize by default; a classroom case is labelled fictional automatically.
 
@@ -480,7 +525,7 @@ The Risk Registry and Publish & share anonymize by default; a classroom case is 
 
 *Done when:* Nothing identifying leaves the computer without a decision.
 
-#### 14. Learn from organizations like yours, and give back
+#### 16. Learn from organizations like yours, and give back
 
 The Risk Registry gathers risk cards contributed by other organizations, catalogued by sector, region, size, regulation, theme, asset category and technique. Read it before you finish your scenarios; contribute your own, anonymized.
 
@@ -489,26 +534,26 @@ The Risk Registry gathers risk cards contributed by other organizations, catalog
 1. Risk Registry → “Registry settings”: set the shared registry folder (a folder synced with Drive, OneDrive or SharePoint) and a contributor alias, then “Save”.
 2. “Browse & search” → “Read the shared folder”, then “Organizations like mine” to filter on your sector and country; tick “Moderated cards only” for the curated catalogue.
 3. Tick the cards that apply and click “Use ticked cards in this workspace”: they go to Batch scenarios, where every value is re-estimated for this organization.
-4. To contribute (administrator, or RACI “A” on step 13): “Contribute risks” → tick scenarios, check the catalogue, keep “Anonymize before sharing (on by default)” ticked, read the preview and click “Share to the registry”.
+4. To contribute (administrator, or RACI “A” on the Report step): “Contribute risks” → tick scenarios, check the catalogue, keep “Anonymize before sharing (on by default)” ticked, read the preview and click “Share to the registry”.
 5. A moderator approves or rejects new cards under “Moderation” and publishes the curated package.
 
 *Done when:* The scenarios reflect what peers have seen, and what you share leaves anonymized.
 
-#### 15. Keep the policies alive
+#### 17. Keep the policies alive
 
 A policy that is never reviewed stops describing what the organization does. Write the policies from the templates, have them approved, publish them, review them on schedule, and record every departure from them.
 
 *Where:* ISP management → Policy library; Policy editor; Versions & approvals; Non-compliance
 
 1. ISP management → Policy library → “Create from the template” (or “Draft it with AI…”, or “Create the whole policy set as drafts”).
-2. Policy editor: adapt the statements and their controls, name the owner and the approver, then “Submit for review”, “Approve” (RACI “A” on step 13 or an administrator) and “Publish”.
+2. Policy editor: adapt the statements and their controls, name the owner and the approver, then “Submit for review”, “Approve” (RACI “A” on the Report step or an administrator) and “Publish”.
 3. A published policy is frozen: “Start a new version” opens a draft and keeps the published text in the history.
 4. Non-compliance → “Record”: every departure found by an audit, an incident or monitoring, with its severity, owner, corrective action and due date; an accepted departure becomes an exception with an expiry date and the name of whoever accepts the risk. “Make it a risk” adds it to the risk register.
 5. “Versions & approvals” lists what waits for approval and what is due for review.
 
 *Done when:* Every policy in force is published, within its review date, and every open departure has an owner and a date.
 
-#### 16. Assess compliance with evidence
+#### 18. Assess compliance with evidence
 
 A compliance status is a claim; the evidence is what makes it true. Record the requirements that apply, let rules or AI propose a status from the evidence, accept what you can stand behind, and report.
 
@@ -521,7 +566,7 @@ A compliance status is a claim; the evidence is what makes it true. Record the r
 
 *Done when:* Every applicable requirement has a status and the evidence behind it, and the report is filed.
 
-#### 17. Know which laws apply — and say what is not known
+#### 19. Know which laws apply — and say what is not known
 
 Describe the organization in the ontology’s terms and let CRGO’s evaluator say which instruments apply. "Potentially applicable" needs a qualified person; "unknown" means a fact is missing — an evidence gap, never "not applicable". None of it is legal advice.
 
@@ -533,7 +578,7 @@ Describe the organization in the ontology’s terms and let CRGO’s evaluator s
 
 *Done when:* Every instrument is applicable, not applicable, or flagged for qualified review or as an evidence gap, and every provision the scenarios touch has a determination.
 
-#### 18. Test controls independently, and keep conflicts in view
+#### 20. Test controls independently, and keep conflicts in view
 
 A control is as good as the evidence that it works. Record tests by line of defence and aspect; when an independent result contradicts management’s self-assessment, both stay visible until a person resolves it.
 
@@ -545,7 +590,7 @@ A control is as good as the evidence that it works. Record tests by line of defe
 
 *Done when:* The controls the scenarios count on have been tested by an independent line, and no conflict is left unresolved.
 
-#### 19. Audit against criteria and follow up independently
+#### 21. Audit against criteria and follow up independently
 
 An audit finding states the criterion, the condition, the cause and the effect, with evidence. It closes only after an independent follow-up has verified the corrective action.
 
@@ -558,7 +603,7 @@ An audit finding states the criterion, the condition, the cause and the effect, 
 
 *Done when:* Every finding has an owner, a due date and a response, and closed findings were verified independently.
 
-#### 20. Decide under authority, and keep exceptions honest
+#### 22. Decide under authority, and keep exceptions honest
 
 Accepting a risk, funding a treatment or granting a policy exception is a management decision, made by a named person under a delegation valid on that date. The application drafts; people decide. An exception never waives a law and stops mitigating when it expires.
 
@@ -570,7 +615,7 @@ Accepting a risk, funding a treatment or granting a policy exception is a manage
 
 *Done when:* Every risk above tolerance has a decision record made by a person with valid authority, and no scenario counts on an expired exception.
 
-#### 21. Read the ontology’s context, write back proposals only
+#### 23. Read the ontology’s context, write back proposals only
 
 Through the dss/v1 contract the ontology returns the organisation’s context for a scenario — obligations, applicability, control evidence by line, open findings — and records this application’s results as proposals. It never computes a risk, and a write-back is never an approval.
 
@@ -582,7 +627,19 @@ Through the dss/v1 contract the ontology returns the organisation’s context fo
 
 *Done when:* The results the organisation wants recorded are in its proposed graph, with model version, inputs and input hash.
 
-#### 22. Run the quality review before anything leaves
+#### 24. Lead the report with the decisions
+
+The management summary obtains decisions: it says what management must decide, how many scenarios are above, approximately at and below tolerance before and after treatment, what the portfolio costs against the budget, and what remains uncertain.
+
+*Where:* Report → Management summary
+
+1. Management summary: write each decision requested on its own line, the key limitations and the next steps.
+2. Read the portfolio table and the residual against tolerance; every figure comes from the verified engine.
+3. “Export the summary (.md)” or “Printable summary”: attach the workbook (Export · Excel) — the summary agrees with it to the unit.
+
+*Done when:* The summary is exported and the quality review shows no failed check.
+
+#### 25. Run the quality review before anything leaves
 
 Before a report or a write-back, check that nothing is called approved, compliant or likely without a person, evidence or the right kind of data behind it.
 
@@ -619,7 +676,7 @@ section of the user guide**, which opens this guide at the matching section in i
 
 ### 7.1 Start — Process {#process}
 
-Section 6. The step cards with their status in the workspace, the next recommended step, the guidelines
+Section 6. The nineteen steps are grouped as in the book — evidence, context and scope; appetite and materiality; scenarios; quantification; treatment; robustness, priorities and money; monitoring and reporting — and the badge in the menu shows the next step (for example *5/19*). The step cards with their status in the workspace, the next recommended step, the guidelines
 in detail and the printable checklist. The banner at the top recalls that the application is a beta and
 that every result is an analytical hypothesis to validate.
 
@@ -714,8 +771,8 @@ nothing is added until you click, and CVEs found this way enter the vulnerabilit
 
 #### Import from documents — at any time
 
-**Organization → Import from documents** is where the documents become an assessment, and it is Process
-step 4. It works the same whether the workspace was created a minute ago or the assessment is months
+**Organization → Import from documents** is where the documents become an assessment, and it is part of Process
+step 1. It works the same whether the workspace was created a minute ago or the assessment is months
 old: new information arrives — an audit report, a supplier list, a new incident — and you extract from
 it without retyping and without disturbing what is already there.
 
@@ -748,8 +805,8 @@ AI requests take:
 | People and roles | Organization → Evidence; *Create user* in multi-user mode | yes | proposed owners, starting RACI |
 | Classroom setting | the Classroom tab | yes | |
 
-The targets ticked here are the **import plan** of Process step 4: the step is done when every target
-of the plan has been reviewed at least once. Choose the **Method** — AI (preview before sending) or
+The targets ticked here are the **import plan**, listed as optional parts of Process step 1, each ticked
+once it has been reviewed. Choose the **Method** — AI (preview before sending) or
 Rules only, no AI, offline (where a rule exists) — and click **Start the import**. The profile opens
 first, then the crown jewels, then each target in turn; each opens its review: edit, tick, **Add
 ticked**. If the profile values you accepted are not saved yet when the run moves on, the application
@@ -922,14 +979,42 @@ Every reset is recorded in the workspace and survives even the deepest level.
 
 ### 7.3 Risk assessment
 
-The assessment itself: indicators, what already protects the organization, the scenarios, the calculation, the risks, the treatment and the recommendations.
+The assessment itself: the evidence, indicators, what already protects the organization, the candidates and their screening, the scenarios, the calculation, the risks, the treatment, the recommendations and the management summary.
 
-### 7.3.1 KRI dashboard {#dashboard}
+### 7.3.1 Evidence register {#evidence}
+
+The sources the assessment relies on — Process step 1. Every row has an identifier (**E1**, **E2**…), the
+source, its **type** — *documented* (policies, architecture diagrams, audit reports, contracts), *exercise or
+simulation* (tabletop injects, sample logs), *SME input* or *external* (threat reports, sector statistics) —
+what it supports, its **strength** (strong, moderate, weak), its **classification** (verified organizational
+evidence, external or sector evidence, expert judgment, assumption, unknown — requires validation), a date
+and a custodian.
+
+- **Add evidence** opens the editor; **Edit** on a row changes it. An identifier reads E1, E2…; a source needs a
+  title.
+- **Add the context documents** proposes one entry per document of the workspace, marked *Information gap —
+  organizational validation required* until you state what the document supports.
+- **Cited in** shows where each entry is cited: the evidence and rationale of the six parameters in the
+  Scenario editor, the CVSS rationale and the screening rationales. An E-number cited but absent from the
+  register is listed at the top.
+- **Export (.csv)** writes the register with its citations.
+
+Two rules apply throughout. Exercise or simulation material is **indicative evidence to validate, never a
+confirmed incident**. Instructor, template or benchmark values are calibration aids, not organizational
+evidence. The register drives the *evidence strength* screening criterion and the confidence of each
+parameter; the Excel export writes it to the *Evidence* sheet.
+
+This register is the assessment's. The **shared evidence register** of the management modules (Governance →
+Shared registers → Evidence) records compliance evidence with its period and validity; it is a different
+record.
+
+### 7.3.2 KRI dashboard {#dashboard}
 
 Two kinds of key risk indicators:
 
-- **Computed KRIs** (CRG-01 … CRG-10) come from the workspace itself: portfolio residual/tolerated
-  ratio, scenarios above tolerance, total residual risk, snapshot age, share of material scenarios
+- **Computed KRIs** (CRG-01 … CRG-10) come from the workspace itself: portfolio risk-to-tolerance
+  ratio, scenarios above tolerance, the total residual risk index (shown for reference: a risk index is
+  computed from estimates and is **not a KRI**), snapshot age, share of material scenarios
   with an exposure-gated intel-backed Pb(ψ,A), exposed CVEs in KEV, ATT&CK mapping coverage,
   above-tolerance scenarios with funded treatment, recorded decisions, and cyber spend as a share of
   IT budget against the appetite-consistent target.
@@ -978,7 +1063,7 @@ CyberRiskGuardian dashboard from this pack"* — with the CyberRiskGuardian plug
 dashboard when the numbers change. Anyone who can open the Claude Dashboard can read its datasets: share it
 only with people allowed to see the assessment.
 
-### 7.3.2 Existing safeguards — what already protects you {#safeguards}
+### 7.3.3 Existing safeguards — what already protects you {#safeguards}
 
 Two different registers answer two different questions. **Risk mitigation** answers *what should we
 add, what would it cost, what would it buy us*. **Existing safeguards** answers *what protects us
@@ -1007,7 +1092,7 @@ Add the staff and overheads the inventory does not carry.
 
 *Where:* Existing safeguards → Inventory · Resilience coverage · Bring controls over · Method
 
-### 7.3.3 Scenario register {#register}
+### 7.3.4 Scenario register {#register}
 
 All scenarios with their threats (ATT&CK chips), vulnerabilities (CWE and CVE chips), CVSS,
 estimated and residual risk, ratio and status. Chips open the matching technique, weakness or CVE;
@@ -1015,7 +1100,7 @@ a scenario name opens the editor. The checkbox includes or excludes the scenario
 **Load assessment JSON** replaces the scenarios or appends them (clashing IDs are renumbered);
 **Export JSON** writes the file `crg_calc.py` reads.
 
-### 7.3.4 Scenario editor — view and edit a scenario {#scenario}
+### 7.3.5 Scenario editor — view and edit a scenario {#scenario}
 
 Everything about one scenario on one screen, with its KRIs recalculated as you type:
 
@@ -1026,7 +1111,7 @@ Everything about one scenario on one screen, with its KRIs recalculated as you t
 - **Vulnerabilities — CWE and CVE.** Link weakness types and specific CVEs. With a snapshot loaded,
   each CVE shows its ladder rung; *watch* means its exposure is not confirmed.
 - **Quantification.** The six parameters with value, rationale, evidence and confidence.
-- **CVSS v4.0 (Base only)** — edit the vector here or in the CVSS calculator and save it back.
+- **CVSS v4.0 (Base only)** — edit the vector here or in the CVSS calculator and save it back. *How the score was obtained* says whether the score is that of a technical vulnerability or a score **by equivalency** for a non-technical weakness: then the weakness type and a one-line justification of each metric, with the label *limited applicability* and the marker *Analytical estimate — validation required* (section 7.10.1). A stored score that disagrees with its vector is flagged.
 - **Treatment** — probability and impact reduction, the treatment package, the initiatives that
   address the scenario, or a manual Year-1 cost.
 - **Threat-context basis** — the audit trail written when a Pb(ψ,A) proposal is accepted.
@@ -1063,11 +1148,13 @@ Pb(ψ,A) or θ yourself. Alerts marked TLP:RED or TLP:AMBER+STRICT are masked un
 and TLP:AMBER+STRICT items on this computer*. Buttons lead to SIEM coverage & gaps, Alerts & triage, SOAR
 cases, Playbooks and the seeds in Batch scenarios.
 
-### 7.3.5 Batch scenarios — creating many scenarios at once {#batch}
+### 7.3.6 Batch scenarios — creating many scenarios at once {#batch}
 
-- **Generate from threats × assets.** Tick threat patterns (eighteen archetypes such as credential
-  phishing, ransomware, edge-device exploitation, cloud misconfiguration, supplier compromise, BEC,
-  backup destruction…) or add any ATT&CK technique as a pattern; tick assets (the crown jewels, or
+- **Generate from threats × assets.** Tick threat patterns (twenty-two archetypes such as credential
+  phishing, ransomware, edge-device exploitation, supplier compromise, BEC, backup destruction, and the
+  cloud patterns — misconfigured storage, token theft, identity federation abuse, outage of a critical SaaS
+  supplier, a key or secret exposed in infrastructure-as-code, tenant-isolation failure or cloud-provider
+  compromise…) or add any ATT&CK technique as a pattern; tick assets (the crown jewels, or
   type others); choose the threat sources. Each combination becomes a candidate with a causal-chain
   statement, linked techniques and CWE, and default parameters.
 - **From MITRE ATT&CK.** Search techniques by name or ID, or filter by tactic, and tick one or many.
@@ -1083,7 +1170,7 @@ cases, Playbooks and the seeds in Batch scenarios.
 - **Paste or import CSV.** One row per scenario; download the template for the column names.
 - **Blank rows.** Start from empty rows.
 - **From the ontology and the Risk Registry.** Ontology · CRGO → *Add ticked to Batch scenarios* (marked *[CRGO]*) and Risk Registry → *Use ticked cards in this workspace* (marked *[Registry]*) land here too.
-- **Propose with AI.** Choose how many candidates (1–30) and, optionally, a direction (“focus
+- **Propose with AI.** Choose how many candidates (1–40) and, optionally, a direction (“focus
   on suppliers”, “OT in the plants”). The organization profile, the crown jewels and the information
   assets are sent — shown first in the usual preview. Each candidate comes back with a full causal
   chain, the six parameters with a reason and a confidence for each; it lands in the grid named
@@ -1102,6 +1189,11 @@ cases, Playbooks and the seeds in Batch scenarios.
   and counted; incidents not confirmed by a person are not counted as incidents; TLP:RED and
   TLP:AMBER+STRICT seeds stay masked unless you tick *Show TLP:RED and TLP:AMBER+STRICT items on this
   computer*.
+
+**How many, and then what.** About 25 to 40 candidates for a portfolio of ten, never fewer than 20 (20 is the
+quick lab version). **Add the ticked rows as screening candidates** sends the ticked rows to Scenario screening
+(section 7.3.7) with the strategy that produced them; **Add … selected to the register** adds them as
+scenarios directly.
 
 In **Propose with AI**, ticking **Include security-operations evidence** adds a summary of those seeds to
 the request — shown in the preview like everything else. It is filtered: TLP:RED and TLP:AMBER+STRICT
@@ -1132,7 +1224,59 @@ The spread is **seeded**, the seed is shown and kept with the workspace, and *Re
 one. The same seed reproduces the same candidates, so a set cited in a report can be re-derived.
 *Vary the patterns and assets* can be unticked for the strict ranking.
 
-### 7.3.6 Risk calculator {#calc}
+### 7.3.7 Scenario screening {#screening}
+
+Process steps 5 to 7, as chapter 5 of the book describes them: candidates screened on twelve criteria,
+consolidated into families, tested under four weighting schemes, checked for coverage, and the final
+portfolio — **normally ten scenarios**. The candidates are the *Candidates* of the assessment (the same list
+the workbook's Candidates sheet carries); Batch scenarios → **Add the ticked rows as screening candidates**
+adds rows from the grid, and **Add a candidate** adds one by hand.
+
+**How many.** About **25 to 40 candidates for a portfolio of ten**, never fewer than **20** (20 is the quick
+lab version); the banner at the top says where the workspace stands. A good population uses at least three
+of the five **generation strategies** — top-down, bottom-up, threat-driven, dependency-driven and localized
+generic — recorded per candidate.
+
+**Candidates & scores.** **Score** opens a candidate's card: the twelve criteria scored 1 (very low) to 5
+(very high) — business criticality, asset criticality, threat relevance, exposure or vulnerability,
+potential impact, regulatory and legal, operational resilience, dependency and concentration, evidence
+strength (5 = direct organizational evidence, 1 = assumption only), risk velocity, control uncertainty and
+decision usefulness — with a one-line rationale, the **escalation flags**, the **selection confidence**
+(high, medium, low), the dominant evidence basis and a **disposition**: *Select*, *Consolidate* (into a
+family), *Consider* (explicit review) or *Defer*. The total out of 60 is a **screening aid, not a mechanical
+rule**. Do not rank on CVSS. **Export the screening (.csv)** writes every score, total and weighted score.
+
+**Escalation flags.** Human safety, essential service interruption, catastrophic data loss, systemic
+organizational failure, severe privacy consequences, major regulatory breach, existential financial loss,
+compromise of highly privileged infrastructure, destruction of backup or recovery capabilities, simultaneous
+failure of primary and recovery environments, critical supply-chain concentration, spread across multiple
+units or jurisdictions. A flagged candidate cannot drop out for low probability alone: leaving it out needs an
+**exclusion review** recorded on its card, or a place on the watch list — **Management decision required**.
+
+**Families.** Variants of the same exposure are consolidated into a family, represented by a stronger
+causal statement; two candidates stay separate when their assets, threat actors, consequences, controls,
+owners or treatment decisions differ materially. Tick **Selected for the portfolio** for the families of the
+final portfolio.
+
+**Weighting schemes.** Each family takes the highest weighted score of its members, so variants do not add
+up. The ranks under the **equal**, **impact-led**, **evidence-led** and **decision-led** schemes are shown
+side by side. A family selected but not in the top ten under every scheme is **selected by judgment**: write
+why. A candidate not selected that ranks in the top ten under some scheme needs an **explicit review**.
+
+**Coverage matrix.** The selected families against the categories — confidentiality, integrity,
+availability, identity, ransomware, cloud and SaaS, third parties, insiders, applications and APIs,
+infrastructure, endpoints, OT/IoT/medical devices, privacy, fraud and BEC, resilience, AI and safety. A gap is a
+question to answer, not a quota to fill.
+
+**Watch list & plan.** The candidates left out but still material, each with its promotion trigger and owner,
+and the **evidence-collection plan**: how each selected scenario will be validated, by whom and by when.
+
+**Final portfolio.** For each selected family, the six **"why this scenario?"** questions and **Create the
+scenario**, which adds it to the register with its consolidated statement; its parameters are then
+estimated in the Scenario editor (Process step 9). The MediBec teaching case ships its screening: 45
+candidates, ten families, P05 and P10 selected by judgment and C31 on the watch list for explicit review.
+
+### 7.3.8 Risk calculator {#calc}
 
 **Portfolio table.** The risk of every scenario — Pb(A), Pb(ψ,A), CVSS, estimated, tolerated,
 mitigated and residual risk, ratio, status and allocated Year-1 cost — with a **checkbox to include
@@ -1155,10 +1299,18 @@ Shared initiatives are split equally across the *included* scenarios they addres
 scenario moves its share of a shared control onto the others rather than losing it.
 
 **Single-scenario calculation.** Click a row to load the scenario: every step of the formula, the
-±0.10 sensitivity cases and cost-effectiveness. Change values as a sandbox, then save them back to
-the scenario or as a new one.
+CVSS-B score, the **pre-treatment ratio** (estimated ÷ tolerated) beside the **risk-to-tolerance ratio**
+(residual ÷ tolerated), the ±0.10 sensitivity cases and cost-effectiveness in risk units removed per $1,000.
+Change values as a sandbox, then save them back to the scenario or as a new one. **Record the sensitivity
+review** marks the scenario's sensitivity as reviewed (Process step 15).
 
-### 7.3.7 Risk register {#riskreg}
+**Every input is checked.** Pb(A), Pb(ψ,A), δe, δm, μ(E) and the reductions must be within 0–1, θ in
+(0, 1], the appetite strictly between 0 and 1, δm at least δe, and a CVSS score — a vector or a score from 0
+to 10 — is **required**: an empty CVSS field is reported as *CVSS required*, never computed as 0. A score
+stored beside a vector is recomputed from the vector and a disagreement is flagged (Scenario editor and
+Quality review QC-21); the stored score is used until you change it.
+
+### 7.3.9 Risk register {#riskreg}
 
 Risks are what management owns; scenarios are how they are quantified. *Create from scenarios* makes
 one risk per scenario with its techniques, CWE/CVE, assets and measures, and ratings on a 1–5
@@ -1169,12 +1321,10 @@ review and a **formal acceptance** (by, date, valid until, rationale); every cha
 risk's history. The heat map (inherent, current or target) and the top-risks list sit above the
 register. *Refresh ratings from scenarios* updates current and target after parameters change.
 
-### 7.3.8 Risk mitigation {#mitigation}
+### 7.3.10 Risk mitigation {#mitigation}
 
-- **Control catalogue.** Your list (Controls_list.xlsx: ISO/IEC 27002:2013, the NIST CSF 1.1
-  subcategories labelled “NIST 800-53” in the sheet, CIS v7.1 — numbering corrected and seven rows
-  flagged), ISO/IEC 27002:2022, NIST SP 800-53 Rev. 5 (with enhancements on request), NIST CSF 2.0,
-  CIS Controls v8.1, ATT&CK mitigations, the CRG measures, and any catalogue you have loaded in
+- **Control catalogue.** The current editions: ISO/IEC 27002:2022, NIST SP 800-53 Rev. 5 (with
+  enhancements on request), NIST CSF 2.0, CIS Controls v8.1, ATT&CK mitigations, the CRG measures, and any catalogue you have loaded in
   *Frameworks & standards* (section 7.5.4) — SP 800-171 r3, ITSP.10.171, COBIT 2019 or your own import.
   Search, filter by framework, function or capability, tick controls and *Add* them to a new or
   existing measure.
@@ -1188,8 +1338,10 @@ register. *Refresh ratings from scenarios* updates current and target after para
   whether the scenario revealed a **control gap**, a **weakness** in an existing control, or a
   **maturity** problem. These three are what turn a measure into a recommendation that reads like a
   decision rather than a shopping list.
-- **Effect on each scenario.** Measures are combined per scenario as **red_p = 1 − ∏(1 − rp)** and
-  **red_i = 1 − ∏(1 − ri)**; the verified engine then applies the workbook convention mitigated =
+- **Effect on each scenario.** Several measures on the same lever are combined by the **product rule**,
+  the method's rule in every tool: **red_p = 1 − ∏(1 − rp)** and **red_i = 1 − ∏(1 − ri)** — probability
+  reductions together, impact reductions together, each coefficient within 0–1, so the result never exceeds
+  1; the verified engine then applies the workbook convention mitigated =
   estimated × red_p × red_i. The table shows the current ratio and the ratio with the measures.
   **Apply** writes the combined values into the scenario with a revision entry; **Revert** restores the
   previous values. Because the convention multiplies the two reductions, a package that reduces only
@@ -1199,7 +1351,7 @@ register. *Refresh ratings from scenarios* updates current and target after para
   Recommendations and Excel.
 - **→ Recommendation**. Tick the measures that belong together and press it: a **draft
   recommendation** is created from them, collecting their scenarios, costs, horizon, framework mapping
-  and the reduction they would achieve. Continue in *Recommendations → Register* (section 7.3.9).
+  and the reduction they would achieve. Continue in *Recommendations → Register* (section 7.3.11).
   Ticking a measure only updates the action bar — the table does not redraw, so your scroll position
   and any open editor survive.
 - **Proposals.** For the selected scenarios, capabilities are proposed from their ATT&CK techniques'
@@ -1211,7 +1363,7 @@ register. *Refresh ratings from scenarios* updates current and target after para
   Claude, paste the answer back and **Read answer**: unknown scenarios or controls are reported, the
   rest is added as *Proposed* measures with Claude's per-scenario reductions.
 
-### 7.3.9 Recommendations — the options the organization can consider {#recs}
+### 7.3.11 Recommendations — the options the organization can consider {#recs}
 
 **Treatment need** (first tab). Before any control is offered, this tab states for every
 included scenario whether its residual risk is **below**, **approximately at** or **above** the
@@ -1233,7 +1385,10 @@ transfer, avoid, accept** — with the suggested one highlighted and the reasons
 Below the options: the initiatives linked to the scenario with cost and cost-effectiveness, the
 ATT&CK mitigations for its techniques and the CRG measures that implement them, and the
 **management decision** — option chosen, owner, horizon and rationale, saved in the decision
-register. A decision that departs from the suggestion is legitimate; record why.
+register. A decision that departs from the suggestion is legitimate; record why. A **Transfer** also records
+the **share of loss covered** (0–1) — what the insurance or the contract would cover, for information only:
+it never reduces the risk index, and the harm to people and operations stays — and the **approver** of the
+transfer; the Quality review flags a transfer without an approver (QC-25).
 
 **Shared controls** ranks initiatives by the number of scenarios they serve and the risk reduction
 attributed to them, and ATT&CK mitigations by the residual risk they cover. **Roadmap** places
@@ -1282,6 +1437,26 @@ four drafts about identity may genuinely be one programme, or may genuinely be f
 **Draft first, formal after.** The intended use is to take the draft into the discussion with the
 decision-maker, amend it there from what you hear, and only then move it to review and approval. The
 discussion log on each recommendation is for exactly that.
+
+### 7.3.12 Management summary {#summary}
+
+One page that obtains decisions — the *Report* step of the Process. It leads with the **decisions
+requested**: those the assessment itself shows (approving the appetite when it is an estimate, each scenario
+still above tolerance after treatment, the gap to the appetite-consistent budget, the portfolio to fund,
+flagged candidates excluded without review, transfers without an approver) and those you add, one per line.
+Each is exported with the marker **Management decision required**.
+
+Then: how many scenarios are **above, approximately at and below tolerance before and after treatment**,
+with the estimated, tolerated and residual totals; the **portfolio and budget** — year-1 cost of the
+recommended portfolio, the appetite-consistent target, the current spend and the gap; the **top risks** with
+their risk-to-tolerance ratio and decision; the **markers** — parameter values labelled as estimates, values
+without an evidence reference, CVSS scores of limited applicability and every **Information gap —
+organizational validation required**; the **limitations** and the **next steps**.
+
+Every figure is read from the verified engine when the page is drawn, so the summary agrees with the
+workbook to the unit. **Export the summary (.md)** and **Printable summary** record the date of the export
+(the Process shows the Report step done once the summary is exported and the quality review passes). A
+teaching case is labelled fictional in the export. Attach the Excel workbook (Export · Excel).
 
 ### 7.4 Threats & vulnerabilities
 
@@ -1464,7 +1639,7 @@ is an incident or a threat-basis entry handled in Threat context.
 with the application — about 1.5 MB — and the button beside the file picker loads it in one click. It
 carries the **full CISA KEV catalogue of its build date (1,733 entries), 38,533 EPSS scores, the
 Threat Evidence Ladder, the thresholds and the constraints**. That is enough to place CVEs on the
-ladder, run the exposure join and complete Process step 5 on a machine with no internet access at all.
+ladder, run the exposure join and complete Process step 3 on a machine with no internet access at all.
 
 The EPSS table is **pruned at the ladder's own rung-1 ceiling** (0.05), keeping every score at or
 above it, every score whose *percentile* reaches the rung-4 percentile, and every CVE listed in KEV.
@@ -1989,7 +2164,7 @@ Eighteen checks to run before a report or a write-back leaves the analyst, each 
 | QC-09 | The organisation base is the organisation's own. |
 | QC-10 | Fictional cases and ontology priors are not calibration evidence. |
 | QC-11 | Evidence is current. |
-| QC-12 | The engine reproduces the MediBec baseline (84,491 / 41,104). |
+| QC-12 | The engine reproduces the MediBec baseline (84,305 / 41,023). |
 | QC-13 | Licensed standards are cited by identifier only. |
 | QC-14 | No obligation is called compliant from a mapping, an acknowledgement or an attestation: every determination *satisfied* rests on current evidence of the shared register. |
 | QC-15 | No incident is inferred from an alert: every incident has a confirmation by a named person on a date. |
@@ -2438,7 +2613,7 @@ these cards** saves the filtered set as a package.
 ### 7.9.2 Contribute risks
 
 **Privileged users only**: in single-user mode, the one person; in multi-user mode, an administrator or a
-user holding **A** (Accountable) on step 13. Others can browse.
+user holding **A** (Accountable) on the Report step. Others can browse.
 
 1. **The risks to share** — tick scenarios of the workspace.
 2. **How they are catalogued** — filled from the profile (sector, sub-sector, region, size,
@@ -2489,10 +2664,25 @@ and **Forget the cards read** (your contributions and moderation decisions are k
 
 ### 7.10.1 CVSS v4.0 {#cvss}
 
-A Base-score calculator. Threat and Environmental metrics are deliberately absent. Paste a vector to
+A Base-score calculator (CVSS-B). Threat and Environmental metrics are deliberately absent. Paste a vector to
 load it, send it to the risk calculator, or — when opened from a scenario — save it back.
 
+**By equivalency (non-technical weakness).** A process, people, governance, physical, third-party or
+configuration weakness has no CVE, yet the formula needs a CVSS score. In this tab, choose the **weakness
+type**; each Base metric shows the question to ask of the weakness (who can reach it and from where, whether
+a safeguard must be defeated, whether a victim must act, what happens to the process and downstream) and a
+**one-line justification** to write. Saved to a scenario, the score carries the label **limited
+applicability** and the marker **Analytical estimate — validation required**, in the Scenario editor, the
+register and every export (the Excel *CVSS_Basis* sheet lists the justification of each metric). The
+Scenario editor offers the same choice under *How the score was obtained*; the Quality review fails a
+score by equivalency with a metric left unjustified (QC-22). Apply the equivalency the same way across the
+portfolio, and never adjust it to reach a preferred ranking.
+
 ### 7.10.2 Budget — years, multi-year projects, and bands from risk-averse to risk-seeking {#budget}
+
+**The rule.** Best practice sets a **point target**, not a range: 12% of the total IT budget (salaries
+included) at appetite 0.30, 7.8% at 0.50 and 4% at 0.70, interpolated linearly in between and held at the
+end value outside. The test is the gap to that target, which is escalated rather than reconciled silently.
 
 **Budget years.** Choose the **budget year** at the top; the table lists every year with its total IT
 budget, planned cyber spend, actual cyber spend, baseline (run) cost and a note. *Add* the next or
@@ -2574,7 +2764,7 @@ parameter alone and it stays a single value. Then run the trials: you get the me
 a 90% interval, the probability of exceeding tolerated risk, and a histogram.
 
 The useful property: an untouched workspace forecasts to **exactly** its calculated result. If you
-run 10,000 trials on MediBec with no ranges set, the median is 41,104 — not approximately. That is a
+run 10,000 trials on MediBec with no ranges set, the median is 41,023 — not approximately. That is a
 check on the forecaster, not a coincidence, and it is the first thing to try.
 
 Ranges can be **proposed** from the confidence you already recorded against each parameter, by a
@@ -2873,7 +3063,7 @@ The **Help** menu opens with two entries marked with an arrow that are not scree
 
 | Entry | What opens |
 |---|---|
-| **Step by step** ↗ | A window of its own with the thirteen steps — what each is for, what it needs, when it is done — and the guidelines in detail. Printable, works offline. Clicking a screen name opens that screen in the application window. |
+| **Step by step** ↗ | A window of its own with the nineteen steps, the report and the quality review — what each is for, what it needs, when it is done — and the guidelines in detail. Printable, works offline. Clicking a screen name opens that screen in the application window. |
 | **User guide** ↗ | This guide, in a window of its own, with a table of contents and a find box — in French when the interface is in French. Printable, works offline. |
 
 They are windows rather than tabs so a guide can sit beside the work, and both read what the application
@@ -2883,11 +3073,22 @@ pop-up windows, allow them for this application; otherwise the entries open as t
 ### 7.12.2 About {#about}
 
 **About** (Help group) has three pages. **About** names the creator, his e-mail
-(marcandre@leger.ca), the project website (www.leger.ca) and the GitHub repository
-(github.com/ITriskMgr/CyberRiskGuardian), and acknowledges the use of generative AI in building the
-application. **Licence** explains CC BY-NC 4.0 and then answers the question people actually
-have — see section 10. **Versions** lists the application, the verified engine, the local helper and the
-knowledge base.
+(marcandre@leger.ca), the project website (www.leger.ca), the product site (cyberriskguardian.ca,
+sales@cyberriskguardian.ca) and the GitHub repository (github.com/ITriskMgr/CyberRiskGuardian), and
+acknowledges the use of generative AI in building the application. **Licence** says who may use the
+application free and which licence applies to everyone else — see section 10. **Versions** lists the
+application, the verified engine, the local helper and the knowledge base, and holds **Updates**:
+
+- **Check for updates at start-up** — off unless you switch it on; the application asks once, at first start.
+  When it is on, the helper asks the GitHub releases of the application
+  (github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel) at each start, at one fixed address, with no data sent.
+- **Check now** asks at once, whatever the setting.
+- When a newer release exists, a banner says **Version x.y.z is available**, with **Release notes** and
+  **Download**, which saves the release ZIP in the feeds folder like a feed download. Nothing is unpacked or
+  installed: back up (Backup & restore), unpack the ZIP into a new folder, exit, start the new version with its
+  launcher, and check the engine in the footer (section 12).
+- Without the helper, without network, when no release is published or when GitHub limits the number of
+  requests, the check says so and changes nothing.
 
 **Exit** (top bar) saves your work, stops the local helper and closes the window. In a browser tab
 that the app did not open itself, close the tab when the closing screen appears. Start the app again
@@ -3032,27 +3233,28 @@ and the two can differ in wording. Where they differ on substance, the applicati
 
 ## 10. Licence — who may use this
 
-**About → Licence.** The application is licensed **CC BY-NC 4.0**: share and adapt it, with
-attribution, and not “primarily for commercial advantage or monetary compensation”. The page lists the
-situations, because “non-commercial” is a licence term and not a judgement about who deserves free
-software.
+**About → Licence.** From the build after 1.7.0, CyberRiskGuardian Desktop is **proprietary
+software**: it is licensed, not sold. Versions up to 1.7.0 were released under CC BY-NC 4.0 and remain
+available under that licence. The **Community Edition** — the CyberRiskGuardian method, the Core plugin for
+Claude, the governance textbook skill, the MediBec example and the free teaching package — remains free under
+CC BY-NC 4.0.
 
-**Allowed without asking:** students for their own coursework, including handing in the result for a
-grade; personal and private use; non-profit organizations and NGOs assessing their own cyber risk;
-research and teaching materials you write yourself, with attribution; and **evaluation for up to 30
-days** by any organization, to decide whether to license it.
+**Free:** students, for personal learning, including handing in the result for a grade; non-profit
+organisations — registered charities and not-for-profit corporations — assessing their own cyber risk
+(colleges, universities and government bodies are not included); and **evaluation for up to 30 days**
+by any organization, to decide whether to license it.
 
-**Needs a commercial licence:** colleges, universities and other educational institutions using it to
-deliver teaching — the students in the course are covered, the institution is not; government
-departments and agencies at any level; Crown corporations and other public enterprises; businesses and
-corporations of any size, including consultancies, auditors and advisers using it for client work; and
-anything embedded in a product or a paid service.
+**Needs a licence:** colleges, CEGEPs and universities take the **Educational Licence** (the Educational
+edition), at a significantly reduced price that includes installation and customization, the current desktop
+application and the Educator Edition of the teaching materials, and their students are covered by it. Businesses, consultants, MSSPs, government departments and agencies, Crown corporations,
+and anything embedded in a product or a paid service take the **Commercial Licence** — the Professional editions:
+Professional, Team, Enterprise or MSSP.
 
-Write to **marcandre@leger.ca** with what you want to do. A formal price list will be published; it is
-not published yet, because the project is still in development, and terms are agreed case by case
-until then. The licence summary on the page is exactly that — the licence itself is the Creative
-Commons legal code, shipped in full as `LICENSE`, and it governs where the two differ. None of this is
-legal advice.
+Professional and Team licences can be bought online at **cyberriskguardian.ca**; payment is
+handled by Paddle, the reseller and merchant of record. Educational, Enterprise and MSSP licences are on
+quote: write to **sales@cyberriskguardian.ca**. The licences themselves, in French and English, are in the
+`licences` folder of the application and on the product page; they govern where this summary differs.
+None of this is legal advice.
 
 ---
 
@@ -3060,13 +3262,13 @@ legal advice.
 
 **The engine and the case**
 
-1. Footer reads `engine verified · 84,491 / 41,104`.
-2. **Scenario register** on the MediBec workspace shows 30 scenarios, total estimated 84,491 and
-   residual 41,104.
+1. Footer reads `engine verified · 84,305 / 41,023`.
+2. **Scenario register** on the MediBec workspace shows 30 scenarios, total estimated 84,305 and
+   residual 41,023.
 3. **Risk calculator** → untick S1. The included count becomes 29/30 and the totals drop. Reload the
    page: S1 is still excluded. Tick it again.
-4. **Process** shows thirteen steps, step 4 reading *Import other information from the documents*, and
-   the banner recalling that the application is a beta.
+4. **Process** shows nineteen steps in seven groups and the *Report* step, step 6 reading *Screen the
+   candidates*, and the banner recalling that the application is a beta.
 
 **Organization and documents**
 
@@ -3082,7 +3284,7 @@ legal advice.
    only one ticked. Untick *Profile & appetite* and *Crown jewels*, keep *Information assets*, choose
    *Rules only* and **Start the import**: only the new document is read, the review opens, **Add
    ticked**; the document now shows *Already extracted into: Information assets* and the import plan's
-   targets appear on Process step 4.
+   targets appear on Process step 1.
 
 **Threats, vulnerabilities and the ontology**
 
@@ -3126,10 +3328,10 @@ legal advice.
 19. **Existing safeguards** → *Add a safeguard* in place, scored 3 on Recover with an annual run cost:
     the KPIs show it and **Budget** offers its run cost as the baseline.
 20. **Maturity & resilience → Maturity (CSF 2.0)** → score all 22 categories at 3: *Scenarios this
-    suggests* becomes 20 and Process step 6 reads *about 20 for this organization*.
+    suggests* becomes 20 and Process step 7 reads *about 20 for this organization*.
 21. **Forecasts → Monte Carlo**, with no parameter ranges set, 10,000 trials: the median reads
-    **41,104** exactly.
-22. **Export · Excel** → *All scenarios*: Analyse totals read 84,491 and 41,104 and recalculate when the
+    **41,023** exactly.
+22. **Export · Excel** → *All scenarios*: Analyse totals read 84,305 and 41,023 and recalculate when the
     appetite changes on Parameters.
 
 **The Risk Registry**
@@ -3167,21 +3369,22 @@ legal advice.
 
 **Teaching cases and reset**
 
-31. **Reset data** on the MediBec example → *Start over* lists *Steps you will do again*: step 2 and
-    step 3. **Start this case over…**, type `START OVER`: the register has 30 scenarios again and
-    Process shows steps 2 and 3 as *To do*. Under *For the instructor*, untick both steps and start over
-    again: steps 2 and 3 are back as delivered.
+31. **Reset data** on the MediBec example → *Start over* lists *Steps you will do again*: the two
+    parts of step 2 (the context, and the crown jewels and information assets). **Start this case over…**,
+    type `START OVER`: the register has 30 scenarios again and Process shows step 2 as *To do*. Under *For
+    the instructor*, untick both and start over again: step 2 is back as delivered.
 32. **Reset data → Reset or delete** → choose each of the four levels and watch *What this would
     remove* change; the keys are reported as *kept by this reset*.
 
 **Installation**
 
 33. **Backup & restore** → *Create a backup*; restore it in a second browser profile: the footer reads
-    **84,491 / 41,104** and your workspace, its policies and its requirements are present.
-34. **Help → Step by step** → a separate window with thirteen steps and the guidelines; **Help → User guide**
+    **84,305 / 41,023** and your workspace, its policies and its requirements are present.
+34. **Help → Step by step** → a separate window with the nineteen steps, the report and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About → Versions** reads `1.7.0 beta` and `engine verified · 84,491 / 41,104`; **Licence** names
-    CC BY-NC 4.0 and marcandre@leger.ca.
+35. **Help → About → Versions** reads `1.8.0 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
+    the proprietary licence, the four licence files, cyberriskguardian.ca and sales@cyberriskguardian.ca;
+    **Check now** under *Updates* answers (a newer release, the latest release, or why it could not tell).
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM
     and SOAR screens, the AI preview and the Import from documents tab are in French; the organization's data
     stays in its own language.
@@ -3199,8 +3402,8 @@ legal advice.
 
 **Data, ontology and quality**
 
-40. **Backup & restore → Data versions and migrations**: data version 2; import an older workspace export that
-    held evidence records and policy exceptions: its journal shows the steps to version 2, the evidence is in
+40. **Backup & restore → Data versions and migrations**: data version 3; import an older workspace export that
+    held evidence records and policy exceptions: its journal shows the steps to version 3, the evidence is in
     **Shared registers → Evidence**, the exceptions in **Shared registers → Exceptions**, and its numbers are
     unchanged.
 41. **Ontology · CRGO → Connection** names CRGO v0.10.0; *Organisation link* → *Build the organisation graph*
@@ -3234,14 +3437,29 @@ legal advice.
 50. **Quality review**: QC-14 to QC-18 are listed and pass on the imported pack. **Settings → Simulation data →
     Remove simulation data**: the SIEM and SOAR registers are empty again.
 
-If all fifty hold, the installation is sound.
+**Evidence, screening and the summary**
+
+51. **Evidence register** on MediBec lists E1 to E12 with their type; **Cited in** shows the parameters that
+    cite each one.
+52. **Scenario screening** shows 45 candidates, C01 at 52 / 60 and C02 at 56; **Weighting schemes** shows P05
+    *Selected by judgment* and C31 *Explicit review*; **Coverage matrix** shows *Fraud / BEC* not covered.
+53. **CVSS v4.0 → By equivalency (non-technical weakness)** opened from a scenario: save without justifying
+    every metric — the toast lists the missing ones and the Quality review fails QC-22.
+54. **Risk calculator** → empty the CVSS field: *Cannot calculate — CVSS required*, never an index of 0.
+55. **Management summary** lists the decisions requested with *Management decision required*; **Export the
+    summary (.md)** writes the file and the Process shows the Report step done once the quality review passes.
+
+If all fifty-five hold, the installation is sound.
 
 ---
 
 ## 12. Updating
 
-Replace the folder with the new version and start it with its own launcher on the same port; the
-launcher stops any earlier copy still serving that port. Workspaces stay in the browser: on its first start
+**Help → About → Versions → Check now** (or the start-up check, if you switched it on) says whether a newer
+release exists and downloads its ZIP into the feeds folder when you click **Download**. Then: back up
+(Backup & restore → Download backup), unpack the ZIP into a **new folder**, exit the running application, and
+start the new version with its own launcher on the same port; the launcher stops any earlier copy still
+serving that port. Workspaces stay in the browser: on its first start
 the new version migrates them on a copy and keeps the originals (section 5.1). If you edit the app yourself,
 bump `CACHE` in `sw.js`, and when you change how a workspace is stored, add a step to `js/migrate.js` and
 list the new field in `KNOWN_FIELDS` — the test suite fails until you do.
@@ -3287,19 +3505,19 @@ copy it here. The self-check will catch a mismatch, but only after the fact.
 | Triage shows nothing | No feed files loaded for the window. | Threat feeds → Sources & downloads → *Download ticked now* or *Load latest files*. |
 | A CVE you care about sits in *worth watching* | Its exposure is not confirmed. | That is the exposure gate working. Confirm it on the asset in Vulnerabilities, then re-triage. |
 | The scheduled task's briefing is missing | No `briefings/triage-profile.json` in the feeds folder. | Threat feeds → Triage → *Export the profile for the scheduled task*, then fire the task again. |
-| Process step 5 will not go green | It has two halves: a snapshot **and** at least one entry in the vulnerability register. The step names both and offers the screen for each. | Threat context → **Load the bundled example** (no network); Vulnerabilities → **Add a weakness without a CVE** if you have no scanner output. |
+| Process step 3 will not go green | It has three parts: the assessment period, a snapshot **and** at least one entry in the vulnerability register. The step names both and offers the screen for each. | Threat context → **Load the bundled example** (no network); Vulnerabilities → **Add a weakness without a CVE** if you have no scanner output. |
 | *EPSS below 0.05 (pruned from this snapshot)* on a CVE you care about | The bundled example's EPSS table is pruned at the ladder's rung-1 ceiling, so a negligible score is absent rather than stored. The classification is the same either way. | Nothing to fix. For the exact score, load your own snapshot from `threat_snapshot.py`, or build one in the app from a KEV file and an EPSS file you downloaded. |
 | The example snapshot is dated and will expire | It is a fixed build date, and snapshots expire 90 days after retrieval. | Download your own sources before relying on any figure; the screen and the age indicator both say so. |
 | Ontology · CRGO answers *snapshot* although the ontology is installed | The helper did not find the server, or its Python lacks the `mcp` or `pyoxigraph` package. | Ontology · CRGO → Connection: read *The MCP server cannot be used*; set the interpreter Claude uses for it (for example `/usr/local/bin/python3`) and the path of `crgo_server.py`, or run `pip install "mcp>=1.2" pyoxigraph` for the helper's Python. |
 | The ontology's first answer takes ten seconds or more | The server builds its store from the ontology files on its first start. | Wait once; later answers are immediate while the helper runs. *Start the server* on the Connection tab does it ahead of time. |
 | *Read the shared folder* finds nothing | No shared registry folder is set, it is not synced on this computer, or the helper is not running. | Risk Registry → Registry settings → *Shared registry folder on this computer*; check that the folder exists and is synced; start the app with its launcher. |
-| *Contribute risks* says *Privileged users only* | In multi-user mode, sharing needs an administrator or RACI **A** on step 13. | Ask an administrator, or have the right granted in Settings → Users & RACI. |
+| *Contribute risks* says *Privileged users only* | In multi-user mode, sharing needs an administrator or RACI **A** on the Report step. | Ask an administrator, or have the right granted in Settings → Users & RACI. |
 | A Registry card shows *not anonymized* | Its contributor switched anonymization off. | Read it as identifiable information; a moderator can reject it. |
 | *ISP management*, *Compliance management*, *SIEM* or another screen has disappeared from the menu | The feature is switched off, or hidden from you. | Settings → Modules; or Settings → Users & RACI → Menu access. The data is still in the workspace. |
 | A whole menu section has disappeared | Every screen in it is switched off or hidden. | As above. |
 | A published policy cannot be edited | Published text is frozen by design. | *Start a new version*: the published version stays in the history. |
-| *Approve* is refused on a policy | Approving needs RACI **A** on step 13 or an administrator. | Have it approved by the accountable person. |
-| After *Start this case over*, steps 2 and 3 show *To do* | The instructor's setting hands those steps back to the student. | That is intended: extract the profile and the crown jewels again from the case documents. An instructor can change it under *For the instructor*. |
+| *Approve* is refused on a policy | Approving needs RACI **A** on the Report step or an administrator. | Have it approved by the accountable person. |
+| After *Start this case over*, step 2 shows *To do* | The instructor's setting hands those steps back to the student. | That is intended: extract the profile and the crown jewels again from the case documents. An instructor can change it under *For the instructor*. |
 | Import from documents reads only one document | The documents just added are the only ones selected by default. | Tick the others, or *Select all documents*. |
 | Red `engine DIVERGES` banner | Engine disagrees with the reference totals. | Stop. Restore a clean copy. |
 | *This workspace is open read-only* | It was written by a newer release, or its migration failed. | Backup & restore → Data versions and migrations says which; open it with the newer release, or send the error to support. Nothing was changed. |

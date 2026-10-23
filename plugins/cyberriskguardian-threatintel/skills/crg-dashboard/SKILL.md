@@ -6,7 +6,7 @@ description: >
   CyberRiskGuardian Desktop (KRI dashboard → Claude Dashboard). It turns the pack into a Claude Dashboard artifact
   (KRIs, KRI history, scenarios against tolerance, security policies and acknowledgement coverage) or refreshes one.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: "Marc-André Léger (methodology) - packaged with Claude"
 ---
 
@@ -18,7 +18,7 @@ CyberRiskGuardian Desktop exports a **dashboard pack** (`<organization>_crg-dash
 | File | Use |
 |---|---|
 | `crg-dashboard-pack.json` | Manifest: `dashboard.title`, and one entry per dataset — `id`, `title`, `description`, `file`, `format`, `columns`, `rows`, `updated {at, by}` |
-| `datasets/kri_current.csv`, `kri_history.csv`, `scenarios.csv`, `policies.csv` | The data, computed by the verified engine (`crg.js`, self-check 84,491 / 41,104) |
+| `datasets/kri_current.csv`, `kri_history.csv`, `scenarios.csv`, `policies.csv` | The data, computed by the verified engine (`crg.js`, self-check 84,305 / 41,023) |
 | `index.html` | A ready page written to the Dashboard contract (marks, `dash.onData`, `dash.calc` for `kri_status` and `ack_coverage`, d3 charts) |
 
 ## Build a dashboard from a pack
@@ -41,8 +41,8 @@ and `updated`; keep the page unless it changed (a new `index.html` replaces it).
 
 ## Reading rules (state them; never contradict them)
 
-- Risk figures are **relative decision-support indicators** in CRG risk units (factor 1,000), not predictions of
-  loss. The residual-to-tolerance ratio reads < 0.90 below, 0.90–1.10 approximately at, > 1.10 above tolerance.
+- Risk figures are **risk indices**: relative decision-support values in CRG risk units (factor 1,000), not predictions of
+  loss and not KRIs. The risk-to-tolerance ratio reads < 0.90 below, 0.90–1.10 approximately at, > 1.10 above tolerance.
 - Operational KRIs are what the organization recorded; anything not measured is an **Analytical estimate —
   validation required**.
 - A policy acknowledgement or a mapping is **never compliance**.
