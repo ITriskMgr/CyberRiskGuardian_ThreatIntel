@@ -52,7 +52,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.8.0"
+VERSION = "1.8.1"
 crgo_client.CLIENT_VERSION = VERSION
 ROOT = os.path.dirname(os.path.abspath(__file__))
 def _feeds_dir():

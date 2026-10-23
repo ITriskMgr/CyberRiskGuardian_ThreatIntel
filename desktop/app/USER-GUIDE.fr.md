@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — Guide de l'utilisateur
 
-**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.8.0 (bêta) · Bêta 1.8.x**
+**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.8.1 (bêta) · Bêta 1.8.x**
 
 > **Bêta 1.8.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
 > la validation de la méthode. Traitez chaque résultat comme une hypothèse analytique initiale et
@@ -85,7 +85,7 @@ vous acceptez parviennent au moteur.
 | Un navigateur à jour | Chrome ou Edge pour l'application installable. Safari et Firefox l'exécutent dans un onglet. |
 | Python 3 | Uniquement pour servir le dossier localement. macOS et la plupart des distributions Linux l'ont déjà. Sous Windows, installez-le à partir de [python.org](https://www.python.org/downloads/) et cochez **Add python.exe to PATH**. |
 | Environ 16 Mo d'espace disque | Plus vos espaces de travail et tout instantané que vous chargez. L'instantané d'exemple fourni fait environ 1,5 Mo, l'instantané de l'ontologie environ 6,5 Mo et le paquet de simulation pour l'enseignement environ 0,1 Mo ; un instantané complet des menaces produit par `threat_snapshot.py` fait 8 Mo ou plus. |
-| *Facultatif :* l'Ontologie CyberRiskGuardian v0.10.0 | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
+| *Facultatif :* l'Ontologie CyberRiskGuardian v0.10.1 | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
 
 Aucun compte, clé de licence, programme d'installation ni droit d'administrateur n'est requis. Rien
 n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateur.
@@ -96,7 +96,7 @@ n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateu
 
 ### 3.1 Décompresser
 
-Décompressez `CyberRiskGuardian_Desktop_v1.8.0-beta.zip` à tout endroit où vous pouvez écrire. Gardez
+Décompressez `CyberRiskGuardian_Desktop_v1.8.1-beta.zip` à tout endroit où vous pouvez écrire. Gardez
 le dossier intact : l'application charge ses propres fichiers par chemin relatif.
 
 > `INSTALL.md`, dans le dossier, reprend les mêmes instructions sur une seule page, **en anglais et en
@@ -109,7 +109,7 @@ exacte que vous utilisez, et non dans le dossier ; le même port les retrouve d
 sont pas non plus dans le dossier ; elles se trouvent dans `crg-keys.json` dans le dossier de flux, et
 `feeds-dir.txt` reporte ce chemin. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos → Versions** n'affiche pas
-`1.8.0 beta`.
+`1.8.1 beta`.
 
 ### 3.2 Le démarrer
 
@@ -178,13 +178,13 @@ opérations de sécurité —, l'assistant local doit trouver **CRGO v0.10.0** 
 2. **Si un dossier `CyberRiskGuardian-Ontology` se trouve près du dossier de l'application** — par
    exemple, tous deux dans `CyberRiskGuardian_ThreatIntel` —, il est trouvé automatiquement et démarré
    avec le Python qui exécute l'assistant local. Les clones versionnés comme
-   `CyberRiskGuardian-Ontology-0.10.0` sont privilégiés, **le plus récent en premier**. Ce Python a
+   `CyberRiskGuardian-Ontology-0.10.1` sont privilégiés, **le plus récent en premier**. Ce Python a
    besoin de `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`.
 3. **Sinon**, indiquez l'interpréteur Python et le chemin de `pipeline/mcp/crgo_server.py` dans
    **Ontologie · CRGO → Connexion → Où se trouve l'ontologie**, puis **Enregistrer**.
 
 ```
-git clone --branch v0.10.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.0
+git clone --branch v0.10.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.1
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -3824,7 +3824,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 34. **Aide → Pas à pas** → une fenêtre distincte avec les dix-neuf étapes, le rapport et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos → Versions** indique `1.8.0 beta` et `moteur vérifié · 84,305 / 41,023` ;
+35. **Aide → À propos → Versions** indique `1.8.1 beta` et `moteur vérifié · 84,305 / 41,023` ;
     **Licence** nomme la licence propriétaire, les quatre fichiers de licence, cyberriskguardian.ca et
     sales@cyberriskguardian.ca ; **Vérifier maintenant** sous *Mises à jour* répond (une version plus
     récente, la dernière version, ou pourquoi elle ne peut le dire).
@@ -3852,7 +3852,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
     preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 3, les
     preuves se trouvent dans **Registres partagés → Preuves**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
-41. **Ontologie · CRGO → Connexion** nomme CRGO v0.10.0 ; *Lien avec l'organisation* → *Construire le
+41. **Ontologie · CRGO → Connexion** nomme CRGO v0.10.1 ; *Lien avec l'organisation* → *Construire le
     graphe de l'organisation* sur MediBec affiche **mêmes totaux que cette application** ; *Lire le
     contexte* de S1 ne donne aucune cote de risque ; *Envoyer les résultats cochés sous forme de
     propositions* affiche **proposé** dans le journal ; **Lire les deux contextes** renvoie les contextes
@@ -3975,8 +3975,8 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | Importer des documents ne lit qu'un seul document | Les documents qui viennent d'être ajoutés sont les seuls sélectionnés par défaut. | Cochez les autres, ou *Sélectionner tous les documents*. |
 | Bandeau rouge `moteur DIVERGENT` | Le moteur est en désaccord avec les totaux de référence. | Arrêtez. Restaurez une copie propre. |
 | *Cet espace de travail est ouvert en lecture seule* | Il a été écrit par une application plus récente, ou sa migration a échoué. | Sauvegarde et restauration → Versions des données et migrations en indique la raison ; ouvrez-le avec l'application plus récente, ou envoyez l'erreur au soutien technique. Rien n'a été modifié. |
-| *Lien avec l'organisation* indique que le contrat n'est pas disponible | L'ontologie trouvée est antérieure à v0.9.1. | Clonez l'étiquette v0.10.0 (section 3.5) et faites pointer le serveur vers celle-ci. |
-| Les contextes de conformité et d'opérations de sécurité indiquent qu'ils exigent CRGO v0.10.0 | L'ontologie trouvée est plus ancienne. | Clonez l'étiquette v0.10.0 à côté de l'application (le clone le plus récent est trouvé en premier), ou faites pointer `crgo-ontology` dans Claude vers celui-ci. |
+| *Lien avec l'organisation* indique que le contrat n'est pas disponible | L'ontologie trouvée est antérieure à v0.9.1. | Clonez l'étiquette v0.10.1 (section 3.5) et faites pointer le serveur vers celle-ci. |
+| Les contextes de conformité et d'opérations de sécurité indiquent qu'ils exigent CRGO v0.10.0 | L'ontologie trouvée est plus ancienne. | Clonez l'étiquette v0.10.1 à côté de l'application (le clone le plus récent est trouvé en premier), ou faites pointer `crgo-ontology` dans Claude vers celui-ci. |
 | Un renvoi est refusé avec `UNKNOWN_SUBJECT` ou `INPUT_UNKNOWN` | Des scénarios ont été ajoutés, renommés ou exclus depuis la construction du graphe. | *Reconstruire le graphe de l'organisation*, puis envoyez de nouveau. |
 | *Le dossier du graphe de l'organisation se trouve dans un dépôt git* | Le dossier confidentiel choisi se trouve dans un dépôt. | Choisissez un dossier situé hors de tout dépôt (Lien avec l'organisation → *Enregistrer le dossier*). |
 | Une trousse de simulation affiche des erreurs et ne peut pas être importée | Elle cite des scénarios ou des actifs essentiels que cet espace de travail ne contient pas. | Importez-la dans un espace de travail de son cas (pour MediBec, l'exemple ou une copie de celui-ci). |

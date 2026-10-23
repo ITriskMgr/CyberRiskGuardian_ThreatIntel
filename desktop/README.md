@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — with Threat Intel features
 
-**Version 1.8.0 Beta (1.8.x).** For teaching, exploration and method validation. Validate
+**Version 1.8.1 Beta (1.8.x).** For teaching, exploration and method validation. Validate
 every result before it supports a real decision.
 
 A desktop companion to the CyberRiskGuardian method that runs entirely in your browser, offline, with
@@ -17,7 +17,7 @@ supported by the [CyberRiskGuardian Ontology (CRGO)](https://w3id.org/crgo/).
 
 | | |
 |---|---|
-| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.8.0-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.8.0-beta.zip) — about 4 MB, everything included |
+| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.8.1-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.8.1-beta.zip) — about 4 MB, everything included |
 | **Install** | [`app/INSTALL.md`](app/INSTALL.md) — one page, **in English and in French** |
 | **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 12 pages |
 
@@ -42,7 +42,7 @@ briefing and any API keys live — defaults to `~/Downloads/CyberRiskGuardian-fe
 and moves with one line in `feeds-dir.txt`; the optional shared Google Drive folders start empty and
 are set in Settings → Links & shared folders. Section 5 of the installation instructions covers both.
 
-## What is new in 1.8.0
+## What is new in 1.8.1
 
 Aligned with *Introduction to Cybersecurity Governance for Business Technology Management*, v2.51: the
 **nineteen steps** of the book on the Process screen; an **evidence register**; **scenario screening** on the

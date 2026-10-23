@@ -20,7 +20,7 @@ People stay accountable for validation and risk decisions.
 
 Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.6.0**
 (October 2026), aligned with the textbook *Introduction to Cybersecurity Governance for Business Technology
-Management*, 3rd ed., **v2.51**; desktop application **1.8.0 Beta** — see below. Product site:
+Management*, 3rd ed., **v2.51**; desktop application **1.8.1 Beta** — see below. Product site:
 [cyberriskguardian.ca](https://cyberriskguardian.ca) · licence enquiries: sales@cyberriskguardian.ca.
 
 ## Relationship to the base edition
@@ -72,7 +72,7 @@ run both at once.
 
 ## Desktop application — try it without installing anything else
 
-**[CyberRiskGuardian Desktop 1.8.0 Beta](desktop/)** is a standalone edition of the same method that
+**[CyberRiskGuardian Desktop 1.8.1 Beta](desktop/)** is a standalone edition of the same method that
 runs entirely in your browser, offline, with your data staying on your computer. It includes the
 **Security Policy Writer** (it drafts the policy set in English and French for ISP management) and a
 **Claude Dashboard** pack for the KRI dashboard (built in Claude with the `crg-dashboard` skill). It needs neither this
@@ -81,7 +81,7 @@ plugin nor an AI provider, and it shares the engine: the MediBec baseline is the
 
 | | |
 |---|---|
-| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.8.0-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.8.0-beta.zip) — everything included |
+| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.8.1-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.8.1-beta.zip) — everything included |
 | **Installation instructions** | [`desktop/app/INSTALL.md`](desktop/app/INSTALL.md) — English and French · [print version, Windows and macOS side by side](desktop/app/INSTALL-Windows-macOS-EN-FR.pdf) |
 | **What it does** | [`desktop/README.md`](desktop/README.md) · the full guide in [`desktop/app/USER-GUIDE.md`](desktop/app/USER-GUIDE.md) |
 

@@ -130,7 +130,7 @@ file and on the screen, and it is not current threat intelligence.
   FIRST's terms of use, and `examples/threat-context/README.md` in the ThreatIntel repository for the
   refresh policy. Scores the analyst downloads at run time are still not redistributed.
 
-### CyberRiskGuardian Ontology (`data/crgo-snapshot.json`; CRGO v0.10.0)
+### CyberRiskGuardian Ontology (`data/crgo-snapshot.json`; CRGO v0.10.1)
 
 The identification export of the **CyberRiskGuardian Ontology (CRGO)** — © 2026 Marc-André Léger,
 CC BY-NC 4.0, https://github.com/ITriskMgr/CyberRiskGuardian-Ontology — rebuilt by

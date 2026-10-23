@@ -1,5 +1,18 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.8.1 Beta (Beta 1.8.x) — 23 October 2026
+
+Ontology update. `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the self-check still requires
+**84,305 / 41,023**; data version stays 3 (no migration).
+
+### Changed
+- **Offline ontology snapshot rebuilt from CRGO v0.10.1** (`data/crgo-snapshot.json`, `data/crgo-assurance.json`, with
+  `tools/build_crgo.py`): MediBec S2 and S8 are scored AV:L in the scenario library (9.3 and 9.2), and the library's
+  case-calibrated estimates that derive from them follow; computed values are labelled *risk indices*; the caveats use
+  *Analytical estimate — validation required*. The Connection tab and the "snapshot" label name CRGO 0.10.1.
+- Guides and installation notes point to CRGO v0.10.1 (`git clone --branch v0.10.1`, folder
+  `CyberRiskGuardian-Ontology-0.10.1`). The compliance and security-operations contexts still need v0.10.0 or later.
+
 ## 1.8.0 Beta (Beta 1.8.x) — 23 October 2026
 
 Aligns the application with the textbook *Introduction to Cybersecurity Governance for Business Technology
