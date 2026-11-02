@@ -1,6 +1,5 @@
 // Identity, privilege & configuration — the teaching-case samples (MediBec, CanaRetail; English and French) and the French screens.
-import { open, ok, done } from '../tests/lib.mjs';
-import { ipcOn, goto } from './ipc_lib.mjs';
+import { open, ok, done, ipcOn, goto } from './lib.mjs';
 import fs from 'fs';
 const SRC = ['ipc.js', 'panels/ipc.js', 'panels/ipc_regs.js', 'panels/ipc_cm.js'].map(f => fs.readFileSync(new URL('../app/js/' + f, import.meta.url), 'utf8').replace(/\\'/g, "'")).join('\n');
 const { browser, page, errors } = await open('#/process');
@@ -53,4 +52,4 @@ const SAME = new Set(['Population']);   // the same word in French
 const mine = ours.filter(s => SRC.includes(s) && !SAME.has(s));
 ok(mine.length === 0, 'no untranslated module text on the French screens: ' + mine.slice(0, 8).join(' | '));
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t39 ipc examples');
+await browser.close(); done('t43 ipc examples');

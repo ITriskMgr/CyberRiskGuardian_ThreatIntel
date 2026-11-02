@@ -1,6 +1,5 @@
 // Identity, privilege & configuration — CRG-17 to CRG-24: formulas, "no data" vs N/A, the unknown/stale cap, threshold overrides, dashboard.
-import { open, ok, done } from '../tests/lib.mjs';
-import { ipcOn, goto } from './ipc_lib.mjs';
+import { open, ok, done, ipcOn, goto } from './lib.mjs';
 const { browser, page, errors } = await open('#/process');
 await ipcOn(page);
 const r = await page.evaluate(async () => {
@@ -71,4 +70,4 @@ ok(h['CRG-17'] === 98.27 && h['CRG-24'] === 1, 'kriHistory records the module KR
 const top = await page.evaluate(async () => (await import('/js/state.js')).S.ws.kriSel);
 ok(Array.isArray(top) && top.length === 5, 'top-5 selection still works with the new KRIs: ' + top);
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t35 ipc kri');
+await browser.close(); done('t39 ipc kri');

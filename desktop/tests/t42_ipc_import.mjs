@@ -1,8 +1,7 @@
 // Identity, privilege & configuration — Import from a report: CSV rules counts, AI to the local mock by default with the preview,
 // remote needs the tick, confidential asks every call, and sentinel names, e-mails and keys never land anywhere stored.
-import { open, ok, done, MOCK } from '../tests/lib.mjs';
+import { open, ok, done, MOCK, ipcOn, goto } from './lib.mjs';
 const FIX = f => new URL('./fixtures/' + f, import.meta.url).pathname;
-import { ipcOn, goto } from './ipc_lib.mjs';
 import fs from 'fs';
 const SENT = /sentinel|AKIAZZ|CORP\\\\zz/i;
 const { browser, page, errors } = await open('#/process');
@@ -74,4 +73,4 @@ const leaks = Object.entries(stored.dump).filter(([, v]) => SENT.test(v)).map(([
 ok(!leaks.length && Object.keys(stored.dump).length > 0, 'no sentinel in any IndexedDB store (' + Object.keys(stored.dump).length + ' stores) ' + leaks);
 ok(!SENT.test(stored.ls), 'none in localStorage');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t38 ipc import');
+await browser.close(); done('t42 ipc import');

@@ -1,6 +1,5 @@
 // Identity, privilege & configuration — maturity reuse: the filter chip shows exactly the §7 keys, the ladders, "Apply ticked" fills empty cells only.
-import { open, ok, done } from '../tests/lib.mjs';
-import { ipcOn, goto } from './ipc_lib.mjs';
+import { open, ok, done, ipcOn, goto } from './lib.mjs';
 const { browser, page, errors } = await open('#/process');
 await goto(page, '#/maturity', 800);
 ok(!(await page.isVisible('#mt-ipc-chip')), 'no chip when the module is off');
@@ -39,4 +38,4 @@ const after = await page.evaluate(async () => { const ws = (await import('/js/st
 ok(after.pv1 === 3 && after.s15.status === 'implemented' && after.s15.evidence === 'mine', 'differing existing answers never overwritten');
 ok(after.pv3 === -1 && after.aa === 1 && after.s16 === 'partial', 'empty cells filled ' + JSON.stringify(after).slice(0, 140));
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t36 ipc maturity');
+await browser.close(); done('t40 ipc maturity');

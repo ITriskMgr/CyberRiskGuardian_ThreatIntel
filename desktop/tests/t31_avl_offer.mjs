@@ -23,7 +23,7 @@ const r = await page.evaluate(async ({ fx }) => {
   const s2 = ex.assessment.SCEN.find(s => s.id === 'S2'), s8 = ex.assessment.SCEN.find(s => s.id === 'S8');
   out.v2 = s2.cvss; out.v8 = s8.cvss; out.note2 = s2.cvss_note; out.score2 = s2.cvss_score; out.rev2 = (s2.revisions || []).at(-1)?.what;
   out.c2 = CVSS4.score(s2.cvss); out.c8 = CVSS4.score(s8.cvss);
-  const j = ex.migrationLog.at(-1); out.journal = { kind: j.kind, decision: j.decision, scenarios: j.scenarios, by: j.by };
+  const j = ex.migrationLog.at(-1); out.journal = { kind: j.kind, decision: j.decision, scenarios: j.scenarios, by: j.by }; out.version = (await import('/js/version.js')).VERSION;
   out.pendingAfter = AVL.pending(ex); out.decisionAfter = AVL.decision(ex); out.detectAfter = AVL.detect(ex).length;
   out.secondAccept = AVL.accept(ex);
   // declined: journalled, vectors untouched, not pending any more, QC-26 still warns
@@ -43,7 +43,7 @@ ok(r.accepted.join() === 'S2,S8' && /\/AV:L\//.test(r.v2) && /\/AV:L\//.test(r.v
 ok(r.before.join('/') === '84491/41104' && r.after.join('/') === '84305/41023', `engine recomputes 84,491 / 41,104 → 84,305 / 41,023 (${r.before} → ${r.after})`);
 ok(r.score2 === undefined && /opened locally/.test(r.note2), 'stale score override removed, cvss_note explains AV:L');
 ok(/AV:N → AV:L/.test(r.rev2 || ''), 'a revision entry per scenario');
-ok(r.journal.kind === 're-vector' && r.journal.decision === 'accepted' && r.journal.scenarios.join() === 'S2,S8' && /^1\.8\./.test(r.journal.by), 'journalled in migrationLog with the release');
+ok(r.journal.kind === 're-vector' && r.journal.decision === 'accepted' && r.journal.scenarios.join() === 'S2,S8' && String(r.journal.by).startsWith(r.version), 'journalled in migrationLog with the running release ' + r.journal.by);
 ok(!r.pendingAfter && r.decisionAfter === 'accepted' && r.detectAfter === 0 && !r.secondAccept.length, 'idempotent: nothing pending, a second accept changes nothing');
 ok(r.decDecision === 'declined' && !r.decPending && /\/AV:N\//.test(r.decVec) && r.decTotals.join('/') === '84491/41104', 'decline: journalled, vectors and totals untouched, not offered again');
 ok(r.qcEx === 'pass' && r.qcCls === 'warn' && r.qcDec === 'warn' && r.qcOrg === 'pass' && r.qcFix === 'process', 'QC-26: pass after accept, warn on classroom and declined copies, pass for an organization, opens Process');

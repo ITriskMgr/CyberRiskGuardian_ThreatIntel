@@ -5,7 +5,8 @@
 import { open, ok, done, MOCK, URL } from './lib.mjs';
 import fs from 'fs';
 fs.writeFileSync(MOCK + '/consultant.txt', 'Answer from the mock [P1].\n');
-const api = (page, path, body) => page.evaluate(async ({ path, body }) => { const r = await fetch(path, { method: 'POST', headers: { 'X-CRG': '1', 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, body: await r.json() }; }, { path, body });
+// Direct calls to the helper carry what the page sends: X-CRG and the per-launch token (helper.js headers()).
+const api = (page, path, body) => page.evaluate(async ({ path, body }) => { const H = await import('/js/helper.js'); const r = await fetch(path, { method: 'POST', headers: await H.headers({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) }); return { status: r.status, body: await r.json() }; }, { path, body });
 
 const { browser, page, errors } = await open('#/process');
 await page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => w.kind === 'example'); await st.select(ex.id);
@@ -82,4 +83,4 @@ const labels = await page.evaluate(async () => { const m = await import('/js/men
 ok(labels.menu === 'Virtual consultant' && !/AI assistant/.test(labels.nav) && !/AI assistant/.test(labels.mod), 'Tools → Virtual consultant; "AI assistant" is gone from the menu and the modules');
 const real = errors.filter(e => !/status of 403/.test(e));   // the refusals this suite provokes on purpose
 ok(!real.length, 'no console errors ' + real.join(' | ').slice(0, 300));
-await browser.close(); done('t43 consultant routing');
+await browser.close(); done('t47 consultant routing');

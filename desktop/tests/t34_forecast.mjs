@@ -2,11 +2,9 @@
 // exposure → review item only), mitigation optimizer (deterministic first, AI proposals accepted one by one),
 // residual-risk path per funding option (phase-in, bands, risk avoided per $1,000). Routing rows default to the
 // local model; the helper refuses a remote provider; nothing changes a parameter unless the analyst accepts it.
-import { open, ok, done, URL } from './lib.mjs';
+import { open, ok, done, URL, FEEDS, MOCK } from './lib.mjs';
 import fs from 'fs';
 import path from 'path';
-const FEEDS = process.env.CRG_FEEDS_DIR || '/home/claude/tmp/feeds-ssvc';
-const MOCK = process.env.CRG_AI_MOCK || '/home/claude/tmp/mock-ssvc';
 
 // dated snapshots in the feeds folder (and one damaged file, which is named and skipped)
 const snap = (date, epss, kev) => ({ schema: 'crg-threat-context/1', retrieved: date, expires: '2027-01-30', regions: ['ca'],

@@ -1,4 +1,4 @@
-// t44 — chapter-linked help (1.9.0): "Read more: Chapter N — section" on every screen and every process step,
+// t48 — chapter-linked help (1.9.0): "Read more: Chapter N — section" on every screen and every process step,
 // in English and French, from one table (js/data/chapters.js) whose references resolve in the book.
 //   Static: every screen of app.js PANELS and every step of process.js STEPS has an entry (a section id or
 //   "none"); every section id exists; every English heading is a heading of its chapter in kb/book; every
@@ -40,10 +40,17 @@ await page.evaluate(async () => { const st = await import('/js/state.js'); const
   const i = await import('/js/i18n.js'); await i.setLang('en'); });
 const lineOf = () => page.evaluate(() => { const sec = [...document.querySelectorAll('section[id^="panel-"]')].find(s => !s.hidden);
   const n = sec && sec.querySelectorAll('.readmore-screen'); return n ? { count: n.length, text: n[0]?.textContent || '', ref: n[0]?.dataset.chref || '', noi18n: n[0]?.hasAttribute('data-noi18n') } : null; });
-const visit = async r => { await page.evaluate(h => { location.hash = '#/' + h; }, r); await page.waitForTimeout(r.startsWith('settings') || r.startsWith('ontology') ? 1200 : 450); };
+// The line is added with the "?" help when the screen has finished drawing (helpdesc.decorate); screens that wait on the
+// helper (ontology, settings) can take more than a second under a full run, so wait for the decoration, not a fixed time.
+const visit = async r => { await page.evaluate(h => { location.hash = '#/' + h; }, r); await page.waitForTimeout(300);
+  await page.waitForFunction(() => { const s = [...document.querySelectorAll('section[id^="panel-"]')].find(x => !x.hidden); return !!s?.querySelector('h1 .helpq'); }, null, { timeout: 8000, polling: 150 }).catch(() => {}); };
 const sectionOf = r => { const [p, a] = r.split('/'); const id = (a && SCREENS[p + '/' + a]) || SCREENS[p]; return id === 'none' ? null : id; };
 
-const routes = [...panels.filter(p => p !== 'scenario'), 'org/profile', 'org/crown', 'screening/families', 'recs/shared', 'csm/incidents', 'isms/exceptions', 'settings/users', 'settings/general'];
+// Every module on: a module that is off by default (identity, privilege & configuration) shows only its "switched off"
+// notice, which carries no chapter line; the screen itself is what is under test.
+await page.evaluate(async () => { const M = await import('/js/modules.js'); for (const m of M.MODULES) if (!M.enabled(m.id)) M.set(m.id, true); });
+const routes = [...panels.filter(p => p !== 'scenario'), 'org/profile', 'org/crown', 'screening/families', 'recs/shared', 'csm/incidents', 'isms/exceptions', 'settings/users', 'settings/general',
+  'ipc/privileged', 'ipc/baselines', 'vulns/ssvc', 'forecast/exploit', 'forecast/optimizer', 'ai/history', 'settings/kb'];
 for (const r of routes) {
   await visit(r);
   const L = await lineOf(), want = sectionOf(r);
@@ -99,4 +106,4 @@ await g.close();
 ok(Object.values(SECTIONS).every(([, en, fr]) => en.length < 120 && fr.length < 140), 'the table holds headings only');
 ok(BOOK.edition === 'v2.51b', 'book edition v2.51b');
 ok(errors.length === 0, 'no page errors: ' + errors.join(' | ').slice(0, 400));
-await browser.close(); done('t44 chapter help');
+await browser.close(); done('t48 chapter help');

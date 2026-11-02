@@ -1,7 +1,7 @@
 // 1.9.0 — SSVC beside EPSS/KEV: the published trees, Exploitation suggested from KEV/EPSS/PoC as evidence,
 // one decision record per CVE (who, when, justification, outcome, history), override needs a justification,
 // tree per workspace, never a likelihood (no parameter and no total changes), the ssvc field and its migration.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done, URL } from './lib.mjs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -86,7 +86,7 @@ ok(r.step && r.mig && r.migKeep, 'STEP4 entry ssvc: data version 3 → 4 adds th
 ok(r.reset, 'reset: ssvc goes with the vulnerability register (CONTEXT)');
 
 // the screen
-await page.goto(process.env.CRG_URL ? process.env.CRG_URL + '#/vulns/ssvc' : 'http://127.0.0.1:8099/#/vulns/ssvc');
+await page.goto(URL + '#/vulns/ssvc');
 await page.waitForFunction(() => document.body.textContent.includes('Decisions by vulnerability'), null, { timeout: 15000 });
 let t = await page.textContent('main');
 ok(/A response priority, not a likelihood/.test(t) && /CVE-2026-102490/.test(t) && /Act/.test(t), 'SSVC tab lists the register with outcomes');
@@ -104,15 +104,15 @@ await page.waitForTimeout(500);
 const d = await page.evaluate(async () => { const st = await import('/js/state.js'); return st.S.ws.ssvc.decisions['CVE-2026-102490']; });
 ok(d && d.outcome === 'act' && d.by === 'Analyst C' && !d.override && d.evidence.kev.added === '2026-10-02', 'recorded from the screen: Act, by Analyst C, KEV evidence kept');
 // register column and CVE detail
-await page.goto((process.env.CRG_URL || 'http://127.0.0.1:8099/') + '#/vulns');
+await page.goto(URL + '#/vulns');
 await page.waitForSelector('th:has-text("SSVC")');
 t = await page.textContent('main');
 ok(/SSVC/.test(t) && /decide/.test(t), 'register shows an SSVC column (decided and to decide)');
-await page.goto((process.env.CRG_URL || 'http://127.0.0.1:8099/') + '#/vulns/CVE-2026-102490');
+await page.goto(URL + '#/vulns/CVE-2026-102490');
 await page.waitForSelector('text=Review the decision');
 ok(/never a likelihood/.test(await page.textContent('main')), 'CVE detail shows the SSVC outcome as a response priority');
 // tree per workspace: switching marks decisions for review
-await page.goto((process.env.CRG_URL || 'http://127.0.0.1:8099/') + '#/vulns/ssvc');
+await page.goto(URL + '#/vulns/ssvc');
 await page.waitForSelector('select[aria-label="SSVC tree for this workspace"]');
 await page.selectOption('select[aria-label="SSVC tree for this workspace"]', 'supplier');
 await page.waitForTimeout(400);

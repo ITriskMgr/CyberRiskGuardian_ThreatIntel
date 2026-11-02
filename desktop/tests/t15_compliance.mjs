@@ -238,7 +238,8 @@ await page.click('.modal button:text-is("Cancel")');
 // ---- determinations tab still works and shows the campaign lock
 await page.evaluate(() => { location.hash = '#/compliance/determinations'; });
 await page.waitForSelector('#panel-compliance >> text=Compliance determinations', { timeout: 8000 });
-ok(await page.isVisible('#panel-compliance >> text=CMP-001'), 'determinations register shows the campaign');
+// the title can be on screen before the rows (failed once in a full run): wait for the row instead of sampling once
+ok(await page.waitForSelector('#panel-compliance >> text=CMP-001', { timeout: 8000 }).then(() => true, () => false), 'determinations register shows the campaign');
 
 // ---- report: compliance posture, never compliance from a mapping, privileged text withheld
 const md = await page.evaluate(async () => (await import('/js/panels/compliance_plus.js')).fullReport(undefined, await (await import('/js/panels/compliance_legal.js')).reportSections()));

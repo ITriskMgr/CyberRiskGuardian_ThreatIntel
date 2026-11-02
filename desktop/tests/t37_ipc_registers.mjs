@@ -1,6 +1,5 @@
 // Identity, privilege & configuration — registers: CRUD, CSV, blank → null, subset/future/personal-data/secret rules, compensated deviation, baseline approval.
-import { open, ok, done } from '../tests/lib.mjs';
-import { ipcOn, goto } from './ipc_lib.mjs';
+import { open, ok, done, ipcOn, goto } from './lib.mjs';
 const { browser, page, errors } = await open('#/process');
 await ipcOn(page);
 // a fresh organization workspace, so the registers start empty
@@ -101,4 +100,4 @@ R = await reg();
 ok(R.privileged.length === 1 && R.emergency.length === 1 && R.reviews.length === 1 && R.sod.length === 1 && R.changes.length === 1, 'one row in each register');
 ok(R.emergency[0].controls.offlineCustody === 'unknown' && R.reviews[0].decisionsDone === 9, 'emergency controls default unknown; counts stored');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t33 ipc registers');
+await browser.close(); done('t37 ipc registers');

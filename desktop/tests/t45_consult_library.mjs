@@ -94,4 +94,4 @@ const gone = await page.evaluate(async () => { const store = await import('/js/s
   return { n: L.list().length, keys: (await store.keys('blob')).filter(k => String(k).startsWith('kblib:')).length }; });
 ok(gone.n === 0 && gone.keys === 0, 'a removed file leaves nothing on this computer');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t41 consultant library');
+await browser.close(); done('t45 consultant library');

@@ -2,13 +2,13 @@
 // per-question context (documents only as retrieved passages, 400 kB cap), the answer checks, and the
 // optional embedding path against a mock LOCAL embedding endpoint (Ollama and OpenAI-compatible), with the
 // vector index dropped when the model changes.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done, EMBED_PORT, tmp } from './lib.mjs';
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const EPORT = Number(process.env.CRG_EMBED_PORT || 8115), ELOG = '/tmp/crg-mock-embed.log';
+const EPORT = EMBED_PORT, ELOG = tmp('crg-mock-embed.log');
 const mock = spawn('python3', [path.join(HERE, 'mock_embed.py'), String(EPORT), ELOG], { stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 800));
 
@@ -136,4 +136,4 @@ ok(left === 0, 'saving another model in Settings clears the vector index');
 await page.evaluate(async () => { const h = await import('/js/helper.js'); h.HS.config.ai = { ...h.HS.config.ai, embed: { provider: '', model: '' } }; await h.saveConfig(); await h.probe(true);
   const st = await import('/js/state.js'); st.S.ws.consultant.retrieval = 'lexical'; st.touch(); });
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); mock.kill(); done('t40 consultant retrieval');
+await browser.close(); mock.kill(); done('t44 consultant retrieval');

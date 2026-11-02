@@ -1,6 +1,5 @@
 // Identity, privilege & configuration — the module switch: off by default, Settings → Modules, menu, data kept, KRIs hidden, access matrix.
-import { open, ok, done } from '../tests/lib.mjs';
-import { goto } from './ipc_lib.mjs';
+import { open, ok, done, goto } from './lib.mjs';
 const { browser, page, errors } = await open('#/process');
 const on0 = await page.evaluate(async () => (await import('/js/modules.js')).enabled('ipc'));
 ok(on0 === false, 'off by default');
@@ -39,4 +38,4 @@ await page.evaluate(async () => (await import('/js/modules.js')).set('ipc', true
 await goto(page, '#/process', 800);
 ok(await page.locator('#panel-process button', { hasText: 'Open Findings & proposals' }).count() >= 2, 'process steps link to the module when on');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t32 ipc module');
+await browser.close(); done('t36 ipc module');

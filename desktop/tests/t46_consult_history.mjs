@@ -2,9 +2,9 @@
 // Markdown export, citation as evidence (E-number), decision-log entries, proposals through the existing
 // review flow (Batch scenarios), and the data-version 3 → 4 migration that adds the field, built as a list
 // of sub-steps other 1.9.0 work appends to.
-import { open, ok, done, MOCK, URL } from './lib.mjs';
+import { open, ok, done, MOCK, URL, FIXTURES } from './lib.mjs';
 import fs from 'fs';
-const FX = process.env.CRG_FIXTURES || '/home/claude/tests/fixtures';
+const FX = FIXTURES;
 const fx = ['1.5.4', '1.5.5', '1.5.6', '1.5.7', '1.5.8'].map(v => JSON.parse(fs.readFileSync(`${FX}/ws-${v}.json`, 'utf8')));
 fs.writeFileSync(MOCK + '/consultant.txt', 'The register shows phishing as the leading cause [P1].\n\nGENERAL: Consider an insider scenario. See [[scenario:S1]].\n\n```json\n{"scenarios":[{"name":"Insider copies patient files to a personal cloud","statement":"A clinician with broad EHR access copies records to a personal cloud folder.","params":{"PbA":{"v":0.3,"why":"assumed","conf":"Low"}}}]}\n```\n');
 
@@ -100,4 +100,4 @@ const rs = await page.evaluate(async () => { const R = await import('/js/reset.j
   const w = structuredClone(st.S.ws); w.consultant.conversations.push({ id: 'cv-r', title: 'r', messages: [] }); R.apply(w, 'assessment'); return { n: w.consultant?.conversations?.length || 0, log: (w.ai?.log || []).length }; });
 ok(rs.n === 0 && rs.log >= 1, 'resetting the assessment clears conversations and keeps the AI log');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t42 consultant history');
+await browser.close(); done('t46 consultant history');

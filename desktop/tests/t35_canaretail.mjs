@@ -2,13 +2,10 @@
 // The picker offers the four cases in both interface languages; every case reproduces the reference of the
 // start-up self-check in the browser engine and in engine/crg_calc.py; Start over rebuilds the case the
 // workspace came from; the French MediBec keeps every number (84,305 / 41,023) and only translates text.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done, APP, TMP } from './lib.mjs';
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-const APP = process.env.CRG_APP || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../app');
-const TMP = process.env.CRG_TMP || '/tmp';
 
 const { browser, page, errors } = await open('#/org/workspaces');
 

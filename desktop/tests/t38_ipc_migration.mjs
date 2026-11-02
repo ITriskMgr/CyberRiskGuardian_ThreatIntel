@@ -1,9 +1,9 @@
 // Identity, privilege & configuration — the ipc part of data version 3 → 4 (migrateIpc4): baseline promotion, drift deviations,
 // teaching-case seed, invariants, idempotence. Fixtures 1.5.4–1.5.8 and ws-1.8.2.json (DV 3, assets with baselines, two in drift).
-import { open, ok, done, APP } from '../tests/lib.mjs';
+import { open, ok, done, APP } from './lib.mjs';
 import fs from 'fs';
 import { execSync } from 'child_process';
-const FX = v => new URL(v === '1.8.2' ? `./fixtures/ws-${v}.json` : `../tests/fixtures/ws-${v}.json`, import.meta.url);
+const FX = v => new URL(`./fixtures/ws-${v}.json`, import.meta.url);
 const fx = ['1.5.4', '1.5.5', '1.5.6', '1.5.7', '1.5.8', '1.8.2'].map(v => JSON.parse(fs.readFileSync(FX(v), 'utf8')));
 const { browser, page, errors } = await open('#/process');
 const r = await page.evaluate(async fx => {
@@ -69,4 +69,4 @@ ok(r.dataVersion === 4 && r.full.to === 4 && r.full.ipc && r.full.journal && r.f
 let rel = 0; try { execSync(`python3 ${APP}/tools/crgo_tbd_check.py --release`, { stdio: 'pipe' }); } catch (e) { rel = e.status; }
 ok(process.env.CRG_RELEASE ? rel === 0 : rel === 1, process.env.CRG_RELEASE ? 'release mode: no CRGO_TBD left' : 'release gate refuses CRGO_TBD placeholders (CRGO 0.11 not filled yet)');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t34 ipc migration');
+await browser.close(); done('t38 ipc migration');

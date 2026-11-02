@@ -1,7 +1,6 @@
 // Identity, privilege & configuration — risk link: Record as evidence → next E-number cited, scenarios untouched by linking and saving
 // a proposal, Accept writes parameter + ipc_basis + revisions + revisionLog, Dismiss needs a reason, crg.js unchanged.
-import { open, ok, done, URL } from '../tests/lib.mjs';
-import { ipcOn, goto } from './ipc_lib.mjs';
+import { open, ok, done, URL, ipcOn, goto } from './lib.mjs';
 import crypto from 'crypto';
 import fs from 'fs';
 const CRG_SHA = '358816882e46fb2f58bdec0ecdce7e7d4dba7902fd5262e59f06f81df96b688b';
@@ -60,4 +59,4 @@ ok(await page.isVisible('#ipc-scenario') && /E16/.test(await page.textContent('#
 const sha = crypto.createHash('sha256').update(fs.readFileSync(new globalThis.URL('../app/crg.js', import.meta.url))).digest('hex');
 ok(sha === CRG_SHA, 'crg.js identical to the 1.8.2 engine (SHA-256 ' + sha.slice(0, 12) + ')');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t37 ipc risk link');
+await browser.close(); done('t41 ipc risk link');

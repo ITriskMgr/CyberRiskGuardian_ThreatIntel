@@ -6,7 +6,8 @@ await page.waitForTimeout(800);
 // beta wording, top bar
 const top = await page.evaluate(() => document.querySelector('.topright').textContent);
 ok(!/Saved locally|proof of concept|Beta ·/i.test(top), 'top right shows no saved time and no beta pill');
-ok(/v1\.8\.\d+ Beta \(1\.8\.x\)/.test(await page.textContent('nav .foot')), 'footer says Beta (1.8.x)');
+const V = await page.evaluate(async () => { const v = await import('/js/version.js'); return { version: v.VERSION, series: v.SERIES }; });
+ok((await page.textContent('nav .foot')).includes(`v${V.version} Beta (${V.series})`), `footer says v${V.version} Beta (${V.series})`);
 ok(!/proof of concept/i.test(await page.evaluate(() => document.body.innerText)), 'no proof of concept on screen');
 
 // hierarchy from menu.js
@@ -15,17 +16,23 @@ for (const s of M) ok(await page.$(`nav .navsec[data-sec="${s.id}"]`), 'section 
 ok(await page.$('nav .navsub[data-sub="siem"] .subitems a[href="#/siem/rules"]'), 'SIEM has its tabs as a sub-menu');
 ok(await page.$('nav .navsec[data-sec="governance"] .navsub[data-sub="isp"]'), 'ISP management sits under Governance');
 
-// every menu route renders with a title, a description and a "?" help
+// every menu route renders with a title, a description and a "?" help — with every module on: a module that is off by
+// default (identity, privilege & configuration) shows only its "switched off" notice, which is not the screen under test
+const wasOff = await page.evaluate(async () => { const M = await import('/js/modules.js'); const off = M.MODULES.filter(m => !M.enabled(m.id)).map(m => m.id); for (const id of off) M.set(id, true); return off; });
 const routes = await page.evaluate(async () => { const m = await import('/js/menu.js'); return m.MENU.flatMap(s => s.items.flatMap(i => i.tabs ? i.tabs.map(t => t.panel + '/' + t.arg) : i.panel ? [i.panel + (i.arg ? '/' + i.arg : '')] : [])); });
 let noHelp = [];
 for (const r of routes) {
   await page.evaluate(h => { location.hash = '#/' + h; }, r);
-  await page.waitForTimeout(r.startsWith('settings') || r.startsWith('ontology') ? 900 : 350);
+  // the "?" is added when the screen has finished drawing; the ontology screen waits on the helper's CRGO server, which can
+  // take more than a second just after a helper restart: wait for the decoration (bounded), then look
+  await page.waitForTimeout(300);
+  await page.waitForFunction(() => { const s = [...document.querySelectorAll('main > section')].find(x => !x.hidden); return !!s?.querySelector('h1 .helpq'); }, null, { timeout: 8000, polling: 150 }).catch(() => {});
   const st = await page.evaluate(() => { const s = [...document.querySelectorAll('main > section')].find(x => !x.hidden); const h1 = s?.querySelector('h1');
     return { help: !!h1?.querySelector('.helpq'), desc: !!(s?.querySelector('.paneldesc') || (h1?.nextElementSibling?.classList.contains('lede'))) }; });
   if (!st.help || !st.desc) noHelp.push(r + (st.help ? '' : ' (no ?)') + (st.desc ? '' : ' (no description)'));
 }
 ok(!noHelp.length, 'every screen and tab has a description and a "?" help: ' + noHelp.join(', '));
+await page.evaluate(async off => { const M = await import('/js/modules.js'); for (const id of off) M.set(id, false); }, wasOff);
 await page.evaluate(() => { location.hash = '#/siem/rules'; }); await page.waitForTimeout(400);
 await page.click('#panel-siem h1 .helpq');
 ok(await page.isVisible('#panel-siem .helppop a[href="help/user-guide.html#siem-rules"]'), '"?" opens the help with a link to the guide section');

@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — gates, helper tests, engine regression and the browser suites (1.9.0).
 # Runs the application exactly as the launcher does (python3 serve.py), against CRGO v0.10.1, with canned AI answers
-# (desktop/tests/mock) — no key, no model and no network beyond the checkouts and the installs below.
+# (desktop/tests/mock, copied to $CRG_TMP/mock for the run) — no key, no model and no network beyond the checkouts and the installs below.
 name: desktop-ci
 on:
   push:
@@ -60,11 +60,14 @@ jobs:
           python tools/anchor_check.py
           python tools/i18n_coverage.py fr --strict
           python tools/csp_check.py
-      - name: Engine regression (MediBec 84,305 / 41,023) and CRGO bridge
+          # CRGO 0.11 identifiers are placeholders until CRGO 0.11 ships: listed here, refused only with --release
+          python tools/crgo_tbd_check.py
+      - name: Engine regression (MediBec 84,305 / 41,023), CRGO bridge and SSVC tables
         working-directory: plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts
         run: |
           python test_crg_calc.py
           python test_crgo_contract.py --crgo "$CRGO_HOME"
+          python -I test_ssvc.py
       - name: Helper guard tests
         run: python -m unittest discover -s desktop/tests -p "test_*.py" -v
       - name: Browser suites
@@ -73,3 +76,6 @@ jobs:
       - name: Helper log
         if: failure()
         run: cat "$CRG_TMP"/serve-*.log || true
+      - name: The suites left the repository's canned answers untouched
+        if: always()
+        run: git diff --exit-code -- desktop/tests/mock && test -z "$(git status --porcelain -- desktop/tests/mock)"

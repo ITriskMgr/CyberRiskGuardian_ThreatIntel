@@ -1,0 +1,10 @@
+{"costs":[
+ {"unit":"I01","initial":200000,"recurring":65000,"rationale":"Mock answer: FIDO2 keys for all privileged and remote users of a 10-clinic network usually cost more than budgeted.","confidence":"Medium"},
+ {"unit":"I99","initial":1,"recurring":1,"rationale":"Mock answer: unknown initiative, must be ignored.","confidence":"Low"}
+],
+"effects":[
+ {"scenario":"S1","red_p":0.7,"red_i":0.7,"rationale":"Mock answer: the package leaves session-token theft untreated.","confidence":"Low"},
+ {"scenario":"S2","red_p":1.4,"red_i":-2,"rationale":"Mock answer: out-of-range values to test clamping.","confidence":"Low"},
+ {"scenario":"S999","red_p":0.5,"red_i":0.5,"rationale":"Mock answer: unknown scenario, must be ignored.","confidence":"Low"}
+],
+"notes":"Mock answer: proposals for review only."}

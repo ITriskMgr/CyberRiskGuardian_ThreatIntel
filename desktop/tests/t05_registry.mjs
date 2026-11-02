@@ -1,6 +1,5 @@
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done, SHARED, URL as APPURL } from './lib.mjs';
 import fs from 'fs';
-import { SHARED, URL as APPURL } from './lib.mjs';
 fs.rmSync(SHARED, { recursive: true, force: true }); fs.mkdirSync(SHARED, { recursive: true });
 const { browser, page, errors } = await open('#/process');
 // point the helper at the shared folder
