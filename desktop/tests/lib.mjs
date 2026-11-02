@@ -66,6 +66,15 @@ async function waitReady(page, ms = 20000) {
   }
 }
 
+/** Reload the page and wait as open() does: a workspace is open, and still open a second later (the start-up chain can
+    close and reopen it, so a single check right after the reload races it). */
+export async function reload(page) {
+  await page.reload();
+  await waitReady(page);
+  await page.waitForTimeout(1000);
+  await waitReady(page);
+}
+
 export async function open(hash = '#/process') {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ serviceWorkers: process.env.CRG_SW ? 'allow' : 'block', acceptDownloads: true });
