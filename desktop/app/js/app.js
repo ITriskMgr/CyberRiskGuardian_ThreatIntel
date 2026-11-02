@@ -83,7 +83,10 @@ function selfCheck() {
   try {
     const r = CRG.run(CRG_SAMPLE);
     const est = Math.round(r.totals.est), res = Math.round(r.totals.res);
-    if (est === EXPECTED.est && res === EXPECTED.res) { state.textContent = `engine verified · ${n0(est)} / ${n0(res)}`; return true; }
+    if (est === EXPECTED.est && res === EXPECTED.res) {
+      state.textContent = `engine verified · ${n0(est)} / ${n0(res)}`;
+      return casesCheck(state, out);
+    }
     state.textContent = 'engine DIVERGES';
     out.append(banner('bad', 'Engine does not reproduce the MediBec baseline',
       `Expected ${n0(EXPECTED.est)} / ${n0(EXPECTED.res)}, got ${n0(est)} / ${n0(res)}. ` +
@@ -94,6 +97,28 @@ function selfCheck() {
     out.append(banner('bad', 'Engine raised an error during verification', String(e.message || e)));
     return false;
   }
+}
+
+/* 1.9.0 — the other bundled teaching examples are checked beside MediBec: the French MediBec must give exactly
+   the MediBec reference (only its text is translated), and CanaRetail (English and French, same numbers) its own
+   reference, computed with engine/crg_calc.py when the case was built. A guarded constant: change it only with
+   the case, never to make a diverging engine pass. */
+const EXPECTED_CANARETAIL = { est: 27526, res: 16049 };
+function casesCheck(state, out) {
+  const runs = [];
+  if (self.CRG_MEDIBEC_FR) runs.push(['MediBec (French)', self.CRG_MEDIBEC_FR.ASSESSMENT, EXPECTED]);
+  if (self.CRG_CANARETAIL) for (const l of ['en', 'fr']) runs.push([`CanaRetail (${l === 'en' ? 'English' : 'French'})`, self.CRG_CANARETAIL[l]?.ASSESSMENT, EXPECTED_CANARETAIL]);
+  for (const [name, data, exp] of runs) {
+    let est = NaN, res = NaN, err = '';
+    try { const r = CRG.run(data); est = Math.round(r.totals.est); res = Math.round(r.totals.res); } catch (e) { err = String(e.message || e); }
+    if (est === exp.est && res === exp.res) continue;
+    state.textContent = 'engine DIVERGES';
+    out.append(banner('bad', `The bundled example ${name} does not reproduce its reference`,
+      err || `Expected ${n0(exp.est)} / ${n0(exp.res)}, got ${n0(est)} / ${n0(res)}. Reinstall the application; do not rely on that example until it matches again.`));
+    return false;
+  }
+  if (self.CRG_CANARETAIL) state.textContent += ` · CanaRetail ${n0(EXPECTED_CANARETAIL.est)} / ${n0(EXPECTED_CANARETAIL.res)}`;
+  return true;
 }
 
 /* ---------------- router ---------------- */

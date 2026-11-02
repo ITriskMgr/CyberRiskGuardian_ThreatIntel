@@ -1,0 +1,138 @@
+1326	Accès partiel aux données du locataire.
+1327	Prise de contrôle complète du locataire.
+1328	Journalisation infonuagique incertaine.
+1329	L’identité infonuagique soutient l’accès à distance.
+1330	Vulnérabilité représentative : jeton de session non lié à l’appareil, réutilisable après l’AMF (de type CWE-294). UI:A l’administrateur doit interagir avec le leurre; tous les impacts sont élevés parce que le plan de contrôle régit les systèmes subséquents.
+1331	AMF résistante à l’hameçonnage et accès conditionnel avec liaison des jetons (I01), rôles d’administration infonuagique juste-à-temps et processus de consentement de l’administrateur (I02), base de référence de la posture infonuagique (I08), journaux d’audit infonuagiques transmis à la détection et réponse gérées (I03).
+1332	Annexe B nos 14 et 54
+1333	Divulgation accidentelle de renseignements sur des patients par le personnel
+1334	Un membre du personnel divulgue involontairement des renseignements sur des patients — courriel ou télécopie mal acheminé, mauvaise pièce jointe, dossier téléversé dans un nuage personnel ou document remis au mauvais patient — parce que les mesures de traitement des données et la sensibilisation sont limitées, ce qui entraîne des incidents de confidentialité et des plaintes de patients.
+1335	Tout le personnel clinique et administratif; responsable de la protection des renseignements personnels; gestionnaires de clinique; patients.
+1336	MediBec traite de grands volumes de renseignements de santé dans 10 cliniques (E1). Les mesures de protection de la vie privée attendues (classification, prévention des pertes de données, évaluation des atteintes) figurent parmi les éléments à évaluer, non parmi les mesures existantes (E5, E7).
+1337	Initié négligent (erreur humaine).
+1338	Divulgation non intentionnelle.
+1339	Aucune prévention des pertes de données ni avertissement sur les destinataires démontré
+1340	Formation sur la vie privée par rôle inconnue (E7)
+1341	Recours à la télécopie et au courriel pour les références (hypothèse de l’analyste)
+1342	Renseignements de CJ1 et CJ2 en transit et dans des documents.
+1343	Références, communication des résultats, administration.
+1344	Fonction de protection de la vie privée et de conformité (E4, s. 4)
+1345	Un commis envoie un lot de résultats de laboratoire à une clinique externe au nom semblable, choisie par la saisie automatique du courriel. Le destinataire le signale trois jours plus tard.
+1346	Erreur — transmission mal acheminée
+1347	Exposition — le destinataire reçoit les données
+1348	Détection — signalement du destinataire ou d’un patient
+1349	Réponse — demande de rappel, évaluation de l’atteinte
+1350	Impact d’affaires — incident de confidentialité individuel
+1351	Nombre limité de patients.
+1352	Charge de traitement des incidents.
+1353	Registre des incidents; notification en cas de risque de préjudice sérieux.
+1354	Une erreur humaine est quasi certaine dans 10 cliniques en 12 mois.
+1355	Peu de mesures de protection techniques démontrées.
+1356	Mineur
+1357	Un seul patient ou un petit lot.
+1358	Un lot important envoyé à l’externe.
+1359	Une fonction de protection de la vie privée existe pour intervenir.
+1360	Processus de communication courants.
+1361	Applicabilité limitée : erreur humaine. Vulnérabilité représentative : absence de mesures de prévention des pertes de données sortantes pour un utilisateur authentifié. Le score est faible par conception; l’impact d’affaires est pris en compte dans les estimations de dommages.
+1362	Prévention des pertes de données sortantes et avertissements sur les destinataires (I09), canal sécurisé de références remplaçant la télécopie et le courriel et minimisation des données (I19), formation sur la vie privée par rôle (I12).
+1363	Annexe B nos 146, 105 et 173
+1364	Interception ou exposition de téléconsultations et de messages cliniques
+1365	Une personne externe se joint à une téléconsultation ou l’enregistre grâce à un lien de réunion ouvert, ou intercepte des messages cliniques envoyés par des outils de communication non approuvés ou mal configurés, exposant des consultations sensibles.
+1366	Cliniciens; patients; responsable des systèmes de communication; responsable de la protection des renseignements personnels; fournisseur de communications.
+1367	Les services de voix, de vidéo et de messagerie relient les cliniques et les cliniciens; la confidentialité et la collaboration sécurisée sont signalées pour évaluation (E2).
+1368	Intrus opportuniste; tiers curieux.
+1369	Accès non autorisé à des communications en temps réel.
+1370	Liens de réunion sans salle d’attente ni authentification (hypothèse de l’analyste)
+1371	Utilisation d’applications de messagerie grand public par les cliniciens (hypothèse de l’analyste)
+1372	Base de référence de configuration de la plateforme de communication non démontrée
+1373	Systèmes de communication; contenu des consultations.
+1374	Téléconsultation, collaboration entre cliniciens.
+1375	Systèmes de communication en place (E2 — paramètres de sécurité inconnus)
+1376	Un lien de réunion récurrent pour des téléconsultations en psychiatrie est communiqué dans un courriel à un patient, puis transféré; un participant inconnu se joint en silence. Par ailleurs, des cliniciens partagent des images par une application de messagerie grand public.
+1377	Accès — réutilisation d’un lien statique ou d’un canal non approuvé
+1378	Collecte — écoute ou enregistrement
+1379	Détection — participant remarqué ou jamais
+1380	Impact d’affaires — divulgation sensible
+1381	Consultations très sensibles.
+1382	Reconfiguration de la plateforme.
+1383	Modérée à élevée pour les spécialités sensibles.
+1384	Opportuniste; dépend du volume de télésanté (lacune d’information).
+1385	Configuration inconnue.
+1386	Consultations individuelles.
+1387	Interception systématique.
+1388	Mesures de la plateforme disponibles si elles sont configurées.
+1389	Soutient la plupart des soins sans en être le cœur.
+1390	Vulnérabilité représentative : absence d’authentification pour une ressource de réunion (CWE-306). AT:P l’attaquant doit obtenir le lien.
+1391	Plateforme de télésanté et de messagerie approuvée avec entrée authentifiée, salles d’attente, chiffrement et base de référence de configuration; interdiction des applications grand public pour les renseignements de santé (I22).
+1392	Opérations cliniques avec le DPI
+1393	3 à 6 mois
+1394	Annexe B nos 82, 90 et 22
+1395	Force brute ou bourrage d’identifiants contre des interfaces d’administration exposées
+1396	Un attaquant trouve des interfaces de gestion (bureau à distance, consoles d’hyperviseur ou de pare-feu, gestion du stockage ou gestion hors bande) exposées à Internet ou aux réseaux des partenaires et y accède par bourrage d’identifiants ou mots de passe par défaut, obtenant le contrôle administratif de l’infrastructure.
+1397	Équipe d’infrastructure; responsable de la cybersécurité; DPI; fournisseurs de services gérés.
+1398	L’exposition des services et l’exhaustivité de l’inventaire sont des questions ouvertes (E4); l’accès à distance existe (E2). Les portails d’administration exposés et les interfaces de gestion à distance figurent dans le catalogue élargi (E8).
+1399	Cybercriminel / courtier d’accès initial.
+1400	Attaque de mots de passe contre une interface d’administration exposée.
+1401	Services exposés à Internet inconnus (E4)
+1402	Interfaces d’administration sans AMF (hypothèse de l’analyste)
+1403	Identifiants par défaut ou réutilisés (hypothèse de l’analyste)
+1404	Aucune surveillance externe de la surface d’attaque démontrée
+1405	CJ6 infrastructure; hyperviseurs, pare-feu, stockage.
+1406	Tous les services hébergés.
+1407	Un balayage externe trouve un port de gestion hors bande d’un serveur accessible depuis Internet avec le mot de passe par défaut du fabricant. L’attaquant éteint des hôtes, puis déploie un rançongiciel directement sur l’hyperviseur.
+1408	Découverte — balayage d’Internet
+1409	Accès initial — identifiants par défaut ou réutilisés
+1410	Privilège — administration complète de l’équipement
+1411	Impact — perturbation, chiffrement ou accès aux données
+1412	Détection — panne
+1413	Impact d’affaires — panne de plusieurs systèmes
+1414	Accès aux données hébergées.
+1415	Altération de la configuration.
+1416	Panne de plusieurs systèmes.
+1417	Balayage d’Internet et attaques de mots de passe continus.
+1418	Dépend de l’exposition réelle — inconnue.
+1419	Contrôle d’un composant d’infrastructure.
+1420	Rançongiciel au niveau de l’hyperviseur.
+1421	Aucune surveillance de la surface d’attaque.
+1422	L’infrastructure héberge les joyaux de la couronne.
+1423	Vulnérabilité représentative : interface de gestion exposée avec identifiants faibles ou par défaut (CWE-1392/521). AT:P — la réussite dépend d’un identifiant devinable.
+1424	Gestion externe de la surface d’attaque et retrait des interfaces exposées (I05), AMF et accès d’administration relayé par la GAP (I01, I02), surveillance des connexions d’administration (I03).
+1425	Maliciel introduit par un support d’imagerie fourni par un patient ou par une clé USB
+1426	Un maliciel présent sur un CD ou une clé USB d’imagerie fourni par un patient, ou sur une clé USB du personnel, s’exécute sur un poste de radiologie ou la console d’un appareil au chargement du support, infectant des systèmes mal protégés par la sécurité des postes et reliés au réseau clinique.
+1427	Personnel de radiologie; génie biomédical; gestionnaires de clinique; responsable de la cybersécurité.
+1428	La radiologie et l’équipement médical interconnecté font partie de l’environnement (E1, E2); les inventaires d’appareils et la couverture des postes sont incertains (E4). Les services d’imagerie importent couramment des supports externes.
+1429	Maliciel courant (souvent transporté involontairement).
+1430	Exécution d’un maliciel à partir d’un support amovible.
+1431	Exécution automatique ou importation sans restriction des supports sur les postes d’imagerie (hypothèse de l’analyste)
+1432	Consoles d’appareils sans EDR (E4)
+1433	Aucune borne d’analyse des supports démontrée
+1434	CJ2 postes d’imagerie; CJ8 appareils.
+1435	Importation d’images pour le diagnostic et les références.
+1436	Antimaliciel (E2 — couverture des consoles d’appareils inconnue)
+1437	Un patient apporte sur une clé USB infectée par un ver des images d’une clinique externe. Le poste d’importation, qui exécute un système d’exploitation non pris en charge sans EDR, est infecté et propage le ver à la console d’une modalité voisine.
+1438	Accès initial — support amovible
+1439	Exécution — sur le poste d’importation
+1440	Déplacement latéral — vers les consoles d’appareils
+1441	Perturbation — appareils instables
+1442	Détection — dysfonctionnement d’un appareil
+1443	Impact d’affaires — interruption de l’imagerie
+1444	Corruption possible d’images.
+1445	Interruption de l’imagerie.
+1446	Examens reportés.
+1447	Correction par le fournisseur de l’appareil.
+1448	Diagnostic retardé.
+1449	Des supports externes sont importés couramment.
+1450	Couverture des consoles d’appareils par la sécurité des postes inconnue.
+1451	Une zone d’imagerie perturbée.
+1452	Propagation à plusieurs appareils.
+1453	Aucune surveillance des appareils.
+1454	L’imagerie est un service diagnostique essentiel.
+1455	Vulnérabilité représentative : exécution automatique de contenu provenant d’un support amovible. AV:P support inséré physiquement; UI:P le personnel le charge.
+1456	Borne d’analyse des supports et contrôle des périphériques, EDR lorsque possible (I03), durcissement des dispositifs médicaux (I07), isolement des segments d’imagerie (I06), procédure pour le personnel (I12).
+1457	Responsable de la radiologie avec le responsable de la cybersécurité
+1458	Annexe B nos 132 et 138
+1459	Appareils retirés ou équipement médical cédé avec des données de patients récupérables
+1460	Des postes, disques, imprimantes, unités de stockage ou équipements médicaux sont retournés aux bailleurs, vendus ou recyclés sans effacement certifié des données, et un tiers en récupère des données de patients.
+1461	Infrastructure; génie biomédical; approvisionnement; responsable de la protection des renseignements personnels; fournisseur d’élimination.
+1462	MediBec exploite de nombreux postes, unités de stockage locales et appareils qui stockent des images (E2). Les mesures de cycle de vie et d’élimination des actifs ne sont pas documentées.
+1463	Acheteur en aval, recycleur ou chercheur.

@@ -3,7 +3,7 @@
 'use strict';
 import { el, $, n0, kpi, banner, card, field, select, chip, download, toast, uid, today, go, copyText, debounce, pill, modal, table } from '../util.js';
 import * as MIG from '../migrate.js';
-import { S, touch, newWorkspace, medibecWorkspace, create, remove, select as selectWs, migrate, docText, setDocText, delDoc, refreshList, saveNow, SCHEMA, emit } from '../state.js';
+import { S, touch, newWorkspace, exampleWorkspace, exampleAvailable, EXAMPLES, create, remove, select as selectWs, migrate, docText, setDocText, delDoc, refreshList, saveNow, SCHEMA, emit } from '../state.js';
 import { extractText, hints } from '../extract.js';
 import * as X from '../extractor.js';
 import * as aiui from '../aiui.js';
@@ -489,11 +489,15 @@ const confirmDel = name => window.confirm('Remove "' + name + '" from this works
 /* ---------------- workspaces ---------------- */
 function workspaces(body, arg, sec) {
   const name = el('input', { placeholder: 'e.g. Acme Manufacturing 2026, or Team 4 — Northwind case' });
-  const kind = select([['organization', 'Real organization'], ['classroom', 'Classroom business case']], 'organization');
-  const from = select([['blank', 'Blank assessment'], ['medibec', 'Copy of the MediBec example'], ['current', 'Copy of the current workspace'], ['import', 'Import a JSON file…']], 'blank');
+  const kind = select([['organization', 'Real organization'], ['classroom', 'Classroom business case'], ['example', 'Teaching example (bundled)']], 'organization');
+  // 1.9.0 — the bundled teaching examples: MediBec and CanaRetail, each in English and in French
+  const isEx = v => EXAMPLES.some(e => e.id === v);
+  const from = select([['blank', 'Blank assessment'], ...EXAMPLES.filter(e => exampleAvailable(e.id)).map(e => [e.id, e.label]),
+    ['current', 'Copy of the current workspace'], ['import', 'Import a JSON file…']], 'blank');
+  from.addEventListener('change', () => { if (isEx(from.value) && kind.value === 'organization') kind.value = 'example'; else if (!isEx(from.value) && kind.value === 'example') kind.value = 'organization'; });
   const edu = el('input', { type: 'checkbox', style: { width: 'auto' } });
   edu.addEventListener('change', () => { if (edu.checked) kind.value = 'classroom'; });
-  kind.addEventListener('change', () => { if (kind.value !== 'classroom') edu.checked = false; });
+  kind.addEventListener('change', () => { if (kind.value !== 'classroom') edu.checked = false; if (kind.value === 'example' && !isEx(from.value)) from.value = 'medibec'; });
   const exP = el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } });
   const exC = el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } });
   const exM = el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } });
@@ -516,10 +520,10 @@ function workspaces(body, arg, sec) {
   docDrop.addEventListener('drop', e => { e.preventDefault(); docDrop.classList.remove('over'); addPending([...e.dataTransfer.files]); });
   drawPending();
   const doCreate = async (data) => {
-    const fromFile = !!data && from.value !== 'medibec' && from.value !== 'current';
+    const fromFile = !!data && !isEx(from.value) && from.value !== 'current';
     const nm = name.value.trim() || (kind.value === 'classroom' ? 'Classroom case' : 'New organization');
     let ws;
-    if (from.value === 'medibec') { ws = medibecWorkspace(); ws.id = uid('ws'); ws.name = nm; ws.kind = kind.value; }
+    if (isEx(from.value)) { ws = exampleWorkspace(from.value); ws.id = uid('ws'); ws.crgo = MIG.blankCrgo(ws.id); if (name.value.trim()) ws.name = nm; ws.kind = kind.value; }
     else if (from.value === 'current') {
       ws = JSON.parse(JSON.stringify(S.ws)); ws.id = uid('ws'); ws.name = nm; ws.kind = kind.value; ws.snapshot = null;
       for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, await docText(d.id)); d.id = nid; }
@@ -549,7 +553,7 @@ function workspaces(body, arg, sec) {
        file is the starting point students go back to. A teaching case built here is not: the person is
        still assembling it, and a baseline taken now would be half a case. They set it themselves on
        Reset data → “Set the current state as the starting point”. */
-    if (fromFile && RESET.isTeaching(ws)) { try { await RESET.ensureBaseline(ws); } catch { /* a baseline is a convenience */ } }
+    if ((fromFile || (isEx(from.value) && ws.kind === 'classroom')) && RESET.isTeaching(ws)) { try { await RESET.ensureBaseline(ws); } catch { /* a baseline is a convenience */ } }
     if (pending.length) {
       const res = await addDocs(S.ws, pending.splice(0), msg);
       const bad = res.filter(r => r.state !== 'good').length;

@@ -209,6 +209,12 @@ moteur vérifié · 84,305 / 41,023
 compare les totaux aux chiffres que produit `crg_calc.py`. Lorsqu'ils concordent, le moteur de votre
 navigateur est en accord avec l'implémentation de référence.
 
+Les autres exemples pédagogiques fournis sont vérifiés au même moment : le MediBec en français doit donner
+exactement 84 305 / 41 023 (seul son texte est traduit), et CanaRetail, en anglais et en français, sa propre
+référence, **27 526 / 16 049**. Lorsque tout concorde, le pied de page affiche
+`moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`; un exemple fourni qui ne reproduit pas sa
+référence fait passer le pied de page à `moteur DIVERGENT`, avec un bandeau qui le nomme.
+
 | Le pied de page affiche | Signification | Que faire |
 |---|---|---|
 | `moteur vérifié · 84,305 / 41,023` | Correct. | Poursuivez. |
@@ -733,11 +739,27 @@ un cas de classe).
 
 **Espaces de travail — évaluer une organisation nouvelle ou différente.** Donnez un nom à l'espace de
 travail, choisissez *Organisation réelle* ou *Cas d'affaires pour la classe*, et partez d'une évaluation
-vierge, d'une copie de l'exemple MediBec, d'une copie de l'espace de travail courant ou d'un fichier
+vierge, de l'un des exemples pédagogiques fournis, d'une copie de l'espace de travail courant ou d'un fichier
 importé (une exportation d'espace de travail, ou tout fichier JSON d'évaluation que `crg_calc.py`
 accepte). Cochez **Cas pédagogique utilisé à des fins de formation** pour signaler un cas
 d'enseignement ; l'espace de travail devient un cas de classe et chaque livrable indique que le cas est
 fictif.
+
+**Les exemples pédagogiques fournis.** *Partir de* propose quatre cas fictifs complets; en choisir un fixe le
+type à *Exemple pédagogique (fourni)* (choisissez plutôt *Cas d'affaires pour la classe* pour le distribuer
+avec un point de départ consigné) :
+
+| Exemple | Contenu | Totaux de référence |
+|---|---|---|
+| *MediBec — soins de santé privés (anglais)* | Dix cliniques au Québec; 30 scénarios issus de 45 candidats triés, éléments probants, 23 initiatives, 20 ICR; appétence pour le risque de 0,30. Le cas des laboratoires. | 84 305 / 41 023 |
+| *MediBec — soins de santé privés (français)* | Le même cas, avec ses scénarios, ses documents et son tri en français. Chaque chiffre, vecteur et identifiant est celui de la version anglaise. | 84 305 / 41 023 |
+| *CanaRetail — commerce de détail national (anglais)* | 100 magasins Maison Helenas et une plateforme nationale de commerce électronique; appétence pour le risque de 0,5 (neutre); 40 candidats triés en dix familles : les neuf scénarios que le cas fournit pour le module D (rançongiciel, initié des TI, maliciel de PDV, RPV non corrigé, compartiment infonuagique ouvert, chiffrement faible, injection SQL, mauvaise configuration du pare-feu, détournement DNS) et un original (un compte de service d'intégration surprivilégié); vecteurs CVSS v4.0, dont trois par équivalence; registre des éléments probants, dix mesures (M1 à M10, soit I01 à I10), douze ICR, années budgétaires 2026 à 2028 tirées du tableau du cas, sommaire de gestion. La sécurité des paiements en est le fil conducteur. | 27 526 / 16 049 |
+| *CanaRetail — commerce de détail national (français)* | Le même cas en français, mêmes chiffres. | 27 526 / 16 049 |
+
+Les chiffres sont des valeurs pédagogiques — plausibles, cohérentes et justifiées, avec les marqueurs normalisés
+lorsqu'elles sont estimées — et non les réponses du cas. L'espace de travail CanaRetail est construit à partir
+de la version étudiante du cas; les valeurs de l'enseignant de la bibliothèque de cas n'ont servi qu'à une
+contre-vérification d'étalonnage.
 
 Le formulaire du nouvel espace de travail a sa propre zone de dépôt : déposez ou choisissez plusieurs
 fichiers Word (.docx) ou PDF à la fois — le cas d'affaires, le profil de l'entreprise, un rapport
@@ -988,13 +1010,13 @@ contrôle). La vue d'ensemble du module leur propose des valeurs tirées de ses 
 
 **Recommencer** — pour la personne qui travaille sur un cas d'enseignement. Aucun administrateur n'est
 nécessaire : réinitialiser son propre exercice n'est pas un acte administratif. Cette option n'est
-offerte que pour un **cas d'enseignement** — l'exemple MediBec fourni ou tout espace de travail dont le
+offerte que pour un **cas d'enseignement** — un exemple pédagogique fourni ou tout espace de travail dont le
 type est un cas d'affaires pour la classe — parce que seul un cas d'enseignement a un point de départ
 auquel revenir :
 
 | Le cas | Où mène « recommencer » |
 |---|---|
-| L'exemple MediBec fourni | Le cas tel que livré avec l'application. |
+| Un exemple fourni (MediBec ou CanaRetail, en anglais ou en français) | Le cas tel que livré avec l'application — celui à partir duquel l'espace de travail a été créé. |
 | Un cas de classe importé d'un fichier | L'état contenu dans ce fichier, consigné au moment de son importation. |
 | Un cas de classe construit sur cet ordinateur | Nulle part, tant qu'un enseignant n'a pas consigné de point de départ. |
 

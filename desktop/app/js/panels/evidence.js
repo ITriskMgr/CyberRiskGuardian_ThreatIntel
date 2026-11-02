@@ -34,9 +34,9 @@ export const CLASSES = [['', '—'], ['verified', 'Verified organizational evide
 export function typeOf(label) {
   const t = String(label || '').toLowerCase();
   if (TYPES.some(x => x[0] === t)) return t;
-  if (/exercise|simulat|tabletop|inject|sample log/.test(t)) return 'exercise';
-  if (/sme|expert|interview|workshop/.test(t)) return 'sme';
-  if (/external|sector|threat|report|advisor|intel|benchmark/.test(t)) return 'external';
+  if (/exercise|exercice|simulat|tabletop|inject|sample log/.test(t)) return 'exercise';     // 1.9.0: French labels of the bundled French cases too
+  if (/sme|expert|interview|workshop|entrevue|atelier/.test(t)) return 'sme';
+  if (/external|externe|sector|secteur|threat|menace|report|advisor|intel|benchmark/.test(t)) return 'external';
   if (/document|policy|case|contract|audit|architecture|annual|plan/.test(t)) return 'documented';
   return '';
 }

@@ -195,6 +195,12 @@ On every start the app recomputes the bundled MediBec teaching case — 30 scena
 the totals with the figures `crg_calc.py` produces. When they match, the engine in your browser
 agrees with the reference implementation.
 
+The other bundled teaching examples are checked in the same pass: the French MediBec must give exactly
+84,305 / 41,023 (only its text is translated), and CanaRetail, in English and in French, its own reference
+**27,526 / 16,049**. When all agree the footer reads `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`;
+a bundled example that does not reproduce its reference turns the footer to `engine DIVERGES` with a banner
+naming it.
+
 | Footer reads | Meaning | What to do |
 |---|---|---|
 | `engine verified · 84,305 / 41,023` | Correct. | Proceed. |
@@ -701,10 +707,25 @@ The **Organization profile** screen has six tabs: *Profile & appetite*, *Crown j
 *Import from documents*, *Evidence* and *Workspaces* (plus *Classroom* for a classroom case).
 
 **Workspaces — assessing a new or different organization.** Give the workspace a name, choose *Real
-organization* or *Classroom business case*, and start from a blank assessment, a copy of the MediBec
-example, a copy of the current workspace, or an imported file (a workspace export, or any assessment
+organization* or *Classroom business case*, and start from a blank assessment, one of the bundled teaching
+examples, a copy of the current workspace, or an imported file (a workspace export, or any assessment
 JSON that `crg_calc.py` accepts). Tick **Educational case used for training purposes** to mark a
 teaching case; the workspace becomes a classroom case and every deliverable says the case is fictional.
+
+**The bundled teaching examples.** *Start from* offers four complete, fictional cases; choosing one sets the
+type to *Teaching example (bundled)* (choose *Classroom business case* instead to hand it out with a recorded
+starting point):
+
+| Example | What it holds | Reference totals |
+|---|---|---|
+| *MediBec — private healthcare (English)* | Ten clinics in Quebec; 30 scenarios from 45 screened candidates, evidence, 23 initiatives, 20 KRIs; appetite 0.30. The lab case. | 84,305 / 41,023 |
+| *MediBec — private healthcare (French)* | The same case with its scenarios, documents and screening in French. Every number, vector and identifier is the English one. | 84,305 / 41,023 |
+| *CanaRetail — national retail (English)* | 100 Maison Helenas stores and a national e-commerce platform; appetite 0.5 (risk neutral); 40 candidates screened into ten families: the nine scenarios the case supplies for Module D (ransomware, IT insider, POS malware, unpatched VPN, open cloud bucket, weak encryption, SQL injection, firewall misconfiguration, DNS hijacking) and one original (an over-privileged integration service account); CVSS v4.0 vectors, three of them by equivalency; evidence register, ten measures (M1–M10 as I01–I10), twelve KRIs, IT budget years 2026–2028 from the case table, a management summary. Payment security is the thread. | 27,526 / 16,049 |
+| *CanaRetail — national retail (French)* | The same case in French, same numbers. | 27,526 / 16,049 |
+
+The numbers are teaching values — plausible, internally consistent and justified, with the standard markers
+where they are estimated — not answers to the case. The CanaRetail workspace is built from the student
+version of the case; the instructor values of the case library served only as a calibration cross-check.
 
 The New-workspace form has its own drop zone: drop or choose several Word (.docx) or PDF files at once
 — the business case, the company profile, an audit report, the incident history; Excel, PowerPoint and
@@ -924,13 +945,13 @@ proposes values for them from its registers; **Apply ticked** fills empty answer
 **Organization → Reset data.** Two audiences, kept apart on purpose.
 
 **Start over** — for whoever is working a teaching case. No administrator is needed: resetting your own
-exercise is not an administrative act. It is offered only for a **teaching case** — the bundled MediBec
+exercise is not an administrative act. It is offered only for a **teaching case** — a bundled teaching
 example or any workspace whose type is a classroom business case — because only a teaching case has a
 starting point to go back to:
 
 | The case | Where “start over” goes |
 |---|---|
-| The bundled MediBec example | The case as shipped with the application. |
+| A bundled example (MediBec or CanaRetail, English or French) | The case as shipped with the application — the one the workspace was built from. |
 | A classroom case imported from a file | The state in that file, recorded the moment it was imported. |
 | A classroom case built on this computer | Nowhere, until an instructor records a starting point. |
 
