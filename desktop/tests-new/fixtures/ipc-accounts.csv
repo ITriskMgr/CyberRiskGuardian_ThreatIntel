@@ -1,0 +1,9 @@
+UserPrincipalName,DisplayName,AccountType,Enabled,LastSignIn,MFA,MFAMethod,Owner,Tier
+zz.sentinel.alpha@sentinel-corp.example,Zelda Sentinelalpha,Employee,true,2026-10-20,yes,Microsoft Authenticator,HR,
+zz.sentinel.beta@sentinel-corp.example,Yuri Sentinelbeta,Employee,true,2026-03-01,yes,FIDO2 security key,HR,1
+zz.sentinel.gamma@sentinel-corp.example,Xavier Sentinelgamma,Employee,true,2026-10-25,no,,HR,
+zz.sentinel.delta@sentinel-corp.example,Wanda Sentineldelta,Employee,false,2025-01-01,no,,HR,
+svc-sentinel-backup@sentinel-corp.example,svc-sentinel-backup,Service,true,2026-10-30,no,,,
+svc-sentinel-sync@sentinel-corp.example,svc-sentinel-sync AKIAZZSENTINEL000001,Service,true,2026-01-01,no,,Platform,
+ext.sentinel.eps@vendor.example,Victor Sentineleps,Contractor,true,2026-10-29,yes,SMS,Procurement,2
+admin.sentinel.zeta@sentinel-corp.example,Ursula Sentinelzeta,Employee,true,2026-10-31,yes,Windows Hello,IAM,0

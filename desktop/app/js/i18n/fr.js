@@ -3687,6 +3687,7 @@ export default {
 "Give this row an owner (a role or team): service, AI-agent, emergency and tier 0 populations need one.": "Donnez un propriétaire à cette ligne (un rôle ou une équipe) : les populations de service, d’agents d’IA, d’urgence et de niveau 0 en exigent un.",
 "Grant, change and remove access deliberately": "Attribuer, modifier et retirer les accès de façon contrôlée",
 "Holders": "Titulaires",
+"\"Link\" writes the baseline name and its reference on the asset; the asset's own compliance status is left as it is.": "« Lier » inscrit le nom de la configuration de référence et sa référence sur l’actif; le statut de conformité propre à l’actif reste tel quel.",
 "IPC {0}: {1}": "IPC {0} : {1}",
 "IR-01": "IR-01",
 "IR-02": "IR-02",

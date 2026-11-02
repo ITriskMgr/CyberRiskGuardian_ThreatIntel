@@ -784,11 +784,12 @@ export async function sha256(buf) { const h = await crypto.subtle.digest('SHA-25
 /** Which teaching case a workspace is, from its name: 'medibec', 'canaretail' or null. */
 export function caseOf(ws) {
   if (!ws || ws.kind !== 'example') return null;
-  const n = [ws.name, ws.org?.name].join(' ');
-  return /medibec/i.test(n) ? 'medibec' : /cana\s*retail/i.test(n) ? 'canaretail' : null;
+  const c = String(ws.teaching?.case || '');
+  if (c) return /^medibec/.test(c) ? 'medibec' : /^canaretail/.test(c) ? 'canaretail' : null;
+  return /medibec/i.test([ws.name, ws.org?.name].join(' ')) ? 'medibec' : null;   // examples made before the case was recorded are MediBec
 }
-/** The language of a teaching case (its labels follow it). */
-export const caseLang = ws => (ws.lang || ws.org?.lang || ws.teaching?.lang || (/\b(fictif|fictive|cas d.enseignement)\b/i.test(ws.name || '') ? 'fr' : 'en')) === 'fr' ? 'fr' : 'en';
+/** The language of a teaching case (its labels follow it): the '-fr' cases are in French. */
+export const caseLang = ws => /-fr$/.test(String(ws?.teaching?.case || '')) ? 'fr' : 'en';
 export const registersEmpty = ws => !ws.ipc || REGISTER_KEYS.every(k => !(ws.ipc[k] || []).length) && !(ws.ipc.findings || []).length;
 /**
  * Load a per-case sample into a workspace: rows (labels in the case language), evidence appended at the
@@ -839,7 +840,7 @@ export function applySample(ws, sample, { lang = caseLang(ws) } = {}) {
       state: 'recorded', eid: emap[f.eid] || '', scenarios: scen, proposals: [], action: '', created: sample.settings?.asOf || today() };
     for (const p of f.proposals || []) {
       const s = p.scenario ? ws.assessment.SCEN.find(x => x.id === p.scenario) : ws.assessment.SCEN.find(x => p.scenarioMatch && new RegExp(p.scenarioMatch, 'i').test(x.name || ''));
-      if (!s) throw new Error(`Sample proposal: no scenario matches ${p.scenario || p.scenarioMatch}.`);
+      if (!s) throw new Error(`Sample proposal: no scenario matches {0}.`.replace('{0}', p.scenario || p.scenarioMatch));
       rec.proposals.push({ scenario: s.id, param: p.param, from: Number(s.params?.[p.param]?.v), to: p.to, rationale: remapE(pick(p.rationale) || ''), conf: p.conf || 'Low',
         state: 'proposed', date: sample.settings?.asOf || today(), by: 'teaching case', decidedBy: '', decidedOn: '', reason: '' });
       if (!rec.scenarios.some(x => x.id === s.id)) rec.scenarios.push({ id: s.id, param: p.param });

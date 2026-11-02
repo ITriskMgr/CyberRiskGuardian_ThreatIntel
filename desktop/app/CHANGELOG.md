@@ -1,5 +1,40 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.9.0 Beta (in progress) — group 4: Identity, privilege & configuration
+
+### Added
+- **Identity, privilege & configuration** (`ipc`), an optional module in Settings → Modules (Governance), **off by
+  default**, every edition. A strategic posture assessment with seven local registers kept at **population level**
+  — account populations by type, privileged roles by tier 0–2, emergency (break-glass) accounts, access-review
+  campaigns, versioned baselines with configuration scopes, deviations by drift class with their exceptions,
+  segregation-of-duties rules and configuration changes. No connector, no workflow, no remediation; **no names,
+  account identifiers or secrets** (personal-data and secret guards block e-mail/UPN, `DOMAIN\user`, SIDs, more than
+  three IP addresses, keys and tokens). Blank counts stay unknown; stale rows are badged. Spec: desktop edition v1.2.
+- **Eight automatic KRIs, CRG-17 to CRG-24** (identity ownership, privileged MFA, standing privilege, access-review
+  completion, emergency use reviewed, baseline assignment, known coverage, expired exceptions) with numerator and
+  denominator, *not applicable* for a zero denominator, and **never green by excluding unknowns**; threshold overrides
+  in `kriDefs` with Restore default; hidden when the module is off.
+- **Sixteen deterministic finding rules** (IR-01 to IR-16) with a direction hint only; **Record as evidence** (next
+  E-number, counted by the evidence register's citations), **Link scenario** (scenario unchanged), **Propose a parameter
+  change** (Pb(ψ,A) or θ, the value typed by the analyst, ratio now → after from the verified engine). **Accept** is a
+  separate act: parameter, `ipc_basis`, scenario revisions and revision log. Nothing is applied automatically.
+- Maturity reuse: a filter chip (PR.AA, PR.PS, pv1, pv3, ct2, ct3; the 15 statement-of-applicability keys in Compliance
+  → Frameworks & checklists) and proposals that fill **empty answers only**.
+- **Import from a report**: CSV/XLSX counted by offline rules, prose reports by AI (task `extract_s_ipc`, local model by
+  default, payload preview with token count and anonymizer, remote needs an explicit authorization tick, confidential
+  workspaces confirm every call). The file is read in memory only; only accepted counts and an import trace (file,
+  SHA-256, bytes, rows) are kept.
+- Teaching cases: MediBec (EN/FR) gets evidence E13–E15 and five recorded findings, no proposal (84,305 / 41,023
+  unchanged); CanaRetail (EN/FR) one finding with evidence E13 and one **pending** proposal on S10 (27,526 / 16,049
+  unchanged). Samples in `js/data/ipc-samples.js`.
+- Migration function `migrateIpc4` (js/migrate.js) for the data version 3 → 4 step: baselines named on assets promoted
+  to versioned *legacy* baselines (the asset gains only `baseline.ref`), drift assets get a deviation to classify, a live
+  scope from Information assets, teaching-case seed; invariants throw. CRGO 0.11 identifiers are placeholders in
+  `IPC.CRGO` (`tools/crgo_tbd_check.py --release` fails until they are filled).
+- Process steps 1, 2, 9 and 19 gain tips and links when the module is on; the Scenario editor shows the linked
+  evidence read-only. Guides EN/FR section 7.5.6 (Quality review becomes 7.5.7), help on every tab, French 100 %.
+- Tests t32–t39 (`desktop/tests-new/`), t27 updated (MediBec evidence 15, next E16).
+
 ## 1.9.0 Beta (unreleased) — group 3: teaching examples
 
 ### Added

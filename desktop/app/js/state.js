@@ -78,8 +78,6 @@ export function medibecWorkspace() {
   if (self.CRG_MEDIBEC_SCREENING) ws.screening = JSON.parse(JSON.stringify(self.CRG_MEDIBEC_SCREENING));
   // 1.9.0 — the identity, privilege & configuration sample of the case (evidence only, nothing accepted)
   MIG.seedIpc(ws);
-  // 1.9.0 — the identity, privilege & configuration sample of the case (evidence only, nothing accepted)
-  MIG.seedIpc(ws);
   ws.org.materiality = 'Any credible threat to clinical decisions or patient safety; any exposure of health information for many patients; any loss of clinical systems at several clinics beyond a working day. Analytical estimate — validation required.';
   return ws;
 }
@@ -119,6 +117,7 @@ export function exampleWorkspace(id = 'medibec') {
   if (d.SCREENING) ws.screening = d.SCREENING;
   if (d.SUMMARY) ws.mgmtSummary = Object.assign(MIG.blankSummary(), d.SUMMARY);
   ws.teaching = { case: id };
+  MIG.seedIpc(ws);      // 1.9.0 — the identity, privilege & configuration sample of the case (nothing accepted)
   return ws;
 }
 
