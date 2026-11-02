@@ -190,9 +190,11 @@ export function optimizer(body, sec, redraw) {
       { key: 's', label: 'Scenario', render: e => e.scenario },
       { key: 'p', label: 'red_p: now → proposed', render: e => `${n2(e.was.red_p)} → ${e.red_p == null ? '—' : n2(e.red_p)}` },
       { key: 'i', label: 'red_i: now → proposed', render: e => `${n2(e.was.red_i)} → ${e.red_i == null ? '—' : n2(e.red_i)}` },
+      { key: 'm', label: 'From measures', render: e => (e.measures?.length ? el('span', { class: 'small', title: tr('Combined from measures: red_p {0} · red_i {1}').replace('{0}', n2(e.combined.red_p)).replace('{1}', n2(e.combined.red_i)) }, e.measures.join(', ')) : '—') },
       { key: 'c', label: 'Confidence', render: e => e.confidence },
       { key: 'why', label: 'Rationale', render: e => el('span', { class: 'small', 'data-noi18n': '' }, e.rationale) },
-    ], P.effects, { class: 'compact' })) : el('p', 'note', 'No effect correction proposed.'));
+    ], P.effects, { class: 'compact' })) : el('p', 'note', 'No effect correction proposed.'),
+    P.effects.some(e => e.measures?.length) ? el('p', 'note', 'A reduction accepted for a scenario whose reductions come from measures, and that differs from their combination, is recorded as the scenario\'s explicit override: the revision shows it, Revert restores the previous values, and "Apply to all covered scenarios" leaves it in place.') : null);
   const ticked = () => ({ costs: P.costs.filter(c => tick.get(c)?.checked), effects: P.effects.filter(e => tick.get(e)?.checked) });
   const wi = el('div');
   pBox.append(el('div', 'btnrow', { style: { marginTop: '10px' } },
@@ -207,10 +209,11 @@ export function optimizer(body, sec, redraw) {
       const t = ticked(); const n = t.costs.length + t.effects.length;
       if (!n) { toast('Tick the proposals to accept', 'bad'); return; }
       if (!window.confirm(tr('Apply {0} proposal(s) to the initiatives and scenarios of this workspace?').replace('{0}', n))) return;
-      for (const c of t.costs) { const row = ws.assessment.INITIATIVES.find(a => a[0] === c.unit); if (!row) continue; if (c.initial != null) row[6] = c.initial; if (c.recurring != null) row[7] = c.recurring; }
-      for (const e of t.effects) { const s = ws.assessment.SCEN.find(x => x.id === e.scenario); if (!s) continue; if (e.red_p != null) s.red_p = e.red_p; if (e.red_i != null) s.red_i = e.red_i; }
-      AI.decide(st.propEntry, 'accepted', `${n} proposal(s) applied`); users.audit('mitigation optimizer proposals accepted', String(n), ws);
-      touch(); st.prop = null; st.opt = X.optimize(ws, st.optCfg); toast(tr('{0} proposal(s) applied').replace('{0}', n)); redraw();
+      const by = users.name() || '';
+      const done = X.acceptOptimizer(ws, t, { entry: st.propEntry || '', by });
+      AI.decide(st.propEntry, 'accepted', `${n} proposal(s) applied`); users.audit('mitigation optimizer proposals accepted', `${n}; scenarios ${done.scenarios.map(r => r.id).join(', ') || 'none'}; explicit overrides ${done.overrides.join(', ') || 'none'}`, ws);
+      touch(); st.prop = null; st.opt = X.optimize(ws, st.optCfg);
+      toast(tr('{0} proposal(s) applied').replace('{0}', n) + (done.overrides.length ? ' · ' + tr('explicit override of measures: {0}').replace('{0}', done.overrides.join(', ')) : '')); redraw();
     } }, 'Accept the ticked proposals'),
     el('button', { class: 'btn ghost', onclick: () => { AI.decide(st.propEntry, 'rejected', 'discarded'); st.prop = null; redraw(); } }, 'Discard')), wi);
 }

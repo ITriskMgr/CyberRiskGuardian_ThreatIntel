@@ -171,23 +171,62 @@ export function costs(ws = S.ws, statuses) {
   return { initial, recurring, y1: initial + recurring, per };
 }
 
-/** Write the combined reductions into the scenarios (reversible: previous values kept in s.redPrev). */
-export function applyToScenarios(ids, ws = S.ws, statuses) {
+/** Write the combined reductions into the scenarios (reversible: previous values kept in s.redPrev).
+ *  A scenario whose reductions are an explicit override (an accepted AI optimizer proposal, see overrideReductions)
+ *  is replaced only with { force: true } — the per-scenario Apply; "Apply to all" leaves it and lists it in .skipped. */
+export function applyToScenarios(ids, ws = S.ws, statuses, { force = false } = {}) {
   const done = [];
+  done.skipped = [];
   for (const id of ids) {
-    const s = scen(id); if (!s) continue;
+    const s = ws.assessment.SCEN.find(x => x.id === id); if (!s) continue;
     const c = combined(id, ws, statuses); if (!c.measures.length) continue;
+    if (s.red_source?.kind === 'override' && !force) { done.skipped.push(id); continue; }
+    const replaced = s.red_source?.kind === 'override' ? `; replaces the explicit override (${s.red_source.cause})` : '';
     const before = { red_p: s.red_p, red_i: s.red_i };
     let r0; try { r0 = CRG.calc(s, ws.assessment.APPETITE, ws.assessment.FACTOR); } catch { r0 = null; }
     s.redPrev = s.redPrev || before;
     s.red_p = +c.red_p.toFixed(4); s.red_i = +c.red_i.toFixed(4);
     s.red_source = { date: today(), measures: c.measures.map(m => m.id), rule: '1 − ∏(1 − r)' };
     let r1; try { r1 = CRG.calc(s, ws.assessment.APPETITE, ws.assessment.FACTOR); } catch { r1 = null; }
-    (s.revisions ||= []).push({ date: today(), what: `red_p ${before.red_p} → ${s.red_p}, red_i ${before.red_i} → ${s.red_i} from measures ${c.measures.map(m => m.id).join(', ')}`,
+    (s.revisions ||= []).push({ date: today(), what: `red_p ${before.red_p} → ${s.red_p}, red_i ${before.red_i} → ${s.red_i} from measures ${c.measures.map(m => m.id).join(', ')}${replaced}`,
       before: r0 ? +r0.ratio.toFixed(3) : null, after: r1 ? +r1.ratio.toFixed(3) : null });
     done.push(id);
   }
   return done;
+}
+/**
+ * Set a scenario's reductions from outside the measures — an accepted AI mitigation-optimizer proposal (1.9.0 review M2).
+ * Journalled like every accepted proposal: a scenario revision (from → to, ratio before → after, cause) and one
+ * ws.revisionLog line per reduction changed. When the scenario has measures whose combination (1 − ∏(1 − r)) differs
+ * from the value accepted, the value is recorded as the scenario's EXPLICIT OVERRIDE (s.red_source.kind 'override',
+ * with the measures and their combined values), so it never silently diverges from the measures and a later
+ * "Apply to all" does not silently replace it. Previous values are kept in s.redPrev, so Revert restores them.
+ * vals: { red_p?, red_i? } in [0, 1]; returns { id, changed, override, before, after } or null.
+ */
+export function overrideReductions(id, vals, { cause, ref = '', by = '' } = {}, ws = S.ws) {
+  const A = ws.assessment, s = A.SCEN.find(x => x.id === id); if (!s) return null;
+  const ok = v => v != null && Number.isFinite(Number(v)) && v >= 0 && v <= 1;
+  const next = { red_p: ok(vals.red_p) ? Number(vals.red_p) : s.red_p, red_i: ok(vals.red_i) ? Number(vals.red_i) : s.red_i };
+  const changed = ['red_p', 'red_i'].filter(k => ok(vals[k]) && Number(vals[k]) !== s[k]);
+  if (!changed.length) return { id, changed, override: false };
+  const prev = { red_p: s.red_p, red_i: s.red_i };
+  let r0; try { r0 = CRG.calc(s, A.APPETITE, A.FACTOR); } catch { r0 = null; }
+  const c = combined(id, ws);
+  const ids = c.measures.map(m => m.id);
+  const diverges = ids.length > 0 && (Math.abs(next.red_p - c.red_p) > 5e-5 || Math.abs(next.red_i - c.red_i) > 5e-5);
+  s.redPrev = s.redPrev || prev;
+  s.red_p = next.red_p; s.red_i = next.red_i;
+  if (diverges) s.red_source = { kind: 'override', date: today(), cause, ref, by, measures: ids, combined: { red_p: +c.red_p.toFixed(4), red_i: +c.red_i.toFixed(4) }, rule: 'explicit override of 1 − ∏(1 − r)' };
+  else if (ids.length) s.red_source = { date: today(), measures: ids, rule: '1 − ∏(1 − r)' };   // the accepted values are the measures' combination
+  else delete s.red_source;                                                                      // no measure: the scenario's own values, journalled below
+  let r1; try { r1 = CRG.calc(s, A.APPETITE, A.FACTOR); } catch { r1 = null; }
+  const note = diverges ? `; explicit override of the reductions combined from measures ${ids.join(', ')} (red_p ${s.red_source.combined.red_p}, red_i ${s.red_source.combined.red_i})` : '';
+  (s.revisions ||= []).push({ date: today(), what: `${changed.map(k => `${k} ${prev[k]} → ${s[k]}`).join(', ')} from ${cause}${ref ? ' (' + ref + ')' : ''}${by ? '; accepted by ' + by : ''}${note}`,
+    before: r0 ? +r0.ratio.toFixed(3) : null, after: r1 ? +r1.ratio.toFixed(3) : null });
+  for (const k of changed) (ws.revisionLog ||= []).push({ date: today(), scenario: s.id, parameter: k, from: prev[k], to: s[k],
+    ratioFrom: r0 ? r0.ratio : null, ratioTo: r1 ? r1.ratio : null, clsFrom: r0 ? CRG.classify(r0.ratio) : '', clsTo: r1 ? CRG.classify(r1.ratio) : '',
+    cause: `${cause}${ref ? ', ' + ref : ''}${diverges ? ' — explicit override of measures ' + ids.join(', ') : ''}` });
+  return { id, changed, override: diverges, before: r0, after: r1 };
 }
 export function revertScenario(id) {
   const s = scen(id); if (!s?.redPrev) return false;

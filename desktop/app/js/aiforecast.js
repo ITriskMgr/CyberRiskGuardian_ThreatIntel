@@ -20,6 +20,7 @@ import * as AI from './ai.js';
 import * as F from './forecast.js';
 import * as helper from './helper.js';
 import * as SV from './ssvc.js';
+import * as K from './catalog.js';
 import { today, uid } from './util.js';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
@@ -323,6 +324,29 @@ Use only identifiers that appear above.
   },
 };
 
+/**
+ * Accept ticked optimizer proposals (1.9.0 review M2). Initiative costs are written to the initiative rows; each
+ * reduction goes through K.overrideReductions, which journals a scenario revision and a revision-log line, and
+ * records a value that differs from the scenario's measures as its explicit override. Returns
+ * { costs: n, scenarios: [{ id, changed, override }], overrides: [ids] }.
+ */
+export function acceptOptimizer(ws, { costs = [], effects = [] } = {}, { entry = '', by = '' } = {}) {
+  let nc = 0;
+  for (const c of costs) {
+    const row = ws.assessment.INITIATIVES.find(a => a[0] === c.unit); if (!row) continue;
+    if (Number.isFinite(c.initial)) row[6] = c.initial;
+    if (Number.isFinite(c.recurring)) row[7] = c.recurring;
+    nc++;
+  }
+  const out = [];
+  for (const e of effects) {
+    const r = K.overrideReductions(e.scenario, { red_p: e.red_p, red_i: e.red_i },
+      { cause: 'AI mitigation optimizer (accepted proposal)', ref: entry ? 'AI log ' + entry : '', by }, ws);
+    if (r && r.changed.length) out.push({ id: r.id, changed: r.changed, override: r.override });
+  }
+  return { costs: nc, scenarios: out, overrides: out.filter(r => r.override).map(r => r.id) };
+}
+
 /** Normalize an optimizer answer: known ids only, costs ≥ 0, reductions within [0, 1]. */
 export function parseOptimizerAnswer(text, result, ws = S.ws) {
   const j = AI.parseJson(text);
@@ -334,7 +358,9 @@ export function parseOptimizerAnswer(text, result, ws = S.ws) {
     .filter(c => c.initial != null || c.recurring != null);
   const effects = (j.effects || []).filter(e => ws.assessment.SCEN.some(s => s.id === e.scenario)).map(e => {
     const s = ws.assessment.SCEN.find(x => x.id === e.scenario);
-    return { scenario: e.scenario, red_p: num(e.red_p, 0, 1), red_i: num(e.red_i, 0, 1), was: { red_p: s.red_p, red_i: s.red_i }, rationale: String(e.rationale || '').slice(0, 500), confidence: conf(e.confidence) };
+    const m = K.combined(e.scenario, ws);
+    return { scenario: e.scenario, red_p: num(e.red_p, 0, 1), red_i: num(e.red_i, 0, 1), was: { red_p: s.red_p, red_i: s.red_i }, rationale: String(e.rationale || '').slice(0, 500), confidence: conf(e.confidence),
+      measures: m.measures.map(x => x.id), combined: m.measures.length ? { red_p: m.red_p, red_i: m.red_i } : null };
   }).filter(e => e.red_p != null || e.red_i != null);
   return { costs, effects, notes: String(j.notes || '').slice(0, 800) };
 }

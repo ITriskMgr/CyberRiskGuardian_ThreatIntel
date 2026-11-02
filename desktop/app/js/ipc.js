@@ -803,12 +803,15 @@ export const registersEmpty = ws => !ws.ipc || REGISTER_KEYS.every(k => !(ws.ipc
  * Load a per-case sample into a workspace: rows (labels in the case language), evidence appended at the
  * next free E-numbers with every reference remapped, sample exceptions appended to the shared register,
  * findings recorded and linked, and proposals saved as PENDING — never accepted. Returns a summary.
+ * A finding link or proposal that names a scenario the workspace lacks (a student renumbered or deleted it)
+ * throws when strict, and otherwise is left out and listed in out.skipped ({ kind, rule, scenario }) for the
+ * caller to journal — the migration seed is never strict, so a changed case still opens (1.9.0 review M1).
  */
-export function applySample(ws, sample, { lang = caseLang(ws) } = {}) {
+export function applySample(ws, sample, { lang = caseLang(ws), strict = true } = {}) {
   if (!sample) return null;
   const pick = v => v && typeof v === 'object' && !Array.isArray(v) && ('en' in v || 'fr' in v) ? (v[lang] ?? v.en) : v;
   const deep = v => Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? (('en' in v || 'fr' in v) && Object.keys(v).every(k => k === 'en' || k === 'fr') ? pick(v) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)]))) : v;
-  const R = reg(ws), out = { rows: 0, evidence: [], exceptions: [], findings: 0, proposals: 0 };
+  const R = reg(ws), out = { rows: 0, evidence: [], exceptions: [], findings: 0, proposals: 0, skipped: [] };
   // evidence: next free E-numbers, remapped
   const emap = {};
   for (const e of sample.evidence || []) {
@@ -842,13 +845,19 @@ export function applySample(ws, sample, { lang = caseLang(ws) } = {}) {
   // findings, linked, with proposals left pending
   for (const f of sample.findings || []) {
     const rule = RULE[f.rule];
-    const scen = (f.scenarios || []).map(s => typeof s === 'string' ? { id: s, param: null } : s);
-    for (const s of scen) if (!ws.assessment.SCEN.some(x => x.id === s.id)) throw new Error(`Sample finding ${f.rule}: scenario ${s.id} is not in this case.`);
+    const scen = (f.scenarios || []).map(s => typeof s === 'string' ? { id: s, param: null } : s).filter(s => {
+      if (ws.assessment.SCEN.some(x => x.id === s.id)) return true;
+      if (strict) throw new Error(`Sample finding ${f.rule}: scenario ${s.id} is not in this case.`);
+      out.skipped.push({ kind: 'link', rule: f.rule, scenario: s.id }); return false;
+    });
     const rec = { id: nextId(R.findings, 'IF'), rule: f.rule, register: f.register || rule.register, rowId: f.rowId, title: pick(f.title) || rule.title, severity: rule.severity,
       state: 'recorded', eid: emap[f.eid] || '', scenarios: scen, proposals: [], action: '', created: sample.settings?.asOf || today() };
     for (const p of f.proposals || []) {
       const s = p.scenario ? ws.assessment.SCEN.find(x => x.id === p.scenario) : ws.assessment.SCEN.find(x => p.scenarioMatch && new RegExp(p.scenarioMatch, 'i').test(x.name || ''));
-      if (!s) throw new Error(`Sample proposal: no scenario matches {0}.`.replace('{0}', p.scenario || p.scenarioMatch));
+      if (!s) {
+        if (strict) throw new Error(`Sample proposal: no scenario matches {0}.`.replace('{0}', p.scenario || p.scenarioMatch));
+        out.skipped.push({ kind: 'proposal', rule: f.rule, scenario: p.scenario || p.scenarioMatch }); continue;
+      }
       rec.proposals.push({ scenario: s.id, param: p.param, from: Number(s.params?.[p.param]?.v), to: p.to, rationale: remapE(pick(p.rationale) || ''), conf: p.conf || 'Low',
         state: 'proposed', date: sample.settings?.asOf || today(), by: 'teaching case', decidedBy: '', decidedOn: '', reason: '' });
       if (!rec.scenarios.some(x => x.id === s.id)) rec.scenarios.push({ id: s.id, param: p.param });

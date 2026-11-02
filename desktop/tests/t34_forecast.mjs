@@ -145,6 +145,12 @@ await page.waitForTimeout(400);
 const acc = await page.evaluate(async () => { const st = await import('/js/state.js'); const AI = await import('/js/ai.js'); const s = st.S.ws.assessment.SCEN.find(x => x.id === 'S1'); const i1 = st.S.ws.assessment.INITIATIVES.find(a => a[0] === 'I01');
   return { rp: s.red_p, ri: s.red_i, i1: i1[6], dec: AI.log()[0].decision || AI.log()[0].outcome || JSON.stringify(AI.log()[0]).includes('accepted') }; });
 ok(acc.rp === 0.7 && acc.ri === 0.7 && acc.i1 === 180000 && acc.dec, 'only the ticked proposal is applied, and the acceptance is logged ' + JSON.stringify(acc));
+// review M2 — the accepted reduction is journalled like every accepted proposal: a scenario revision and revision-log lines
+const trail = await page.evaluate(async () => { const st = await import('/js/state.js'); const ws = st.S.ws, s = ws.assessment.SCEN.find(x => x.id === 'S1');
+  const rev = (s.revisions || []).at(-1) || {}, lines = (ws.revisionLog || []).filter(l => l.scenario === 'S1' && /AI mitigation optimizer/.test(l.cause));
+  return { what: rev.what || '', ratios: rev.before != null && rev.after != null && rev.after > rev.before, lines: lines.map(l => l.parameter + ':' + l.from + '→' + l.to).join(','), log: lines.every(l => /AI log /.test(l.cause) && l.ratioTo > l.ratioFrom && l.clsTo), redPrev: !!s.redPrev }; });
+ok(/^red_p [\d.]+ → 0\.7, red_i [\d.]+ → 0\.7 from AI mitigation optimizer \(accepted proposal\) \(AI log /.test(trail.what) && trail.ratios && trail.redPrev, 'review M2: the accepted reduction writes a scenario revision (from → to, ratio before → after, AI log id), and Revert can restore it ' + JSON.stringify(trail));
+ok(/^red_p:[\d.]+→0\.7,red_i:[\d.]+→0\.7$/.test(trail.lines) && trail.log, 'review M2: one revision-log line per reduction changed, with the ratio and its class ' + JSON.stringify(trail));
 // residual-path screen
 await page.goto(URL + '#/forecast/path');
 await page.waitForSelector('text=Residual risk over time, per funding option');
@@ -152,6 +158,35 @@ await page.click('main button:text-is("Run")');
 await page.waitForFunction(() => document.body.textContent.includes('Options compared'), null, { timeout: 30000 });
 t = await page.textContent('main');
 ok(/Avoided per \$1,000/.test(t) && /O · Optimizer portfolio/.test(t) && /Residual at 36 months/.test(t), 'residual-path tab: options with the optimizer portfolio, risk avoided per $1,000');
+// review M2 — on a scenario whose reductions come from measures, a different accepted value becomes its explicit override
+const ov = await page.evaluate(async () => {
+  const st = await import('/js/state.js'); const K = await import('/js/catalog.js'); const X = await import('/js/aiforecast.js');
+  const ws = st.S.ws, s = ws.assessment.SCEN.find(x => x.id === 'S3'), out = {};
+  ws.measures.push(K.blankMeasure({ id: 'MS-T1', name: 'Test measure A', rp: 0.5, ri: 0.4, scen: ['S3'], status: 'accepted' }), K.blankMeasure({ id: 'MS-T2', name: 'Test measure B', rp: 0.2, ri: 0.5, scen: ['S3'], status: 'accepted' }));
+  K.applyToScenarios(['S3'], ws); out.fromMeasures = [s.red_p, s.red_i, s.red_source?.measures?.join('+'), s.red_source?.kind || ''].join('|');
+  const p0 = { red_p: s.red_p, red_i: s.red_i };
+  // the AI answer as the screen parses it: the effect carries the measures and their combination
+  const P = X.parseOptimizerAnswer(JSON.stringify({ effects: [{ scenario: 'S3', red_p: 0.35, rationale: 'x', confidence: 'Low' }] }), { units: [] }, ws);
+  out.parsed = P.effects[0].measures.join('+') + '|' + P.effects[0].combined.red_p.toFixed(2);
+  const n0 = (ws.revisionLog || []).length;
+  const d = X.acceptOptimizer(ws, { effects: P.effects }, { entry: 'log-1', by: 'tester' });
+  out.accept = { overrides: d.overrides.join(','), kind: s.red_source.kind, measures: s.red_source.measures.join('+'), comb: s.red_source.combined.red_p, rp: s.red_p, ri: s.red_i === p0.red_i,
+    rev: /explicit override of the reductions combined from measures MS-T1, MS-T2 \(red_p 0\.6, red_i 0\.7\)/.test(s.revisions.at(-1).what) && /accepted by tester/.test(s.revisions.at(-1).what),
+    log: (ws.revisionLog || []).slice(n0).map(l => l.parameter + ':' + /explicit override of measures MS-T1, MS-T2/.test(l.cause)).join(',') };
+  // "Apply to all" keeps the override; the row's Apply replaces it, journalled; Revert restores the values before the measures
+  const all = K.applyToScenarios(['S3'], ws); out.bulk = [all.length, all.skipped.join(','), s.red_p].join('|');
+  const one = K.applyToScenarios(['S3'], ws, undefined, { force: true }); out.force = [one.length, s.red_p, s.red_source.kind || 'measures', /replaces the explicit override \(AI mitigation optimizer/.test(s.revisions.at(-1).what)].join('|');
+  // the same value as the measures' combination is not an override
+  const e2 = X.acceptOptimizer(ws, { effects: [{ scenario: 'S3', red_p: 0.6, red_i: 0.7 }] }, { entry: 'log-2' }); out.same = [e2.scenarios.length, e2.overrides.length, s.red_source.kind || 'measures'].join('|');
+  K.revertScenario('S3'); ws.measures = ws.measures.filter(m => !/^MS-T/.test(m.id));
+  out.reverted = [s.red_p === s.redPrev?.red_p || !s.redPrev, !s.red_source].join('|');
+  return out;
+});
+ok(ov.fromMeasures === '0.6|0.7|MS-T1+MS-T2|' && ov.parsed === 'MS-T1+MS-T2|0.60', 'review M2: measures combine to 0.6 / 0.7 and the parsed proposal names them ' + JSON.stringify(ov));
+ok(ov.accept.overrides === 'S3' && ov.accept.kind === 'override' && ov.accept.measures === 'MS-T1+MS-T2' && ov.accept.comb === 0.6 && ov.accept.rp === 0.35 && ov.accept.ri && ov.accept.rev && ov.accept.log === 'red_p:true',
+  'review M2: a value that differs from the measures is recorded as the scenario\'s explicit override, with the revision trail ' + JSON.stringify(ov.accept));
+ok(ov.bulk === '0|S3|0.35' && ov.force === '1|0.6|measures|true', 'review M2: "Apply to all" keeps the override; the row\'s Apply replaces it, journalled ' + JSON.stringify([ov.bulk, ov.force]));
+ok(ov.same === '0|0|measures' && ov.reverted === 'true|true', 'review M2: the measures\' own values are no override (nothing changes); Revert restores ' + JSON.stringify([ov.same, ov.reverted]));
 const errs = errors.filter(e => !/status of 403/.test(e));   // the deliberate refusal above
 ok(!errs.length, 'no console errors ' + errs.join(' | ').slice(0, 300));
 await browser.close(); done('t34 AI forecasting');

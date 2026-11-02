@@ -9,6 +9,7 @@ import { el, n0, n2, kpi, card, pill, pillFor, field, select, chip, toast, table
 import { S, touch, compute, scen } from '../state.js';
 import * as K from '../catalog.js';
 import * as REC from '../recommend.js';
+import { tr } from '../i18n.js';
 
 let view = 'plan', editId = null, statuses = null;
 const cflt = { q: '', fw: 'all', fn: 'all', tag: 'all', enh: false };
@@ -126,12 +127,13 @@ function plan(body, sec) {
     { key: 'res', label: 'Residual current → with', num: true, render: r => r.error ? '—' : r.after ? `${n0(r.cur.res)} → ${n0(r.after.res)}` : n0(r.cur.res), sort: r => r.cur?.res ?? 0 },
     { key: 'cost', label: 'Measure cost share', num: true, render: r => money(cost.per[r.s.id] || 0), sort: r => cost.per[r.s.id] || 0 },
     { key: 'ap', label: '', sortable: false, render: r => el('div', 'btnrow',
-      r.c?.measures.length ? el('button', { class: 'btn sm ghost', title: 'Write the combined reductions into the scenario (logged, reversible)', onclick: () => { K.applyToScenarios([r.s.id], ws, statuses); touch(); toast(r.s.id + ': reductions applied'); render(sec); } }, 'Apply') : null,
+      r.c?.measures.length ? el('button', { class: 'btn sm ghost', title: 'Write the combined reductions into the scenario (logged, reversible)', onclick: () => { K.applyToScenarios([r.s.id], ws, statuses, { force: true }); touch(); toast(r.s.id + ': reductions applied'); render(sec); } }, 'Apply') : null,
+      r.s.red_source?.kind === 'override' ? pill('explicit override', 'warn') : null,
       r.s.redPrev ? el('button', { class: 'btn sm ghost', onclick: () => { K.revertScenario(r.s.id); touch(); render(sec); } }, 'Revert') : null) },
   ];
   const warnZero = imp.filter(r => r.c?.measures.length && (r.c.red_p === 0 || r.c.red_i === 0));
   body.append(card(el('div', 'row', el('h2', { style: { flex: 1, margin: 0 } }, 'Effect on each scenario'),
-      el('button', { class: 'btn sm', onclick: () => { const ids = imp.filter(r => r.c?.measures.length).map(r => r.s.id); const d = K.applyToScenarios(ids, ws, statuses); touch(); toast(d.length + ' scenario(s) updated'); render(sec); } }, 'Apply to all covered scenarios')),
+      el('button', { class: 'btn sm', onclick: () => { const ids = imp.filter(r => r.c?.measures.length).map(r => r.s.id); const d = K.applyToScenarios(ids, ws, statuses); touch(); toast(d.length + ' scenario(s) updated' + (d.skipped.length ? ' · ' + tr('explicit override kept: {0} (Apply on its row replaces it)').replace('{0}', d.skipped.join(', ')) : '')); render(sec); } }, 'Apply to all covered scenarios')),
     warnZero.length ? banner('warn', 'Measures with no effect under the workbook convention', `${warnZero.map(r => r.s.id).join(', ')}: the combined likelihood or impact reduction is 0. The CyberRiskGuardian engine computes mitigated = estimated × red_p × red_i (Excel guide v1.0c §11.5), so a package that reduces only one dimension mitigates nothing. Add a measure that reduces the other dimension, or set a non-zero effect.`) : null,
     el('div', 'tablewrap', { style: { marginTop: '10px' } }, table(tcols, imp.filter(r => r.c?.measures.length || r.s.redPrev), { class: 'compact', sortKey: 'curr', sortDir: -1 })),
     el('p', 'note', 'Only scenarios with at least one measure are listed. Apply writes red_p and red_i into the scenario, records a revision with the ratio before and after, and keeps the previous values so Revert restores them. Costs: each measure\'s Year-1 cost split equally across its scenarios, so a shared measure is never counted twice.')));

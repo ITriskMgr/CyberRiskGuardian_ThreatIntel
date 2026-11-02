@@ -382,11 +382,15 @@ const engineTotals = w => {
   return { est: Math.round(est * 1e6) / 1e6, res: Math.round(res * 1e6) / 1e6 };
 };
 
-/** Seed a teaching case with its sample (MediBec, CanaRetail when that case exists) if its registers are empty. */
+/** Seed a teaching case with its sample (MediBec, CanaRetail when that case exists) if its registers are empty.
+ *  Never throws on a scenario the copy lacks: that link or proposal is left out and journalled (1.9.0 review M1). */
 export function seedIpc(w, note = () => {}) {
   const id = IPC.caseOf(w), S = globalThis.CRG_IPC_SAMPLES || {};
   if (!id || !S[id] || !IPC.registersEmpty(w)) return null;
-  const r = IPC.applySample(w, S[id]);
+  const r = IPC.applySample(w, S[id], { strict: false });
+  for (const k of r?.skipped || []) note(k.kind === 'link'
+    ? `teaching case: sample finding ${k.rule} not linked to scenario ${k.scenario}, which is not in this workspace`
+    : `teaching case: sample proposal of finding ${k.rule} not added — no scenario ${k.scenario} in this workspace`);
   if (r) note(`teaching case: identity, privilege & configuration sample added — ${r.rows} register rows, evidence ${r.evidence.join(', ') || 'none'}, ${r.exceptions.length} exception(s), ${r.findings} finding(s), ${r.proposals} pending proposal(s), nothing accepted`);
   return r;
 }

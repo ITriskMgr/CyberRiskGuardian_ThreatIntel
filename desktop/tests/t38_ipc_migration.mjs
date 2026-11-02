@@ -44,6 +44,18 @@ const r = await page.evaluate(async fx => {
   { const res = M.migrateWorkspace(JSON.parse(JSON.stringify(fx[5].workspaces[0])), { fill: st.migrate });
     out.full = { to: res.ws.dataVersion, ipc: !!res.ws.ipc?.baselines?.length, drift: (res.ws.ipc?.deviations || []).filter(d => d.migrated).length,
       ref: res.ws.assets.filter(a => a.baseline?.name).every(a => a.baseline.ref?.v === 'legacy'), journal: res.steps.some(s => s.to === 4 && s.notes.some(n => /promoted from the asset register/.test(n))) }; }
+  // review M1 — a student's MediBec copy without S27 and S28 (deleted or renumbered) still migrates 3 → 4: the links are left out and journalled
+  { const I = await import('/js/ipc.js');
+    const mb = st.medibecWorkspace(); delete mb.ipc; mb.assessment.EVIDENCE = mb.assessment.EVIDENCE.slice(0, 12); mb.shared.exceptions = [];
+    mb.assessment.SCEN = mb.assessment.SCEN.filter(s => s.id !== 'S27' && s.id !== 'S28'); mb.dataVersion = 3;
+    const res = M.migrateWorkspace(JSON.parse(JSON.stringify(mb)), { fill: st.migrate });
+    const notes = res.steps.flatMap(s => s.notes), F = res.ws.ipc?.findings || [], sc = rule => (F.find(f => f.rule === rule)?.scenarios || []).map(s => s.id).join('+');
+    let strictThrows = false; try { const w2 = JSON.parse(JSON.stringify(mb)); delete w2.ipc; I.applySample(w2, globalThis.CRG_IPC_SAMPLES.medibec); } catch { strictThrows = true; }
+    const cr = st.exampleWorkspace('canaretail'); delete cr.ipc; cr.assessment.SCEN = cr.assessment.SCEN.filter(s => s.id !== 'S10'); cr.dataVersion = 3;
+    const rc = M.migrateWorkspace(JSON.parse(JSON.stringify(cr)), { fill: st.migrate });
+    out.missing = { status: res.status, error: res.error || '', to: res.ws.dataVersion, findings: F.length, ir04: sc('IR-04'), ir07: sc('IR-07'), ir08: sc('IR-08'), ir02: sc('IR-02'),
+      journal: notes.filter(n => /not linked to scenario S2[78], which is not in this workspace/.test(n)).length, accepted: F.some(f => f.proposals.some(p => p.state === 'accepted')), strictThrows,
+      cana: { status: rc.status, error: rc.error || '', proposals: (rc.ws.ipc?.findings || []).flatMap(f => f.proposals).length, journal: rc.steps.flatMap(s => s.notes).some(n => /sample proposal of finding IR-01 not added — no scenario S10/.test(n)) } }; }
   // a workspace written by a newer release opens read-only
   const newer = M.migrateWorkspace({ ...nw, dataVersion: M.DATA_VERSION + 1 });
   out.newer = newer.status;
@@ -65,6 +77,12 @@ ok(x.scopes === 1 && x.notes >= 6, '1.8.2: one live scope from Information asset
 ok(r.throws, 'an invariant violation throws');
 ok(r.medibec.ev === 15 && r.medibec.f === 5 && !r.medibec.accepted && r.medibec.same && r.medibec.t1 === '84305/41023', 'MediBec seeded: E13–E15, five findings, nothing accepted, 84,305 / 41,023 ' + JSON.stringify(r.medibec));
 ok(r.newer === 'newer', 'a newer workspace opens read-only');
+const mi = r.missing;
+ok(mi.status === 'migrated' && mi.to === 4 && mi.findings === 5 && mi.ir04 === '' && mi.ir07 === '' && mi.ir08 === 'S5' && mi.ir02 === 'S1+S5+S20' && !mi.accepted,
+  'review M1: a MediBec copy without S27/S28 migrates 3 → 4, the sample keeps its five findings and leaves out the missing links ' + JSON.stringify(mi));
+ok(mi.journal === 3, 'review M1: each left-out link is journalled in the migration log (' + mi.journal + ')');
+ok(mi.strictThrows, 'review M1: applySample stays strict outside the seed (an explicit load still refuses a missing scenario)');
+ok(mi.cana.status === 'migrated' && mi.cana.proposals === 0 && mi.cana.journal, 'review M1: a CanaRetail copy without S10 migrates, its sample proposal is left out and journalled ' + JSON.stringify(mi.cana));
 ok(r.dataVersion === 4 && r.full.to === 4 && r.full.ipc && r.full.journal && r.full.drift === 2 && r.full.ref, 'the 1.8.2 fixture reaches data version 4 through the STEP4 ipc sub-step ' + JSON.stringify(r.full));
 // 1.9.0 — IPC.CRGO is filled from CRGO 0.11.0: the release gate passes and every identifier is defined in the CRGO checkout
 let rel = 0, relOut = ''; try { relOut = execSync(`python3 ${APP}/tools/crgo_tbd_check.py --release${CRGO_011 ? ' --crgo ' + CRGO : ''}`, { stdio: 'pipe' }).toString(); } catch (e) { rel = e.status; relOut = String(e.stdout || e); }

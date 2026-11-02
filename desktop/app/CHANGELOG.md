@@ -251,6 +251,18 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
 - Guides EN/FR 7.4.2.1, 7.10.5.1–7.10.5.3 and 8.3; French catalogue 100 %; new files in `sw.js`; suites
   `t33_ssvc.mjs` and `t34_forecast.mjs`. MediBec self-check unchanged (84,305 / 41,023).
 
+### Fixed (independent pre-release review of 2 November 2026)
+- **M1 — a changed teaching case no longer blocks the 3 → 4 migration.** The identity, privilege & configuration sample is
+  seeded leniently: a finding link or pending proposal naming a scenario the copy lacks (a student deleted or renumbered
+  S27, S28 or S10) is left out and journalled in the migration log; the rest of the sample is added and the workspace opens
+  writable. An explicit `IPC.applySample` stays strict. Test `t38` (MediBec without S27/S28, CanaRetail without S10).
+- **M2 — accepting mitigation-optimizer effects leaves a revision trail.** Each accepted reduction writes a scenario
+  revision (from → to, ratio before → after, cause with the AI log id, who) and one `revisionLog` line per reduction, and
+  keeps the previous values for *Revert*. On a scenario whose reductions come from measures, a value that differs from
+  their combination 1 − ∏(1 − r) is recorded as the scenario's **explicit override** (shown in the Scenario editor and as a
+  pill in Risk mitigation); *Apply to all covered scenarios* leaves it in place, the row's *Apply* replaces it (journalled).
+  The proposal table names the measures. Test `t34`.
+
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 
 A wording and reference patch. `crg.js`, `cvss4.js`, `sample.js`, `medibec.js` and `threat.js` are unchanged; the self-check
