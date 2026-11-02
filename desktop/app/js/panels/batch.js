@@ -44,8 +44,8 @@ export const PATTERNS = [
   { key: 'device', name: 'Lost or stolen device exposes data', src: 'insider-err', weak: 'unencrypted or unmanaged portable devices', attack: ['T1005'], cwe: ['CWE-311'], cons: 0, p: [0.7, 0.35, 0.3, 0.6, 0.55, 0.5], cvss: 'CVSS:4.0/AV:P/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N' },
   { key: 'sabotage', name: 'Malicious administrator sabotages systems', src: 'insider-mal', weak: 'standing privileged access without separation of duties', attack: ['T1078', 'T1485', 'T1489'], cwe: ['CWE-269'], cons: 1, p: [0.3, 0.5, 0.6, 0.95, 0.35, 0.9], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' },
   { key: 'outage', name: 'Loss of a site, data centre or network link', src: 'environment', weak: 'single point of failure without tested failover', attack: [], cwe: [], cons: 1, p: [0.4, 0.5, 0.5, 0.85, 0.4, 0.85], cvss: 'CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H', note: 'Limited CVSS applicability: representative weakness is a single point of failure.' },
-  // 1.9.0 — the six CRGO 0.11.0 scenario patterns (proposed terms): each row carries `scenPattern`, written to the
-  // organisation graph as CRGO's 'has scenario pattern'. ATT&CK and CWE are CRGO's proposed pattern links.
+  // 1.9.0 — the six CRGO 0.11.0 scenario patterns: each row carries `scenPattern`, written to the
+  // organisation graph as CRGO's 'has scenario pattern'. ATT&CK and CWE are CRGO's pattern links.
   { key: 'pqc', scenPattern: 'CRGO_0001389', name: 'Harvest now, decrypt later: encrypted data stored for future quantum decryption', src: 'nation', weak: 'long-lived confidential data protected in transit by quantum-vulnerable public-key algorithms, without a cryptographic inventory or a post-quantum migration plan', attack: ['T1040', 'T1557'], cwe: ['CWE-327', 'CWE-326'], cons: 0, p: [0.3, 0.35, 0.5, 0.9, 0.4, 0.8], cvss: 'CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N', note: 'Limited CVSS applicability: the harm is deferred until the data can be decrypted; the vector scores the interception.' },
   { key: 'cryptoagility', scenPattern: 'CRGO_0001390', name: 'Crypto-agility failure: a broken algorithm cannot be replaced in time', src: 'opportunistic', weak: 'cryptographic algorithms hard-coded in applications and devices, with no inventory of where cryptography is used', attack: ['T1600'], cwe: ['CWE-327', 'CWE-326'], cons: 0, p: [0.35, 0.35, 0.5, 0.85, 0.4, 0.75], cvss: 'CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N' },
   { key: 'certexpiry', scenPattern: 'CRGO_0001391', name: 'Certificate expiry halts a service', src: 'insider-err', weak: 'certificates without an inventory, an owner or automated renewal, while public TLS certificate lifetimes shorten', attack: [], cwe: ['CWE-298', 'CWE-324'], cons: 1, p: [0.6, 0.5, 0.45, 0.8, 0.5, 0.75], cvss: 'CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H', note: 'Limited CVSS applicability: an outage rather than an attack; representative weakness is an unmanaged certificate (equivalency).' },
@@ -105,7 +105,7 @@ function generator(top, drawGrid) {
     c.addEventListener('change', () => { c.checked ? sel.patterns.add(p.key) : sel.patterns.delete(p.key); count(); });
     pBox.append(el('label', { style: { display: 'flex', gap: '8px', color: 'var(--ink)', fontSize: '13px', alignItems: 'flex-start' } }, c,
       el('span', null, p.name, el('div', 'small muted', p.attack.join(' · ') || 'non-adversarial',
-        p.scenPattern ? ' · ' + tr('CRGO scenario pattern {0} (proposed)').replace('{0}', p.scenPattern) : ''))));
+        p.scenPattern ? ' · ' + tr('CRGO scenario pattern {0}').replace('{0}', p.scenPattern) : ''))));
   }
   const customEd = linkEditor(sel.custom, 'attack', count, { empty: 'Optional: add any other ATT&CK technique as its own pattern' });
 

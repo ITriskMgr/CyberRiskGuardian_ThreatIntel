@@ -1,5 +1,5 @@
 # CyberRiskGuardian Desktop — gates, helper tests, engine regression and the browser suites (1.9.0).
-# Runs the application exactly as the launcher does (python3 serve.py), against CRGO 0.11.0 (proposed), with canned AI answers
+# Runs the application exactly as the launcher does (python3 serve.py), against CRGO 0.11.0 (tag v0.11.0), with canned AI answers
 # (desktop/tests/mock, copied to $CRG_TMP/mock for the run) — no key, no model and no network beyond the checkouts and the installs below.
 name: desktop-ci
 on:
@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     env:
-      # The CRGO ref the suites run against — set to v0.11.0 once the author tags CRGO 0.11.0
-      CRGO_REF: release/0.11.0
+      # The CRGO ref the suites run against
+      CRGO_REF: v0.11.0
       CRGO_RELEASE: "0.11.0"
       CRG_URL: http://127.0.0.1:8101/
       # outside the checkout: the helper refuses an organisation-graph folder inside a git repository (t12, t21)

@@ -12,7 +12,7 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 - calibrating the budget to appetite;
 - producing management reports with a **threat-driven revision log**, a one-table quick scan, and a label check for the three standard markers;
 - optionally, reading legal applicability, control evidence, findings, compliance posture and
-  detection and response readiness from the **CyberRiskGuardian Ontology (CRGO 0.11.0, proposed)** and writing
+  detection and response readiness from the **CyberRiskGuardian Ontology (CRGO 0.11.0)** and writing
   results back to it as *proposed* — see
   [below](#cyberriskguardian-ontology-crgo--optional).
 
@@ -182,7 +182,7 @@ and the MediBec baseline (84,305 / 41,023) are unaffected by CRGO. Without CRGO,
 rest of this edition, the integration is a **beta**: validate every output before
 organizational use.
 
-**Set up** (pin release **0.11.0** — tag `v0.11.0` once the CRGO author tags it, until then branch `release/0.11.0`; its new terms are *proposed*). The dss/v1 commands (`graph`, `context`, `submit`) still work with
+**Set up** (pin release **0.11.0** — tag `v0.11.0`, approved by the CRGO author on 2026-11-02). The dss/v1 commands (`graph`, `context`, `submit`) still work with
 v0.9.1 (v0.9.0 lacks the bridge fix); `compliance` and `secops` need v0.10.0 and stop with a clear
 message on an older checkout:
 ```bash
@@ -221,7 +221,7 @@ mapping, policy statement, acknowledgement or attestation is never compliance; a
 match is never an incident or attribution; nothing CRGO returns authorises a response action; coverage
 is validated only by an effective detection test; source confidence is not a probability; TLP markings
 are respected; ISO 37301, IIA, ISACA stay identifiers and paraphrases. Reports cite the CRGO release
-("CRGO v0.11.0, ontology release 0.11.0, proposed"; CRGO 0.11.0 adds six scenario patterns, CIS v8.1 with CRGO labels, OWASP lists, ISO/IEC 27701 and 42001, the CCSPA — all proposed). Details:
+("CRGO v0.11.0, ontology release 0.11.0"; CRGO 0.11.0 adds six scenario patterns, CIS v8.1 with CRGO labels, OWASP lists, ISO/IEC 27701 and 42001, the CCSPA — all approved; CIS v8.1 values flagged `REVIEW:` stay unverified). Details:
 `plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/references/crgo-integration.md`.
 
 ## Use

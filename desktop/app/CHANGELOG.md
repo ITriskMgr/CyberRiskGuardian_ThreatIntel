@@ -207,20 +207,20 @@ the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 /
   version 5) updated.
 
 ### CRGO 0.11 (group 5)
-Built for the **CyberRiskGuardian Ontology 0.11.0**, a **proposed** release: its new terms await the CRGO author's
-approval and are shown and cited as *proposed* everywhere. Until the author tags `v0.11.0`, check out the branch
-`release/0.11.0`. The contracts dss/v1, compliance/v1 and secops/v1 are unchanged (0.10.x keeps working; the 0.11 terms
-then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049 unchanged.
+Built for the **CyberRiskGuardian Ontology 0.11.0** (tag `v0.11.0`): its new terms were approved by the CRGO author on
+2026-11-02 and are cited as approved; the 39 CIS v8.1 values CRGO flags `REVIEW:` were accepted as delivered and stay
+marked *unverified*. The contracts dss/v1, compliance/v1 and secops/v1 are unchanged (0.10.x keeps working; the 0.11
+terms then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049 unchanged.
 - **Identity & access management and Configuration management ↔ CRGO.** `IAM.CRGO` (`js/iam.js`) and `CM.CRGO`
-  (`js/cm.js`) cite CRGO 0.11.0 terms: the register populations, access-review campaign, segregation-of-duties rule,
-  baseline version and deviation, identity, privilege and configuration findings, the drift classes and the indicator
-  kinds (proposed; CRG-23, identity data known coverage, sits under the indicator value set until CRGO names a narrower
-  value); misconfiguration, policy exception and register record keep existing approved terms.
+  (`js/cm.js`) cite CRGO 0.11.0 terms (approved): the register populations, access-review campaign, segregation-of-duties
+  rule and conflict, baseline version and deviation, configuration change record, identity, privilege and configuration
+  findings, the drift classes and the indicator kinds (CRG-23, identity data known coverage, sits under the indicator value
+  set until CRGO names a narrower value); misconfiguration, policy exception and register record keep existing approved terms.
   `tools/crgo_tbd_check.py --release --crgo <checkout>` refuses any placeholder and any identifier the checkout does not
   define (29 checked).
 - **Offline snapshot rebuilt from CRGO 0.11.0** (`data/crgo-snapshot.json`, `data/crgo-assurance.json`,
-  `tools/build_crgo.py`): release 0.11.0 with status *proposed* and its note; the six scenario patterns with their
-  proposed ATT&CK/CWE links, CIS v8.1 controls and safeguards with CRGO labels, OWASP identifiers, a governance status
+  `tools/build_crgo.py`) from the tag `v0.11.0`: release 0.11.0 with status *approved* and its note; the six scenario
+  patterns with their ATT&CK/CWE links, CIS v8.1 controls and safeguards with CRGO labels, OWASP identifiers, a governance status
   per legal instrument and the technology vocabulary. Legal conditions are listed once each (no longer once per triple).
 - **Legal applicability** knows the 0.11 instruments — Critical Cyber Systems Protection Act (CCSPA; designated
   operators, never plainly applicable), ISO/IEC 27701:2025, ISO/IEC 42001:2023, OWASP Top 10:2025, Top 10 for LLM
@@ -239,14 +239,15 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   Listed like SP 800-53 enhancements.
 - **Frameworks and standards → Methods and standards** cites ISO/IEC 27701, ISO/IEC 42001, the three OWASP lists and the
   CCSPA (identifiers, CRGO short labels, publisher links; no text reproduced); the CIS entry names the v8.1 safeguards.
-- **Ontology · CRGO → Connection** shows a proposed-release banner and the list of 0.11 additions; the Virtual consultant
-  indexes the patterns, CIS safeguards and OWASP entries and cites them `(release 0.11.0, proposed, …)`.
+- **Ontology · CRGO → Connection** names the release's status (an approved-release banner for 0.11.0; a proposed
+  release would get a warning) and lists the 0.11 additions; the Virtual consultant indexes the patterns, CIS safeguards
+  and OWASP entries and cites them `(release 0.11.0, …)`.
 - Guides EN/FR (3.5, legal applicability, troubleshooting), installation notes and `NOTICE.md` point to CRGO 0.11.0.
   Threat Intel plugin 1.7.0 pins 0.11.0 (root `CHANGELOG.md`).
 - Tests: `t50_crgo_011.mjs` (snapshot, patterns end to end, CIS catalogue, applicability with technologies, Connection);
   t12 and t21 assert the detected release and `ontologyRelease` equal `CRGO_RELEASE` (default 0.11.0); t38 runs the
-  release gate against the checkout; t44 accepts the *proposed* citation. CI checks CRGO out through one variable,
-  `CRGO_REF` (`release/0.11.0` until the author tags v0.11.0).
+  release gate against the checkout; t44 accepts the release citation. CI checks CRGO
+  out through one variable, `CRGO_REF` = `v0.11.0`.
 
 ### SSVC and AI forecasting (groups 5 and 6)
 - **Vulnerabilities → SSVC decisions** (`js/ssvc.js`, `js/data/ssvc-tables.js`, `js/panels/ssvc.js`): a Stakeholder-Specific

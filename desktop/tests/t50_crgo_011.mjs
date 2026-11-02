@@ -1,4 +1,4 @@
-// CRGO 0.11.0 (proposed) in the application, against the real ontology at CRGO_HOME: the snapshot's release and status,
+// CRGO 0.11.0 (approved, tag v0.11.0) in the application, against the real ontology at CRGO_HOME: the snapshot's release and status,
 // the six scenario patterns end to end (batch archetype → register → organisation graph 'has scenario pattern'), the AI
 // answer path, the scenario editor, CIS v8.1 safeguards with CRGO labels, applicability with technologies in use
 // (browser port = CRGO's evaluator), and the consultant's citations. Skipped when CRGO_RELEASE is older than 0.11.
@@ -50,20 +50,22 @@ const r = await page.evaluate(async () => {
   return out;
 });
 
-ok(r.snap.release === CRGO_RELEASE && r.snap.onto === CRGO_RELEASE && r.snap.status === 'proposed' && /approval/.test(r.snap.note || '') && r.snap.n === 1884,
-  `snapshot: CRGO ${CRGO_RELEASE}, status proposed with its note, 1,884 scenarios ` + JSON.stringify({ ...r.snap, pats: undefined, inst: undefined }));
+ok(r.snap.release === CRGO_RELEASE && r.snap.onto === CRGO_RELEASE && r.snap.status === 'approved' && /approved by the CRGO project owner/.test(r.snap.note || '')
+  && /unverified/.test(r.snap.note || '') && r.snap.n === 1884,
+  `snapshot: CRGO ${CRGO_RELEASE}, status approved with its note (REVIEW values unverified), 1,884 scenarios ` + JSON.stringify({ ...r.snap, pats: undefined, inst: undefined }));
 ok(!r.snap.dupConditions, 'legal conditions are listed once each in the snapshot');
 ok(r.snap.cis === 153 && r.snap.unverified === 39 && r.snap.techs.includes('TechAIAgents'), 'snapshot: 153 CIS v8.1 safeguards (39 unverified) and the technology vocabulary');
-ok(['CCSPA', 'ISO-IEC-27701-2025', 'ISO-IEC-42001-2023', 'OWASP-TOP10-2025', 'OWASP-LLM-2025', 'OWASP-AGENTIC-2026'].every(k => r.snap.inst[k] === 'proposed') && r.snap.inst['P-39.1'] === 'approved',
-  'the 0.11 instruments are proposed, Loi 25 stays approved ' + JSON.stringify(r.snap.inst));
-// the app's six patterns are CRGO's, with CRGO's labels and only links CRGO proposes
-const same = r.mod.length === 6 && r.mod.every(m => { const s = r.snap.pats.find(p => p.id === m.id); return s && s.status === 'proposed' && m.name.toLowerCase().startsWith(s.en.toLowerCase())
+ok(['CCSPA', 'ISO-IEC-27701-2025', 'ISO-IEC-42001-2023', 'OWASP-TOP10-2025', 'OWASP-LLM-2025', 'OWASP-AGENTIC-2026', 'P-39.1'].every(k => r.snap.inst[k] === 'approved')
+  && !Object.values(r.snap.inst).includes('proposed'),
+  'the 0.11 instruments are approved, like Loi 25; none is left proposed ' + JSON.stringify(r.snap.inst));
+// the app's six patterns are CRGO's (approved), with CRGO's labels and only CRGO's pattern links
+const same = r.mod.length === 6 && r.mod.every(m => { const s = r.snap.pats.find(p => p.id === m.id); return s && s.status === 'approved' && m.name.toLowerCase().startsWith(s.en.toLowerCase())
   && m.attack.every(t => s.tech.includes(t)) && m.cwe.every(c => s.cwe.includes(c)); });
 ok(same && r.snap.pats.length === 6, 'scenario patterns CRGO_0001389–0001394: identifiers, labels and ATT&CK/CWE links match CRGO 0.11.0 ' + JSON.stringify(r.snap.pats.map(p => p.id + ' ' + p.en)));
 ok(r.batch.length === 6 && new Set(r.batch.map(b => b.id)).size === 6 && r.batch.every(b => b.score > 0 && b.known), 'batch: six pattern archetypes, one per CRGO pattern, valid CVSS v4.0 vectors, ATT&CK/CWE in the bundled KB ' + JSON.stringify(r.batch));
 ok(r.valid.join('|') === 'CRGO_0001393|CRGO_0001394|CRGO_0001389||', 'pattern identifiers are checked against the six (case, key, IRI; others refused) ' + r.valid.join('|'));
 ok(r.prompt.has && r.prompt.field, 'the AI scenario prompt lists the six patterns and asks for "pattern" ' + JSON.stringify(r.prompt));
-ok(r.cis.n === 171 && r.cis.ctl === 18 && r.cis.s54?.title === 'Use separate admin accounts' && r.cis.s54.enh && /CRGO 0\.11\.0 label \(proposed/.test(r.cis.s54.note) && r.cis.s185 && r.cis.c5,
+ok(r.cis.n === 171 && r.cis.ctl === 18 && r.cis.s54?.title === 'Use separate admin accounts' && r.cis.s54.enh && /CRGO 0\.11\.0 label \(approved/.test(r.cis.s54.note) && r.cis.s185 && r.cis.c5,
   'catalogue: CIS v8.1 = 18 controls + 153 safeguards with CRGO labels ' + JSON.stringify(r.cis.s54));
 ok(r.cis.unverified === 39 && r.cis.labelsMatch, 'catalogue: every safeguard title is CRGO\'s own label; the 39 REVIEW values are marked unverified');
 const states = o => JSON.stringify(Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [k, v.state]).sort()));
@@ -72,8 +74,8 @@ ok(r.local['OWASP-AGENTIC-2026'].state === 'PotentiallyApplicable' && r.local['O
   && r.local['ISO-IEC-42001-2023'].state === 'NotApplicable', 'voluntary standards are at most potentially applicable; a technology not listed (complete) makes them not applicable ' + states(r.local));
 ok(r.local['CCSPA'].state !== 'Applicable', 'CCSPA: designated-operator condition is interpretive, never plainly applicable ' + r.local['CCSPA'].state);
 ok(JSON.stringify(r.facts) === JSON.stringify({ S1: 'CRGO_0001392' }), 'facts carry has-scenario-pattern per scenario ' + JSON.stringify(r.facts));
-ok(!r.graph.error && r.graph.est === 84305 && r.graph.res === 41023 && r.graph.release?.tag === CRGO_RELEASE && r.graph.release?.status === 'proposed',
-  'organisation graph through CRGO 0.11.0 still reproduces 84,305 / 41,023; release status proposed ' + JSON.stringify(r.graph).slice(0, 300));
+ok(!r.graph.error && r.graph.est === 84305 && r.graph.res === 41023 && r.graph.release?.tag === CRGO_RELEASE && r.graph.release?.status === 'approved',
+  'organisation graph through CRGO 0.11.0 still reproduces 84,305 / 41,023; release status approved ' + JSON.stringify(r.graph).slice(0, 300));
 const facts = fs.existsSync(`${ORG}/${r.wsid}/orgfacts.ttl`) ? fs.readFileSync(`${ORG}/${r.wsid}/orgfacts.ttl`, 'utf8') : '';
 ok(/scenario-S1>?\s[^.]*CRGO_0001478[^.]*CRGO_0001392/s.test(facts) || (facts.includes('CRGO_0001478') && facts.includes('CRGO_0001392')), 'orgfacts.ttl: scenario S1 has scenario pattern CRGO_0001392');
 ok(facts.includes('CRGO_0001479') && facts.includes('CRGO_0001400'), 'orgfacts.ttl: the organisation uses technology "AI agents" (CRGO_0001479 → CRGO_0001400)');
@@ -101,16 +103,17 @@ await page.click('#scen-tab-onto');
 await page.waitForSelector('#scen-panel-onto:not([hidden])', { state: 'visible', timeout: 15000 });
 const onto = page.locator('#scen-panel-onto');
 ok(await page.locator('#scen-tab-onto').getAttribute('aria-selected') === 'true'
-  && await onto.locator('text=Scenario pattern (CRGO 0.11.0, proposed)').first().isVisible() && await onto.locator('text=CRGO_0001478').first().isVisible()
+  && await onto.locator('text=Scenario pattern (CRGO 0.11.0)').first().isVisible() && await onto.locator('text=CRGO_0001478').first().isVisible()
   && await onto.locator('select:has(option[value="CRGO_0001391"])').isVisible(),
   'scenario editor, Ontology · CRGO tab: the pattern picker renders with its identifier and has-scenario-pattern');
 await onto.locator('select:has(option[value="CRGO_0001391"])').selectOption('CRGO_0001391');
 await page.waitForTimeout(400);
 const edited = await page.evaluate(async id => { const st = await import('/js/state.js'); return st.S.ws.assessment.SCEN.find(s => s.id === id).scenPattern; }, sid);
 ok(edited === 'CRGO_0001391', 'the analyst can set the pattern in the editor ' + edited);
-// Ontology · CRGO → Connection names the proposed release and the 0.11 additions
+// Ontology · CRGO → Connection names the approved release (no proposed-release banner) and the 0.11 additions
 await page.evaluate(() => { location.hash = '#/ontology/connection'; });
-ok(await page.waitForSelector(`#panel-ontology >> text=CRGO v${CRGO_RELEASE} is a proposed release`, { timeout: 20000 }).then(() => true, () => false), 'Connection: proposed-release banner');
+ok(await page.waitForSelector(`#panel-ontology >> text=CRGO v${CRGO_RELEASE} is an approved release`, { timeout: 20000 }).then(() => true, () => false)
+  && await page.locator('#panel-ontology >> text=is a proposed release').count() === 0, 'Connection: approved-release banner, no proposed-release banner');
 ok(await page.locator('#panel-ontology >> text=153 safeguards with CRGO labels').count() > 0, 'Connection: the snapshot card lists the CRGO 0.11.0 additions');
 await page.evaluate(async () => { const st = await import('/js/state.js'); await st.remove(st.S.ws.id); });
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));

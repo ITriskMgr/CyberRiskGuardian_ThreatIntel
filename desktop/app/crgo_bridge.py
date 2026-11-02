@@ -129,7 +129,7 @@ def facts_graph(req, T, X):
         for n in notations:
             if n in prov: g.add((X["scenario-" + sid], T("triggersObligation"), prov[n]))
             else: unknown.append(n)
-    # 1.9.0 — CRGO 0.11.0 'has scenario pattern' (proposed); an older CRGO has no such property and gets none
+    # 1.9.0 — CRGO 0.11.0 'has scenario pattern'; an older CRGO has no such property and gets none
     if f.get("patterns"):
         try:
             has_pattern = T("hasScenarioPattern")

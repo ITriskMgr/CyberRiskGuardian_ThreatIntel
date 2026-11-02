@@ -20,10 +20,10 @@ the MediBec regression stays at 84,305 / 41,023.
   cites.
 
 ### CRGO 0.11
-- Pins the CyberRiskGuardian Ontology to **CRGO 0.11.0** (`crgo_contract.PINNED_RELEASE`), a **proposed** release: its
-  new terms (crgo-iam registers, scenario patterns, CIS v8.1 with CRGO labels, OWASP 2025/LLM/Agentic, ISO/IEC 27701 and
-  42001, CCSPA) await the CRGO author's approval and are cited as proposed. Tag `v0.11.0` once the author creates it; until
-  then branch `release/0.11.0`. Contracts dss/v1, compliance/v1 and secops/v1 are unchanged; 0.10.1 keeps working.
+- Pins the CyberRiskGuardian Ontology to **CRGO 0.11.0** (`crgo_contract.PINNED_RELEASE`, tag `v0.11.0`): its new terms
+  (crgo-iam registers, scenario patterns, CIS v8.1 with CRGO labels, OWASP 2025/LLM/Agentic, ISO/IEC 27701 and 42001, CCSPA)
+  were approved by the CRGO author on 2026-11-02; the CIS v8.1 values CRGO flags `REVIEW:` were accepted as delivered and
+  stay unverified. Contracts dss/v1, compliance/v1 and secops/v1 are unchanged; 0.10.1 keeps working.
 - `.mcp.json` (project and plugin) read the CRGO folder from **`CRGO_HOME`**, default `./CyberRiskGuardian-Ontology-0.11.0`,
   so a clone with another folder name (the Mac clone `CyberRiskGuardian-Ontology`) works by setting `CRGO_HOME`.
 - `test_crgo_contract.py` no longer ignores `ontologyRelease`: the risk context and the compliance/secops reads must report

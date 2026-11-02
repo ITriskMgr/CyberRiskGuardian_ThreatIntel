@@ -85,7 +85,7 @@ vous acceptez parviennent au moteur.
 | Un navigateur à jour | Chrome ou Edge pour l'application installable. Safari et Firefox l'exécutent dans un onglet. |
 | Python 3 | Uniquement pour servir le dossier localement. macOS et la plupart des distributions Linux l'ont déjà. Sous Windows, installez-le à partir de [python.org](https://www.python.org/downloads/) et cochez **Add python.exe to PATH**. |
 | Environ 16 Mo d'espace disque | Plus vos espaces de travail et tout instantané que vous chargez. L'instantané d'exemple fourni fait environ 1,5 Mo, l'instantané de l'ontologie environ 6,5 Mo et le paquet de simulation pour l'enseignement environ 0,1 Mo ; un instantané complet des menaces produit par `threat_snapshot.py` fait 8 Mo ou plus. |
-| *Facultatif :* l'Ontologie CyberRiskGuardian 0.11.0 (proposée) | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
+| *Facultatif :* l'Ontologie CyberRiskGuardian 0.11.0 (étiquette v0.11.0) | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
 
 Aucun compte, clé de licence, programme d'installation ni droit d'administrateur n'est requis. Rien
 n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateur.
@@ -194,12 +194,12 @@ les contrats qu'elle prend en charge : la détermination des scénarios fonctio
 version, le lien avec l'organisation (dss/v1) exige v0.9.1 ou une version ultérieure, et les contextes
 de la conformité et des opérations de sécurité (compliance/v1, secops/v1) exigent v0.10.0. L'onglet
 démarre le serveur sur demande ; le premier démarrage construit son magasin de données, en dix à vingt
-secondes environ. Section 7.2.4. Cette version est conçue pour **CRGO 0.11.0**, une version *proposée* : ses nouveaux
+secondes environ. Section 7.2.4. Cette version est conçue pour **CRGO 0.11.0** (étiquette `v0.11.0`) : ses nouveaux
 termes (registres d'identité et de configuration, les six modèles de scénarios, les CIS Controls v8.1 avec les libellés
 propres à CRGO, les listes OWASP, ISO/IEC 27701 et 42001, la Loi sur la protection des cybersystèmes essentiels)
-attendent l'approbation de l'auteur de CRGO, et l'onglet Connexion le précise. Tant que l'auteur n'a pas créé
-l'étiquette v0.11.0, extrayez la branche `release/0.11.0` plutôt que l'étiquette. L'instantané livré avec
-l'application est CRGO 0.11.0.
+ont été approuvés par l'auteur de CRGO le 2 novembre 2026, et l'onglet Connexion le précise. Les valeurs CIS v8.1
+que CRGO signale pour révision ont été acceptées telles quelles et restent marquées *non vérifiées*. L'instantané
+livré avec l'application est CRGO 0.11.0.
 
 ---
 
@@ -1508,8 +1508,8 @@ Pour tout scénario, **Trouver des scénarios semblables dans l'ontologie** cher
 l'aide des techniques ATT&CK du scénario et des mots de son nom — *Lien* en rattache un, ce qui donne
 au scénario ses clés d'ontologie — et **Contrôles pour ses techniques** énumère, technique par
 technique, les contrôles que l'ontologie lui associe le plus souvent : une liste de départ pour
-Atténuation des risques, et non une évaluation de l'organisation. **Patron de scénario (CRGO 0.11.0, proposé)**
-affiche le patron que suit le scénario, ses thèmes et ses liens proposés, et permet de choisir l'un des six ou
+Atténuation des risques, et non une évaluation de l'organisation. **Patron de scénario (CRGO 0.11.0)**
+affiche le patron que suit le scénario, ses thèmes et les liens du patron, et permet de choisir l'un des six ou
 *Aucun patron de scénario* ; le graphe de l'organisation l'enregistre comme *a pour patron de scénario*
 (CRGO_0001478). Un patron est une classification, jamais une preuve ni un paramètre.
 
@@ -1540,11 +1540,11 @@ des révisions.
   ATT&CK comme modèle ; cochez des actifs (les joyaux de la couronne, ou saisissez-en d'autres) ; choisissez
   les sources de menace. Chaque combinaison devient un candidat avec un énoncé de chaîne causale, des
   techniques et des CWE liées, et des paramètres par défaut.
-  Six de ces archétypes sont les **patrons de scénarios de CRGO 0.11.0** (termes proposés) : récolter maintenant,
+  Six de ces archétypes sont les **patrons de scénarios de CRGO 0.11.0** : récolter maintenant,
   déchiffrer plus tard (CRGO_0001389), défaut d’agilité cryptographique (CRGO_0001390), panne due à l’expiration d’un
   certificat (CRGO_0001391), utilisation abusive d’IA agentique (CRGO_0001392), injection d’invite dans des flux
   d’agents (CRGO_0001393) et compromission de la chaîne d’approvisionnement de l’IA (CRGO_0001394), avec les liens
-  ATT&CK et CWE que CRGO propose. Leurs lignes affichent *Patron : … (CRGO_…)* et gardent le patron lorsqu'elles sont
+  ATT&CK et CWE du patron dans CRGO. Leurs lignes affichent *Patron : … (CRGO_…)* et gardent le patron lorsqu'elles sont
   ajoutées au registre. **Proposer avec l'IA** demande aussi au modèle de nommer l'un des six lorsqu'un candidat s'y
   prête ; tout autre identifiant est écarté.
 - **À partir de MITRE ATT&CK.** Recherchez des techniques par nom ou par ID, ou filtrez par tactique, et
@@ -2388,7 +2388,7 @@ immédiatement, sans IA.
 ##### Applicabilité juridique {#writer-legal}
 
 Les lois, règlements, contrats et référentiels qui peuvent s'appliquer. Pour les instruments que CRGO connaît
-(P-39.1, A-2.1, R-22.1, LPRPDE, BSIF B-13, RGPD, C-1.1 et — proposés dans CRGO 0.11.0 — la Loi sur la protection des cybersystèmes essentiels, ISO/IEC 27701 et
+(P-39.1, A-2.1, R-22.1, LPRPDE, BSIF B-13, RGPD, C-1.1 et — nouveaux dans CRGO 0.11.0 — la Loi sur la protection des cybersystèmes essentiels, ISO/IEC 27701 et
 42001 et les listes OWASP Top 10:2025, LLM et agentiques), l'évaluation du profil de l'organisation par
 l'ontologie est présentée comme preuve; **Évaluer le profil maintenant** l'exécute, et **Les ajouter au
 profil CRGO** ajoute les valeurs que votre entrevue implique (sans jamais marquer une liste comme complète —
@@ -2847,8 +2847,8 @@ où les données sont transférées ; et lesquels de ces éléments le profil �
 (assistant local)* exécute l'original. Chaque instrument — Loi 25 (P-39.1), A-2.1, R-22.1, LPRPDE,
 B-13 du BSIF, RGPD, C-1.1 — est *applicable*, *non applicable*, *potentiellement applicable* (**revue
 par une personne qualifiée requise**) ou *inconnu* (**Lacune d’information — validation organisationnelle
-requise**), avec les conditions remplies, non remplies et non résolues. CRGO 0.11.0 ajoute, comme termes
-*proposés*, la Loi sur la protection des cybersystèmes essentiels (exploitants désignés, une condition
+requise**), avec les conditions remplies, non remplies et non résolues. CRGO 0.11.0 ajoute
+la Loi sur la protection des cybersystèmes essentiels (exploitants désignés, une condition
 d'interprétation, donc jamais simplement applicable), ISO/IEC 27701:2025, ISO/IEC 42001:2023 et les listes OWASP
 Top 10:2025, Top 10 des applications de grands modèles de langage 2025 et Top 10 des applications agentiques 2026.
 Les normes volontaires sont au plus *potentiellement applicables*; ISO/IEC 42001 et les listes OWASP sont évaluées à
@@ -4396,7 +4396,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
     preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 4, les
     preuves se trouvent dans **Registres partagés → Preuves**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
-41. **Ontologie · CRGO → Connexion** nomme CRGO v0.11.0 et indique qu'il s'agit d'une version proposée ; *Lien avec l'organisation* → *Construire le
+41. **Ontologie · CRGO → Connexion** nomme CRGO v0.11.0 et indique qu'il s'agit d'une version approuvée ; *Lien avec l'organisation* → *Construire le
     graphe de l'organisation* sur MediBec affiche **mêmes totaux que cette application** ; *Lire le
     contexte* de S1 ne donne aucune cote de risque ; *Envoyer les résultats cochés sous forme de
     propositions* affiche **proposé** dans le journal ; **Lire les deux contextes** renvoie les contextes

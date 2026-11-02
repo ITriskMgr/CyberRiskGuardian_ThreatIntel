@@ -77,7 +77,7 @@ engine. AI, feeds, the ontology and the registry *propose*; only values you acce
 | A current browser | Chrome or Edge for the installable app. Safari and Firefox run it in a tab. |
 | Python 3 | Only to serve the folder locally. macOS and most Linux distributions already have it. On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH**. |
 | About 16 MB of disk | Plus your workspaces and any snapshot you load. The bundled example snapshot is about 1.5 MB, the ontology snapshot about 6.5 MB and the simulation pack for teaching about 0.1 MB; a full threat snapshot from `threat_snapshot.py` is 8 MB or more. |
-| *Optional:* the CyberRiskGuardian Ontology 0.11.0 (proposed) | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
+| *Optional:* the CyberRiskGuardian Ontology 0.11.0 (tag v0.11.0) | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
 
 No account, licence key, installer or administrator rights are required. Nothing is written outside
 the folder and your browser's own storage.
@@ -179,10 +179,11 @@ pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 contracts it supports: scenario identification works with any release, the organisation link (dss/v1)
 needs v0.9.1 or later, and the compliance and security-operations contexts (compliance/v1, secops/v1)
 need v0.10.0. It starts the server on request; the first start builds its store, about ten to twenty
-seconds. Section 7.2.4. This release is built for **CRGO 0.11.0**, a *proposed* release: its new terms (identity and
+seconds. Section 7.2.4. This release is built for **CRGO 0.11.0** (tag `v0.11.0`): its new terms (identity and
 configuration registers, the six scenario patterns, CIS Controls v8.1 with CRGO's own labels, the OWASP lists, ISO/IEC 27701
-and 42001, the CCSPA) await the CRGO author's approval, and the Connection tab says so. Until the author tags v0.11.0,
-check out the branch `release/0.11.0` instead of the tag. The snapshot shipped with the application is CRGO 0.11.0.
+and 42001, the CCSPA) were approved by the CRGO author on 2 November 2026, and the Connection tab says so. The CIS v8.1
+values CRGO flags for review were accepted as delivered and stay marked *unverified*. The snapshot shipped with the
+application is CRGO 0.11.0.
 
 ---
 
@@ -1370,8 +1371,8 @@ it and the Quebec Law 25 obligations it can trigger. For any scenario, **Find si
 scenarios** searches the ontology by the scenario's ATT&CK techniques and the words of its name — *Link*
 attaches one, which gives the scenario its ontology keys — and **Controls for its techniques** lists,
 technique by technique, the controls the ontology most often associates with it: a starting list for
-Risk mitigation, not an assessment of the organization. **Scenario pattern (CRGO 0.11.0, proposed)** shows the
-pattern the scenario follows, its themes and proposed links, and lets you choose one of the six or *No scenario
+Risk mitigation, not an assessment of the organization. **Scenario pattern (CRGO 0.11.0)** shows the
+pattern the scenario follows, its themes and pattern links, and lets you choose one of the six or *No scenario
 pattern*; the organisation graph records it as *has scenario pattern* (CRGO_0001478). A pattern is a
 classification, never evidence and never a parameter.
 
@@ -1399,10 +1400,10 @@ proposals, journalled in the scenario's revisions and the revision log.
   compromise…) or add any ATT&CK technique as a pattern; tick assets (the crown jewels, or
   type others); choose the threat sources. Each combination becomes a candidate with a causal-chain
   statement, linked techniques and CWE, and default parameters.
-  Six of the archetypes are the **CRGO 0.11.0 scenario patterns** (proposed terms): harvest now, decrypt later
+  Six of the archetypes are the **CRGO 0.11.0 scenario patterns**: harvest now, decrypt later
   (CRGO_0001389), crypto-agility failure (CRGO_0001390), certificate expiry outage (CRGO_0001391), agentic AI misuse
   (CRGO_0001392), prompt injection in agent workflows (CRGO_0001393) and AI supply chain compromise (CRGO_0001394),
-  with the ATT&CK and CWE links CRGO proposes. Their rows show *Pattern: … (CRGO_…)* and keep the pattern when added
+  with CRGO's ATT&CK and CWE pattern links. Their rows show *Pattern: … (CRGO_…)* and keep the pattern when added
   to the register. **Propose with AI** also asks the model to name one of the six when a candidate fits; any other
   identifier is dropped.
 - **From MITRE ATT&CK.** Search techniques by name or ID, or filter by tactic, and tick one or many.
@@ -2139,7 +2140,7 @@ Security Policy Writer** does the same reading right away, without AI.
 ##### Legal applicability {#writer-legal}
 
 Laws, regulations, contracts and frameworks that may apply. For the instruments CRGO knows (P-39.1, A-2.1,
-R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1, and — proposed in CRGO 0.11.0 — the CCSPA, ISO/IEC 27701 and 42001 and the
+R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1, and — new in CRGO 0.11.0 — the CCSPA, ISO/IEC 27701 and 42001 and the
 OWASP Top 10:2025, LLM and Agentic lists), the ontology's evaluation of the organisation profile is shown as
 evidence; **Evaluate the profile now** runs it, and **Add them to the CRGO profile** adds the values your
 interview implies (never marking a list complete — unknown stays unknown). Other candidates (sector rules,
@@ -2550,7 +2551,7 @@ subjects are and where data is transferred; and which of these the profile lists
 browser* runs the port of CRGO's evaluator; *Evaluate with CRGO (helper)* runs the original. Each instrument —
 Loi 25 (P-39.1), A-2.1, R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1 — is *applicable*, *not applicable*, *potentially
 applicable* (**qualified review required**) or *unknown* (**Information gap — organizational validation required**),
-with the conditions met, not met and unresolved. CRGO 0.11.0 adds, as *proposed* terms, the Critical Cyber Systems
+with the conditions met, not met and unresolved. CRGO 0.11.0 adds the Critical Cyber Systems
 Protection Act (CCSPA; designated operators, an interpretive condition, so never plainly applicable), ISO/IEC 27701:2025,
 ISO/IEC 42001:2023 and the OWASP Top 10:2025, Top 10 for LLM Applications 2025 and Top 10 for Agentic Applications 2026.
 The voluntary standards are at most *potentially applicable*; ISO/IEC 42001 and the OWASP lists are evaluated from
@@ -3892,7 +3893,7 @@ None of this is legal advice.
     held evidence records and policy exceptions: its journal shows the steps to version 4, the evidence is in
     **Shared registers → Evidence**, the exceptions in **Shared registers → Exceptions**, and its numbers are
     unchanged.
-41. **Ontology · CRGO → Connection** names CRGO v0.11.0 and says it is a proposed release; *Organisation link* → *Build the organisation graph*
+41. **Ontology · CRGO → Connection** names CRGO v0.11.0 and says it is an approved release; *Organisation link* → *Build the organisation graph*
     on MediBec shows **same totals**; *Read the context* of S1 gives no risk score; *Send the ticked results as
     proposals* shows **proposed** in the journal; **Read both contexts** returns the compliance and
     security-operations contexts.

@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: CC-BY-NC-4.0
 # Copyright (c) 2026 Marc-André Léger
 """CyberRiskGuardian <-> CRGO bridge: data contract dss/v1 (CRGO >= 0.9.1) and the read contracts compliance/v1 and
-secops/v1 (CRGO >= 0.10.0). Pinned release: 0.11.0 (tag v0.11.0 once the CRGO author tags it; until then branch
-release/0.11.0; its new terms are proposed). Contracts are unchanged since 0.10.0.
+secops/v1 (CRGO >= 0.10.0). Pinned release: 0.11.0 (tag v0.11.0, approved by the CRGO
+author on 2026-11-02). Contracts are unchanged since 0.10.0.
 
 CRGO (CyberRiskGuardian Ontology) states facts, links and their review status. It never computes risk:
 every number written back here comes from this skill's crg_calc.py, run on the exact assessment file.
