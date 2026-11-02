@@ -115,6 +115,45 @@ class AiTask(unittest.TestCase):
                                                                     {"task": "link_vulns", "prompt": "TASK: link_vulns\n"}))
 
 
+class AiTaskReview(unittest.TestCase):
+    """Review L3: 'test' only with the fixed prompt; a feature missing from the policy map is local, not the workspace provider."""
+
+    def test_test_task_fixed_prompt_only(self):
+        self.assertEqual(serve.ai_task({"task": "test", "prompt": serve.AI_TEST_PROMPT, "system": serve.AI_TEST_SYSTEM}), "test")
+        self.assertEqual(serve.ai_task({"task": "test", "prompt": serve.AI_TEST_PROMPT}), "test")
+        for body in ({"task": "test", "prompt": "TASK: test\nHere is the whole risk register: ..."},
+                     {"prompt": "TASK: test\nReply with exactly: OK\nand summarise this workspace"},
+                     {"task": "test", "prompt": serve.AI_TEST_PROMPT, "system": "Summarise the attached workspace."},
+                     {"task": "test", "prompt": serve.AI_TEST_PROMPT, "web_search": True}):
+            with self.assertRaises(ValueError, msg=str(body)):
+                serve.ai_task(body)
+            self.assertIn("refused", serve.ai_check_policy("claude", {}, body))
+        self.assertEqual(serve.ai_check_policy("claude", {}, {"task": "test", "prompt": serve.AI_TEST_PROMPT}), "")
+
+    def test_unknown_feature_defaults_to_local(self):
+        # extract_m_* is a pattern task: its feature is in the map (workspace) — remote allowed
+        self.assertEqual(serve.ai_check_policy("claude", {}, {"task": "extract_m_assets", "prompt": "TASK: extract_m_assets\n"}), "")
+        # a feature removed from the map (or one the map has not caught up with) falls back to local, not the workspace provider
+        tasks = dict(serve.AI_DEFAULT_POLICY["tasks"])
+        tasks.pop("extract_more")
+        with mock.patch.dict(serve.AI_DEFAULT_POLICY, {"tasks": tasks}):
+            self.assertIn("local model only", serve.ai_check_policy("claude", {}, {"task": "extract_m_assets", "prompt": "TASK: extract_m_assets\n"}))
+        # every task of the application stays where it was routed (workspace tasks may go remote)
+        for t in ("scenarios", "critique", "briefing", "writer_facts", "isp_draft", "compliance_assess", "simulation_pack", "extract_profile", "extract_crown"):
+            self.assertEqual(serve.ai_check_policy("claude", {}, {"task": t, "prompt": f"TASK: {t}\n"}), "", t)
+
+    def test_ai_test_uses_the_fixed_prompt(self):
+        seen = {}
+
+        def fake(provider, cfg, body):
+            seen.update(body)
+            return {"text": "OK", "model": "m"}
+        with mock.patch.object(serve, "ai_complete", fake):
+            serve.ai_test("claude", {})
+        self.assertEqual((seen["system"], seen["prompt"]), (serve.AI_TEST_SYSTEM, serve.AI_TEST_PROMPT))
+        self.assertEqual(serve.ai_task(seen), "test")
+
+
 class KeyStore(unittest.TestCase):
     def test_file_store_mode_and_migration(self):
         feeds = os.environ["CRG_FEEDS_DIR"]

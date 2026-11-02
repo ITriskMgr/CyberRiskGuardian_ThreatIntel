@@ -272,6 +272,9 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   others that failed, in `crg-keys.unmigrated.json` of the keys folder (mode 600), reported at start and in Settings → AI,
   and removed from there when entered again; the migration runs once per start, not on every key read. Helper tests with
   a mocked `security`.
+- **L3 — helper task check tightened.** A `test` request is accepted only with the fixed connectivity prompt (the one
+  `/api/ai/test` sends; no other system text, no web search); a feature missing from the helper's routing map is treated as
+  **local**, never as the workspace provider. Every task the application sends keeps its routing. Helper tests.
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 

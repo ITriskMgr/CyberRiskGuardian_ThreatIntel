@@ -307,6 +307,10 @@ AI_DEFAULT_POLICY = {
 # 1.9.0 — the tasks the application sends. The policy is decided on the task, so the task is checked rather
 # than trusted: it must be one of these, and the TASK line of the prompt must name the same one.
 AI_TASK_PATTERN = re.compile(r"^(extract_[sm]_[a-z0-9_]{1,40}|test)$")
+# 1.9.0 review L3 — the connectivity test carries this fixed prompt and nothing else: a "test" request with any other
+# system or prompt text is refused, so the task cannot be used to send workspace text past its feature's routing.
+AI_TEST_SYSTEM = "You are a connectivity test. Reply with exactly: OK"
+AI_TEST_PROMPT = "TASK: test\nReply with exactly: OK"
 
 
 def ai_task(body):
@@ -321,6 +325,9 @@ def ai_task(body):
         raise ValueError(f"The request names the task '{named}' but its prompt is for '{in_prompt}'; it was refused.")
     if task not in AI_DEFAULT_POLICY["tasks"] and not AI_TASK_PATTERN.match(task):
         raise ValueError(f"Unknown AI task '{task[:40]}'; it was refused.")
+    if task == "test" and (str(body.get("prompt") or "") != AI_TEST_PROMPT
+                           or str(body.get("system") or AI_TEST_SYSTEM) != AI_TEST_SYSTEM or body.get("web_search")):
+        raise ValueError("The 'test' task carries only the fixed connectivity prompt; this request was refused.")
     return task
 
 
@@ -340,7 +347,9 @@ def ai_check_policy(provider, cfg, body):
     pol = ai_policy(cfg)
     # 1.5.4 — the import-from-documents tasks share two features (sensitive → local by default)
     feature = "extract_sensitive" if task.startswith("extract_s_") else "extract_more" if task.startswith("extract_m_") else task
-    mode = pol["tasks"].get(feature, "workspace")
+    # 1.9.0 review L3 — a feature missing from the policy map is treated as local, never as the workspace provider;
+    # the fixed connectivity test (no workspace text) follows the workspace provider.
+    mode = "workspace" if task == "test" else pol["tasks"].get(feature, "local")
     if mode == "off":
         return f"The feature '{task}' is switched off in Settings → AI — local & remote."
     # 1.5.5 — "remote" is every provider that is not on this machine, not the Claude API alone. The
@@ -368,8 +377,7 @@ def ai_check_policy(provider, cfg, body):
 def ai_test(provider, cfg):
     """A minimal round trip to check a provider: no workspace data, a few tokens."""
     t0 = time.time()
-    out = ai_complete(provider, cfg, {"system": "You are a connectivity test. Reply with exactly: OK",
-                                      "prompt": "TASK: test\nReply with exactly: OK", "max_tokens": 16})
+    out = ai_complete(provider, cfg, {"system": AI_TEST_SYSTEM, "prompt": AI_TEST_PROMPT, "max_tokens": 16})
     ms = int((time.time() - t0) * 1000)
     text = (out.get("text") or "").strip()
     return {"ok": True, "provider": provider, "model": out.get("model"), "ms": ms, "reply": text[:80],
