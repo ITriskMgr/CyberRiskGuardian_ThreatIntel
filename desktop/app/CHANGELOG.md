@@ -262,6 +262,10 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   their combination 1 − ∏(1 − r) is recorded as the scenario's **explicit override** (shown in the Scenario editor and as a
   pill in Risk mitigation); *Apply to all covered scenarios* leaves it in place, the row's *Apply* replaces it (journalled).
   The proposal table names the measures. Test `t34`.
+- **L1 — an IPC indicator whose rows are all unknown is an information gap, not N/A.** CRG-17 to CRG-22 report *not
+  applicable* only when at least one row has a known denominator value; when every denominator value is unknown they give
+  *no data*, the unknown count and "Information gap — organizational validation required" (spec §5: never hide
+  unknowns). Guides EN/FR 7.5.6 updated. Test `t39`.
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 

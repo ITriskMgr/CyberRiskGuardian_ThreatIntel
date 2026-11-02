@@ -353,27 +353,30 @@ export function setOverride(ws, id, o, by = '') {
 export function kri(ws = S.ws) {
   const R = reg(ws), at = asOf(ws), st = R.settings;
   const values = {}, meta = {};
+  // Spec §5 N/A rule: empty register → no data; rows but a zero denominator → not applicable. Rows whose denominator
+  // values are ALL unknown (denKnown 0) are neither: no data, shown as an information gap with the unknown count (review L1).
   const put = (id, num, den, extra = {}) => {
     const empty = extra.empty;
-    const na = !empty && !(den > 0) && !extra.count;
+    const gap = !empty && !(den > 0) && !extra.count && extra.denKnown === 0;
+    const na = !empty && !gap && !(den > 0) && !extra.count;
     const v = empty ? null : extra.count ? num : (den > 0 ? fixed(100 * num / den) : null);
     values[id] = v;
-    meta[id] = { num, den, unknown: extra.unknown || 0, stale: extra.stale || 0, na: !!na && !empty, empty: !!empty, ...extra.more };
+    meta[id] = { num, den, unknown: extra.unknown || 0, stale: extra.stale || 0, na: !!na, empty: !!empty, gap: !!gap, ...extra.more };
   };
   // CRG-17
   {
     const rows = R.accounts, withCount = rows.filter(r => isNum(r.count)), both = withCount.filter(r => isNum(r.ownerless));
-    put('CRG-17', sum(both, r => r.count - r.ownerless), sum(withCount, r => r.count), { empty: !rows.length,
+    put('CRG-17', sum(both, r => r.count - r.ownerless), sum(withCount, r => r.count), { empty: !rows.length, denKnown: withCount.length,
       unknown: rows.filter(r => !isNum(r.count) || !isNum(r.ownerless)).length, stale: rows.filter(r => rowStale('accounts', r, ws)).length });
   }
   // CRG-18 / CRG-19
   {
     const P = R.privileged, all = P.filter(r => [0, 1, 2].includes(Number(r.tier))), t01 = all.filter(r => Number(r.tier) <= 1);
     const hold = r => isNum(r.holders) ? r.holders : 0;
-    put('CRG-18', sum(all, r => Math.min(isNum(r.mfa) ? r.mfa : 0, hold(r))), sum(all, hold), { empty: !P.length,
+    put('CRG-18', sum(all, r => Math.min(isNum(r.mfa) ? r.mfa : 0, hold(r))), sum(all, hold), { empty: !P.length, denKnown: all.length ? all.filter(r => isNum(r.holders)).length : undefined,
       unknown: all.filter(r => !isNum(r.mfa) || !isNum(r.holders)).length, stale: all.filter(r => rowStale('privileged', r, ws)).length,
       more: { pr: sum(all, r => isNum(r.mfaPR) ? r.mfaPR : 0), prUnknown: all.filter(r => !isNum(r.mfaPR)).length } });
-    put('CRG-19', sum(t01, r => isNum(r.standing) ? r.standing : hold(r)), sum(t01, hold), { empty: !P.length,
+    put('CRG-19', sum(t01, r => isNum(r.standing) ? r.standing : hold(r)), sum(t01, hold), { empty: !P.length, denKnown: t01.length ? t01.filter(r => isNum(r.holders)).length : undefined,
       unknown: t01.filter(r => !isNum(r.standing) || !isNum(r.holders)).length, stale: t01.filter(r => rowStale('privileged', r, ws)).length });
   }
   // CRG-20
@@ -381,27 +384,28 @@ export function kri(ws = S.ws) {
     const from = monthsBefore(at, st.reviewMonths);
     const inWin = R.reviews.filter(r => r.due && r.due > from && r.due <= at);
     put('CRG-20', sum(inWin, r => isNum(r.decisionsDone) ? r.decisionsDone : 0), sum(inWin, r => isNum(r.decisionsDue) ? r.decisionsDue : 0), { empty: !R.reviews.length,
+      denKnown: inWin.length ? inWin.filter(r => isNum(r.decisionsDue)).length : undefined,
       unknown: inWin.filter(r => !isNum(r.decisionsDone) || !isNum(r.decisionsDue)).length, more: { campaigns: inWin.length } });
   }
   // CRG-21
   {
     const E = R.emergency, known = E.filter(r => isNum(r.uses));
-    put('CRG-21', sum(known, r => isNum(r.usesReviewed) ? Math.min(r.usesReviewed, r.uses) : 0), sum(known, r => r.uses), { empty: !E.length,
+    put('CRG-21', sum(known, r => isNum(r.usesReviewed) ? Math.min(r.usesReviewed, r.uses) : 0), sum(known, r => r.uses), { empty: !E.length, denKnown: known.length,
       unknown: E.filter(r => !isNum(r.uses) || !isNum(r.usesReviewed)).length });
   }
   // CRG-22
   {
-    const C = R.ciScopes; let legacy = 0, unknown = 0, stale = 0, assigned = 0, inScope = 0;
+    const C = R.ciScopes; let legacy = 0, unknown = 0, stale = 0, assigned = 0, inScope = 0, denKnown = 0;
     for (const cs of C) {
       const c = scopeCounts(cs, ws);
       if (!isNum(c.inScope)) { unknown++; continue; }
-      inScope += c.inScope;
+      inScope += c.inScope; denKnown++;
       const vs = cs.fromAssets ? null : versionState(cs.baseline, cs.version, ws);
       if (!isNum(c.assigned)) unknown++;
       else if (vs !== 'draft') { assigned += c.assigned; if (vs === 'legacy') legacy += c.assigned; }
       if (rowStale('ciScopes', cs, ws)) stale++;
     }
-    put('CRG-22', assigned, inScope, { empty: !C.length, unknown, stale, more: { legacy } });
+    put('CRG-22', assigned, inScope, { empty: !C.length, denKnown, unknown, stale, more: { legacy } });
   }
   // CRG-23
   {

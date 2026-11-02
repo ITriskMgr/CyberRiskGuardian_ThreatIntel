@@ -87,7 +87,7 @@ function overview(body, redraw, ws) {
   // KRI tiles
   body.append(el('div', { class: 'grid g4', id: 'ipc-kris' }, ...defs.map(d => {
     const v = K.values[d.id], m = K.meta[d.id], st = IPC.status(d, v, m);
-    const sub = m.empty ? tr('no data') : m.na ? tr('not applicable') : d.unit === 'count' ? tr('{0} expired').replace('{0}', m.num)
+    const sub = m.empty ? tr('no data') : m.gap ? `${tr('no data')} · ${tr('{0} unknown').replace('{0}', m.unknown)} · ${tr('Information gap — organizational validation required')}` : m.na ? tr('not applicable') : d.unit === 'count' ? tr('{0} expired').replace('{0}', m.num)
       : `${m.num} / ${m.den} · ${tr('{0} unknown').replace('{0}', m.unknown)} · ${tr('{0} stale').replace('{0}', m.stale)}` + (d.id === 'CRG-22' && m.legacy ? ' · ' + tr('{0} legacy').replace('{0}', m.legacy) : '')
         + (d.id === 'CRG-18' && m.den ? ' · ' + tr('phishing-resistant {0}').replace('{0}', Math.round(1000 * m.pr / m.den) / 10 + ' %') : '');
     const t = kpi(`${d.id} ${tr(d.name)}`, fmt(d, v), sub, kind(st.k));

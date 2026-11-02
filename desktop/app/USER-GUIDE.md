@@ -1275,7 +1275,9 @@ the computed ones, grouped under its name: CRG-17 identity ownership coverage, C
 coverage, CRG-19 standing-privilege ratio, CRG-20 access-review completion, CRG-21 emergency use reviewed,
 CRG-22 baseline assignment coverage, CRG-23 known coverage and CRG-24 expired exceptions. The method cell
 shows the formula, numerator and denominator, and the unknown and stale counts. An empty register gives
-*no data*; rows with a zero denominator (no use, no campaign due, nothing in scope) give **not applicable**.
+*no data*; rows with a zero denominator (no use, no campaign due, nothing in scope) give **not applicable**;
+rows whose denominator values are all unknown give *no data* with the unknown count and the marker
+"Information gap — organizational validation required", never *not applicable*.
 An indicator is **never green by excluding unknowns**: an unknown or stale input caps it at *on target —
 incomplete data* (CRG-23 and CRG-24 excepted). Their thresholds are edited on the module's overview. When
 the module is off, they are hidden.

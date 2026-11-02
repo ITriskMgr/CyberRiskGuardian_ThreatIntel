@@ -1395,7 +1395,9 @@ CRG-20 achèvement des revues des accès, CRG-21 utilisations d'urgence examiné
 d'affectation des configurations de référence, CRG-23 couverture des données connues et CRG-24 exceptions
 expirées. La cellule de méthode montre la formule, le numérateur et le dénominateur, et les nombres
 d'inconnus et de périmés. Un registre vide donne *aucune donnée*; des lignes avec un dénominateur nul (aucune
-utilisation, aucune campagne échue, rien dans le périmètre) donnent **non applicable**. Un indicateur n'est
+utilisation, aucune campagne échue, rien dans le périmètre) donnent **non applicable**; des lignes dont toutes
+les valeurs du dénominateur sont inconnues donnent *aucune donnée*, avec le nombre d'inconnus et la mention
+« Lacune d’information — validation organisationnelle requise », jamais *non applicable*. Un indicateur n'est
 **jamais vert en excluant les inconnus** : une donnée inconnue ou périmée le plafonne à *dans la cible —
 données incomplètes* (sauf CRG-23 et CRG-24). Leurs seuils se modifient dans la vue d'ensemble du module.
 Lorsque le module est désactivé, ils sont masqués.

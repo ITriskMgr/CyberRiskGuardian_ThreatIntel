@@ -32,9 +32,23 @@ const r = await page.evaluate(async () => {
   w2.shared.exceptions.push({ id: 'EXC-001', status: 'accepted', expiry: '2026-06-30', concerns: [] });
   R2.deviations.push({ ...I.blankRow('deviations'), id: 'DV-01', cls: 'compensated', exception: 'EXC-001', state: 'open' });
   out.c24 = I.kri(w2).values['CRG-24'];
+  // review L1: rows whose denominator values are ALL unknown are an information gap ("no data", u unknown), not N/A
+  const w5 = st.newWorkspace(); const R5 = I.reg(w5); R5.settings.asOf = '2026-11-01';
+  R5.accounts.push({ ...I.blankRow('accounts'), id: 'u1', type: 'employee', count: null, ownerless: null, reconciled: '2026-10-15' }, { ...I.blankRow('accounts'), id: 'u2', type: 'service', count: null, ownerless: 1, reconciled: '2026-10-15' });
+  R5.reviews.push({ ...I.blankRow('reviews'), id: 'r1', due: '2026-10-01', decisionsDue: null, decisionsDone: null });
+  R5.emergency.push({ ...I.blankRow('emergency'), id: 'e1', count: 1, uses: null, usesReviewed: null, lastTest: '2026-10-01' });
+  R5.privileged.push({ ...I.blankRow('privileged'), id: 'p1', tier: 0, holders: null, standing: null, mfa: null, mfaPR: null, reviewed: '2026-10-01' });
+  R5.ciScopes.push({ ...I.blankRow('ciScopes'), id: 'c1', inScope: null, assigned: null, assessed: null, compliant: null, asOf: '2026-10-15' });
+  const k5 = I.kri(w5), d5 = Object.fromEntries(I.defsWithOverrides(w5).map(d => [d.id, d]));
+  out.gap = Object.fromEntries(['CRG-17', 'CRG-18', 'CRG-19', 'CRG-20', 'CRG-21', 'CRG-22'].map(id => [id, { v: k5.values[id], na: k5.meta[id].na, gap: k5.meta[id].gap, empty: k5.meta[id].empty, u: k5.meta[id].unknown, st: I.status(d5[id], k5.values[id], k5.meta[id]).label }]));
+  // one known zero denominator beside unknown rows stays N/A (a value is known: nothing to count)
+  R5.reviews.push({ ...I.blankRow('reviews'), id: 'r2', due: '2026-10-02', decisionsDue: 0, decisionsDone: 0 });
+  const k6 = I.kri(w5); out.mixed = { na: k6.meta['CRG-20'].na, gap: k6.meta['CRG-20'].gap, u: k6.meta['CRG-20'].unknown };
   return out;
 });
 const E = r.empty;
+for (const [id, g] of Object.entries(r.gap)) ok(g.v === null && !g.na && g.gap && !g.empty && g.u >= 1 && g.st === 'no data', `review L1: ${id} with every denominator unknown → no data, information gap, ${g.u} unknown (not N/A) ` + JSON.stringify(g));
+ok(r.mixed.na && !r.mixed.gap && r.mixed.u === 1, 'review L1: a known zero denominator beside an unknown row stays not applicable ' + JSON.stringify(r.mixed));
 ok(Object.values(E.values).every(v => v === null) && Object.values(E.meta).every(m => m.empty && !m.na), 'empty registers: no data (not N/A)');
 const k = r.k.values, m = r.k.meta;
 ok(k['CRG-17'] === +(100 * 98 / 150).toFixed(2) && m['CRG-17'].num === 98 && m['CRG-17'].den === 150 && m['CRG-17'].unknown === 1, 'CRG-17 = Σ(count − ownerless) over known ÷ Σ count ' + k['CRG-17']);
@@ -53,6 +67,13 @@ await page.evaluate(async () => { const st = await import('/js/state.js'); const
 await goto(page, '#/ipc/overview', 900);
 ok(await page.locator('#ipc-kris [data-kri]').count() === 8, 'eight tiles on the overview');
 ok(/1479 \/ 1505/.test(await page.textContent('#ipc-kris [data-kri="CRG-17"]')), 'tile shows num / den');
+// review L1 on screen: all account counts unknown → the tile shows no data, the unknown count and the information-gap marker
+{ const saved = await page.evaluate(async () => { const st = await import('/js/state.js'); const A = st.S.ws.ipc.accounts; const keep = A.map(a => a.count); A.forEach(a => { a.count = null; }); st.touch(); return keep; });
+  await goto(page, '#/process', 400); await goto(page, '#/ipc/overview', 900);
+  const tt = await page.textContent('#ipc-kris [data-kri="CRG-17"]');
+  ok(/no data · \d+ unknown · Information gap — organizational validation required/.test(tt) && !/not applicable/.test(tt), 'review L1: CRG-17 tile with every count unknown ' + tt.replace(/\s+/g, ' ').slice(0, 200));
+  await page.evaluate(async keep => { const st = await import('/js/state.js'); st.S.ws.ipc.accounts.forEach((a, i) => { a.count = keep[i]; }); st.touch(); }, saved);
+  await goto(page, '#/process', 400); await goto(page, '#/ipc/overview', 900); }
 await page.fill('#ipc-thresholds input[data-kri="CRG-17"][data-k="crit"]', '99'); await page.dispatchEvent('#ipc-thresholds input[data-kri="CRG-17"][data-k="crit"]', 'change'); await page.waitForTimeout(500);
 let ov = await page.evaluate(async () => (await import('/js/state.js')).S.ws.kriDefs.find(x => x.id === 'CRG-17'));
 ok(ov && ov.crit === 99 && ov.date, 'override stored in kriDefs ' + JSON.stringify(ov));
