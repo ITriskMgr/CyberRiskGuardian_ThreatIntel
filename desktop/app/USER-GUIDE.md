@@ -681,6 +681,14 @@ Registry · Tools · Settings · Help**. This chapter follows it screen by scree
 the **?** beside the title opens a short help — the rules that apply to that screen — with **Open this
 section of the user guide**, which opens this guide at the matching section in its own window.
 
+**Read more in the book.** Below the description, a line in italics names the chapter and section of
+*Introduction to Cybersecurity Governance for Business Technology Management* (3rd ed., v2.51b) that
+covers the screen — for example *Read more: Chapter 4 — Risk appetite and risk tolerance: turning
+governance into decision criteria*. Each of the nineteen steps carries its own line on the Process page,
+in the Step by step window and in the printed checklist. It is a reference only: no textbook text is
+shipped with it. The lines follow the book's appendix *Using CyberRiskGuardian with this book*; a screen
+that no chapter covers (Settings, Backup, About…) shows none.
+
 ### 7.1 Start — Process {#process}
 
 Section 6. The nineteen steps are grouped as in the book — evidence, context and scope; appetite and materiality; scenarios; quantification; treatment; robustness, priorities and money; monitoring and reporting — and the badge in the menu shows the next step (for example *5/19*). The step cards with their status in the workspace, the next recommended step, the guidelines

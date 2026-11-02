@@ -708,6 +708,15 @@ quoi sert l'écran ; le **?** à côté du titre ouvre une courte aide — les 
 écran — avec **Ouvrir cette section du guide de l'utilisateur**, qui ouvre ce guide à la section
 correspondante, dans sa propre fenêtre.
 
+**Pour en savoir plus dans le manuel.** Sous la description, une ligne en italique nomme le chapitre et
+la section d'*Introduction to Cybersecurity Governance for Business Technology Management* (3e éd.,
+v2.51b) qui traitent de l'écran — par exemple *Pour en savoir plus : chapitre 4 — Appétence pour le
+risque et tolérance au risque : traduire la gouvernance en critères de décision*. Chacune des
+dix-neuf étapes porte sa propre ligne sur la page Processus, dans la fenêtre Pas à pas et dans la liste
+de contrôle imprimée. Il s'agit d'une simple référence : aucun texte du manuel n'est fourni avec elle.
+Les lignes suivent l'annexe du manuel *Using CyberRiskGuardian with this book* ; un écran qu'aucun
+chapitre ne traite (Paramètres, Sauvegarde, À propos…) n'en affiche pas.
+
 ### 7.1 Démarrer — Processus {#process}
 
 Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétence et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*). Les fiches d'étape avec leur état dans l'espace de travail, la prochaine étape recommandée,
