@@ -109,7 +109,11 @@ await page.evaluate(async v => { const st = await import('/js/state.js'); st.S.w
 /* ---------- contrast of the key token pairs (WCAG AA 4.5:1 for text), light and dark ---------- */
 const PAIRS = [['--ink', '--bg'], ['--ink', '--surface'], ['--muted', '--bg'], ['--muted', '--surface'], ['--muted', '--surface-2'], ['--accent', '--surface'], ['--accent', '--bg'],
   ['--good', '--good-bg'], ['--warn', '--warn-bg'], ['--bad', '--bad-bg'], ['--todo', '--todo-bg'], ['--btn-ink', '--btn'], ['#FFFFFF', '--coral-ink'],
-  ['--rail-ink', '--rail'], ['--rail-muted', '--rail'], ['--peach', '--rail'], ['#FFFFFF', '--rail'], ['--ai-ink', '--ai'], ['--danger-ink', '--bad'], ['--toast-ink', '--toast']];
+  ['--rail-ink', '--rail'], ['--rail-muted', '--rail'], ['--peach', '--rail'], ['#FFFFFF', '--rail'], ['--ai-ink', '--ai'], ['--danger-ink', '--bad'], ['--toast-ink', '--toast'],
+  // every other text pair the style sheet draws: text on the tinted surfaces, status text on plain surfaces, hover states, the rail and risk-card pills
+  ['--ink', '--surface-2'], ['--ink', '--surface-3'], ['--ink', '--good-bg'], ['--ink', '--warn-bg'], ['--ink', '--bad-bg'], ['--muted', '--surface-3'],
+  ['--accent', '--surface-2'], ['--accent', '--surface-3'], ['--good', '--surface'], ['--warn', '--surface'], ['--bad', '--surface'], ['--btn-ink', '--btn-hover'],
+  ['--rail-ink', '--rail-hover'], ['--rail-strong', '--rail-hover'], ['--mint', '--rail'], ['#10201B', '--gold'], ['#0B2C22', '--mint']];
 const contrast = theme => page.evaluate(([pairs, theme]) => {
   document.documentElement.dataset.theme = theme;
   const cs = getComputedStyle(document.documentElement);
@@ -124,10 +128,13 @@ for (const theme of ['light', 'dark']) {
 }
 await page.evaluate(() => { delete document.documentElement.dataset.theme; });
 // non-text: the focus ring against the page and the surfaces (WCAG 1.4.11, 3:1)
-const ring = await page.evaluate(() => { const cs = getComputedStyle(document.documentElement); const L = h => { h = h.trim().slice(1); const c = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+for (const theme of ['light', 'dark']) {
+const ring = await page.evaluate(theme => { document.documentElement.dataset.theme = theme; const cs = getComputedStyle(document.documentElement); const L = h => { h = h.trim().slice(1); const c = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
   const r = (a, b) => { const [x, y] = [L(cs.getPropertyValue(a)), L(cs.getPropertyValue(b))].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
-  return [r('--focus', '--bg'), r('--focus', '--surface'), r('--focus-dark', '--rail')].map(x => +x.toFixed(2)); });
-ok(ring.every(x => x >= 3), 'focus rings ≥ 3:1 against page, surface and rail ' + ring.join(' / '));
+  return [r('--focus', '--bg'), r('--focus', '--surface'), r('--focus-dark', '--rail'), r('--field-line', '--surface'), r('--field-line', '--surface-2'), r('--field-line', '--bg')].map(x => +x.toFixed(2)); }, theme);
+ok(ring.every(x => x >= 3), theme + ': focus rings and field borders ≥ 3:1 against page, surface and rail ' + ring.join(' / '));
+}
+await page.evaluate(() => { delete document.documentElement.dataset.theme; });
 // a visible focus ring on a tab, a button and a menu entry
 await goto(page, '#/scenario/S2', 600);
 await page.focus('#scen-tab-chain'); await page.keyboard.press('ArrowRight');

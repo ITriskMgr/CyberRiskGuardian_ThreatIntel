@@ -20,7 +20,7 @@
   --forest: #103B30; --coral: #E2552B; --coral-ink: #C4441A; --gold: #D9A520; --peach: #FFB38A; --mint: #7FE0B6;
   /* page and surfaces */
   --bg: #E6EEE9; --surface: #FFFFFF; --surface-2: #F4F8F5; --surface-3: #EEF2EF;
-  --ink: #10201B; --muted: #4A5F56; --line: #D7E3DC; --line-strong: #C9D9D0; --field-line: #AFC4B9;
+  --ink: #10201B; --muted: #4A5F56; --line: #D7E3DC; --line-strong: #C9D9D0; --field-line: #728E83;
   --card-line: rgba(16, 59, 48, .06);
   /* actions and links */
   --accent: #0F5C45; --accent-ink: #FFFFFF; --btn: #103B30; --btn-ink: #FFFFFF; --btn-hover: #174A3C;
@@ -50,8 +50,8 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --bg: #0C1915; --surface: #13241F; --surface-2: #1A2F28; --surface-3: #1F362E;
-    --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --line-strong: #345549; --field-line: #4D6E62; --card-line: rgba(255, 255, 255, .05);
-    --accent: #7FD6AE; --accent-ink: #0C1915; --btn: #2B7A5E; --btn-ink: #FFFFFF; --btn-hover: #33896A;
+    --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --line-strong: #345549; --field-line: #6B9080; --card-line: rgba(255, 255, 255, .05);
+    --accent: #7FD6AE; --accent-ink: #0C1915; --btn: #2B7A5E; --btn-ink: #FFFFFF; --btn-hover: #2D7B5E;
     --ai: #9CCBB8; --ai-ink: #0C1915; --focus: #FF8A63; --focus-dark: #FFB38A; --strong-line: #7FD6AE; --danger-ink: #2A0F07; --toast: #1F362E; --toast-ink: #E3EEE8;
     --good: #7FD6AE; --good-bg: #183A2F; --warn: #EBC766; --warn-bg: #352D14; --bad: #FFA285; --bad-bg: #44231A; --bad-line: #7A3A26;
     --todo: #A5BDB2; --todo-bg: #1F362E;
@@ -63,8 +63,8 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #0C1915; --surface: #13241F; --surface-2: #1A2F28; --surface-3: #1F362E;
-  --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --line-strong: #345549; --field-line: #4D6E62; --card-line: rgba(255, 255, 255, .05);
-  --accent: #7FD6AE; --accent-ink: #0C1915; --btn: #2B7A5E; --btn-ink: #FFFFFF; --btn-hover: #33896A;
+  --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --line-strong: #345549; --field-line: #6B9080; --card-line: rgba(255, 255, 255, .05);
+  --accent: #7FD6AE; --accent-ink: #0C1915; --btn: #2B7A5E; --btn-ink: #FFFFFF; --btn-hover: #2D7B5E;
   --ai: #9CCBB8; --ai-ink: #0C1915; --focus: #FF8A63; --focus-dark: #FFB38A; --strong-line: #7FD6AE; --danger-ink: #2A0F07; --toast: #1F362E; --toast-ink: #E3EEE8;
   --good: #7FD6AE; --good-bg: #183A2F; --warn: #EBC766; --warn-bg: #352D14; --bad: #FFA285; --bad-bg: #44231A; --bad-line: #7A3A26;
   --todo: #A5BDB2; --todo-bg: #1F362E;
@@ -200,7 +200,7 @@ summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; bo
 .grid + .card, .grid + details.card, .grid + .cols2, .cols2 + .card, .grid + .banner { margin-top: 16px; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
 .row > h2 { white-space: nowrap; }
-.card > .field:not(:first-child), .card > .grid + .field, .card > .grid + .grid { margin-top: 14px; }
+.card > .field:not(:first-child), .card > .grid + .field, .card > .grid + .grid, .card > .field + .grid { margin-top: 14px; }
 .btnrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .scroll-y { max-height: 460px; overflow-y: auto; }
 .filterbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
@@ -219,8 +219,8 @@ summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; bo
 label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
 label b { color: var(--ink); font-weight: 700; }
 input, select, textarea { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface-2);
-  border: 2px solid var(--line); border-radius: var(--r-sm); padding: 8px 11px; min-height: 40px; }
-input:hover, select:hover, textarea:hover { border-color: var(--field-line); }
+  border: 2px solid var(--field-line); border-radius: var(--r-sm); padding: 8px 11px; min-height: 40px; }
+input:hover, select:hover, textarea:hover { border-color: var(--strong-line); }
 input:focus, select:focus, textarea:focus { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--accent); background: var(--surface); }
 input[readonly] { background: var(--surface-3); color: var(--muted); }
 textarea { font-size: 13.5px; min-height: 66px; resize: vertical; line-height: 1.5; }
@@ -561,7 +561,13 @@ details.allsteps > summary, details.guidecard > summary { font: 600 17.5px var(-
 .riskcard .btn.ghost { background: transparent; color: #FFFFFF; border-color: var(--rail-muted); }
 .riskcard .btn.ghost:hover { border-color: #FFFFFF; }
 .riskcard :focus-visible { outline-color: var(--focus-dark); }
-@media (max-width: 1180px) { .scen-layout { grid-template-columns: 1fr; } .riskcard { position: static; } }
+/* the editor follows the room it has, not the window: with the Virtual consultant open beside it, the risk card moves above the tabs */
+#panel-scenario { container-type: inline-size; }
+@container (max-width: 880px) { .scen-layout { grid-template-columns: 1fr; } .riskcard { position: static; order: -1; } .riskcard .rk-ratio .big { font-size: 46px; }
+  .riskcard dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 20px; }
+  .riskcard .rk:last-child { border-bottom: 1px solid var(--rail-line); }
+  .riskcard .btnrow { flex-direction: row; align-items: center; } }
+@media (max-width: 1180px) { .scen-layout { grid-template-columns: 1fr; } .riskcard { position: static; order: -1; } }
 
 /* ---------- the one orchestrated page-load reveal ---------- */
 @keyframes atlas-pop { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
@@ -613,7 +619,8 @@ details.allsteps > summary, details.guidecard > summary { font: 600 17.5px var(-
   .card, .kpi, .gcard, .ptile, .prow { box-shadow: none !important; border: 1px solid #BBBBBB; break-inside: avoid; }
   .next-step, .riskcard, .prow.cur { background: #FFFFFF !important; color: #000000 !important; border: 2px solid #000000; }
   .next-step *, .riskcard *, .prow.cur * { color: #000000 !important; }
-  .scen-layout { display: block; }
+  .scen-layout { display: flex; flex-direction: column; gap: 12px; } .riskcard { order: -1; position: static; }
+  .riskcard .btnrow { display: none !important; }
   .scen-panel[hidden] { display: block !important; }
   details:not([open]) > :not(summary) { display: block; }
   * { animation: none !important; }
