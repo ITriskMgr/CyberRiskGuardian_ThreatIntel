@@ -140,10 +140,10 @@ links to its section of the user guide.
 | Tools | **CVSS v4.0** | Base metrics only; send to the calculator or save to a scenario. |
 | | **Budget** | Budgets by year, initiatives over up to 3 years; guideline target, band chart of funding options, arbitrage table, funding frontier. |
 | | **Export · Excel** | Workbook regenerated from scratch with live formulas — scope, sheets and years — plus assessment JSON, context pack, workspace backup. |
-| | **AI assistant** | Analyst, parameter critique and scenario generation, with the exact payload shown before anything is sent and a log of every call and your verdict. |
+| | **Virtual consultant** | Answers from passages retrieved on this computer — the textbook, the ontology, the workspace's documents and records, the catalogues and your own licensed library — kept apart from general knowledge; also from the **Consultant** button of the top bar on every screen. Saved conversations (Markdown export, citable as evidence), parameter critique and scenario generation, with the exact payload shown before anything is sent and a log of every call and your verdict. |
 | | **Forecasts** | Monte Carlo over the CRG model from three-point parameter ranges with a driver tornado, and KRI projection with a 95% prediction interval. No AI. |
 | | **Backup & restore** | One checksummed file with every workspace, the document text, the loaded catalogues and the helper settings — never an API key; a restore plan shown first; data versions and migrations. |
-| Settings | **Settings** | Language · **Modules** · **Logs** (access and data logs) · AI — local & remote · Users & RACI (with menu access) · Documents & files · Links & shared folders · Feed sources & keys · Scheduled task · Network allowlist · **Simulation data** (fictional SIEM/SOAR packs for teaching, bundled or generated with AI) · Export / import. |
+| Settings | **Settings** | Language · **Modules** · **Logs** (access and data logs) · AI — local & remote · **Knowledge base** (the consultant's sources and your library) · Users & RACI (with menu access) · Documents & files · Links & shared folders · Feed sources & keys · Scheduled task · Network allowlist · **Simulation data** (fictional SIEM/SOAR packs for teaching, bundled or generated with AI) · Export / import. |
 | Help | **Step by step** ↗ · **User guide** ↗ · **About** | The steps and guidelines and this guide in windows of their own; creator, licence, use of generative AI, versions. |
 
 ## Security operations, locally

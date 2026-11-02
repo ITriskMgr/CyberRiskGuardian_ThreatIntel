@@ -90,9 +90,17 @@ An imported catalogue is the analyst's own material: the app validates and diffs
 claim about its licence. Reproducing a standard's control text may require a licence from its
 publisher.
 
+### Textbook bundled with the Virtual consultant
+
+`kb/book/` holds the text of *Introduction to Cybersecurity Governance for Business Technology Management*,
+3rd ed., v2.51b (© Marc-André Léger, CC BY-NC 4.0), copied by `tools/build_book.py` from the Threat Intel
+plugin's references, so the Virtual consultant can retrieve and cite it offline. Texts a person adds to the
+knowledge base library (Settings → Knowledge base) are theirs, under their own licence, and stay on their
+computer; the application never distributes them.
+
 ### AI providers
 
-The AI assistant transmits only what the analyst previews and sends. With the `claude` provider the
+The Virtual consultant and the other AI features transmit only what the analyst previews and sends. With the `claude` provider the
 text goes to the Claude API (api.anthropic.com) under the analyst's own account and Anthropic's terms
 of service and privacy policy; the key belongs to the analyst and is held by the helper, never by
 this app's author. With the `local` provider the text goes to an OpenAI-compatible endpoint on the
