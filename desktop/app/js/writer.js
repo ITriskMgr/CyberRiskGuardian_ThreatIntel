@@ -23,6 +23,7 @@ import * as P from './isp.js';
 import * as LOG from './logs.js';
 import { isFR } from './i18n.js';
 import { GENERATOR, WRITER_NAME, WRITER_VERSION, CHANNEL } from './version.js';
+import { hfetch } from './helper.js';   // 1.9.0 — X-CRG and the per-launch token
 
 export const WRITER = { name: WRITER_NAME, version: WRITER_VERSION, channel: CHANNEL };
 export const WRITER_LABEL = `${WRITER.version} ${WRITER.channel}`;
@@ -49,7 +50,7 @@ export class Offline extends Error {}
 export async function call(op, body = {}) {
   let r;
   try {
-    r = await fetch('/api/writer/' + op, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json', 'X-CRG': '1' }, body: JSON.stringify(body) });
+    r = await hfetch('/api/writer/' + op, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   } catch { throw new Offline('The local helper is not running — start CyberRiskGuardian with its launcher (start.command, start.sh or start.bat).'); }
   const j = await r.json().catch(() => ({}));
   if (r.status === 404 && !j.error_fr) throw new Offline('This helper does not include the Security Policy Writer. Start the application with the launcher of this version.');
@@ -60,7 +61,7 @@ let META = null;
 export async function meta(force = false) {
   if (META && !force) return META;
   try {
-    const r = await fetch('/api/writer/meta', { cache: 'no-store', headers: { 'X-CRG': '1' } });
+    const r = await hfetch('/api/writer/meta');
     if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
     META = await r.json();
   } catch (e) { META = { error: String(e.message || e) }; }

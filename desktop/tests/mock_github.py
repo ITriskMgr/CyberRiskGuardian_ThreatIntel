@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""mock_github.py — a stand-in for the GitHub "latest release" API, for t29 (update check). Loopback only.
+Paths: /newer /same /none (404) /rate (403 rate limit) /noasset /verified and /badsum (1.9.0: the
+release carries "<zip>.sha256", right or wrong) and /asset.zip, /asset.sha256, /bad.sha256. Every request is logged to
+the file given as second argument (path, query and headers), so the test can check nothing was sent."""
+import hashlib, http.server, json, sys
+PORT = int(sys.argv[1]); LOG = sys.argv[2]
+ZIP = b'PK\x05\x06' + b'\x00' * 18
+def rel(tag, asset=True):
+    return {"tag_name": tag, "name": "CyberRiskGuardian Desktop " + tag, "html_url": f"https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel/releases/tag/{tag}",
+            "published_at": "2026-11-02T10:00:00Z", "prerelease": False,
+            "assets": [{"name": f"CyberRiskGuardian_Desktop_{tag}-beta.zip", "size": len(ZIP), "browser_download_url": f"http://127.0.0.1:{PORT}/asset.zip"}] if asset else []}
+def signed(tag, good=True):
+    r = rel(tag)
+    name = r["assets"][0]["name"] + ".sha256"
+    r["assets"].append({"name": name, "size": 90, "browser_download_url": f"http://127.0.0.1:{PORT}/{'asset' if good else 'bad'}.sha256"})
+    return r
+class H(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *a): pass
+    def send(self, code, body, ctype="application/json", headers=None):
+        self.send_response(code); self.send_header("Content-Type", ctype); self.send_header("Content-Length", str(len(body)))
+        for k, v in (headers or {}).items(): self.send_header(k, v)
+        self.end_headers(); self.wfile.write(body)
+    def do_GET(self):
+        with open(LOG, "a") as fh: fh.write(json.dumps({"path": self.path, "headers": dict(self.headers)}) + "\n")
+        p = self.path.split("?")[0]
+        if p == "/newer": return self.send(200, json.dumps(rel("v1.9.0")).encode())
+        if p == "/same": return self.send(200, json.dumps(rel("v1.8.1")).encode())
+        if p == "/noasset": return self.send(200, json.dumps(rel("v1.9.1", asset=False)).encode())
+        if p == "/plugin":
+            r = rel("v2.1.0", asset=False); r["assets"] = [{"name": "CyberRiskGuardian-Skills-2.1.0.zip", "size": 10, "browser_download_url": f"http://127.0.0.1:{PORT}/asset.zip"}]
+            return self.send(200, json.dumps([r]).encode())
+        if p == "/mixed":
+            plug = rel("plugin-v2.1.0", asset=False); plug["assets"] = [{"name": "cyberriskguardian-threatintel-2.1.0.zip", "size": 10, "browser_download_url": f"http://127.0.0.1:{PORT}/asset.zip"}]
+            draft = rel("v9.9.9"); draft["draft"] = True
+            return self.send(200, json.dumps([draft, plug, rel("v1.9.0"), rel("v1.7.0")]).encode())
+        if p == "/none": return self.send(404, b'{"message":"Not Found"}')
+        if p == "/rate": return self.send(403, b'{"message":"API rate limit exceeded"}', headers={"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1893456000"})
+        if p == "/verified": return self.send(200, json.dumps(signed("v1.9.0")).encode())
+        if p == "/badsum": return self.send(200, json.dumps(signed("v1.9.0", good=False)).encode())
+        if p == "/asset.sha256": return self.send(200, (hashlib.sha256(ZIP).hexdigest() + "  CyberRiskGuardian_Desktop_v1.9.0-beta.zip\n").encode(), "text/plain")
+        if p == "/bad.sha256": return self.send(200, ("0" * 64 + "  CyberRiskGuardian_Desktop_v1.9.0-beta.zip\n").encode(), "text/plain")
+        if p == "/asset.zip": return self.send(200, ZIP, "application/zip")
+        return self.send(404, b"{}")
+http.server.ThreadingHTTPServer(("127.0.0.1", PORT), H).serve_forever()

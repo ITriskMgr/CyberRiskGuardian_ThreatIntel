@@ -22,6 +22,10 @@ export function resultView(r, { compact = false } = {}) {
         const job = await UP.download();
         const end = await UP.waitJob(job.id, j => { msg.textContent = j.message || ''; });
         msg.textContent = end?.status === 'done' ? tr('Saved in the feeds folder: {0}. Follow the steps below to upgrade.').replace('{0}', end.file) : (end?.message || tr('The download did not finish.'));
+        // 1.9.0 — the helper compares the ZIP with the "<zip>.sha256" file published with the release
+        if (end?.status === 'done') msg.append(el('div', { id: 'update-verify', class: end.verified ? 'small' : 'small warn' }, end.verified
+          ? tr('Verified: its SHA-256 checksum matches the one published with the release.')
+          : tr('Unverified: the release publishes no SHA-256 checksum for this file. Compare it with the release page before you use it.'), end.sha256 ? el('div', { class: 'mono small', 'data-noi18n': '' }, 'SHA-256 ' + end.sha256) : null));
         if (end?.status !== 'done') dl.disabled = false;
       } catch (e) { msg.textContent = String(e.message || e); dl.disabled = false; }
     });

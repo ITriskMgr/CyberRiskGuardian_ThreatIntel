@@ -106,8 +106,8 @@ le dossier intact : l'application charge ses propres fichiers par chemin relati
 de l'ancien, arrêtez l'ancien serveur si sa fenêtre de terminal est encore ouverte, et démarrez le
 nouveau **sur le même port** — vos espaces de travail sont conservés par le navigateur pour l'adresse
 exacte que vous utilisez, et non dans le dossier ; le même port les retrouve donc. Vos clés d'API ne
-sont pas non plus dans le dossier ; elles se trouvent dans `crg-keys.json` dans le dossier de flux, et
-`feeds-dir.txt` reporte ce chemin. Les lanceurs détectent une copie antérieure qui sert encore le port,
+sont pas non plus dans le dossier ; elles se trouvent dans le trousseau de session de macOS, ou dans
+`~/.cyberriskguardian/crg-keys.json` sous Windows et Linux, et `feeds-dir.txt` reporte le chemin des flux. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos → Versions** n'affiche pas
 `1.8.2 beta`.
 
@@ -1071,7 +1071,7 @@ restaurez une sauvegarde : Sauvegarde et restauration → le fichier → **Tout
 |---|---|---|
 | Dans l'espace de travail | Profil, documents, actifs, mesures de protection, maturité, vulnérabilités, instantané des menaces, scénarios, mesures, risques, recommandations, historique des ICR, politiques, conformité | Seulement ce que le niveau choisi conserve |
 | Avec l'installation | Catalogues de cadres, l'instantané d'exemple fourni, paramètres d'IA, langue de l'interface, modules, utilisateurs et droits, le catalogue du Registre partagé des risques | Oui, sauf si vous décochez « Conserver » |
-| Avec l'assistant local | Les clés d'API, dans `crg-keys.json` du dossier des flux, mode 600 | Oui, sauf si vous décochez « Conserver » |
+| Avec l'assistant local | Les clés d'API : trousseau de session de macOS, ailleurs `~/.cyberriskguardian/crg-keys.json`, mode 600 | Oui, sauf si vous décochez « Conserver » |
 
 Chaque réinitialisation est consignée dans l'espace de travail et survit même au niveau le plus
 profond.
@@ -3333,7 +3333,7 @@ Paramètres est réservé aux administrateurs.
 - **Sources de flux et clés.** Acceptez, conservez tel que proposé ou rejetez chaque source ; réglez sa
   fréquence ; ajoutez votre propre source ; acceptez ou rejetez les sources que suggère la tâche
   planifiée. Stockez les clés d'API (OTX, abuse.ch, X) au moyen de l'assistant local — elles vont dans
-  `crg-keys.json`, dans le dossier des flux (lisible par vous seul), jamais dans les espaces de travail,
+  le trousseau de session de macOS ou `~/.cyberriskguardian/crg-keys.json` (lisible par vous seul), jamais dans les espaces de travail,
   les exportations ou les paquets. Réglez la requête et les mots-clics pour les médias sociaux, ainsi
   que les **termes de veille** comparés localement.
 - **Tâche planifiée.** Suspendez les téléchargements, choisissez ce que la tâche téléverse dans Drive,

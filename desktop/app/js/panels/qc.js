@@ -27,6 +27,7 @@ import * as SOAR from '../soar.js';
 import * as MK from '../markers.js';
 import * as EQ from '../equiv.js';
 import * as SCR from '../screening.js';
+import * as AVL from '../avl.js';
 
 /** Every check: { id, title, state: 'pass'|'warn'|'fail', detail, fix (route) }. */
 export function checks(ws = S.ws) {
@@ -118,10 +119,14 @@ export function checks(ws = S.ws) {
   const tx = Object.entries(ws.decisions || {}).filter(([, d]) => d?.option === 'Transfer' && !String(d.approver || '').trim());
   add('QC-25', 'Every transfer names its approver and claims no reduction', tx.length ? 'warn' : 'pass',
     tx.length ? tr('Transfers without an approver: {0}').replace('{0}', tx.map(([k]) => k).join(', ')) : tr('A transfer records the share of loss covered for information and its approver; it never reduces the risk index.'), 'recs');
-  const AVN = ['CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L'];
-  const oldCase = (ws.kind === 'example' || ws.kind === 'classroom') && ws.assessment.SCEN.some(x => (x.id === 'S2' || x.id === 'S8') && AVN.includes(x.cvss));
+  // 1.9.0 — the vectors and the decision come from avl.js (one copy of the constants); after a decline the text says
+  // that the Process page lets the person reconsider, which it does.
+  const oldCase = AVL.detect(ws).length > 0;
+  const declined = oldCase && AVL.decision(ws) === 'declined';
   add('QC-26', 'The teaching case carries the current MediBec vectors', oldCase ? 'warn' : 'pass',
-    oldCase ? tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.') : tr('Not a teaching case on the earlier vectors.'), 'process');
+    !oldCase ? tr('Not a teaching case on the earlier vectors.')
+      : declined ? tr('S2 and S8 still use AV:N: the AV:L vectors were declined on {0}. The Process page lets you reconsider and take them (journalled), or Reset data → Start over takes the current case.').replace('{0}', AVL.lastEntry(ws)?.date || '—')
+      : tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.'), 'process');
   return out;
 }
 

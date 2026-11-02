@@ -2,6 +2,7 @@
    arbitrage frontier). One y-axis per chart; colors come from CSS tokens so light and dark both work.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import { safeMarkup } from './util.js';
 const NS = 'http://www.w3.org/2000/svg';
 export function svg(tag, attrs = {}, ...kids) {
   const n = document.createElementNS(NS, tag);
@@ -18,7 +19,9 @@ function ticks(min, max, n = 5) {
 }
 let tip;
 function tooltip() { if (!tip) { tip = document.createElement('div'); tip.className = 'charttip'; document.body.append(tip); } return tip; }
-export function showTip(e, html) { const t = tooltip(); t.innerHTML = html; t.style.display = 'block'; const x = Math.min(e.clientX + 14, innerWidth - t.offsetWidth - 8); t.style.left = x + 'px'; t.style.top = (e.clientY + 14) + 'px'; }
+// 1.9.0 — the tip is built by safeMarkup (b, i, br, span only; everything else stays text): KRI and scenario
+// names and KRI notes are workspace text and never become markup.
+export function showTip(e, html) { const t = tooltip(); t.replaceChildren(safeMarkup(html)); t.style.display = 'block'; const x = Math.min(e.clientX + 14, innerWidth - t.offsetWidth - 8); t.style.left = x + 'px'; t.style.top = (e.clientY + 14) + 'px'; }
 export function hideTip() { if (tip) tip.style.display = 'none'; }
 const fmt = v => Math.abs(v) >= 1000 ? Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 }) : Number(v).toLocaleString('en-US', { maximumFractionDigits: 2 });
 

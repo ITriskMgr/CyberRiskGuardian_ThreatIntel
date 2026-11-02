@@ -8,7 +8,7 @@
 import { el, n0, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, today, field, go, debounce } from '../util.js';
 import { S, touch, scen } from '../state.js';
 import * as store from '../store.js';
-import { HS, probe, apiJson, post, loadConfig } from '../helper.js';
+import { HS, probe, apiJson, post, loadConfig, hfetch } from '../helper.js';
 import { parse, profileTerms, relevance, stixBundle } from '../feedparse.js';
 import * as TR from '../triage.js';
 import * as AI from '../ai.js';
@@ -171,7 +171,7 @@ async function loadLatest(ids) {
   const have = (await apiJson('/api/feeds/state').catch(() => ({ latest: {} }))).latest || {};
   for (const id of ids.filter(i => have[i])) {
     try {
-      const r = await fetch('/api/feeds/latest/' + id, { headers: { 'X-CRG': '1' }, cache: 'no-store' }); if (!r.ok) continue;
+      const r = await hfetch('/api/feeds/latest/' + id); if (!r.ok) continue;
       const s = srcMeta(id); const its = parse(id, await r.text(), { cat: s.category, fmt: s.format });
       cache.bySrc[id] = { loaded: today(), file: 'latest', items: its }; n++;
     } catch (e) { console.warn(id, e); }

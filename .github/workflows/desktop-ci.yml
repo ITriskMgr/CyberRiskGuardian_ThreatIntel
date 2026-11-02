@@ -1,0 +1,75 @@
+# CyberRiskGuardian Desktop — gates, helper tests, engine regression and the browser suites (1.9.0).
+# Runs the application exactly as the launcher does (python3 serve.py), against CRGO v0.10.1, with canned AI answers
+# (desktop/tests/mock) — no key, no model and no network beyond the checkouts and the installs below.
+name: desktop-ci
+on:
+  push:
+    branches: [main, "release/**"]
+    paths: ["desktop/**", "plugins/**", ".claude-plugin/**", "requirements.txt", ".github/workflows/desktop-ci.yml"]
+  pull_request:
+    paths: ["desktop/**", "plugins/**", ".claude-plugin/**", "requirements.txt", ".github/workflows/desktop-ci.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: desktop-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      CRG_URL: http://127.0.0.1:8101/
+      CRG_TMP: ${{ github.workspace }}/.ci-tmp
+      CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.10.1
+      CRG_MOCK_GITHUB_PORT: "8199"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: CRGO v0.10.1
+        uses: actions/checkout@v4
+        with:
+          repository: ITriskMgr/cyberriskguardian-ontology
+          ref: v0.10.1
+          path: CyberRiskGuardian-Ontology-0.10.1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Python dependencies (pinned)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r desktop/tests/requirements-ci.txt
+      - name: Playwright (Chromium)
+        working-directory: desktop/tests
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Gates
+        working-directory: desktop/app
+        run: |
+          python tools/version_check.py
+          python tools/cache_check.py
+          python tools/label_check.py
+          python tools/history_check.py
+          python tools/anchor_check.py
+          python tools/i18n_coverage.py fr --strict
+          python tools/csp_check.py
+      - name: Engine regression (MediBec 84,305 / 41,023) and CRGO bridge
+        working-directory: plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts
+        run: |
+          python test_crg_calc.py
+          python test_crgo_contract.py --crgo "$CRGO_HOME"
+      - name: Helper guard tests
+        run: python -m unittest discover -s desktop/tests -p "test_*.py" -v
+      - name: Browser suites
+        working-directory: desktop/tests
+        run: bash run_all.sh
+      - name: Helper log
+        if: failure()
+        run: cat "$CRG_TMP"/serve-*.log || true

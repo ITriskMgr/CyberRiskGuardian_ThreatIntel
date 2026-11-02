@@ -304,6 +304,7 @@ async function saveAi(patch) {
   await saveConfig(); await probe(true);
 }
 
+const keyWhere = info => { const st = info.key_storage || {}; return st.backend === 'keychain' ? tr('Keys are stored in the macOS login keychain.') : tr('Keys are stored in {0}, readable by your account only.').replace('{0}', st.path || '~/.cyberriskguardian/crg-keys.json'); };
 function providerCard(k, pv, info, sec) {
   const keyName = pv.key_name || (k === 'claude' ? 'anthropic' : 'local_ai');
   const base = info.bases?.[k] || '';
@@ -314,16 +315,19 @@ function providerCard(k, pv, info, sec) {
     pv.local ? pill('stays on this machine', 'good') : pill('leaves this machine', 'warn'),
     info.keys?.[k] ? pill('key stored', 'good') : pill('no key', '')));
   if (pv.note) c.append(el('p', 'note', pv.note));
+  // 1.9.0 — a stored key goes only to the endpoint it was saved for
+  if (info.key_mismatch?.[k]) c.append(banner('warn', 'The endpoint changed since the key was stored',
+    tr('The key was stored for {0}. It is not sent to the new endpoint until you store it again here.').replace('{0}', (info.key_hosts?.[k] || []).join(', ') || '—')));
 
   /* --- key --- */
   const key = el('input', { type: 'password', autocomplete: 'off',
     placeholder: info.keys?.[k] ? '•••••••• stored — type to replace' : 'paste the key' });
   c.append(el('div', 'row',
     el('div', { style: { flex: 1 } }, field(pv.local ? 'API key (if your endpoint needs one)' : 'API key', key,
-      pv.key_url ? el('span', null, 'Keys are stored by the helper in crg-keys.json, mode 600. ',
-        el('a', { href: pv.key_url, target: '_blank', rel: 'noopener' }, 'Where to get one')) : 'Stored by the helper in crg-keys.json, mode 600.')),
+      pv.key_url ? el('span', null, keyWhere(info), ' ',
+        el('a', { href: pv.key_url, target: '_blank', rel: 'noopener' }, 'Where to get one')) : keyWhere(info))),
     el('button', { class: 'btn sm', onclick: async () => {
-      try { await setKey(keyName, key.value); key.value = ''; await probe(true); toast('Key stored, mode 600'); render(sec); }
+      try { await setKey(keyName, key.value); key.value = ''; await probe(true); toast('Key stored'); render(sec); }
       catch (err) { sec.append(banner('bad', 'The key could not be stored', String(err.message || err))); }
     } }, 'Store'),
     info.keys?.[k] ? el('button', { class: 'btn sm ghost', onclick: async () => {
@@ -416,8 +420,9 @@ async function aiSection(body, sec) {
   const ready = provs.filter(([k2, v]) => (info.models?.[k2] || '') && (v.local || info.keys?.[k2])).length;
   body.append(card(el('p', 'note',
     'The browser never calls a model. It posts to the helper on this machine, and the helper makes the ' +
-    'request. Keys are written to crg-keys.json beside the feeds, mode 600 — never in crg-config.json, ' +
-    'never in a log, and never in a backup.'),
+    'request. Keys are kept in the macOS login keychain, or elsewhere in a file of your user folder readable by you only — never in crg-config.json, ' +
+    'never in a log, and never in a backup. A key is sent only to the endpoint it was stored for.'),
+    info.key_storage?.warning ? banner('warn', 'API keys on this computer', tr(info.key_storage.warning)) : null,
     el('div', 'grid g4', { style: { marginTop: '8px' } },
       kpi('Providers offered', String(provs.length), 'in the registry'),
       kpi('Ready to use', String(ready), 'endpoint, model and key set', ready ? 'good' : 'warn'),

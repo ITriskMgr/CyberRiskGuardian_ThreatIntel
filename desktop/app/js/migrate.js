@@ -41,6 +41,13 @@ import { VERSION } from './version.js';
 import { LEGACY } from './data/legacy-map.js';
 import * as MK from './markers.js';
 
+/** MediBec S2 and S8: the earlier (AV:N) vector → the current (AV:L) one. The single copy of these constants
+    (1.9.0): avl.js re-exports them and the Quality review (QC-26) reads them from there. */
+export const AVL_VECTORS = Object.freeze({
+  S2: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' }),
+  S8: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L' }),
+});
+
 export const DATA_VERSION = 3;
 
 /** Every top-level field of a workspace at DATA_VERSION (the test compares the factory with this list). */
@@ -298,10 +305,9 @@ export const MIGRATIONS = [
       if (mk) note(`${mk} text(s) given the standard markers (Analytical estimate — validation required; Information gap — organizational validation required)`);
       // The shipped teaching case follows the book: the e-mailed document of S2 and S8 is opened locally (AV:L).
       if (w.kind === 'example') {
-        const AVN = { 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H': 1, 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L': 1 };
         // A migration never changes a number, so the vectors are left as they are and the case says how to
         // take the current ones: Reset data → Start over (the Quality review lists it too, QC-26).
-        const n = (w.assessment?.SCEN || []).filter(sc => (sc.id === 'S2' || sc.id === 'S8') && AVN[sc.cvss]).length;
+        const n = (w.assessment?.SCEN || []).filter(sc => AVL_VECTORS[sc.id] && sc.cvss === AVL_VECTORS[sc.id].from).length;
         if (n) note(`teaching case: S2 and S8 keep the AV:N vectors of the earlier case (numbers are never changed by a migration); the Process page offers the AV:L vectors of the current case (journalled), or Reset data → Start over takes the whole current case`);
       }
       w.screening ||= blankScreening(); w.mgmtSummary ||= blankSummary(); w.catalogueMigration ||= [];
