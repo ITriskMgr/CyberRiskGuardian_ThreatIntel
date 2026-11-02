@@ -3,7 +3,7 @@
 'use strict';
 import { el, n0, n2, kpi, card, pill, field, select, toast, table, today, banner, download, toCSV, parseCSV } from '../util.js';
 import { S, touch, compute } from '../state.js';
-import { allDefs, autoValues, status, series, trend } from '../kri.js';
+import { allDefs, autoValues, autoMeta, status, series, trend } from '../kri.js';
 import { lineChart, sparkline, gauge } from '../charts.js';
 import { tr } from '../i18n.js';
 
@@ -15,7 +15,7 @@ const arrow = t => t.dir === 'flat' ? '→' : t.dir === 'up' ? '↑' : '↓';
 export function render(sec) {
   const ws = S.ws;
   ws.kriHistory ||= [];
-  const defs = allDefs(), cur = autoValues(), R = compute();
+  const defs = allDefs(), cur = autoValues(), R = compute(), meta = autoMeta();
   const lastRec = ws.kriHistory.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
   const curVal = d => d.manual ? (lastRec?.values?.[d.id] ?? null) : cur[d.id];
   // 1.4.0 — by default the dashboard shows the top 5 indicators (critical, then warning, then how far past
@@ -31,7 +31,7 @@ export function render(sec) {
   sec.replaceChildren(el('h1', null, 'KRI dashboard'),
     el('p', 'lede', 'Key risk indicators for this workspace. Computed KRIs come from the assessment itself; operational KRIs (MFA coverage, patch SLAs, restore tests…) are measured by the organization and entered here. Record a measurement regularly to build the history from which trends are read.'));
 
-  const sts = defs.map(d => status(d, curVal(d)).k);
+  const sts = defs.map(d => status(d, curVal(d), meta[d.id]).k);
   sec.append(el('div', 'grid g5',
     kpi('KRIs tracked', n0(defs.length), `${defs.filter(d => !d.manual).length} computed · ${defs.filter(d => d.manual).length} operational`),
     kpi('Critical', n0(sts.filter(x => x === 'bad').length), 'beyond critical threshold', sts.includes('bad') ? 'bad' : 'good'),
@@ -64,7 +64,7 @@ export function render(sec) {
     el('span', 'small muted', ws.kriSelMode === 'top5' ? 'Records every indicator (automatic top-5 view): computed ones as they stand now, operational ones as entered. Recording on an existing date updates it.' : `Records the ${sel.size} selected indicator(s): computed ones as they stand now, operational ones as entered. Recording on an existing date updates it.`))));
 
   // filters + selection
-  const rowsAll = defs.map(d => { const pts = series(d.id); return { d, v: curVal(d), st: status(d, curVal(d)), pts, tr: trend(d, pts) }; });
+  const rowsAll = defs.map(d => { const pts = series(d.id); return { d, v: curVal(d), st: status(d, curVal(d), meta[d.id]), pts, tr: trend(d, pts) }; });
   const owners = [...new Set(defs.map(d => d.manual ? d.owner : 'computed').filter(Boolean))].sort();
   const match = r => {
     if (flt.status !== 'all' && r.st.k !== flt.status) return false;
@@ -111,13 +111,14 @@ export function render(sec) {
   const tick = el('input', { type: 'checkbox', title: 'Select all shown' });
   const cols = [
     { key: 'sel', label: '', labelNode: tick, sortable: false, cls: 'cb', render: r => { const c = el('input', { type: 'checkbox', checked: sel.has(r.d.id), title: 'Show as gauge and record' }); c.addEventListener('change', () => { c.checked ? sel.add(r.d.id) : sel.delete(r.d.id); setSel(sel); }); return c; } },
-    { key: 'id', label: 'KRI', render: r => el('div', null, el('b', null, r.d.id + ' '), r.d.name, el('div', 'small muted', r.d.method || r.d.risk || '')), sort: r => r.d.id },
+    { key: 'id', label: 'KRI', render: r => el('div', null, el('b', null, r.d.id + ' '), r.d.name, r.d.module === 'ipc' ? el('div', 'small muted', 'Identity, privilege & configuration') : null,
+        el('div', 'small muted', r.d.module === 'ipc' && meta[r.d.id] ? `${r.d.method} · ${meta[r.d.id].num ?? '—'} / ${meta[r.d.id].den ?? '—'} · ${meta[r.d.id].unknown} unknown · ${meta[r.d.id].stale} stale` : (r.d.method || r.d.risk || ''))), sort: r => r.d.id },
     { key: 'v', label: 'Current', num: true, render: r => fmtV(r.d, r.v), sort: r => r.v ?? -1 },
     { key: 'th', label: 'Target · warning · critical', render: r => r.d.raw ? [r.d.raw.target, r.d.raw.warning, r.d.raw.critical].map(x => x || '—').join(' · ')
       : r.d.target === null && r.d.warn === null ? 'tracked, no threshold'
       : (() => { const dn = r.d.dir === 'down', inc = r.d.unit === 'count'; const g = dn ? '≤' : '≥', b = dn ? (inc ? '≥' : '>') : (inc ? '≤' : '<');
           return `${g}${r.d.target ?? '—'} · ${b}${r.d.warn ?? '—'} · ${b}${r.d.crit ?? '—'}`; })() },
-    { key: 'st', label: 'Status', render: r => pill(r.st.label, r.st.k === 'bad' ? 'bad' : r.st.k === 'warn' ? 'warn' : r.st.k === 'good' ? 'good' : ''), sort: r => ({ bad: 0, warn: 1, good: 2, info: 3, none: 4 }[r.st.k]) },
+    { key: 'st', label: 'Status', render: r => pill(r.st.label, r.st.k === 'bad' ? 'bad' : r.st.k === 'warn' ? 'warn' : r.st.k === 'good' ? 'good' : ''), sort: r => ({ bad: 0, warn: 1, good: 2, info: 3, na: 4, none: 5 }[r.st.k]) },
     { key: 'sp', label: 'History', sortable: false, render: r => sparkline(r.pts.map(p => p.y), r.tr.good === false ? 'var(--bad)' : 'var(--series-1)') },
     { key: 'tr', label: 'Trend', render: r => el('span', { class: r.tr.good === null || r.tr.good === undefined ? 'flat' : r.tr.good ? 'up-good' : 'up-bad', style: { fontWeight: 600 } }, r.tr.n >= 2 ? `${arrow(r.tr)} ${r.tr.label}` : r.tr.label), sort: r => r.tr.good === false ? 0 : r.tr.good ? 2 : 1 },
     { key: 'own', label: 'Owner · frequency', render: r => r.d.manual ? [r.d.owner, r.d.freq].filter(Boolean).join(' · ') : 'computed' },
@@ -181,7 +182,7 @@ export function render(sec) {
 /** Rank indicators by need for attention: critical, warning, on target (closest to warning), tracked, no data;
  *  within a band, by relative distance past (or to) the threshold. */
 export function topN(defs, curVal, n = 5) {
-  const band = { bad: 0, warn: 1, good: 2, info: 3, none: 4 };
+  const band = { bad: 0, warn: 1, good: 2, info: 3, na: 4, none: 5 };
   const rel = (d, v, th) => { if (!Number.isFinite(th) || !Number.isFinite(v)) return 0; const sc = Math.max(Math.abs(th), 1e-9); return (d.dir === 'down' ? v - th : th - v) / sc; };
   return defs.map((d, i) => { const v = curVal(d), st = status(d, v).k;
     const dist = st === 'bad' ? rel(d, v, d.crit) : st === 'warn' ? rel(d, v, d.warn) : st === 'good' ? rel(d, v, d.warn ?? d.target) : 0;

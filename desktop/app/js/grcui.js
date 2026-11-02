@@ -15,6 +15,7 @@ export const nextId = (rows, prefix) => prefix + '-' + String(rows.reduce((m, r)
 
 /** An input for one field definition; returns { node, get }. */
 export function input(f, value) {
+  if (f.make) return f.make(value);      // a field that builds its own input: { node, get }
   if (f.encode) { const r = input({ ...f, encode: null }, f.encode(value)); return { node: r.node, get: () => f.decode(r.get()) }; }
   let node, get;
   if (f.type === 'area') { node = el('textarea', { rows: f.rows || 3, 'data-noi18n': '' }); node.value = value ?? ''; get = () => node.value; }
@@ -33,22 +34,33 @@ export function input(f, value) {
 }
 
 /** Open one record in a modal form; onSave(record) after validation. */
-export function edit(title, fields, rec, { onSave, onDelete, validate, note } = {}) {
+export function edit(title, fields, rec, { onSave, onDelete, validate, note, check } = {}) {
   const ins = fields.filter(f => !f.hidden).map(f => [f, input(f, rec[f.key])]);
   const msg = el('div');
+  /* check(next) → { block, warn[] }, run live: a block disables Save with its message, a warning lets Save go. */
+  const live = el('div', { class: 'live-check', 'aria-live': 'polite' });
+  let saveBtn = null;
+  const recheck = () => {
+    if (!check || !saveBtn) return;
+    const next = { ...rec }; for (const [f, i] of ins) next[f.key] = i.get();
+    const r = check(next) || {};
+    saveBtn.disabled = !!r.block;
+    live.replaceChildren(r.block ? el('div', 'banner bad', tr(r.block)) : null, ...(r.warn || []).map(w => el('div', 'banner warn', tr(w))));
+  };
   const m = modal(tr(title),
     note ? el('p', 'note', tr(note)) : null,
     el('div', 'grid g2', ...ins.map(([f, i]) => { const d = field(tr(f.label), i.node, f.hint ? tr(f.hint) : null); if (f.wide || f.type === 'area' || f.type === 'multi' || f.type === 'list') d.style.gridColumn = '1 / -1'; return d; })),
-    msg,
+    live, msg,
     el('div', 'btnrow', { style: { marginTop: '10px' } },
-      el('button', { class: 'btn', onclick: () => {
+      saveBtn = el('button', { class: 'btn', onclick: () => {
         const next = { ...rec }; for (const [f, i] of ins) next[f.key] = i.get();
-        const bad = validate ? validate(next) : null;
+        const bad = validate ? validate(next) : (check ? check(next)?.block : null);
         if (bad) { msg.replaceChildren(el('div', 'banner bad', tr(bad))); return; }
         Object.assign(rec, next); m.close(); onSave?.(rec);
       } }, 'Save'),
       onDelete ? el('button', { class: 'btn ghost danger', onclick: () => { if (window.confirm(tr('Delete this record?'))) { m.close(); onDelete(rec); } } }, 'Delete') : null,
       el('button', { class: 'btn ghost', onclick: () => m.close() }, 'Cancel')));
+  if (check) { m.box.addEventListener('input', recheck); m.box.addEventListener('change', recheck); recheck(); }
   return m;
 }
 
@@ -60,7 +72,7 @@ export function register(spec) {
   const { rows } = spec;
   const save = rec => { if (!rows.includes(rec)) rows.push(rec); touch(); spec.redraw?.(); };
   const del = rec => { const i = rows.indexOf(rec); if (i >= 0) rows.splice(i, 1); touch(); spec.redraw?.(); };
-  const open = rec => edit(spec.title, spec.fields, rec, { onSave: save, onDelete: rows.includes(rec) ? del : null, validate: spec.validate, note: spec.formNote });
+  const open = rec => edit(spec.title, spec.fields, rec, { onSave: save, onDelete: rows.includes(rec) ? del : null, validate: spec.validate, note: spec.formNote, check: spec.check });
   const cols = spec.columns.map(c => typeof c === 'string' ? { key: c, label: spec.fields.find(f => f.key === c)?.label || c, render: r => labelOf(spec.fields.find(f => f.key === c), r[c]) } : c);
   cols.push({ key: '_', label: '', sortable: false, render: r => el('div', 'btnrow', ...(spec.actions ? spec.actions(r) : []), el('button', { class: 'btn sm ghost', onclick: () => open(r) }, 'Open')) });
   return card(

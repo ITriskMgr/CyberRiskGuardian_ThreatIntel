@@ -56,6 +56,8 @@ export function citations(ws = S.ws) {
     scan(s.cvss_note, `${s.id} CVSS`); scan(s.statement, s.id);
   }
   for (const [cid, r] of Object.entries(ws.screening?.cands || {})) scan(r?.rat, cid);
+  // identity, privilege & configuration findings cite their E-number for the scenarios they are linked to
+  for (const f of ws.ipc?.findings || []) if (f.eid && f.state === 'recorded') for (const sc of f.scenarios || []) add(f.eid, `${sc.id} IPC ${f.id}`);
   return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, [...v]]));
 }
 

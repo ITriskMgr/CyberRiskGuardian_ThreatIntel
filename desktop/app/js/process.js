@@ -243,7 +243,7 @@ export const STEP = Object.fromEntries(STEPS.map(s => [s.id, s]));
 /** The step a screen belongs to (for rights); org depends on its tab. */
 export const PANEL_STEP = { org: 'context', dashboard: 'monitor', assets: 'context', safeguards: 'context', maturity: 'context', register: 'scenarios', scenario: 'quantify', batch: 'generate', calc: 'evaluate',
   riskreg: 'prioritize', mitigation: 'treat', recs: 'recommend', threats: 'scope', vulns: 'scope', feeds: 'scope', threat: 'scope', frameworks: 'report',
-  compliance: 'report', share: 'report', ontology: 'generate', registry: 'report', isp: 'report', writer: 'report', isms: 'report', csm: 'treat', audit: 'report', qc: 'report', shared: 'report', siem: 'scope', soar: 'treat', cvss: 'cvss', budget: 'budget', export: 'report', forecast: 'sensitivity',
+  compliance: 'report', share: 'report', ontology: 'generate', registry: 'report', isp: 'report', writer: 'report', isms: 'report', csm: 'treat', audit: 'report', qc: 'report', shared: 'report', ipc: 'context', siem: 'scope', soar: 'treat', cvss: 'cvss', budget: 'budget', export: 'report', forecast: 'sensitivity',
   evidence: 'setup', screening: 'screen', summary: 'report', ai: null, process: null, about: null, backup: '_admin', settings: '_admin' };
 export function stepOf(panel, arg) {
   if (panel === 'org') return /^(workspaces|new|class|import|docs|evidence)/.test(arg || '') ? 'setup' : 'context';

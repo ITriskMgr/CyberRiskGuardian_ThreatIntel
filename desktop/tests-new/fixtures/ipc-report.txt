@@ -1,0 +1,2 @@
+Quarterly identity report. Prepared by zz.sentinel.alpha@sentinel-corp.example (CORP\zzsentinel). 120 service accounts, 19 without an owner.
+Key for the sync job: AKIAZZSENTINEL000002

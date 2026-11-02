@@ -4,6 +4,7 @@
    simple, and — in multi-user mode — who is Responsible and Accountable for each step.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as IPC from '../ipc.js';
 import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go, kpi, n0 } from '../util.js';
 import { S } from '../state.js';
@@ -85,8 +86,9 @@ export function render(sec) {
               : `about ${g.n} to begin with. ${g.why} Assess the maturity and this number follows the level you measure.`,
             ' ', el('button', { class: 'btn xs ghost', 'data-ro-ok': '', onclick: () => go('maturity') }, 'Maturity & resilience')); })() : null,
         users.active() ? el('div', 'small muted', el('b', null, 'Responsible: '), R.join(', ') || '—', ' · ', el('b', null, 'Accountable: '), A.join(', ') || '—') : null,
-        el('div', 'btnrow', { style: { marginTop: '8px' } }, ...s.screens.map(([r, l]) => el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go(r) }, 'Open ' + l))),
-        s.tips?.length ? el('details', null, el('summary', { class: 'small' }, 'Tips'), el('ul', 'small', ...s.tips.map(t => el('li', null, t)))) : null)));
+        el('div', 'btnrow', { style: { marginTop: '8px' } }, ...[...s.screens, ...(IPC.on() ? IPC.STEP_LINKS[s.id] || [] : [])].map(([r, l]) => el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go(r) }, 'Open ' + l))),
+        (() => { const tips = [...(s.tips || []), ...(IPC.on() ? IPC.STEP_TIPS[s.id] || [] : [])];   // the optional module adds tips and links only
+          return tips.length ? el('details', null, el('summary', { class: 'small' }, 'Tips'), el('ul', 'small', ...tips.map(t => el('li', null, t)))) : null; })())));
   }
   sec.append(card(el('h2', { style: { marginTop: 0 } }, 'Workflow'), flow));
 
