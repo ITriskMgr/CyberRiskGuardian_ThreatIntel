@@ -302,7 +302,7 @@ export const MIGRATIONS = [
         // A migration never changes a number, so the vectors are left as they are and the case says how to
         // take the current ones: Reset data → Start over (the Quality review lists it too, QC-26).
         const n = (w.assessment?.SCEN || []).filter(sc => (sc.id === 'S2' || sc.id === 'S8') && AVN[sc.cvss]).length;
-        if (n) note(`teaching case: S2 and S8 keep the AV:N vectors of the earlier case (numbers are never changed by a migration); Reset data → Start over takes the AV:L vectors of the current case`);
+        if (n) note(`teaching case: S2 and S8 keep the AV:N vectors of the earlier case (numbers are never changed by a migration); the Process page offers the AV:L vectors of the current case (journalled), or Reset data → Start over takes the whole current case`);
       }
       w.screening ||= blankScreening(); w.mgmtSummary ||= blankSummary(); w.catalogueMigration ||= [];
       const seed = globalThis.CRG_MEDIBEC_SCREENING;

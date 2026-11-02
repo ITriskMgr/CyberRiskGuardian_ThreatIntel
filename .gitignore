@@ -56,3 +56,6 @@ CyberRiskGuardian-Ontology*/
 
 # the desktop app's pointer to this computer's feeds folder (a local path).
 desktop/app/feeds-dir.txt
+.env
+.env.*
+.agentflowplus-trash/

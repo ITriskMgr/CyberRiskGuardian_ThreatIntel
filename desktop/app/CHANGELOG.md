@@ -1,5 +1,36 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
+
+A wording and reference patch. `crg.js`, `cvss4.js`, `sample.js`, `medibec.js` and `threat.js` are unchanged; the self-check
+still requires **84,305 / 41,023**; data version stays 3 (no migration).
+
+### Added
+- **Process → the AV:L offer for teaching cases** (`js/avl.js`): when the open workspace is the bundled example or a
+  classroom case whose S2 and S8 still carry the AV:N vectors of releases before 1.8.0, a banner offers the current vectors.
+  *Take the AV:L vectors* changes the two vectors (S2 = 9.3, S8 = 9.2), updates their CVSS rationale, removes a stale typed
+  score and lets the engine recompute (an unchanged case reads 84,305 / 41,023); *Keep AV:N* leaves the case as it is.
+  Either decision is journalled in the workspace's migration journal (kind *re-vector*, person, date, scenarios) and each
+  scenario keeps a revision entry; the offer is shown once. A real organization's workspace is never offered or changed:
+  a migration, or any automatic step, never changes its numbers. QC-26 now also covers classroom copies and points to the
+  Process page.
+
+### Changed
+- Wording: candidate scenarios are "at least 20, typically 25 to 40" in the remaining guide passages and in the MediBec
+  source document; the three remaining marker-style uses of the retired wording ("evidence gap — organizational input
+  required", "lacune de preuve — renseignement organisationnel requis", and the Security Policy Writer's CRGO *Unknown*
+  state) take the standard **Information gap — organizational validation required** / **Lacune d’information —
+  validation organisationnelle requise**. The compliance term *evidence gap* / *lacune de preuve* (a determination
+  without current evidence) is unchanged: it is not the marker.
+- The textbook reference set shipped with the Threat Intel plugin (and its `.claude` copy) is v2.51b, the corrected
+  v2.51: see the repository CHANGELOG, plugin 1.6.2.
+- Guides EN/FR (7.1 Process, the 2 → 3 migration row) and INSTALL section 7 describe the offer.
+
+### Not done in this patch
+- The bundled example threat snapshot (`examples/threat-context/threat-context-example.json`, built 2026-10-03, valid until
+  2027-01-01) is unchanged: its rebuild needs the current KEV catalogue and EPSS table, which were not reachable from the
+  build environment. It follows as soon as the two files are available.
+
 ## 1.8.1 Beta (Beta 1.8.x) — 23 October 2026
 
 Ontology update. `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the self-check still requires

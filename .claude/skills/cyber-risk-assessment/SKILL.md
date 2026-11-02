@@ -1,15 +1,7 @@
 ---
 name: cyber-risk-assessment
-description: >
-  This skill should be used when the user asks to "perform a cybersecurity risk assessment", "create risk scenarios",
-  "assess cyber risk for <organization>", "calculate estimated / tolerated / residual risk", "compute CyberRiskGuardian risk indices" (formerly "KRIs"), "run a quick scan",
-  "build a risk register", "propose a cyber treatment plan or roadmap", "refresh the threat intelligence", "is this assessment
-  still current", or needs scenario-driven cybersecurity risk analysis with the CyberRiskGuardian methodology (appetite,
-  scenarios, dated threat-context calibration, CVSS v4.0 Base, risk indices, treatment portfolio, budget, monitoring KRIs, management report).
-metadata:
-  version: "1.5.0"
-  author: "Marc-André Léger (methodology) - packaged with Claude"
-  edition: "Threat Live-feed — adds dated, exposure-gated threat-context calibration; connects to CRGO 0.10.1 (dss/v1, compliance/v1, secops/v1)"
+description: "This skill should be used when the user asks to \"perform a cybersecurity risk assessment\", \"create risk scenarios\", \"assess cyber risk for <organization>\", \"calculate estimated / tolerated / residual risk\", \"compute CyberRiskGuardian risk indices\" (formerly \"KRIs\"), \"run a quick scan\", \"build a risk register\", \"propose a cyber treatment plan or roadmap\", \"refresh the threat intelligence\", \"is this assessment still current\", or needs scenario-driven cybersecurity risk analysis with the CyberRiskGuardian methodology (appetite, scenarios, dated threat-context calibration, CVSS v4.0 Base, risk indices, treatment portfolio, budget, monitoring KRIs, management report)."
+metadata: ""
 ---
 
 # Cybersecurity Risk Assessment (CyberRiskGuardian)

@@ -189,7 +189,7 @@ add(p("Residual risk / tolerated risk after treatment. At 0.40, only S9 (vendors
 
 // ================================================================ 5. SCENARIO DEVELOPMENT
 add(h1("5. Scenario development and selection"));
-add(p("Twenty candidates were generated from six perspectives - top-down (clinical continuity, privacy), bottom-up (documented weaknesses), threat-driven, asset-driven (crown jewels), third-party and human - using the case scenario library (MED-CYR-01 to 15), the exercise evidence and the extended catalogue. Each is expressed as threat source, condition, asset and outcome."));
+add(p("Twenty candidates - the quick lab version of the method, which asks for at least twenty and typically 25 to 40 - were generated from six perspectives - top-down (clinical continuity, privacy), bottom-up (documented weaknesses), threat-driven, asset-driven (crown jewels), third-party and human - using the case scenario library (MED-CYR-01 to 15), the exercise evidence and the extended catalogue. Each is expressed as threat source, condition, asset and outcome."));
 add(table(["ID", "Candidate", "Threat source", "Vulnerability / condition", "Asset", "Outcome", "Ref", "Decision", "Rationale"],
   D.CANDIDATES, [4, 15, 9, 14, 7, 10, 8, 9, 24], { size: 13, fillFn: (r, i) => (i === 7 ? (r[7].startsWith("Selected") ? "D9EAD3" : r[7].startsWith("Merged") ? "FFF2CC" : "F2F2F2") : undefined) }));
 add(spacer());

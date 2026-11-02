@@ -14,7 +14,7 @@ MediBec is a fictional private medical centre (Montreal head office, 10 clinics)
 ## Deliverables (`deliverables/`)
 | File | Content |
 |---|---|
-| `MediBec_Cybersecurity_Risk_Assessment.docx` + `..._Workbook.xlsx` | 10-scenario assessment (20 candidates) |
+| `MediBec_Cybersecurity_Risk_Assessment.docx` + `..._Workbook.xlsx` | 10-scenario assessment (20 candidates — the quick lab version; the method asks for at least 20, typically 25 to 40) |
 | `..._Risk_Assessment_30.docx` + `..._Workbook_30.xlsx` | 30-scenario assessment (45 candidates, 23 initiatives) |
 | `..._Risk_Assessment_30_Budget.docx` + `..._Workbook_30_Budget.xlsx` | The 30-scenario assessment plus budget calibration (Section 11; Budget_* sheets) |
 | `MediBec_Scenario_Selection.xlsx` | Re-selection under the scenario-selection instructions: Sections A–E, 45 candidates → P01–P10 |

@@ -1,7 +1,7 @@
 /* CyberRiskGuardian Desktop — offline cache. Bump CACHE when any file changes.
    Network-first since 1.1.1: when the app is being served, the served files always win, so a new
    version shows at once; the cache is used only when no server is running (installed app offline). */
-const CACHE = "crg-desktop-1.8.1";
+const CACHE = "crg-desktop-1.8.2";
 const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.js", "sample.js", "medibec.js", "kb.js",
   "js/app.js", "js/version.js", "js/nav.js", "js/util.js", "js/store.js", "js/state.js", "js/ontology.js", "js/picker.js", "js/extract.js", "js/snapgen.js",
   "js/charts.js", "js/kri.js", "js/xlsx.js", "js/exportx.js",
@@ -14,7 +14,7 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "frameworks/nist-800-171r3.json", "frameworks/itsp-10-171.json", "frameworks/cobit-2019.json",
   "examples/threat-context/threat-context-example.json",
   "js/safeguards.js", "js/maturity.js", "js/variety.js", "js/panels/safeguards.js", "js/panels/maturity.js",
-  "js/guidelines.js", "js/reset.js", "js/panels/reset.js",
+  "js/guidelines.js", "js/reset.js", "js/avl.js", "js/panels/reset.js",
   "js/crgo.js", "js/rhub.js", "js/isp.js", "js/modules.js", "js/panels/ontology.js", "js/panels/rhub.js", "js/panels/isp.js", "js/panels/isms.js", "js/panels/csm.js", "js/panels/audit.js", "js/panels/qc.js", "js/panels/ontology_link.js", "js/panels/compliance_legal.js", "js/migrate.js", "js/dss.js", "js/grcui.js", "data/crgo-assurance.json", "js/panels/compliance_plus.js", "data/crgo-snapshot.json",
   "help/page.css", "help/md.js", "help/step-by-step.html", "help/user-guide.html", "help/reset-confirm.html",
   "manifest.webmanifest", "icons/icon-32.png", "icons/icon-64.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png",

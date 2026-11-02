@@ -3,6 +3,24 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## 1.6.2 — 2026-10-30
+
+Textbook reference set brought to **v2.51b** (the corrected v2.51 of October 2026). No method, formula or tool change.
+
+- `skills/cybersecurity-governance` (and the `.claude/skills` copy): the errata applied by the author on 2026-10-23 —
+  MediBec reference totals **84,305 / 41,023** (ch06, appendix); treatment packages combine by the **product rule**
+  1 − ∏(1 − rᵢ) in every track (ch06 §Several measures, §Step 7, appendix template notes; ch06 MCQ 14 reworded around
+  the rule, answer A unchanged — wording reconstructed from the erratum record until the published text is
+  re-ingested); "at least twenty candidates, typically 25 to 40" (appendix, chapter table, ch17); the M-sheet
+  catalogue is ISO/IEC 27002:2022 (93), NIST CSF 2.0 and CIS v8.1 (SP 800-53 removed); the template paragraph names
+  `CyberRiskGuardian_Excel_Model_Blank_v2-6.xlsx`, the CVSS vector column, current spending against the target and
+  transfer with share of loss and approver; editions: students and non-profits may use the desktop application free of
+  charge, the Educational edition includes the full quantitative workflow of Chapter 6; desktop-only features marked
+  "(desktop application)" in the chapter table; the Core plugin automates steps 1 to 11 while the Threat Intel plugin
+  covers all nineteen; ch02 "compare plausible scenarios on a consistent scale"; the risk triangle reads threat,
+  vulnerability and **exposure** (ch01, ch13, ch15, ch17, ch20, ch21); ch17 MCQ 19 option D names the approver.
+- Skill metadata: source "v2.51 (October 2026, corrected — v2.51b)", skill version 2.0.1.
+
 ## 1.6.1 — 2026-10-23
 
 Pins the CyberRiskGuardian Ontology to **CRGO v0.10.1** (released 2026-10-23: risk-index labels, Analytical-estimate

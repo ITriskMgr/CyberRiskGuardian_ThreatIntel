@@ -32,8 +32,8 @@ CRGO_STATE = {
     "NotApplicable": {"en": "not applicable (CRGO evaluator)", "fr": "non applicable (évaluateur CRGO)"},
     "PotentiallyApplicable": {"en": "potentially applicable — qualified review required (CRGO evaluator)",
                               "fr": "potentiellement applicable — examen par une personne qualifiée requis (évaluateur CRGO)"},
-    "Unknown": {"en": "unknown — evidence gap, organizational input required (CRGO evaluator)",
-                "fr": "inconnu — lacune de preuve, information de l’organisation requise (évaluateur CRGO)"},
+    "Unknown": {"en": "unknown — Information gap, organizational validation required (CRGO evaluator)",
+                "fr": "inconnu — Lacune d’information, validation organisationnelle requise (évaluateur CRGO)"},
 }
 
 _REF = [

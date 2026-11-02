@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — Guide de l'utilisateur
 
-**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.8.1 (bêta) · Bêta 1.8.x**
+**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.8.2 (bêta) · Bêta 1.8.x**
 
 > **Bêta 1.8.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
 > la validation de la méthode. Traitez chaque résultat comme une hypothèse analytique initiale et
@@ -96,7 +96,7 @@ n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateu
 
 ### 3.1 Décompresser
 
-Décompressez `CyberRiskGuardian_Desktop_v1.8.1-beta.zip` à tout endroit où vous pouvez écrire. Gardez
+Décompressez `CyberRiskGuardian_Desktop_v1.8.2-beta.zip` à tout endroit où vous pouvez écrire. Gardez
 le dossier intact : l'application charge ses propres fichiers par chemin relatif.
 
 > `INSTALL.md`, dans le dossier, reprend les mêmes instructions sur une seule page, **en anglais et en
@@ -109,7 +109,7 @@ exacte que vous utilisez, et non dans le dossier ; le même port les retrouve d
 sont pas non plus dans le dossier ; elles se trouvent dans `crg-keys.json` dans le dossier de flux, et
 `feeds-dir.txt` reporte ce chemin. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos → Versions** n'affiche pas
-`1.8.1 beta`.
+`1.8.2 beta`.
 
 ### 3.2 Le démarrer
 
@@ -273,7 +273,7 @@ travail :
 |---|---|
 | 0 → 1 | Les champs qui n'étaient créés que lorsqu'un écran les utilisait pour la première fois sont présents dès le départ ; les incidents importés à partir de documents passent au registre des incidents (Gestion de la cybersécurité → Incidents) et demeurent affichés sous Organisation → Preuves ; les exceptions aux politiques reçoivent un périmètre, un approbateur et des contrôles compensatoires ; les enregistrements de gouvernance, d'audit, de gestion de la cybersécurité, du SGSI et du lien avec l'ontologie sont ajoutés, vides. |
 | 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **preuves** passent, inchangés, au registre partagé des preuves (Gouvernance → Registres partagés → Preuves) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
-| 2 → 3 | Seuls les catalogues de contrôles actuels demeurent (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1) : chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou CIS v7.1 — dans les mesures, les déclarations d'applicabilité, les listes de cadres — est mise en correspondance, l'ancien identifiant étant conservé dans une note à côté ; une référence sans correspondance (ou dont le nouvel identifiant a déjà un dossier) est conservée et **signalée pour examen**, jamais supprimée, et la Revue de qualité la signale (QC-23). Les anciens libellés de marqueurs prennent les marqueurs normalisés. Un cas d'enseignement MediBec encore sur les vecteurs AV:N antérieurs de S2 et S8 les conserve — une migration ne change aucun chiffre — et la Revue de qualité (QC-26) indique comment prendre AV:L : Réinitialiser les données → Recommencer. Des dossiers vides de filtrage des scénarios et de sommaire de gestion sont ajoutés (le cas d'enseignement reçoit son filtrage). |
+| 2 → 3 | Seuls les catalogues de contrôles actuels demeurent (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1) : chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou CIS v7.1 — dans les mesures, les déclarations d'applicabilité, les listes de cadres — est mise en correspondance, l'ancien identifiant étant conservé dans une note à côté ; une référence sans correspondance (ou dont le nouvel identifiant a déjà un dossier) est conservée et **signalée pour examen**, jamais supprimée, et la Revue de qualité la signale (QC-23). Les anciens libellés de marqueurs prennent les marqueurs normalisés. Un cas d'enseignement MediBec encore sur les vecteurs AV:N antérieurs de S2 et S8 les conserve — une migration ne change aucun chiffre — et la page Processus propose les vecteurs AV:L (journalisé ; voir 7.1), ou Réinitialiser les données → Recommencer prend tout le cas actuel ; la Revue de qualité (QC-26) signale un cas laissé sur AV:N. Des dossiers vides de filtrage des scénarios et de sommaire de gestion sont ajoutés (le cas d'enseignement reçoit son filtrage). |
 
 ---
 
@@ -706,6 +706,17 @@ correspondante, dans sa propre fenêtre.
 Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétit et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*). Les fiches d'étape avec leur état dans l'espace de travail, la prochaine étape recommandée,
 les lignes directrices en détail et la liste de contrôle imprimable. Le bandeau du haut rappelle que
 l'application est une version bêta et que chaque résultat est une hypothèse analytique à valider.
+
+**Un cas d'enseignement encore sur les vecteurs MediBec antérieurs.** Quand l'espace de travail ouvert est l'exemple fourni ou
+un cas de classe et que ses scénarios S2 et S8 portent encore les vecteurs AV:N du cas antérieur, un second
+bandeau propose les vecteurs actuels : **Prendre les vecteurs AV:L** change ces deux vecteurs (S2 = 9,3, S8 = 9,2 : le document
+reçu par courriel est ouvert localement), met à jour leur justification CVSS, retire un score saisi à la main devenu périmé et
+laisse le moteur recalculer chaque indice — un cas par ailleurs inchangé affiche alors 84 305 / 41 023 ; rien d'autre n'est
+touché. **Conserver AV:N** laisse le cas tel quel. L'un ou l'autre choix est inscrit au journal des migrations de l'espace de
+travail (Sauvegarde et restauration → *Versions des données et migrations*) avec la personne et la date, et chaque scénario
+garde une entrée de révision ; la proposition n'est pas répétée, mais la Revue de qualité (QC-26) continue de signaler un cas
+laissé sur AV:N. L'espace de travail d'une organisation réelle ne voit jamais ce bandeau : une migration, ou toute étape
+automatique, ne change jamais ses chiffres.
 
 ### 7.2 Organisation
 
@@ -1326,7 +1337,7 @@ Chaque candidat arrive dans la **grille d'examen**, où le nom, l'énoncé, la s
 paramètres, le CVSS et les réductions peuvent être modifiés. Cochez ceux à conserver et cliquez sur
 **Ajouter les … sélectionnés au registre**. Les valeurs générées sont des points de départ, marqués
 d'une confiance *Faible* avec la justification « Valeur par défaut du lot — estimation analytique,
-validation requise ». Les consignes de la méthode s'appliquent : environ 20 candidats, puis les 10 plus
+validation requise ». Les consignes de la méthode s'appliquent : au moins 20 candidats, typiquement 25 à 40, puis les 10 plus
 importants pour une analyse détaillée.
 
 **Candidats variés et germe.** Le classement seul tirerait vingt candidats de deux ou trois modèles —
@@ -2462,8 +2473,8 @@ où les données sont transférées ; et lesquels de ces éléments le profil �
 *Évaluer dans le navigateur* exécute l'adaptation de l'évaluateur de CRGO ; *Évaluer avec CRGO
 (assistant local)* exécute l'original. Chaque instrument — Loi 25 (P-39.1), A-2.1, R-22.1, LPRPDE,
 B-13 du BSIF, RGPD, C-1.1 — est *applicable*, *non applicable*, *potentiellement applicable* (**revue
-par une personne qualifiée requise**) ou *inconnu* (**lacune de preuve — renseignement organisationnel
-requis**), avec les conditions remplies, non remplies et non résolues. Une valeur que le profil
+par une personne qualifiée requise**) ou *inconnu* (**Lacune d’information — validation organisationnelle
+requise**), avec les conditions remplies, non remplies et non résolues. Une valeur que le profil
 n'énumère pas n'est considérée comme absente que pour les propriétés cochées comme complètes ; sinon, le
 fait est manquant, et des données manquantes ne rendent jamais un instrument « non applicable ». Ceci
 n'est pas un avis juridique.
@@ -3824,7 +3835,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 34. **Aide → Pas à pas** → une fenêtre distincte avec les dix-neuf étapes, le rapport et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos → Versions** indique `1.8.1 beta` et `moteur vérifié · 84,305 / 41,023` ;
+35. **Aide → À propos → Versions** indique `1.8.2 beta` et `moteur vérifié · 84,305 / 41,023` ;
     **Licence** nomme la licence propriétaire, les quatre fichiers de licence, cyberriskguardian.ca et
     sales@cyberriskguardian.ca ; **Vérifier maintenant** sous *Mises à jour* répond (une version plus
     récente, la dernière version, ou pourquoi elle ne peut le dire).

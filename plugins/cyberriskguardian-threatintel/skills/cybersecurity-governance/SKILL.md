@@ -8,9 +8,9 @@ description: >
   "third-party governance", "AI governance", "key management", "CVSS by equivalency", "what does chapter N say", "answer key for
   chapter N" - or when a risk assessment needs the book's definitions, frameworks, chapter guidance or references as the reference text.
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
   author: "Marc-André Léger"
-  source: "Introduction to Cybersecurity Governance for Business Technology Management, 3rd edition, v2.51 (October 2026)"
+  source: "Introduction to Cybersecurity Governance for Business Technology Management, 3rd edition, v2.51 (October 2026, corrected — v2.51b)"
   license: "CC BY-NC 4.0"
 ---
 

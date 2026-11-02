@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — User Guide
 
-**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.8.1 (beta) · Beta 1.8.x**
+**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.8.2 (beta) · Beta 1.8.x**
 
 > **Beta 1.8.x.** This application is a beta for teaching, exploration and method validation. Treat
 > every result as an initial analytical hypothesis and validate it before it supports a real decision.
@@ -88,7 +88,7 @@ the folder and your browser's own storage.
 
 ### 3.1 Unpack
 
-Unzip `CyberRiskGuardian_Desktop_v1.8.1-beta.zip` anywhere you can write. Keep the folder intact: the
+Unzip `CyberRiskGuardian_Desktop_v1.8.2-beta.zip` anywhere you can write. Keep the folder intact: the
 application loads its own files by relative path.
 
 > `INSTALL.md` in the folder is the same instructions on one page, **in English and in French**,
@@ -100,7 +100,7 @@ workspaces are kept by the browser for the exact address you use, not in the fol
 finds them. Your API keys are not in the folder either; they are in `crg-keys.json` in the feeds
 folder, and `feeds-dir.txt` carries that path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
-`1.8.1 beta`.
+`1.8.2 beta`.
 
 ### 3.2 Start it
 
@@ -251,7 +251,7 @@ The current data version is **3**. The three steps are journalled in each worksp
 |---|---|
 | 0 → 1 | Fields created only when a screen first used them are present from the start; incidents imported from documents move to the incident register (Cybersecurity management → Incidents) and remain listed under Organization → Evidence; policy exceptions gain a scope, an approver and compensating controls; the governance, audit, cybersecurity-management, ISMS and ontology-link records are added, empty. |
 | 1 → 2 | The **shared registers** are created. **Evidence** records move, unchanged, to the shared evidence register (Governance → Shared registers → Evidence); **policy exceptions** move, unchanged, to the shared exception register, each linked to its policy. Policy statements receive a stable identifier, their modality left to be stated. Empty compliance-management, audit-management, SIEM and SOAR records are added. |
-| 2 → 3 | Only the current control catalogues remain (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1): every reference to ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 — in measures, statements of applicability, framework lists — is mapped to its correspondence, the old identifier kept in a note beside it; a reference with no correspondence (or whose new identifier already has a record) is kept and **flagged for review**, never dropped, and the Quality review lists it (QC-23). Outdated marker wordings take the standard markers. A MediBec teaching case still on the earlier AV:N vectors of S2 and S8 keeps them — a migration changes no number — and the Quality review (QC-26) says how to take AV:L: Reset data → Start over. Empty scenario-screening and management-summary records are added (the teaching case receives its screening). |
+| 2 → 3 | Only the current control catalogues remain (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1): every reference to ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 — in measures, statements of applicability, framework lists — is mapped to its correspondence, the old identifier kept in a note beside it; a reference with no correspondence (or whose new identifier already has a record) is kept and **flagged for review**, never dropped, and the Quality review lists it (QC-23). Outdated marker wordings take the standard markers. A MediBec teaching case still on the earlier AV:N vectors of S2 and S8 keeps them — a migration changes no number — and the Process page offers the AV:L vectors (journalled; see 7.1), or Reset data → Start over takes the whole current case; the Quality review (QC-26) reports a case left on AV:N. Empty scenario-screening and management-summary records are added (the teaching case receives its screening). |
 
 ---
 
@@ -679,6 +679,15 @@ section of the user guide**, which opens this guide at the matching section in i
 Section 6. The nineteen steps are grouped as in the book — evidence, context and scope; appetite and materiality; scenarios; quantification; treatment; robustness, priorities and money; monitoring and reporting — and the badge in the menu shows the next step (for example *5/19*). The step cards with their status in the workspace, the next recommended step, the guidelines
 in detail and the printable checklist. The banner at the top recalls that the application is a beta and
 that every result is an analytical hypothesis to validate.
+
+**A teaching case still on the earlier MediBec vectors.** When the open workspace is the bundled example or a classroom case
+and its S2 and S8 still carry the AV:N vectors of the earlier case, a second banner offers the current ones: **Take the
+AV:L vectors** changes those two vectors (S2 = 9.3, S8 = 9.2, the e-mailed document is opened locally), updates their CVSS
+rationale, removes a stale typed score, and lets the engine recompute every index — an unchanged case then reads 84,305 /
+41,023; nothing else in the work is touched. **Keep AV:N** leaves the case as it is. Either choice is written to the
+workspace's migration journal (Backup & restore → *Data versions and migrations*) with the person and the date, and each
+scenario keeps a revision entry; the offer is not shown again, but the Quality review (QC-26) keeps reporting a case left on
+AV:N. A real organization's workspace never sees this banner: a migration, or any automatic step, never changes its numbers.
 
 ### 7.2 Organization
 
@@ -1212,7 +1221,7 @@ Every candidate lands in the **review grid**, where name, statement, source, ass
 parameters, CVSS and reductions can be edited. Tick the ones to keep and click **Add selected to
 the register**. Generated values are starting points, flagged *Low* confidence with the rationale
 "Batch default — analytical estimate, validation required". The method's guidance applies:
-about 20 candidates, then the 10 most material for detailed analysis.
+at least 20 candidates, typically 25 to 40, then the 10 most material for detailed analysis.
 
 **Varied candidates and the seed.** Ranking alone would draw twenty candidates from two or three patterns — one threat applied to asset after asset — because the pattern likelihood is identical for every asset. Candidates are therefore **spread** across the patterns, assets and
 threat sources you ticked, still preferring the more likely combinations: each pick makes its own
@@ -2206,7 +2215,7 @@ goods or services, or monitors behaviour; its processing activities with their d
 subjects are and where data is transferred; and which of these the profile lists completely. *Evaluate in the
 browser* runs the port of CRGO's evaluator; *Evaluate with CRGO (helper)* runs the original. Each instrument —
 Loi 25 (P-39.1), A-2.1, R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1 — is *applicable*, *not applicable*, *potentially
-applicable* (**qualified review required**) or *unknown* (**evidence gap — organizational input required**),
+applicable* (**qualified review required**) or *unknown* (**Information gap — organizational validation required**),
 with the conditions met, not met and unresolved. A value the profile does not list counts as absent only for the
 properties ticked as complete; otherwise the fact is missing, and missing data never makes an instrument "not
 applicable". This is not legal advice.
@@ -3382,7 +3391,7 @@ None of this is legal advice.
     **84,305 / 41,023** and your workspace, its policies and its requirements are present.
 34. **Help → Step by step** → a separate window with the nineteen steps, the report and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About → Versions** reads `1.8.1 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
+35. **Help → About → Versions** reads `1.8.2 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
     the proprietary licence, the four licence files, cyberriskguardian.ca and sales@cyberriskguardian.ca;
     **Check now** under *Updates* answers (a newer release, the latest release, or why it could not tell).
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM

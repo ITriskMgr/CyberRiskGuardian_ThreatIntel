@@ -119,9 +119,9 @@ export function checks(ws = S.ws) {
   add('QC-25', 'Every transfer names its approver and claims no reduction', tx.length ? 'warn' : 'pass',
     tx.length ? tr('Transfers without an approver: {0}').replace('{0}', tx.map(([k]) => k).join(', ')) : tr('A transfer records the share of loss covered for information and its approver; it never reduces the risk index.'), 'recs');
   const AVN = ['CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L'];
-  const oldCase = ws.kind === 'example' && ws.assessment.SCEN.some(x => (x.id === 'S2' || x.id === 'S8') && AVN.includes(x.cvss));
+  const oldCase = (ws.kind === 'example' || ws.kind === 'classroom') && ws.assessment.SCEN.some(x => (x.id === 'S2' || x.id === 'S8') && AVN.includes(x.cvss));
   add('QC-26', 'The teaching case carries the current MediBec vectors', oldCase ? 'warn' : 'pass',
-    oldCase ? tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): Reset data → Start over takes them.') : tr('Not a teaching case on the earlier vectors.'), 'reset');
+    oldCase ? tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.') : tr('Not a teaching case on the earlier vectors.'), 'process');
   return out;
 }
 

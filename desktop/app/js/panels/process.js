@@ -12,6 +12,8 @@ import { tr } from '../i18n.js';
 import * as users from '../users.js';
 import * as MT from '../maturity.js';
 import { GUIDELINES } from '../guidelines.js';
+import * as AVL from '../avl.js';
+import { toast } from '../util.js';
 export { GUIDELINES };
 
 const ST = { done: ['Done', 'good'], partial: ['In progress', 'warn'], todo: ['To do', ''] };
@@ -23,6 +25,17 @@ export function render(sec) {
   sec.replaceChildren(el('h1', null, 'Process'),
     el('p', 'lede', 'The workflow of a complete cybersecurity risk assessment: nineteen numbered steps in seven groups, then the management report and the quality review. Each step says what it is for, what it needs and when it is done, shows its status in this workspace, and opens the screens where it is completed.'),
     banner('warn', `Beta ${SERIES}`, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.'));
+  // 1.8.2 — a teaching case still on the earlier MediBec vectors is offered the current ones, once; the choice is
+  // journalled either way (avl.js). Real organizations never see this: a migration never changes their numbers.
+  if (AVL.pending(ws)) {
+    const ids = AVL.detect(ws).map(x => x.id).join(' and ');
+    sec.append(banner('warn', 'This teaching case still scores S2 and S8 with AV:N',
+      el('div', null,
+        el('div', null, tr('The current MediBec case and the book score the malicious e-mailed document AV:L (it is opened locally): S2 = 9.3, S8 = 9.2, and the reference totals become 84,305 / 41,023. Taking the vectors changes nothing else in your work; the engine recomputes every index. Either choice is written to the workspace journal.')),
+        el('div', 'btnrow', { style: { marginTop: '8px' } },
+          el('button', { class: 'btn sm', onclick: () => { const done = AVL.accept(ws); toast(tr('Vectors updated: {0}').replace('{0}', done.join(', '))); render(sec); } }, 'Take the AV:L vectors'),
+          el('button', { class: 'btn sm ghost', onclick: () => { AVL.decline(ws); toast(tr('Kept the earlier vectors for {0}').replace('{0}', ids), 'warn'); render(sec); } }, 'Keep AV:N')))));
+  }
   sec.append(el('div', 'grid g4',
     kpi('Steps done', `${done} / ${STEPS.length}`, part ? `${part} in progress` : '', done === STEPS.length ? 'good' : ''),
     kpi('Workspace', ws.name, ws.org?.name || ''),
