@@ -51,6 +51,7 @@ ok(r.n === 20 && r.n4 === 'setup' && r.n19 === 19 && r.last === 'R', 'nineteen n
 await page.goto(URL + '#/process'); await page.waitForTimeout(600);
 ok(await page.isVisible('text=Build the evidence register'), 'process shows step 1 — the evidence register');
 ok(await page.isVisible('text=nineteen numbered steps in seven groups'), 'lede says nineteen steps');
+await page.evaluate(() => { document.getElementById('process-all').open = true; });   // 1.9.0 Atlas: the step cards sit behind "All nineteen steps"
 ok(await page.isVisible('text=Reviewed: Information assets'), 'the import plan is listed under step 1');
 ok(errors.length === 0, 'no console error: ' + errors.join(' | '));
 await browser.close(); done('t03 import from documents');
