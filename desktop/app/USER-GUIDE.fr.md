@@ -1502,7 +1502,7 @@ perdre.
 
 **Calcul d'un seul scénario.** Cliquez sur une ligne pour charger le scénario : chaque étape de la
 formule, le score CVSS-B, le **ratio avant traitement** (estimé ÷ toléré) à côté du **ratio
-risque/tolérance** (résiduel ÷ toléré), les cas de sensibilité à ±0,10 et le rapport coût-efficacité en
+de tolérance** (résiduel ÷ toléré), les cas de sensibilité à ±0,10 et le rapport coût-efficacité en
 unités de risque retirées par tranche de 1 000 $. Modifiez les valeurs comme dans un bac à sable, puis
 enregistrez-les dans le scénario ou comme nouveau scénario. **Consigner l'examen de sensibilité** indique
 que la sensibilité du scénario a été examinée (étape 15 du Processus).
@@ -2634,7 +2634,7 @@ exception expirée (IR-12), changements non autorisés soupçonnés (IR-13), cha
 (IR-14), configuration de référence seulement héritée ou en ébauche (IR-15) et lignes périmées ou
 contradictoires (IR-16). Chacun affiche un **sens indicatif** — Pb(ψ,A) ↑ ou θ ↓ — jamais une valeur.
 **Consigner** ou **Écarter** (avec un motif). Sur un constat consigné : **Consigner comme preuve** ajoute une
-ligne au registre des preuves au numéro E suivant; **Lier un scénario** cite un scénario sans le modifier;
+ligne au registre des éléments probants au numéro E suivant; **Lier un scénario** cite un scénario sans le modifier;
 **Proposer une modification de paramètre** prend la valeur **que vous saisissez** pour Pb(ψ,A) ou θ, avec la
 confiance, une justification citant le constat et son numéro E, et le ratio actuel et après du moteur
 vérifié. **Enregistrer comme proposition** ne change rien. **Accepter**, un acte distinct dans le tableau des
@@ -3175,7 +3175,7 @@ trouvent dans le menu **Registre partagé des risques**.
 **Une fiche de risque.** Chaque contribution est un risque décrit comme une chaîne causale — source de
 menace, événement, faiblesse, actifs, conséquence — avec son traitement (la décision et les mesures
 avec leurs contrôles), les six paramètres et le CVSS du contributeur, la gravité de son ratio
-résiduel/toléré sous forme de tranche, et un **catalogue** :
+de tolérance sous forme de tranche, et un **catalogue** :
 
 | Dimension | Pourquoi |
 |---|---|
