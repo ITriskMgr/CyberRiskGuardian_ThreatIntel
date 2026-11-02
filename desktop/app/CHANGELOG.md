@@ -280,6 +280,11 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   suggestion at *None* unless KEV or a PoC report says otherwise — in `js/ssvc.js` and in the plugin's `ssvc.py` alike.
   Guides EN/FR 7.4.2.1; tests `t33`, `test_ssvc.py`. The MWB minimal + material cell marked CHECK is left for the author
   to verify against the CISA guide.
+- **L5 — CI supply chain.** `.github/workflows/desktop-ci.yml` pins `actions/checkout`, `actions/setup-python` and
+  `actions/setup-node` to commit SHAs (v4.4.0, v5.6.0, v4.4.0; resolved with `git ls-remote` and checked to be commits),
+  the tag kept as a comment for Dependabot. *Not done:* a `package-lock.json` for `desktop/tests` (Playwright) and for the
+  root `docx` dependency — the npm cache had neither package offline, so no lock could be produced reliably; Playwright
+  stays pinned to an exact version, and the workflow notes the switch to `npm ci` once a lock is committed.
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 
