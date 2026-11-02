@@ -312,7 +312,8 @@ function factsOf(p) {
   const acts = p.activities || [];
   return { hasOrganisationType: p.orgTypes || [], establishedIn: p.establishedIn || [], offersServicesIn: p.offersServicesIn || [],
     monitorsBehaviourIn: p.monitorsBehaviourIn || [], carriedOutBy: acts, processesDataCategory: acts.flatMap(a => a.dataCategories || []),
-    dataSubjectsIn: acts.flatMap(a => a.dataSubjectsIn || []), transfersDataTo: acts.flatMap(a => a.transfersTo || []), complete: p.complete || [] };
+    dataSubjectsIn: acts.flatMap(a => a.dataSubjectsIn || []), transfersDataTo: acts.flatMap(a => a.transfersTo || []),
+    usesTechnology: p.technologies || [], complete: p.complete || [] };     // 1.9.0 — CRGO 0.11.0 'uses technology'
 }
 function test(f, expr) {
   const [name, arg = ''] = expr.split(/=(.*)/s);
@@ -322,6 +323,7 @@ function test(f, expr) {
   if (name === 'activeIn') return member(f, ['offersServicesIn', 'dataSubjectsIn'], [arg]);
   if (name === 'processesPersonalInfo') return f.carriedOutBy.length ? MET : (f.complete.includes('carriedOutBy') ? NOT : UNK);
   if (name === 'processesData') return member(f, ['processesDataCategory'], [arg]);
+  if (name === 'usesTechnology') return member(f, ['usesTechnology'], [arg]);   // 1.9.0 — CRGO 0.11.0
   if (name === 'transfersOutside') {
     const places = new Set([...f.dataSubjectsIn, ...f.transfersDataTo]);
     if ([...places].some(x => x !== arg)) return MET;

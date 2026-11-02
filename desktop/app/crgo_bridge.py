@@ -75,6 +75,14 @@ def profile_graph(T, X, prof):
                       ("monitorsBehaviourIn", "monitorsBehaviourIn")):
         for v in prof.get(key) or []:
             g.add((org, T(prop), T(v)))
+    # 1.9.0 — technologies in use (CRGO 0.11.0 'uses technology'); an older CRGO has no such term and gets none
+    if prof.get("technologies"):
+        try:
+            uses = T("usesTechnology")
+        except (KeyError, ValueError):
+            uses = None
+        for v in (prof.get("technologies") or []) if uses is not None else []:
+            g.add((org, uses, T(v)))
     for i, a in enumerate(prof.get("activities") or [], 1):
         n = X["activity-%d" % i]
         g.add((n, RDF.type, OWL.NamedIndividual)); g.add((n, RDF.type, T("ProcessingActivity")))
