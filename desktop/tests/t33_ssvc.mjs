@@ -14,7 +14,7 @@ const r = await page.evaluate(async () => {
   let ex; for (let i = 0; i < 40 && !(ex = st.S.list.find(w => w.kind === 'example')); i++) { await new Promise(r => setTimeout(r, 250)); await st.refreshList?.(); } await st.select(ex.id);
   const ws = st.S.ws, out = {};
   const snap = await (await fetch('/examples/threat-context/threat-context-example.json')).json();
-  await st.setSnapshot(snap, 'threat-context-2026-10-03.json');
+  await st.setSnapshot(snap, 'threat-context-2026-11-02.json');
   const before = st.compute(ws).totals, params = JSON.stringify(ws.assessment.SCEN.map(s => [s.params, s.red_p, s.red_i, s.cvss]));
   // tables
   out.sizes = [SV.TREES.deployer.rows.length, SV.TREES['deployer-cert'].rows.length, SV.TREES.supplier.rows.length];

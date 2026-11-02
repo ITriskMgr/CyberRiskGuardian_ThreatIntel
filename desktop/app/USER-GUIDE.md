@@ -1914,7 +1914,7 @@ is an incident or a threat-basis entry handled in Threat context.
 
 **Load the bundled example**. `examples/threat-context/threat-context-example.json` ships
 with the application — about 1.5 MB — and the button beside the file picker loads it in one click. It
-carries the **full CISA KEV catalogue of its build date (1,733 entries), 38,533 EPSS scores, the
+carries the **full CISA KEV catalogue of its build date (1,766 entries), 40,134 EPSS scores, the
 Threat Evidence Ladder, the thresholds and the constraints**. That is enough to place CVEs on the
 ladder, run the exposure join and complete Process step 3 on a machine with no internet access at all.
 
@@ -1922,7 +1922,7 @@ The EPSS table is **pruned at the ladder's own rung-1 ceiling** (0.05), keeping 
 above it, every score whose *percentile* reaches the rung-4 percentile, and every CVE listed in KEV.
 That rule is lossless for classification: anything dropped would have been rung 1 by its score, and a
 CVE absent from the table reads rung 1 with the reason *"EPSS below 0.05 (pruned from this
-snapshot)"*. Every one of the 147,271 CVEs in the source snapshot classifies identically under the
+snapshot)"*. Every one of the 148,380 CVEs in the source snapshot classifies identically under the
 pruned table — that is checked at build time, not assumed. What the pruning costs you is the exact
 score of a CVE that was already negligible.
 
@@ -3729,7 +3729,7 @@ None of this is legal advice.
    CVE-2026-59310
    CVE-2026-102490
    CVE-1999-0016
-   CVE-1999-0001
+   CVE-1999-0013
    ```
 
    and click **Place on the ladder**. Expect rung 4 for the first two — one citing known ransomware

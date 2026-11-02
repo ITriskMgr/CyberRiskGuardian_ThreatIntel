@@ -43,6 +43,9 @@ the MediBec regression stays at 84,305 / 41,023.
 ### Repository
 - `requirements.txt` pinned to exact versions; `.github/workflows/desktop-ci.yml` (gates, engine regression, CRGO bridge,
   plugin tests, helper tests and every desktop browser suite) and `.github/dependabot.yml` added.
+- `examples/threat-context/threat-context-shipped.json` regenerated with `threat_snapshot.py` (regions ca, intl; EPSS
+  pruned at 0.01) from CISA KEV 2026.10.30 (1,766 entries) and FIRST EPSS of 2026-11-02: retrieved 2026-11-02, expires
+  2027-01-31. The desktop example snapshot is rebuilt from it (`desktop/app/CHANGELOG.md`, 1.9.0).
 
 ## 1.6.2 — 2026-10-30
 
