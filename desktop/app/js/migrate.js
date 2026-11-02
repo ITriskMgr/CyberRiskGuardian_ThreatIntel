@@ -38,12 +38,18 @@
      4  1.9.0 — one step made of sub-steps (STEP4 below), one per piece of 1.9.0 work that adds a workspace
         field: the Virtual consultant's conversation history (consultant), and those the other 1.9.0 modules
         append.
+     5  1.9.0 — Identity & access management (iam) and Configuration management (cm) are two modules: a
+        workspace saved by an earlier 1.9.0 build, with ONE identity, privilege & configuration record (ipc), has
+        that record split into the two, losslessly (splitIpc5 below). A data version of its own, rather than a
+        repair at load time, so the split is journalled, the copy from before is kept (premig), and an earlier
+        1.9.0 build opens a split workspace read-only instead of saving over it.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { VERSION } from './version.js';
 import { LEGACY } from './data/legacy-map.js';
 import * as MK from './markers.js';
-import * as IPC from './ipc.js';
+import * as IAM from './iam.js';
+import * as CM from './cm.js';
 
 /** MediBec S2 and S8: the earlier (AV:N) vector → the current (AV:L) one. The single copy of these constants
     (1.9.0): avl.js re-exports them and the Quality review (QC-26) reads them from there. */
@@ -52,7 +58,7 @@ export const AVL_VECTORS = Object.freeze({
   S8: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L' }),
 });
 
-export const DATA_VERSION = 4;
+export const DATA_VERSION = 5;
 
 /* ---------------- the 1.9.0 records (data version 4) ----------------
    Data version 4 is ONE migration step made of sub-steps, one per piece of 1.9.0 work that adds a
@@ -74,10 +80,14 @@ export const blankConsultant = () => ({
 });
 export const STEP4 = [
   { field: 'consultant', blank: blankConsultant, group: 'ASSESSMENT', title: 'Virtual consultant: conversation history' },
-  // Identity, privilege & configuration: registers, baselines promoted from the asset register (the asset gains only
-  // baseline.ref), drift deviations to classify, the teaching-case sample; invariants throw (migrateIpc4 below)
-  { field: 'ipc', blank: () => IPC.blank(), group: 'CONTEXT', title: 'Identity, privilege & configuration registers (baselines promoted from assets)',
-    up: (w, note) => { migrateIpc4(w, note); } },
+  // Identity & access management: account, privileged-role, emergency-account, access-review and segregation-of-duties
+  // registers, and the teaching-case sample (migrateIam4 below)
+  { field: 'iam', blank: () => IAM.blank(), group: 'CONTEXT', title: 'Identity & access management registers',
+    up: (w, note) => { migrateIam4(w, note); } },
+  // Configuration management: baselines promoted from the asset register (the asset gains only baseline.ref), drift
+  // deviations to classify, configuration scopes and changes, the teaching-case sample (migrateCm4 below)
+  { field: 'cm', blank: () => CM.blank(), group: 'CONTEXT', title: 'Configuration management registers (baselines promoted from assets)',
+    up: (w, note) => { migrateCm4(w, note); } },
   // SSVC decisions beside the vulnerability register, and the review items the exploitation forecast raises
   { field: 'ssvc', blank: () => blankSsvc(), group: 'CONTEXT', title: 'SSVC decisions and exploitation-forecast review items (response priorities, never likelihoods)' },
 ];
@@ -363,15 +373,20 @@ export const MIGRATIONS = [
       }
     },
   },
+  {
+    from: 4, to: 5, release: '1.9.0',
+    title: 'Data version 4 → 5: the identity, privilege & configuration record split into Identity & access management and Configuration management',
+    up(w, note) { splitIpc5(w, note); },
+  },
 ];
 
-/* ================= 1.9.0 — Identity, privilege & configuration (ipc) =================
-   The ipc sub-step of data version 3 → 4 (its STEP4 entry calls migrateIpc4).
-   Idempotent, and it never changes a risk number: it throws (and the original is kept) when an
-   invariant breaks. */
+/* ================= 1.9.0 — Identity & access management (iam) and Configuration management (cm) =================
+   Their sub-steps of data version 3 → 4 (STEP4 entries 'iam' and 'cm'), and the split of data version 4 → 5.
+   Idempotent, and they never change a risk number: each throws (and the original is kept) when an invariant breaks. */
 
-/** The empty record of the module. */
-export const blankIpc = () => IPC.blank();
+/** The empty records of the two modules. */
+export const blankIam = () => IAM.blank();
+export const blankCm = () => CM.blank();
 
 const clone = x => JSON.parse(JSON.stringify(x ?? null));
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -381,72 +396,156 @@ const engineTotals = w => {
   for (const sc of A.SCEN || []) { try { const r = C.calc(sc, A.APPETITE ?? C.DEFAULT_APPETITE, A.FACTOR ?? C.DEFAULT_FACTOR); est += r.est; res += r.res; } catch { /* the same scenario fails on both sides */ } }
   return { est: Math.round(est * 1e6) / 1e6, res: Math.round(res * 1e6) / 1e6 };
 };
-
-/** Seed a teaching case with its sample (MediBec, CanaRetail when that case exists) if its registers are empty.
- *  Never throws on a scenario the copy lacks: that link or proposal is left out and journalled (1.9.0 review M1). */
-export function seedIpc(w, note = () => {}) {
-  const id = IPC.caseOf(w), S = globalThis.CRG_IPC_SAMPLES || {};
-  if (!id || !S[id] || !IPC.registersEmpty(w)) return null;
-  const r = IPC.applySample(w, S[id], { strict: false });
-  for (const k of r?.skipped || []) note(k.kind === 'link'
-    ? `teaching case: sample finding ${k.rule} not linked to scenario ${k.scenario}, which is not in this workspace`
-    : `teaching case: sample proposal of finding ${k.rule} not added — no scenario ${k.scenario} in this workspace`);
-  if (r) note(`teaching case: identity, privilege & configuration sample added — ${r.rows} register rows, evidence ${r.evidence.join(', ') || 'none'}, ${r.exceptions.length} exception(s), ${r.findings} finding(s), ${r.proposals} pending proposal(s), nothing accepted`);
-  return r;
-}
-
 /**
- * The ipc part of data version 3 → 4: empty record, baseline promotion from the asset register,
- * teaching-case seed, invariants. Running it twice changes nothing the second time.
+ * Run fn(w) under the invariants of these modules: the assessment is deep-equal except evidence rows appended
+ * (only when `appendOk`), the engine totals are equal, an asset changes only by a baseline reference, and no
+ * proposal is accepted. Throws `<label> migration: …` when one breaks.
  */
-export function migrateIpc4(w, note = () => {}) {
+function guarded(w, label, fn) {
   const before = { assessment: clone(w.assessment), assets: clone(w.assets || []), totals: engineTotals(w) };
-  w.ipc = Object.assign(IPC.blank(), w.ipc || {});
-  const R = IPC.reg(w);
-  // 2 — baselines named on assets become versioned baseline objects; the asset keeps its fields and gains a ref
-  let promoted = 0, created = 0, drift = 0;
-  for (const a of w.assets || []) {
-    const b = a.baseline; const name = String(b?.name || '').trim();
-    if (!name) continue;
-    let bl = R.baselines.find(x => x.name === name);
-    if (!bl) {
-      bl = { id: IPC.nextIdReg(R.baselines, 'BL'), name, platform: name.replace(/^CIS Benchmark — /, ''), kind: IPC.kindOfName(name), licenceRef: '', owner: '', legacy: true,
-        versions: [{ v: 'legacy', state: 'legacy', approved: '', approvedBy: '', effective: '', review: '', hash: '', rationale: 'Promoted from the asset register by the 1.9.0 migration', applicability: { assetTypes: [], note: '' } }], note: '' };
-      R.baselines.push(bl); created++;
-      note(`baseline "${name}" promoted from the asset register as ${bl.id} (legacy version)`);
-    }
-    const ver = bl.versions.find(v => v.v === 'legacy');
-    if (ver && a.type && !ver.applicability.assetTypes.includes(a.type)) ver.applicability.assetTypes.push(a.type);
-    if (!b.ref) { b.ref = { id: bl.id, v: 'legacy' }; promoted++; note(`asset ${a.id}: baseline reference ${bl.id} legacy added (no other field changed)`); }
-    if (b.status === 'drift' && !R.deviations.some(d => d.migrated && d.asset === a.id)) {
-      R.deviations.push({ id: IPC.nextIdReg(R.deviations, 'DV'), baseline: bl.id, version: 'legacy', ciScope: '', asset: a.id, count: 1, cls: '', severity: 'medium', requirement: '',
-        opened: b.checked || '', lastSeen: b.checked || '', exception: '', state: 'open', owner: a.owner || '', source: 'Information assets (migrated)', status: 'inferred', conf: 'Low',
-        evidence: '', migrated: true, prov: { tag: 'INFERENCE', method: 'rules', file: '', date: new Date().toISOString().slice(0, 10) }, note: b.deviations || '' });
-      drift++; note(`asset ${a.id} in drift: deviation recorded, to be classified`);
-    }
-  }
-  if ((created || promoted) && !R.ciScopes.some(c => c.fromAssets)) {
-    R.ciScopes.push({ id: IPC.nextIdReg(R.ciScopes, 'CS'), label: 'Information assets', baseline: '', version: '', fromAssets: true, assetTypes: [], inScope: null, assigned: null, assessed: null, compliant: null,
-      asOf: '', source: 'Information assets (migrated)', status: 'inferred', conf: 'Low', evidence: '', prov: { tag: 'INFERENCE', method: 'rules', file: '', date: new Date().toISOString().slice(0, 10) }, note: '' });
-    note('configuration scope counted live from Information assets added');
-  }
-  // 3 — teaching-case seed
-  const seeded = seedIpc(w, note);
-  // 4 — invariants: nothing that drives a risk number moved
+  const out = fn();
   const ev0 = before.assessment?.EVIDENCE || [];
   const a1 = clone(w.assessment); const ev1 = a1?.EVIDENCE || [];
-  if (!same(ev1.slice(0, ev0.length), ev0) || (!seeded && ev1.length !== ev0.length)) throw new Error('ipc migration: the evidence register would change other than by appending');
+  if (!same(ev1.slice(0, ev0.length), ev0) || (!out?.appendOk && ev1.length !== ev0.length)) throw new Error(`${label} migration: the evidence register would change other than by appending`);
   if (a1) { if (before.assessment && 'EVIDENCE' in before.assessment) a1.EVIDENCE = ev0; else delete a1.EVIDENCE; }
-  if (!same(a1, before.assessment)) throw new Error('ipc migration: the assessment would change');
+  if (!same(a1, before.assessment)) throw new Error(`${label} migration: the assessment would change`);
   const t1 = engineTotals(w);
-  if (before.totals && !same(before.totals, t1)) throw new Error('ipc migration: the engine totals would change');
+  if (before.totals && !same(before.totals, t1)) throw new Error(`${label} migration: the engine totals would change`);
   const assets = clone(w.assets || []);
   for (const a of assets) if (a.baseline) delete a.baseline.ref;
   const orig = clone(before.assets); for (const a of orig) if (a.baseline) delete a.baseline.ref;
-  if (!same(assets, orig)) throw new Error('ipc migration: an asset would change other than by a baseline reference');
-  if ((w.ipc.findings || []).some(f => (f.proposals || []).some(p => p.state === 'accepted'))) throw new Error('ipc migration: a proposal would be applied');
-  if (!created && !promoted && !drift && !seeded) note('empty identity, privilege & configuration registers added');
-  return { created, promoted, drift, seeded: !!seeded };
+  if (!same(assets, orig)) throw new Error(`${label} migration: an asset would change other than by a baseline reference`);
+  if (['iam', 'cm'].some(k => (w[k]?.findings || []).some(f => (f.proposals || []).some(p => p.state === 'accepted' && !out?.acceptedBefore?.has(p))))) throw new Error(`${label} migration: a proposal would be applied`);
+  return out;
+}
+
+/** Seed a teaching case with one module's sample (MediBec, CanaRetail when that case exists) if its registers are empty.
+ *  Never throws on a scenario the copy lacks: that link or proposal is left out and journalled (1.9.0 review M1). */
+function seedModule(w, MOD, samples, note = () => {}) {
+  const id = MOD.caseOf(w), S = samples || {};
+  if (!id || !S[id] || !MOD.registersEmpty(w)) return null;
+  const r = MOD.applySample(w, S[id], { strict: false });
+  for (const k of r?.skipped || []) note(k.kind === 'link'
+    ? `teaching case: sample finding ${k.rule} not linked to scenario ${k.scenario}, which is not in this workspace`
+    : `teaching case: sample proposal of finding ${k.rule} not added — no scenario ${k.scenario} in this workspace`);
+  if (r && MOD === IAM) note(`teaching case: identity & access management sample added — ${r.rows} register rows, evidence ${r.evidence.join(', ') || 'none'}, ${r.findings} finding(s), ${r.proposals} pending proposal(s), nothing accepted`);
+  if (r && MOD === CM) note(`teaching case: configuration management sample added — ${r.rows} register rows, evidence ${r.evidence.join(', ') || 'none'}, ${r.exceptions.length} exception(s), ${r.findings} finding(s), nothing accepted`);
+  return r;
+}
+/** Seed both modules of a teaching case, Identity & access management first (its evidence takes the lower E-numbers). */
+export function seedModules(w, note = () => {}) {
+  const a = seedModule(w, IAM, globalThis.CRG_IAM_SAMPLES, note);
+  const b = seedModule(w, CM, globalThis.CRG_CM_SAMPLES, note);
+  return a || b ? { iam: a, cm: b } : null;
+}
+
+/** The iam part of data version 3 → 4: empty record and the teaching-case seed. Running it twice changes nothing the second time. */
+export function migrateIam4(w, note = () => {}) {
+  return guarded(w, 'iam', () => {
+    w.iam = Object.assign(IAM.blank(), w.iam || {});
+    IAM.reg(w);
+    const seeded = seedModule(w, IAM, globalThis.CRG_IAM_SAMPLES, note);
+    if (!seeded) note('empty identity & access management registers added');
+    return { seeded: !!seeded, appendOk: !!seeded };
+  });
+}
+
+/**
+ * The cm part of data version 3 → 4: empty record, baseline promotion from the asset register,
+ * teaching-case seed. Running it twice changes nothing the second time.
+ */
+export function migrateCm4(w, note = () => {}) {
+  return guarded(w, 'cm', () => {
+    w.cm = Object.assign(CM.blank(), w.cm || {});
+    const R = CM.reg(w);
+    // baselines named on assets become versioned baseline objects; the asset keeps its fields and gains a ref
+    let promoted = 0, created = 0, drift = 0;
+    for (const a of w.assets || []) {
+      const b = a.baseline; const name = String(b?.name || '').trim();
+      if (!name) continue;
+      let bl = R.baselines.find(x => x.name === name);
+      if (!bl) {
+        bl = { id: CM.nextIdReg(R.baselines, 'BL'), name, platform: name.replace(/^CIS Benchmark — /, ''), kind: CM.kindOfName(name), licenceRef: '', owner: '', legacy: true,
+          versions: [{ v: 'legacy', state: 'legacy', approved: '', approvedBy: '', effective: '', review: '', hash: '', rationale: 'Promoted from the asset register by the 1.9.0 migration', applicability: { assetTypes: [], note: '' } }], note: '' };
+        R.baselines.push(bl); created++;
+        note(`baseline "${name}" promoted from the asset register as ${bl.id} (legacy version)`);
+      }
+      const ver = bl.versions.find(v => v.v === 'legacy');
+      if (ver && a.type && !ver.applicability.assetTypes.includes(a.type)) ver.applicability.assetTypes.push(a.type);
+      if (!b.ref) { b.ref = { id: bl.id, v: 'legacy' }; promoted++; note(`asset ${a.id}: baseline reference ${bl.id} legacy added (no other field changed)`); }
+      if (b.status === 'drift' && !R.deviations.some(d => d.migrated && d.asset === a.id)) {
+        R.deviations.push({ id: CM.nextIdReg(R.deviations, 'DV'), baseline: bl.id, version: 'legacy', ciScope: '', asset: a.id, count: 1, cls: '', severity: 'medium', requirement: '',
+          opened: b.checked || '', lastSeen: b.checked || '', exception: '', state: 'open', owner: a.owner || '', source: 'Information assets (migrated)', status: 'inferred', conf: 'Low',
+          evidence: '', migrated: true, prov: { tag: 'INFERENCE', method: 'rules', file: '', date: new Date().toISOString().slice(0, 10) }, note: b.deviations || '' });
+        drift++; note(`asset ${a.id} in drift: deviation recorded, to be classified`);
+      }
+    }
+    if ((created || promoted) && !R.ciScopes.some(c => c.fromAssets)) {
+      R.ciScopes.push({ id: CM.nextIdReg(R.ciScopes, 'CS'), label: 'Information assets', baseline: '', version: '', fromAssets: true, assetTypes: [], inScope: null, assigned: null, assessed: null, compliant: null,
+        asOf: '', source: 'Information assets (migrated)', status: 'inferred', conf: 'Low', evidence: '', prov: { tag: 'INFERENCE', method: 'rules', file: '', date: new Date().toISOString().slice(0, 10) }, note: '' });
+      note('configuration scope counted live from Information assets added');
+    }
+    const seeded = seedModule(w, CM, globalThis.CRG_CM_SAMPLES, note);
+    if (!created && !promoted && !drift && !seeded) note('empty configuration management registers added');
+    return { created, promoted, drift, seeded: !!seeded, appendOk: !!seeded };
+  });
+}
+
+/**
+ * Data version 4 → 5: a workspace saved by an earlier 1.9.0 build holds ONE record, `ipc`, for both modules. Its
+ * registers, findings, imports and windows are moved — unchanged, with their identifiers — to `iam` and `cm`:
+ *   • accounts, privileged, emergency, reviews, sod → iam; baselines, ciScopes, deviations, changes → cm;
+ *   • a finding goes with the module of its register (identifiers kept: one IF-nn sequence across both);
+ *   • an import trace goes with the module whose rows it created (both when it created rows in both; iam otherwise);
+ *   • settings: iam keeps asOf and every window, cm keeps asOf and the freshness window;
+ *   • a corrective action raised from a finding (source kind 'ipc-finding') names the module now holding it.
+ * Then `ipc` is removed. Nothing in the assessment changes (accepted proposals stay in each scenario's ipc_basis,
+ * as they were); a record already holding rows is completed, never overwritten. Running it twice changes nothing.
+ */
+export function splitIpc5(w, note = () => {}) {
+  const src = w.ipc;
+  const before = src && typeof src === 'object' ? clone(src) : null;
+  const accepted = new Set(['iam', 'cm'].flatMap(k => (w[k]?.findings || []).flatMap(f => (f.proposals || []).filter(p => p.state === 'accepted'))));
+  return guarded(w, 'split', () => {
+    w.iam = Object.assign(IAM.blank(), w.iam && typeof w.iam === 'object' ? w.iam : {});
+    w.cm = Object.assign(CM.blank(), w.cm && typeof w.cm === 'object' ? w.cm : {});
+    if (!before) { delete w.ipc; return { split: false, acceptedBefore: accepted }; }
+    const iam = IAM.reg(w), cm = CM.reg(w);
+    const moved = { iam: 0, cm: 0 };
+    const put = (to, k, rows) => { for (const r of rows || []) if (!to[k].some(x => x.id === r.id)) { to[k].push(r); moved[to === iam ? 'iam' : 'cm']++; } };
+    for (const k of IAM.REGISTER_KEYS) put(iam, k, src[k]);
+    for (const k of CM.REGISTER_KEYS) put(cm, k, src[k]);
+    const st = src.settings || {};
+    for (const k of Object.keys(IAM.blankSettings())) if (st[k] !== undefined) iam.settings[k] = st[k];
+    for (const k of Object.keys(CM.blankSettings())) if (st[k] !== undefined) cm.settings[k] = st[k];
+    // findings with the module of their register (and their accepted proposals, which already sit in ipc)
+    const where = {};
+    for (const f of src.findings || []) {
+      const to = CM.REGISTER_KEYS.includes(f.register) ? cm : iam;
+      where[f.id] = to === cm ? 'cm' : 'iam';
+      if (!to.findings.some(x => x.id === f.id)) { to.findings.push(f); for (const p of f.proposals || []) if (p.state === 'accepted') accepted.add(p); }
+    }
+    // import traces with the module whose rows they created
+    for (const t of src.imports || []) {
+      const made = k => (k === 'cm' ? CM.REGISTER_KEYS.map(r => cm[r]) : IAM.REGISTER_KEYS.map(r => iam[r])).flat().some(r => r?.prov?.file === t.file && (!t.method || r.prov.method === t.method));
+      const inCm = made('cm'), inIam = made('iam');
+      const targets = inCm && !inIam ? [cm] : inCm && inIam ? [iam, cm] : [iam];
+      for (const to of targets) if (!to.imports.some(x => x.at === t.at && x.file === t.file && x.sha256 === t.sha256)) to.imports.push(t);
+    }
+    // corrective actions raised from a finding
+    let acts = 0;
+    for (const a of w.shared?.actions || []) if (a?.source?.kind === 'ipc-finding' && where[a.source.id]) { a.source = { ...a.source, kind: where[a.source.id] + '-finding' }; acts++; }
+    delete w.ipc;
+    // lossless: every row, finding and import trace is in iam or cm
+    const kept = [...IAM.REGISTER_KEYS.map(k => [k, iam]), ...CM.REGISTER_KEYS.map(k => [k, cm])].every(([k, R]) => (before[k] || []).every(r => R[k].some(x => x.id === r.id && same(x, r))));
+    if (!kept || (before.findings || []).some(f => !(where[f.id] === 'cm' ? cm : iam).findings.some(x => x.id === f.id && same(x, f))) || (before.imports || []).some(t => ![...iam.imports, ...cm.imports].some(x => same(x, t))))
+      throw new Error('split migration: a row, finding or import trace would be lost');
+    const fi = (before.findings || []).filter(f => where[f.id] === 'iam').length, fc = (before.findings || []).filter(f => where[f.id] === 'cm').length;
+    note(`identity, privilege & configuration record split: ${moved.iam} row(s) and ${fi} finding(s) to Identity & access management, ${moved.cm} row(s) and ${fc} finding(s) to Configuration management, ${(before.imports || []).length} import trace(s) kept, identifiers unchanged`);
+    if (acts) note(`${acts} corrective action(s) raised from a finding now name its module`);
+    note('the ipc record removed; scenarios, parameters and accepted changes (ipc_basis) unchanged');
+    return { split: true, moved, acceptedBefore: accepted };
+  });
 }
 
 /* ---------------- running them ---------------- */

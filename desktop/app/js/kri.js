@@ -6,7 +6,8 @@ import { snapshotAge, classify as ladder } from '../threat.js';
 import { criticality } from './assets.js';
 import * as MT from './maturity.js';
 import * as SG from './safeguards.js';
-import * as IPC from './ipc.js';
+import * as IAM from './iam.js';
+import * as CM from './cm.js';
 import * as MOD from './modules.js';
 
 /** Threshold spec: {dir: 'down'|'up', target, warn, crit} — 'down' = lower is better. */
@@ -29,8 +30,9 @@ export const AUTO = [
   { id: 'CRG-15', name: 'CSF 2.0 maturity against target', unit: 'level', dir: 'up', target: null, warn: null, crit: null, risk: 'Capacity to run the practice', method: 'Mean of the CSF 2.0 categories scored (Maturity & resilience); target is the mean target set', fmt: 2 },
   { id: 'CRG-16', name: 'Resilience capabilities covered by a safeguard in force', unit: 'count', dir: 'up', target: 6, warn: 5, crit: 3, risk: 'θ(ψ,A) — organizational resilience', method: 'Capabilities with ≥ 1 in-force safeguard contributing (Existing safeguards)', fmt: 0 },
   { id: 'CRG-10', name: 'Cybersecurity spend as % of IT budget', unit: '%', dir: 'up', target: null, warn: null, crit: null, risk: 'Budget alignment', method: 'Current cyber spend ÷ total IT budget; target from appetite', fmt: 2 },
-  // Identity, privilege & configuration (optional module): CRG-17 to CRG-24, one definition in ipc.js
-  ...IPC.KRIS,
+  // Identity & access management (optional module): CRG-17 to CRG-21 and CRG-23, one definition in iam.js;
+  // Configuration management (optional module): CRG-22, CRG-24 and CRG-25, one definition in cm.js
+  ...[...IAM.KRIS, ...CM.KRIS].sort((a, b) => a.id.localeCompare(b.id)),
 ];
 
 export function autoValues(ws = S.ws) {
@@ -61,15 +63,20 @@ export function autoValues(ws = S.ws) {
   const m = MT.maturity(ws);
   v['CRG-15'] = m.overall === null ? null : +m.overall.toFixed(2);
   v['CRG-16'] = SG.list(ws).length ? SG.capabilityCoverage(ws).filter(c => c.best > 0).length : null;
-  if (MOD.enabled('ipc')) Object.assign(v, IPC.kri(ws).values);
+  for (const M of MODULE_KRIS) if (MOD.enabled(M.ID)) Object.assign(v, M.kri(ws).values);
   return v;
 }
-/** The basis of the module indicators: {id: {num, den, unknown, stale, na}} (empty when the module is off). */
-export const autoMeta = (ws = S.ws) => MOD.enabled('ipc') ? IPC.kri(ws).meta : {};
+/** The optional modules that bring their own indicators (each switched on or off in Settings → Modules). */
+const MODULE_KRIS = [IAM, CM];
+/** The label of the module an indicator comes from ('' for the application's own indicators). */
+export const moduleLabel = def => (MODULE_KRIS.find(M => M.ID === def?.module) || {}).LABEL || '';
+/** The basis of the module indicators: {id: {num, den, unknown, stale, na}} (empty for a module that is off). */
+export const autoMeta = (ws = S.ws) => Object.assign({}, ...MODULE_KRIS.filter(M => MOD.enabled(M.ID)).map(M => M.kri(ws).meta));
 export function autoDefs(ws = S.ws) {
-  const ipcOn = MOD.enabled('ipc'), ov = ipcOn ? Object.fromEntries(IPC.defsWithOverrides(ws).map(d => [d.id, d])) : {};
-  return AUTO.filter(d => d.module !== 'ipc' || ipcOn).map(d => {
-    if (d.module === 'ipc') return ov[d.id] || d;
+  const on = Object.fromEntries(MODULE_KRIS.map(M => [M.ID, MOD.enabled(M.ID)]));
+  const ov = Object.fromEntries(MODULE_KRIS.filter(M => on[M.ID]).flatMap(M => M.defsWithOverrides(ws)).map(d => [d.id, d]));
+  return AUTO.filter(d => !d.module || on[d.module]).map(d => {
+    if (d.module) return ov[d.id] || d;
     if (d.id === 'CRG-10') { const t = CRG.budgetTarget(Number(ws.assessment.APPETITE)) * 100; return Object.assign({}, d, { target: +t.toFixed(2), warn: +(t * 0.9).toFixed(2), crit: CRG.BUDGET_BAND.min * 100 }); }
     if (d.id === 'CRG-03') return d;
     return d;
@@ -98,7 +105,7 @@ export const allDefs = (ws = S.ws) => [...autoDefs(ws), ...manualDefs(ws)];
 
 export function status(def, v, meta = null) {
   // the module indicators add "not applicable" and the cap at warning for unknown or stale inputs
-  if (def.module === 'ipc') return IPC.status(def, v, meta);
+  if (def.module === IAM.ID || def.module === CM.ID) return IAM.status(def, v, meta);
   if (v === null || v === undefined || !Number.isFinite(v)) return { k: 'none', label: 'no data' };
   if (def.crit === null && def.warn === null) return { k: 'info', label: 'tracked' };
   const inclusive = def.unit === 'count';

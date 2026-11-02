@@ -3,7 +3,7 @@
 'use strict';
 import { el, n0, n2, kpi, card, pill, field, select, toast, table, today, banner, download, toCSV, parseCSV } from '../util.js';
 import { S, touch, compute } from '../state.js';
-import { allDefs, autoValues, autoMeta, status, series, trend } from '../kri.js';
+import { allDefs, autoValues, autoMeta, status, series, trend, moduleLabel } from '../kri.js';
 import { lineChart, sparkline, gauge } from '../charts.js';
 import { tr } from '../i18n.js';
 
@@ -111,8 +111,8 @@ export function render(sec) {
   const tick = el('input', { type: 'checkbox', title: 'Select all shown' });
   const cols = [
     { key: 'sel', label: '', labelNode: tick, sortable: false, cls: 'cb', render: r => { const c = el('input', { type: 'checkbox', checked: sel.has(r.d.id), title: 'Show as gauge and record' }); c.addEventListener('change', () => { c.checked ? sel.add(r.d.id) : sel.delete(r.d.id); setSel(sel); }); return c; } },
-    { key: 'id', label: 'KRI', render: r => el('div', null, el('b', null, r.d.id + ' '), r.d.name, r.d.module === 'ipc' ? el('div', 'small muted', 'Identity, privilege & configuration') : null,
-        el('div', 'small muted', r.d.module === 'ipc' && meta[r.d.id] ? `${r.d.method} · ${meta[r.d.id].num ?? '—'} / ${meta[r.d.id].den ?? '—'} · ${meta[r.d.id].unknown} unknown · ${meta[r.d.id].stale} stale` : (r.d.method || r.d.risk || ''))), sort: r => r.d.id },
+    { key: 'id', label: 'KRI', render: r => el('div', null, el('b', null, r.d.id + ' '), r.d.name, r.d.module ? el('div', 'small muted', tr(moduleLabel(r.d))) : null,
+        el('div', 'small muted', r.d.module && meta[r.d.id] ? `${r.d.method} · ${meta[r.d.id].num ?? '—'} / ${meta[r.d.id].den ?? '—'} · ${meta[r.d.id].unknown} unknown · ${meta[r.d.id].stale} stale` : (r.d.method || r.d.risk || ''))), sort: r => r.d.id },
     { key: 'v', label: 'Current', num: true, render: r => fmtV(r.d, r.v), sort: r => r.v ?? -1 },
     { key: 'th', label: 'Target · warning · critical', render: r => r.d.raw ? [r.d.raw.target, r.d.raw.warning, r.d.raw.critical].map(x => x || '—').join(' · ')
       : r.d.target === null && r.d.warn === null ? 'tracked, no threshold'

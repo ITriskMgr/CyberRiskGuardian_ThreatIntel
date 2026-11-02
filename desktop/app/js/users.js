@@ -81,21 +81,23 @@ export function template(t) {
 /* ---------------- menu access by group and user (1.5.4) ---------------- */
 export const MENUS = [['process', 'Process'], ['org', 'Organization'], ['dashboard', 'KRI dashboard'], ['assets', 'Information assets'], ['safeguards', 'Existing safeguards'], ['maturity', 'Maturity & resilience'], ['evidence', 'Evidence register'], ['register', 'Scenario register'],
   ['scenario', 'Scenario editor'], ['batch', 'Batch scenarios'], ['screening', 'Scenario screening'], ['calc', 'Risk calculator'], ['riskreg', 'Risk register'], ['mitigation', 'Risk mitigation'], ['recs', 'Recommendations'], ['summary', 'Management summary'],
-  ['threats', 'Threats · ATT&CK'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['feeds', 'Threat feeds & social'], ['threat', 'Threat context'], ['ontology', 'Ontology · CRGO'], ['registry', 'Risk Registry'], ['frameworks', 'Frameworks & standards'], ['isms', 'Information security management'], ['isp', 'Security policies (ISP)'], ['writer', 'Security Policy Writer'], ['csm', 'Cybersecurity management'], ['audit', 'Audit management'], ['qc', 'Quality review'], ['shared', 'Shared registers'], ['ipc', 'Identity, privilege & configuration'], ['siem', 'SIEM'], ['soar', 'SOAR'],
+  ['threats', 'Threats · ATT&CK'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['feeds', 'Threat feeds & social'], ['threat', 'Threat context'], ['ontology', 'Ontology · CRGO'], ['registry', 'Risk Registry'], ['frameworks', 'Frameworks & standards'], ['isms', 'Information security management'], ['isp', 'Security policies (ISP)'], ['writer', 'Security Policy Writer'], ['csm', 'Cybersecurity management'], ['audit', 'Audit management'], ['qc', 'Quality review'], ['shared', 'Shared registers'], ['iam', 'Identity & access management (IAM/PAM)'], ['cm', 'Configuration management'], ['siem', 'SIEM'], ['soar', 'SOAR'],
   ['compliance', 'Compliance'], ['share', 'Publish & share'], ['reset', 'Reset data'], ['cvss', 'CVSS v4.0'], ['budget', 'Budget'], ['export', 'Export · Excel'], ['ai', 'Virtual consultant'], ['forecast', 'Forecasts'],
   ['backup', 'Backup & restore'], ['settings', 'Settings'], ['about', 'About']];
+/** 1.9.0: a menu right set on the earlier single identity, privilege & configuration screen applies to both of its successors. */
+const LEGACY_PANEL = { iam: 'ipc', cm: 'ipc' };
 export const MODES = [['default', 'Default (RACI)'], ['full', 'Full'], ['view', 'View only'], ['hidden', 'Hidden']];
 const RANK = { hidden: 1, view: 2, full: 3 };
 export function newGroup(name) { return { id: 'g-' + Math.random().toString(36).slice(2, 8), name, menu: {} }; }
 /** Effective menu mode for a panel: 'default' | 'full' | 'view' | 'hidden'. */
 export function menuMode(panel, u = U.current) {
   if (!U.enabled || !u || u.admin) return 'default';
-  const own = u.menu?.[panel];
+  const own = u.menu?.[panel] ?? u.menu?.[LEGACY_PANEL[panel]];
   let mode = own && own !== 'default' ? own : 'default';
   if (mode === 'default') {
     for (const g of U.groups || []) {
       if (!(u.groups || []).includes(g.id)) continue;
-      const m = g.menu?.[panel];
+      const m = g.menu?.[panel] ?? g.menu?.[LEGACY_PANEL[panel]];
       if (m && m !== 'default' && (mode === 'default' || RANK[m] > RANK[mode])) mode = m;
     }
   }

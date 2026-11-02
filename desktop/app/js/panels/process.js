@@ -4,7 +4,8 @@
    simple, and — in multi-user mode — who is Responsible and Accountable for each step.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import * as IPC from '../ipc.js';
+import * as IAM from '../iam.js';
+import * as CM from '../cm.js';
 import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go } from '../util.js';
 import { S, compute } from '../state.js';
@@ -167,8 +168,8 @@ export function render(sec) {
               : `about ${g.n} to begin with. ${g.why} Assess the maturity and this number follows the level you measure.`,
             ' ', el('button', { class: 'btn xs ghost', 'data-ro-ok': '', onclick: () => go('maturity') }, 'Maturity & resilience')); })() : null,
         users.active() ? el('div', 'small muted', el('b', null, 'Responsible: '), R.join(', ') || '—', ' · ', el('b', null, 'Accountable: '), A.join(', ') || '—') : null,
-        el('div', 'btnrow', { style: { marginTop: '8px' } }, ...[...s.screens, ...(IPC.on() ? IPC.STEP_LINKS[s.id] || [] : [])].map(([r, l]) => el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => openScreen(r, s.id) }, 'Open ' + l))),
-        (() => { const tips = [...(s.tips || []), ...(IPC.on() ? IPC.STEP_TIPS[s.id] || [] : [])];   // the optional module adds tips and links only
+        el('div', 'btnrow', { style: { marginTop: '8px' } }, ...[...s.screens, ...[IAM, CM].flatMap(X => X.on() ? X.STEP_LINKS[s.id] || [] : [])].map(([r, l]) => el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => openScreen(r, s.id) }, 'Open ' + l))),
+        (() => { const tips = [...(s.tips || []), ...[IAM, CM].flatMap(X => X.on() ? X.STEP_TIPS[s.id] || [] : [])];   // the optional modules add tips and links only
           return tips.length ? el('details', null, el('summary', { class: 'small' }, 'Tips'), el('ul', 'small', ...tips.map(t => el('li', null, t)))) : null; })())));
   }
   sec.append(el('details', { class: 'card allsteps', id: 'process-all', style: { marginTop: '22px' } }, el('summary', null, 'All nineteen steps'), flow));
