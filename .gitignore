@@ -42,7 +42,7 @@ Thumbs.db
 crg-keys.json
 
 # CyberRiskGuardian Ontology (CRGO) clones kept inside the repository folder, e.g.
-# CyberRiskGuardian-Ontology-0.10.0/ (pinned tag v0.10.0), or a symlink to a checkout elsewhere.
+# CyberRiskGuardian-Ontology-0.11.0/ (pinned release 0.11.0), or a symlink to a checkout elsewhere (or set CRGO_HOME).
 # Separate repository and licence; never committed.
 CyberRiskGuardian-Ontology*/
 /CyberRiskGuardian-Ontology*
