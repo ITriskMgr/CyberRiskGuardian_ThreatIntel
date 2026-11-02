@@ -19,7 +19,8 @@ export function el(tag, a, ...kids) {
       if (v === undefined || v === null || v === false) continue;
       if (k === 'class') n.className = v;
       else if (k === 'text') n.textContent = v;
-      else if (k === 'html') n.innerHTML = v;
+      else if (k === 'html') n.append(safeMarkup(v));       // 1.9.0 — never parsed as HTML (see safeMarkup)
+      else if ((k === 'href' || k === 'src' || k === 'action' || k === 'formaction') && !safeUrl(v)) n.setAttribute(k, '#');
       else if (k.startsWith('on') && typeof v === 'function') n.addEventListener(k.slice(2), v);
       else if (k === 'style' && typeof v === 'object') Object.assign(n.style, v);
       else if (k in n && typeof v !== 'string') n[k] = v;
@@ -31,6 +32,37 @@ export function el(tag, a, ...kids) {
     n.append(k instanceof Node ? k : document.createTextNode(String(k)));
   }
   return n;
+}
+
+/* 1.9.0 — URLs and labels that may carry workspace or imported text.
+   safeUrl: http(s), mailto, blob (downloads), and relative or #fragment addresses; never javascript:, data:,
+   vbscript: or any other scheme. Browsers ignore spaces and control characters in a scheme, so they are removed
+   before the check. */
+export function safeUrl(u) {
+  const s = String(u ?? '').replace(/[\u0000-\u0020\u007f-\u009f]/g, '');
+  const m = /^([a-z][a-z0-9+.-]*):/i.exec(s);
+  return !m || ['http', 'https', 'mailto', 'blob'].includes(m[1].toLowerCase());
+}
+/* safeMarkup: the few tags the screens use in labels and chart tips — <b>, <i>, <br>, <span class="…"> — built as
+   DOM nodes; everything else, including any other tag or attribute in the text, stays text. Workspace text placed
+   in a label therefore can never become markup or script. */
+export function safeMarkup(str) {
+  const frag = document.createDocumentFragment();
+  const stack = [frag];
+  const top = () => stack[stack.length - 1];
+  const re = /<(b|i|strong|em)>|<\/(b|i|strong|em|span)>|<br\s*\/?>|<span class="([\w -]{0,60})">/g;
+  let last = 0, m;
+  const text = t => { if (t) top().append(document.createTextNode(t)); };
+  const src = String(str ?? '');
+  while ((m = re.exec(src))) {
+    text(src.slice(last, m.index)); last = re.lastIndex;
+    if (m[1]) { const n = document.createElement(m[1]); top().append(n); stack.push(n); }
+    else if (m[2]) { if (stack.length > 1 && top().tagName.toLowerCase() === m[2]) stack.pop(); else text(m[0]); }
+    else if (m[3] !== undefined) { const n = document.createElement('span'); n.className = m[3]; top().append(n); stack.push(n); }
+    else top().append(document.createElement('br'));
+  }
+  text(src.slice(last));
+  return frag;
 }
 
 // 1.5.2 — numbers follow the interface language (en-US grouping in English, fr-CA in French).
@@ -131,7 +163,7 @@ export function table(cols, rows, opts = {}) {
 
 export function field(label, input, hint) {
   const d = el('div', 'field');
-  const l = el('label'); if (label instanceof Node) l.append(label); else l.innerHTML = label;
+  const l = el('label'); if (label instanceof Node) l.append(label); else l.append(safeMarkup(label));   // 1.9.0 — no innerHTML
   d.append(l, input); if (hint) d.append(el('div', 'hint', hint));
   return d;
 }
@@ -167,8 +199,15 @@ export function parseCSV(text) {
   if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
   return rows.filter(r => r.some(x => x.trim() !== ''));
 }
+/* 1.9.0 — a cell that starts with = + - @ (or a tab / carriage return before one) is a formula to a spreadsheet:
+   imported or typed text could run one when the CSV is opened in Excel. Such a cell is written with a leading
+   apostrophe, which spreadsheets show as text. Plain numbers (-0.5, +3) are left as they are. */
+export const csvCell = v => {
+  const s = String(v ?? '');
+  return /^[=+\-@\t\r]/.test(s) && !/^[+-]?\d+([.,]\d+)?([eE][+-]?\d+)?$/.test(s) ? "'" + s : s;
+};
 export function toCSV(rows) {
-  return rows.map(r => r.map(v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\n');
+  return rows.map(r => r.map(v => { const s = csvCell(v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\n');
 }
 
 export const val = x => (x && typeof x === 'object' ? x.v : x);
