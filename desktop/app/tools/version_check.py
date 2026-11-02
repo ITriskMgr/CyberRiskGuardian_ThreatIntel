@@ -86,6 +86,22 @@ def main():
     if not wv or not ev or wv.group(1) != ev.group(1):
         bad.append(f"  Security Policy Writer      js/version.js says {wv and wv.group(1)!r}, crg_writer/__init__.py says {ev and ev.group(1)!r}")
 
+    # 1.9.0 — the plugin has a version of its own too: plugin.json and every marketplace entry that lists the
+    # plugin must agree (AGENTS.md: bump both). Checked when the repository files are present.
+    import json
+    repo = ROOT.parent.parent
+    mk = repo / ".claude-plugin" / "marketplace.json"
+    if mk.is_file():
+        for entry in json.loads(mk.read_text(encoding="utf-8")).get("plugins", []):
+            pj = (repo / entry.get("source", "") / ".claude-plugin" / "plugin.json").resolve()
+            if not pj.is_file():
+                continue
+            pv = json.loads(pj.read_text(encoding="utf-8")).get("version")
+            found.append((f"plugin {entry.get('name')}", pv))
+            if entry.get("version") != pv:
+                bad.append(f"  plugin {entry.get('name')}  .claude-plugin/marketplace.json says {entry.get('version')!r}, "
+                           f"{pj.relative_to(repo).as_posix()} says {pv!r}")
+
     # No module may hardcode a version of its own any more. Comments that record which release
     # introduced something are fine, so the comments are removed before the search; what is left is
     # code, and a version literal in code is a claim the build cannot keep true.

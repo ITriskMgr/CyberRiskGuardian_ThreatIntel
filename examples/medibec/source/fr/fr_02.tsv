@@ -1,0 +1,172 @@
+463	Protection contre le déni de service, réseau de diffusion de contenu et pare-feu applicatif Web
+464	Atténuation du déni de service en amont, réseau de diffusion de contenu et pare-feu applicatif Web avec limitation du débit pour les services publics; sortie distincte pour le trafic infonuagique des cliniques.
+465	DPI
+467	Services publics protégés; guide d’intervention en cas de déni de service testé
+468	Contrat avec le fournisseur d’accès Internet
+469	Mesures contre la fraude aux paiements et authentification du courriel
+470	Vérification par rappel et double approbation des changements de coordonnées bancaires; DMARC p=reject; règles de détection de la compromission de courriel d’affaires.
+471	Responsable des finances / Responsable de la cybersécurité
+472	100 % des changements bancaires vérifiés; DMARC appliqué à tous les domaines
+473	Responsable du processus financier
+474	Gestion des appareils mobiles, chiffrement et élimination sécuritaire
+475	Gestion des appareils mobiles avec chiffrement imposé, NIP, effacement à distance; chiffrement complet du disque sur tous les postes et supports; effacement certifié et processus de retour des appareils loués.
+476	DPI (soutien)
+477	100 % des appareils mobiles inscrits; 100 % des éliminations certifiées
+478	Inventaire des actifs (I05)
+479	Résilience du réseau et de l’hébergement
+480	Double fournisseur de télécommunications / SD-WAN vers les cliniques, haute disponibilité des pare-feu, accès en lecture au DSE par le nuage ou un site secondaire, essai annuel de basculement.
+482	Les cliniques conservent l’accès en lecture au DSE lors d’un essai de défaillance du concentrateur
+483	Revue de l’architecture; contrats avec les fournisseurs de télécommunications
+484	Résilience
+485	Cycle de vie et minimisation des données
+486	Découverte des données sur le stockage des cliniques, regroupement dans des dépôts gérés, calendrier de conservation, canal sécurisé de références remplaçant la télécopie et le courriel.
+487	Dépôts locaux de renseignements de santé réduits de 80 %; calendrier de conservation appliqué
+488	Classification des données
+489	Utilisation responsable de l’IA générative
+490	Politique d’utilisation acceptable de l’IA, outil d’IA autorisé ayant fait l’objet d’une évaluation de la vie privée, contrôle des catégories Web pour l’IA publique, conseils aux cliniciens pour vérifier les résultats.
+491	Responsable de la protection des renseignements personnels / Directeur médical
+492	Outil approuvé disponible; tendance à la baisse des téléversements bloqués de renseignements de santé vers une IA non approuvée
+493	Évaluation des facteurs relatifs à la vie privée
+494	Gouvernance / Prévention
+495	Vérification de l’identité au centre d’assistance
+496	Rappel au numéro de l’annuaire, approbation du gestionnaire ou vérification vidéo pour les réinitialisations de mot de passe et d’AMF; alertes lors des changements d’authentificateur.
+497	100 % des réinitialisations suivent la procédure vérifiée (audit par échantillonnage)
+498	Communications et interfaces cliniques sécurisées
+499	Plateforme de télésanté et de messagerie approuvée avec entrée authentifiée; TLS/RPV pour HL7 et DICOM; durcissement du moteur d’interfaces.
+500	DPI (intégration) / Opérations cliniques
+501	100 % des interfaces cliniques chiffrées; applications grand public retirées pour les renseignements de santé
+502	Soutien du fournisseur pour TLS
+503	Protection de la marque et communication antifraude aux patients
+504	Surveillance des domaines semblables et des réseaux sociaux avec service de retrait; identifiants d’expéditeur vérifiés; norme de communication avec les patients et avis sur le site Web.
+505	Responsable des communications
+506	Retrait dans les 48 h suivant la détection; avis aux patients publié
+507	% des comptes privilégiés et d’accès à distance sur une AMF résistante à l’hameçonnage
+508	Comptes avec FIDO2 / total des comptes visés
+509	Rapport du fournisseur d’identité / de l’annuaire
+510	Taux de signalement / taux de clics aux simulations d’hameçonnage
+511	Signalés par rapport aux clics lors des simulations
+512	Plateforme de sensibilisation
+513	% des vulnérabilités critiques ou activement exploitées corrigées dans le délai
+514	Fermées dans le délai / total
+515	Outil de balayage des vulnérabilités
+516	Nombre de systèmes non pris en charge (fin de vie) sur les réseaux de données de patients ou exposés à Internet
+517	Nombre selon l’inventaire
+518	BDGC / outil de balayage
+519	Taux de réussite des essais de restauration des sauvegardes des joyaux de la couronne dans le RTO
+520	Essais réussis / essais effectués
+521	Plateforme de sauvegarde, registres des essais de reprise
+522	Couverture EDR et des journaux des actifs critiques
+523	Actifs qui transmettent / inventaire
+524	Console EDR, SIEM
+525	Délai moyen de détection / de confinement des incidents graves
+526	Nombre médian d’heures entre le premier signal et la détection / le confinement
+527	Rapports de détection et réponse gérées
+531	Objets de stockage infonuagique accessibles publiquement contenant des données de santé
+532	Nombre selon la gestion de la posture infonuagique
+533	Gestion de la posture infonuagique
+534	>= 1 avec des renseignements de santé
+535	% des rôles du DSE recertifiés et des alertes d’accès massif examinées en 24 h
+536	Recertifiés / total; examinées / déclenchées
+537	Analytique des accès au DSE, GIA
+538	Responsable de la protection des renseignements personnels
+539	% des dispositifs médicaux en réseau inventoriés et dans des segments isolés
+540	Appareils segmentés / inventoriés
+541	Surveillance de l’IdO médical, contrôle d’accès au réseau
+542	Génie biomédical
+543	% des fournisseurs critiques évalués avec des clauses d’avis à jour
+544	Évalués / fournisseurs critiques
+545	Registre de gestion du risque lié aux tiers
+546	Approvisionnement
+547	Cliniques ayant testé leurs procédures en mode dégradé (12 derniers mois)
+548	Cliniques testées / 10
+549	Registres des exercices sur table
+550	Opérations cliniques
+551	Secrets exposés détectés / non résolus après 24 h
+552	Nombre selon la détection des secrets
+553	Outil d’analyse des dépôts
+554	DPI (développement)
+555	0 non résolu
+556	>= 1 touchant des renseignements de santé
+557	% des changements de coordonnées bancaires vérifiés par rappel; politique DMARC
+558	Vérifiés / total; état de la politique
+559	Processus financier, DNS
+560	100 %; reject
+561	< 100 %; quarantine
+562	< 90 %; none
+563	% des appareils mobiles inscrits et chiffrés; éliminations certifiées
+564	Inscrits / inventaire; certificats / éliminations
+565	Gestion des appareils mobiles, registre des actifs
+566	Résultat de l’essai de basculement du concentrateur ou du réseau étendu (accès en lecture au DSE dans les cliniques)
+567	Cliniques ayant conservé l’accès pendant l’essai
+568	Registres des essais de reprise
+569	DPI (infrastructure)
+570	Tentatives de téléversement de données vers des services d’IA non approuvés
+571	Événements bloqués ou signalés par mois
+572	Mandataire Web / prévention des pertes de données
+573	Tendance à la baisse
+574	Hausse pendant 2 mois
+575	Téléversement de renseignements de santé confirmé
+576	% des réinitialisations du centre d’assistance conformes à l’audit de vérification
+577	Réinitialisations échantillonnées conformes / échantillonnées
+578	Système de billets
+579	Constats critiques ou élevés ouverts sur les applications destinées aux patients
+580	Nombre depuis 30 jours
+581	Suivi des essais d’intrusion
+582	DPI (responsable de l’application)
+583	Interfaces de gestion exposées à Internet
+584	Nombre selon la surveillance de la surface d’attaque
+585	Outil de surveillance externe de la surface d’attaque
+586	>= 1 sans AMF
+588	Compromission d’identifiants de comptes d’administrateurs cliniques par hameçonnage et fatigue de l’AMF
+589	Un acteur externe à motivation financière hameçonne des administrateurs de clinique et du personnel de facturation avec un leurre sur le thème du DSE, capte leurs identifiants et obtient l’approbation d’une notification AMF, ce qui lui donne un accès à distance au DSE, à la facturation et aux systèmes administratifs et permet un accès non autorisé aux dossiers des patients ainsi qu’une intrusion subséquente.
+590	Administrateurs de clinique et personnel de facturation; DPI; responsable de la cybersécurité; responsable de la protection des renseignements personnels; Opérations cliniques; patients; fournisseur du DSE; comité directeur.
+591	MediBec dépend de l’accès à distance et infonuagique pour son personnel et ses cliniciens (E2). Les preuves d’exercice montrent un leurre d’hameçonnage sur le thème du DSE avec une pièce jointe à macro et une connexion réussie depuis une géographie inhabituelle, approuvée par notification AMF (E6). Les tentatives d’attaque augmentent (E4).
+592	Cybercriminel (courtier d’accès initial ou affilié de rançongiciel).
+593	Hameçonnage d’identifiants et fatigue des notifications AMF contre l’accès à distance.
+594	AMF par notification sans appariement de nombres ni résistance à l’hameçonnage (E6 — à valider)
+595	Aucune preuve de politiques d’accès conditionnel (géographie, appareil)
+596	Des documents à macros provenant d’Internet atteignent les utilisateurs (E6)
+597	Maturité du programme de sensibilisation inconnue (lacune d’information)
+598	CJ5 identité et accès à distance; CJ1 DSE; CJ4 facturation.
+599	Prise de rendez-vous, documentation clinique, facturation.
+600	Filtrage du courriel / antimaliciel (E2 — efficacité inconnue)
+601	Notification AMF pour l’accès à distance (E6)
+602	Alertes EDR (E6 — tri faible)
+603	Un domaine semblable nouvellement enregistré envoie aux administrateurs de clinique des messages « Urgent : procédure d’accès au DSE mise à jour ». Un utilisateur saisit ses identifiants sur le faux portail; l’attaquant déclenche des notifications AMF répétées tard le soir jusqu’à ce que l’une soit approuvée. Avec une session valide d’administrateur clinique, l’attaquant parcourt des dossiers du DSE, récolte des carnets d’adresses pour un hameçonnage interne et se prépare à élever ses privilèges.
+604	Accès initial — hameçonnage d’identifiants et approbation de notification AMF
+605	Exploitation — session valide sur la passerelle d’accès à distance
+606	Élévation de privilèges — recherche d’identifiants d’administrateur et de secrets de comptes de service
+607	Persistance — inscription d’un appareil AMF de l’attaquant / règles de boîte aux lettres
+608	Découverte — énumération du DSE, des partages de fichiers, des cliniques
+609	Déplacement latéral — hameçonnage interne depuis une boîte de confiance
+610	Collecte — extraits de patients et de facturation
+611	Exfiltration — par la session à distance
+612	Détection — géographie inhabituelle signalée tardivement ou jamais
+613	Impact d’affaires — atteinte à la vie privée, précurseur possible de S2
+614	Accès non autorisé aux dossiers des patients; incident de confidentialité probablement à déclarer.
+615	Manipulation possible de dossiers ou de boîtes aux lettres.
+616	Limité directement; élevé s’il mène à S2.
+617	Réinitialisation des comptes et enquête dans les cliniques.
+618	Coûts d’enquête, de notification et frais juridiques.
+619	Registre des incidents, évaluation et obligations de notification de la loi québécoise sur la protection des renseignements personnels (à confirmer par les conseillers juridiques).
+620	Perte de confiance des patients en cas de divulgation.
+621	Indirect.
+622	Très probable
+623	L’hameçonnage est constant et les tentatives augmentent; des leurres ont déjà été observés.
+624	Modérée à élevée
+625	L’AMF par notification peut être contournée par la fatigue; aucun accès conditionnel ni blocage des macros démontré.
+626	Important
+627	Accès à une partie des dossiers; confinement possible s’il est détecté.
+628	Grave
+629	Accès complet au DSE ou pivot vers un rançongiciel.
+630	Limitée
+631	Équipe de deux personnes; tri des alertes faible; réponse aux incidents non testée.
+632	Très élevée
+633	L’identité est la porte d’entrée de chaque joyau de la couronne.
+634	Vulnérabilité représentative : authentification d’accès à distance acceptant l’approbation d’une notification AMF (faiblesse à canal unique de type CWE-308). AV:N passerelle accessible par Internet; AC:L aucune condition particulière; AT:N; PR:N l’attaquant commence sans authentification; UI:A l’utilisateur doit approuver activement; VC/VI:H session complète sur la passerelle; VA:N; SC:H données du DSE derrière la passerelle; SI:L/SA:L modification et perturbation limitées en aval. Applicabilité : modérée — le facteur humain domine.
+635	L’AMF résistante à l’hameçonnage et l’accès conditionnel (I01) sont le levier principal; la GAP (I02) limite la portée; la détection et réponse gérées (I03) écourtent la présence de l’attaquant; sensibilisation et signalement (I12).
+636	0 à 6 mois
+637	Liens ATT&CK et CWE : correspondance établie par l’analyste pour le cas pédagogique — validation requise.
+638	Rançongiciel perturbant l’accès au DSE et les opérations des cliniques dans tout le réseau
+639	Un groupe de rançongiciel prend pied grâce à une pièce jointe d’hameçonnage à macro ou à un service exposé, se déplace latéralement dans un réseau insuffisamment segmenté, exfiltre des données de santé et chiffre les serveurs de soutien du DSE, les dossiers partagés et les systèmes de prise de rendez-vous, ce qui interrompt les opérations cliniques et administratives de plusieurs cliniques.
+640	Haute direction; conseil d’administration / groupe propriétaire; DPI; responsable de la cybersécurité; Opérations cliniques; gestionnaires de clinique; vie privée / services juridiques; communications; fournisseur du DSE; assureur; fournisseur de criminalistique; patients; médias.

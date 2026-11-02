@@ -44,6 +44,7 @@ import * as csm from './panels/csm.js';
 import * as audit from './panels/audit.js';
 import * as qc from './panels/qc.js';
 import * as shared from './panels/shared.js';
+import * as ipc from './panels/ipc.js';
 import * as siem from './panels/siem.js';
 import * as soar from './panels/soar.js';
 import * as evidence from './panels/evidence.js';
@@ -56,10 +57,12 @@ import * as LOG from './logs.js';
 import * as HELP from './helpdesc.js';
 import * as users from './users.js';
 import * as chat from './chat.js';
+import * as consultui from './consultui.js';
 import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
+import { hfetch } from './helper.js';
 
-const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
+const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, ipc, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
 export const ENGINE = { ok: false };
 
 /* ---------------- engine self-check (MediBec reference: 84,305 / 41,023 since 1.8.0, S2 and S8 at AV:L) ---------------- */
@@ -82,7 +85,10 @@ function selfCheck() {
   try {
     const r = CRG.run(CRG_SAMPLE);
     const est = Math.round(r.totals.est), res = Math.round(r.totals.res);
-    if (est === EXPECTED.est && res === EXPECTED.res) { state.textContent = `engine verified · ${n0(est)} / ${n0(res)}`; return true; }
+    if (est === EXPECTED.est && res === EXPECTED.res) {
+      state.textContent = `engine verified · ${n0(est)} / ${n0(res)}`;
+      return casesCheck(state, out);
+    }
     state.textContent = 'engine DIVERGES';
     out.append(banner('bad', 'Engine does not reproduce the MediBec baseline',
       `Expected ${n0(EXPECTED.est)} / ${n0(EXPECTED.res)}, got ${n0(est)} / ${n0(res)}. ` +
@@ -93,6 +99,28 @@ function selfCheck() {
     out.append(banner('bad', 'Engine raised an error during verification', String(e.message || e)));
     return false;
   }
+}
+
+/* 1.9.0 — the other bundled teaching examples are checked beside MediBec: the French MediBec must give exactly
+   the MediBec reference (only its text is translated), and CanaRetail (English and French, same numbers) its own
+   reference, computed with engine/crg_calc.py when the case was built. A guarded constant: change it only with
+   the case, never to make a diverging engine pass. */
+const EXPECTED_CANARETAIL = { est: 27526, res: 16049 };
+function casesCheck(state, out) {
+  const runs = [];
+  if (self.CRG_MEDIBEC_FR) runs.push(['MediBec (French)', self.CRG_MEDIBEC_FR.ASSESSMENT, EXPECTED]);
+  if (self.CRG_CANARETAIL) for (const l of ['en', 'fr']) runs.push([`CanaRetail (${l === 'en' ? 'English' : 'French'})`, self.CRG_CANARETAIL[l]?.ASSESSMENT, EXPECTED_CANARETAIL]);
+  for (const [name, data, exp] of runs) {
+    let est = NaN, res = NaN, err = '';
+    try { const r = CRG.run(data); est = Math.round(r.totals.est); res = Math.round(r.totals.res); } catch (e) { err = String(e.message || e); }
+    if (est === exp.est && res === exp.res) continue;
+    state.textContent = 'engine DIVERGES';
+    out.append(banner('bad', `The bundled example ${name} does not reproduce its reference`,
+      err || `Expected ${n0(exp.est)} / ${n0(exp.res)}, got ${n0(est)} / ${n0(res)}. Reinstall the application; do not rely on that example until it matches again.`));
+    return false;
+  }
+  if (self.CRG_CANARETAIL) state.textContent += ` · CanaRetail ${n0(EXPECTED_CANARETAIL.est)} / ${n0(EXPECTED_CANARETAIL.res)}`;
+  return true;
 }
 
 /* ---------------- router ---------------- */
@@ -195,6 +223,7 @@ try { const t = localStorage.getItem('crg-theme'); if (t) document.documentEleme
 $('lang-box').append(i18n.switcher(el));
 window.addEventListener('crg-lang', () => { drawChrome(); draw(); });
 $('help-toggle').addEventListener('click', () => chat.toggle());
+$('consult-toggle').addEventListener('click', () => consultui.toggle());
 $('exit-btn').addEventListener('click', exitApp);
 function drawUser() {
   const box = $('user-box'); if (!box) return;
@@ -225,7 +254,7 @@ async function exitApp() {
   try { const st = await import('./state.js'); await st.saveNow(); } catch { /* nothing to save */ }
   users.audit('exit', '');
   let stopped = false;
-  try { const r = await fetch('/api/quit', { method: 'POST', headers: { 'X-CRG': '1', 'Content-Type': 'application/json' }, body: '{}' }); stopped = r.ok; } catch { /* no helper */ }
+  try { const r = await hfetch('/api/quit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); stopped = r.ok; } catch { /* no helper */ }
   try { window.close(); } catch { /* not a script-opened window */ }
   setTimeout(() => {
     document.body.replaceChildren(el('div', { class: 'exit-screen' }, el('img', { src: 'icons/icon-192.png', alt: '', width: 72, height: 72 }),
@@ -249,7 +278,7 @@ ENGINE.ok = selfCheck();
 nav.init();
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); consultui.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

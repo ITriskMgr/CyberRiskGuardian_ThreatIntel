@@ -14,6 +14,7 @@ import * as CRGO from '../crgo.js';
 import { tr } from '../i18n.js';
 import * as SEED from '../secops_seed.js';
 import { statusAt, TLP_RESTRICTED } from '../siem.js';
+import * as IPCP from './ipc.js';
 import * as EQ from '../equiv.js';
 
 const CONS = ['Confidentiality/privacy', 'Integrity', 'Availability', 'Operations', 'Financial', 'Regulatory', 'Reputation', 'Safety'];
@@ -189,6 +190,7 @@ export function render(sec, arg) {
   sec.append(secopsCard(s, sec));
 
   // threat basis
+  { const c = IPCP.scenarioCard(s); if (c) sec.append(c); }   // identity, privilege & configuration evidence (read-only)
   if (Array.isArray(s.threat_basis) && s.threat_basis.length) {
     sec.append(card(el('h2', null, 'Threat-context basis (audit trail)'), ...s.threat_basis.map((b, i) => el('div', 'docrow',
       el('div', null, el('b', null, (b.cve || '') + ' · ' + (b.parameter || '') + ' · rung ' + (b.ladder_rung ?? '')), el('div', 'small', (b.evidence || []).join('; ')), el('div', 'small muted', 'Exposure: ' + (b.exposure || '—'))),
@@ -515,7 +517,7 @@ function equivBox(s, ch, vec) {
       el('details', { open: g.length > 0 }, el('summary', null, tr('Justification of each metric') + (g.length ? ` — ${tr('missing')}: ${g.join(', ')}` : ' ✓')),
         el('div', 'grid g2', ...EQ.METRICS.map(k => { const t = el('textarea', { rows: 1, placeholder: EQ.QUESTIONS[k] }); t.value = e.just[k] || '';
           t.addEventListener('input', () => { e.just[k] = t.value; touch(); }); t.addEventListener('change', draw);
-          return field(`<b>${k}:${vm[k] || '?'}</b> <span class="small muted">${EQ.QUESTIONS[k]}</span>`, t); }))));
+          return field(el('span', null, el('b', null, `${k}:${vm[k] || '?'}`), ' ', el('span', 'small muted', EQ.QUESTIONS[k])), t); }))));
   };
   vec.addEventListener('change', draw);
   draw();

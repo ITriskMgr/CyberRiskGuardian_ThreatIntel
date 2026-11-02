@@ -35,13 +35,54 @@
         the old identifier kept in a note, or flagged for review when no correspondence exists — never
         dropped; outdated marker wordings take the standard markers; a MediBec teaching case still on the AV:N
         vectors of S2 and S8 keeps them (a migration changes no number) and is told how to take AV:L; empty scenario-screening and management-summary records are added.
+     4  1.9.0 — one step made of sub-steps (STEP4 below), one per piece of 1.9.0 work that adds a workspace
+        field: the Virtual consultant's conversation history (consultant), and those the other 1.9.0 modules
+        append.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { VERSION } from './version.js';
 import { LEGACY } from './data/legacy-map.js';
 import * as MK from './markers.js';
+import * as IPC from './ipc.js';
 
-export const DATA_VERSION = 3;
+/** MediBec S2 and S8: the earlier (AV:N) vector → the current (AV:L) one. The single copy of these constants
+    (1.9.0): avl.js re-exports them and the Quality review (QC-26) reads them from there. */
+export const AVL_VECTORS = Object.freeze({
+  S2: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' }),
+  S8: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L' }),
+});
+
+export const DATA_VERSION = 4;
+
+/* ---------------- the 1.9.0 records (data version 4) ----------------
+   Data version 4 is ONE migration step made of sub-steps, one per piece of 1.9.0 work that adds a
+   workspace field. To add a field in 1.9.0, append one entry to STEP4 — nothing else: KNOWN_FIELDS, the
+   step 3 → 4 itself, the workspace factory (state.newWorkspace), the shape repair (state.migrate) and the
+   reset groups (reset.GROUPS) all read this list.
+     field   the top-level workspace field
+     blank   () => its empty value: what a new workspace gets and what an older one is given
+     group   the reset group it belongs to (reset.js: ORGANIZATION, DOCUMENTS, CONTEXT, ASSESSMENT, KRI_DEFS, AUDIT)
+     title   one line for the migration journal
+     up      optional (w, note) => void, for a sub-step that does more than add the blank field; it must
+             leave numbers untouched and may only read fields earlier steps guarantee
+   Sub-steps run in the order listed, on the copy the migration works on. */
+
+/** Virtual consultant: saved conversations and the retrieval mode of this workspace. */
+export const blankConsultant = () => ({
+  conversations: [],            // { id, title, started, updated, evidence, messages: [{ role: 'user'|'consultant', at, text, screen, selected, parts, passages, model, provider, logId }] }
+  retrieval: 'lexical',         // 'lexical' (default, offline) or 'hybrid' (lexical + a local embedding model)
+});
+export const STEP4 = [
+  { field: 'consultant', blank: blankConsultant, group: 'ASSESSMENT', title: 'Virtual consultant: conversation history' },
+  // Identity, privilege & configuration: registers, baselines promoted from the asset register (the asset gains only
+  // baseline.ref), drift deviations to classify, the teaching-case sample; invariants throw (migrateIpc4 below)
+  { field: 'ipc', blank: () => IPC.blank(), group: 'CONTEXT', title: 'Identity, privilege & configuration registers (baselines promoted from assets)',
+    up: (w, note) => { migrateIpc4(w, note); } },
+  // SSVC decisions beside the vulnerability register, and the review items the exploitation forecast raises
+  { field: 'ssvc', blank: () => blankSsvc(), group: 'CONTEXT', title: 'SSVC decisions and exploitation-forecast review items (response priorities, never likelihoods)' },
+];
+/** The blank value of every data-version-4 field, for the workspace factory. */
+export const fieldsV4 = () => Object.fromEntries(STEP4.map(s => [s.field, s.blank()]));
 
 /** Every top-level field of a workspace at DATA_VERSION (the test compares the factory with this list). */
 export const KNOWN_FIELDS = [
@@ -60,8 +101,8 @@ export const KNOWN_FIELDS = [
   'shared', 'cms', 'siem', 'soar',
   // 1.8.0
   'screening', 'mgmtSummary', 'catalogueMigration',
-  // 1.9.0 (SSVC lane) — SSVC decision records and forecast review items; given to older workspaces by migrateSsvc4
-  'ssvc',
+  // 1.9.0 — data version 4, one entry per sub-step
+  ...STEP4.map(s => s.field),
 ];
 
 /* ---------------- the 1.5.8 records ---------------- */
@@ -300,10 +341,9 @@ export const MIGRATIONS = [
       if (mk) note(`${mk} text(s) given the standard markers (Analytical estimate — validation required; Information gap — organizational validation required)`);
       // The shipped teaching case follows the book: the e-mailed document of S2 and S8 is opened locally (AV:L).
       if (w.kind === 'example') {
-        const AVN = { 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H': 1, 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L': 1 };
         // A migration never changes a number, so the vectors are left as they are and the case says how to
         // take the current ones: Reset data → Start over (the Quality review lists it too, QC-26).
-        const n = (w.assessment?.SCEN || []).filter(sc => (sc.id === 'S2' || sc.id === 'S8') && AVN[sc.cvss]).length;
+        const n = (w.assessment?.SCEN || []).filter(sc => AVL_VECTORS[sc.id] && sc.cvss === AVL_VECTORS[sc.id].from).length;
         if (n) note(`teaching case: S2 and S8 keep the AV:N vectors of the earlier case (numbers are never changed by a migration); the Process page offers the AV:L vectors of the current case (journalled), or Reset data → Start over takes the whole current case`);
       }
       w.screening ||= blankScreening(); w.mgmtSummary ||= blankSummary(); w.catalogueMigration ||= [];
@@ -313,7 +353,97 @@ export const MIGRATIONS = [
       } else note('empty scenario-screening and management-summary records added');
     },
   },
+  {
+    from: 3, to: 4, release: '1.9.0',
+    get title() { return 'Data version 3 → 4: ' + STEP4.map(s => s.title).join('; '); },
+    up(w, note) {
+      for (const s of STEP4) {
+        if (s.up) { s.up(w, note); continue; }
+        if (w[s.field] === undefined) { w[s.field] = s.blank(); note(`${s.title}: empty record added`); }
+      }
+    },
+  },
 ];
+
+/* ================= 1.9.0 — Identity, privilege & configuration (ipc) =================
+   The ipc sub-step of data version 3 → 4 (its STEP4 entry calls migrateIpc4).
+   Idempotent, and it never changes a risk number: it throws (and the original is kept) when an
+   invariant breaks. */
+
+/** The empty record of the module. */
+export const blankIpc = () => IPC.blank();
+
+const clone = x => JSON.parse(JSON.stringify(x ?? null));
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const engineTotals = w => {
+  const C = globalThis.CRG; if (!C?.calc) return null;
+  const A = w.assessment || {}; let est = 0, res = 0;
+  for (const sc of A.SCEN || []) { try { const r = C.calc(sc, A.APPETITE ?? C.DEFAULT_APPETITE, A.FACTOR ?? C.DEFAULT_FACTOR); est += r.est; res += r.res; } catch { /* the same scenario fails on both sides */ } }
+  return { est: Math.round(est * 1e6) / 1e6, res: Math.round(res * 1e6) / 1e6 };
+};
+
+/** Seed a teaching case with its sample (MediBec, CanaRetail when that case exists) if its registers are empty. */
+export function seedIpc(w, note = () => {}) {
+  const id = IPC.caseOf(w), S = globalThis.CRG_IPC_SAMPLES || {};
+  if (!id || !S[id] || !IPC.registersEmpty(w)) return null;
+  const r = IPC.applySample(w, S[id]);
+  if (r) note(`teaching case: identity, privilege & configuration sample added — ${r.rows} register rows, evidence ${r.evidence.join(', ') || 'none'}, ${r.exceptions.length} exception(s), ${r.findings} finding(s), ${r.proposals} pending proposal(s), nothing accepted`);
+  return r;
+}
+
+/**
+ * The ipc part of data version 3 → 4: empty record, baseline promotion from the asset register,
+ * teaching-case seed, invariants. Running it twice changes nothing the second time.
+ */
+export function migrateIpc4(w, note = () => {}) {
+  const before = { assessment: clone(w.assessment), assets: clone(w.assets || []), totals: engineTotals(w) };
+  w.ipc = Object.assign(IPC.blank(), w.ipc || {});
+  const R = IPC.reg(w);
+  // 2 — baselines named on assets become versioned baseline objects; the asset keeps its fields and gains a ref
+  let promoted = 0, created = 0, drift = 0;
+  for (const a of w.assets || []) {
+    const b = a.baseline; const name = String(b?.name || '').trim();
+    if (!name) continue;
+    let bl = R.baselines.find(x => x.name === name);
+    if (!bl) {
+      bl = { id: IPC.nextIdReg(R.baselines, 'BL'), name, platform: name.replace(/^CIS Benchmark — /, ''), kind: IPC.kindOfName(name), licenceRef: '', owner: '', legacy: true,
+        versions: [{ v: 'legacy', state: 'legacy', approved: '', approvedBy: '', effective: '', review: '', hash: '', rationale: 'Promoted from the asset register by the 1.9.0 migration', applicability: { assetTypes: [], note: '' } }], note: '' };
+      R.baselines.push(bl); created++;
+      note(`baseline "${name}" promoted from the asset register as ${bl.id} (legacy version)`);
+    }
+    const ver = bl.versions.find(v => v.v === 'legacy');
+    if (ver && a.type && !ver.applicability.assetTypes.includes(a.type)) ver.applicability.assetTypes.push(a.type);
+    if (!b.ref) { b.ref = { id: bl.id, v: 'legacy' }; promoted++; note(`asset ${a.id}: baseline reference ${bl.id} legacy added (no other field changed)`); }
+    if (b.status === 'drift' && !R.deviations.some(d => d.migrated && d.asset === a.id)) {
+      R.deviations.push({ id: IPC.nextIdReg(R.deviations, 'DV'), baseline: bl.id, version: 'legacy', ciScope: '', asset: a.id, count: 1, cls: '', severity: 'medium', requirement: '',
+        opened: b.checked || '', lastSeen: b.checked || '', exception: '', state: 'open', owner: a.owner || '', source: 'Information assets (migrated)', status: 'inferred', conf: 'Low',
+        evidence: '', migrated: true, prov: { tag: 'INFERENCE', method: 'rules', file: '', date: new Date().toISOString().slice(0, 10) }, note: b.deviations || '' });
+      drift++; note(`asset ${a.id} in drift: deviation recorded, to be classified`);
+    }
+  }
+  if ((created || promoted) && !R.ciScopes.some(c => c.fromAssets)) {
+    R.ciScopes.push({ id: IPC.nextIdReg(R.ciScopes, 'CS'), label: 'Information assets', baseline: '', version: '', fromAssets: true, assetTypes: [], inScope: null, assigned: null, assessed: null, compliant: null,
+      asOf: '', source: 'Information assets (migrated)', status: 'inferred', conf: 'Low', evidence: '', prov: { tag: 'INFERENCE', method: 'rules', file: '', date: new Date().toISOString().slice(0, 10) }, note: '' });
+    note('configuration scope counted live from Information assets added');
+  }
+  // 3 — teaching-case seed
+  const seeded = seedIpc(w, note);
+  // 4 — invariants: nothing that drives a risk number moved
+  const ev0 = before.assessment?.EVIDENCE || [];
+  const a1 = clone(w.assessment); const ev1 = a1?.EVIDENCE || [];
+  if (!same(ev1.slice(0, ev0.length), ev0) || (!seeded && ev1.length !== ev0.length)) throw new Error('ipc migration: the evidence register would change other than by appending');
+  if (a1) { if (before.assessment && 'EVIDENCE' in before.assessment) a1.EVIDENCE = ev0; else delete a1.EVIDENCE; }
+  if (!same(a1, before.assessment)) throw new Error('ipc migration: the assessment would change');
+  const t1 = engineTotals(w);
+  if (before.totals && !same(before.totals, t1)) throw new Error('ipc migration: the engine totals would change');
+  const assets = clone(w.assets || []);
+  for (const a of assets) if (a.baseline) delete a.baseline.ref;
+  const orig = clone(before.assets); for (const a of orig) if (a.baseline) delete a.baseline.ref;
+  if (!same(assets, orig)) throw new Error('ipc migration: an asset would change other than by a baseline reference');
+  if ((w.ipc.findings || []).some(f => (f.proposals || []).some(p => p.state === 'accepted'))) throw new Error('ipc migration: a proposal would be applied');
+  if (!created && !promoted && !drift && !seeded) note('empty identity, privilege & configuration registers added');
+  return { created, promoted, drift, seeded: !!seeded };
+}
 
 /* ---------------- running them ---------------- */
 
@@ -369,21 +499,11 @@ export async function migrateMeta(store) {
   return { from, to: META_VERSION, newer: false };
 }
 
-/* ================= 1.9.0 — SSVC lane: data version 3 → 4 (to be wired by the integrator) =================
-   The new top-level field `ssvc` holds the SSVC tree chosen for the workspace, one decision record per
-   registered vulnerability, and the review items the exploitation forecast raises. It changes no number:
-   an SSVC outcome is a response priority, never a likelihood, and nothing here touches a parameter.
-   The integrator calls migrateSsvc4(w, note) from the single combined 3 → 4 step. Until then the shape
-   repair in state.js (migrate) and js/ssvc.js (ensure) give older workspaces an empty record lazily. */
-/** An empty SSVC record: tree 'deployer' (CISA SSVC) by default. */
+/* ================= 1.9.0 — SSVC (STEP4 entry 'ssvc') =================
+   The tree chosen for the workspace, one decision record per registered vulnerability, and the review
+   items the exploitation forecast raises. Changes no number: an SSVC outcome is a response priority. */
 export const blankSsvc = () => ({
   tree: 'deployer',           // 'deployer' (CISA SSVC) · 'deployer-cert' (CERT/CC deployer) · 'supplier' (CERT/CC supplier)
   decisions: {},              // vulnerability id → { tree, points, derived, outcome, evidence, override, by, date, justification, history[] }
   review: [],                 // exploitation-forecast review items: { id, cve, date, forecast, band, reasons[], source, status, by, closed, note }
 });
-/** Data version 3 → 4, SSVC part. Adds the empty record; returns what it did for the migration journal. */
-export function migrateSsvc4(w, note = () => {}) {
-  if (w.ssvc && typeof w.ssvc === 'object') { w.ssvc = Object.assign(blankSsvc(), w.ssvc); return; }
-  w.ssvc = blankSsvc();
-  note('empty SSVC record added (tree: deployer — CISA SSVC); SSVC outcomes are response priorities, never likelihoods');
-}

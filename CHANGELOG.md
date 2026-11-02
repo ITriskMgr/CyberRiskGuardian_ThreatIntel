@@ -3,8 +3,12 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
-## Unreleased — 1.9.0 Beta (in progress)
+## Unreleased (with Desktop 1.9.0)
 
+- `hooks/check_labels.py`: a negation only counts in the same sentence (a "never" ending the previous sentence no longer
+  hides an `ABS()` residual); `.js`, `.mjs` and `.py` files are checked for outdated wording (not for markers).
+- `.claude-plugin/marketplace.json` lists plugin version 1.6.2, as `plugin.json` does.
+- `requirements.txt` pinned to exact versions; `.github/workflows/desktop-ci.yml` and `.github/dependabot.yml` added.
 - Threat Intel plugin: **SSVC beside EPSS and KEV** in vulnerability triage — `scripts/ssvc.py` (CISA SSVC 2.0.3 and the
   CERT/CC deployer and supplier trees, row for row from CERTCC/SSVC commit `bf3213bc`; Exploitation suggested from a local
   snapshot), `test_ssvc.py` (every combination; diffs every row against the CSVs when `SSVC_REPO` is set), the

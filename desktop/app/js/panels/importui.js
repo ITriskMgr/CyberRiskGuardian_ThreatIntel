@@ -128,7 +128,7 @@ export function importCard(body, sec, org) {
     ['Profile & appetite — all 18 fields, tagged', () => { org.setTab('profile'); go('org/profile'); setTimeout(() => org.extractProfile(sec), 80); }, 'Extract…'],
     ['Crown jewels', () => { org.setTab('crown'); go('org/crown'); setTimeout(() => org.extractCrown(sec), 80); }, 'Extract…'],
     ['Context hints — sector, laws and standards, technologies, amounts, CVEs (unconfirmed)', () => go('org/docs'), 'Open'],
-    ['Full text, kept with the workspace for the AI assistant and Batch → Propose with AI', () => go('org/docs'), 'Open'],
+    ['Full text, kept with the workspace for the Virtual consultant and Batch → Propose with AI', () => go('org/docs'), 'Open'],
   ];
   const meth = select([['ai', 'AI — preview before sending (routes in Settings → AI — local & remote)'], ['rules', 'Rules only — no AI, offline (where available)']], pick.method);
   meth.addEventListener('change', () => { pick.method = meth.value; });

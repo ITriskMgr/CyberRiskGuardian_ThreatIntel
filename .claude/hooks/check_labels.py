@@ -59,6 +59,9 @@ NUMBER_NEAR = re.compile(r"\b0[.,]\d{1,2}\b")
 REPORT = re.compile(r"executive summary|management summary|summary report|risk assessment report|quick scan|r[ée]sum[ée] (?:ex[ée]cutif|pour la direction)|rapport d.[ée]valuation|recommendations?|recommandations?", re.I)
 GAPWORDS = re.compile(r"\bnot (?:provided|supplied|documented|available)\b|\bunknown\b|\bto be confirmed\b|\bTBD\b|\bmissing information\b|non fourni|inconnu|à confirmer|information manquante", re.I)
 TEXT_EXT = {".md", ".markdown", ".txt", ".html", ".htm", ".csv", ".json"}
+# Code files carry user-facing templates (prompts, exports): only their wording is checked — a module is not a
+# deliverable, so it is never asked to carry the markers itself.
+CODE_EXT = {".js", ".mjs", ".py"}
 # Methodology sources quote both current and retired wording on purpose: never check them in hook mode.
 SKIP_PARTS = ("/skills/", "/references/", "/hooks/", "/agents/", "/commands/", "/output-styles/", "/rules/",
               "/evals/", "/.claude/", "/plugins/", "/node_modules/", "/.git/")
@@ -73,6 +76,16 @@ def has(text, key):
 
 
 NEGATION = re.compile(r"\b(?:never|not|no|instead of|without|retired|replaces?|rather than|ni|jamais|pas|au lieu)\b", re.I)
+SENTENCE_END = re.compile(r"[.!?](?=\s|$)|\n")
+
+
+def sentence_start(t, pos):
+    """Start of the sentence containing `pos`: a negation only counts in the same sentence. A "never" at the
+    end of the previous sentence must not hide an ABS() residual in the next one."""
+    start = 0
+    for m in SENTENCE_END.finditer(t, 0, pos):
+        start = m.end()
+    return start
 
 
 def outdated(text):
@@ -86,7 +99,7 @@ def outdated(text):
             out.append((m.group(0).strip(), rep))
     for pat, rep in OUTDATED_METHOD:
         for m in re.finditer(pat, t, re.I):
-            window = t[max(0, m.start() - 40):m.end()]
+            window = t[max(sentence_start(t, m.start()), m.start() - 40):m.end()]
             if not NEGATION.search(window):
                 out.append((m.group(0).strip(), rep))
                 break
@@ -113,7 +126,7 @@ def read_file(path):
         with zipfile.ZipFile(path) as z:
             xml = z.read("word/document.xml").decode("utf-8", "ignore")
         return re.sub(r"<[^>]+>", " ", xml.replace("</w:p>", "\n"))
-    if ext in TEXT_EXT:
+    if ext in TEXT_EXT or ext in CODE_EXT:
         with open(path, encoding="utf-8", errors="ignore") as f:
             return f.read()
     return None
@@ -143,7 +156,8 @@ def hook(data):
             return 0
         if not text:
             return 0
-        need, old = required(text, os.path.basename(path)), outdated(text)
+        code = os.path.splitext(path)[1].lower() in CODE_EXT
+        need, old = ([] if code else required(text, os.path.basename(path))), outdated(text)
         if need or old:
             msg = message(need, old, os.path.basename(path))
             print(json.dumps({"systemMessage": msg,
@@ -176,7 +190,8 @@ def cli(paths):
             print(f"{p}: cannot read ({e})"); bad += 1; continue
         if text is None:
             print(f"{p}: skipped (unsupported type)"); continue
-        need, old = required(text, os.path.basename(p)), outdated(text)
+        code = os.path.splitext(p)[1].lower() in CODE_EXT
+        need, old = ([] if code else required(text, os.path.basename(p))), outdated(text)
         if need or old:
             bad += 1
             if need:

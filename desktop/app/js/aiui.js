@@ -1,6 +1,6 @@
 /* aiui.js — the outbound preview as a dialog (1.5.2), so every screen that offers an AI action
    (profile and crown-jewel extraction, batch proposals, chatbot) shows exactly what would be sent,
-   where, and asks for consent the same way the AI assistant does. Resolves with the answer, or null
+   where, and asks for consent the same way everywhere. Resolves with the answer, or null
    if the person cancels. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, banner, kpi, n0, toast, copyText, pill, field } from './util.js';

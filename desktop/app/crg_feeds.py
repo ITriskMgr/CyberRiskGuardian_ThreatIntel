@@ -13,7 +13,7 @@ Used two ways, with the same code and the same files:
 
 Everything lives in the feeds folder (default ~/Downloads/CyberRiskGuardian-feeds, or --dir / CRG_FEEDS_DIR):
   crg-config.json          settings edited in the app (Settings): sources, links, shared folders, schedule
-  crg-keys.json            API keys, only if the analyst chose to store them for unattended runs (mode 600)
+  (API keys are not here since 1.9.0: macOS login keychain, else ~/.cyberriskguardian/crg-keys.json, mode 600)
   crg-feeds-state.json     last run, status and item count per source
   feeds/<source>/          downloaded files: latest.<ext> plus dated copies (retention per config)
   feeds-digest.json        small summary of the last run, safe to copy to a shared Drive folder
@@ -31,7 +31,9 @@ import datetime as dt
 import json
 import os
 import re
+import shutil
 import ssl
+import subprocess
 import sys
 import urllib.error
 import urllib.parse
@@ -157,12 +159,21 @@ def _read_json(path, default):
 
 
 def _write_json(path, obj, mode=None):
+    """Atomic write. With `mode`, the temporary file is created with that mode from the start (os.open), so a
+    secret is never readable by others, not even for the moment between writing and a chmod (1.9.0)."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as fh:
-        json.dump(obj, fh, indent=1, ensure_ascii=False)
     if mode:
-        os.chmod(tmp, mode)
+        try:
+            os.remove(tmp)
+        except FileNotFoundError:
+            pass
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), mode)
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(obj, fh, indent=1, ensure_ascii=False)
+    else:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(obj, fh, indent=1, ensure_ascii=False)
     os.replace(tmp, path)
 
 
@@ -187,20 +198,194 @@ def save_config(cfg, d=None):
     return cfg
 
 
+# ------------------------------------------------------------------ API keys (1.9.0)
+# Until 1.8.x the keys were in crg-keys.json in the feeds folder, by default under ~/Downloads. Since 1.9.0:
+#   * macOS: the login keychain (`security`), service "CyberRiskGuardian", one item per key name;
+#   * elsewhere: ~/.cyberriskguardian/crg-keys.json, created with mode 600 (os.open) in a folder of mode 700.
+#     On Windows the mode is not enforced by the file system: the folder inherits the profile's permissions,
+#     and Settings says so.
+# keys-index.json beside it holds the names and, per key, the hosts it was saved for — never a value. A key
+# is only ever sent to one of those hosts (or to the published hosts of the source or provider that uses it).
+# The legacy file in the feeds folder is moved once and deleted. CRG_KEYS_DIR moves the folder (tests).
+KEYCHAIN_SERVICE = "CyberRiskGuardian"
+KEY_NAME = re.compile(r"^[a-z0-9_-]{1,32}$")
+
+
+def keys_dir():
+    return os.path.abspath(os.path.expanduser(os.environ.get("CRG_KEYS_DIR") or os.path.join("~", ".cyberriskguardian")))
+
+
+def key_backend():
+    if os.environ.get("CRG_KEYS_BACKEND") in ("file", "keychain"):
+        return os.environ["CRG_KEYS_BACKEND"]
+    return "keychain" if sys.platform == "darwin" and shutil.which("security") else "file"
+
+
+def key_storage():
+    """Where keys are kept, for Settings: {backend, path, warning}."""
+    b = key_backend()
+    out = {"backend": b, "path": "login keychain (service CyberRiskGuardian)" if b == "keychain" else os.path.join(keys_dir(), "crg-keys.json")}
+    if b == "file" and os.name == "nt":
+        out["warning"] = ("On Windows the key file is protected only by the permissions of your user profile; anyone who "
+                          "administers this computer, or a program running as you, can read it. Prefer a local model, "
+                          "or remove the keys when you no longer need them.")
+    return out
+
+
+def _ensure_keys_dir():
+    d = keys_dir()
+    os.makedirs(d, mode=0o700, exist_ok=True)
+    try:
+        os.chmod(d, 0o700)
+    except OSError:
+        pass
+    return d
+
+
+def _index():
+    return _read_json(os.path.join(keys_dir(), "keys-index.json"), {}).get("keys") or {}
+
+
+def _save_index(idx):
+    _write_json(os.path.join(_ensure_keys_dir(), "keys-index.json"), {"schema": "crg-keys-index/1", "keys": idx}, mode=0o600)
+
+
+def _security(args, stdin=None):
+    return subprocess.run(["security"] + args, input=stdin, capture_output=True, text=True, timeout=20)
+
+
+def _kc_get(name):
+    r = _security(["find-generic-password", "-s", KEYCHAIN_SERVICE, "-a", name, "-w"])
+    return r.stdout.rstrip("\n") if r.returncode == 0 else ""
+
+
+def _kc_set(name, value):
+    # `security -i` reads the command from stdin, so the key never appears in a process list.
+    if re.search(r'[\s"\\]', value):
+        raise ValueError("This key contains spaces, quotes or backslashes, which the keychain command line cannot take safely.")
+    r = _security(["-i"], stdin=f'add-generic-password -U -s {KEYCHAIN_SERVICE} -a {name} -l "CyberRiskGuardian {name}" -w "{value}"\n')
+    if r.returncode != 0 or "error" in (r.stderr or "").lower():
+        raise RuntimeError("The macOS keychain refused the key: " + (r.stderr or "").strip()[:200])
+
+
+def _kc_del(name):
+    _security(["delete-generic-password", "-s", KEYCHAIN_SERVICE, "-a", name])
+
+
+def _file_keys():
+    return _read_json(os.path.join(keys_dir(), "crg-keys.json"), {})
+
+
+def _file_save(keys):
+    _write_json(os.path.join(_ensure_keys_dir(), "crg-keys.json"), keys, mode=0o600)
+
+
+class Keys:
+    """The stored keys: names are known without reading any secret; a value is read only when it is used."""
+
+    def __init__(self, names):
+        self._names = sorted(names)
+        self._cache = {}
+
+    def __iter__(self):
+        return iter(self._names)
+
+    def __len__(self):
+        return len(self._names)
+
+    def __contains__(self, name):
+        return name in self._names
+
+    def get(self, name, default=""):
+        if name not in self._names:
+            return default
+        if name not in self._cache:
+            self._cache[name] = (_kc_get(name) if key_backend() == "keychain" else _file_keys().get(name, "")) or ""
+        return self._cache[name] or default
+
+    def __getitem__(self, name):
+        if name not in self._names:
+            raise KeyError(name)
+        return self.get(name)
+
+
+def migrate_legacy_keys(d=None, hosts_for=None):
+    """Move crg-keys.json out of the feeds folder (once). `hosts_for(name)` gives the hosts a key is bound to."""
+    legacy = os.path.join(feeds_dir(d), "crg-keys.json")
+    old = _read_json(legacy, None)
+    if not isinstance(old, dict):
+        return 0
+    n = 0
+    for name, value in old.items():
+        if KEY_NAME.match(str(name)) and isinstance(value, str) and value:
+            _store(name, value, list((hosts_for(name) if hosts_for else []) or []))
+            n += 1
+    os.remove(legacy)
+    return n
+
+
 def load_keys(d=None):
-    return _read_json(os.path.join(feeds_dir(d), "crg-keys.json"), {})
+    migrate_legacy_keys(d)
+    names = set(_index())
+    if key_backend() == "file":
+        names |= set(_file_keys())
+    return Keys(names)
 
 
-def set_key(name, value, d=None):
-    if not re.fullmatch(r"[a-z0-9_-]{1,32}", name or ""):
-        raise ValueError("bad key name")
-    keys = load_keys(d)
-    if value:
-        keys[name] = value
+def key_hosts(name):
+    """Hosts a stored key may be sent to: the published hosts of the catalogue sources that use it, and the
+    hosts recorded when the person saved it."""
+    out = {dom for s in SOURCES if s.get("key") == name for dom in s.get("domains") or []}
+    out |= set((_index().get(name) or {}).get("hosts") or [])
+    return sorted(h for h in out if h)
+
+
+def host_allowed(url, hosts):
+    """Exact host or a sub-domain on a label boundary (api.example.com matches example.com; evil-example.com does not)."""
+    try:
+        host = (urllib.parse.urlsplit(url).hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    for h in hosts or []:
+        h = str(h).lower().rstrip(".")
+        if h and (host == h or host.endswith("." + h)):
+            return True
+    return False
+
+
+def _store(name, value, hosts):
+    if key_backend() == "keychain":
+        _kc_set(name, value)
     else:
-        keys.pop(name, None)
-    _write_json(os.path.join(feeds_dir(d), "crg-keys.json"), keys, mode=0o600)
-    return sorted(keys)
+        keys = _file_keys()
+        keys[name] = value
+        _file_save(keys)
+    idx = _index()
+    idx[name] = {"hosts": sorted({str(h).lower() for h in hosts if h}), "saved": _now()}
+    _save_index(idx)
+
+
+def set_key(name, value, d=None, hosts=None):
+    if not KEY_NAME.match(name or ""):
+        raise ValueError("bad key name")
+    value = (value or "").strip()
+    if len(value) > 4096 or re.search(r"[\x00-\x1f\x7f]", value):
+        raise ValueError("This does not look like an API key.")
+    migrate_legacy_keys(d)
+    if value:
+        _store(name, value, hosts or [])
+    else:
+        if key_backend() == "keychain":
+            _kc_del(name)
+        else:
+            keys = _file_keys()
+            if name in keys:
+                keys.pop(name)
+                _file_save(keys)
+        idx = _index()
+        if idx.pop(name, None) is not None:
+            _save_index(idx)
+    return sorted(load_keys(d))
 
 
 def sources(cfg):
@@ -249,10 +434,35 @@ def _fill(text, src, cfg, keys, state):
     return text
 
 
+def check_url(url):
+    """https to any host, or plain http to this machine only — decided on the parsed host, not a prefix
+    (http://127.0.0.1.evil.example/ and http://localhost@evil.example/ are refused)."""
+    try:
+        u = urllib.parse.urlsplit(url)
+        host = (u.hostname or "").lower()
+    except ValueError as exc:
+        raise ValueError("not a valid address") from exc
+    if u.username or u.password:
+        raise ValueError("an address with a user name or password is not allowed")
+    if u.scheme == "https" and host:
+        return url
+    if u.scheme == "http" and host in ("127.0.0.1", "localhost", "::1"):
+        return url
+    raise ValueError("only https sources are allowed (plain http only to this machine)")
+
+
 def fetch_source(src, cfg, keys, state, timeout=90):
-    url = _fill(src["url"], src, cfg, keys, state)
-    if not url.startswith(("https://", "http://127.0.0.1", "http://localhost")):
-        raise ValueError("only https sources are allowed")
+    url = _fill(src["url"], src, cfg, {}, state)
+    check_url(url)
+    # 1.9.0 — a stored key goes only to a host it belongs to: the published hosts of the catalogue sources
+    # that use it, or the hosts recorded when the person saved it. An overridden URL or a custom source naming
+    # someone else's key gets a refusal, not the key. Keys are never put in a URL.
+    uses_key = "{key}" in json.dumps(src.get("headers") or {})
+    if "{key}" in src["url"]:
+        raise ValueError("A key may not be placed in a source address; use a header.")
+    if uses_key and src.get("key") and not host_allowed(url, key_hosts(src["key"])):
+        raise ValueError(f"The key '{src['key']}' is not sent to {urllib.parse.urlsplit(url).hostname}: it belongs to "
+                         f"{', '.join(key_hosts(src['key'])) or 'no host yet'}. Save it again for this source to use it there.")
     headers = {"User-Agent": UA, "Accept": "application/json, application/rss+xml, application/xml;q=0.9, */*;q=0.5"}
     for k, v in (src.get("headers") or {}).items():
         headers[k] = _fill(v, src, cfg, keys, state)
@@ -265,8 +475,25 @@ def fetch_source(src, cfg, keys, state, timeout=90):
             data = json.dumps(src.get("body") or {}).encode()
             headers["Content-Type"] = "application/json"
     req = urllib.request.Request(url, data=data, headers=headers, method=src.get("method", "GET").upper())
-    with urllib.request.urlopen(req, timeout=timeout, context=_ctx() if url.startswith("https") else None) as r:
+    hosts = key_hosts(src["key"]) if uses_key and src.get("key") else None
+    opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ctx()), GuardedRedirect(hosts))
+    with opener.open(req, timeout=timeout) as r:
         return r.read(), r.headers.get("Content-Type", "")
+
+
+class GuardedRedirect(urllib.request.HTTPRedirectHandler):
+    """Follow a redirect only to an allowed address; with a key, only to one of the key's hosts (urllib would
+    otherwise carry the key's header to wherever the server points)."""
+
+    def __init__(self, hosts=None):
+        super().__init__()
+        self.hosts = hosts
+
+    def redirect_request(self, req, fp, code, msg, hdrs, newurl):
+        check_url(newurl)
+        if self.hosts is not None and not host_allowed(newurl, self.hosts):
+            raise urllib.error.HTTPError(newurl, code, "redirect to another host refused: the key would follow it", hdrs, fp)
+        return super().redirect_request(req, fp, code, msg, hdrs, newurl)
 
 
 def _count(raw, fmt):

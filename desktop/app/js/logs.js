@@ -69,6 +69,7 @@ export async function clear(kind) {
 export function setRetention(days) { prefs.set('logRetention', Number(days)); trim(); persist(); }
 
 export function csv(rows) {
-  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  // 1.9.0 — a cell starting with = + - @ would be a formula in a spreadsheet: written as text (leading apostrophe)
+  const q = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d+([.,]\d+)?$/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
   return ['time,log,user,action,target,workspace,detail', ...rows.map(e => [e.t, e.kind, e.user, e.action, e.target, e.ws, e.detail].map(q).join(','))].join('\n');
 }

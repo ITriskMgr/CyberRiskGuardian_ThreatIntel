@@ -1,0 +1,631 @@
+{
+ "app": "1.8.2",
+ "dataVersion": 3,
+ "workspaces": [
+  {
+   "schema": "crg-workspace/1",
+   "id": "ws_fx182",
+   "name": "Fixture 1.8.2 — assets with baselines",
+   "kind": "organization",
+   "created": "2026-11-02T15:05:53.791Z",
+   "modified": "2026-11-02T15:05:53.791Z",
+   "org": {
+    "name": "Fixture 1.8.2 — assets with baselines",
+    "context": "",
+    "sector": "",
+    "size": "",
+    "employees": "",
+    "region": "",
+    "mission": "",
+    "services": "",
+    "processes": "",
+    "systems": "",
+    "cloud": "",
+    "suppliers": "",
+    "regulations": [],
+    "sensitive": "",
+    "availability": "",
+    "maturity": "",
+    "incidents": "",
+    "controls": "",
+    "notes": "",
+    "materiality": ""
+   },
+   "classroom": null,
+   "assessment": {
+    "APPETITE": 0.3,
+    "FACTOR": 1000,
+    "CURRENCY": "CAD",
+    "PERIOD": "next 12 months",
+    "SOURCE": "Organization documents supplied by the analyst",
+    "SCEN": [
+     {
+      "id": "S1",
+      "ref": "",
+      "name": "Fixture scenario",
+      "statement": "",
+      "stakeholders": "",
+      "threat_source": "",
+      "threat_event": "",
+      "vulns": [],
+      "assets": "",
+      "processes": "",
+      "controls": [],
+      "narrative": "",
+      "sequence": [],
+      "consequences": {},
+      "params": {
+       "PbA": {
+        "v": 0.5,
+        "qual": "",
+        "rat": "",
+        "ev": "",
+        "conf": "Low"
+       },
+       "Pbx": {
+        "v": 0.5,
+        "qual": "",
+        "rat": "",
+        "ev": "",
+        "conf": "Low"
+       },
+       "De": {
+        "v": 0.5,
+        "qual": "",
+        "rat": "",
+        "ev": "",
+        "conf": "Low"
+       },
+       "Dm": {
+        "v": 0.5,
+        "qual": "",
+        "rat": "",
+        "ev": "",
+        "conf": "Low"
+       },
+       "Th": {
+        "v": 0.5,
+        "qual": "",
+        "rat": "",
+        "ev": "",
+        "conf": "Low"
+       },
+       "Mu": {
+        "v": 0.5,
+        "qual": "",
+        "rat": "",
+        "ev": "",
+        "conf": "Low"
+       }
+      },
+      "cvss": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+      "cvss_note": "",
+      "red_p": 0.5,
+      "red_i": 0.5,
+      "inits": [],
+      "treatment": "",
+      "owner": "",
+      "horizon": "",
+      "attack": [],
+      "cwe": [],
+      "cves": [],
+      "origin": "manual",
+      "created": "2026-11-02",
+      "assetIds": [
+       "A-001"
+      ]
+     }
+    ],
+    "INITIATIVES": [],
+    "KRIS": [],
+    "EVIDENCE": [
+     [
+      "E1",
+      "Asset inventory export",
+      "Documented",
+      "Supports: S1",
+      "",
+      "",
+      "2026-08-01",
+      ""
+     ]
+    ],
+    "CANDIDATES": [],
+    "CROWN": []
+   },
+   "appetite_rationale": "",
+   "budget": {
+    "it_budget": 0,
+    "spend": 0,
+    "baseline": 0
+   },
+   "budgetYears": null,
+   "budgetYear": null,
+   "initPlan": {},
+   "excluded": [],
+   "decisions": {},
+   "vulns": [],
+   "docs": [],
+   "snapshot": null,
+   "kriDefs": [],
+   "kriHistory": [],
+   "measures": [],
+   "risks": [],
+   "assets": [
+    {
+     "id": "A-001",
+     "name": "Imaging server",
+     "type": "server",
+     "subtype": "",
+     "desc": "",
+     "owner": "Infrastructure",
+     "custodian": "",
+     "location": "",
+     "env": "production",
+     "ip": "",
+     "hostname": "",
+     "os": "",
+     "vendor": "",
+     "product": "",
+     "version": "",
+     "cpe": "",
+     "tags": [],
+     "classification": "Internal",
+     "sensitivity": [],
+     "cia": {
+      "c": 3,
+      "i": 3,
+      "a": 3
+     },
+     "bia": {
+      "mtd": "",
+      "rto": "",
+      "rpo": "",
+      "fin": 0,
+      "ops": 0,
+      "legal": 0,
+      "rep": 0,
+      "safety": 0,
+      "processes": "",
+      "revhr": ""
+     },
+     "lifecycle": {
+      "stage": "service",
+      "acquired": "",
+      "eos": "",
+      "eol": "",
+      "retire": ""
+     },
+     "endpoint": {
+      "edr": null,
+      "disk_enc": null,
+      "last_patch": "",
+      "last_seen": ""
+     },
+     "baseline": {
+      "name": "CIS Benchmark — Windows Server 2022 L1",
+      "status": "drift",
+      "checked": "2026-08-01",
+      "deviations": "SMBv1 enabled"
+     },
+     "deps": [],
+     "vulns": [],
+     "software": [],
+     "discovery": null,
+     "created": "2026-11-02",
+     "updated": "2026-11-02"
+    },
+    {
+     "id": "A-002",
+     "name": "Domain controller",
+     "type": "server",
+     "subtype": "",
+     "desc": "",
+     "owner": "Infrastructure",
+     "custodian": "",
+     "location": "",
+     "env": "production",
+     "ip": "",
+     "hostname": "",
+     "os": "",
+     "vendor": "",
+     "product": "",
+     "version": "",
+     "cpe": "",
+     "tags": [],
+     "classification": "Internal",
+     "sensitivity": [],
+     "cia": {
+      "c": 3,
+      "i": 3,
+      "a": 3
+     },
+     "bia": {
+      "mtd": "",
+      "rto": "",
+      "rpo": "",
+      "fin": 0,
+      "ops": 0,
+      "legal": 0,
+      "rep": 0,
+      "safety": 0,
+      "processes": "",
+      "revhr": ""
+     },
+     "lifecycle": {
+      "stage": "service",
+      "acquired": "",
+      "eos": "",
+      "eol": "",
+      "retire": ""
+     },
+     "endpoint": {
+      "edr": null,
+      "disk_enc": null,
+      "last_patch": "",
+      "last_seen": ""
+     },
+     "baseline": {
+      "name": "CIS Benchmark — Windows Server 2022 L1",
+      "status": "compliant",
+      "checked": "2026-08-01",
+      "deviations": ""
+     },
+     "deps": [],
+     "vulns": [],
+     "software": [],
+     "discovery": null,
+     "created": "2026-11-02",
+     "updated": "2026-11-02"
+    },
+    {
+     "id": "A-003",
+     "name": "Clinic laptop fleet",
+     "type": "hardware",
+     "subtype": "",
+     "desc": "",
+     "owner": "End-user services",
+     "custodian": "",
+     "location": "",
+     "env": "production",
+     "ip": "",
+     "hostname": "",
+     "os": "",
+     "vendor": "",
+     "product": "",
+     "version": "",
+     "cpe": "",
+     "tags": [],
+     "classification": "Internal",
+     "sensitivity": [],
+     "cia": {
+      "c": 3,
+      "i": 3,
+      "a": 3
+     },
+     "bia": {
+      "mtd": "",
+      "rto": "",
+      "rpo": "",
+      "fin": 0,
+      "ops": 0,
+      "legal": 0,
+      "rep": 0,
+      "safety": 0,
+      "processes": "",
+      "revhr": ""
+     },
+     "lifecycle": {
+      "stage": "service",
+      "acquired": "",
+      "eos": "",
+      "eol": "",
+      "retire": ""
+     },
+     "endpoint": {
+      "edr": null,
+      "disk_enc": null,
+      "last_patch": "",
+      "last_seen": ""
+     },
+     "baseline": {
+      "name": "Internal standard",
+      "status": "drift",
+      "checked": "2026-07-15",
+      "deviations": "Local admin rights"
+     },
+     "deps": [],
+     "vulns": [],
+     "software": [],
+     "discovery": null,
+     "created": "2026-11-02",
+     "updated": "2026-11-02"
+    },
+    {
+     "id": "A-004",
+     "name": "Core switch",
+     "type": "network",
+     "subtype": "",
+     "desc": "",
+     "owner": "Network",
+     "custodian": "",
+     "location": "",
+     "env": "production",
+     "ip": "",
+     "hostname": "",
+     "os": "",
+     "vendor": "",
+     "product": "",
+     "version": "",
+     "cpe": "",
+     "tags": [],
+     "classification": "Internal",
+     "sensitivity": [],
+     "cia": {
+      "c": 3,
+      "i": 3,
+      "a": 3
+     },
+     "bia": {
+      "mtd": "",
+      "rto": "",
+      "rpo": "",
+      "fin": 0,
+      "ops": 0,
+      "legal": 0,
+      "rep": 0,
+      "safety": 0,
+      "processes": "",
+      "revhr": ""
+     },
+     "lifecycle": {
+      "stage": "service",
+      "acquired": "",
+      "eos": "",
+      "eol": "",
+      "retire": ""
+     },
+     "endpoint": {
+      "edr": null,
+      "disk_enc": null,
+      "last_patch": "",
+      "last_seen": ""
+     },
+     "baseline": {
+      "name": "DISA STIG",
+      "status": "unknown",
+      "checked": "",
+      "deviations": ""
+     },
+     "deps": [],
+     "vulns": [],
+     "software": [],
+     "discovery": null,
+     "created": "2026-11-02",
+     "updated": "2026-11-02"
+    },
+    {
+     "id": "A-005",
+     "name": "EHR application",
+     "type": "application",
+     "subtype": "",
+     "desc": "",
+     "owner": "Clinical systems",
+     "custodian": "",
+     "location": "",
+     "env": "production",
+     "ip": "",
+     "hostname": "",
+     "os": "",
+     "vendor": "",
+     "product": "",
+     "version": "",
+     "cpe": "",
+     "tags": [],
+     "classification": "Internal",
+     "sensitivity": [],
+     "cia": {
+      "c": 3,
+      "i": 3,
+      "a": 3
+     },
+     "bia": {
+      "mtd": "",
+      "rto": "",
+      "rpo": "",
+      "fin": 0,
+      "ops": 0,
+      "legal": 0,
+      "rep": 0,
+      "safety": 0,
+      "processes": "",
+      "revhr": ""
+     },
+     "lifecycle": {
+      "stage": "service",
+      "acquired": "",
+      "eos": "",
+      "eol": "",
+      "retire": ""
+     },
+     "endpoint": {
+      "edr": null,
+      "disk_enc": null,
+      "last_patch": "",
+      "last_seen": ""
+     },
+     "baseline": {
+      "name": "",
+      "status": "unknown",
+      "checked": "",
+      "deviations": ""
+     },
+     "deps": [],
+     "vulns": [],
+     "software": [],
+     "discovery": null,
+     "created": "2026-11-02",
+     "updated": "2026-11-02"
+    }
+   ],
+   "assetLog": [],
+   "compliance": {
+    "frameworks": [],
+    "soa": {},
+    "checklists": {}
+   },
+   "iocWatch": [],
+   "feedNotes": {},
+   "published": [],
+   "library": [],
+   "recommendations": [],
+   "revisionLog": [],
+   "linkLog": [],
+   "linkDraft": null,
+   "batchDraft": null,
+   "batchSeed": null,
+   "batchSpread": null,
+   "safeguards": [],
+   "maturity": null,
+   "exposureText": "",
+   "discoverySeen": {},
+   "feedState": {},
+   "feedLog": [],
+   "kriSel": null,
+   "kriSelMode": null,
+   "userAudit": [],
+   "resetLog": [],
+   "crownProv": {},
+   "educational": null,
+   "importLog": [],
+   "importPlan": null,
+   "assetScoreHist": [],
+   "ontology": {
+    "themes": []
+   },
+   "isp": {
+    "policies": [],
+    "issues": [],
+    "families": [],
+    "assignments": [],
+    "acks": [],
+    "training": [],
+    "reviewsDue": []
+   },
+   "ai": null,
+   "teaching": null,
+   "grc": {
+    "profile": {
+     "orgTypes": [],
+     "establishedIn": [],
+     "offersServicesIn": [],
+     "monitorsBehaviourIn": [],
+     "activities": [],
+     "complete": []
+    },
+    "applicability": null,
+    "determinations": [],
+    "controlTests": []
+   },
+   "audit": {
+    "engagements": [],
+    "findings": [],
+    "soc": [],
+    "charter": null,
+    "methodology": "",
+    "universe": [],
+    "plans": [],
+    "procedures": [],
+    "workpapers": [],
+    "samples": [],
+    "observations": [],
+    "recommendations": [],
+    "responses": [],
+    "reports": [],
+    "followups": [],
+    "qreviews": [],
+    "directives": [],
+    "conflicts": [],
+    "events": [],
+    "weights": null,
+    "cycleMonths": null
+   },
+   "csm": {
+    "bodies": [],
+    "roles": [],
+    "delegations": [],
+    "decisions": [],
+    "incidents": []
+   },
+   "isms": {
+    "scope": "",
+    "boundaries": "",
+    "objectives": [],
+    "reviews": [],
+    "soaNote": ""
+   },
+   "crgo": {
+    "base": "https://crg.invalid/ws-558vntn5kzj/",
+    "label": "",
+    "graph": null,
+    "contexts": {},
+    "writeBacks": []
+   },
+   "shared": {
+    "evidence": [],
+    "actions": [],
+    "exceptions": [],
+    "mappings": []
+   },
+   "cms": {
+    "sources": [],
+    "obligations": [],
+    "interpretations": [],
+    "programmes": [],
+    "adoptions": [],
+    "campaigns": [],
+    "deadlines": [],
+    "submissions": [],
+    "changes": [],
+    "exemptions": []
+   },
+   "siem": {
+    "sources": [],
+    "rules": [],
+    "tests": [],
+    "coverage": [],
+    "gaps": [],
+    "alerts": [],
+    "indicators": [],
+    "imports": []
+   },
+   "soar": {
+    "cases": [],
+    "playbooks": [],
+    "gates": [],
+    "approvals": [],
+    "executions": [],
+    "simulations": [],
+    "lessons": []
+   },
+   "screening": {
+    "cands": {},
+    "families": [],
+    "watch": [],
+    "plan": [],
+    "updated": null
+   },
+   "mgmtSummary": {
+    "decisions": [],
+    "limitations": "",
+    "nextSteps": "",
+    "preparedBy": "",
+    "date": null
+   },
+   "catalogueMigration": [],
+   "dataVersion": 3,
+   "appVersion": "1.8.2",
+   "migrationLog": []
+  }
+ ]
+}

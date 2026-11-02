@@ -1,5 +1,6 @@
-/* AI assistant (1.5.1) — the in-app analyst, parameter critique, scenario
-   generation, and the decision log that records what was sent and what was done with the answer.
+/* Tools → Virtual consultant — the full view: the conversation (the same one the top-bar panel shows), the
+   saved conversations of this workspace (export as Markdown, cite as evidence), parameter critique,
+   scenario generation, and the decision log that records what was sent and what was done with the answer.
 
    The outbound preview is not decoration. It is the only honest way to let someone decide whether to
    send their organization's risk assessment to a model, so it shows the payload in full, its size,
@@ -12,35 +13,41 @@ import * as AI from '../ai.js';
 import * as helper from '../helper.js';
 import * as F from '../forecast.js';
 import * as SEED from '../secops_seed.js';
+import * as CONS from '../consult.js';
+import * as CUI from '../consultui.js';
+import { nextId as nextEvidenceId } from './evidence.js';
+import { tr } from '../i18n.js';
 
-let view = 'analyst';
+const TABS = [['consult', 'Conversation'], ['history', 'History'], ['critique', 'Parameter critique'], ['scenarios', 'Scenario generation'], ['log', 'Decision log']];
+let view = 'consult';
 let pending = null;            // a prepared payload awaiting the analyst's decision to send
 let answer = null;             // the last answer, by task
 let busy = false;
 const answers = {};
-const draft = { question: '', brief: '', count: 8, secops: false };
+const draft = { brief: '', count: 8, secops: false };
 
 export function render(sec, arg) {
+  if (arg && TABS.some(t => t[0] === arg)) view = arg;
   const ws = S.ws, a = AI.settings(ws);
   // Paint from what is already known and refresh once the helper answers. Awaiting the probe before
   // the first paint let a second render overtake the first and show a stale switch.
   if (helper.HS.helper === undefined) helper.probe().catch(() => {}).then(() => render(sec, arg));
-  sec.replaceChildren(el('h1', null, 'AI assistant'));
+  sec.replaceChildren(el('h1', null, 'Virtual consultant'));
   sec.append(el('p', 'lede',
-    'AI proposes and explains; the ', el('b', null, 'verified engine still calculates'),
+    'The consultant answers from passages retrieved on this computer and keeps them apart from its general knowledge; the ',
+    el('b', null, 'verified engine still calculates'),
     ', and nothing it produces changes a stored value until you accept it. Every call is shown in ' +
-    'full before it is sent and recorded afterwards. ', el('b', null, AI.MARK)));
+    'full before it is sent and recorded afterwards. The same conversation opens from the Consultant button of the top bar on every screen. ', el('b', null, AI.MARK)));
 
   sec.append(statusCard(sec));
   if (!a.enabled) return;
 
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['analyst', 'Analyst'], ['critique', 'Parameter critique'],
-                        ['scenarios', 'Scenario generation'], ['log', 'Decision log']])
-    st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; pending = null; render(sec); } }, t));
+  for (const [k, t] of TABS)
+    st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; pending = null; history.replaceState(null, '', '#/ai/' + k); render(sec); } }, t));
   sec.append(st);
   const body = el('div'); sec.append(body);
-  ({ analyst: analystView, critique: critiqueView, scenarios: scenarioView, log: logView }[view])(body, sec);
+  ({ consult: consultView, history: historyView, critique: critiqueView, scenarios: scenarioView, log: logView }[view])(body, sec);
 }
 
 /* ---------------- status and consent ---------------- */
@@ -89,7 +96,8 @@ function statusCard(sec) {
       'machine, and it is why the preview exists.'));
   }
   c.append(el('p', 'note', 'Where each AI feature may send its requests — local model, Claude API or nowhere — is set in one place: ',
-    el('a', { href: '#/settings/ai' }, 'Settings → AI — local & remote'), '.'));
+    el('a', { href: '#/settings/ai' }, 'Settings → AI — local & remote'), '. The consultant’s own row is “Virtual consultant”, on the local model by default. Your own licensed texts are added in ',
+    el('a', { href: '#/settings/kb' }, 'Settings → Knowledge base'), '.'));
   return c;
 }
 
@@ -147,26 +155,36 @@ const prep = (sec, task, opts) => {
   catch (e) { sec.append(banner('bad', 'The request could not be prepared', String(e.message || e))); }
 };
 
-/* ---------------- analyst ---------------- */
-function analystView(body, sec) {
-  const q = el('textarea', { rows: 3, value: draft.question,
-    placeholder: 'Ask about this workspace — "which scenarios drive the portfolio ratio?", "is our appetite consistent with the sector?", "what is missing before I take this to the committee?"' });
-  q.addEventListener('input', () => { draft.question = q.value; });
-  body.append(card(
-    el('p', 'note', 'The analyst answers from this workspace and names the identifiers it used, so you can ' +
-      'check it. It is given the organization profile, the included scenarios with their parameters and the ' +
-      'engine\'s own figures, the measures, the recommendations and the indicator names.'),
-    field('Question', q),
-    el('div', 'row', el('button', { class: 'btn', onclick: () => prep(sec, 'analyst', { question: draft.question }) }, 'Prepare the request'))));
-  if (pending?.task === 'analyst') body.append(previewCard(sec));
-  const out = answers.analyst;
-  if (out) {
-    const c = card(el('div', 'row', el('h2', { style: { flex: 1, margin: 0 } }, 'Answer'),
-      pill(out.model, 'good')));
-    c.append(el('div', { style: { whiteSpace: 'pre-wrap' } }, out.text));
-    c.append(el('p', 'note', AI.MARK + ' Check the identifiers it cites against the register before relying on it.'));
-    body.append(c);
-  }
+/* ---------------- the conversation ---------------- */
+function consultView(body) {
+  const box = el('div', 'card consult-full');
+  body.append(box);
+  CUI.conversationView(box, { compact: false });
+  body.append(el('p', 'note', 'Knowledge base: ', ...CONS.SOURCES.flatMap((x, i) => [i ? ' · ' : '', el('b', null, x.label)]), '. ',
+    el('a', { href: '#/settings/kb' }, 'Settings → Knowledge base'), ' lists them and holds your library; ',
+    el('a', { href: '#/settings/ai' }, 'Settings → AI — local & remote'), ' sets the route and the retrieval mode.'));
+}
+
+/* ---------------- saved conversations ---------------- */
+function historyView(body, sec) {
+  const ws = S.ws, list = CONS.conversations(ws);
+  body.append(el('div', 'grid g4',
+    kpi('Conversations', String(list.length), 'saved with this workspace'),
+    kpi('Questions', String(list.reduce((t, c) => t + c.messages.filter(m => m.role === 'user').length, 0)), 'asked'),
+    kpi('Cited as evidence', String(list.filter(c => c.evidence).length), 'in the evidence register')));
+  if (!list.length) { body.append(card(el('p', 'empty', 'No conversation yet. Ask the consultant from the Conversation tab or from the Consultant button of the top bar.'))); return; }
+  body.append(card(table([
+    { key: 'updated', label: 'Last question', render: c => new Date(c.updated).toLocaleString() },
+    { key: 'title', label: 'Conversation', render: c => el('span', { 'data-noi18n': '' }, c.title) },
+    { key: 'n', label: 'Questions', num: true, render: c => String(c.messages.filter(m => m.role === 'user').length) },
+    { key: 'evidence', label: 'Evidence', render: c => c.evidence ? chip(c.evidence, { href: '#/evidence' }) : el('span', 'muted', '—') },
+    { key: 'act', label: '', sortable: false, render: c => el('div', 'btnrow',
+      el('button', { class: 'btn sm ghost', onclick: () => { CONS.setCurrent(c.id); view = 'consult'; history.replaceState(null, '', '#/ai/consult'); render(sec); } }, 'Open'),
+      el('button', { class: 'btn sm ghost', onclick: () => download('crg-consultant-' + today() + '-' + c.id + '.md', CONS.toMarkdown(c, ws), 'text/markdown') }, 'Export as Markdown'),
+      c.evidence ? null : el('button', { class: 'btn sm ghost', onclick: () => { const id = CONS.citeAsEvidence(c, ws, nextEvidenceId); toast(tr('Recorded in the evidence register as {0}').replace('{0}', id)); render(sec); } }, 'Cite as evidence'),
+      el('button', { class: 'btn sm ghost danger', onclick: () => { if (window.confirm(tr('Delete this conversation? The decision log keeps its entries.'))) { CONS.deleteConversation(c.id, ws); render(sec); } } }, 'Delete')) },
+  ], list, { sortKey: 'updated', sortDir: -1 })));
+  body.append(el('p', 'note', 'A conversation cited as evidence becomes an E-number of the evidence register, typed External and classified as an assumption: what the consultant said is a hypothesis to validate, not organizational evidence. ', AI.MARK));
 }
 
 /* ---------------- parameter critique ---------------- */
@@ -276,24 +294,7 @@ function scenarioView(body, sec) {
   ], list, { sortable: false }));
   c.append(el('div', 'row', { style: { marginTop: '10px' } },
     el('button', { class: 'btn', onclick: () => {
-      const a = ws.assessment;
-      a.CANDIDATES = a.CANDIDATES || [];
-      let n2 = 0;
-      for (const [i, s] of list.entries()) {
-        if (!chosen.has(i)) continue;
-        a.CANDIDATES.push({
-          id: 'CAND-' + (a.CANDIDATES.length + 1), name: s.name || '(unnamed)',
-          statement: s.statement || '', threat_source: s.threat_source || '',
-          initiating_event: s.initiating_event || '', vulnerability: s.vulnerability || '',
-          asset: s.asset || '', process: s.process || '', consequence: s.consequence || '',
-          existing_controls: s.existing_controls || '', assumptions: s.assumptions || '',
-          params: s.params || {}, attack: s.attack || [],
-          source: 'ai', model: out.model, generated: today(), reviewed: false,
-          note: AI.MARK + (s.seed ? ' Prompted by feed item ' + s.seed : ''),
-        });
-        n2++;
-      }
-      touch(); AI.decide(out.entryId, 'accepted', `${n2} candidate(s) sent to Batch scenarios`);
+      const n2 = CONS.toCandidates(list.filter((_, i) => chosen.has(i)), out, ws);
       toast(`${n2} candidate(s) added to Batch scenarios for review`);
       location.hash = '#/batch';
     } }, 'Send the ticked candidates to Batch scenarios'),

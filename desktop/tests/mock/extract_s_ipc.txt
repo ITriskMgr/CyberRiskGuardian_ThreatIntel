@@ -1,0 +1,7 @@
+{"items":[
+ {"register":"accounts","type":"service","count":120,"ownerless":19,"dormant":5,"tag":"FACT","page":3},
+ {"register":"privileged","tier":0,"holders":6,"mfa":6,"standing":2,"tag":"FACT","page":4},
+ {"register":"accounts","type":"employee","count":900,"mfa":850,"owner":"zz.sentinel.kappa@sentinel-corp.example","tag":"FACT"},
+ {"register":"accounts","type":"Zelda Sentinelalpha","count":1,"tag":"FACT"},
+ {"register":"people","name":"Yuri Sentinelbeta","count":1}
+]}

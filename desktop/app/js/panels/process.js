@@ -4,6 +4,7 @@
    simple, and — in multi-user mode — who is Responsible and Accountable for each step.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as IPC from '../ipc.js';
 import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go, kpi, n0 } from '../util.js';
 import { S } from '../state.js';
@@ -28,13 +29,20 @@ export function render(sec) {
   // 1.8.2 — a teaching case still on the earlier MediBec vectors is offered the current ones, once; the choice is
   // journalled either way (avl.js). Real organizations never see this: a migration never changes their numbers.
   if (AVL.pending(ws)) {
-    const ids = AVL.detect(ws).map(x => x.id).join(' and ');
+    const found = AVL.detect(ws).map(x => x.id);
+    const ids = found.length > 1 ? tr('{0} and {1}').replace('{0}', found.slice(0, -1).join(', ')).replace('{1}', found.at(-1)) : found.join('');
     sec.append(banner('warn', 'This teaching case still scores S2 and S8 with AV:N',
       el('div', null,
         el('div', null, tr('The current MediBec case and the book score the malicious e-mailed document AV:L (it is opened locally): S2 = 9.3, S8 = 9.2, and the reference totals become 84,305 / 41,023. Taking the vectors changes nothing else in your work; the engine recomputes every index. Either choice is written to the workspace journal.')),
         el('div', 'btnrow', { style: { marginTop: '8px' } },
           el('button', { class: 'btn sm', onclick: () => { const done = AVL.accept(ws); toast(tr('Vectors updated: {0}').replace('{0}', done.join(', '))); render(sec); } }, 'Take the AV:L vectors'),
           el('button', { class: 'btn sm ghost', onclick: () => { AVL.decline(ws); toast(tr('Kept the earlier vectors for {0}').replace('{0}', ids), 'warn'); render(sec); } }, 'Keep AV:N')))));
+  } else if (AVL.reconsider(ws)) {
+    // 1.9.0 — after "Keep AV:N" the choice can be reconsidered here, without Reset data → Start over (journalled again)
+    const e = AVL.lastEntry(ws);
+    sec.append(el('p', { class: 'small muted', id: 'avl-reconsider' },
+      tr('S2 and S8 keep AV:N: the AV:L vectors were declined on {0}.').replace('{0}', e?.date || '—'), ' ',
+      el('button', { class: 'btn sm ghost', onclick: () => { const done = AVL.accept(ws); toast(tr('Vectors updated: {0}').replace('{0}', done.join(', '))); render(sec); } }, 'Reconsider: take the AV:L vectors')));
   }
   sec.append(el('div', 'grid g4',
     kpi('Steps done', `${done} / ${STEPS.length}`, part ? `${part} in progress` : '', done === STEPS.length ? 'good' : ''),
@@ -78,8 +86,9 @@ export function render(sec) {
               : `about ${g.n} to begin with. ${g.why} Assess the maturity and this number follows the level you measure.`,
             ' ', el('button', { class: 'btn xs ghost', 'data-ro-ok': '', onclick: () => go('maturity') }, 'Maturity & resilience')); })() : null,
         users.active() ? el('div', 'small muted', el('b', null, 'Responsible: '), R.join(', ') || '—', ' · ', el('b', null, 'Accountable: '), A.join(', ') || '—') : null,
-        el('div', 'btnrow', { style: { marginTop: '8px' } }, ...s.screens.map(([r, l]) => el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go(r) }, 'Open ' + l))),
-        s.tips?.length ? el('details', null, el('summary', { class: 'small' }, 'Tips'), el('ul', 'small', ...s.tips.map(t => el('li', null, t)))) : null)));
+        el('div', 'btnrow', { style: { marginTop: '8px' } }, ...[...s.screens, ...(IPC.on() ? IPC.STEP_LINKS[s.id] || [] : [])].map(([r, l]) => el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go(r) }, 'Open ' + l))),
+        (() => { const tips = [...(s.tips || []), ...(IPC.on() ? IPC.STEP_TIPS[s.id] || [] : [])];   // the optional module adds tips and links only
+          return tips.length ? el('details', null, el('summary', { class: 'small' }, 'Tips'), el('ul', 'small', ...tips.map(t => el('li', null, t)))) : null; })())));
   }
   sec.append(card(el('h2', { style: { marginTop: 0 } }, 'Workflow'), flow));
 

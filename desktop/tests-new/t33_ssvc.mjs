@@ -55,9 +55,12 @@ const r = await page.evaluate(async () => {
   out.noProb = !JSON.stringify(ws.ssvc).match(/"(likelihood|probability|Pbx|PbA)"/);
   // field, migration and reset group
   out.known = M.KNOWN_FIELDS.includes('ssvc') && 'ssvc' in st.newWorkspace() && st.newWorkspace().ssvc.tree === 'deployer';
-  const old = { id: 'x' }; const notes = []; M.migrateSsvc4(old, n => notes.push(n));
-  out.mig = old.ssvc && old.ssvc.tree === 'deployer' && Array.isArray(old.ssvc.review) && notes.length === 1;
-  const keep = { ssvc: { tree: 'supplier', decisions: { a: 1 } } }; M.migrateSsvc4(keep);
+  const entry = M.STEP4.find(x => x.field === 'ssvc');
+  out.step = !!entry && entry.group === 'CONTEXT' && entry.blank().tree === 'deployer' && Array.isArray(entry.blank().review) && M.DATA_VERSION === 4;
+  const v3 = st.newWorkspace({ name: 'v3' }); delete v3.ssvc; v3.dataVersion = 3;
+  const mr = M.migrateWorkspace(JSON.parse(JSON.stringify(v3)), { fill: st.migrate });
+  out.mig = mr.status === 'migrated' && mr.ws.ssvc?.tree === 'deployer' && Array.isArray(mr.ws.ssvc.review) && /SSVC/.test(JSON.stringify(mr.ws.migrationLog));
+  const keep = st.migrate(Object.assign(st.newWorkspace(), { ssvc: { tree: 'supplier', decisions: { a: 1 } } }));
   out.migKeep = keep.ssvc.tree === 'supplier' && keep.ssvc.decisions.a === 1 && Array.isArray(keep.ssvc.review);
   out.reset = R.CONTEXT.includes('ssvc') && !R.kept('clean').has('ssvc') && R.kept('context').has('ssvc');
   st.touch();
@@ -79,7 +82,7 @@ ok(r.one === 1, 'one decision record per CVE');
 ok(r.same && r.totals.join() === '84305,41023', 'never a likelihood: parameters and totals unchanged (84,305 / 41,023)');
 ok(r.noProb, 'no likelihood or probability field in the SSVC record');
 ok(r.known, 'ssvc in KNOWN_FIELDS and the factory (tree deployer)');
-ok(r.mig && r.migKeep, 'migrateSsvc4 adds the empty record and keeps an existing one');
+ok(r.step && r.mig && r.migKeep, 'STEP4 entry ssvc: data version 3 → 4 adds the empty record (journalled); the shape repair keeps an existing one');
 ok(r.reset, 'reset: ssvc goes with the vulnerability register (CONTEXT)');
 
 // the screen

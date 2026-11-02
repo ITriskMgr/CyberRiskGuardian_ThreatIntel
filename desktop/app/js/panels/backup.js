@@ -38,13 +38,23 @@ async function migrations(sec) {
     sec.append(banner(m.status === 'newer' ? 'warn' : 'bad', `${m.name}: ` + (m.status === 'newer' ? tr('written by a newer release — open read-only') : tr('the migration failed — open read-only, nothing was changed')), m.error || ''));
   const log = ws.migrationLog || [];
   sec.append(card(el('h3', { style: { marginTop: 0 } }, 'Migration journal of this workspace'),
-    log.length ? table([{ key: 'date', label: 'Date' }, { key: 'from', label: 'From' }, { key: 'to', label: 'To' }, { key: 'by', label: 'Release' },
-      { key: 'steps', label: 'What changed', render: r => el('ul', 'small', ...(r.steps || []).flatMap(st => (st.notes || []).map(n => el('li', null, n)))) }], log, { class: 'compact' })
+    log.length ? table([{ key: 'date', label: 'Date' }, { key: 'from', label: 'From', render: r => r.kind ? '—' : r.from }, { key: 'to', label: 'To', render: r => r.kind ? '—' : r.to }, { key: 'by', label: 'Release' },
+      { key: 'steps', label: 'What changed', render: r => r.kind === 're-vector' ? revector(r)
+        : el('ul', 'small', ...(r.steps || []).flatMap(st => (st.notes || []).map(n => el('li', null, n)))) }], log, { class: 'compact' })
       : el('p', 'small muted', 'No migration: this workspace was created by this release.')));
   const pre = await store.get('blob', 'premig:' + ws.id).catch(() => null);
   if (pre) sec.append(card(el('p', null, el('b', null, 'The copy from before the migration'), ' — ', tr('kept on this computer since {0}, written by {1}.').replace('{0}', String(pre.saved).slice(0, 10)).replace('{1}', pre.app)),
     el('p', 'small muted', 'Download it to open it with the version that wrote it, or to compare. It is not included in backups.'),
     el('button', { class: 'btn ghost', onclick: () => download((ws.name || 'workspace').replace(/[^\w.-]+/g, '_') + `.before-migration.crg-workspace.json`, JSON.stringify(pre.ws, null, 1), 'application/json') }, 'Download the copy from before the migration')));
+}
+
+/** 1.9.0 — a journalled decision on the MediBec vectors (avl.js): the decision, who took it, the scenarios, the notes. */
+function revector(r) {
+  return el('ul', 'small',
+    el('li', null, el('b', null, r.decision === 'accepted' ? 'AV:L vectors accepted' : 'AV:L vectors declined'),
+      r.who ? ' — ' + tr('by {0}').replace('{0}', r.who) : ''),
+    (r.scenarios || []).length ? el('li', null, tr('Scenarios: {0}').replace('{0}', r.scenarios.join(', '))) : null,
+    ...(r.notes || []).map(n => el('li', null, n)));          // English in the journal; the screen translates it
 }
 
 /* ---------------- make a backup ---------------- */

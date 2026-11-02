@@ -10,6 +10,7 @@ import * as CP from './compliance_plus.js';
 import * as CMS from './cms.js';
 import { S, touch, compute, scen } from '../state.js';
 import * as K from '../catalog.js';
+import * as IPC from '../ipc.js';
 
 export { STATUS_EXPORT as STATUS, CSTATUS_EXPORT as CSTATUS };
 export const CHECKLISTS = {
@@ -52,7 +53,7 @@ const MAT = [0, 1, 2, 3, 4, 5].map(n => [n, `${n} — ${['None', 'Initial', 'Rep
 const FWS = () => K.frameworkList().filter(f => !['ATTACK-M', 'CRG'].includes(f.id));
 
 let fwSel = null, page = 0;
-const flt = { q: '', grp: 'all', status: 'all', gaps: false };
+const flt = { q: '', grp: 'all', status: 'all', gaps: false, ipc: false };
 
 export function soaRow(ws, key) { return (ws.compliance.soa[key] ||= {}); }
 export const measuresFor = (ws, key) => (ws.measures || []).filter(m => m.status !== 'rejected' && (m.ctl || []).includes(key));
@@ -146,7 +147,7 @@ function soa(body, sec, fw) {
   const gp = el('label', { class: 'small', style: { display: 'flex', gap: '6px', alignItems: 'center' } }, el('input', { type: 'checkbox', checked: flt.gaps, style: { width: 'auto' } }), 'Gaps only');
   const shown = all.filter(c => { const r = ws.compliance.soa[c.key] || {};
     return (flt.grp === 'all' || c.grp === flt.grp) && (flt.status === 'all' || (r.status || 'none') === flt.status) && (!flt.gaps || (r.status && !['implemented', 'na'].includes(r.status) && r.applicable !== 'no'))
-      && (!flt.q || (c.id + ' ' + c.title).toLowerCase().includes(flt.q.toLowerCase())); });
+      && (!flt.q || (c.id + ' ' + c.title).toLowerCase().includes(flt.q.toLowerCase())) && (!flt.ipc || !IPC.on() || IPC.CONTROLS.soa.includes(c.key)); });
   const PER = 60, pages = Math.max(1, Math.ceil(shown.length / PER)); page = Math.min(page, pages - 1);
   const rows = shown.slice(page * PER, page * PER + PER);
   const ed = (c, k, opts, num) => { const r = soaRow(ws, c.key); const s = select(opts, r[k] ?? (k === 'target' ? 3 : '')); s.addEventListener('change', () => { r[k] = num ? +s.value : s.value; r.updated = today(); touch(); }); return s; };
@@ -163,6 +164,8 @@ function soa(body, sec, fw) {
   q.addEventListener('input', debounce(() => { flt.q = q.value; page = 0; render(sec); }, 350));
   for (const [c, k] of [[g, 'grp'], [st, 'status']]) c.addEventListener('change', () => { flt[k] = c.value; page = 0; render(sec); });
   gp.querySelector('input').addEventListener('change', e => { flt.gaps = e.target.checked; page = 0; render(sec); });
+  // the filter chip of the optional Identity, privilege & configuration module
+  const ipcChip = IPC.on() ? el('label', { class: 'small', style: { display: 'flex', gap: '6px', alignItems: 'center' } }, el('input', { type: 'checkbox', id: 'soa-ipc-chip', checked: flt.ipc, style: { width: 'auto' }, onchange: e => { flt.ipc = e.target.checked; page = 0; render(sec); } }), 'Identity, privilege & configuration') : null;
   // suggestions from measures
   const fromMeasures = all.filter(c => measuresFor(ws, c.key).some(m => m.status === 'implemented') && (ws.compliance.soa[c.key]?.status || '') !== 'implemented');
   // gaps ranked
@@ -172,7 +175,7 @@ function soa(body, sec, fw) {
       fromMeasures.length ? el('button', { class: 'btn sm ghost', title: 'Controls implemented by measures with status Implemented', onclick: () => { for (const c of fromMeasures) { const r = soaRow(ws, c.key); r.status = 'implemented'; r.evidence ||= 'Implemented by ' + measuresFor(ws, c.key).filter(m => m.status === 'implemented').map(m => m.id).join(', '); r.updated = today(); } touch(); toast(fromMeasures.length + ' control(s) marked implemented'); render(sec); } }, `Mark ${fromMeasures.length} control(s) implemented by measures`) : null,
       el('button', { class: 'btn sm ghost', onclick: () => { for (const c of shown) { const r = soaRow(ws, c.key); if (!r.applicable) r.applicable = 'yes'; } touch(); render(sec); } }, 'Applicable: yes for all shown')),
     el('p', 'note', `${f.origin}. ${f.note}`),
-    el('div', 'filterbar', el('div', 'grow', q), el('div', null, g), el('div', null, st), gp, el('div', 'selcount', `${shown.length} controls`)),
+    el('div', 'filterbar', el('div', 'grow', q), el('div', null, g), el('div', null, st), gp, ipcChip, el('div', 'selcount', `${shown.length} controls`)),
     el('div', 'tablewrap', { style: { marginTop: '10px' } }, t),
     pages > 1 ? el('div', 'btnrow', { style: { marginTop: '8px' } }, el('button', { class: 'btn sm ghost', disabled: page === 0, onclick: () => { page--; render(sec); } }, '← Previous'), el('span', 'small muted', `Page ${page + 1} of ${pages}`), el('button', { class: 'btn sm ghost', disabled: page >= pages - 1, onclick: () => { page++; render(sec); } }, 'Next →')) : null));
   body.append(card(el('h2', { style: { marginTop: 0 } }, `Gaps (${gaps.length})`),

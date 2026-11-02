@@ -10,6 +10,9 @@
      • helper settings   — feed sources, folders, links. Never API keys: those live in a file the
                            helper owns, outside the browser, and a backup must not become a way to
                            copy them around.
+   What a backup never contains: the knowledge base library (blob "kblib:…", meta "kbLibrary") — texts the
+   person attested they hold a licence for, which stay on this computer — and the Virtual consultant's vector
+   index (blob "kbvec:…"), which is rebuilt from the sources.
 
    Restoring never silently overwrites a workspace that has moved on. The plan compares what the file
    holds with what is here and labels every workspace — new, identical, older, or newer-here — so a
@@ -84,6 +87,7 @@ export async function build({ documents = true, snapshots = false, settings = tr
     // the documents. Without it, a restored classroom case would lose the state students reset to.
     if (key.startsWith('base:') && !documents) continue;
     if (key.startsWith('premig:')) continue;        // 1.5.8 — pre-migration copies stay on this computer
+    if (key.startsWith('kblib:') || key.startsWith('kbvec:')) continue;   // the knowledge base library and vector index stay on this computer
     blob[key] = await store.get('blob', k);
   }
   await FW.load();
@@ -225,6 +229,7 @@ export async function restore(obj, { ids = null, mode = 'merge', frameworks = tr
   for (const [k, v] of Object.entries(obj.payload.blob || {})) {
     if (k.startsWith('snap:') && !keep.has(k.slice(5))) continue;
     if (k.startsWith('base:') && !keep.has(k.slice(5))) continue;
+    if (k.startsWith('kblib:') || k.startsWith('kbvec:')) continue;   // never written from a file: the library is added on this computer, with its attestation
     await store.put('blob', k, v); done.blobs++;
   }
 

@@ -46,7 +46,8 @@ const r = await page.evaluate(async ({ S3 }) => {
   out.feat = AI.FEATURES.filter(f => ['exploit_forecast', 'mitigation_optimizer'].includes(f[0])).map(f => f[0] + ':' + f[4]).join(',');
   out.route = AI.isLocal(AI.route('exploit_forecast', ws).provider) && AI.isLocal(AI.route('mitigation_optimizer', ws).provider);
   // the helper refuses a remote provider for a local-only feature
-  const res = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CRG': '1' }, body: JSON.stringify({ provider: 'claude', task: 'exploit_forecast', prompt: 'TASK: exploit_forecast\nx' }) });
+  const H = await import('/js/helper.js');
+  const res = await fetch('/api/ai', { method: 'POST', headers: await H.headers({ 'Content-Type': 'application/json' }), body: JSON.stringify({ provider: 'claude', task: 'exploit_forecast', prompt: 'TASK: exploit_forecast\nx' }) });
   out.refused = res.status + ' ' + ((await res.json()).error || '');
   // optimizer
   const t0 = performance.now();

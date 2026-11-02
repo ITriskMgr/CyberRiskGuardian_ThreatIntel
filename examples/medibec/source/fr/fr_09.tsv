@@ -1,0 +1,157 @@
+1464	Récupération de données sur des supports éliminés.
+1465	Aucun processus d’effacement certifié démontré
+1466	Processus de retour des appareils loués (hypothèse de l’analyste)
+1467	Inventaire des actifs incomplet (E4)
+1468	Postes, stockage et équipement médical retirés.
+1469	Élimination des actifs, retours de location.
+1470	Stockage chiffré pour les données centrales (E2 — pas nécessairement les disques des appareils)
+1471	Un appareil d’échographie retourné en fin de location contient encore 3 000 examens. Il est revendu; l’acheteur découvre les données et communique avec les médias.
+1472	Élimination sans effacement
+1473	Transfert à un tiers
+1474	Récupération des données
+1475	Divulgation ou signalement
+1476	Dossiers historiques sur l’appareil.
+1477	Efforts de récupération.
+1478	Obligations de protection.
+1479	Modérée à élevée si les médias s’en mêlent.
+1480	Des éliminations ont lieu chaque année.
+1481	Pratiques d’effacement inconnues.
+1482	Données d’un appareil.
+1483	Lot d’unités de stockage.
+1484	Les contrats peuvent imposer l’effacement par le fournisseur (inconnu).
+1485	Processus de cycle de vie.
+1486	Vulnérabilité représentative : renseignements sensibles non retirés d’une ressource avant sa réutilisation (CWE-226). AV:P possession physique.
+1487	Effacement certifié avec certificats de destruction, clauses de retour de location, chiffrement complet du disque sur tous les appareils (I17, I19).
+1488	DPI avec le génie biomédical
+1489	Le personnel colle des données de patients dans des outils d’IA générative non approuvés
+1490	Des cliniciens et du personnel administratif utilisent des outils publics d’IA générative pour résumer des notes, rédiger des lettres ou traduire des documents, collant des renseignements identifiables sur des patients dans des services dont MediBec n’a évalué ni la conservation des données, ni l’utilisation pour l’entraînement, ni l’emplacement, ce qui entraîne une divulgation non maîtrisée de renseignements de santé.
+1491	Cliniciens; personnel administratif; responsable de la protection des renseignements personnels; DPI; services juridiques; fournisseurs de services d’IA.
+1492	Les renseignements de santé sont très sensibles (E1) et la protection de la vie privée est une priorité de l’énoncé d’appétence (E5). Aucune politique d’utilisation acceptable de l’IA ni outil approuvé n’est documenté.
+1493	Initié bien intentionné; traitement par le fournisseur du service d’IA.
+1494	Transfert de renseignements de santé personnels à un tiers non approuvé.
+1495	Aucune politique d’utilisation acceptable de l’IA démontrée
+1496	Aucun outil de rechange approuvé
+1497	Prévention des pertes de données Web et contrôle des catégories non démontrés
+1498	Le contenu de sensibilisation ne couvre pas l’IA (hypothèse de l’analyste)
+1499	CJ1 notes cliniques et lettres.
+1500	Documentation, correspondance, traduction.
+1501	Fonction de protection de la vie privée et de conformité (s. 4)
+1502	Des cliniciens utilisent un robot conversationnel gratuit pour transformer des notes dictées en lettres de référence. En quelques mois, des milliers de notes identifiables sont soumises à un service qui conserve les requêtes hors du Canada.
+1503	Utilisation — le personnel soumet des renseignements de santé à une IA externe
+1504	Exposition — données conservées par le fournisseur
+1505	Détection — audit ou plainte
+1506	Réponse — évaluation de la vie privée
+1507	Impact d’affaires — non-conformité systémique en matière de vie privée
+1508	Transfert systémique non maîtrisé.
+1509	Erreurs générées par l’IA dans les dossiers.
+1510	Modification de la politique et nouvelle formation.
+1511	Frais juridiques.
+1512	Questions de transfert hors frontières et de consentement (à confirmer par les conseillers juridiques).
+1513	Erreurs cliniques possibles dues à des résultats d’IA non vérifiés.
+1514	L’utilisation de l’IA générative par les cliniciens est répandue en 2026.
+1515	Aucune politique ni mesure technique démontrée.
+1516	Volume limité, faible probabilité d’usage abusif.
+1517	Transfert systémique et erreurs cliniques.
+1518	Aucune visibilité sur l’utilisation de l’IA.
+1519	Documentation clinique.
+1520	Applicabilité limitée : lacune de politique et de gouvernance des données. Vulnérabilité représentative : exposition de renseignements sensibles à un acteur non autorisé par une sortie sans restriction (CWE-200). AT:P — le préjudice dépend de la conservation par le fournisseur.
+1521	Politique d’utilisation acceptable de l’IA, outil d’IA autorisé ayant fait l’objet d’une évaluation de la vie privée, contrôle des catégories Web et prévention des pertes de données pour les sites d’IA (I20, I09), formation (I12).
+1522	Responsable de la protection des renseignements personnels avec le directeur médical
+1523	Annexe B no 96 (ingénierie sociale)
+1524	L’usurpation d’identité auprès du centre d’assistance mène à la réinitialisation de l’AMF et à la prise de contrôle du compte
+1525	Un attaquant téléphone au centre d’assistance des TI en se faisant passer pour un clinicien ou un gestionnaire, utilise des renseignements publics pour réussir des vérifications d’identité faibles et fait réinitialiser le mot de passe et l’appareil d’AMF, prenant le contrôle du compte et accédant au DSE et à l’accès à distance.
+1526	Soutien des TI / centre d’assistance; responsable de la cybersécurité; cliniciens; DPI.
+1527	Le soutien des TI fait partie de l’équipe des TI de 15 personnes (E3). La vérification de l’identité au centre d’assistance n’est pas documentée. L’accès à distance repose sur la notification AMF (E6), qu’une réinitialisation neutralise.
+1528	Groupe cybercriminel capable d’ingénierie sociale.
+1529	Réinitialisation frauduleuse des identifiants et de l’AMF.
+1530	Vérification au centre d’assistance fondée sur des données connaissables (hypothèse de l’analyste)
+1531	Aucune vérification par le gestionnaire ni par vidéo pour les réinitialisations de l’AMF
+1532	Aucune alerte lors des changements d’appareil d’AMF (E7)
+1533	CJ5 identité; CJ1 DSE.
+1534	Soutien des comptes.
+1535	Se faisant passer pour un médecin en déplacement à un congrès, l’appelant donne le numéro d’employé et la date d’embauche trouvés en ligne et demande une réinitialisation de l’AMF. L’attaquant inscrit son propre téléphone et se connecte en quelques minutes.
+1536	Reconnaissance — renseignements sur le personnel tirés de sources publiques
+1537	Ingénierie sociale — appel au centre d’assistance
+1538	Prise de contrôle du compte — nouvelle AMF inscrite
+1539	Accès — DSE et accès à distance
+1540	Escalade — vers S2 ou un vol de données
+1541	Détection — l’utilisateur légitime est bloqué
+1542	Impact d’affaires — atteinte ou intrusion
+1543	Accès au DSE sous l’identité d’un clinicien.
+1544	Modifications possibles de dossiers.
+1545	Utilisateur bloqué.
+1546	Modification du processus du centre d’assistance.
+1547	À déclarer si des données ont été consultées.
+1548	L’ingénierie sociale visant les centres d’assistance est une technique active contre le secteur de la santé.
+1549	Portée d’un seul compte.
+1550	Un compte privilégié mène à la compromission de l’entreprise.
+1551	Changements d’AMF non surveillés.
+1552	Porte d’entrée de l’identité.
+1553	Applicabilité limitée : faiblesse de processus. Vulnérabilité représentative : authentification faible du processus de récupération de compte (CWE-640). UI:A l’agent du centre d’assistance agit.
+1554	Vérification rigoureuse au centre d’assistance (rappel, approbation du gestionnaire, vérification vidéo) pour les réinitialisations (I21), authentificateurs résistants à l’hameçonnage qui ne peuvent être réinscrits par téléphone (I01), alertes sur les changements d’AMF et sensibilisation (I12).
+1555	Annexe B nos 15 et 115
+1556	Un administrateur des TI malveillant ou sur le départ sabote les systèmes
+1557	Un administrateur des TI mécontent ou sur le départ, doté de privilèges permanents étendus, supprime les sauvegardes, désactive des comptes ou implante des bombes logiques; avec une équipe des TI de 15 personnes et des connaissances concentrées, MediBec ne peut détecter ni annuler rapidement ces actions, ce qui cause des pannes prolongées.
+1558	DPI; RH; haute direction; responsable de la cybersécurité; services juridiques.
+1559	Les TI forment une équipe réduite de 15 personnes, dont deux en sécurité (E3). La gestion des accès privilégiés, la surveillance des administrateurs et la séparation des tâches ne sont pas démontrées (E7). La dépendance envers des personnes clés est implicite.
+1560	Initié privilégié malveillant.
+1561	Actions administratives destructrices.
+1562	Droits d’administrateur de domaine permanents (hypothèse de l’analyste)
+1563	Aucune surveillance des actions des administrateurs (annexe B no 115)
+1564	Départ mal encadré des utilisateurs privilégiés (hypothèse de l’analyste)
+1565	Sauvegardes supprimables par les mêmes administrateurs (voir S3)
+1566	CJ5, CJ6 et tous les joyaux de la couronne hébergés.
+1567	Tous.
+1568	Sauvegardes (E2)
+1569	Un administrateur congédié un vendredi conserve son accès RPV pendant la fin de semaine, supprime le catalogue des sauvegardes et programme un script qui efface plusieurs serveurs le lundi matin.
+1570	Motif — congédiement ou grief
+1571	Accès — privilèges permanents
+1572	Sabotage — suppression, désactivation, scripts à retardement
+1573	Réponse — connaissances limitées pour reconstruire
+1574	Impact d’affaires — panne prolongée
+1575	Vol de données possible.
+1576	Configurations des systèmes détruites.
+1577	Panne prolongée.
+1578	Soins retardés.
+1579	Peu probable
+1580	Les initiés privilégiés malveillants sont rares.
+1581	S’il est motivé, ses privilèges étendus rendent la réussite probable.
+1582	Plusieurs systèmes détruits.
+1583	Sauvegardes et systèmes centraux détruits.
+1584	Dépendance envers des personnes clés; aucune surveillance des administrateurs.
+1585	Toute l’infrastructure.
+1586	Applicabilité limitée : abus de privilèges légitimes par un initié. Vulnérabilité représentative : privilèges permanents excessifs (CWE-250). PR:H administrateur.
+1587	GAP avec juste-à-temps et enregistrement des sessions, séparation des tâches (I02), surveillance des actions des administrateurs (I03), sauvegardes immuables hors de portée des administrateurs (I04), guide RH-TI de départ (I11).
+1588	DPI avec les RH
+1589	Annexe B nos 153 et 176
+1590	Interception ou altération du trafic non chiffré des interfaces cliniques (HL7/DICOM)
+1591	Un attaquant positionné sur le réseau d’une clinique ou le réseau étendu capte ou modifie des messages HL7 de laboratoire ou de pharmacie, ou des transferts d’images DICOM entre systèmes cliniques, non chiffrés, exposant des résultats ou injectant de fausses valeurs qui alimentent le DSE.
+1592	Responsables du laboratoire et de la pharmacie; radiologie; équipe d’intégration; DPI; responsable de la cybersécurité.
+1593	Le DSE et les systèmes de radiologie, de laboratoire et de pharmacie sont intégrés (E2); l’intégrité des données et la surveillance des applications sont à évaluer (E2). Le chiffrement du trafic des interfaces n’est pas documenté; les anciens protocoles cliniques circulent souvent en clair.
+1594	Attaquant positionné dans le réseau interne (à la suite de S2, S7 ou S12).
+1595	Attaque de l’intercepteur sur les interfaces cliniques.
+1596	HL7/DICOM en clair (hypothèse de l’analyste)
+1597	Aucune validation de l’intégrité des messages (hypothèse de l’analyste)
+1598	Réseau à plat permettant l’interception (voir S7)
+1599	CJ2 interfaces de laboratoire, de pharmacie et d’imagerie; CJ1 DSE.
+1600	Transmission des résultats, ordonnances, transfert d’images.
+1601	Pare-feu et IDS/IPS (E2)
+1602	Un attaquant ayant pris pied dans une clinique utilise l’usurpation ARP pour intercepter les messages de résultats de laboratoire destinés au DSE, récoltant des résultats et modifiant plusieurs valeurs de potassium.
+1603	Préalable — point d’appui interne
+1604	Interception — manipulation ARP ou du routage
+1605	Collecte ou manipulation de messages
+1606	Détection — incohérence clinique
+1607	Impact d’affaires — résultats erronés dans le dossier
+1608	Résultats et images exposés.
+1609	Résultats ou ordonnances faux.
+1610	Vérification des résultats.
+1611	Élevée en cas de préjudice.
+1612	Directe — résultats erronés.
+1613	Exige une position interne et une intention.
+1614	Trafic en clair probable; l’exploitation exige des compétences.
+1615	Certains résultats exposés.
+1616	Des résultats modifiés causent un préjudice.
+1617	Aucune vérification de l’intégrité démontrée.
+1618	Les données de laboratoire et de pharmacie orientent le traitement.
+1619	Vulnérabilité représentative : transmission en clair de renseignements sensibles (CWE-319) sans vérification de l’intégrité (CWE-353). AV:A adjacent; AT:P l’attaquant doit se trouver sur le chemin; SI:H DSE en aval.
+1620	TLS/RPV pour HL7 et DICOM, durcissement du moteur d’interfaces (I22), segmentation (I06), rapprochement des résultats (I13).

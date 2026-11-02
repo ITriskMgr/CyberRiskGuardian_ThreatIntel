@@ -365,3 +365,25 @@ body.navrail nav .navsec + .navsec { margin-top: 4px; padding-top: 4px; }
 .helppop .x { position: absolute; top: 6px; right: 6px; }
 .helppop p { margin: 4px 0; }
 .subtabs .helpq { margin-left: 6px; width: 20px; height: 20px; font-size: 12px; }
+
+/* ---------- Virtual consultant: slide-over panel and answers (small, variable-based; restyled by the redesign) ---------- */
+.consult-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100vw); background: var(--surface); border-left: 1px solid var(--line); box-shadow: var(--shadow); display: flex; flex-direction: column; z-index: 940; }
+.consult-panel[hidden] { display: none; }
+@media (min-width: 1100px) { body.consult-open .mainwrap { margin-right: min(460px, 38vw); } body.consult-open .consult-panel { width: min(460px, 38vw); } }
+.consult-head { display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.consult-body { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 8px 12px; }
+.consult-body .consult-log { flex: 1; overflow: auto; }
+.consult-log { display: flex; flex-direction: column; gap: 10px; padding: 8px 0; }
+.consult-full .consult-log { max-height: 60vh; overflow: auto; }
+.consult-answer { border: 1px solid var(--line); border-left: 3px solid var(--ai); border-radius: 10px; padding: 8px 10px; background: var(--surface-2); }
+.consult-answer h4 { margin: 2px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.consult-general { border-top: 1px dashed var(--line); margin-top: 6px; padding-top: 4px; }
+.consult-general p { color: var(--muted); }
+.consult-passages { padding-left: 18px; margin: 6px 0; }
+.consult-passage { margin-bottom: 6px; }
+.consult-passage.used > b { color: var(--ai); }
+.consult-passage.flash { outline: 2px solid var(--ai); }
+.consult-cite { cursor: pointer; font-size: 11px; padding: 0 6px; margin: 0 2px; border: 1px solid var(--ai); color: var(--ai); background: transparent; border-radius: 8px; }
+.consult-chapter { white-space: pre-wrap; max-height: 70vh; overflow: auto; font-size: 13px; }
+.consult-foot { border-top: 1px solid var(--line); padding-top: 8px; }
+.consult-meta { margin-top: 6px; }

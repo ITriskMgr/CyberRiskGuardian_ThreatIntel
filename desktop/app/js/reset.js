@@ -23,8 +23,9 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as store from './store.js';
-import { S, newWorkspace, blankOrg, medibecWorkspace, migrate, refreshList, select, emit } from './state.js';
+import { S, newWorkspace, blankOrg, exampleWorkspace, caseOf, migrate, refreshList, select, emit } from './state.js';
 import { today } from './util.js';
+import { STEP4 } from './migrate.js';
 
 /* ---------------- the fields of a workspace, in groups ---------------- */
 
@@ -46,9 +47,7 @@ export const CONTEXT = ['assets', 'assetLog', 'assetScoreHist', 'vulns', 'exposu
   // 1.5.8 — governance, risk and compliance records, audits, cybersecurity management (incidents included), ISMS, ontology link
   'grc', 'audit', 'csm', 'isms', 'crgo',
   // shared registers, compliance management, SIEM and SOAR
-  'shared', 'cms', 'siem', 'soar',
-  // 1.9.0 — SSVC decisions and forecast review items, beside the vulnerability register
-  'ssvc'];
+  'shared', 'cms', 'siem', 'soar'];
 /** The assessment itself and everything derived from it. */
 export const ASSESSMENT = ['excluded', 'decisions', 'measures', 'risks', 'recommendations', 'revisionLog',
   'linkLog', 'linkDraft', 'batchDraft', 'batchSeed', 'batchSpread', 'initPlan', 'published', 'kriHistory',
@@ -89,6 +88,8 @@ export const SCOPES = [
 export const scope = id => SCOPES.find(s => s.id === id) || null;
 
 export const GROUPS = { IDENTITY, NAMING, ORGANIZATION, DOCUMENTS, CONTEXT, ASSESSMENT, KRI_DEFS, AUDIT, JOURNAL };
+/* 1.9.0 — each data-version-4 field declares its group in migrate.js STEP4. */
+for (const st of STEP4) { const g = GROUPS[st.group]; if (!g) throw new Error(`migrate.js STEP4: ${st.field} names no reset group (${st.group})`); if (!g.includes(st.field)) g.push(st.field); }
 /** Kept whatever the scope. */
 export const ALWAYS = [...IDENTITY, ...NAMING, ...JOURNAL];
 
@@ -307,7 +308,7 @@ export async function restoreTeaching(wsId, { keepName = true } = {}) {
   const name = live.name, kind = live.kind, created = live.created, id = live.id;
   let fresh;
   if (sp.source === 'bundled') {
-    fresh = medibecWorkspace();
+    fresh = exampleWorkspace(caseOf(live));        // 1.9.0 — the bundled case it was built from (MediBec when not recorded)
     for (const d of (live.docs || [])) await store.del('blob', 'doc:' + d.id);
   } else {
     const rec = await store.get('blob', baseKey(id));

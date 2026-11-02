@@ -107,10 +107,38 @@ def resolve(cfg, app_root):
                      "or register the crgo-ontology server in Claude.", "source": "none"}
 
 
+PYTHON_NAME = re.compile(r"^(python(3(\.\d{1,2})?)?|pythonw?|py)(\.exe)?$", re.I)
+
+
+def settings_problem(command, args):
+    """1.9.0 — what Settings → Ontology may start: a Python interpreter (this helper's own, or an existing
+    absolute path to a file named python…) and exactly one argument, an existing absolute path to
+    …/pipeline/mcp/crgo_server.py. Anything else is refused: this setting starts a program."""
+    cmd = os.path.expanduser(str(command or ""))
+    if not isinstance(args, (list, tuple)) or len(args) != 1:
+        return f"The ontology server is started with exactly one argument, the path of {SERVER_NAME}."
+    script = os.path.expanduser(str(args[0] or ""))
+    if not (os.path.isabs(cmd) and os.path.isfile(cmd)):
+        return "The Python interpreter must be given as the full path of an existing file (for example /usr/local/bin/python3)."
+    if os.path.realpath(cmd) != os.path.realpath(sys.executable) and not (
+            PYTHON_NAME.match(os.path.basename(cmd)) and PYTHON_NAME.match(os.path.basename(os.path.realpath(cmd)))):
+        return f"{os.path.basename(cmd)} is not a Python interpreter: only Python can start the ontology server."
+    norm = os.path.normpath(script)
+    if not (os.path.isabs(norm) and os.path.isfile(norm) and os.path.basename(norm) == SERVER_NAME
+            and os.path.basename(os.path.dirname(norm)) == "mcp"
+            and os.path.basename(os.path.dirname(os.path.dirname(norm))) == "pipeline"):
+        return f"The argument must be the full path of an existing …/pipeline/mcp/{SERVER_NAME} of a CRGO folder."
+    return None
+
+
 def check(spec):
     """Refuse anything that is not crgo_server.py: this endpoint starts a process."""
     if spec.get("error"):
         return spec["error"]
+    if spec.get("source") == "settings":            # 1.9.0 — written through the helper: the strict form only
+        bad = settings_problem(spec.get("command"), spec.get("args"))
+        if bad:
+            return bad
     script = next((a for a in spec["args"] if str(a).endswith(SERVER_NAME)), None)
     if not script:
         return f"The configured server is not {SERVER_NAME}."

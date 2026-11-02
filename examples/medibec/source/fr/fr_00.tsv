@@ -1,0 +1,194 @@
+0	12 prochains mois (octobre 2026 à septembre 2027)
+1	Cas d’affaires MediBec v2.0b (cas pédagogique fictif)
+2	Cas d’affaires MediBec v2.0b, s. 3 — Contexte et profil de soins de santé
+3	Documenté (cas)
+4	Siège social à Montréal; 10 cliniques (Montréal, Québec, Gatineau, Saguenay); DSE, radiologie, laboratoire, pharmacie, facturation, communications; données de santé sensibles.
+5	Cas d’affaires, s. 4 — Tableau de l’environnement technologique
+6	Concentrateur réseau central à Montréal, réseau étendu en fibre vers les cliniques, pare-feu, IDS/IPS, antivirus/antimaliciel; centre de données de Montréal, stockage local dans les cliniques, sauvegardes sur place et hors site, stockage chiffré; accès à distance infonuagique; équipement médical interconnecté.
+7	Cas d’affaires, s. 4 — Modèle d’exploitation et contexte budgétaire
+8	Service des TI de 15 personnes, dont 2 employés dédiés à la cybersécurité; budget des TI déclaré de 100 M$ CA, salaires compris; feuille de route 2024-2030; contraintes de certification des dispositifs médicaux et de changement clinique.
+9	Cas d’affaires, s. 5 — Contexte des menaces
+10	Multiples tentatives d’attaque infructueuses depuis 2020, en hausse récemment; aucune atteinte réussie confirmée; questions ouvertes sur la suffisance des journaux, les inventaires d’appareils et la configuration infonuagique.
+11	Cas d’affaires, s. 8 — Énoncé d’appétence pour le risque
+12	Appétence faible pour la sécurité des patients, la confidentialité des données de santé, la conformité et la confiance du public; modérée pour l’innovation encadrée; tolérance normalisée de 0,40; résiduel > 0,25 : examen par la direction; > 0,40 : acceptation par le conseil.
+13	Cas d’affaires, s. 6 et annexes A-B — Injections d’incident et preuves techniques
+14	Preuve d’exercice (simulation illustrative — à valider)
+15	Hameçonnage avec macro .docm; alerte PowerShell de l’EDR fermée comme peu grave; connexion à distance depuis une géographie inhabituelle avec notification AMF approuvée; fichier infonuagique medical_image_export.zip téléchargé depuis une adresse IP inconnue; volume de requêtes inhabituel du compte de service ehr-sync-svc; échecs de sauvegarde dans les cliniques.
+16	Cas d’affaires, s. 7 — Univers d’audit
+17	Domaines auditables, dont accès au DSE et GIA, infonuagique et accès à distance, sauvegarde, dispositifs médicaux et IdO, Wi-Fi, correctifs, IDS/SIEM, vie privée, tiers, clés d’API, sensibilisation, gouvernance de la correction.
+18	Cas d’affaires, s. 9 — Bibliothèque de scénarios MED-CYR-01 à 15
+19	Quinze thèmes de scénarios candidats avec familles de mesures suggérées.
+20	Cas d’affaires, annexe A de l’enseignant — Scénarios détaillés
+21	Valeurs illustratives (étalonnage seulement)
+22	Probabilités, dommages, résilience, CVSS v3.1 et budgets illustratifs. Utilisés seulement comme contre-vérification d’étalonnage; non adoptés comme preuve.
+23	Base de connaissances — Guide Excel d’évaluation des risques de cybersécurité v1.0c
+24	Méthodologie
+25	Formules d’indicateurs de référence; CVSS v4.0; facteur de multiplication de 1 000 dans l’exemple résolu; les réductions doivent rester entre 0 et 1.
+26	Base de connaissances — Spécification maîtresse des tâches / Guide d’élaboration des scénarios
+27	Norme de construction des scénarios, tri de 20 à 10, structure des rapports, liste de contrôle qualité.
+28	Spécification CVSS v4.0 de FIRST (calculée avec la bibliothèque Python « cvss »)
+29	Référence externe
+30	Scores de base (CVSS-B) calculés à partir des vecteurs documentés.
+31	DSE intégré et données des dossiers cliniques
+32	Documentation clinique, aide à la décision, continuité des soins dans 10 cliniques
+33	Directeur médical / Opérations cliniques (affaires); DPI (technique)
+34	Identité/annuaire, CD de Montréal, réseau étendu, base de données du DSE, intégration ehr-sync-svc
+35	Fournisseur du DSE (identité non précisée)
+36	Systèmes diagnostiques — imagerie radiologique, laboratoire, pharmacie
+37	Diagnostic, résultats, gestion des médicaments
+38	Opérations cliniques; chefs de service
+39	Interfaces du DSE, transfert d’images infonuagique, équipement médical
+40	Fournisseurs des systèmes d’imagerie, de laboratoire et de pharmacie
+41	Prise de rendez-vous, rendez-vous et services en ligne aux patients
+42	Accès des patients, débit des cliniques
+43	Gestionnaires de clinique; équivalent du chef de l’exploitation
+44	Interface Web, DSE, communications
+45	Fournisseurs d’hébergement et de services en ligne
+46	Systèmes de facturation et administratifs
+47	Cycle des revenus, réclamations aux payeurs
+48	Responsable des finances
+49	Annuaire, base de données, courriel
+50	Fournisseur du logiciel de facturation
+51	Identité, accès à distance et accès infonuagique
+52	Rend possible chaque service clinique et administratif
+53	DPI / Responsable de la cybersécurité
+54	Annuaire, AMF (notification), passerelle d’accès à distance, fournisseur d’identité infonuagique
+55	Fournisseurs infonuagiques et d’AMF
+56	Centre de données de Montréal, réseau étendu et environnement de sauvegarde
+57	Hébergement, connectivité, capacité de reprise
+58	DPI (infrastructure)
+59	Alimentation, liens du réseau étendu, serveurs de sauvegarde, copies hors site, stockage local des cliniques
+60	Fournisseurs de télécommunications, fournisseur de sauvegarde hors site
+61	Stockage infonuagique pour le transfert et l’exportation d’images médicales
+62	Partage d’images et d’exportations avec les cliniciens et partenaires
+63	Responsable de la radiologie; DPI
+64	Locataire infonuagique, GIA, liens de partage
+65	Fournisseur de services infonuagiques
+66	Équipement médical connecté et IdO
+67	Appareils de diagnostic et de traitement alimentant le DSE
+68	Génie biomédical / Opérations cliniques
+69	Réseau local des cliniques, interfaces du DSE
+70	Fabricants d’appareils (correctifs, certification)
+71	Compromission d’identifiants d’administrateurs de clinique par hameçonnage
+72	Cybercriminel
+73	AMF par notification sensible à la fatigue; pièces jointes avec macros livrées
+74	Accès non autorisé au DSE et à distance
+76	Retenu (S1)
+77	Voie d’accès initial la plus fréquente; démontrée directement par les injections E6.
+78	Rançongiciel chiffrant les systèmes de soutien du DSE, les dossiers partagés et la prise de rendez-vous
+79	Groupe de rançongiciel
+80	Réseau interne à plat; tri des alertes faible; sauvegardes accessibles
+81	Perturbation de plusieurs cliniques et vol de données
+83	Retenu (S2)
+84	Conséquence clinique, sur la vie privée et opérationnelle combinée la plus élevée.
+85	Environnement de sauvegarde compromis avant le chiffrement, échec de la reprise
+86	Groupe de rançongiciel / attaquant privilégié
+87	Sauvegardes dans le même domaine d’administration; essais de restauration non démontrés
+88	Panne prolongée, perte de la capacité de reprise
+90	Retenu (S3)
+91	Détermine si S2 est surmontable; échecs de sauvegarde dans E6.
+92	Stockage infonuagique de transfert d’images médicales exposé ou consulté de l’extérieur
+93	Acteur opportuniste / cybercriminel
+94	Partage permissif, journalisation et gestion de la posture infonuagiques faibles
+95	Exposition massive de données de santé
+97	Retenu (S4)
+98	Exposition d’un grand volume de renseignements de santé; démontrée par des téléchargements inhabituels (E6).
+99	Clé d’API versée dans un dépôt de code permettant l’accès aux données
+100	Acteur opportuniste
+101	Aucune détection des secrets ni coffre-fort démontré
+102	Extraction directe de données par l’API
+104	Retenu (S11)
+105	Désormais retenu : un portefeuille de 30 permet de couvrir l’exposition liée au développement.
+106	Compromission du Wi-Fi d’une clinique ou point d’accès illégitime
+107	Attaquant local
+108	Segmentation du Wi-Fi invité et clinique non démontrée
+109	Réseau local de la clinique
+110	Point d’appui dans le réseau interne
+112	Retenu (S12)
+113	Désormais retenu comme voie d’entrée sans fil distincte (S7 demeure le scénario de sécurité des appareils).
+114	Exploitation de systèmes exposés à Internet non corrigés ou en fin de vie
+115	Cybercriminel / acteur lié à un État
+116	Retards de correction dus aux exigences de disponibilité et aux contraintes des fournisseurs
+117	Exécution de code à distance et intrusion
+119	Retenu (S6)
+120	L’exploitation massive des équipements de périphérie est un vecteur d’entrée majeur; contraintes de correction documentées (E3).
+121	L’intrusion passe inaperçue parce que la surveillance et le tri sont insuffisants
+122	Tout acteur externe
+123	Équipe de 2 personnes, alerte fermée comme peu grave, couverture des journaux inconnue
+124	Tous
+125	Présence prolongée de l’attaquant, préjudice amplifié
+127	Retenu (S8)
+128	Amplificateur systémique; démontré directement (E3, E6).
+129	Dispositif médical connecté servant de point d’appui dans le réseau
+130	Système d’exploitation embarqué non corrigé, inventaire incomplet, segmentation faible
+131	Perturbation des appareils, déplacement latéral
+133	Retenu (S7)
+134	Seul scénario comportant une voie directe vers la sécurité des patients par l’équipement.
+135	Déni de service distribué contre les services en ligne aux patients
+136	Hacktiviste / extorqueur
+137	Aucune protection contre le déni de service démontrée
+138	Prise de rendez-vous en ligne indisponible
+140	Retenu (S13)
+141	Désormais retenu : disponibilité des services aux patients.
+142	Membre du personnel exportant des dossiers de santé ou de facturation à des fins non autorisées
+143	Initié malveillant ou curieux
+144	Rôles étendus dans le DSE, analytique des accès limitée
+145	Atteinte à la vie privée
+147	Retenu (S5, fusionné avec C15)
+148	Courant en santé; importance réglementaire élevée.
+149	Altération de dossiers de patients, de médicaments ou de facturation
+150	Attaquant ou initié
+151	Surveillance de l’intégrité et rapprochement limités
+152	Décisions cliniques dangereuses, erreurs de facturation
+154	Retenu (S10)
+155	Probabilité plus faible, mais conséquence grave pour la sécurité des patients.
+156	Compromission d’un fournisseur disposant d’un accès à distance aux systèmes de MediBec
+157	Attaquant de la chaîne d’approvisionnement
+158	Accès permanent des fournisseurs, assurance limitée
+159	Intrusion par un chemin de confiance
+161	Retenu (S9)
+162	Nombreux fournisseurs critiques (DSE, appareils, infonuagique); mesures largement absentes.
+163	Plan de réponse aux incidents non testé entraînant une mauvaise coordination
+164	Tout incident
+165	Aucune preuve d’exercice sur table dans les cliniques
+166	Réponse lente et non coordonnée
+168	Fusionné dans S8
+169	Une condition de résilience plutôt qu’une menace; combinée à la détection dans un même scénario de capacité de réponse.
+170	Compte de service surprivilégié (ehr-sync-svc) détourné pour une extraction massive
+171	Attaquant externe ou initié
+172	Privilèges du compte de service, aucun coffre-fort
+173	Extraction massive de renseignements de santé
+174	Preuve E6
+175	Fusionné dans S5
+176	Même famille de mesures (abus d’accès privilégiés et légitimes).
+177	Panne du centre de données de Montréal ou du réseau étendu isolant toutes les cliniques
+178	Accidentel / environnemental
+179	Dépendance à un concentrateur unique
+180	Panne à l’échelle de l’entreprise
+181	Annexe B no 49
+182	Retenu (S16)
+183	Désormais retenu comme scénario de résilience (concentration sur le concentrateur).
+184	Exposition de copies non gérées sur les unités de stockage locales des cliniques
+185	Vol / initié
+186	Prolifération des données, stockage local hors des contrôles centraux
+187	Stockage des cliniques
+188	Atteinte locale aux données
+189	Annexe B no 55
+190	Retenu (S17)
+191	Désormais retenu : prolifération des données sur le stockage local des cliniques.
+192	Compromission de courriel d’affaires détournant des paiements de facturation
+193	Fraudeur
+194	Vérification faible des paiements
+195	Perte financière
+196	Annexe B no 71
+197	Retenu (S14)
+198	Désormais retenu : voie de perte financière directe.
+199	Tablette ou appareil portatif perdu ou volé contenant des données de patients
+200	Voleur opportuniste
+201	Gestion des appareils mobiles non démontrée
+202	Postes et appareils
+203	Exposition limitée de données
+204	Annexe B no 7
+205	Retenu (S15)
+206	Désormais retenu : appareils mobiles utilisés pour accéder au DSE.
+207	Contournement de l’accès à distance par fatigue des notifications AMF

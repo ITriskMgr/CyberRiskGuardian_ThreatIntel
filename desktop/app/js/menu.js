@@ -45,6 +45,9 @@ export const MENU = [
     sub('writer', 'Security Policy Writer', [['start', 'Start'], ['interview', 'Interview'], ['documents', 'Documents & facts'], ['legal', 'Legal applicability'],
       ['library', 'Library'], ['decisions', 'Decisions'], ['generate', 'Generate drafts'], ['word', 'Word export & re-import']]),
     sub('csm', 'Cybersecurity management', [['tests', 'Control testing'], ['governance', 'Governance'], ['decisions', 'Decisions'], ['incidents', 'Incidents']]),
+    sub('ipc', 'Identity, privilege & configuration', [['overview', 'Overview'], ['accounts', 'Accounts'], ['privileged', 'Privileged roles'], ['emergency', 'Emergency accounts'],
+      ['reviews', 'Access reviews'], ['baselines', 'Baselines'], ['deviations', 'Deviations & exceptions'], ['sod', 'Segregation of duties'], ['changes', 'Configuration changes'],
+      ['findings', 'Findings & proposals'], ['import', 'Import from a report']]),
     T('frameworks', 'Frameworks & standards'),
     sub('shared', 'Shared registers', [['evidence', 'Evidence'], ['actions', 'Corrective actions'], ['exceptions', 'Exceptions'], ['mappings', 'Mappings']]),
     T('qc', 'Quality review')] },
@@ -64,9 +67,9 @@ export const MENU = [
     T('registry', 'Browse & search', { arg: 'browse' }), T('registry', 'Contribute risks', { arg: 'contribute' }), T('registry', 'My contributions', { arg: 'mine' }),
     T('registry', 'Moderation', { arg: 'moderate' }), T('share', 'Publish & share'), T('registry', 'Registry settings', { arg: 'settings' })] },
   { id: 'tools', label: 'Tools', items: [
-    T('cvss', 'CVSS v4.0'), T('budget', 'Budget'), T('export', 'Export · Excel'), T('ai', 'AI assistant'), T('forecast', 'Forecasts'), T('backup', 'Backup & restore')] },
+    T('cvss', 'CVSS v4.0'), T('budget', 'Budget'), T('export', 'Export · Excel'), T('ai', 'Virtual consultant'), T('forecast', 'Forecasts'), T('backup', 'Backup & restore')] },
   { id: 'settings', label: 'Settings', items: [
-    sub('settings', 'Settings', [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['users', 'Users & RACI'],
+    sub('settings', 'Settings', [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'],
       ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'],
       ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']], { flat: true })] },
   { id: 'help', label: 'Help', items: [

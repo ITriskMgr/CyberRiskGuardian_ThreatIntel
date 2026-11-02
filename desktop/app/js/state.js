@@ -49,8 +49,8 @@ export function newWorkspace({ name = 'New organization', kind = 'organization',
     shared: MIG.blankShared(), cms: MIG.blankCms(), siem: MIG.blankSiem(), soar: MIG.blankSoar(),
     // 1.8.0
     screening: MIG.blankScreening(), mgmtSummary: MIG.blankSummary(), catalogueMigration: [],
-    // 1.9.0 (SSVC lane)
-    ssvc: MIG.blankSsvc(),
+    // 1.9.0 — data version 4: every field of migrate.js STEP4
+    ...MIG.fieldsV4(),
     dataVersion: MIG.DATA_VERSION, appVersion: VERSION, migrationLog: [],
   };
 }
@@ -76,7 +76,48 @@ export function medibecWorkspace() {
   ws.classroom = null;
   // 1.8.0 — the screening of the 45 candidates into ten families, from the case's selection workbook
   if (self.CRG_MEDIBEC_SCREENING) ws.screening = JSON.parse(JSON.stringify(self.CRG_MEDIBEC_SCREENING));
+  // 1.9.0 — the identity, privilege & configuration sample of the case (evidence only, nothing accepted)
+  MIG.seedIpc(ws);
   ws.org.materiality = 'Any credible threat to clinical decisions or patient safety; any exposure of health information for many patients; any loss of clinical systems at several clinics beyond a working day. Analytical estimate — validation required.';
+  return ws;
+}
+
+/* ---------------- the bundled teaching examples (1.9.0) ----------------
+   Four workspaces ship with the application: MediBec (English, the reference case), MediBec in French,
+   and CanaRetail in English and in French. Each language version carries the same numbers, so its totals
+   match its own reference in the start-up self-check. The case a workspace was built from is recorded in
+   ws.teaching.case (a field of the NAMING reset group, so starting over always rebuilds the right one); a
+   workspace without it is MediBec, as every example before 1.9.0. */
+export const EXAMPLES = [
+  { id: 'medibec', label: 'Teaching example: MediBec — private healthcare (English)', lang: 'en', data: () => self.CRG_MEDIBEC },
+  { id: 'medibec-fr', label: 'Teaching example: MediBec — private healthcare (French)', lang: 'fr', data: () => self.CRG_MEDIBEC_FR },
+  { id: 'canaretail', label: 'Teaching example: CanaRetail — national retail (English)', lang: 'en', data: () => self.CRG_CANARETAIL?.en },
+  { id: 'canaretail-fr', label: 'Teaching example: CanaRetail — national retail (French)', lang: 'fr', data: () => self.CRG_CANARETAIL?.fr },
+];
+export const exampleOf = id => EXAMPLES.find(e => e.id === id) || null;
+/** The bundled case a teaching workspace was built from ('medibec' when none was recorded). */
+export const caseOf = (ws = S.ws) => (exampleOf(ws?.teaching?.case) ? ws.teaching.case : 'medibec');
+/** Is this example shipped with this build (its data file loaded)? */
+export const exampleAvailable = id => !!exampleOf(id)?.data();
+
+/** A fresh workspace of a bundled example, as shipped. */
+export function exampleWorkspace(id = 'medibec') {
+  const ex = exampleOf(id);
+  if (!ex) throw new Error(`Unknown bundled example: ${id}`);
+  if (id === 'medibec') { const ws = medibecWorkspace(); ws.teaching = { case: 'medibec' }; return ws; }
+  const src = ex.data();
+  if (!src) throw new Error(`The bundled example ${id} is not installed with this build.`);
+  const d = JSON.parse(JSON.stringify(src));
+  const ws = newWorkspace({ name: d.NAME, kind: 'example', assessment: d.ASSESSMENT, org: d.ORG });
+  ws.appetite_rationale = d.APPETITE_RATIONALE || '';
+  if (Array.isArray(d.BUDGET_YEARS)) { ws.budgetYears = d.BUDGET_YEARS; ws.budgetYear = d.BUDGET_YEAR ?? null; }
+  else { ws.budget = Object.assign({ it_budget: 0, spend: 0, baseline: 0 }, d.BUDGET || {}); ws.budgetYears = null; }
+  ensureBudgetYears(ws);
+  ws.classroom = null;
+  if (d.SCREENING) ws.screening = d.SCREENING;
+  if (d.SUMMARY) ws.mgmtSummary = Object.assign(MIG.blankSummary(), d.SUMMARY);
+  ws.teaching = { case: id };
+  MIG.seedIpc(ws);      // 1.9.0 — the identity, privilege & configuration sample of the case (nothing accepted)
   return ws;
 }
 
@@ -204,7 +245,12 @@ export function migrate(w) {
   w.isp = Object.assign({ policies: [], issues: [] }, MIG.blankIspExtra(), w.isp || {});
   w.screening = Object.assign(MIG.blankScreening(), w.screening || {}); w.mgmtSummary = Object.assign(MIG.blankSummary(), w.mgmtSummary || {});
   if (!Array.isArray(w.catalogueMigration)) w.catalogueMigration = [];
-  w.ssvc = Object.assign(MIG.blankSsvc(), w.ssvc || {});   // 1.9.0 (SSVC lane)
+  // 1.9.0 — data version 4: an object record keeps what it holds and gains the keys its blank has
+  for (const st of MIG.STEP4) {
+    const b = st.blank();
+    if (b && typeof b === 'object' && !Array.isArray(b)) w[st.field] = Object.assign(b, w[st.field] && typeof w[st.field] === 'object' ? w[st.field] : {});
+    else if (w[st.field] === undefined) w[st.field] = b;
+  }
   w.migrationLog ||= [];
   return w;
 }

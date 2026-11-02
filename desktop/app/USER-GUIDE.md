@@ -32,7 +32,7 @@ assessment from end to end and to keep it alive afterwards:
 | **Audit management** | Charter and methodology, audit universe, risk-weighted plan, engagements, SP 800-53A procedures, workpapers and sampling, observations and findings, responses and independent follow-up, reports, quality and independence, SOC reports and evidence, traceability. |
 | **Security operations** | A local **SIEM** (telemetry sources, detection rules, coverage validated by tests, alerts and triage, indicators with TLP) and a local **SOAR** (cases, incidents, playbooks, approval gates, recorded actions, dry-run simulations, lessons learned) — fed by files you import, never by a live connector. |
 | **Risk Registry** | A catalogue of risks shared between organizations, searchable by sector, region, size, regulation, theme, asset category and technique, with anonymized contributions and moderation. |
-| **Tools · Settings · Help** | CVSS v4.0 (Base), budget, Excel export with live formulas, AI assistant, forecasts, backup and restore; settings (modules, logs, AI, users, files, feeds, simulation data for teaching); the step-by-step window, this guide, About, a help chatbot, English and French. |
+| **Tools · Settings · Help** | CVSS v4.0 (Base), budget, Excel export with live formulas, the **Virtual consultant** (also from the **Consultant** button of the top bar), forecasts, backup and restore; settings (modules, logs, AI, knowledge base, users, files, feeds, simulation data for teaching); the step-by-step window, this guide, About, a help chatbot, English and French. |
 
 Most features are modules an administrator can switch off for the installation (Settings → Modules),
 and screens can be hidden per person or group (Settings → Users & RACI); a feature that is off or hidden
@@ -97,8 +97,8 @@ application loads its own files by relative path.
 **Replacing an earlier copy of the application?** Unzip into a *new* folder beside the old one, stop
 the old server if its terminal window is still open, and start the new one **on the same port** — your
 workspaces are kept by the browser for the exact address you use, not in the folder, so the same port
-finds them. Your API keys are not in the folder either; they are in `crg-keys.json` in the feeds
-folder, and `feeds-dir.txt` carries that path over. The launchers detect an earlier copy still serving
+finds them. Your API keys are not in the folder either; they are in the macOS login keychain, or in
+`~/.cyberriskguardian/crg-keys.json` on Windows and Linux, and `feeds-dir.txt` carries the feeds path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
 `1.8.2 beta`.
 
@@ -195,6 +195,12 @@ On every start the app recomputes the bundled MediBec teaching case — 30 scena
 the totals with the figures `crg_calc.py` produces. When they match, the engine in your browser
 agrees with the reference implementation.
 
+The other bundled teaching examples are checked in the same pass: the French MediBec must give exactly
+84,305 / 41,023 (only its text is translated), and CanaRetail, in English and in French, its own reference
+**27,526 / 16,049**. When all agree the footer reads `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`;
+a bundled example that does not reproduce its reference turns the footer to `engine DIVERGES` with a banner
+naming it.
+
 | Footer reads | Meaning | What to do |
 |---|---|---|
 | `engine verified · 84,305 / 41,023` | Correct. | Proceed. |
@@ -245,13 +251,14 @@ added; nothing else in the application rewrites older data.
   banner on every screen, and nothing you change is saved over it. A backup file is refused when it was
   written by a newer application, and a newer workspace inside a backup is not restored.
 
-The current data version is **3**. The three steps are journalled in each workspace:
+The current data version is **4**. The four steps are journalled in each workspace:
 
 | Step | What it does |
 |---|---|
 | 0 → 1 | Fields created only when a screen first used them are present from the start; incidents imported from documents move to the incident register (Cybersecurity management → Incidents) and remain listed under Organization → Evidence; policy exceptions gain a scope, an approver and compensating controls; the governance, audit, cybersecurity-management, ISMS and ontology-link records are added, empty. |
 | 1 → 2 | The **shared registers** are created. **Evidence** records move, unchanged, to the shared evidence register (Governance → Shared registers → Evidence); **policy exceptions** move, unchanged, to the shared exception register, each linked to its policy. Policy statements receive a stable identifier, their modality left to be stated. Empty compliance-management, audit-management, SIEM and SOAR records are added. |
 | 2 → 3 | Only the current control catalogues remain (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1): every reference to ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 — in measures, statements of applicability, framework lists — is mapped to its correspondence, the old identifier kept in a note beside it; a reference with no correspondence (or whose new identifier already has a record) is kept and **flagged for review**, never dropped, and the Quality review lists it (QC-23). Outdated marker wordings take the standard markers. A MediBec teaching case still on the earlier AV:N vectors of S2 and S8 keeps them — a migration changes no number — and the Process page offers the AV:L vectors (journalled; see 7.1), or Reset data → Start over takes the whole current case; the Quality review (QC-26) reports a case left on AV:N. Empty scenario-screening and management-summary records are added (the teaching case receives its screening). |
+| 3 → 4 | One step made of sub-steps, one per new kind of record. An empty **Virtual consultant** record is added (saved conversations and the retrieval mode, lexical); other records of this version are added the same way. Apart from a baseline reference on assets, nothing existing changes. Identity, privilege & configuration: empty registers are added; every baseline named on an information asset becomes a versioned baseline (a *legacy* version) and the asset gains only a reference to it, its own status unchanged; an asset in drift gets a deviation to be classified; a scope counted live from Information assets is added; the MediBec and CanaRetail teaching cases receive their sample (evidence and pending proposals only, nothing accepted). No risk number changes. |
 
 ---
 
@@ -448,7 +455,7 @@ Give every parameter a rationale and a confidence level; Forecasts turns low con
 
 1. For each of the six parameters give the value, a rationale, the evidence and a confidence (High, Medium, Low). Evidence imported from the documents is added to these fields, never as a number.
 2. Forecasts → “Parameter ranges” → “Propose ranges where none are set” (Low ±0.15, Medium ±0.10, High ±0.05), then “Monte Carlo” → “Run forecast”.
-3. Optional: AI assistant → “Parameter critique” points out confidence the evidence does not support.
+3. Optional: Virtual consultant → “Parameter critique” points out confidence the evidence does not support.
 
 *Done when:* Process step 9 shows Done: 80% of the parameters of the included scenarios carry a rationale.
 
@@ -700,10 +707,25 @@ The **Organization profile** screen has six tabs: *Profile & appetite*, *Crown j
 *Import from documents*, *Evidence* and *Workspaces* (plus *Classroom* for a classroom case).
 
 **Workspaces — assessing a new or different organization.** Give the workspace a name, choose *Real
-organization* or *Classroom business case*, and start from a blank assessment, a copy of the MediBec
-example, a copy of the current workspace, or an imported file (a workspace export, or any assessment
+organization* or *Classroom business case*, and start from a blank assessment, one of the bundled teaching
+examples, a copy of the current workspace, or an imported file (a workspace export, or any assessment
 JSON that `crg_calc.py` accepts). Tick **Educational case used for training purposes** to mark a
 teaching case; the workspace becomes a classroom case and every deliverable says the case is fictional.
+
+**The bundled teaching examples.** *Start from* offers four complete, fictional cases; choosing one sets the
+type to *Teaching example (bundled)* (choose *Classroom business case* instead to hand it out with a recorded
+starting point):
+
+| Example | What it holds | Reference totals |
+|---|---|---|
+| *MediBec — private healthcare (English)* | Ten clinics in Quebec; 30 scenarios from 45 screened candidates, evidence, 23 initiatives, 20 KRIs; appetite 0.30. The lab case. | 84,305 / 41,023 |
+| *MediBec — private healthcare (French)* | The same case with its scenarios, documents and screening in French. Every number, vector and identifier is the English one. | 84,305 / 41,023 |
+| *CanaRetail — national retail (English)* | 100 Maison Helenas stores and a national e-commerce platform; appetite 0.5 (risk neutral); 40 candidates screened into ten families: the nine scenarios the case supplies for Module D (ransomware, IT insider, POS malware, unpatched VPN, open cloud bucket, weak encryption, SQL injection, firewall misconfiguration, DNS hijacking) and one original (an over-privileged integration service account); CVSS v4.0 vectors, three of them by equivalency; evidence register, ten measures (M1–M10 as I01–I10), twelve KRIs, IT budget years 2026–2028 from the case table, a management summary. Payment security is the thread. | 27,526 / 16,049 |
+| *CanaRetail — national retail (French)* | The same case in French, same numbers. | 27,526 / 16,049 |
+
+The numbers are teaching values — plausible, internally consistent and justified, with the standard markers
+where they are estimated — not answers to the case. The CanaRetail workspace is built from the student
+version of the case; the instructor values of the case library served only as a calibration cross-check.
 
 The New-workspace form has its own drop zone: drop or choose several Word (.docx) or PDF files at once
 — the business case, the company profile, an audit report, the incident history; Excel, PowerPoint and
@@ -913,18 +935,23 @@ at 2, 20 at 3, 30 at 3.5 and above — shown on the Process page and in Batch sc
 
 *Where:* Maturity & resilience → Maturity (CSF 2.0) · Resilience (θ) · The two readings · History · Method
 
+**Identity, privilege & configuration.** When that module is on, a filter chip of that name shows only the
+CSF 2.0 categories PR.AA and PR.PS and the resilience questions pv1, pv3, ct2 and ct3 (the same chip filters
+the statement of applicability in Compliance management → Frameworks & checklists). The module's overview
+proposes values for them from its registers; **Apply ticked** fills empty answers only.
+
 ### 7.2.4 Reset data {#reset}
 
 **Organization → Reset data.** Two audiences, kept apart on purpose.
 
 **Start over** — for whoever is working a teaching case. No administrator is needed: resetting your own
-exercise is not an administrative act. It is offered only for a **teaching case** — the bundled MediBec
+exercise is not an administrative act. It is offered only for a **teaching case** — a bundled teaching
 example or any workspace whose type is a classroom business case — because only a teaching case has a
 starting point to go back to:
 
 | The case | Where “start over” goes |
 |---|---|
-| The bundled MediBec example | The case as shipped with the application. |
+| A bundled example (MediBec or CanaRetail, English or French) | The case as shipped with the application — the one the workspace was built from. |
 | A classroom case imported from a file | The state in that file, recorded the moment it was imported. |
 | A classroom case built on this computer | Nowhere, until an instructor records a starting point. |
 
@@ -982,7 +1009,7 @@ restore → the file → **Replace everything**.
 |---|---|---|
 | In the workspace | Profile, documents, assets, safeguards, maturity, vulnerabilities, threat snapshot, scenarios, measures, risks, recommendations, KRI history, policies, compliance | Only what the chosen level keeps |
 | With the installation | Framework catalogues, the bundled example snapshot, AI settings, interface language, modules, users and rights, the Risk Registry catalogue | Yes, unless you untick “keep” |
-| With the helper | The API keys, in `crg-keys.json` in the feeds folder, mode 600 | Yes, unless you untick “keep” |
+| With the helper | The API keys: macOS login keychain, elsewhere `~/.cyberriskguardian/crg-keys.json`, mode 600 | Yes, unless you untick “keep” |
 
 Every reset is recorded in the workspace and survives even the deepest level.
 
@@ -1017,11 +1044,16 @@ This register is the assessment's. The **shared evidence register** of the manag
 Shared registers → Evidence) records compliance evidence with its period and validity; it is a different
 record.
 
+**Identity, privilege & configuration findings.** When that module is on, **Record as evidence** on a
+finding adds one row here at the next E-number (documented or SME input from the row's provenance;
+moderate and verified when the row is confirmed, otherwise weak and an assumption). The finding's linked
+scenarios count as citations of that E-number.
+
 ### 7.3.2 KRI dashboard {#dashboard}
 
 Two kinds of key risk indicators:
 
-- **Computed KRIs** (CRG-01 … CRG-10) come from the workspace itself: portfolio risk-to-tolerance
+- **KRIs derived from the workspace** (CRG-01 … CRG-10) come from the assessment itself: portfolio risk-to-tolerance
   ratio, scenarios above tolerance, the total residual risk index (shown for reference: a risk index is
   computed from estimates and is **not a KRI**), snapshot age, share of material scenarios
   with an exposure-gated intel-backed Pb(ψ,A), exposed CVEs in KEV, ATT&CK mapping coverage,
@@ -1032,7 +1064,7 @@ Two kinds of key risk indicators:
   forms such as `100%`, `< 95%`, `> 8%`. A `<` warning means higher is better.
 
 **Tracking over time.** Choose a date, optionally enter the operational values you measured, and
-click **Record**. The computed KRIs are captured as they stand. Recording again on the same date
+click **Record**. The KRIs derived from the workspace are captured as they stand. Recording again on the same date
 updates it; earlier dates can be back-filled, or a whole history imported from CSV.
 
 **Top 5 by default.** The dashboard opens on the five indicators that most need attention:
@@ -1071,6 +1103,16 @@ CyberRiskGuardian dashboard from this pack"* — with the CyberRiskGuardian plug
 (or `/crg-dashboard`) does it the same way every time. Export a new pack and ask Claude to refresh the
 dashboard when the numbers change. Anyone who can open the Claude Dashboard can read its datasets: share it
 only with people allowed to see the assessment.
+
+**Identity, privilege & configuration.** When that module is on (section 7.5.6), eight indicators join
+the computed ones, grouped under its name: CRG-17 identity ownership coverage, CRG-18 privileged MFA
+coverage, CRG-19 standing-privilege ratio, CRG-20 access-review completion, CRG-21 emergency use reviewed,
+CRG-22 baseline assignment coverage, CRG-23 known coverage and CRG-24 expired exceptions. The method cell
+shows the formula, numerator and denominator, and the unknown and stale counts. An empty register gives
+*no data*; rows with a zero denominator (no use, no campaign due, nothing in scope) give **not applicable**.
+An indicator is **never green by excluding unknowns**: an unknown or stale input caps it at *on target —
+incomplete data* (CRG-23 and CRG-24 excepted). Their thresholds are edited on the module's overview. When
+the module is off, they are hidden.
 
 ### 7.3.3 Existing safeguards — what already protects you {#safeguards}
 
@@ -1156,6 +1198,11 @@ evidence links recorded on the scenario. **It changes no parameter**: cite it in
 Pb(ψ,A) or θ yourself. Alerts marked TLP:RED or TLP:AMBER+STRICT are masked unless you tick *Show TLP:RED
 and TLP:AMBER+STRICT items on this computer*. Buttons lead to SIEM coverage & gaps, Alerts & triage, SOAR
 cases, Playbooks and the seeds in Batch scenarios.
+
+**Identity, privilege & configuration evidence.** When that module is on, a read-only card lists the
+recorded findings that cite the scenario, with their E-numbers, and any accepted change. A change to Pb(ψ,A)
+or θ from that module comes only from **Accept** on a proposal in Findings & proposals, journalled in the
+scenario's revisions and the revision log.
 
 ### 7.3.6 Batch scenarios — creating many scenarios at once {#batch}
 
@@ -1631,7 +1678,7 @@ no risk score has been changed; `Pb(A)` and `Pb(ψ,A)` move only on confirmed ex
 Threat Evidence Ladder, with you accepting each change; CVSS stays Base-only. Save it to the feeds
 folder beside the digest, or copy it.
 
-*Narrate through the AI assistant* rewrites the same triage for a management audience. The model is
+*Narrate with AI* rewrites the same triage for a management audience. The model is
 told to state no risk figure. The briefing without AI remains the one of record; the narration is a
 covering note, and it is labelled as one.
 
@@ -1855,7 +1902,7 @@ needs CRGO v0.10.0.
    evidence gap), the compliance state and evidence gap; each control with its latest result per assessor
    line and its open findings — a self-assessment that an independent line contradicts is shown as a
    **conflict**; the estimates with their confidence, assumptions and evidence quality (low or very low →
-   *Analyst estimate — validation required*). There is no risk score in it.
+   *Analytical estimate — validation required*). There is no risk score in it.
 4. **Write results back as proposals.** Tick scenarios and quantities — estimated, tolerated, mitigated,
    residual risk, the risk-to-tolerance ratio, the budget target — and *Send the ticked results as
    proposals*. One document per quantity, computed by this application's engine, with the application's
@@ -2188,7 +2235,164 @@ linked to what you are looking at.
 Evidence records and policy exceptions entered before the shared registers existed were moved here
 unchanged by the data migration (section 5.1).
 
-### 7.5.6 Quality review {#qc}
+### 7.5.6 Identity, privilege & configuration {#ipc}
+
+An optional module, **off by default**: switch it on in **Settings → Modules** (group Governance). It is a
+strategic posture assessment with seven local governance registers kept at **population level** — counts
+per group of accounts, roles, campaigns, configuration scopes or change types — entered by hand or proposed
+from an uploaded report. It has **no connector** (directory, identity provider, privileged-access vault,
+CMDB, cloud API), runs no provisioning, access-request or just-in-time workflow, launches no session and
+remediates nothing. It never holds a **name, username, e-mail address, account identifier or secret**.
+When it is off, its screen says so, its indicators, findings and proposals are hidden, and its data stays
+in the workspace.
+
+Every row carries a source (at most 200 characters), a date, a **status** (*inferred*, *confirmed*,
+*unknown* or *conflicting*), a confidence, an optional evidence E-number, a provenance tag and a note. A
+**blank count is unknown, not zero** ("Leave blank when unknown — 0 means none"), and stays unknown in every
+calculation. A row whose date is empty or older than its window is badged **stale**: it still counts, and it
+lowers CRG-23. An empty register shows "Information gap — organizational validation required"; an inferred
+or assumed value shows "Analytical estimate — validation required" until the row is confirmed.
+
+The forms check as you type. **Save is disabled** when a subset rule is broken (MFA ≤ accounts,
+phishing-resistant MFA ≤ MFA, dormant ≤ accounts, without an owner ≤ accounts; standing, just-in-time,
+shared and MFA ≤ holders; uses reviewed ≤ uses; decisions made ≤ decisions due; revocations verified ≤
+revocations requested; verified ≤ changes; compliant ≤ assessed ≤ assigned ≤ in scope), when a
+reconciliation, review, test, use, as-of or closing date is in the future, when a compensated deviation has
+no exception, and when a text holds an **e-mail address or UPN, a `DOMAIN\user` name, a SID, more than three
+IP addresses, or a secret** (access keys, private keys, tokens, `password=`). A **warning** lets Save go:
+standing plus just-in-time not equal to holders, no owner on a service, AI-agent, emergency or tier 0
+population, and a text that looks like a person's name ("Registers hold groups, not people: use a role or
+team.").
+
+#### Overview {#ipc-overview}
+
+The eight indicator tiles (value, numerator and denominator, unknown and stale counts, status), the
+**completeness per register**, the **key figures** (dormant accounts, revocations not verified, open
+high-severity deviations with their age, changes verified, baseline adherence = compliant ÷ assessed with the
+unassessed share), the as-of date and the windows (freshness, privileged review, emergency test, dormancy),
+the **Maturity proposals** card and the **Indicator thresholds** table.
+
+**Maturity proposals** fill existing answers — there is no new question bank: resilience questions *pv1*
+(MFA on privileged access, from CRG-18) and *pv3* (joiners, movers and leavers, from CRG-20 and dormant
+accounts); CSF 2.0 categories **PR.AA** and **PR.PS** (never above 3); and statement-of-applicability rows
+ISO/IEC 27002:2022 5.15–5.18, 8.2, 8.5, 8.9, 8.32, CSF 2.0 PR.AA-01, PR.AA-03, PR.AA-05, PR.PS-01 and CIS
+Controls v8.1 CIS 4, CIS 5, CIS 6 (*implemented* when every mapped indicator is on target, *partial* when one
+has a value). **Apply ticked** fills **empty cells only**; a different existing answer is shown beside the
+proposal and never overwritten. *ct2* and *ct3* are in the filter but never proposed: no register supports
+them. Thresholds can be edited per indicator; **Restore default** brings back the module's values.
+
+#### Accounts {#ipc-accounts}
+
+Account populations by type — *employee*, *contractor or vendor*, *service or workload*, *AI agent*,
+*emergency* — with the label of the group, scope, owner (a role or team), the number of accounts, with MFA,
+with phishing-resistant MFA, dormant, without an owner, and the last reconciliation. MFA counts apply to
+people and emergency accounts only; service and AI-agent identities have none. CIS Controls v8.1
+safeguards 5.1, 5.3 and 6.2.
+
+#### Privileged roles {#ipc-privileged}
+
+Privileged role groups by **tier**: tier 0 is the control plane (identity, security, cloud tenant, keys),
+tier 1 critical production, tier 2 limited administration. Holders, standing and just-in-time, with MFA and
+phishing-resistant MFA, shared administrative accounts, the last review. CIS Controls v8.1 safeguards 5.4,
+6.5 and 6.8.
+
+#### Emergency accounts {#ipc-emergency}
+
+Break-glass account sets: the number of accounts, five protective controls (offline custody of the
+credentials, strong authentication, alert on every use, independent of the identity provider, credentials
+reset after use — each *yes*, *no* or *unknown*), the last test, the uses in the review window, the uses
+reviewed and the last use.
+
+#### Access reviews {#ipc-reviews}
+
+Access-review campaigns in summary: population (all accounts, privileged roles, tier 0 only, vendors and
+contractors, service accounts), scope, owner, due and closing dates, decisions due and made, revocations
+requested and verified, and reviewers reviewing their own access. **An unverified revocation never counts as
+done.** CIS Controls v8.1 safeguards 5.3 and 6.1.
+
+#### Baselines {#ipc-baselines}
+
+Configuration baselines (CIS Benchmark, DISA STIG, vendor hardening guide or internal standard) with their
+**versions**. **New version** copies the latest as a draft. **Approve** needs the approver; it records the
+date and the **SHA-256** of the version's content, the version becomes read-only, and the previous approved
+version becomes *superseded*. A licensed benchmark is cited by its licence reference only, never by its text.
+**Configuration scopes** record, per scope, the units in scope, assigned a baseline, assessed and compliant; a
+scope can be counted live from Information assets. **Assets not linked to a baseline** lists the servers,
+endpoints, network devices, cloud services and connected devices without one: **Link** writes the baseline
+name and its reference on the asset and leaves the asset's own compliance status as it is (that status keeps
+driving the asset's drift factor and check AC-7). CIS Controls v8.1 safeguards 4.1 and 4.7.
+
+#### Deviations & exceptions {#ipc-deviations}
+
+Deviations from a baseline version, for a scope or an asset: the number of items, the **drift class**
+(*degradation*, *functional*, *transitional*, *compensated*, *strengthening*, *unknown*, or to be
+classified), severity, a short requirement reference (never licensed text), dates, owner and state. A
+**compensated** deviation needs a linked exception from the shared exception register; an expired exception
+is shown **Expired — not counted**. **Request exception** opens the shared exception form with the deviation
+already named. A deviation on an asset shows its blast radius. **Assets in drift without a deviation** lists
+the assets whose baseline status is *drift*; **Record deviation** creates one.
+
+#### Segregation of duties {#ipc-sod}
+
+Rules naming the two duties that must not be combined, the process, the number of conflicts, the owner, the
+mitigation and any compensating safeguards from Existing safeguards.
+
+#### Configuration changes {#ipc-changes}
+
+Changes by period (`YYYY-Qn` or `YYYY-MM`) and type — *standard*, *normal*, *emergency*, *unauthorized
+(suspected)* — with the number of changes and how many were verified, and a ticket. A row is one change or
+an aggregate.
+
+#### Findings & proposals {#ipc-findings}
+
+Sixteen deterministic rules propose findings from the registers: service or AI-agent accounts without an
+owner (IR-01), tier 0–1 access without MFA for every holder (IR-02), standing tier 0 privilege (IR-03),
+dormant accounts (IR-04), shared administrative accounts (IR-05), emergency access not tested or missing a
+control (IR-06), emergency uses not reviewed (IR-07), incomplete reviews or unverified revocations (IR-08),
+reviewer conflicts (IR-09), unmitigated segregation-of-duties conflicts (IR-10), open high-severity
+degradation (IR-11), compensation by an expired exception (IR-12), suspected unauthorized changes (IR-13),
+unverified emergency changes (IR-14), a baseline only legacy or draft (IR-15) and stale or conflicting rows
+(IR-16). Each shows a **direction hint** — Pb(ψ,A) ↑ or θ ↓ — never a value. **Record** or **Dismiss** (with a
+reason). On a recorded finding: **Record as evidence** adds one row to the evidence register at the next
+E-number; **Link scenario** cites a scenario without modifying it; **Propose a parameter change** takes the
+value **you type** for Pb(ψ,A) or θ, with the confidence, a rationale citing the finding and its E-number, and
+the ratio now and after from the verified engine. **Save as proposal** changes nothing. **Accept**, a separate
+act in the proposals table, writes the value into the scenario, adds the finding and E-number to the
+parameter's evidence, and records the change in the scenario's basis, its revisions and the revision log.
+**Dismiss** needs a reason. Nothing is ever applied automatically — not by a migration, an import, the AI,
+the teaching cases, the indicators or switching the module.
+
+#### Import from a report {#ipc-import}
+
+Choose a CSV, XLSX, PDF, DOCX or TXT file. It is read **in memory only** — never into the context
+documents, the stored files or the import log — and released after **Accept ticked** or when you leave the
+tab. For a table (CSV, XLSX), **rules** work offline: map the columns (type, enabled, last sign-in, MFA, MFA
+method, owner, role or tier) and the counts per population and tier are computed on this computer; dormant
+means a last sign-in older than the dormancy window. For a prose report, **Prepare the AI request** asks for
+aggregate counts only and goes to the **local model by default**; the preview shows the exact payload, how
+many e-mail, UPN, `DOMAIN\user` or SID shapes it contains, and offers the anonymizer. Sending it to a remote
+provider needs the tick "This report contains personal information about staff; I am authorized to send it
+to …", and a confidential workspace confirms every call. The answer keeps only whitelisted counts and
+enumerations; anything else is dropped. **Accept ticked** writes the counts as new rows with their provenance
+and nothing else; the import trace keeps the file name, its SHA-256, size and row count.
+
+**Privacy (Québec Law 25, data minimisation).** Account and access data about staff, contractors and locum
+physicians is personal information under the Québec *Act respecting the protection of personal information
+in the private sector* as amended by Law 25 (and PIPEDA where applicable). A strategic assessment needs **how
+many** accounts lack an owner or MFA, not **whose**. So only counts, dates and roles are collected; no
+identifier is stored, so a lost or shared workspace exposes no one and register content raises no access or
+rectification requests; source reports are processed transiently on the analyst's computer, the AI defaults
+to the local model with every payload previewed, and only an import trace (SHA-256, row count) is kept as
+evidence. Per-person processing would first need a privacy impact assessment and the person in charge of the
+protection of personal information. Labels never name individuals. **No claim of legal compliance** is made;
+applicability depends on the organization's legal context.
+
+The ontology alignment of these records (account populations, privileged-role populations, emergency
+account sets, campaigns, segregation rules, baselines and versions, drift, findings, exceptions and the eight
+indicators) follows CRGO 0.11; until its identifiers are filled in, the overview says how many concepts wait
+for them.
+
+### 7.5.7 Quality review {#qc}
 
 Eighteen checks to run before a report or a write-back leaves the analyst, each with *pass*, *attention* or
 *fail*, the detail, and a button to the screen that fixes it.
@@ -2792,9 +2996,43 @@ initiative.
 Every file is saved to your browser's download folder, and each export is recorded in Settings → Logs
 (data log).
 
-### 7.10.4 AI assistant {#ai}
+### 7.10.4 Virtual consultant {#ai}
 
-The analyst, the parameter critique, scenario generation, briefing narration and the decision log — section 8.
+The Virtual consultant answers questions about this workspace, the method and the screen you are on, from
+passages retrieved **on this computer** — the textbook, the ontology, this workspace's documents and records, the
+bundled catalogues and your own library — and keeps what comes from them apart from the model's general knowledge.
+It is reached two ways:
+
+- **The Consultant button** of the top bar opens a **panel** that slides over the right side of every screen. The
+  screen stays visible (on a wide window it moves aside), and the panel knows where you are: the screen, and the
+  object the screen shows — a scenario open in the editor is the first passage sent. Type a question, press
+  **Ask**: the passages are retrieved, the request appears in the usual preview (section 8.1), and nothing is
+  sent until you confirm. **New conversation** starts afresh; **Full view and history** opens the Tools view.
+- **Tools → Virtual consultant** is the full-width view, with five tabs: **Conversation** (the same
+  conversation as the panel), **History** (the saved conversations of this workspace), **Parameter critique**,
+  **Scenario generation** and the **Decision log**. It links to **Settings → Knowledge base**, where your library
+  is kept.
+
+**Reading an answer.** It comes in two blocks that never mix. **From your sources**: paragraphs that cite a
+passage the consultant was sent — each marker (P1, P2…) opens the passage under *Passages retrieved on this
+computer*, with its citation (*Textbook v2.51b, Chapter 4 — section*, *CRGO identifier (release)*, *Workspace
+document “name”, passage n*, *Library — file, passage n*…). **General knowledge, not from your sources**:
+everything else, marked *Analytical estimate — validation required*. Links in an answer open a screen, a
+scenario or a textbook chapter (the bundled text, in a window). The application checks every answer: a marker
+for a passage that was not sent is removed, and **a risk figure the engine did not compute is removed** and
+replaced by *[figure removed — not computed by the engine]*; *Checked by the application* says what was done.
+
+**Nothing is written.** When an answer proposes scenarios, *Send … proposed scenario(s) to Batch scenarios for
+review* puts them among the candidates, unreviewed — the same flow as scenario generation. Parameter ideas are
+for you to apply in the Scenario editor. *Useful* / *Not useful* records your verdict in the decision log.
+
+**History.** Conversations are saved with the workspace. The **History** tab lists them; **Open** brings one
+back, **Export as Markdown** downloads it (questions, answers split by provenance, the passages cited — library
+passages as short quotes), **Cite as evidence** adds it to the evidence register as an E-number (type External,
+classified as an assumption: what the consultant said is a hypothesis to validate), and **Delete** removes it
+while the decision log keeps its entries. Resetting the assessment clears the conversations.
+
+The routing, retrieval and knowledge base are described in sections 8.3–8.5.
 
 ### 7.10.5 Forecasts {#forecast}
 
@@ -2934,7 +3172,7 @@ migration*. Section 5.1.
 
 ### 7.11 Settings {#settings}
 
-Settings shared by every workspace of this installation, in twelve tabs listed in the menu. In multi-user mode
+Settings shared by every workspace of this installation, in thirteen tabs listed in the menu. In multi-user mode
 Settings is for administrators.
 
 #### Language
@@ -2950,7 +3188,7 @@ English or French (section 7.12.4).
 | Governance | Information security management · ISP management · Cybersecurity management · Shared registers · Quality review |
 | Compliance and audit | Compliance management · Audit management |
 | Security operations | SIEM · SOAR |
-| Other features | Risk Registry (with Publish & share) · Threat feeds & social · Ontology · CRGO · AI assistant · Forecasts · Budget |
+| Other features | Risk Registry (with Publish & share) · Threat feeds & social · Ontology · CRGO · Virtual consultant · Forecasts · Budget |
 
 A feature that is off leaves the menu, with any section or sub-menu left empty, and its address says how to
 switch it back on. **Nothing it holds is deleted**: its data stays in each workspace and comes back when it is
@@ -2973,8 +3211,30 @@ The logs stay on this computer.
 
 #### AI — local & remote {#settings-ai}
 
-Master switches, the route of each AI feature, the workspace's AI settings, the help chatbot and the providers
-— section 8.3. Keys are stored by the helper in `crg-keys.json`, never in a workspace.
+Master switches, the route of each AI feature, the workspace's AI settings, the Virtual consultant's retrieval and
+the providers — section 8.3. Keys are stored by the helper in `crg-keys.json`, never in a workspace.
+
+#### Knowledge base {#consultant-kb}
+
+What the Virtual consultant knows, and your **library**.
+
+- **What the Virtual consultant knows** lists the five sources, how each is cited and how many passages it holds:
+  this workspace (context documents and records), the library, the **textbook** (*Introduction to Cybersecurity
+  Governance for Business Technology Management*, 3rd ed., v2.51b, bundled as local text — cited *Chapter N —
+  section*), the **ontology** (CRGO: the live server through the helper when it runs, otherwise the bundled
+  snapshot — cited by identifier and release), and the **catalogues and guides** (ATT&CK, CWE, the control
+  catalogues and framework packs — identifiers and titles —, this guide and the policy templates).
+- **Library — your own texts.** Add PDF, Word (.docx), Markdown, text or HTML files you hold a licence for — a
+  standard, a regulation, guidance, internal documents. Tick **I hold a licence for this text; it stays on this
+  computer.** — *Add to the library* stays disabled until you do; the wording, the date and the person signed in
+  are kept with the file. Choose a **source tag** (standard, law or regulation, guidance, book or article,
+  internal document, other). The text is extracted on this computer with the same reader as the context
+  documents, indexed once and available **in every workspace**.
+- **What the library never does.** It never leaves this computer: backups leave it out (and a restore never
+  writes it), registry packages and exports do not read it, and the consultant quotes it in short excerpts only.
+  A file whose name or text looks like a licensed standard (ISO/IEC, ISACA, IIA, AICPA, COSO, PCI DSS, CIS…) is
+  flagged, and the **Quality review** (QC-13) reports it; a file without the attestation, or a saved answer that
+  quotes the library at length, fails the check. **Remove** deletes the text and its passages.
 
 #### Users & RACI {#settings-users}
 
@@ -3034,7 +3294,7 @@ example) with **Remove unreferenced text**. In multi-user mode Settings is admin
   and paste it in; the folder id is shown back so you can check it.
 - **Feed sources & keys.** Accept, keep as proposed or reject each source; set its frequency; add your
   own source; accept or reject the sources the scheduled task suggests. Store API keys (OTX, abuse.ch,
-  X) through the helper — they go to `crg-keys.json` in the feeds folder (readable by you only), never
+  X) through the helper — they go to the macOS login keychain or `~/.cyberriskguardian/crg-keys.json` (readable by you only), never
   into workspaces, exports or packages. Set the social-media query and tags, and the **watch terms**
   matched locally.
 - **Scheduled task.** Pause downloads, choose what the task uploads to Drive, allow source
@@ -3206,11 +3466,9 @@ the screen you are on; ask a question in English or French. Answers come from th
 screen tips, the 13 process steps, frequent questions — and the user guide, searched on this
 computer; *Open this screen* takes you there.
 
-By default the chatbot is **help-only**: no AI, nothing sent. To allow AI answers, go to **Settings →
-AI — local & remote** and tick **Let the chatbot use AI**; AI must also be on for the workspace (same
-page), and the *Help chatbot* feature must not be routed to *Off*. Each answer then offers **Ask AI**, which shows exactly what would be sent
-(your question, the screen, the matching help passages and a short summary of the workspace) before
-anything leaves the computer. The AI answer is labelled as such; the chatbot never changes data.
+The chatbot is **help-only**: no AI, nothing sent. Under each answer, **Ask the Virtual consultant** opens the
+consultant's panel with your question typed in (section 7.10.4): the consultant has its own route, preview and
+history. The chatbot never changes data.
 
 ### 7.12.4 Language — English and French
 
@@ -3276,16 +3534,18 @@ One page for every decision about what may leave this computer for an AI model.
   is ever sent off this machine and every feature must use a local model. *Allow web search for
   missing profile information* (Claude only).
 - **Route of each AI feature.** For each feature — vulnerability linking, profile and crown-jewel
-  extraction, import from documents (two groups), scenario proposals, causal chains, the AI assistant's
-  analyst and critique, the weekly briefing, policy drafting, simulation data for teaching, compliance
-  assessment, the help chatbot, the exploitation forecast and the mitigation optimizer (both local by
-  default, 1.9.0) —
+  extraction, import from documents (two groups), scenario proposals, causal chains, the **Virtual
+  consultant** (local model by default) and its parameter critique, the weekly briefing, policy drafting,
+  simulation data for teaching, compliance assessment, the exploitation forecast and the
+  mitigation optimizer (both local by default) —
   what it sends, its sensitivity, and its route: *Workspace provider*, *Local model only*, *Remote
   provider* or *Off*. *Restore the recommended routes* puts the sensitive features back on the local
   model.
 - **This workspace.** AI on or off, the workspace provider, *Treat as confidential*, *Anonymize before
   sending*, and the **creativity** default.
-- **Help chatbot.** *Let the chatbot use AI* (off by default).
+- **Virtual consultant — retrieval.** How the consultant finds its passages (section 8.5): the embedding
+  provider and model of this installation (local providers only), *Retrieval for this workspace* (lexical or
+  hybrid) and *Build the vector index*.
 - **Providers.** One card per provider, grouped *off this machine* and *on this machine*: the Claude
   API, OpenAI, Google Gemini, Azure OpenAI, GitHub Models, Ollama, LM Studio, any other local
   OpenAI-compatible server, and **Add a provider of your own**. For every provider the endpoint, the
@@ -3297,11 +3557,11 @@ The routes are saved in `crg-config.json` in the feeds folder, and the helper ch
 every call: a feature set to the local model cannot reach a remote provider, whatever a page asks for.
 *Remote* means every provider that is not on this machine, including one you add.
 
-### 8.4 The AI assistant
+### 8.4 The Virtual consultant
 
 | Task | What it does | What it may not do |
 |---|---|---|
-| **Analyst** | Answers a question about this assessment, with the organization context and the engine's own figures in the payload. | Recalculate. The figures it cites are the ones it was given. |
+| **Conversation** | Answers a question with the screen and the object selected, the organization summary and the risk picture (the engine's own figures), and the passages retrieved on this computer — documents and records only as passages, never whole. | Recalculate, or cite a passage it was not sent. A risk figure the engine did not compute is removed from the answer. |
 | **Parameter critique** | Reviews your Pb(A), Pb(ψ,A), δe, δm, θ and μ(E) against the scenario text and the evidence recorded, and says where it disagrees and why. | Apply anything. It suggests; you decide, parameter by parameter. |
 | **Scenario generation** | Drafts scenarios as full causal chains, optionally seeded from triaged feed items. | Reach the register. They land in Batch scenarios marked AI-generated, unreviewed. |
 | **Briefing narration** | Rewrites the week's triage for a management audience. | State any risk figure. |
@@ -3310,6 +3570,25 @@ every call: a feature set to the local model cannot reach a remote provider, wha
 edited, the creativity level, the token usage, and **your verdict** — accepted, partly useful, rejected.
 That log is the evidence that AI was used responsibly in the assessment. If an answer hits the model's
 output ceiling the screen says *cut short* and keeps the findings that arrived complete.
+
+**Routing.** The consultant has its own row, **Virtual consultant**, in *Settings → AI — local & remote*, on
+the **local model** by default — its requests carry organizational text. Switched to *Workspace provider*, it
+follows the workspace's provider like any other feature. A confidential workspace confirms every call; the
+preview and the anonymizer work as for every AI feature, and the 400 kB limit holds.
+
+### 8.5 Knowledge base and retrieval
+
+The consultant sends a model only what matches the question. For each question it searches each source's
+index **on this computer** and keeps at most three passages per source and eight in all, weak matches left out
+(a scenario open in the editor comes first). **Lexical** retrieval — the default — ranks passages by the words
+they share with the question (BM25): offline, no model involved, and the same question always returns the same
+passages. **Hybrid** retrieval, switched on per workspace in *Settings → AI — local & remote → Virtual consultant
+— retrieval*, adds the ranking of an **embedding model on this machine**: Ollama (its `/api/embeddings`
+endpoint) or a local OpenAI-compatible server (`/embeddings`). Set the provider and the model for the
+installation, then **Build the vector index**; sources without vectors stay lexical. The choice is greyed out
+until a local model is configured. **Remote providers never embed**: the helper refuses them, and only accepts
+an endpoint on this computer. Changing the embedding model clears the vector index, which is never part of a
+backup. The sources themselves are listed in *Settings → Knowledge base* (section 7.11).
 
 ---
 
@@ -3508,8 +3787,8 @@ None of this is legal advice.
 
 **Data, ontology and quality**
 
-40. **Backup & restore → Data versions and migrations**: data version 3; import an older workspace export that
-    held evidence records and policy exceptions: its journal shows the steps to version 3, the evidence is in
+40. **Backup & restore → Data versions and migrations**: data version 4; import an older workspace export that
+    held evidence records and policy exceptions: its journal shows the steps to version 4, the evidence is in
     **Shared registers → Evidence**, the exceptions in **Shared registers → Exceptions**, and its numbers are
     unchanged.
 41. **Ontology · CRGO → Connection** names CRGO v0.10.1; *Organisation link* → *Build the organisation graph*
@@ -3600,7 +3879,7 @@ copy it here. The self-check will catch a mismatch, but only after the fact.
 | *Publish to the shared registry* writes to the outbox | No synced registry folder set. | Set *Local folder synced with the registry* in Settings, or let the scheduled task upload the outbox. |
 | A scenario's ratio did not change after adding measures | The measures are not applied yet, or they reduce only likelihood or only impact. | Risk mitigation → Apply; add a measure for the other dimension. |
 | A navigation section seems to have lost its screens | The section is collapsed. | Click its title; the number beside it is how many screens it holds. The state is remembered. |
-| AI assistant says no provider is configured | No key stored, or no local endpoint set. | Settings → AI — local & remote → Providers. For a local model, give the base URL including `/v1`. |
+| The Virtual consultant says no provider is configured | No key stored, or no local endpoint set. | Settings → AI — local & remote → Providers. For a local model, give the base URL including `/v1`. |
 | An AI answer says *cut short* | The answer hit the model's output ceiling. | Ask for fewer scenarios or findings at a time; what arrived complete is shown and usable. |
 | AI screen offers nothing to send | AI is switched off for this workspace. | Settings on the AI screen → switch it on. A **confidential** workspace will still confirm every call. |
 | Monte Carlo median is not the calculated figure, with no ranges set | A parameter range was left on a scenario. | Parameter ranges → clear it. With no ranges the median must equal the calculated total exactly. |
@@ -3656,8 +3935,8 @@ of financial loss. A threat-context snapshot is dated evidence about the externa
 a measurement of your organization. The context hints are a keyword scan, not an analysis. The
 batch builder produces candidates, not an assessment.
 
-Anything the **AI assistant** produces is a hypothesis with less standing than the rest, not more: a
-critique is one reader's opinion of your estimates, a generated scenario is a draft that has not met
+Anything the **Virtual consultant** produces is a hypothesis with less standing than the rest, not more: an
+answer is a reading of the passages it was sent, a critique is one reader's opinion of your estimates, a generated scenario is a draft that has not met
 your organization, and a narrated briefing is a covering note. None of it is evidence, none of it
 changes a stored value by itself, and the decision log exists so that an auditor can see which
 suggestions you took and which you refused.

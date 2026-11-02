@@ -15,7 +15,7 @@ small helper API used by Vulnerabilities → Online sources:
     recorded in manifest.json in that folder, so the app can list finished files and load them later.
   * 1.4.0: threat feeds and social media (crg_feeds.py — OTX, abuse.ch ThreatFox / MalwareBazaar / URLhaus /
     Feodo, SANS ISC, advisories, Mastodon, Bluesky, X…), the shared configuration edited in Settings
-    (crg-config.json), optional API keys for unattended runs (crg-keys.json, mode 600), publishing of
+    (crg-config.json), optional API keys for unattended runs (1.9.0: macOS keychain, else ~/.cyberriskguardian), publishing of
     anonymized registry packages to a shared folder, and the asset-discovery drop folder.
   * It only ever fetches the fixed list of sources below and the feed sources in your accepted list. It is not a general proxy, it listens on
     loopback only, and its API refuses requests that do not come from the app itself.
@@ -26,11 +26,15 @@ from __future__ import annotations
 
 import datetime as dt
 import gzip
+import hashlib
+import hmac
 import http.server
 import io
 import json
 import os
 import re
+import secrets
+import socket
 import socketserver
 import ssl
 import subprocess
@@ -53,6 +57,10 @@ except Exception as _exc:                            # noqa: BLE001 — the rest
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
 VERSION = "1.8.2"
+# 1.9.0 — a random token made at each start. The page reads it from /api/session (same origin only) and sends it
+# with every /api/* call, next to X-CRG; the helper also checks Host and Origin. See Handler._guard.
+TOKEN = secrets.token_urlsafe(32)
+PORT = 8099
 crgo_client.CLIENT_VERSION = VERSION
 ROOT = os.path.dirname(os.path.abspath(__file__))
 def _feeds_dir():
@@ -143,10 +151,23 @@ def _ctx():
         return ssl.create_default_context()
 
 
+CREDENTIAL_HEADERS = {"authorization", "x-api-key", "api-key", "apikey", "auth-key", "x-otx-api-key"}
+
+
+def _open(req, timeout):
+    """urlopen, except that a request carrying a credential follows a redirect only to the same host (urllib
+    would otherwise send the key header to wherever the server redirects) — 1.9.0."""
+    creds = any(k.lower() in CREDENTIAL_HEADERS for k in req.headers) or any(
+        k.lower() in CREDENTIAL_HEADERS for k in getattr(req, "unredirected_hdrs", {}))
+    host = urllib.parse.urlsplit(req.full_url).hostname
+    return urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ctx()),
+                                       crg_feeds.GuardedRedirect([host] if creds else None)).open(req, timeout=timeout)
+
+
 def _fetch(url, headers=None, timeout=120):
     req = urllib.request.Request(url, headers={"User-Agent": UA, **(headers or {})})
     try:
-        with urllib.request.urlopen(req, timeout=timeout, context=_ctx() if url.startswith("https") else None) as r:
+        with _open(req, timeout) as r:
             return r.read()
     except urllib.error.URLError as exc:
         if "CERTIFICATE_VERIFY_FAILED" in str(exc):
@@ -163,7 +184,7 @@ def _fetch(url, headers=None, timeout=120):
 #   local   — an OpenAI-compatible endpoint on this machine (oMLX, Ollama, LM Studio…). Nothing
 #             leaves the machine; the request does not go through a proxy or the public internet.
 #
-# Keys live in crg-keys.json (mode 600) beside the feeds, never in crg-config.json and never in a log.
+# Keys: macOS keychain or ~/.cyberriskguardian (crg_feeds, 1.9.0), never in crg-config.json and never in a log.
 # ---------------------------------------------------------------- AI providers (1.5.5)
 # The only part of the application that sends anything about a workspace anywhere. The browser never
 # talks to a model: it posts here, and this process makes the call.
@@ -179,7 +200,7 @@ def _fetch(url, headers=None, timeout=120):
 # `base` and `model` are always editable in Settings: a provider must not break because a published
 # endpoint path or version string changed after this release. `local: True` means the request cannot
 # leave the machine, which the routing policy relies on.
-# Keys live in crg-keys.json (mode 600) beside the feeds, never in crg-config.json and never in a log.
+# Keys: macOS keychain or ~/.cyberriskguardian (crg_feeds, 1.9.0), never in crg-config.json and never in a log.
 AI_PROVIDERS = {
     "claude": {
         "label": "Claude API (api.anthropic.com)",
@@ -278,9 +299,29 @@ AI_DEFAULT_POLICY = {
               "briefing": "workspace", "chat": "workspace",
               "extract_sensitive": "local", "extract_more": "workspace", "simulation_pack": "workspace",
               "writer_facts": "workspace", "writer_tailor": "workspace",
+              "causal_chain": "local", "isp_draft": "workspace", "compliance_assess": "workspace",
+              "consultant": "local",
               # 1.9.0 - AI forecasting: both carry the CVE register or the treatment portfolio -> local by default
               "exploit_forecast": "local", "mitigation_optimizer": "local"},
 }
+# 1.9.0 — the tasks the application sends. The policy is decided on the task, so the task is checked rather
+# than trusted: it must be one of these, and the TASK line of the prompt must name the same one.
+AI_TASK_PATTERN = re.compile(r"^(extract_[sm]_[a-z0-9_]{1,40}|test)$")
+
+
+def ai_task(body):
+    """The task of a request, or raise ValueError: unknown, missing, or the body and the prompt disagree."""
+    named = str(body.get("task") or "")
+    m = re.match(r"\s*TASK:\s*([a-z0-9_]+)", str(body.get("prompt") or ""))
+    in_prompt = m.group(1) if m else ""
+    task = named or in_prompt
+    if not task:
+        raise ValueError("The request does not name its task, so the routing policy cannot be applied.")
+    if named and in_prompt and named != in_prompt:
+        raise ValueError(f"The request names the task '{named}' but its prompt is for '{in_prompt}'; it was refused.")
+    if task not in AI_DEFAULT_POLICY["tasks"] and not AI_TASK_PATTERN.match(task):
+        raise ValueError(f"Unknown AI task '{task[:40]}'; it was refused.")
+    return task
 
 
 def ai_policy(cfg):
@@ -292,10 +333,10 @@ def ai_policy(cfg):
 
 def ai_check_policy(provider, cfg, body):
     """Refuse a request the installation's policy does not allow. Returns an error string or ''."""
-    task = body.get("task") or ""
-    if not task:
-        m = re.search(r"TASK:\s*([a-z_]+)", str(body.get("prompt") or ""))
-        task = m.group(1) if m else ""
+    try:
+        task = ai_task(body)
+    except ValueError as exc:
+        return str(exc)
     pol = ai_policy(cfg)
     # 1.5.4 — the import-from-documents tasks share two features (sensitive → local by default)
     feature = "extract_sensitive" if task.startswith("extract_s_") else "extract_more" if task.startswith("extract_m_") else task
@@ -306,6 +347,10 @@ def ai_check_policy(provider, cfg, body):
     # check is on the provider's own `local` flag, so a new row in the registry is covered the day it
     # is added rather than the day someone remembers to extend this function.
     p = ai_providers(cfg).get(provider) or {}
+    if p.get("local") and not _loopback_url(_ai_base(cfg, provider)):
+        return (f"{p.get('label') or provider} is marked as running on this machine, but its endpoint "
+                f"({urllib.parse.urlsplit(_ai_base(cfg, provider)).hostname or 'none'}) is not on this machine. "
+                "Point it at 127.0.0.1 or localhost, or add the endpoint as a remote provider.")
     if not p.get("local"):
         where = p.get("label") or provider
         if not pol.get("remote_allowed", True):
@@ -347,9 +392,53 @@ def _ai_model(cfg, pid):
     return a.get(pid + "_model") or p.get("default_model") or ""
 
 
-def _ai_key(cfg, pid):
+def _loopback_url(url):
+    try:
+        return (urllib.parse.urlsplit(url).hostname or "").lower() in ("127.0.0.1", "localhost", "::1")
+    except ValueError:
+        return False
+
+
+def _key_hosts_for(pid, cfg):
+    """Hosts the key of provider `pid` may go to: the registry's own host for a built-in provider, and the
+    hosts recorded when the key was saved."""
     p = ai_providers(cfg).get(pid) or {}
-    return crg_feeds.load_keys(FEEDS).get(p.get("key") or "", "")
+    hosts = set(crg_feeds.key_hosts(p.get("key") or ""))
+    if not p.get("custom") and p.get("base"):
+        hosts.add(urllib.parse.urlsplit(p["base"]).hostname or "")
+    return sorted(h for h in hosts if h)
+
+
+def _ai_key(cfg, pid):
+    """The stored key of a provider — only if the endpoint now set is a host the key was saved for (1.9.0).
+    Changing the endpoint of a provider therefore never sends its key somewhere new: the person stores the
+    key again for the new endpoint."""
+    p = ai_providers(cfg).get(pid) or {}
+    name = p.get("key") or ""
+    keys = crg_feeds.load_keys(FEEDS)
+    if name not in keys:
+        return ""
+    base = _ai_base(cfg, pid)
+    hosts = _key_hosts_for(pid, cfg)
+    if base and not crg_feeds.host_allowed(base, hosts):
+        raise RuntimeError(f"The key of {p.get('label') or pid} was saved for {', '.join(hosts) or 'no endpoint'}, and the "
+                           f"endpoint is now {urllib.parse.urlsplit(base).hostname}. Store the key again in Settings \u2192 AI "
+                           "to use it with this endpoint; it is never sent to a new address on its own.")
+    return keys.get(name, "")
+
+
+def _key_hosts_at_save(name, cfg):
+    """When a key is stored: the host of the endpoint its provider uses now, or the hosts of the feed sources
+    that use it."""
+    for pid, p in ai_providers(cfg).items():
+        if p.get("key") == name:
+            host = urllib.parse.urlsplit(_ai_base(cfg, pid)).hostname
+            return [host] if host else []
+    hosts = set()
+    for src in crg_feeds.sources(cfg):
+        if src.get("key") == name:
+            hosts.update(src.get("domains") or [])
+    return sorted(h for h in hosts if h)
 
 
 def _ai_headers(p, key, cfg):
@@ -387,9 +476,8 @@ def _post_json(url, payload, headers, timeout=180):
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, method="POST",
                                  headers={"User-Agent": UA, "Content-Type": "application/json", **(headers or {})})
-    ctx = _ctx() if url.startswith("https") else None
     try:
-        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
+        with _open(req, timeout) as r:
             return json.loads(r.read() or b"{}")
     except urllib.error.HTTPError as exc:
         detail = ""
@@ -529,6 +617,58 @@ def ai_complete(provider, cfg, body):
     usage = out.get("usage") or {}
     return {"text": text, "model": out.get("model") or model, "provider": provider,
             "usage": {"in": usage.get("prompt_tokens"), "out": usage.get("completion_tokens")}}
+
+
+# ---------------------------------------------------------------- embeddings (1.9.0, Virtual consultant)
+# The optional embedding path of the consultant's retrieval. LOCAL models only: the provider is read from
+# this installation's configuration (ai.embed.provider / ai.embed.model, set in Settings -> AI), never from
+# the page, and a provider whose registry row is not `local` is refused whatever the configuration says —
+# remote providers never embed. Ollama is reached on its own /api/embeddings; any other local provider on
+# the OpenAI-compatible {base}/embeddings.
+MAX_EMBED_TEXTS = 128
+
+
+def embed_config(cfg):
+    e = (cfg.get("ai") or {}).get("embed") or {}
+    return {"provider": str(e.get("provider") or ""), "model": str(e.get("model") or "")}
+
+
+def ai_embed(cfg, texts):
+    """Vectors for a batch of texts from the configured local embedding model: {model, provider, vectors}."""
+    ec = embed_config(cfg)
+    pid, model = ec["provider"], ec["model"]
+    if not pid or not model:
+        raise PermissionError("No local embedding model is configured. Set one in Settings \u2192 AI \u2192 Retrieval.")
+    p = ai_providers(cfg).get(pid)
+    if not p:
+        raise PermissionError(f"Unknown provider '{pid}' for embeddings.")
+    if not p.get("local"):
+        raise PermissionError(f"Remote providers never embed: {p.get('label') or pid} is not on this machine. "
+                              "Choose a local embedding model (Ollama or a local OpenAI-compatible endpoint).")
+    if not isinstance(texts, list) or not texts or len(texts) > MAX_EMBED_TEXTS:
+        raise ValueError(f"Send between 1 and {MAX_EMBED_TEXTS} texts per request.")
+    texts = [str(t)[:8000] for t in texts]
+    if sum(len(t.encode("utf-8")) for t in texts) > MAX_AI_BYTES:
+        raise ValueError(f"The batch is larger than the {MAX_AI_BYTES // 1000} kB limit.")
+    base = _ai_base(cfg, pid)
+    host = urllib.parse.urlparse(base).hostname or ""
+    if host not in ("127.0.0.1", "localhost", "::1"):
+        raise PermissionError(f"The endpoint of {p.get('label') or pid} ({host or 'none'}) is not on this machine; "
+                              "embeddings go to a loopback address only.")
+    key = _ai_key(cfg, pid)
+    if pid == "ollama":                          # Ollama's own endpoint: one prompt per call
+        root = re.sub(r"/v1$", "", base)
+        vecs = []
+        for t in texts:
+            out = _post_json(root + "/api/embeddings", {"model": model, "prompt": t}, _ai_headers(p, key, cfg), timeout=120)
+            vecs.append(out.get("embedding") or [])
+    else:                                        # OpenAI-compatible: one call per batch
+        out = _post_json(base + "/embeddings", {"model": model, "input": texts}, _ai_headers(p, key, cfg), timeout=180)
+        data = sorted(out.get("data") or [], key=lambda d: d.get("index", 0))
+        vecs = [d.get("embedding") or [] for d in data]
+    if len(vecs) != len(texts) or not all(isinstance(v, list) and v for v in vecs):
+        raise RuntimeError("The embedding endpoint returned no vector for some texts.")
+    return {"provider": pid, "model": model, "dims": len(vecs[0]), "vectors": vecs}
 
 
 def _write(job, name, data: bytes):
@@ -732,10 +872,28 @@ def update_check():
            "newer": latest > (_vtuple(VERSION) or (0, 0, 0)), "notes_url": data.get("html_url") or f"https://github.com/{UPDATE_REPO}/releases",
            "published": data.get("published_at") or "", "prerelease": bool(data.get("prerelease")),
            "asset": {"name": asset["name"], "size": asset.get("size")}}
+    # 1.9.0 — the checksum convention: the release carries "<zip name>.sha256" beside the ZIP (the output of
+    # `shasum -a 256 <zip>` or `sha256sum <zip>`). Without it the download is kept but marked unverified.
+    sums = next((a for a in data.get("assets") or [] if str(a.get("name", "")) == asset["name"] + ".sha256"), None)
+    res["asset"]["checksum"] = bool(sums)
     _update_cache.clear()
     if asset:
-        _update_cache.update(name=asset["name"], url=asset.get("browser_download_url") or "", latest=res["latest"])
+        _update_cache.update(name=asset["name"], url=asset.get("browser_download_url") or "", latest=res["latest"],
+                             sha_url=(sums or {}).get("browser_download_url") or "")
     return res
+
+
+def _update_url_ok(url):
+    return url.startswith(UPDATE_DOWNLOAD_HOSTS) or bool(os.environ.get("CRG_UPDATE_URL") and url.startswith("http://127.0.0.1"))
+
+
+def _update_get(url, timeout):
+    req = urllib.request.Request(url, headers={"User-Agent": UPDATE_UA, "Accept": "application/octet-stream"})
+    with urllib.request.urlopen(req, timeout=timeout, context=_ctx() if url.startswith("https") else None) as r:
+        final = r.geturl()
+        if not _update_url_ok(final):           # urllib follows redirects: the address it ended on is checked too
+            raise RuntimeError("The download was redirected away from GitHub; nothing was kept.")
+        return r.read()
 
 
 def run_update(job, params, ev):
@@ -743,18 +901,28 @@ def run_update(job, params, ev):
     if not _update_cache.get("url"):
         raise RuntimeError("Check for updates first: no release asset is known.")
     url, name = _update_cache["url"], os.path.basename(_update_cache["name"])
-    if not (url.startswith(UPDATE_DOWNLOAD_HOSTS) or (os.environ.get("CRG_UPDATE_URL") and url.startswith("http://127.0.0.1"))):
+    sha_url = _update_cache.get("sha_url") or ""
+    if not _update_url_ok(url) or (sha_url and not _update_url_ok(sha_url)):
         raise RuntimeError("The release asset is not on the expected GitHub address; nothing was downloaded.")
     if not SAFE.match(name) or not name.lower().endswith(".zip"):
         raise RuntimeError("Unexpected asset name.")
     _update(job, message=f"Downloading {name}…", progress=0.1)
-    req = urllib.request.Request(url, headers={"User-Agent": UPDATE_UA, "Accept": "application/octet-stream"})
-    with urllib.request.urlopen(req, timeout=300, context=_ctx() if url.startswith("https") else None) as r:
-        data = r.read()
+    data = _update_get(url, 300)
     if ev.is_set():
         raise InterruptedError()
+    digest = hashlib.sha256(data).hexdigest()
+    verified = False
+    if sha_url:
+        _update(job, message="Checking the SHA-256 checksum published with the release…", progress=0.9)
+        m = re.search(r"\b([0-9a-fA-F]{64})\b", _update_get(sha_url, 60).decode("utf-8", "replace"))
+        if not m:
+            raise RuntimeError("The checksum file of the release is not readable; the download was not kept.")
+        if not hmac.compare_digest(m.group(1).lower(), digest):
+            raise RuntimeError("The SHA-256 checksum of the download does not match the one published with the release; "
+                               "the file was not kept. Download it again later, or from the release page.")
+        verified = True
     path = _write(job, name, data)
-    return name, {"records": len(data), "path": path, "version": _update_cache.get("latest")}
+    return name, {"records": len(data), "path": path, "version": _update_cache.get("latest"), "sha256": digest, "verified": verified}
 
 
 RUNNERS = {"kev": run_kev, "epss": run_epss, "nvd": run_nvd, "feeds": run_feeds, "update": run_update}
@@ -781,9 +949,7 @@ def publish(name, content, target):
         # can find them, and never in the outbox that gets uploaded to the shared registry.
         folder = os.path.join(FEEDS, "briefings")
     elif target == "registry" and local:
-        if not os.path.isdir(local):
-            raise ValueError(f"shared registry folder not found: {local}")
-        folder = local
+        folder = registry_folder("shared")
     else:
         folder = os.path.join(FEEDS, "registry-outbox")
     os.makedirs(folder, exist_ok=True)
@@ -910,7 +1076,69 @@ def registry_folder(where):
     local = os.path.expanduser((cfg.get("links") or {}).get("registry_local_dir") or "")
     if not local or not os.path.isdir(local):
         raise ValueError("no shared registry folder is set, or it is not reachable on this computer")
+    bad = registry_dir_problem(local)
+    if bad:
+        raise ValueError(bad)
     return local
+
+
+# 1.9.0 — the shared registry folder receives files the application writes. It must be an ordinary data folder:
+# never a configuration folder (a file written there could configure another program — an MCP server in
+# claude_desktop_config.json, for example), never the home folder itself, the application or a system folder.
+CONFIG_MARKERS = ("claude_desktop_config.json", ".mcp.json", "settings.json", "settings.local.json", "config.json",
+                  "authorized_keys", "known_hosts", ".bashrc", ".zshrc", ".profile", "crg-config.json", "keys-index.json")
+
+
+def registry_dir_problem(path):
+    """Why `path` may not be the shared registry folder, or '' when it may."""
+    d = os.path.realpath(os.path.abspath(os.path.expanduser(str(path or ""))))
+    home = os.path.realpath(os.path.expanduser("~"))
+    parts = [p for p in os.path.relpath(d, home).split(os.sep)] if (d + os.sep).startswith(home + os.sep) else None
+    why = "The shared registry folder must be an ordinary data folder (a synced Drive or OneDrive folder, for example)"
+    if d in (home, os.path.realpath(os.sep)) or os.path.dirname(d) == d:
+        return why + ", not the home folder or the root of a disk."
+    for forbidden in (ROOT, FEEDS, crg_feeds.keys_dir()):
+        f = os.path.realpath(forbidden)
+        if (d + os.sep).startswith(f + os.sep):
+            return why + ", outside the application, the feeds folder and the key folder."
+    system = ("/etc", "/usr", "/bin", "/sbin", "/lib", "/opt", "/var", "/private", "/System", "/Library", "/Applications",
+              "/boot", "/dev", "/proc", "/sys", "/root")
+    if os.name == "nt":
+        win = os.environ.get("SystemRoot", r"C:\Windows").lower()
+        if d.lower().startswith((win, os.environ.get("ProgramFiles", r"C:\Program Files").lower(),
+                                 os.environ.get("ProgramData", r"C:\ProgramData").lower())):
+            return why + ", not a system folder."
+    elif parts is None and any(d == p or d.startswith(p + "/") for p in system):
+        return why + ", not a system folder."
+    if parts is not None:
+        if any(p.startswith(".") for p in parts):
+            return why + ", not a hidden or configuration folder."
+        if parts[0] in ("Library", "AppData") and not (len(parts) > 1 and parts[1] in ("CloudStorage", "Mobile Documents")):
+            return why + ", not a folder of application settings."
+    try:
+        present = [f for f in CONFIG_MARKERS if os.path.exists(os.path.join(d, f))]
+    except OSError:
+        present = []
+    if present:
+        return why + f": this folder holds configuration files ({', '.join(present[:3])})."
+    return ""
+
+
+def validate_config(new, old):
+    """Refuse a configuration that would let a caller start a program or write into a configuration folder.
+    The same checks run again where the value is used (crgo_client.check, registry_folder)."""
+    o = new.get("ontology") or {}
+    if (o.get("command") or o.get("args")) and (o.get("command"), o.get("args")) != ((old.get("ontology") or {}).get("command"), (old.get("ontology") or {}).get("args")):
+        bad = crgo_client.settings_problem(o.get("command"), o.get("args"))
+        if bad:
+            raise ValueError(bad)
+    d = (new.get("links") or {}).get("registry_local_dir") or ""
+    if d and d != ((old.get("links") or {}).get("registry_local_dir") or ""):
+        if not os.path.isdir(os.path.expanduser(d)):
+            raise ValueError(f"The shared registry folder {d} does not exist on this computer.")
+        bad = registry_dir_problem(d)
+        if bad:
+            raise ValueError(bad)
 
 
 def registry_files():
@@ -980,7 +1208,7 @@ def start_job(source, params):
             name, info = RUNNERS[source](job, dict(params), ev)
             _update(job, status="done", progress=1.0, file=name, finished=_now(),
                     message=f"Saved {name} in {FEEDS}" if source == "update" else f"Saved {name} in Downloads/CyberRiskGuardian-feeds",
-                    **{k: v for k, v in info.items() if k in ("records", "score_date", "catalog_version", "path", "version")})
+                    **{k: v for k, v in info.items() if k in ("records", "score_date", "catalog_version", "path", "version", "sha256", "verified")})
         except InterruptedError:
             _update(job, status="cancelled", message="Cancelled.", finished=_now())
         except Exception as exc:                        # noqa: BLE001
@@ -1043,7 +1271,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-cache")
+        # 1.9.0 — every answer: no sniffing, no framing, no referrer. The full Content-Security-Policy is the
+        # <meta> of each page (it also applies offline); this header only adds what a meta tag cannot carry.
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Content-Security-Policy", "frame-ancestors 'none'; object-src 'none'; base-uri 'none'")
         super().end_headers()
+
+    def list_directory(self, path):                    # 1.9.0 — no directory listings
+        self.send_error(404, "Not found")
+        return None
 
     def _json(self, code, obj):
         body = json.dumps(obj).encode("utf-8")
@@ -1053,23 +1291,49 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _guard(self):
-        # Only the app may use the API: it sends X-CRG, which a foreign web page cannot add without a
-        # CORS preflight this server never approves; the Host must be loopback.
-        host = (self.headers.get("Host") or "").split(":")[0]
-        if self.headers.get("X-CRG") != "1" or host not in ("localhost", "127.0.0.1"):
-            self._json(403, {"error": "forbidden"}); return False
+    def _host_ok(self):
+        """The Host header names this server on loopback (a DNS-rebinding page sends its own name)."""
+        return (self.headers.get("Host") or "").lower() in (f"127.0.0.1:{PORT}", f"localhost:{PORT}")
+
+    def _guard(self, token=True):
+        """Only the app may use the API (1.9.0):
+          * Host is 127.0.0.1:PORT or localhost:PORT;
+          * X-CRG: 1 — a foreign page cannot add it without a CORS preflight, which this server never approves;
+          * Origin, when the browser sends one, is this server, and Sec-Fetch-Site, when sent, is same-origin;
+          * X-CRG-Token is the token made at this start (compared in constant time). The page reads it from
+            /api/session, which only the same origin can read."""
+        origin = self.headers.get("Origin")
+        site = self.headers.get("Sec-Fetch-Site")
+        if (self.headers.get("X-CRG") != "1" or not self._host_ok()
+                or (origin is not None and origin not in (f"http://127.0.0.1:{PORT}", f"http://localhost:{PORT}"))
+                or (site is not None and site != "same-origin")):
+            self._json(403, {"error": "forbidden", "code": "ORIGIN"}); return False
+        if token and not hmac.compare_digest(str(self.headers.get("X-CRG-Token") or ""), TOKEN):
+            self._json(403, {"error": "The helper was restarted or the request did not come from the application.", "code": "TOKEN"})
+            return False
         return True
 
     def do_OPTIONS(self):                               # never approve cross-origin preflights
         self.send_response(403); self.end_headers()
 
+    def do_HEAD(self):
+        if self.path.startswith("/api/") or not self._host_ok():
+            self.send_response(403); self.end_headers(); return None
+        return super().do_HEAD()
+
     def do_GET(self):
         if not self.path.startswith("/api/"):
+            if not self._host_ok():                     # 1.9.0 — DNS rebinding cannot read the application's files
+                self.send_error(403, "Forbidden")
+                return None
             return super().do_GET()
+        path = urllib.parse.urlparse(self.path).path
+        if path == "/api/session":                      # 1.9.0 — the per-launch token, for the same origin only
+            if self._guard(token=False):
+                self._json(200, {"token": TOKEN})
+            return None
         if not self._guard():
             return
-        path = urllib.parse.urlparse(self.path).path
         if path == "/api/ai/models":
             return self._ai_models(urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query))
         if path == "/api/helper":
@@ -1165,12 +1429,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                               "needs": v.get("needs") or [], "note": v.get("note") or "",
                               "key_url": v.get("key_url") or "", "key_name": v.get("key"),
                               "base_default": v.get("base") or ""} for k, v in provs.items()},
-            "keys": {k: bool(keys.get(v["key"])) for k, v in provs.items()},
+            "keys": {k: v["key"] in keys for k, v in provs.items()},
+            # 1.9.0 — a stored key is sent only to the hosts it was saved for; Settings says when the endpoint moved
+            "key_hosts": {k: _key_hosts_for(k, cfg) for k, v in provs.items() if v["key"] in keys},
+            "key_mismatch": {k: bool(_ai_base(cfg, k)) and not crg_feeds.host_allowed(_ai_base(cfg, k), _key_hosts_for(k, cfg))
+                             for k, v in provs.items() if v["key"] in keys},
+            "key_storage": crg_feeds.key_storage(),
             "bases": {k: _ai_base(cfg, k) for k in provs},
             "models": {k: _ai_model(cfg, k) for k in provs},
             "api_versions": {k: (cfg.get("ai") or {}).get(k + "_api_version") or "" for k in provs},
             # kept for 1.5.1-1.5.4 pages that read a single local endpoint
             "local_base": _ai_base(cfg, "local"),
+            "embed": embed_config(cfg),
         }
 
     def _ai_models(self, qs):
@@ -1220,6 +1490,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"error": str(exc)})
         if path == "/api/config":
             try:
+                validate_config(body.get("config") or {}, crg_feeds.load_config(FEEDS))
                 cfg = crg_feeds.save_config(body.get("config") or {}, FEEDS)
                 return self._json(200, {"config": cfg, "sources": crg_feeds.sources(cfg)})
             except Exception as exc:                    # noqa: BLE001
@@ -1231,13 +1502,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"error": "unknown provider"})
             refused = ai_check_policy(provider, cfg, body)
             if refused:
-                sys.stderr.write(f"helper: ai {provider} refused by policy\n")
+                sys.stderr.write(f"helper: ai {provider} refused by policy: {refused[:160]}\n")
                 return self._json(403, {"error": refused})
             try:
                 out = ai_complete(provider, cfg, body)
                 sys.stderr.write(f"helper: ai {provider} {out.get('model')} "
                                  f"in={out['usage'].get('in')} out={out['usage'].get('out')}\n")
                 return self._json(200, out)
+            except Exception as exc:                    # noqa: BLE001
+                return self._json(502, {"error": str(exc)})
+        if path == "/api/embed":                       # 1.9.0 — Virtual consultant: local embeddings only
+            cfg = crg_feeds.load_config(FEEDS)
+            try:
+                out = ai_embed(cfg, body.get("texts"))
+                sys.stderr.write(f"helper: embed {out['provider']} {out['model']} n={len(out['vectors'])}\n")
+                return self._json(200, out)
+            except PermissionError as exc:
+                sys.stderr.write("helper: embed refused\n")
+                return self._json(403, {"error": str(exc)})
+            except ValueError as exc:
+                return self._json(400, {"error": str(exc)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(502, {"error": str(exc)})
         if path == "/api/ai/test":
@@ -1253,7 +1537,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                                         "label": provs[provider]["label"]})
         if path == "/api/keys":
             try:
-                return self._json(200, {"keys": crg_feeds.set_key(body.get("name"), body.get("value"), FEEDS)})
+                name = str(body.get("name") or "")
+                hosts = _key_hosts_at_save(name, crg_feeds.load_config(FEEDS))
+                return self._json(200, {"keys": crg_feeds.set_key(name, body.get("value"), FEEDS, hosts=hosts)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(400, {"error": str(exc)})
         m = re.match(r"^/api/crgo/(graph|applicability|context|submit|compliance|secops)$", path)
@@ -1304,16 +1590,31 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    # 1.9.0 — on Windows SO_REUSEADDR lets another program bind the same port and answer in the helper's place;
+    # an exclusive bind is used there instead.
+    allow_reuse_address = os.name != "nt"
+
+    def server_bind(self):
+        if os.name == "nt" and hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
 
 HTTPD = None
 
 
 def main():
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8099
+    global PORT
+    port = PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8099
     _load_manifest()
     install_task_files()
+    try:                                                # 1.9.0 — keys move out of the feeds folder, once
+        cfg = crg_feeds.load_config(FEEDS)
+        moved = crg_feeds.migrate_legacy_keys(FEEDS, hosts_for=lambda n: _key_hosts_at_save(n, cfg))
+        if moved:
+            print(f"Moved {moved} API key(s) out of the feeds folder into {crg_feeds.key_storage()['path']}.", flush=True)
+    except Exception as exc:                            # noqa: BLE001
+        sys.stderr.write(f"helper: the API keys could not be moved out of the feeds folder: {exc}\n")
     global HTTPD
     httpd = HTTPD = Server(("127.0.0.1", port), Handler)
     print(f"Serving {ROOT}\n  at http://localhost:{port}/  (loopback only)\n"
