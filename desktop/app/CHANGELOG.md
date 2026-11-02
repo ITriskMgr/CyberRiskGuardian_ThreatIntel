@@ -59,7 +59,7 @@ the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 /
   copy of `mock/` (`$CRG_TMP/mock`), so suites that rewrite `consultant.txt` and the helper's `_last.json` never touch
   the repository. t29 reads the running version from `js/version.js` instead of a literal.
 - Suites: t01–t31 as before; t32 security; t33 SSVC; t34 AI forecasting; t35 CanaRetail and MediBec (French); t36–t43
-  identity, privilege & configuration; t44–t47 Virtual consultant; t48 chapter-linked help; t49 CRGO 0.11.
+  identity, privilege & configuration; t44–t47 Virtual consultant; t48 chapter-linked help; t49 Atlas design system; t50 CRGO 0.11.
 
 ### French terminology and chapter-linked help (group 2)
 - **French follows the French book** (`docs/fr-terminology-1.9.md`): *appétence pour le risque* (not *appétit*),
@@ -218,7 +218,7 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   indexes the patterns, CIS safeguards and OWASP entries and cites them `(release 0.11.0, proposed, …)`.
 - Guides EN/FR (3.5, legal applicability, troubleshooting), installation notes and `NOTICE.md` point to CRGO 0.11.0.
   Threat Intel plugin 1.7.0 pins 0.11.0 (root `CHANGELOG.md`).
-- Tests: `t49_crgo_011.mjs` (snapshot, patterns end to end, CIS catalogue, applicability with technologies, Connection);
+- Tests: `t50_crgo_011.mjs` (snapshot, patterns end to end, CIS catalogue, applicability with technologies, Connection);
   t12 and t21 assert the detected release and `ontologyRelease` equal `CRGO_RELEASE` (default 0.11.0); t38 runs the
   release gate against the checkout; t44 accepts the *proposed* citation. CI checks CRGO out through one variable,
   `CRGO_REF` (`release/0.11.0` until the author tags v0.11.0).

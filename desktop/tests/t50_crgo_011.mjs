@@ -5,7 +5,7 @@
 import { open, ok, done, CRGO, ORG, CRGO_RELEASE, CRGO_011 } from './lib.mjs';
 import fs from 'fs';
 const { browser, page, errors } = await open('#/process');
-if (!CRGO_011) { ok(true, `CRGO_RELEASE ${CRGO_RELEASE}: the 0.11 suite does not apply`); await browser.close(); done('t49 crgo 0.11'); }
+if (!CRGO_011) { ok(true, `CRGO_RELEASE ${CRGO_RELEASE}: the 0.11 suite does not apply`); await browser.close(); done('t50 crgo 0.11'); }
 
 const r = await page.evaluate(async () => {
   const st = await import('/js/state.js'); const D = await import('/js/dss.js'); const C = await import('/js/crgo.js');
@@ -95,10 +95,16 @@ const after = await page.evaluate(async () => { const st = await import('/js/sta
 ok(JSON.stringify(after) === JSON.stringify([['Prompt injection row', 'CRGO_0001393'], ['Invented pattern row', null], ['Plain row', null]]), 'register: the pattern travels with the scenario; an unknown identifier is dropped ' + JSON.stringify(after));
 // scenario editor → Ontology card shows and edits the pattern
 const sid = await page.evaluate(async () => { const st = await import('/js/state.js'); const s = st.S.ws.assessment.SCEN[0]; location.hash = '#/scenario/' + s.id; return s.id; });
-await page.waitForTimeout(900);
-ok(await page.locator('#panel-scenario >> text=Scenario pattern (CRGO 0.11.0, proposed)').count() > 0 && await page.locator('#panel-scenario >> text=CRGO_0001478').count() > 0,
-  'scenario editor (Ontology · CRGO): pattern, its identifier and has-scenario-pattern shown');
-await page.selectOption('#panel-scenario select:has(option[value="CRGO_0001391"])', 'CRGO_0001391');
+// 1.9.0 Atlas: the editor is tabbed — the pattern lives in the "Ontology · CRGO" tab, which must render it
+await page.waitForSelector('#scen-tab-onto', { timeout: 15000 });
+await page.click('#scen-tab-onto');
+await page.waitForSelector('#scen-panel-onto:not([hidden])', { state: 'visible', timeout: 15000 });
+const onto = page.locator('#scen-panel-onto');
+ok(await page.locator('#scen-tab-onto').getAttribute('aria-selected') === 'true'
+  && await onto.locator('text=Scenario pattern (CRGO 0.11.0, proposed)').first().isVisible() && await onto.locator('text=CRGO_0001478').first().isVisible()
+  && await onto.locator('select:has(option[value="CRGO_0001391"])').isVisible(),
+  'scenario editor, Ontology · CRGO tab: the pattern picker renders with its identifier and has-scenario-pattern');
+await onto.locator('select:has(option[value="CRGO_0001391"])').selectOption('CRGO_0001391');
 await page.waitForTimeout(400);
 const edited = await page.evaluate(async id => { const st = await import('/js/state.js'); return st.S.ws.assessment.SCEN.find(s => s.id === id).scenPattern; }, sid);
 ok(edited === 'CRGO_0001391', 'the analyst can set the pattern in the editor ' + edited);
@@ -108,4 +114,4 @@ ok(await page.waitForSelector(`#panel-ontology >> text=CRGO v${CRGO_RELEASE} is 
 ok(await page.locator('#panel-ontology >> text=153 safeguards with CRGO labels').count() > 0, 'Connection: the snapshot card lists the CRGO 0.11.0 additions');
 await page.evaluate(async () => { const st = await import('/js/state.js'); await st.remove(st.S.ws.id); });
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t49 crgo 0.11');
+await browser.close(); done('t50 crgo 0.11');
