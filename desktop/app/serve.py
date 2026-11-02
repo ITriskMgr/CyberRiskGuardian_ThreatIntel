@@ -1262,6 +1262,9 @@ def list_files():
 
 # ---------------------------------------------------------------- HTTP
 class Handler(http.server.SimpleHTTPRequestHandler):
+    # 1.9.0 — the bundled fonts: a fixed type, whatever the system's MIME table says (Windows reads it from the registry)
+    extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map, ".woff2": "font/woff2"}
+
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
 

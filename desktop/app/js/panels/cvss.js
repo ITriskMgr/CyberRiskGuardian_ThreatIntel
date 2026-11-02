@@ -67,6 +67,6 @@ export function render(sec, arg) {
     target ? el('button', { class: 'btn', id: 'cvss-save', onclick: () => { const s = scen(target); s.cvss = vec.value; delete s.cvss_score;
       if (mode === 'equivalency') { EQ.setMode(s, 'equivalency'); s.cvss_equiv = JSON.parse(JSON.stringify(eq)); s.cvss_limited = true; const g = EQ.gaps(s); if (g.length) toast(tr('Saved — still missing a justification for: {0}').replace('{0}', g.join(', ')), 'bad'); else toast('Vector and justifications saved to ' + target); }
       else { if (EQ.isEquiv(s)) EQ.setMode(s, 'technical'); toast('Vector saved to ' + target); }
-      touch(); go('scenario/' + target); } }, 'Save to ' + target) : null)), out);
+      touch(); go('scenario/' + target + '/cvss'); } }, 'Save to ' + target) : null)), out);
   update();
 }

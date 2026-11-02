@@ -16,9 +16,45 @@ import * as SEED from '../secops_seed.js';
 import { statusAt, TLP_RESTRICTED } from '../siem.js';
 import * as IPCP from './ipc.js';
 import * as EQ from '../equiv.js';
+import * as users from '../users.js';
 
 const CONS = ['Confidentiality/privacy', 'Integrity', 'Availability', 'Operations', 'Financial', 'Regulatory', 'Reputation', 'Safety'];
 const CONF = ['High', 'Medium', 'Low'];
+
+/* ---------------- 1.9.0 — Atlas: the editor's tabs ---------------- */
+const TABS = [['chain', 'Causal chain'], ['quant', 'Quantification'], ['cvss', 'CVSS v4.0'], ['treat', 'Treatment'],
+  ['links', 'Links & evidence'], ['onto', 'Ontology'], ['crgo', 'CRGO']];
+let pendingTab = null;
+const MOVE = { ArrowRight: 1, ArrowLeft: -1, Home: 'first', End: 'last' };
+/** Open the editor on a given tab next time it is drawn (Process step 8 → chain, 9 → quant, 10 → cvss). */
+export function requestTab(t) { pendingTab = t; }
+const tabKey = () => 'crg-scen-tab:' + (users.me()?.id || 'local');   // per person, on this computer
+function savedTab() { try { return localStorage.getItem(tabKey()); } catch { return null; } }
+/** A tab named in the address (#/scenario/S2/cvss) holds for that visit only: once the person picks a tab, the address
+    drops it, so a redraw keeps their choice. */
+const dropTabArg = sid => { if (location.hash.split('/').length > 3) history.replaceState(null, '', '#/scenario/' + sid); };
+function saveTab(t) { try { localStorage.setItem(tabKey(), t); } catch { /* private window: the choice is not kept */ } }
+/** The tab list (WAI-ARIA tabs: roving tabindex, arrow keys, Home and End; selection follows focus). */
+function tablist(cur, P, sid) {
+  const list = el('div', { class: 'scen-tabs', role: 'tablist', 'aria-label': tr('Scenario sections') });
+  const btns = TABS.map(([k, label]) => el('button', { type: 'button', role: 'tab', id: 'scen-tab-' + k, 'data-tab': k, 'aria-controls': 'scen-panel-' + k }, label));
+  const select = (k, focus) => {
+    for (const b of btns) { const on = b.dataset.tab === k; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); }
+    for (const [pk, p] of Object.entries(P)) p.hidden = pk !== k;
+  };
+  for (const b of btns) {
+    b.addEventListener('click', () => { select(b.dataset.tab); saveTab(b.dataset.tab); dropTabArg(sid); });
+    b.addEventListener('keydown', e => {
+      const i = btns.indexOf(b), n = btns.length, mv = MOVE[e.key];
+      if (mv === undefined) return;
+      const j = mv === 'first' ? 0 : mv === 'last' ? n - 1 : (i + mv + n) % n;
+      e.preventDefault(); select(btns[j].dataset.tab, true); saveTab(btns[j].dataset.tab); dropTabArg(sid);
+    });
+  }
+  list.append(...btns);
+  select(cur);
+  return list;
+}
 
 export function render(sec, arg) {
   const a = S.ws.assessment;
@@ -27,54 +63,75 @@ export function render(sec, arg) {
     sec.append(el('p', 'lede', 'No scenario to edit yet.'), card(el('div', 'btnrow', el('button', { class: 'btn', onclick: () => go('register') }, 'Go to the register'), el('button', { class: 'btn ghost', onclick: () => go('batch') }, 'Batch create'))));
     return;
   }
-  const s = scen(arg) || a.SCEN[0];
-  if (!arg || !scen(arg)) history.replaceState(null, '', '#/scenario/' + s.id);
+  const [argId, tabArg] = String(arg || '').split('/');
+  const s = scen(argId) || a.SCEN[0];
+  if (!argId || !scen(argId)) history.replaceState(null, '', '#/scenario/' + s.id + (tabArg ? '/' + tabArg : ''));
   const idx = a.SCEN.indexOf(s);
 
+  /* 1.9.0 — Atlas: every section behind its own tab, the scenario picker on top, and a risk card beside the tabs that the
+     verified engine recalculates on every edit. The tab is remembered per person on this computer; Process opens the tab
+     its step needs (step 8 the causal chain, 9 the quantification, 10 CVSS). */
+  const layout = el('div', 'scen-layout'), main = el('div', 'scen-main');
+  const rcard = el('aside', { class: 'riskcard', id: 'scen-riskcard', 'aria-label': tr('Live risk indices') });
+  layout.append(main, rcard);
+  sec.append(layout);
+
   // navigation bar
-  const pick = select(a.SCEN.map(x => [x.id, x.id + ' — ' + (x.name || '(untitled)').slice(0, 80)]), s.id);
+  const pick = select(a.SCEN.map(x => [x.id, x.id + ' — ' + (x.name || '(untitled)').slice(0, 80)]), s.id, { id: 'scen-pick' });
   pick.addEventListener('change', () => go('scenario/' + pick.value));
   const inc = el('input', { type: 'checkbox', checked: included(s.id) });
   inc.addEventListener('change', () => { setIncluded(s.id, inc.checked); live(); });
-  sec.append(card(el('div', 'row',
+  main.append(card({ class: 'card scen-pick' }, el('div', 'row',
     el('div', { style: { flex: '1 1 380px' } }, field('<b>Scenario</b>', pick)),
+    el('span', { class: 'muted small', style: { alignSelf: 'center', marginTop: '18px' } }, tr('{0} of {1}').replace('{0}', idx + 1).replace('{1}', a.SCEN.length)),
     el('button', { class: 'btn ghost', disabled: idx <= 0, onclick: () => go('scenario/' + a.SCEN[idx - 1].id) }, '‹ Previous'),
     el('button', { class: 'btn ghost', disabled: idx >= a.SCEN.length - 1, onclick: () => go('scenario/' + a.SCEN[idx + 1].id) }, 'Next ›'),
-    el('label', { style: { display: 'flex', gap: '6px', alignItems: 'center', margin: '0 0 8px', color: 'var(--ink)' } }, inc, 'Include in totals'),
-  ), el('div', 'btnrow', { style: { marginTop: '10px' } },
+  ), el('div', 'btnrow', { style: { marginTop: '12px' } },
+    el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: 0, marginRight: 'auto', color: 'var(--ink)', fontSize: '13.5px' } }, inc, 'Include in totals'),
     el('button', { class: 'btn ghost sm', onclick: () => { const c = JSON.parse(JSON.stringify(s)); c.id = nextScenarioId(); c.name = (c.name || '') + ' (copy)'; a.SCEN.splice(idx + 1, 0, c); touch(); go('scenario/' + c.id); } }, 'Duplicate'),
-    el('button', { class: 'btn ghost sm', onclick: () => go('calc/' + s.id) }, 'Open in risk calculator'),
-    el('button', { class: 'btn ghost sm', onclick: () => go('recs/' + s.id) }, 'Recommendations'),
     el('button', { class: 'btn ghost sm danger', onclick: () => {
       if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?`)) return;
       a.SCEN.splice(idx, 1); for (const i of a.INITIATIVES) if (Array.isArray(i[3])) i[3] = i[3].filter(x => x !== s.id);
       S.ws.excluded = S.ws.excluded.filter(x => x !== s.id); delete S.ws.decisions[s.id]; touch(); toast('Deleted ' + s.id); go('register');
     } }, 'Delete'))));
 
-  // live risk indices
-  const liveBox = el('div');
+  // the tabs
+  const P = Object.fromEntries(TABS.map(([k]) => [k, el('div', { class: 'scen-panel', role: 'tabpanel', id: 'scen-panel-' + k, 'aria-labelledby': 'scen-tab-' + k, tabindex: '0' })]));
+  const want = tabArg && P[tabArg] ? tabArg : pendingTab && P[pendingTab] ? pendingTab : P[savedTab()] ? savedTab() : 'chain';
+  if (pendingTab) { saveTab(want); pendingTab = null; }
+  main.append(tablist(want, P, s.id), ...Object.values(P));
+
+  // live risk indices: the risk card
   const live = () => {
-    liveBox.replaceChildren();
     let r;
     try { r = CRG.calc(s, a.APPETITE, a.FACTOR); }
-    catch (e) { liveBox.append(banner('bad', 'Cannot calculate this scenario yet', String(e.message || e))); return; }
+    catch (e) { rcard.replaceChildren(el('div', 'rk-title', el('span', null, 'Live risk indices'), ' · ', el('span', { 'data-noi18n': '' }, s.id)), banner('bad', 'Cannot calculate this scenario yet', String(e.message || e))); return; }
     const cls = CRG.classify(r.ratio), al = allocation()[s.id];
-    const st = el('div', 'kpi ' + pillFor(cls)); st.append(el('div', 'k', 'Risk-to-tolerance ratio'));
-    const v = el('div', 'v'); v.append(n2(r.ratio) + ' ', pill(cls, pillFor(cls))); st.append(v);
-    liveBox.append(el('div', 'grid g6', kpi(EQ.isEquiv(s) ? 'CVSS-B by equivalency' : 'CVSS-B', n2(r.cvss), s.cvss_limited || EQ.isEquiv(s) ? EQ.LIMITED : ''), kpi('Estimated', n0(r.est)), kpi('Tolerated', n0(r.tol)),
-      kpi('Residual', n0(r.res)), st, kpi('Year-1 treatment', al?.y1 ? money(al.y1) : '—', al?.y1 ? 'CE ' + n2((r.est - r.res) / al.y1 * 1000) + ' ' + tr('risk units removed per $1,000') : 'no initiative linked')));
-    if (r.mit > r.est) liveBox.append(banner('bad', 'Mitigation exceeds estimated risk', 'Revise the reduction estimates.'));
-    // 1.8.0 — a stored score is checked against its vector; a disagreement is flagged, never corrected silently
-    const cc = CRG.cvssCheck(s);
-    if (cc.agree === false) liveBox.append(banner('warn', 'The stored CVSS score disagrees with its vector', tr('Stored {0}, the vector scores {1}. The stored score is used until you change it.').replace('{0}', n2(cc.stored)).replace('{1}', n2(cc.computed))));
+    const row = (k, v, sub) => el('div', 'rk', el('dt', null, k, sub ? el('div', 'small', sub) : null), el('dd', { 'data-noi18n': '' }, v));
+    rcard.replaceChildren(
+      el('div', 'rk-title', el('span', null, 'Live risk indices'), ' · ', el('span', { 'data-noi18n': '' }, s.id)),
+      el('div', 'rk-ratio', el('span', { class: 'big', id: 'rk-ratio', 'data-noi18n': '' }, n2(r.ratio)), el('span', 'lab', 'Risk-to-tolerance ratio')),
+      el('div', 'rk-cls', pill(cls, pillFor(cls))),
+      el('dl', null,
+        row(EQ.isEquiv(s) ? 'CVSS-B by equivalency' : 'CVSS-B', n2(r.cvss), s.cvss_limited || EQ.isEquiv(s) ? EQ.LIMITED : ''),
+        row('Estimated', n0(r.est)), row('Tolerated', n0(r.tol)), row('Mitigated', n0(r.mit)), row('Residual', n0(r.res)),
+        row('Ratio before treatment', n2(r.pre_ratio))),
+      el('p', 'rk-cost', el('span', null, 'Year-1 treatment'), ': ', el('b', { 'data-noi18n': '' }, al?.y1 ? money(al.y1) : '—'), ' · ',
+        al?.y1 ? el('span', null, 'CE ' + n2((r.est - r.res) / al.y1 * 1000) + ' ' + tr('risk units removed per $1,000')) : el('span', null, 'no initiative linked')),
+      r.mit > r.est ? banner('bad', 'Mitigation exceeds estimated risk', 'Revise the reduction estimates.') : null,
+      // 1.8.0 — a stored score is checked against its vector; a disagreement is flagged, never corrected silently
+      (() => { const cc = CRG.cvssCheck(s); return cc.agree === false ? banner('warn', 'The stored CVSS score disagrees with its vector', tr('Stored {0}, the vector scores {1}. The stored score is used until you change it.').replace('{0}', n2(cc.stored)).replace('{1}', n2(cc.computed))) : null; })(),
+      el('div', 'btnrow',
+        el('button', { class: 'btn primary', onclick: () => go('calc/' + s.id) }, 'Open in risk calculator'),
+        el('button', { class: 'btn ghost', onclick: () => go('recs/' + s.id) }, 'Recommendations')));
   };
   const ch = () => { touch(); live(); };
-  sec.append(liveBox); live();
+  live();
 
   const T = (key, rows = 2, attrs = {}) => { const n = el(rows ? 'textarea' : 'input', Object.assign({ rows }, attrs)); n.value = s[key] ?? ''; n.addEventListener('input', () => { s[key] = n.value; ch(); if (key === 'name') pick.selectedOptions[0].text = s.id + ' — ' + n.value.slice(0, 80); }); return n; };
   const L = (key, rows = 3) => { const n = el('textarea', { rows, placeholder: 'One per line' }); n.value = (s[key] || []).join('\n'); n.addEventListener('input', () => { s[key] = n.value.split('\n').map(x => x.trim()).filter(Boolean); ch(); }); return n; };
 
-  sec.append(card(el('h2', null, 'Identification'), el('div', 'grid g3',
+  P.chain.append(card(el('h2', null, 'Identification'), el('div', 'grid g3',
     field('<b>Name</b>', T('name', 0)), field('Library reference / candidate ID', T('ref', 0)), field('Risk owner', T('owner', 0)),
     field('Implementation horizon', T('horizon', 0, { placeholder: 'e.g. 0-6 months' })), field('Stakeholders', T('stakeholders', 0)), field('Origin', el('input', { value: s.origin || 'imported', readOnly: true })),
   ), field('<b>Scenario statement</b> — threat source → vulnerability → asset/process → event → consequence', T('statement', 3))));
@@ -84,7 +141,7 @@ export function render(sec, arg) {
      the review that follows writes nothing until each field is ticked. A field that already has text
      is never ticked by default. */
   const chainBox = el('div');
-  sec.append(card(el('div', 'row', { style: { alignItems: 'center' } },
+  P.chain.append(card(el('div', 'row', { style: { alignItems: 'center' } },
       el('h2', { style: { flex: 1, margin: 0 } }, 'Causal chain'),
       el('span', 'small muted', 'Threat source → vulnerability → asset or process → event → consequence'),
       el('button', { class: 'btn sm', onclick: e => draftChain(s, sec, chainBox, e.target) }, 'Draft it with AI…')),
@@ -113,7 +170,7 @@ export function render(sec, arg) {
     cveBox.append(el('div', 'chips', { style: { marginTop: '8px' } }, ...s.cves.map(c => { const r = ladder(c, S.snap, exposed.has(c)); return el('span', { class: 'pill ' + (r.rung >= 4 ? 'bad' : r.rung >= 3 ? 'warn' : 'good'), title: r.evidence + (r.applies ? '' : ' — exposure not confirmed: watch list only') }, `${c} · rung ${r.rung}${r.applies ? '' : ' (watch)'}`); })));
   };
   drawCveLadder();
-  sec.append(el('div', 'cols2',
+  P.links.append(el('div', 'cols2',
     card(el('h2', null, 'Threats — MITRE ATT&CK'), linkEditor(s.attack, 'attack', () => { ch(); drawChain(); }), el('div', { style: { marginTop: '10px' } }, chain)),
     card(el('h2', null, 'Vulnerabilities — CWE and CVE'), el('label', null, el('b', null, 'Weakness types (CWE)')), linkEditor(s.cwe, 'cwe', ch),
       el('label', { style: { marginTop: '12px' } }, el('b', null, 'Specific vulnerabilities (CVE)')), linkEditor(s.cves, 'cve', () => { ch(); drawCveLadder(); }), cveBox,
@@ -121,7 +178,7 @@ export function render(sec, arg) {
 
   // consequences
   s.consequences = s.consequences && typeof s.consequences === 'object' ? s.consequences : {};
-  sec.append(card(el('h2', null, 'Consequences'), el('div', 'grid g4', ...CONS.map(c => { const n = el('textarea', { rows: 2 }); n.value = s.consequences[c] || ''; n.addEventListener('input', () => { s.consequences[c] = n.value; ch(); }); return field(c, n); }))));
+  P.chain.append(card(el('h2', null, 'Consequences'), el('div', 'grid g4', ...CONS.map(c => { const n = el('textarea', { rows: 2 }); n.value = s.consequences[c] || ''; n.addEventListener('input', () => { s.consequences[c] = n.value; ch(); }); return field(c, n); }))));
 
   // quantification
   const pg = el('div', 'paramgrid');
@@ -135,7 +192,7 @@ export function render(sec, arg) {
     const cf = select(CONF, p.conf || 'Low'); cf.addEventListener('change', () => { p.conf = cf.value; touch(); });
     pg.append(el('div', { title: PARAM_HELP[k] }, el('b', null, PARAM_LABEL[k]), el('div', 'small muted', PARAM_HELP[k])), v, rat, ev, cf);
   }
-  sec.append(card(el('h2', null, 'Quantification'), pg,
+  P.quant.append(card(el('h2', null, 'Quantification'), pg,
     el('p', 'note', 'Values without documented evidence are analytical estimates — validation required. Threat intelligence may move Pb(A) and Pb(ψ,A) only, within ladder bands and with exposure confirmed; never δe, δm, θ or μ(E).')));
 
   // CVSS + treatment
@@ -157,15 +214,15 @@ export function render(sec, arg) {
   if (!inits.length) initBox.append(el('div', 'note', 'No initiatives in this workspace yet — add them under Recommendations, or enter a manual cost.'));
   const manual = el('input', { type: 'number', step: 1000, value: s.cost_y1_manual || '', placeholder: 'used only when no initiative is linked' });
   manual.addEventListener('input', () => { s.cost_y1_manual = Number(manual.value) || 0; ch(); });
-  sec.append(el('div', 'cols2',
+  P.cvss.append(
     card(el('h2', null, 'CVSS v4.0 (Base only, CVSS-B)'), field('<b>Vector</b>', vec), el('div', 'grid g2', field('Score override', score, 'Leave empty to compute from the vector'),
       el('div', { style: { alignSelf: 'end' } }, el('button', { class: 'btn ghost', onclick: () => go('cvss/' + encodeURIComponent(s.cvss || '') + '|' + s.id) }, 'Edit in CVSS calculator'))),
       equivBox(s, ch, vec),
       field('CVSS rationale', T('cvss_note', 3)),
-      el('p', 'note', 'Threat metrics (E:A/P/U) are not used: exploitation evidence belongs in Pb(ψ,A).')),
-    card(el('h2', null, 'Treatment'), el('div', 'grid g2', field('<b>Probability reduction</b>', red('red_p')), field('<b>Impact reduction</b>', red('red_i'))),
+      el('p', 'note', 'Threat metrics (E:A/P/U) are not used: exploitation evidence belongs in Pb(ψ,A).')));
+  P.treat.append(card(el('h2', null, 'Treatment'), el('div', 'grid g2', field('<b>Probability reduction</b>', red('red_p')), field('<b>Impact reduction</b>', red('red_i'))),
       field('Treatment package', T('treatment', 2)), el('label', null, el('b', null, 'Initiatives addressing this scenario')), initBox,
-      field('Manual Year-1 cost', manual))));
+      field('Manual Year-1 cost', manual)));
 
   // 1.4.0 — assets, measures, risks and intelligence notes
   const ws = S.ws;
@@ -174,7 +231,7 @@ export function render(sec, arg) {
     onchange: e => { s.assetIds ||= []; if (e.target.checked) s.assetIds.push(a.id); else s.assetIds = s.assetIds.filter(x => x !== a.id); (ws.assetLog ||= []).push({ ts: new Date().toISOString().slice(0, 19), asset: a.id, action: 'link', field: 'scenario', old: e.target.checked ? '' : s.id, new: e.target.checked ? s.id : '', src: 'scenario editor' }); touch(); } }), ' ', a.id + ' ' + a.name.slice(0, 30)));
   const ms = (ws.measures || []).filter(m => m.status !== 'rejected' && (m.scen || []).includes(s.id));
   const rks = (ws.risks || []).filter(r => (r.scenarios || []).includes(s.id));
-  sec.append(card(el('h2', null, 'Assets, measures, risks and intelligence'),
+  P.links.append(card(el('h2', null, 'Assets, measures, risks and intelligence'),
     el('label', null, el('b', null, 'Information assets carrying this scenario')), (ws.assets || []).length ? aBox : el('div', 'small muted', 'No asset yet — add them in Information assets.'),
     el('label', { style: { marginTop: '12px' } }, el('b', null, 'Mitigation measures')), ms.length ? el('div', 'chips', ...ms.map(m => chip(`${m.id} ${m.name.slice(0, 40)} · rp ${m.eff?.[s.id]?.rp ?? m.rp} ri ${m.eff?.[s.id]?.ri ?? m.ri}`, { href: '#/mitigation/' + m.id, title: m.status }))) : el('div', 'small muted', 'None — see Risk mitigation.'),
     s.red_source ? el('div', 'note', `red_p / red_i applied from measures ${s.red_source.measures.join(', ')} on ${s.red_source.date} (${s.red_source.rule}).`) : null,
@@ -184,15 +241,15 @@ export function render(sec, arg) {
         el('button', { class: 'btn sm ghost danger', onclick: () => { s.intel.splice(i, 1); touch(); render(sec, s.id); } }, 'Remove')))) : null));
 
   // 1.5.7 — the ontology: tags, controls and obligations this scenario carries, and what CRGO links to its techniques
-  sec.append(ontologyCard(s, sec));
+  const [ontoC, crgoC] = ontologyCards(s, sec); P.onto.append(ontoC); P.crgo.append(crgoC);
 
   // 1.6.0 — what SIEM and SOAR hold about this scenario: evidence only, no parameter changes
-  sec.append(secopsCard(s, sec));
+  P.links.append(secopsCard(s, sec));
 
   // threat basis
-  { const c = IPCP.scenarioCard(s); if (c) sec.append(c); }   // identity, privilege & configuration evidence (read-only)
+  { const c = IPCP.scenarioCard(s); if (c) P.links.append(c); }   // identity, privilege & configuration evidence (read-only)
   if (Array.isArray(s.threat_basis) && s.threat_basis.length) {
-    sec.append(card(el('h2', null, 'Threat-context basis (audit trail)'), ...s.threat_basis.map((b, i) => el('div', 'docrow',
+    P.links.append(card(el('h2', null, 'Threat-context basis (audit trail)'), ...s.threat_basis.map((b, i) => el('div', 'docrow',
       el('div', null, el('b', null, (b.cve || '') + ' · ' + (b.parameter || '') + ' · rung ' + (b.ladder_rung ?? '')), el('div', 'small', (b.evidence || []).join('; ')), el('div', 'small muted', 'Exposure: ' + (b.exposure || '—'))),
       el('button', { class: 'btn sm ghost danger', onclick: () => { s.threat_basis.splice(i, 1); touch(); render(sec, s.id); } }, 'Remove')))));
   }
@@ -337,8 +394,8 @@ function apply(s, sec, rows, picked, edits, cons, pickedCons, attack, takeAttack
 }
 
 /* ---------------- 1.5.7 — the ontology card ---------------- */
-function ontologyCard(s, sec) {
-  const out = el('div');
+function ontologyCards(s, sec) {
+  const out = el('div'), out2 = el('div');
   const c = s.crgo;
   const body = [el('h2', null, 'Ontology · CRGO')];
   if (c) body.push(el('p', 'small', 'Imported from ', el('span', { class: 'mono', 'data-noi18n': '' }, c.id), c.basis ? ` · ${c.basis}` : '', c.imported ? ` · ${c.imported}` : ''),
@@ -382,16 +439,22 @@ function ontologyCard(s, sec) {
       try { const r = await CRGO.call('crgo_scenario', { scenario_id: c.id }); out.replaceChildren(detail09(r.result, r.via)); }
       catch (e) { out.replaceChildren(banner('bad', 'The ontology could not answer', String(e.message || e))); }
     } }, 'Other regimes, D3FEND and exploitation evidence') : null,
-    el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
-      const LK = await import('./ontology_link.js'), D = await import('../dss.js');
-      if (!S.ws.crgo?.graph) { out.replaceChildren(localEvidence(s, D)); return; }
-      out.replaceChildren(el('p', 'note', 'Asking the ontology…'));
-      const d = await D.context(s.id, today());
-      out.replaceChildren(d.error ? el('div', null, LK.errorBox(d), localEvidence(s, D)) : LK.contextView(d));
-      if (!d.error) touch();
-    } }, 'Organisation context and control evidence')));
-  body.push(obligationsEditor(s), lifeEvidence(s));
-  return card(...body, out);
+    null));
+  /* 1.9.0 — the organisation's own context through CRGO (dss/v1), the obligations it can trigger and the incidents and
+     exceptions that bear on it: their own tab, beside the ontology's library view. */
+  const crgo = card({ class: 'card', 'data-crgo-org': '' }, el('h2', null, 'CRGO — organisation context'),
+    el('p', 'note', 'What the organisation graph says about this scenario: obligations, applicability and control evidence. A control that supports an obligation is not evidence of compliance.'),
+    el('div', 'btnrow', { style: { marginTop: '8px' } },
+      el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
+        const LK = await import('./ontology_link.js'), D = await import('../dss.js');
+        if (!S.ws.crgo?.graph) { out2.replaceChildren(localEvidence(s, D)); return; }
+        out2.replaceChildren(el('p', 'note', 'Asking the ontology…'));
+        const d = await D.context(s.id, today());
+        out2.replaceChildren(d.error ? el('div', null, LK.errorBox(d), localEvidence(s, D)) : LK.contextView(d));
+        if (!d.error) touch();
+      } }, 'Organisation context and control evidence')),
+    obligationsEditor(s), lifeEvidence(s), out2);
+  return [card(...body, out), crgo];
 }
 
 /** Loi 25 and other provisions this scenario can trigger, by CRGO notation (e.g. "P-39.1 s. 10"). */

@@ -691,9 +691,19 @@ that no chapter covers (Settings, Backup, About…) shows none.
 
 ### 7.1 Start — Process {#process}
 
-Section 6. The nineteen steps are grouped as in the book — evidence, context and scope; appetite and materiality; scenarios; quantification; treatment; robustness, priorities and money; monitoring and reporting — and the badge in the menu shows the next step (for example *5/19*). The step cards with their status in the workspace, the next recommended step, the guidelines
-in detail and the printable checklist. The banner at the top recalls that the application is a beta and
+Section 6. The nineteen steps are grouped as in the book — evidence, context and scope; appetite and materiality; scenarios; quantification; treatment; robustness, priorities and money; monitoring and reporting — and the badge in the menu shows the next step (for example *5/19*).
+
+The page opens on where the work stands. A ring beside the title counts the steps done. The **next step** sits in a dark
+band — what it is for, when it is done, and buttons that open its screens. **Seven groups** shows one tile per group with a
+progress arc and its state (*3 of 3 done*, *Step 9 in progress*, *To do*); the group in progress is opened below its tiles as
+one row per step, and clicking another tile opens that group instead. When the engine classifies included scenarios above
+tolerance, a tile lists them with **Open Risk calculator**. Lower down, **All nineteen steps** opens every step card with its
+status, its parts, the chapter of the book and its screens; **Guidelines — a complete assessment, simply** holds the
+guidelines in detail; **Print the checklist** prints both. The banner at the top recalls that the application is a beta and
 that every result is an analytical hypothesis to validate.
+
+A step that is done in the Scenario editor opens it on the tab it needs: step 8 on *Causal chain*, step 9 on
+*Quantification*, step 10 on *CVSS v4.0*.
 
 **A teaching case still on the earlier MediBec vectors.** When the open workspace is the bundled example or a classroom case
 and its S2 and S8 still carry the AV:N vectors of the earlier case, a second banner offers the current ones: **Take the
@@ -1161,14 +1171,24 @@ a scenario name opens the editor. The checkbox includes or excludes the scenario
 
 ### 7.3.5 Scenario editor — view and edit a scenario {#scenario}
 
-Everything about one scenario on one screen, with its KRIs recalculated as you type:
+Everything about one scenario on one screen. The scenario picker sits on top (with *‹ Previous*, *Next ›*, **Include in
+totals**, *Duplicate* and *Delete*); each section has its own tab — **Causal chain · Quantification · CVSS v4.0 ·
+Treatment · Links & evidence · Ontology · CRGO** — and the **Live risk indices** card stays on the right whatever the tab: the
+risk-to-tolerance ratio in large type with its classification, then CVSS-B, estimated, tolerated, mitigated and residual
+risk and the ratio before treatment, and the Year-1 treatment cost with its cost-effectiveness. The verified engine
+recalculates the card on every edit; it also shows when the mitigation exceeds the estimated risk or a stored CVSS score
+disagrees with its vector, and opens the scenario in the risk calculator or the recommendations. The tab you choose is
+remembered for you on this computer (the arrow keys move between tabs). An address such as `#/scenario/S2/cvss` opens a
+tab directly; saving a vector from the CVSS calculator returns to the *CVSS v4.0* tab.
 
-- Identification, statement and the **causal chain** — threat source → initiating event →
-  vulnerabilities → affected assets and processes → event sequence → consequences.
-- **Threats — MITRE ATT&CK.** Search by name or ID and link techniques; the tactic coverage line
+- **Causal chain** — identification, statement and the causal chain — threat source → initiating event →
+  vulnerabilities → affected assets and processes → event sequence → consequences — and the consequences by category.
+- **Links & evidence — Threats — MITRE ATT&CK.** Search by name or ID and link techniques; the tactic coverage line
   shows the kill chain they describe.
-- **Vulnerabilities — CWE and CVE.** Link weakness types and specific CVEs. With a snapshot loaded,
-  each CVE shows its ladder rung; *watch* means its exposure is not confirmed.
+- **Links & evidence — Vulnerabilities — CWE and CVE.** Link weakness types and specific CVEs. With a snapshot loaded,
+  each CVE shows its ladder rung; *watch* means its exposure is not confirmed. The same tab holds the assets, measures,
+  risks and intelligence notes, the security-operations evidence, the identity, privilege and configuration evidence and
+  the threat-context basis.
 - **Quantification.** The six parameters with value, rationale, evidence and confidence.
 - **CVSS v4.0 (Base only)** — edit the vector here or in the CVSS calculator and save it back. *How the score was obtained* says whether the score is that of a technical vulnerability or a score **by equivalency** for a non-technical weakness: then the weakness type and a one-line justification of each metric, with the label *limited applicability* and the marker *Analytical estimate — validation required* (section 7.10.1). A stored score that disagrees with its vector is flagged.
 - **Treatment** — probability and impact reduction, the treatment package, the initiatives that
@@ -1176,7 +1196,7 @@ Everything about one scenario on one screen, with its KRIs recalculated as you t
 - **Threat-context basis** — the audit trail written when a Pb(ψ,A) proposal is accepted.
 
 Duplicate, delete, move to the previous or next scenario, or open it in the calculator or the
-recommendations.
+recommendations from the live risk indices.
 
 **Draft the causal chain with AI.** In the **Causal chain** card, **Draft it with AI…** drafts the statement and the eight structured fields from whatever the scenario
 already holds — one scenario at a time, because a chain is an argument about this organization and a
@@ -1189,7 +1209,7 @@ unticked and says so**, with the current value beside the draft. Edit any draft 
 written until **Apply the ticked fields**, and what you accept goes into the revision log naming the
 fields taken. The feature defaults to the local model, because it carries scenario text.
 
-**Ontology · CRGO card.** At the bottom of the editor. A scenario taken from the ontology shows its
+**Ontology tab (Ontology · CRGO card).** A scenario taken from the ontology shows its
 ontology identifier, themes, asset categories, threat source types, the controls the ontology links to
 it and the Quebec Law 25 obligations it can trigger. For any scenario, **Find similar ontology
 scenarios** searches the ontology by the scenario's ATT&CK techniques and the words of its name — *Link*
@@ -1943,11 +1963,11 @@ When the ontology refuses a document, the **write-back journal** shows its code 
 with altered data. Correct the cause — usually rebuilding the graph after adding or renaming scenarios —
 and send again.
 
-In the **Scenario editor**, the Ontology · CRGO card adds: the obligations the scenario can trigger, by
-CRGO notation (`P-39.1 s. 10`); *Other regimes, D3FEND and exploitation evidence* — obligations under
+In the **Scenario editor**, the *Ontology* tab adds *Other regimes, D3FEND and exploitation evidence* — obligations under
 A-2.1, PIPEDA, OSFI B-13 and the GDPR, MITRE D3FEND countermeasures, and KEV/EPSS figures per technique and
 weakness, **shown as evidence that exploitation happens in the wild, never as a likelihood** (EPSS is not
-Pb(A) or Pb(ψ,A), and KEV says nothing about the organisation's own systems); and *Organisation context and
+Pb(A) or Pb(ψ,A), and KEV says nothing about the organisation's own systems). The *CRGO* tab holds the obligations the
+scenario can trigger, by CRGO notation (`P-39.1 s. 10`), and *Organisation context and
 control evidence* — the context above, or, without the graph, the control evidence recorded in the
 workspace. Incidents that inform the scenario and the policy exceptions it counts on are listed beneath.
 
@@ -3702,7 +3722,7 @@ None of this is legal advice.
     grid shows them marked *[CRGO]* with a rationale naming the ontology identifier.
 12. **Ontology · CRGO → Explore → Controls for a technique** → `T1486`: controls listed per framework.
     **Connection** names where the server comes from, or why the snapshot answers.
-13. **Scenario editor** → S1 → *Ontology · CRGO* card → **Controls for its techniques** lists controls
+13. **Scenario editor** → S1 → *Ontology* tab → **Controls for its techniques** lists controls
     per technique; **Find similar ontology scenarios** offers scenarios to *Link*.
 
 **The assessment**

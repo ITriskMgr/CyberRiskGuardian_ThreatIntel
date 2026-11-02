@@ -719,9 +719,20 @@ chapitre ne traite (Paramètres, Sauvegarde, À propos…) n'en affiche pas.
 
 ### 7.1 Démarrer — Processus {#process}
 
-Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétence et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*). Les fiches d'étape avec leur état dans l'espace de travail, la prochaine étape recommandée,
-les lignes directrices en détail et la liste de contrôle imprimable. Le bandeau du haut rappelle que
-l'application est une version bêta et que chaque résultat est une hypothèse analytique à valider.
+Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétence et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*).
+
+La page s'ouvre sur l'état du travail. Un anneau à côté du titre compte les étapes terminées. La **prochaine étape** occupe
+un bandeau foncé — à quoi elle sert, quand elle est terminée, et les boutons qui ouvrent ses écrans. **Sept groupes** montre
+une tuile par groupe avec un arc de progression et son état (*3 sur 3 terminées*, *Étape 9 en cours*, *À faire*) ; le groupe
+en cours est ouvert sous les tuiles, une ligne par étape, et un clic sur une autre tuile ouvre ce groupe à la place. Lorsque
+le moteur classe des scénarios inclus au-dessus de la tolérance, une tuile les énumère avec **Ouvrir Calculateur de risque**.
+Plus bas, **Les dix-neuf étapes** ouvre toutes les fiches d'étape avec leur état, leurs parties, le chapitre du manuel et
+leurs écrans ; **Lignes directrices — une évaluation complète, simplement** contient les lignes directrices en détail ;
+**Imprimer la liste de contrôle** imprime les deux. Le bandeau du haut rappelle que l'application est une version bêta et
+que chaque résultat est une hypothèse analytique à valider.
+
+Une étape qui se fait dans l'éditeur de scénarios l'ouvre sur l'onglet voulu : l'étape 8 sur *Chaîne causale*, l'étape 9
+sur *Quantification*, l'étape 10 sur *CVSS v4.0*.
 
 **Un cas d'enseignement encore sur les vecteurs MediBec antérieurs.** Quand l'espace de travail ouvert est l'exemple fourni ou
 un cas de classe et que ses scénarios S2 et S8 portent encore les vecteurs AV:N du cas antérieur, un second
@@ -1257,15 +1268,26 @@ les scénarios ou les ajoute à la suite (les ID en conflit sont renumérotés)�
 
 ### 7.3.5 Éditeur de scénarios — consulter et modifier un scénario {#scenario}
 
-Tout ce qui concerne un scénario sur un seul écran, avec ses ICR recalculés au fil de la saisie :
+Tout ce qui concerne un scénario sur un seul écran. Le sélecteur de scénario est en haut (avec *‹ Précédent*,
+*Suivant ›*, **Inclure dans les totaux**, *Dupliquer* et *Supprimer*) ; chaque section a son onglet — **Chaîne causale ·
+Quantification · CVSS v4.0 · Traitement · Liens et preuves · Ontologie · CRGO** — et la fiche **Indices de risque en direct** reste à droite
+quel que soit l'onglet : le ratio de tolérance en grands caractères avec sa classification, puis le CVSS-B, les risques
+estimé, toléré, atténué et résiduel et le ratio avant traitement, et le coût du traitement de l'année 1 avec son
+rapport coût-efficacité. Le moteur vérifié recalcule la fiche à chaque modification ; elle signale aussi une atténuation
+supérieure au risque estimé ou un score CVSS enregistré qui ne concorde pas avec son vecteur, et ouvre le scénario dans
+le calculateur de risque ou dans les recommandations. L'onglet choisi est mémorisé pour vous sur cet ordinateur (les
+flèches du clavier passent d'un onglet à l'autre). Une adresse comme `#/scenario/S2/cvss` ouvre directement un onglet ;
+enregistrer un vecteur depuis le calculateur CVSS revient à l'onglet *CVSS v4.0*.
 
-- L'identification, l'énoncé et la **chaîne causale** — source de menace → événement déclencheur →
-  vulnérabilités → actifs et processus touchés → séquence d'événements → conséquences.
-- **Menaces — MITRE ATT&CK.** Recherchez par nom ou par ID et liez des techniques ; la ligne de
+- **Chaîne causale** — l'identification, l'énoncé et la chaîne causale — source de menace → événement déclencheur →
+  vulnérabilités → actifs et processus touchés → séquence d'événements → conséquences — et les conséquences par catégorie.
+- **Liens et preuves — Menaces — MITRE ATT&CK.** Recherchez par nom ou par ID et liez des techniques ; la ligne de
   couverture des tactiques montre la chaîne d'attaque qu'elles décrivent.
-- **Vulnérabilités — CWE et CVE.** Liez des types de faiblesses et des CVE précises. Lorsqu'un
+- **Liens et preuves — Vulnérabilités — CWE et CVE.** Liez des types de faiblesses et des CVE précises. Lorsqu'un
   instantané est chargé, chaque CVE affiche son échelon sur l'échelle ; *à surveiller* signifie que son
-  exposition n'est pas confirmée.
+  exposition n'est pas confirmée. Le même onglet regroupe les actifs, mesures, risques et notes de renseignement, les
+  preuves des opérations de sécurité, les preuves sur l'identité, les privilèges et la configuration et le fondement du
+  contexte de menace.
 - **Quantification.** Les six paramètres avec leur valeur, leur justification, leurs preuves et leur
   niveau de confiance.
 - **CVSS v4.0 (base seulement)** — modifiez le vecteur ici ou dans le calculateur CVSS, puis
@@ -1280,7 +1302,7 @@ Tout ce qui concerne un scénario sur un seul écran, avec ses ICR recalculés a
   acceptée.
 
 Dupliquez, supprimez, passez au scénario précédent ou suivant, ou ouvrez-le dans le calculateur ou dans
-les recommandations.
+les recommandations depuis les indices de risque en direct.
 
 **Ébaucher la chaîne causale avec l'IA.** Dans la fiche **Chaîne causale**, **L'ébaucher avec l'IA…**
 ébauche l'énoncé et les huit champs structurés à partir de ce que le scénario contient déjà — un
@@ -1295,7 +1317,7 @@ l'ébauche. Modifiez toute ébauche sur place. Rien n'est écrit avant **Appliqu
 ce que vous acceptez est consigné dans le journal des révisions avec le nom des champs retenus. La
 fonction utilise par défaut le modèle local, car elle transmet le texte du scénario.
 
-**Fiche Ontologie · CRGO.** Au bas de l'éditeur. Un scénario tiré de l'ontologie affiche son
+**Onglet Ontologie (fiche Ontologie · CRGO).** Un scénario tiré de l'ontologie affiche son
 identifiant dans l'ontologie, ses thèmes, ses catégories d'actifs, ses types de sources de menace, les
 contrôles que l'ontologie lui associe et les obligations de la Loi 25 du Québec qu'il peut déclencher.
 Pour tout scénario, **Trouver des scénarios semblables dans l'ontologie** cherche dans l'ontologie à
@@ -2161,13 +2183,13 @@ qu'ils ont été reçus (`SCHEMA_INVALID`, `UNKNOWN_ORGANISATION`, `UNKNOWN_SUBJ
 et rien n'est retenté avec des données modifiées. Corrigez la cause — habituellement en reconstruisant
 le graphe après avoir ajouté ou renommé des scénarios — puis envoyez de nouveau.
 
-Dans l'**Éditeur de scénarios**, la fiche Ontologie · CRGO ajoute : les obligations que le scénario
-peut déclencher, selon la notation de CRGO (`P-39.1 s. 10`) ; *Autres régimes, D3FEND et preuves
+Dans l'**Éditeur de scénarios**, l'onglet *Ontologie* ajoute *Autres régimes, D3FEND et preuves
 d'exploitation* — les obligations découlant de A-2.1, de la LPRPDE, de la ligne directrice B-13 du BSIF
 et du RGPD, les contre-mesures MITRE D3FEND, ainsi que les données KEV/EPSS par technique et par
 faiblesse, **présentées comme des éléments probants que l'exploitation se produit dans la nature,
 jamais comme une vraisemblance** (l'EPSS n'est ni Pb(A) ni Pb(ψ,A), et le KEV ne dit rien des systèmes
-propres à l'organisation) ; et *Contexte de l'organisation et éléments probants des contrôles* — le
+propres à l'organisation). L'onglet *CRGO* contient les obligations que le scénario peut déclencher, selon
+la notation de CRGO (`P-39.1 s. 10`), et *Contexte de l'organisation et éléments probants des contrôles* — le
 contexte ci-dessus ou, sans le graphe, les éléments probants des contrôles consignés dans l'espace de
 travail. Les incidents qui éclairent le scénario et les exceptions aux politiques sur lesquelles il
 repose sont énumérés en dessous.
@@ -4173,7 +4195,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
     *[CRGO]*, avec une justification nommant l'identifiant de l'ontologie.
 12. **Ontologie · CRGO → Explorer → Contrôles pour une technique** → `T1486` : contrôles énumérés par
     cadre. **Connexion** indique la provenance du serveur, ou pourquoi c'est l'instantané qui répond.
-13. **Éditeur de scénarios** → S1 → fiche *Ontologie · CRGO* → **Contrôles pour ses techniques**
+13. **Éditeur de scénarios** → S1 → onglet *Ontologie* → **Contrôles pour ses techniques**
     énumère les contrôles par technique ; **Trouver des scénarios semblables dans l'ontologie** propose
     des scénarios à lier (*Lien*).
 

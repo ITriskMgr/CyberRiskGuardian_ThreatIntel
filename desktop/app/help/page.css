@@ -2,25 +2,32 @@
    They are their own pages, so they carry their own base styles rather than the app's chrome. Light
    and dark follow the system, and the print rules make either one a clean handout.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
+@font-face { font-family: "Sora"; font-weight: 600; font-display: swap; src: url("../fonts/sora-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-display: swap; src: url("../fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: italic; font-weight: 400; font-display: swap; src: url("../fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-display: swap; src: url("../fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); }
+/* Atlas tokens (the same names and values as the application's styles.css) */
 :root {
-  --ink: #16202c; --muted: #5b6878; --line: #dde3ea; --bg: #ffffff; --surface: #f6f8fa;
-  --accent: #1f4e79; --accent-ink: #ffffff; --good: #1b6b3a; --warn: #8a5a00; --bad: #a32020;
+  --ink: #10201B; --muted: #4A5F56; --line: #D7E3DC; --bg: #FFFFFF; --surface: #F4F8F5;
+  --accent: #0F5C45; --accent-ink: #FFFFFF; --good: #0F5C45; --warn: #7A5200; --bad: #9A3414; --coral: #E2552B; --rail: #103B30;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ink: #e6ecf3; --muted: #9aa7b5; --line: #2b3542; --bg: #121820; --surface: #1a212b;
-    --accent: #7fb0e0; --accent-ink: #0d1218; --good: #7cc99a; --warn: #e0b35e; --bad: #e98b8b;
+    --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --bg: #0C1915; --surface: #13241F;
+    --accent: #7FD6AE; --accent-ink: #0C1915; --good: #7FD6AE; --warn: #EBC766; --bad: #FFA285; --rail: #08201A;
   }
 }
 :root[data-theme="dark"] {
-  --ink: #e6ecf3; --muted: #9aa7b5; --line: #2b3542; --bg: #121820; --surface: #1a212b;
-  --accent: #7fb0e0; --accent-ink: #0d1218; --good: #7cc99a; --warn: #e0b35e; --bad: #e98b8b;
+  --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --bg: #0C1915; --surface: #13241F;
+  --accent: #7FD6AE; --accent-ink: #0C1915; --good: #7FD6AE; --warn: #EBC766; --bad: #FFA285; --rail: #08201A;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink);
-  font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  font: 14.5px/1.6 "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif; }
+h1, h2, h3 { font-family: "Sora", "Atkinson Hyperlegible", system-ui, sans-serif; font-weight: 600; }
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
 .wrap { max-width: 860px; margin: 0 auto; padding: 22px 16px 64px; }
-header.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+header.top { position: sticky; top: 0; z-index: 5; background: var(--rail); color: #FFFFFF; border-bottom: 1px solid var(--line);
   padding: 10px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 header.top b { font-size: 15px; }
 header.top .sp { flex: 1 1 auto; }

@@ -26,7 +26,10 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "kb/book/00-introduction.md", "kb/book/ch01.md", "kb/book/ch02.md", "kb/book/ch03.md", "kb/book/ch04.md", "kb/book/ch05.md", "kb/book/ch06.md", "kb/book/ch07.md", "kb/book/ch08.md", "kb/book/ch09.md", "kb/book/ch10.md", "kb/book/ch11.md", "kb/book/ch12.md", "kb/book/ch13.md", "kb/book/ch14.md", "kb/book/ch15.md", "kb/book/ch16.md", "kb/book/ch17.md", "kb/book/ch18.md", "kb/book/ch19.md", "kb/book/ch20.md", "kb/book/ch21.md", "kb/book/index.json", "kb/book/zz-appendix.md",
   "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json",
   // 1.9.0 — SSVC and AI forecasting lane
-  "js/ssvc.js", "js/data/ssvc-tables.js", "js/panels/ssvc.js", "js/aiforecast.js", "js/panels/aiforecast.js"
+  "js/ssvc.js", "js/data/ssvc-tables.js", "js/panels/ssvc.js", "js/aiforecast.js", "js/panels/aiforecast.js",
+  // 1.9.0 — Atlas: the bundled fonts (SIL OFL 1.1), so the interface keeps its type offline
+  "fonts/sora-latin-500-normal.woff2", "fonts/sora-latin-600-normal.woff2", "fonts/sora-latin-700-normal.woff2",
+  "fonts/atkinson-hyperlegible-latin-400-normal.woff2", "fonts/atkinson-hyperlegible-latin-400-italic.woff2", "fonts/atkinson-hyperlegible-latin-700-normal.woff2"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

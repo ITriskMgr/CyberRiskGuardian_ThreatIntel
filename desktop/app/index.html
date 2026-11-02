@@ -6,14 +6,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CyberRiskGuardian Desktop</title>
 <meta name="description" content="CyberRiskGuardian with Threat Live-feed — organization workspaces, scenario register and editor, risk calculator, ATT&CK threats, CVE/CWE vulnerabilities, threat-context snapshots, recommendations, KRI dashboard, budget arbitrage, risk mitigation from ISO 27002 / NIST / CIS controls, risk register, threat feeds and social media, compliance, information assets and Excel export.">
-<meta name="theme-color" content="#0F2A44">
+<meta name="theme-color" content="#103B30">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preload" href="fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/sora-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="boot">
 
 <nav aria-label="Sections">
   <div class="brand">
@@ -34,7 +36,7 @@
   <header class="topbar">
     <button type="button" class="btn ghost sm" id="nav-toggle" aria-expanded="false" aria-controls="navtree" title="Menu">☰</button>
     <div class="wsbox">
-      <label for="ws-select" class="sr">Workspace</label>
+      <label for="ws-select" class="wslabel">Workspace</label>
       <select id="ws-select" aria-label="Workspace"></select>
       <span id="ws-kind" class="pill"></span>
     </div>

@@ -86,6 +86,8 @@ The dependencies keep their own licences:
 - `cvss`, `openpyxl`, `mcp`;
 - optionally, for CRGO: `pyoxigraph`, `rdflib`, `jsonschema`;
 - `docx` (npm);
+- the desktop application bundles the Sora and Atkinson Hyperlegible typefaces (SIL Open Font License 1.1;
+  see `desktop/app/NOTICE.md` and `desktop/app/licences/`);
 - LibreOffice.
 
 ## Notes
