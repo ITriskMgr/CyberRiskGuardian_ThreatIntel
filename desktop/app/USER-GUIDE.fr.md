@@ -757,8 +757,8 @@ automatique, ne change jamais ses chiffres.
 ### 7.2 Organisation
 
 Ce que vous configurez une fois et que vous revenez consulter : le profil de l'organisation (avec ses
-documents et Importer des documents), les actifs informationnels, la maturité et la résilience, et la
-réinitialisation des données.
+documents et Importer des documents), les actifs informationnels, la maturité et la résilience, l'ontologie
+(Ontologie · CRGO) et la réinitialisation des données.
 
 ### 7.2.1 Profil de l'organisation {#org}
 
@@ -1899,8 +1899,7 @@ Joignez le classeur Excel (Exporter · Excel).
 
 ### 7.4 Menaces et vulnérabilités
 
-Qui pourrait agir, comment, par quelles faiblesses — et ce qu'en disent le paysage des menaces et
-l'ontologie.
+Qui pourrait agir, comment, par quelles faiblesses — et ce qu'en dit le paysage des menaces.
 
 ### 7.4.1 Menaces · ATT&CK {#threats}
 
@@ -2693,7 +2692,8 @@ l'organisation.
 
 L'alignement ontologique de ces enregistrements (populations de comptes, populations de rôles privilégiés,
 ensembles de comptes d'urgence, campagnes, règles de séparation, constats d'identité et de privilèges et les
-indicateurs) suit CRGO 0.11; la vue d'ensemble indique combien de ses termes sont encore proposés.
+indicateurs) suit CRGO 0.11.0, dont tous les termes sont approuvés; la vue d'ensemble l'indique (*Alignement ontologique :
+identifiants CRGO 0.11.0, tous approuvés par le responsable du projet CRGO*).
 
 ### 7.5.7 Gestion de la configuration {#cm}
 
@@ -4391,9 +4391,9 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 **Données, ontologie et qualité**
 
-40. **Sauvegarde et restauration → Versions des données et migrations** : version des données 4 ;
+40. **Sauvegarde et restauration → Versions des données et migrations** : version des données 5 ;
     importez une exportation d'espace de travail plus ancienne qui contenait des enregistrements de
-    preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 4, les
+    preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 5, les
     preuves se trouvent dans **Registres partagés → Preuves**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
 41. **Ontologie · CRGO → Connexion** nomme CRGO v0.11.0 et indique qu'il s'agit d'une version approuvée ; *Lien avec l'organisation* → *Construire le

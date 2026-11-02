@@ -26,14 +26,15 @@ Management*, 3rd ed., **v2.51**; desktop application **1.9.0 Beta** — see belo
 ## Relationship to the base edition
 
 This repository derives from **CyberRiskGuardian v1.1.0**
-([`ITriskMgr/CyberRiskGuardian`](https://github.com/ITriskMgr/CyberRiskGuardian)), which remains
-unchanged and continues to be the stable edition.
+([`ITriskMgr/CyberRiskGuardian`](https://github.com/ITriskMgr/CyberRiskGuardian)). That repository continues as the
+stable, free **Core** edition — now **Core plugin 2.2.0** with the textbook plugin 2.1.1 (November 2026, aligned with
+textbook v2.51b).
 
 | | Base edition | This edition |
 |---|---|---|
 | Repository | `CyberRiskGuardian` | `CyberRiskGuardian_ThreatIntel` |
 | Plugin id | `cyberriskguardian` | `cyberriskguardian-threatintel` |
-| Version | 1.1.0 | 1.7.0 |
+| Version | Core 2.2.0 | 1.7.0 |
 | Formulas | identical | identical (package reductions combined with the product rule 1 − ∏(1 − rᵢ)) |
 | MediBec baseline | 84,305 / 41,023 with S2/S8 scored AV:L | **84,305 / 41,023** |
 | Threat calibration | — | snapshot lifecycle, Threat Evidence Ladder, revision log |
@@ -86,7 +87,7 @@ plugin nor an AI provider, and it shares the engine: the MediBec baseline is the
 | **What it does** | [`desktop/README.md`](desktop/README.md) · the full guide in [`desktop/app/USER-GUIDE.md`](desktop/app/USER-GUIDE.md) |
 
 Unpack the zip, double-click `start.bat` (Windows) or `start.command` (macOS), and check that the
-footer reads `engine verified · 84,305 / 41,023` before trusting any number. You need a current
+footer reads `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` before trusting any number. You need a current
 browser and Python 3 — no account, no licence key, no installer, no administrator rights. It must be
 served over `http://`, which the launchers do on `127.0.0.1` only; double-clicking `index.html` does
 not work.
@@ -135,7 +136,7 @@ CyberRiskGuardian_ThreatIntel/
 │   └── skills/
 │       ├── cyber-risk-assessment/
 │       │   ├── references/threat-context.md        # constraints, ladder, six source layers
-│       │   ├── references/crgo-integration.md      # CRGO 0.10.0: dss/v1, compliance/v1, secops/v1
+│       │   ├── references/crgo-integration.md      # CRGO 0.11.0 (contracts dss/v1, compliance/v1, secops/v1)
 │       │   ├── scripts/crg_calc.py, test_crg_calc.py # engine (validated inputs) and its self-checks
 │       │   ├── scripts/threat_snapshot.py          # the only component that touches the network
 │       │   ├── scripts/crgo_contract.py            # CRGO bridge: graph, context, submit (proposed), compliance, secops
