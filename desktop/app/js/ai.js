@@ -27,6 +27,7 @@ import * as anon from './anon.js';
 import * as K from './catalog.js';
 import * as KRI from './kri.js';
 import { today, uid } from './util.js';
+import * as PAT from './data/scenpatterns.js';
 
 /* ---------------- routing policy (1.5.3) ----------------
    Installation-wide, kept in crg-config.json (ai.policy) so the helper — the only component that sends
@@ -311,7 +312,10 @@ export const TASKS = {
         '"threat_source":"","initiating_event":"","vulnerability":"","asset":"","process":"",' +
         '"consequence":"","existing_controls":"","assumptions":"",' +
         '"params":{"PbA":{"v":0.0,"why":"","conf":"Low|Medium|High"},"Pbx":{...},"De":{...},"Dm":{...},"Th":{...},"Mu":{...}},' +
-        '"attack":["T1566"],"seed":"<the feed item id that prompted it, or empty>"}]}',
+        '"attack":["T1566"],"seed":"<the feed item id that prompted it, or empty>","pattern":"<a CRGO scenario pattern identifier, or empty>"}]}',
+        '',
+        // 1.9.0 — CRGO 0.11.0 scenario patterns, so that a proposal can carry 'has scenario pattern'
+        ...PAT.promptLines(),
         '',
         'Every parameter is between 0 and 1; theta must be above 0. Base each on what the material says,',
         'and where you are estimating, say so in "why". Do not invent facts about the organization.',

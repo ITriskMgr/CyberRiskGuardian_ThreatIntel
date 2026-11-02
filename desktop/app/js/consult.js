@@ -82,11 +82,31 @@ async function crgoSnap() {
       text: `${s.name}. ${s.statement || ''}${s.sector ? ' Sector: ' + s.sector + '.' : ''}${themes ? ' Themes: ' + themes + '.' : ''}`,
       cite: `CRGO ${s.id} (release ${rel}, bundled snapshot)` });
   }
+  // 1.9.0 — a term CRGO 0.11.0 still marks as proposed is cited as proposed
+  const cite = (id, status) => `CRGO ${id} (release ${rel}${status === 'proposed' ? ', proposed' : ''}, bundled snapshot)`;
   for (const i of snap.legal?.instruments || []) {
     const lab = i.label?.en || i.label || i.id;
     docs.push({ id: 'crgo:legal:' + i.id, source: 'crgo', title: lab, crgoId: i.id,
       text: `${lab} (${i.id}). ${(i.conditions || []).map(c => c.interpretation || c.test || '').filter(Boolean).join(' ')}`.slice(0, 1500),
-      cite: `CRGO ${i.id} (release ${rel}, bundled snapshot)` });
+      cite: cite(i.id, i.status) });
+  }
+  // 1.9.0 — CRGO 0.11.0: scenario patterns, CIS Controls v8.1 safeguards (CRGO's own labels, never CIS text), OWASP lists
+  const V = snap.v011 || {};
+  for (const p of V.patterns || []) {
+    const links = (p.links || []).filter(l => l.kind !== 'theme').map(l => l.target).join(', ');
+    docs.push({ id: 'crgo:pattern:' + p.id, source: 'crgo', title: 'Scenario pattern: ' + (p.label?.en || p.id), crgoId: p.id,
+      text: `Scenario pattern ${p.label?.en || ''} (${p.id}). ${p.definition?.en || ''}${links ? ' Proposed links: ' + links + '.' : ''}`, cite: cite(p.id, p.status) });
+  }
+  for (const s of V.cis81?.safeguards || []) {
+    docs.push({ id: 'crgo:cis81:' + s.id, source: 'crgo', title: `CIS v8.1 safeguard ${s.id}: ${s.label?.en || ''}`, crgoId: 'cis81:' + s.id,
+      text: `CIS Controls v8.1 safeguard ${s.id} (CRGO label: ${s.label?.en || ''}). Implementation Groups ${(s.ig || []).join(', ')}; asset type ${s.asset || '—'}; `
+        + `security function ${s.function || '—'}${s.unverified ? '; attributes not yet verified against the CIS workbook' : ''}. Cite CIS by identifier: ${V.cis81.source}.`,
+      cite: cite('cis81:' + s.id, s.status) });
+  }
+  for (const [scheme, list] of Object.entries(V.owasp || {})) for (const o of list) {
+    docs.push({ id: 'crgo:' + scheme + ':' + o.id, source: 'crgo', title: `${o.id}: ${o.label?.en || ''}`, crgoId: scheme + ':' + o.id,
+      text: `${o.id} ${o.label?.en || ''} (${scheme}, CRGO label).${(o.patterns || []).length ? ' Partially overlaps the scenario pattern(s) ' + o.patterns.join(', ') + '.' : ''}`,
+      cite: cite(scheme + ':' + o.id, o.status) });
   }
   idx.crgo = { index: new K.Index(docs), docs, release: rel };
   return idx.crgo;

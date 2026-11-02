@@ -16,6 +16,7 @@ import * as SEED from '../secops_seed.js';
 import { statusAt, TLP_RESTRICTED } from '../siem.js';
 import * as IPCP from './ipc.js';
 import * as EQ from '../equiv.js';
+import * as PAT from '../data/scenpatterns.js';
 
 const CONS = ['Confidentiality/privacy', 'Integrity', 'Availability', 'Operations', 'Financial', 'Regulatory', 'Reputation', 'Safety'];
 const CONF = ['High', 'Medium', 'Low'];
@@ -336,6 +337,20 @@ function apply(s, sec, rows, picked, edits, cons, pickedCons, attack, takeAttack
   render(sec, s.id);   // the same scenario: render(sec) alone falls back to the first in the register
 }
 
+/* ---------------- 1.9.0 — CRGO 0.11.0 scenario pattern ('has scenario pattern', a proposed term) ---------------- */
+function patternRow(s, sec) {
+  const p = PAT.pattern(s.scenPattern);
+  const pick = select([['', tr('No scenario pattern')], ...PAT.CRGO_PATTERNS.map(x => [x.id, tr(x.name)])], p ? p.id : '');
+  pick.addEventListener('change', () => { if (pick.value) s.scenPattern = pick.value; else delete s.scenPattern; touch(); render(sec, s.id); });
+  return el('div', { style: { marginTop: '8px' } },
+    el('b', null, tr('Scenario pattern (CRGO {0}, proposed)').replace('{0}', PAT.RELEASE) + ': '),
+    p ? el('span', null, tr(p.name), ' ', el('span', { class: 'small mono', 'data-noi18n': '' }, p.id),
+      el('div', 'small muted', tr('Has scenario pattern ({0}). Themes: {1}. Proposed links: {2}.').replace('{0}', PAT.HAS_SCENARIO_PATTERN)
+        .replace('{1}', p.themes.map(x => tr(x)).join(', ')).replace('{2}', [...p.attack, ...p.cwe, ...p.refs].join(', ') || '—')))
+      : el('span', 'small muted', tr('none')),
+    el('div', { style: { marginTop: '4px', maxWidth: '420px' } }, pick));
+}
+
 /* ---------------- 1.5.7 — the ontology card ---------------- */
 function ontologyCard(s, sec) {
   const out = el('div');
@@ -346,6 +361,7 @@ function ontologyCard(s, sec) {
     (c.controls || []).length ? el('div', { style: { marginTop: '8px' } }, el('b', null, 'Controls the ontology links to it: '), el('span', { class: 'small mono', 'data-noi18n': '' }, c.controls.join(', '))) : null,
     (c.obligations || []).length ? el('div', { style: { marginTop: '6px' } }, el('b', null, 'Quebec Law 25 obligations: '), el('ul', 'small', ...c.obligations.map(o => el('li', { 'data-noi18n': '' }, o)))) : null);
   else body.push(el('p', 'note', 'Not linked to the ontology. Find the ontology scenarios that resemble it, or the controls the ontology associates with its ATT&CK techniques.'));
+  body.push(patternRow(s, sec));
   body.push(el('div', 'btnrow', { style: { marginTop: '8px' } },
     el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
       out.replaceChildren(el('p', 'note', 'Asking the ontology…'));
