@@ -1,0 +1,115 @@
+1621	DPI (intégration) avec le responsable du laboratoire
+1622	6 à 15 mois
+1623	Domaine de l’annexe A; annexe B nos 65 et 71
+1624	Des criminels se font passer pour MediBec afin de frauder ou d’hameçonner des patients
+1625	Des fraudeurs enregistrent des domaines semblables et envoient des textos ou des courriels se faisant passer pour MediBec (confirmations de rendez-vous, avis de facturation, résultats disponibles) pour récolter les identifiants, les numéros de carte d’assurance maladie ou les paiements des patients, ce qui cause un préjudice aux patients et mine la confiance même si les systèmes de MediBec ne sont pas atteints.
+1626	Patients; communications; responsable de la protection des renseignements personnels; responsable de la cybersécurité; accueil des cliniques; fournisseurs de télécommunications et registraires de domaines.
+1627	L’hameçonnage de l’exercice utilisait un domaine semblable nouvellement enregistré (E6, annexe A). La surveillance de la marque, DMARC et les normes de communication avec les patients ne sont pas documentés.
+1628	Groupe de fraude.
+1629	Usurpation de la marque visant les patients.
+1630	Aucune surveillance ni retrait des domaines semblables (E6)
+1631	Aucune norme publiée de communication avec les patients (p. ex. « nous ne demandons jamais… »)
+1632	Confiance des patients; CJ3 communications avec les patients.
+1633	Communications avec les patients, facturation.
+1634	Aucune démontrée
+1635	Des patients reçoivent des textos « MediBec : vos résultats sont prêts, confirmez votre identité » menant à une copie du portail. Des centaines saisissent leurs identifiants et leur numéro de carte d’assurance maladie; l’accueil reçoit des appels furieux.
+1636	Préparation — domaine semblable et clone du portail
+1637	Campagne — textos et courriels aux patients
+1638	Récolte — identifiants et données de paiement
+1639	Détection — appels de patients
+1640	Réponse — retrait, avertissements
+1641	Impact d’affaires — préjudice aux patients, érosion de la confiance
+1642	Identifiants et numéros des patients volés hors des systèmes de MediBec.
+1643	Volume d’appels.
+1644	Charge de l’accueil.
+1645	Faible coût direct.
+1646	Un domaine semblable a déjà été observé pendant l’exercice.
+1647	Aucune protection de la marque démontrée.
+1648	Quelques patients fraudés.
+1649	Campagne importante et clone du portail.
+1650	Retrait possible une fois détecté.
+1651	Confiance et communications avec les patients.
+1652	Applicabilité limitée : usurpation hors des systèmes de MediBec. Vulnérabilité représentative : domaine d’expéditeur usurpable sans application de DMARC. L’impact d’affaires est pris en compte par les estimations de dommages, non par le CVSS.
+1653	Surveillance et retrait des domaines semblables, canaux d’expéditeurs vérifiés, norme de communication avec les patients et avis de sensibilisation (I23), application de DMARC (I16), signalement par le personnel (I12).
+1654	Élevé : hameçonnage visant le personnel des cliniques et de la facturation observé (E6) et notification AMF approuvée depuis une géographie inhabituelle; l’identité contrôle l’accès à chaque joyau de la couronne. Plus faible : impact opérationnel direct limité sauf escalade.
+1655	Preuve organisationnelle vérifiée (exercice) + secteur
+1656	Élevé sur toutes les dimensions : perturbation clinique dans tout le réseau, vol de données, vitesse de quelques heures; chaîne complète visible dans la chronologie de l’exercice (E6). Preuve 4 : la chaîne est simulée, non un incident confirmé.
+1657	Échecs de sauvegarde avant le chiffrement (E6) et aucune preuve d’isolement; neutralise la reprise de chaque service. Étape de C02 plutôt qu’exposition indépendante.
+1658	Preuve organisationnelle vérifiée (exercice)
+1659	Téléchargement externe de medical_image_export.zip (E6); renseignements de santé en masse; poids réglementaire élevé. Impact opérationnel limité.
+1660	Plausible là où il y a du développement interne (E3), mais les dépôts et les pratiques de gestion des secrets sont inconnus — preuve faible.
+1661	Mesures sans fil inscrites à l’audit (E7) sans preuve dans un sens ou dans l’autre; la conséquence découle surtout de la voie d’entrée vers d’autres scénarios.
+1662	L’exploitation des équipements de périphérie est un vecteur majeur du secteur; retard de correction documenté (E3, E7); vitesse élevée. Inventaire des expositions inconnu.
+1663	Externe/secteur + cas
+1664	Preuve solide : équipe de 2 personnes, alerte PowerShell fermée, signaux non corrélés (E3, E6). Une condition des mesures qui amplifie d’autres scénarios plutôt qu’une chaîne de menace distincte.
+1665	Preuve organisationnelle vérifiée (cas + exercice)
+1666	Seule voie directe vers la sécurité des patients par l’équipement; inventaire et segmentation inconnus (E4); la certification limite la correction. Fréquence de la menace inférieure à celle des attaques visant les TI.
+1667	Cas + externe/secteur
+1668	Rapide, mais les cliniques continuent en personne; faible poids réglementaire; criticité des services en ligne non documentée.
+1669	Liste de surveillance
+1670	La consultation indiscrète par des initiés est récurrente en santé; l’accès au DSE est central (E7); poids élevé sur la vie privée. Peu d’impact opérationnel.
+1671	Conséquence grave pour la sécurité des patients et sur le plan réglementaire; mesures d’intégrité absentes (E8). Pertinence de la menace et preuve faibles — cas typique de faible fréquence et de conséquence élevée.
+1672	Plusieurs fournisseurs critiques (DSE, appareils, infonuagique) sans assurance démontrée (E7); concentration des fournisseurs; hors du contrôle direct de MediBec.
+1673	Réponse aux incidents non testée (MED-CYR-15); amplificateur plutôt que scénario distinct; décisions recoupant C08.
+1674	Cas (bibliothèque de scénarios)
+1675	Preuve directe de requêtes inhabituelles d’ehr-sync-svc (E6); même famille de mesures et même responsable que C11.
+1676	Un concentrateur unique dessert toutes les cliniques (E2); aucun site de rechange démontré; perte de disponibilité à l’échelle de l’entreprise; en partie non malveillante.
+1677	Architecture du cas + hypothèse
+1678	Le stockage local existe (E2) et la prolifération des données est une question ouverte (E4); conséquence modérée par clinique.
+1679	Type de fraude fréquent; personnel de facturation ciblé (E6); conséquence financière et limitée; mesures de processus standard.
+1680	Externe/secteur + exercice
+1681	Liste de surveillance — mesures financières standard
+1682	Occurrence quasi certaine, mais faible volume de données; mesure standard de gestion des appareils mobiles; peu de valeur décisionnelle.
+1683	Mesure standard (gestion des appareils mobiles)
+1684	Examen de l’analyste : mesure standard (gestion des appareils mobiles)
+1685	Démontré directement (E6); même exposition et même traitement que C01.
+1686	Conséquence élevée si un portail patient existe, mais son existence n’est déduite que de l’« accès aux dossiers » (E8) — preuve très faible.
+1687	Sur la liste de surveillance pour examen explicite par la direction — Décision de la direction requise.
+1688	Rare, mais touchant toute l’entreprise; concentration des fournisseurs; prévention en grande partie hors du contrôle de MediBec.
+1689	Prise de contrôle du plan de contrôle avec conséquence sur tout le locataire; le vol de jetons contourne l’AMF par notification; journalisation infonuagique inconnue (E4).
+1690	Erreur humaine très fréquente; impact individuel limité; obligations de tenue du registre des incidents de confidentialité.
+1691	Utilisation de la télésanté non documentée; conséquence limitée.
+1692	Lacune d’information — utilisation de la télésanté
+1693	Examen de l’analyste : lacune d’information — utilisation de la télésanté
+1694	Conséquence et vitesse élevées si des interfaces sont exposées; exposition inconnue.
+1695	Voie propre au secteur de la santé vers l’imagerie; la conséquence recoupe le scénario des appareils.
+1696	Lacune du cycle de vie; correction peu coûteuse; faible valeur décisionnelle.
+1697	Mesure standard (élimination)
+1698	Examen de l’analyste : mesure standard (élimination)
+1699	Utilisation quasi certaine de l’IA publique par le personnel en 2026; aucune politique ni mesure; exposition systémique sur les plans de la vie privée et de la réglementation; décisions propres (politique, outil autorisé).
+1700	Externe/secteur + hypothèse
+1701	Contourne les investissements en AMF; faiblesse de processus inconnue; même exposition identitaire que C01, avec une mesure différente.
+1702	Conséquence extrême sur la disponibilité et la capacité de reprise; faible fréquence; privilèges permanents et dépendance envers des personnes clés (E3).
+1703	Liste de surveillance — examen explicite par la direction (indicateurs d’escalade)
+1704	Voie d’intégrité touchant la sécurité des patients; interfaces en clair présumées; preuve très faible; même famille de conséquences que C12.
+1705	Domaine semblable observé (E6); préjudice surtout aux patients, hors des systèmes de MediBec; réputationnel.
+1706	Liste de surveillance — mesures de communication
+1707	Étape destructrice du rançongiciel; regroupée dans C02.
+1708	Technique d’escalade dans les chaînes de C02/C01.
+1709	Faiblesse des postes; voie d’entrée recoupant C07 et C02.
+1710	Faible impact sur la mission.
+1711	Faible importance
+1712	Examen de l’analyste : faible importance
+1713	Traitement des cartes non démontré; hors périmètre.
+1714	Hors périmètre
+1715	Examen de l’analyste : hors périmètre
+1716	Sécurité physique hors périmètre.
+1717	Hors périmètre (physique)
+1718	Forte déduction tirée d’E4 (« les journaux sont-ils suffisants? »); amplificateur des conséquences des atteintes; recoupe C08.
+1719	Cas (question ouverte) + déduction
+1720	Voie courante; recoupe la chaîne de C01.
+1721	Utilisation d’un rédacteur médical par IA non documentée; recoupe C29 (IA) et C13 (fournisseur).
+1722	Générique; recoupe le traitement de C09 (segmentation).
+1723	Amplificateur des scénarios de vie privée; recoupe le traitement de C04/C17.
+1724	Composante du point de défaillance unique du concentrateur (C16).
+1725	Prise de contrôle de l’identité de comptes cliniques, privilégiés ou d’administrateurs infonuagiques
+1726	Un cybercriminel obtient des identifiants ou des jetons de session valides d’administrateurs de clinique, de cliniciens ou d’administrateurs infonuagiques — par un hameçonnage sur le thème du DSE, la fatigue des notifications AMF, une fraude à la réinitialisation au centre d’assistance ou le vol de jetons — et exploite une AMF limitée aux notifications, l’absence d’accès conditionnel et une vérification faible des réinitialisations pour accéder au DSE, au courriel et au locataire infonuagique, ce qui entraîne une exposition de données de santé et un point d’appui pour des attaques destructrices.
+1727	Voie d’entrée la mieux démontrée et la plus fréquente; un seul plan d’identité contrôle l’accès à chaque joyau de la couronne. Quatre variantes (hameçonnage, fatigue de l’AMF, réinitialisation au centre d’assistance, vol de jetons) sont regroupées pour que le portefeuille ne soit pas dominé par les attaques identitaires; elles partagent un responsable (DPI) et une famille de traitements (AMF résistante à l’hameçonnage, accès conditionnel, vérification des réinitialisations).
+1728	L’identité contrôle l’accès à chaque joyau de la couronne et l’accès à distance et infonuagique est au cœur du modèle de MediBec.
+1729	Leurre d’hameçonnage et notification AMF approuvée depuis une géographie inhabituelle (E6).
+1730	Confidentialité des données de santé (O2); précurseur de la perturbation O1.
+1731	AMF limitée aux notifications, aucun accès conditionnel, vérification des réinitialisations inconnue.
+1732	Accès non autorisé au DSE et au courriel; atteinte à déclarer; point d’appui pour un rançongiciel.
+1733	Voie d’entrée la plus probable, appuyée par la preuve la plus solide; variantes regroupées.
+1734	Rançongiciel avec vol de données et destruction des sauvegardes interrompant les opérations de plusieurs cliniques
+1735	Un affilié de rançongiciel entre par P01 ou P03, n’est pas détecté parce que les alertes sont mal triées et les journaux incomplets, devient administrateur de domaine grâce à des faiblesses d’Active Directory, supprime les sauvegardes accessibles depuis le domaine de production, exfiltre des données de santé et chiffre les serveurs, les hyperviseurs et le stockage des cliniques, interrompant le DSE, la prise de rendez-vous et le diagnostic dans les cliniques alors que la reprise échoue.

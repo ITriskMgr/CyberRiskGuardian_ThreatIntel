@@ -1,0 +1,140 @@
+772	Initié malveillant ou négligent; acteur externe utilisant un compte de service.
+773	Interrogation et exportation non autorisées de dossiers de santé.
+774	Accès étendu par rôle dans le DSE (hypothèse de l’analyste)
+775	Compte de service surprivilégié sans coffre-fort (E6)
+776	Aucune analytique des accès au DSE ni recertification périodique démontrée (E7)
+777	Aucune prévention des pertes de données démontrée
+778	CJ1 données du DSE; CJ4 données de facturation.
+779	Documentation clinique, facturation, intégration du DSE.
+780	Le journal d’audit du DSE existe (E6)
+781	Un employé qui part chez un concurrent exporte des listes de coordonnées et de facturation de patients; par ailleurs, des identifiants du compte ehr-sync-svc conservés dans un script sont réutilisés pour extraire des dossiers la nuit. Les journaux d’audit consignent l’activité, mais personne ne les examine avant la plainte d’un patient.
+782	Accès initial — compte légitime ou identifiant de service réutilisé
+783	Collecte — requêtes et exportations massives
+784	Exfiltration — clé USB, courriel, nuage personnel
+785	Détection — plainte d’un patient ou examen tardif des journaux
+786	Impact d’affaires — atteinte à la vie privée, mesures disciplinaires et poursuites
+787	Divulgation ciblée ou massive de données de santé.
+788	Aucune.
+789	Enquêtes, processus RH.
+790	Frais juridiques et coûts de notification.
+791	Élevée, surtout pour les patients sensibles.
+792	La consultation indiscrète par des initiés est récurrente en santé; anomalie observée sur le compte de service.
+793	L’accès légitime contourne les mesures périmétriques; aucune analytique.
+794	Modérée
+795	Ensemble limité de dossiers.
+796	Extraction massive par le compte de service.
+797	Les journaux existent, mais ne sont pas surveillés.
+798	La confidentialité du DSE est au cœur de la confiance.
+799	Applicabilité limitée : l’abus par un initié n’est pas une vulnérabilité logicielle. Vulnérabilité représentative retenue pour le classeur : privilèges excessifs d’un compte authentifié (CWE-269). PR:L accès légitime à faible privilège; VC:H lecture massive; VI:L. À interpréter avec prudence.
+800	Refonte selon le moindre privilège et recertification des accès, avec analytique des accès au DSE et prévention des pertes de données (I09); coffre-fort et restriction des comptes de service (I02); cas d’usage de détection et réponse gérées (I03); RH et sensibilisation (I12).
+801	3 à 12 mois
+802	Un cybercriminel ou un acteur lié à un État exploite massivement une vulnérabilité connue d’une passerelle d’accès à distance, d’un pare-feu ou d’une application Web exposés à Internet que MediBec n’a pas corrigée en raison d’exigences de disponibilité, de contraintes des fournisseurs ou d’un personnel limité, obtenant une exécution de code à distance et un point d’appui pour un vol de données ou un rançongiciel.
+803	DPI; infrastructure; responsable de la cybersécurité; responsables d’applications; fournisseurs; Opérations cliniques (fenêtres de changement).
+804	Les retards de correction sont documentés comme une contrainte du secteur de la santé (E3, E7). L’exhaustivité de l’inventaire des actifs et la couverture des balayages sont inconnues (E4).
+805	Cybercriminel / acteur lié à un État utilisant des exploits publics.
+806	Exploitation à distance d’une vulnérabilité connue.
+807	Délais de correction et gouvernance des exceptions non démontrés (E7)
+808	Inventaire des actifs incomplet (E4)
+809	Systèmes possiblement en fin de vie (lacune d’information)
+810	CJ5 accès à distance; CJ6 périmètre; applications exposées à Internet.
+811	Accès à distance des cliniciens; services en ligne.
+812	Pare-feu, IDS/IPS (E2)
+813	Antimaliciel (E2)
+814	Une faille critique du dispositif d’accès à distance est divulguée et exploitée en quelques jours. MediBec planifie le correctif pour la prochaine fenêtre trimestrielle. L’acteur implante un interpréteur Web clandestin, récolte des jetons de session et pivote vers l’interne.
+815	Accès initial — exploitation d’un équipement de périphérie
+816	Persistance — interpréteur Web clandestin / implant
+817	Accès aux identifiants — jetons de session
+818	Déplacement latéral — vers le réseau des serveurs
+819	Collecte / perturbation — mène à S2 ou à un vol de données
+820	Détection — avis externe ou chasse aux menaces
+821	Impact d’affaires — intrusion, panne possible
+822	Accès possible aux données de santé.
+823	Altération de la configuration de l’équipement.
+824	Panne de l’accès à distance pendant la correction d’urgence.
+825	Accès à distance des cliniciens perturbé.
+826	Coûts de réponse aux incidents.
+827	Modérée à élevée.
+828	Modérée.
+829	Les campagnes d’exploitation des équipements de périphérie sont fréquentes.
+830	Retard de correction documenté; inventaire incomplet.
+831	Point d’appui avec un certain accès aux données.
+832	Précurseur d’un rançongiciel touchant tout le réseau.
+833	Détection des implants incertaine.
+834	L’accès à distance et le périmètre servent toutes les cliniques.
+835	Vulnérabilité représentative : exécution de code à distance sans authentification dans une passerelle exposée à Internet (typique des vulnérabilités de périphérie activement exploitées). Tous les impacts sont élevés parce que la passerelle fait face au réseau interne. Remplacer par le vecteur de la CVE réelle une fois les données de balayage disponibles.
+836	Gestion des vulnérabilités et des correctifs fondée sur le risque, avec délais pour les vulnérabilités KEV et retrait des systèmes en fin de vie (I05); segmentation derrière la périphérie (I06); chasse aux menaces par la détection et réponse gérées (I03).
+837	1 à 9 mois
+838	MED-CYR-09 (+ voie Wi-Fi MED-CYR-05)
+839	Dispositif médical connecté servant de point d’appui pour perturber l’équipement clinique et atteindre le réseau du DSE
+840	Un attaquant qui atteint le réseau d’une clinique (par un maliciel, un Wi-Fi de clinique compromis ou un accès de fournisseur) exploite un dispositif médical non corrigé ou doté d’identifiants par défaut, situé sur un réseau partagé avec les postes du DSE, perturbe son fonctionnement et s’en sert comme point d’appui persistant, avec des conséquences possibles sur les soins aux patients.
+841	Génie biomédical; Opérations cliniques; gestionnaires de clinique; fabricants d’appareils; DPI; responsable de la cybersécurité; patients.
+842	L’équipement médical est interconnecté avec l’environnement du DSE; l’inventaire, le niveau des correctifs et la segmentation sont inconnus (E2, E4). La correction est limitée par la certification (E3).
+843	Cybercriminel (opportuniste ou lors d’une opération de rançongiciel).
+844	Exploitation d’un dispositif médical ou d’IdO et déplacement latéral.
+845	Inventaire des appareils incomplet (E4)
+846	Correction du système d’exploitation embarqué limitée par la certification (E3)
+847	Appareils et Wi-Fi invité ou clinique non segmentés (E4, E7 — à valider)
+848	Identifiants par défaut (hypothèse de l’analyste)
+849	CJ8 dispositifs médicaux; CJ2 diagnostic; réseau local de la clinique.
+850	Imagerie diagnostique, surveillance, flux de données des appareils vers le DSE.
+851	Pare-feu et IDS/IPS au concentrateur (E2 — couverture est-ouest inconnue)
+852	Un rançongiciel qui se propage dans une clinique chiffre la console Windows d’un appareil d’imagerie; par ailleurs, un attaquant sur le Wi-Fi invité atteint un appareil doté d’identifiants par défaut et s’en sert comme pivot que les outils des postes ne couvrent pas.
+853	Accès initial — réseau adjacent (Wi-Fi ou poste infecté)
+854	Exploitation — service non corrigé / identifiants par défaut
+855	Persistance — implant sur un appareil non géré
+856	Déplacement latéral — vers les postes du DSE
+857	Perturbation — appareil indisponible ou données modifiées
+858	Détection — le personnel clinique remarque un dysfonctionnement
+859	Impact d’affaires — interventions reportées, examen de sécurité
+860	Images et identifiants stockés dans l’appareil.
+861	Lectures possiblement modifiées.
+862	Appareils hors service.
+863	Annulation d’interventions.
+864	Correction des appareils avec le fournisseur.
+865	Une déclaration relative à la sécurité des instruments médicaux pourrait s’appliquer (à valider).
+866	Élevée en cas de préjudice à un patient.
+867	Directe — diagnostic retardé ou erroné.
+868	Le ciblage des appareils est moins fréquent que celui des TI, mais l’infection collatérale est courante.
+869	Contraintes de correction et de segmentation documentées.
+870	Quelques appareils indisponibles dans une clinique.
+871	Préjudice aux patients par un équipement modifié ou indisponible.
+872	Aucune preuve de surveillance ni d’inventaire des appareils.
+873	Lien direct avec la sécurité des patients.
+874	Vulnérabilité représentative : service embarqué non corrigé ou identifiant par défaut sur un appareil en réseau. AV:A accessible seulement depuis le réseau local ou le Wi-Fi de la clinique; PR:N; impact complet sur l’appareil; SC/SI/SA:L effets en aval. La métrique complémentaire de sécurité CVSS (S:P) s’appliquerait, mais ne fait pas partie du score de base.
+875	Programme de sécurité des dispositifs médicaux (I07), segmentation et contrôle d’accès au réseau, y compris l’isolement du Wi-Fi invité (I06), correctifs et mesures compensatoires (I05). Le risque résiduel dépend des fabricants.
+876	Opérations cliniques avec le génie biomédical
+877	3 à 24 mois
+878	MED-CYR-08 / 15
+879	Lacunes de détection et de réponse laissant une intrusion persister et s’aggraver
+880	Une intrusion par un acteur externe passe inaperçue ou est mal classée parce que le tri des alertes, la couverture des journaux et la surveillance hors des heures normales sont insuffisants pour une équipe de cybersécurité de deux personnes, et le plan de réponse aux incidents non testé entraîne un confinement lent et non coordonné, transformant un événement contenu en incident majeur touchant la vie privée et les opérations.
+881	Responsable de la cybersécurité; DPI; haute direction; Opérations cliniques; gestionnaires de clinique; vie privée / services juridiques; communications; fournisseurs de détection et réponse gérées et de criminalistique.
+882	Deux employés dédiés à la cybersécurité (E3); une alerte PowerShell a été fermée comme peu grave; des connexions inhabituelles, des téléchargements infonuagiques et des requêtes du compte de service n’ont pas été corrélés (E6). Le plan de réponse aux incidents n’a pas été testé dans les cliniques (E8 MED-CYR-15).
+883	Tout acteur externe (scénario amplificateur).
+884	Présence non détectée de l’attaquant et réponse tardive et non coordonnée.
+885	Aucune surveillance en continu (E3 — déduit)
+886	Critères de tri des alertes faibles (E6)
+887	Couverture et conservation des journaux inconnues (E4)
+888	Plan de réponse aux incidents non testé; pouvoirs de décision flous (E8)
+889	Tous les joyaux de la couronne, surtout CJ1 et CJ5.
+890	Gestion des incidents, continuité clinique, évaluation des atteintes à la vie privée.
+891	IDS/IPS (E2)
+892	Rôles de commandement des incidents définis (E6)
+893	Pendant dix jours, quatre signaux faibles (hameçonnage, PowerShell, connexion inhabituelle, téléchargement infonuagique) apparaissent dans différentes consoles, mais personne ne les corrèle. Quand le chiffrement commence, les rôles, le recours à la criminalistique et les solutions de contournement cliniques sont improvisés.
+894	Accès initial — par S1/S6
+895	Signaux faibles générés, mais non triés
+896	Présence de l’attaquant pendant des jours, voire des semaines
+897	Escalade vers le vol de données / le chiffrement
+898	Détection — par l’impact, non par la surveillance
+899	Réponse — décisions tardives, perte de preuves
+900	Impact d’affaires — préjudice amplifié
+901	Ampleur accrue de l’atteinte; preuves plus faibles de ce qui a été consulté.
+902	Incertitude quant à ce qui a été modifié.
+903	Panne plus longue.
+904	Mauvaise coordination entre les cliniques.
+905	Coût total de l’incident plus élevé.
+906	Incapacité d’étayer l’évaluation de l’atteinte.
+907	Impression de mauvaise gestion.
+908	Indirect, par une panne prolongée.
+909	Les tentatives se poursuivent; certaines franchiront les mesures périmétriques.
+910	Preuves d’alertes mal triées et de signaux non corrélés.
+911	L’incident s’aggrave avant le confinement.

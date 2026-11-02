@@ -1,0 +1,131 @@
+641	Les cliniques dépendent fortement des services centraux de Montréal (E1, E2). La chronologie de l’exercice montre la chaîne complète — hameçonnage, alerte PowerShell fermée comme peu grave, échecs de sauvegarde, note de rançon (E6). La segmentation et l’isolement des sauvegardes figurent parmi les questions ouvertes (E2, E7).
+642	Affilié d’un rançongiciel-service (double extorsion).
+643	Chiffrement des serveurs et des postes après vol de données, avec extorsion.
+644	Exécution de macros et tri des alertes faible (E6)
+645	Segmentation entre cliniques, serveurs et sauvegardes non démontrée (E2, E7)
+646	Hygiène des identifiants privilégiés inconnue (lacune d’information)
+647	Procédures des cliniques en mode dégradé non testées (E7)
+648	CJ1 DSE, CJ3 prise de rendez-vous, CJ4 facturation, CJ6 centre de données et stockage des cliniques.
+649	Prestation des soins, rendez-vous, diagnostic, facturation, communications.
+650	Pare-feu, IDS/IPS, antimaliciel (E2)
+651	EDR (E6)
+652	Sauvegardes sur place et hors site (E2 — isolement et essais inconnus)
+653	Structure de commandement des incidents définie (E6 — non testée)
+654	Après l’accès initial (voir S1/S6), l’acteur devient administrateur de domaine en quelques jours, désactive les outils de sécurité lorsque c’est possible, supprime ou chiffre les sauvegardes accessibles, exfiltre des exportations du DSE et déploie le rançongiciel à 7 h un jour de semaine. Plusieurs cliniques perdent le DSE et la prise de rendez-vous; le personnel revient au papier; les résultats d’imagerie et de laboratoire sont retardés.
+655	Accès initial — macro d’hameçonnage ou service exposé
+656	Exploitation — chargeur PowerShell
+657	Élévation de privilèges — extraction d’identifiants jusqu’à administrateur de domaine
+658	Persistance — tâches planifiées, outils à distance
+659	Découverte — AD, sauvegardes, partages de fichiers
+660	Déplacement latéral — réseau à plat vers les serveurs et les cliniques
+661	Collecte — exportations du DSE et de la facturation
+662	Exfiltration puis chiffrement des serveurs et du stockage des cliniques
+663	Détection — note de rançon / signalements des utilisateurs
+664	Impact d’affaires — perturbation de plusieurs cliniques pendant plusieurs jours
+665	Vol probable de données de santé et menace de publication.
+666	Données chiffrées et possiblement corrompues.
+667	DSE, prise de rendez-vous et partages de fichiers arrêtés pendant des jours.
+668	Rendez-vous annulés ou retardés dans plusieurs cliniques.
+669	Reprise, criminalistique, revenus perdus, demande d’extorsion possible.
+670	Notification à l’organisme de réglementation et aux patients probable.
+671	Attention des médias (injection E6).
+672	Diagnostic et traitement retardés; lacunes dans l’historique des médicaments.
+673	Probable
+674	Le secteur de la santé est une cible constante des rançongiciels; tentatives en hausse.
+675	Plausible
+676	Plusieurs maillons faibles (tri, segmentation, isolement des sauvegardes), mais des mesures périmétriques existent.
+677	Majeur
+678	Perturbation de plusieurs cliniques pendant plusieurs jours.
+679	Extrême
+680	Panne de tout le réseau avec vol de données et reprise ratée.
+681	Faible
+682	Reprise et solutions de contournement non testées; petite équipe.
+683	Essentielle à la mission
+684	Le DSE et la prise de rendez-vous soutiennent la prestation des soins.
+685	Vulnérabilité représentative : document à macro malveillante menant à l’exécution de code (vecteur initial dans E6). AV:L : le document est livré par courriel, mais ouvert localement (guide d’utilisation CVSS v4.0 de FIRST); AC:L; AT:N; PR:N; UI:P l’utilisateur ouvre le document; VC/VI/VA:H sur le poste; SC/SI/SA:H parce que le DSE et les systèmes des cliniques sont ensuite touchés. Le score CVSS décrit seulement la vulnérabilité d’entrée, non l’impact sur l’entreprise.
+686	Par couches : détection et réponse gérées/EDR (I03), GAP (I02), segmentation (I06), sauvegarde immuable (I04), correctifs (I05), réponse aux incidents et procédures en mode dégradé (I11), sensibilisation (I12). Le risque résiduel demeure important — envisager un transfert à l’assurance cyber.
+687	Haute direction (chef de l’exploitation) avec le DPI
+688	0 à 24 mois
+689	Environnement de sauvegarde compromis, empêchant la reprise après une attaque destructrice
+690	Un attaquant détenant des identifiants d’administration atteint des serveurs de sauvegarde qui partagent le domaine d’identité et le réseau de production, supprime ou chiffre les jeux de sauvegarde et les copies du stockage des cliniques, de sorte que MediBec ne peut restaurer le DSE et les systèmes des cliniques dans un délai acceptable sur le plan clinique après un événement destructeur.
+691	DPI; équipe d’infrastructure; responsable de la cybersécurité; Opérations cliniques; gestionnaires de clinique; fournisseur de sauvegarde hors site; haute direction.
+692	MediBec dispose de sauvegardes sur place et hors site (E2), mais l’isolement, l’immuabilité et les essais de restauration ne sont pas démontrés. Les preuves d’exercice montrent des échecs de sauvegarde inexpliqués sur plusieurs unités de stockage des cliniques avant le chiffrement (E6).
+693	Exploitant de rançongiciel ou autre attaquant disposant d’un accès administratif.
+694	Suppression ou chiffrement des sauvegardes et des outils de reprise.
+695	Consoles de sauvegarde authentifiées par l’annuaire de production (hypothèse de l’analyste — à valider)
+696	Aucune copie immuable ou hors ligne démontrée
+697	Essais de restauration et RTO/RPO non démontrés (E7)
+698	Alertes d’échec de sauvegarde non transmises (E6)
+699	CJ6 serveurs de sauvegarde, copies hors site, stockage local des cliniques.
+700	Reprise après sinistre de tous les services cliniques et administratifs.
+701	Sauvegardes sur place et hors site (E2)
+702	Stockage chiffré (E2)
+703	Quelques jours avant le déclenchement, l’attaquant se connecte à la console de sauvegarde avec un compte d’administrateur de domaine, raccourcit la conservation, supprime les points de restauration et corrompt les répliques du stockage des cliniques. Les tâches de sauvegarde en échec génèrent des billets traités comme des problèmes de capacité. Après le chiffrement, les tentatives de restauration échouent ou n’atteignent que des copies périmées.
+704	Accès initial — par la chaîne S1/S2
+705	Élévation de privilèges — administrateur de domaine
+706	Découverte — repérage des serveurs et des calendriers de sauvegarde
+707	Déplacement latéral — vers le réseau de sauvegarde
+708	Manipulation — modification de la conservation, suppression des points de restauration
+709	Perturbation — chiffrement des dépôts de sauvegarde
+710	Détection — restauration ratée pendant l’incident
+711	Impact d’affaires — panne prolongée et perte possiblement permanente de données
+712	Jeux de sauvegarde également exfiltrés.
+713	Perte de données cliniques historiques.
+714	Le délai de reprise passe de quelques jours à plusieurs semaines.
+715	Fonctionnement prolongé sur papier.
+716	Pression pour payer la rançon; coûts de reconstruction.
+717	Obligations de tenue des dossiers et de continuité compromises.
+718	Grave.
+719	Historique manquant pour les traitements en cours.
+720	Conditionnel à une intrusion atteignant le niveau administratif (S1/S2).
+721	Isolement inconnu; les échecs dans E6 suggèrent une exposition.
+722	Perte partielle des points de restauration récents.
+723	Aucune sauvegarde utilisable du DSE.
+724	Aucune preuve d’essai de restauration.
+725	La capacité de reprise de chaque joyau de la couronne en dépend.
+726	Vulnérabilité représentative : console de gestion des sauvegardes accessible depuis le réseau de production et faisant confiance aux comptes d’administrateur de production. PR:H l’attaquant détient déjà des identifiants d’administrateur; VC/VI/VA:H sur le système de sauvegarde; SA:H parce que la reprise de tous les systèmes subséquents est perdue.
+727	Copies immuables ou hors ligne avec identité de sauvegarde distincte (I04), segmentation (I06), GAP (I02), surveillance des alertes de sauvegarde (I03), essais trimestriels de restauration et intégration à la réponse aux incidents (I11).
+728	0 à 9 mois
+729	Stockage infonuagique de transfert d’images médicales exposé, permettant une exfiltration massive de données de santé
+730	Un acteur opportuniste ou ciblé découvre un emplacement de stockage infonuagique servant au transfert et à l’exportation d’images médicales, partagé par des liens publics à longue durée de vie ou faiblement authentifiés, télécharge de grands volumes d’images et d’identifiants de patients associés et cause une atteinte à grande échelle aux données de santé.
+731	Responsable de la radiologie; DPI; responsable de la cybersécurité; responsable de la protection des renseignements personnels; services juridiques; fournisseur infonuagique; cliniciens référents; patients.
+732	MediBec utilise l’intégration infonuagique pour l’accès à distance aux données (E2). Les preuves d’exercice montrent le téléchargement de medical_image_export.zip depuis une adresse IP non reconnue (E6). La configuration infonuagique, la journalisation et la compréhension de la responsabilité partagée sont des questions ouvertes (E4).
+733	Outil de balayage opportuniste ou courtier de données cybercriminel.
+734	Téléchargement massif non autorisé depuis le stockage infonuagique.
+735	Liens de partage permissifs ou à longue durée de vie (hypothèse de l’analyste)
+736	Aucune gestion de la posture infonuagique démontrée
+737	Journalisation de l’accès aux objets inconnue (E4)
+738	Les exportations contiennent des identifiants avec les images
+739	CJ7 stockage infonuagique des images; CJ2 radiologie.
+740	Partage d’images avec les cliniciens et partenaires, références.
+741	Stockage chiffré (E2 — au repos seulement, pas de contrôle d’accès)
+742	Accès infonuagique par identité (E2)
+743	Un compartiment d’exportation créé pour un processus de référence conserve un lien d’accès anonyme. Des outils automatisés le trouvent; un acteur télécharge plusieurs milliers d’examens dont les en-têtes DICOM contiennent des identifiants de patients. MediBec l’apprend par une anomalie de trafic sortant ou par un tiers.
+744	Découverte — balayage du stockage ouvert
+745	Accès initial — lien anonyme ou divulgué
+746	Collecte — énumération des objets
+747	Exfiltration — téléchargement massif
+748	Détection — tardive, par une anomalie de sortie ou un avis externe
+749	Impact d’affaires — atteinte importante à la vie privée
+750	Exposition massive d’images et d’identifiants.
+751	Faible.
+752	Processus de partage suspendu.
+753	Retards dans les références.
+754	Coûts de notification, frais juridiques et de criminalistique.
+755	Élevé — grand nombre de personnes touchées.
+756	Élevé.
+757	Le stockage infonuagique est balayé en continu.
+758	Dépend de la configuration du partage — inconnue; E6 suggère une faiblesse.
+759	Jeu de données partiellement exposé.
+760	Tout l’historique des exportations exposé.
+761	Journalisation et détection incertaines.
+762	Élevée
+763	Important, mais non essentiel aux soins du jour.
+764	Vulnérabilité représentative : objet de stockage accessible sans authentification (mauvaise configuration CWE-284). AV:N, AC:L, AT:N, PR:N, UI:N; confidentialité seulement (VC:H).
+765	Bloquer l’accès public et imposer des liens authentifiés à expiration (I08); prévention des pertes de données et minimisation des données dans les exportations (I09); journalisation de l’accès aux objets transmise à la détection et réponse gérées (I03).
+766	DPI avec le responsable de la protection des renseignements personnels
+767	MED-CYR-11 (+ preuve sur le compte de service)
+768	Utilisation abusive d’accès cliniques, privilégiés ou de comptes de service légitimes pour extraire des dossiers de patients
+769	Un initié malveillant ou curieux, ou un attaquant qui a pris le contrôle du compte de service surprivilégié ehr-sync-svc, utilise un accès au DSE légitime mais excessif pour interroger et exporter de grands volumes de dossiers de patients ou de facturation sans déclencher d’examen, ce qui entraîne une atteinte à la vie privée et une perte de confiance.
+770	Responsable de la protection des renseignements personnels; RH; Opérations cliniques; DPI; responsable de la cybersécurité; services juridiques; patients; ordres professionnels.
+771	L’accès au DSE est au cœur des soins (E7). Les preuves d’exercice montrent un volume de requêtes inhabituel du compte ehr-sync-svc (E6). L’énoncé d’appétence exige le moindre privilège et la journalisation pour les dépôts de données à risque élevé (E5).

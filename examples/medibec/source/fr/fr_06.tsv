@@ -1,0 +1,139 @@
+1033	Accès sans fil non autorisé et déplacement latéral.
+1034	Segmentation du Wi-Fi invité et clinique non démontrée (E7)
+1035	Norme sans fil et gestion des clés inconnues (lacune d’information)
+1036	Aucune détection des points d’accès illégitimes démontrée
+1037	Réseau local de clinique à plat (hypothèse de l’analyste, voir S7)
+1038	Réseau local de la clinique; CJ1 postes du DSE; stockage local de la clinique.
+1039	Opérations de la clinique, accès au DSE au point de service.
+1040	Pare-feu et IDS/IPS au concentrateur de Montréal (E2 — couverture au niveau des cliniques inconnue)
+1041	Une clé Wi-Fi partagée affichée dans une salle du personnel est réutilisée sur le réseau invité, qui achemine le trafic vers le réseau local de la clinique. Un attaquant dans la salle d’attente balaie le réseau et trouve un partage de fichiers sur l’unité de stockage locale et un poste dont le service de bureau à distance est ouvert.
+1042	Accès initial — clé Wi-Fi faible ou partagée, ou point d’accès illégitime
+1043	Découverte — balayage du réseau local de la clinique
+1044	Accès aux identifiants — interception de protocoles en clair
+1045	Déplacement latéral — vers un poste ou le stockage
+1046	Collecte — dossiers locaux de patients
+1047	Détection — peu probable au niveau de la clinique
+1048	Impact d’affaires — atteinte locale ou point d’appui pour S2
+1049	Dossiers locaux de patients; identifiants interceptés.
+1050	Faible, sauf s’il sert à S2.
+1051	Reconfiguration du Wi-Fi dans toutes les cliniques.
+1052	Incident possiblement à déclarer.
+1053	Exige une proximité physique; les cliniques ont des salles d’attente publiques.
+1054	Mesures sans fil inconnues.
+1055	Accès limité à une clinique.
+1056	Point d’appui menant à une compromission de tout le réseau.
+1057	Aucune surveillance sans fil au niveau des cliniques démontrée.
+1058	Les réseaux des cliniques acheminent l’accès au DSE au point de service.
+1059	Vulnérabilité représentative : authentification sans fil faible avec routage du réseau invité vers l’interne. AV:A adjacent (portée radio); VC/VI:L sur le réseau sans fil lui-même; SC:H systèmes cliniques accessibles derrière lui.
+1060	WPA3-Entreprise pour le personnel, Wi-Fi invité isolé limité à Internet, détection des points d’accès illégitimes et contrôle d’accès au réseau (I06); surveillance des segments des cliniques (I03).
+1061	6 à 18 mois
+1062	Déni de service distribué perturbant la prise de rendez-vous en ligne, le portail patient et les communications
+1063	Un groupe hacktiviste ou d’extorsion inonde de trafic les services de MediBec exposés à Internet, rendant indisponibles pendant des heures ou des jours la prise de rendez-vous en ligne, l’accès aux dossiers par les patients et les communications externes, et reportant le volume sur les lignes téléphoniques des cliniques.
+1064	Gestionnaires de clinique; communications; DPI; fournisseurs d’accès Internet et d’hébergement; patients.
+1065	MED-CYR-10 recense des services en ligne pour les rendez-vous, l’accès aux dossiers et les communications (E8). Aucune protection contre le déni de service, réseau de diffusion de contenu ni pare-feu applicatif Web n’est documenté (E2).
+1066	Groupe hacktiviste ou d’extorsion par déni de service.
+1067	Déni de service volumétrique ou au niveau de l’application.
+1068	Aucun service d’atténuation du déni de service démontré
+1069	Sortie Internet unique par le concentrateur de Montréal (E2)
+1070	Aucun plan de coordination avec les fournisseurs démontré
+1071	CJ3 services en ligne; connectivité Internet des cliniques.
+1072	Prise de rendez-vous, communications avec les patients.
+1073	Pare-feu, IDS/IPS (E2 — non conçus pour les attaques volumétriques)
+1074	À la suite d’une couverture médiatique du secteur de la santé, un réseau de zombies hacktiviste cible le site de prise de rendez-vous de MediBec. Le lien Internet partagé sature, ce qui dégrade aussi l’accès des cliniques aux services infonuagiques acheminés par Montréal.
+1075	Reconnaissance — repérage des services publics
+1076	Attaque — inondation volumétrique et HTTP
+1077	Impact — saturation du lien partagé
+1078	Détection — les utilisateurs signalent la panne
+1079	Réponse — recours au fournisseur d’accès sans atténuation préalablement convenue
+1080	Impact d’affaires — service dégradé pendant des heures, voire des jours
+1081	Services en ligne indisponibles; accès infonuagique dégradé.
+1082	Surcharge du téléphone et de l’accueil.
+1083	Rendez-vous perdus.
+1084	Faible — les cliniques continuent en personne.
+1085	Des campagnes de déni de service contre le secteur de la santé ont lieu; le profil de MediBec est modéré.
+1086	Aucune atténuation démontrée.
+1087	Heures d’indisponibilité en ligne.
+1088	Perturbation de plusieurs jours, y compris l’accès infonuagique.
+1089	Les cliniques peuvent fonctionner sans prise de rendez-vous en ligne.
+1090	Services en ligne utiles, mais non essentiels aux soins.
+1091	Applicabilité limitée : un déni de service volumétrique exploite la capacité, non une faille logicielle. Vulnérabilité représentative : service sans limitation du débit ni atténuation en amont (CWE-770). Disponibilité seulement.
+1092	Atténuation du déni de service en amont, réseau de diffusion de contenu et pare-feu applicatif Web pour les services publics, sortie distincte pour le trafic infonuagique des cliniques (I15); guide d’escalade auprès des fournisseurs et de communication (I11).
+1093	Compromission de courriel d’affaires détournant des paiements de fournisseurs ou de facturation
+1094	Un fraudeur usurpe ou compromet la boîte de courriel d’un fournisseur ou d’un cadre et demande au personnel des finances de MediBec de changer des coordonnées bancaires ou de payer une fausse facture, parce que la vérification des changements de paiement et l’authentification du courriel sont faibles, ce qui entraîne une perte financière directe.
+1095	Responsable des finances; comptes fournisseurs; chef des finances; fournisseurs; responsable de la cybersécurité; banque.
+1096	Les systèmes de facturation et administratifs sont centraux (E1); des leurres d’hameçonnage visent déjà le personnel de facturation (E6). L’authentification du courriel (DMARC) et les procédures de vérification des paiements ne sont pas documentées.
+1097	Groupe de fraude organisé.
+1098	Instruction de paiement frauduleuse.
+1099	Aucune vérification hors bande des changements de paiement démontrée
+1100	Application de DMARC inconnue
+1101	Personnel de facturation ciblé par l’hameçonnage (E6)
+1102	CJ4 facturation et comptes fournisseurs.
+1103	Paiements aux fournisseurs, remboursements aux patients.
+1104	Filtrage du courriel (E2 — efficacité inconnue)
+1105	Un domaine semblable à celui d’un fournisseur envoie un formulaire bancaire mis à jour avant une importante facture d’équipement. Les comptes fournisseurs mettent à jour la fiche du fournisseur par courriel; 180 000 $ CA sont virés avant que le vrai fournisseur réclame son paiement.
+1106	Reconnaissance — repérage des fournisseurs et des cycles de facturation
+1107	Premier contact — boîte de courriel usurpée ou compromise
+1108	Manipulation — changement des coordonnées bancaires
+1109	Impact — virement frauduleux
+1110	Détection — plainte du fournisseur pour non-paiement
+1111	Impact d’affaires — perte financière
+1112	Données maîtres des fournisseurs modifiées.
+1113	Relation avec le fournisseur tendue.
+1114	Perte directe, souvent irrécupérable.
+1115	Faible à modérée.
+1116	La compromission de courriel d’affaires est parmi les fraudes les plus fréquentes; le personnel de facturation est déjà ciblé.
+1117	Procédures de vérification inconnues.
+1118	Un paiement détourné.
+1119	Plusieurs paiements importants détournés.
+1120	Rappel bancaire possible si la détection est rapide.
+1121	Processus financier, non clinique.
+1122	Applicabilité limitée : la fraude aux paiements est une faiblesse de processus. Vulnérabilité représentative : domaine d’expéditeur usurpable sans application de DMARC. UI:A le personnel doit donner suite à l’instruction; VI:L données modifiées. Le score faible sous-estime l’impact d’affaires — s’appuyer sur les estimations de dommages.
+1123	Vérification obligatoire par rappel des changements de coordonnées bancaires et double approbation au-delà d’un seuil, application de DMARC, détection de la compromission de courriel d’affaires (I16); sensibilisation propre aux finances (I12).
+1124	Responsable des finances (chef des finances)
+1125	0 à 3 mois
+1126	Tablette ou appareil portatif perdu ou volé exposant des données de patients
+1127	La tablette ou l’appareil portatif d’un clinicien servant à accéder au DSE est perdu ou volé; comme le chiffrement, le verrouillage de l’écran et l’effacement à distance ne sont pas imposés centralement, les données de patients en cache sur l’appareil ou accessibles par des sessions enregistrées sont exposées.
+1128	Cliniciens; gestionnaires de clinique; responsable de la protection des renseignements personnels; soutien des TI; patients.
+1129	Les postes, tablettes et appareils portatifs servent à l’accès au DSE (E2). Le stockage chiffré est documenté pour les dépôts centraux, non pour les appareils mobiles; la gestion des appareils mobiles n’est pas démontrée.
+1130	Voleur opportuniste; perte accidentelle.
+1131	Perte physique d’un appareil contenant des données ou des sessions actives.
+1132	Gestion des appareils mobiles, chiffrement des appareils et effacement à distance non démontrés
+1133	Sessions persistantes du DSE sur les appareils mobiles (hypothèse de l’analyste)
+1134	Procédure de déclaration des pertes inconnue
+1135	Appareils mobiles; CJ1 données du DSE en cache ou accessibles.
+1136	Documentation au point de service.
+1137	Stockage central chiffré (E2)
+1138	Une tablette est volée dans une voiture. Elle n’a pas de NIP imposé et contient des lettres de référence téléchargées; l’application du DSE reste connectée. La perte est signalée deux jours plus tard.
+1139	Perte ou vol de l’appareil
+1140	Accès — aucun verrouillage ou NIP faible
+1141	Collecte — fichiers en cache et sessions actives
+1142	Détection — signalement du personnel, souvent tardif
+1143	Réponse — révocation des comptes, évaluation de l’atteinte
+1144	Impact d’affaires — atteinte limitée à la vie privée
+1145	Dossiers en cache sur un appareil.
+1146	Remplacement de l’appareil.
+1147	Mineure.
+1148	Évaluation de l’atteinte requise; peut devoir être déclarée.
+1149	Dans 10 cliniques, la perte de quelques appareils chaque année est quasi certaine.
+1150	Une certaine protection peut exister, mais n’est pas démontrée.
+1151	Petit nombre de dossiers.
+1152	Une session active du DSE permet un accès plus large.
+1153	Les comptes peuvent être révoqués centralement.
+1154	Soutient les soins, sans y être essentiel.
+1155	Vulnérabilité représentative : absence de chiffrement des données sensibles au repos sur l’appareil (CWE-311). AV:P possession physique requise; confidentialité seulement.
+1156	Gestion des appareils mobiles avec chiffrement imposé, NIP, délai d’expiration des sessions, effacement à distance et processus de déclaration des pertes (I17).
+1157	Annexe B nos 5 et 49
+1158	Perte du concentrateur de Montréal ou du réseau étendu isolant les cliniques des systèmes cliniques centraux
+1159	Une défaillance d’un fournisseur de télécommunications, une cyberattaque contre des équipements réseau ou un incident au centre de données met hors ligne le concentrateur de Montréal ou le réseau étendu; comme les cliniques dépendent d’un concentrateur unique sans redondance testée ni solution locale de rechange, l’accès au DSE, à l’imagerie, au laboratoire et à la pharmacie est perdu simultanément dans les dix cliniques.
+1160	DPI; infrastructure; Opérations cliniques; gestionnaires de clinique; fournisseurs de télécommunications; haute direction.
+1161	Toutes les cliniques se raccordent par le réseau étendu au concentrateur principal de Montréal, où se trouve le centre de données principal (E2). La redondance, le site de rechange et les essais de basculement ne sont pas documentés; la panne du centre de données avait été écartée lors de l’évaluation à 10 scénarios et est maintenant incluse comme scénario de résilience.
+1162	Événement accidentel ou environnemental, défaillance d’un fournisseur de télécommunications, ou attaquant ciblant l’infrastructure réseau.
+1163	Perte de connectivité ou d’hébergement à l’échelle de l’entreprise.
+1164	Concentrateur unique et possiblement fournisseur unique (hypothèse de l’analyste)
+1165	Redondance des pare-feu inconnue (annexe B no 5)
+1166	Aucun site de traitement de rechange démontré
+1167	CJ6 centre de données et réseau étendu; tous les joyaux de la couronne qui en dépendent.
+1168	Tous les services cliniques et administratifs.
+1169	Liens en fibre à haute vitesse (E2)
+1170	Sauvegardes hors site (E2 — délai de restauration inconnu)
+1171	Une coupure de fibre et la défaillance simultanée de la paire de pare-feu principale laissent toutes les cliniques sans DSE pendant 14 heures. Les cliniques passent au papier, ne peuvent consulter l’imagerie antérieure ni l’historique des médicaments et reportent les rendez-vous non urgents.
