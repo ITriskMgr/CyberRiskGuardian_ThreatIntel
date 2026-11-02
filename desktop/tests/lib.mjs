@@ -3,7 +3,8 @@
 // same on a workstation and in CI:
 //   CRG_URL       the running app and helper (default http://127.0.0.1:8099/)
 //   CRG_APP_DIR   the application folder (default ../app)
-//   CRG_TMP       scratch folder for the run (default ./.tmp); the helper's folders live under it:
+//   CRG_TMP       scratch folder for the run (default $TMPDIR/crg-desktop-tests, outside the repository: the helper refuses
+//                 an organisation-graph folder inside a git repository); the helper's folders live under it:
 //   CRG_FEEDS_DIR (default $CRG_TMP/feeds) · CRG_ORG_DIR ($CRG_TMP/orggraphs) · CRG_KEYS_DIR ($CRG_TMP/keys)
 //   CRG_AI_MOCK   the helper's canned-answer folder (default $CRG_TMP/mock, a copy of ./mock made by serve.sh and
 //                 here: suites rewrite consultant.txt and the helper writes _last.json there, never in the repository)
@@ -15,13 +16,14 @@
 import { chromium } from 'playwright';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
 export const TESTS = path.dirname(fileURLToPath(import.meta.url));
 const env = (k, d) => process.env[k] || d;
 export const URL = env('CRG_URL', 'http://127.0.0.1:8099/');
 export const PORT = Number(new globalThis.URL(URL).port || 80);
 export const APP = path.resolve(env('CRG_APP_DIR', path.join(TESTS, '..', 'app')));
-export const TMP = path.resolve(env('CRG_TMP', path.join(TESTS, '.tmp')));
+export const TMP = path.resolve(env('CRG_TMP', path.join(os.tmpdir(), 'crg-desktop-tests')));
 export const FEEDS = path.resolve(env('CRG_FEEDS_DIR', path.join(TMP, 'feeds')));
 export const ORG = path.resolve(env('CRG_ORG_DIR', path.join(TMP, 'orggraphs')));
 export const KEYS = path.resolve(env('CRG_KEYS_DIR', path.join(TMP, 'keys')));

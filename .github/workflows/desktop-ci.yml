@@ -20,7 +20,8 @@ jobs:
     timeout-minutes: 75
     env:
       CRG_URL: http://127.0.0.1:8101/
-      CRG_TMP: ${{ github.workspace }}/.ci-tmp
+      # outside the checkout: the helper refuses an organisation-graph folder inside a git repository (t12, t21)
+      CRG_TMP: ${{ runner.temp }}/crg-ci
       CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.10.1
       CRG_MOCK_GITHUB_PORT: "8199"
       PYTHONDONTWRITEBYTECODE: "1"
