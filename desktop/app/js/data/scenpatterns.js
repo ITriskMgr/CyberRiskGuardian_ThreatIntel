@@ -6,8 +6,8 @@
    carries the pattern's CRGO identifier in `scenPattern`; the CRGO bridge writes it into the organisation
    graph as `has scenario pattern` when the CRGO in use defines that property.
 
-   Every pattern is a PROPOSED CRGO 0.11.0 term until the CRGO project owner approves it. The ATT&CK and CWE
-   identifiers below are the pattern links CRGO proposes (vocab/pattern-links, confidence H or M), limited to
+   Every pattern is an approved CRGO 0.11.0 term (approved by the CRGO project owner on 2026-11-02, tag v0.11.0).
+   The ATT&CK and CWE identifiers below are CRGO's pattern links (vocab/pattern-links, confidence H or M), limited to
    those in the bundled knowledge base; ATLAS techniques and newer CWE entries are cited in `refs` only.
    Labels and definitions: CRGO's (EN/FR in data/crgo-snapshot.json, v011.patterns).
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
@@ -18,10 +18,10 @@ export const CRGO_NS = 'https://w3id.org/crgo/';
 export const SCENARIO_PATTERN = 'CRGO_0001387';
 export const HAS_SCENARIO_PATTERN = 'CRGO_0001478';
 export const RELEASE = '0.11.0';
-export const STATUS = 'proposed';
+export const STATUS = 'approved';
 
 /** The six patterns: CRGO identifier, CRGO key, English name (French in i18n), CRGO themes, textbook chapter,
- *  the ATT&CK and CWE links CRGO proposes, and references outside the bundled knowledge base. */
+ *  CRGO's ATT&CK and CWE pattern links, and references outside the bundled knowledge base. */
 export const CRGO_PATTERNS = [
   { id: 'CRGO_0001389', key: 'PatQuantumHarvest', name: 'Harvest now, decrypt later (post-quantum)', themes: ['cryptography'], chapter: 'ch20',
     attack: ['T1040', 'T1557'], cwe: ['CWE-327', 'CWE-326'], refs: ['NIST IR 8547'] },
@@ -57,7 +57,7 @@ export function label(id, lang = 'en', snap = null) {
 }
 /** The lines an AI prompt gives so that a proposal can carry a pattern. */
 export const promptLines = () => [
-  'If a proposal is an instance of one of these CRGO 0.11 scenario patterns (proposed terms), put its identifier in "pattern";',
+  'If a proposal is an instance of one of these CRGO 0.11 scenario patterns, put its identifier in "pattern";',
   'otherwise leave "pattern" empty. Never force a pattern onto a scenario that does not fit it.',
   ...CRGO_PATTERNS.map(p => `- ${p.id}: ${p.name}`),
 ];

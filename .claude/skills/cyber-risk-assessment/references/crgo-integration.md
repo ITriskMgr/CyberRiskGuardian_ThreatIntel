@@ -13,7 +13,7 @@ factor of 1,000 and the MediBec regression (84,305 / 41,023) are unchanged by CR
 
 | Item | Value |
 |---|---|
-| Release | pinned release **0.11.0** (documents report `ontologyRelease: "0.11.0"`; cite "CRGO v0.11.0 (ontology release 0.11.0, proposed)"). 0.11.0 is **proposed**: its new terms (crgo-iam registers, scenario patterns, CIS v8.1, OWASP lists, ISO/IEC 27701 and 42001, CCSPA) await the CRGO author's approval, so cite them as proposed. Check out tag `v0.11.0` once the author tags it, until then branch `release/0.11.0`. The contracts are unchanged since 0.10.0; 0.10.1 still works. Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
+| Release | pinned release **0.11.0** (documents report `ontologyRelease: "0.11.0"`; cite "CRGO v0.11.0 (ontology release 0.11.0)"). Check out tag `v0.11.0`: its new terms (crgo-iam registers, scenario patterns, CIS v8.1, OWASP lists, ISO/IEC 27701 and 42001, CCSPA) were approved by the CRGO author on 2026-11-02; CIS v8.1 values flagged `REVIEW:` were accepted as delivered and stay unverified. The contracts are unchanged since 0.10.0; 0.10.1 still works. Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
 | Location | `$CRGO_HOME` — set it to your clone, whatever its folder name (for example `~/GitHub/CyberRiskGuardian-Ontology` on a Mac). Default when unset: `<repository>/CyberRiskGuardian-Ontology-0.11.0/` (git-ignored). Set `CRGO_HOME` in the shell that starts Claude Code (e.g. `export CRGO_HOME=…` in `~/.zshrc`): `.mcp.json` expands it when the server starts. |
 | Requirements | `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema` |
 | Project `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.0}/pipeline/mcp/crgo_server.py` |
@@ -185,13 +185,13 @@ an **Information gap — organizational validation required**, not "not applicab
 - Open findings lower confidence. Operating-effectiveness tests record period, population, sample size and deviations; cite them.
 - Policy exceptions: scoped, approved, compensated, expiring. An expired exception is no longer a mitigation, and none waives a law.
 
-## Scenario patterns (CRGO 0.11.0, proposed)
+## Scenario patterns (CRGO 0.11.0)
 
 CRGO 0.11.0 adds six **scenario patterns** (value set CRGO_0001387). A candidate that is an instance of one carries
 *has scenario pattern* (CRGO_0001478) with the pattern's identifier; never force a pattern onto a scenario that does
-not fit. The links are CRGO's proposals (vocab/pattern-links, with a confidence): cite them as suggestions.
+not fit. The links are CRGO's (vocab/pattern-links, approved, each with a confidence H or M); a control link never shows that the control is in place.
 
-| Pattern | IRI | Proposed links (ATT&CK / CWE / other) |
+| Pattern | IRI | Pattern links (ATT&CK / CWE / other) |
 |---|---|---|
 | Harvest now, decrypt later (post-quantum) | `CRGO_0001389` | T1040, T1557 / CWE-327, CWE-326 |
 | Crypto-agility failure | `CRGO_0001390` | T1600 / CWE-327, CWE-326 |

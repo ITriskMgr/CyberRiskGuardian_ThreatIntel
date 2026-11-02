@@ -18,8 +18,9 @@ From CRGO 0.11.0 (1.9.0) the snapshot also carries, under "v011": the six scenar
 pattern links with their confidence), CIS Controls v8.1 controls and safeguards (identifiers, Implementation Groups,
 asset type, security function and CRGO's OWN paraphrased labels — never CIS text; values CRGO flags REVIEW: are
 marked unverified), the OWASP Top 10:2025, LLM 2025 and Agentic 2026 identifiers with CRGO labels, and the status of
-the release: when CRGO's CHANGELOG marks the release "proposed", every 0.11 term is a proposal awaiting the CRGO
-project owner's approval, and the snapshot says so ("status", "statusNote").
+the release ("status", "statusNote"): "proposed" when CRGO's CHANGELOG marks the release so (terms awaiting the CRGO
+project owner's approval), otherwise "approved". CRGO 0.11.0 was approved by its owner and tagged v0.11.0 on
+2026-11-02; the CIS v8.1 values flagged REVIEW: were accepted as delivered and stay marked unverified.
 
 The application uses these when the ontology's MCP server cannot be reached, and says so on every result.
 Needs rdflib and pyoxigraph (as CRGO itself does). Takes about four minutes (the store is built first).
@@ -37,7 +38,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 STATUS_NOTE = {"proposed": "CRGO %s is proposed: its new terms (registers, scenario patterns, CIS v8.1, OWASP, ISO/IEC 27701 and 42001, CCSPA) "
                            "await the CRGO project owner's approval (src/approvals.tsv). Cite them as proposed.",
-               "approved": "CRGO %s: every term approved by the CRGO project owner."}
+               "approved": "CRGO %s: every term approved by the CRGO project owner (released). CIS v8.1 values CRGO flags REVIEW: "
+                           "were accepted as delivered and stay unverified."}
 
 
 def strip(x):

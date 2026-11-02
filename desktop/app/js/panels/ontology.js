@@ -221,9 +221,12 @@ async function connection(body, sec) {
       st.release.viewsUsable ? 'Scenario identification, organisation context and write-back (dss/v1), and the compliance and security-operations contexts (compliance/v1, secops/v1) are available.'
         : 'Scenario identification, organisation context and write-back (dss/v1) are available.')
     : banner('warn', tr('CRGO v{0}: the dss/v1 contract is not available').replace('{0}', st.release.tag || '?'), st.release.contractProblem || ''));
-  // 1.9.0 — CRGO 0.11.0 is a proposed release: its new terms await the CRGO project owner's approval
+  // 1.9.0 — a release CRGO's CHANGELOG marks proposed: its new terms await the CRGO project owner's approval.
+  // CRGO 0.11.0 was approved and tagged v0.11.0 on 2026-11-02: an approved release is named as such.
   if (st.release?.status === 'proposed') body.append(banner('warn', tr('CRGO v{0} is a proposed release').replace('{0}', st.release.tag || '?'),
     tr('Its new terms (identity and configuration registers, scenario patterns, CIS v8.1, OWASP lists, ISO/IEC 27701 and 42001, CCSPA) await the CRGO project owner’s approval: cite them as proposed.')));
+  else if (st.release?.status === 'approved' && st.release.tag) body.append(banner('good', tr('CRGO v{0} is an approved release').replace('{0}', st.release.tag),
+    tr('Every term is approved by the CRGO project owner. CIS v8.1 values CRGO flags for review stay marked unverified.')));
   if (st.release?.contractUsable && !st.release.viewsUsable) body.append(banner('warn', tr('CRGO v{0}: the compliance and security-operations contexts need CRGO v0.10.0').replace('{0}', st.release.tag || '?'), st.release.viewsProblem || ''));
   if (st.command) body.append(card(el('h2', { style: { marginTop: 0 } }, 'How the server is started'),
     el('div', 'mono small', { 'data-noi18n': '' }, [st.command, ...(st.args || [])].join(' ')),

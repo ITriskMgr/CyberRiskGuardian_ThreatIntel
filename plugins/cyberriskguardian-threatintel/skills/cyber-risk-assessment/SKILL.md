@@ -9,7 +9,7 @@ description: >
 metadata:
   version: "1.5.0"
   author: "Marc-André Léger (methodology) - packaged with Claude"
-  edition: "Threat Live-feed — adds dated, exposure-gated threat-context calibration; connects to CRGO 0.11.0, proposed (dss/v1, compliance/v1, secops/v1)"
+  edition: "Threat Live-feed — adds dated, exposure-gated threat-context calibration; connects to CRGO 0.11.0 (dss/v1, compliance/v1, secops/v1)"
 ---
 
 # Cybersecurity Risk Assessment (CyberRiskGuardian)
@@ -27,7 +27,7 @@ Remain an analytical assistant, not the decision-maker. Treat AI-generated estim
 3. For governance, risk and compliance concepts (CIA triad, fraud and risk triangles, three lines model, appetite vs tolerance, IPM cycle, KRIs, investment governance) and for the teaching description of the CRG Excel model, use the `cybersecurity-governance` skill. It holds the author's textbook; Chapter 6 covers the CRG model. If a CyberRiskGuardian project knowledge base is attached, also search it for the Excel workbook guide, scenario development guide and data classification guide, and prefer organization-supplied versions over the bundled references.
 4. Review every attached organizational document **before** writing anything.
 5. Ask for the assessment scope, approved risk appetite and deliverable format if not supplied. Ask once — then state assumptions and proceed.
-6. If the `crgo-ontology` MCP server is connected (CyberRiskGuardian Ontology, CRGO, pinned release **0.11.0**, proposed — cite its new terms as proposed; dss/v1 works from v0.9.1), read `references/crgo-integration.md`. CRGO states facts, links and their review status — legal applicability, control assessments by assessor line, open findings, incidents, typed cross-references and, from 0.10.0, the organisation's **compliance posture** (`crgo_compliance_context`) and **detection and response readiness** (`crgo_secops_context`) at the assessment date — and **never computes risk**; every number still comes from `crg_calc.py` or the `crg-calculator` tools. Without CRGO the workflow below runs unchanged; with a CRGO older than 0.10.0 the two new reads stop with a clear message and the rest works.
+6. If the `crgo-ontology` MCP server is connected (CyberRiskGuardian Ontology, CRGO, pinned release **0.11.0**, tag v0.11.0 — CIS v8.1 values CRGO flags REVIEW: stay unverified; dss/v1 works from v0.9.1), read `references/crgo-integration.md`. CRGO states facts, links and their review status — legal applicability, control assessments by assessor line, open findings, incidents, typed cross-references and, from 0.10.0, the organisation's **compliance posture** (`crgo_compliance_context`) and **detection and response readiness** (`crgo_secops_context`) at the assessment date — and **never computes risk**; every number still comes from `crg_calc.py` or the `crg-calculator` tools. Without CRGO the workflow below runs unchanged; with a CRGO older than 0.10.0 the two new reads stop with a clear message and the rest works.
 
 ## Non-negotiable principles
 

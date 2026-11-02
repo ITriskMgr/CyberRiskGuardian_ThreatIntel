@@ -82,7 +82,7 @@ async function crgoSnap() {
       text: `${s.name}. ${s.statement || ''}${s.sector ? ' Sector: ' + s.sector + '.' : ''}${themes ? ' Themes: ' + themes + '.' : ''}`,
       cite: `CRGO ${s.id} (release ${rel}, bundled snapshot)` });
   }
-  // 1.9.0 — a term CRGO 0.11.0 still marks as proposed is cited as proposed
+  // 1.9.0 — a term the CRGO in use still marks as proposed is cited as proposed (none in the approved 0.11.0)
   const cite = (id, status) => `CRGO ${id} (release ${rel}${status === 'proposed' ? ', proposed' : ''}, bundled snapshot)`;
   for (const i of snap.legal?.instruments || []) {
     const lab = i.label?.en || i.label || i.id;
@@ -95,7 +95,7 @@ async function crgoSnap() {
   for (const p of V.patterns || []) {
     const links = (p.links || []).filter(l => l.kind !== 'theme').map(l => l.target).join(', ');
     docs.push({ id: 'crgo:pattern:' + p.id, source: 'crgo', title: 'Scenario pattern: ' + (p.label?.en || p.id), crgoId: p.id,
-      text: `Scenario pattern ${p.label?.en || ''} (${p.id}). ${p.definition?.en || ''}${links ? ' Proposed links: ' + links + '.' : ''}`, cite: cite(p.id, p.status) });
+      text: `Scenario pattern ${p.label?.en || ''} (${p.id}). ${p.definition?.en || ''}${links ? ' Pattern links: ' + links + '.' : ''}`, cite: cite(p.id, p.status) });
   }
   for (const s of V.cis81?.safeguards || []) {
     docs.push({ id: 'crgo:cis81:' + s.id, source: 'crgo', title: `CIS v8.1 safeguard ${s.id}: ${s.label?.en || ''}`, crgoId: 'cis81:' + s.id,

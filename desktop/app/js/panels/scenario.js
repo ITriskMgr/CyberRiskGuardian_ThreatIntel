@@ -395,15 +395,15 @@ function apply(s, sec, rows, picked, edits, cons, pickedCons, attack, takeAttack
   render(sec, s.id);   // the same scenario: render(sec) alone falls back to the first in the register
 }
 
-/* ---------------- 1.9.0 — CRGO 0.11.0 scenario pattern ('has scenario pattern', a proposed term) ---------------- */
+/* ---------------- 1.9.0 — CRGO 0.11.0 scenario pattern ('has scenario pattern') ---------------- */
 function patternRow(s, sec) {
   const p = PAT.pattern(s.scenPattern);
   const pick = select([['', tr('No scenario pattern')], ...PAT.CRGO_PATTERNS.map(x => [x.id, tr(x.name)])], p ? p.id : '');
   pick.addEventListener('change', () => { if (pick.value) s.scenPattern = pick.value; else delete s.scenPattern; touch(); render(sec, s.id); });
   return el('div', { style: { marginTop: '8px' } },
-    el('b', null, tr('Scenario pattern (CRGO {0}, proposed)').replace('{0}', PAT.RELEASE) + ': '),
+    el('b', null, tr('Scenario pattern (CRGO {0})').replace('{0}', PAT.RELEASE) + ': '),
     p ? el('span', null, tr(p.name), ' ', el('span', { class: 'small mono', 'data-noi18n': '' }, p.id),
-      el('div', 'small muted', tr('Has scenario pattern ({0}). Themes: {1}. Proposed links: {2}.').replace('{0}', PAT.HAS_SCENARIO_PATTERN)
+      el('div', 'small muted', tr('Has scenario pattern ({0}). Themes: {1}. Pattern links: {2}.').replace('{0}', PAT.HAS_SCENARIO_PATTERN)
         .replace('{1}', p.themes.map(x => tr(x)).join(', ')).replace('{2}', [...p.attack, ...p.cwe, ...p.refs].join(', ') || '—')))
       : el('span', 'small muted', tr('none')),
     el('div', { style: { marginTop: '4px', maxWidth: '420px' } }, pick));

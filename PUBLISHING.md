@@ -22,7 +22,7 @@
            examples/medibec/source/medibec30.json      # doit afficher 84 305 / 41 023
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crg_calc.py   # ALL PASSED
    ```
-   Avec une copie de CRGO 0.11.0 (tag v0.11.0 dès que l'auteur l'aura créé, sinon la branche release/0.11.0 ; v0.9.1 suffit pour dss/v1) :
+   Avec une copie de CRGO 0.11.0 (étiquette v0.11.0 ; v0.9.1 suffit pour dss/v1) :
    ```bash
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crgo_contract.py \
            --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.0}   # tous les contrôles doivent passer

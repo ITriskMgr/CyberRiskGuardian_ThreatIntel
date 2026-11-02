@@ -46,7 +46,7 @@ not affiliated with or endorsed by MITRE.
 - **ISO/IEC 27002:2013 and :2022** — control identifiers and short titles only, for reference.
   © ISO/IEC. The control text is not reproduced; consult the standards.
 - **CIS Controls® v7.1 and v8.1** — identifiers and titles only; the 153 v8.1 safeguards by identifier with
-  CRGO 0.11.0's own paraphrased labels (proposed), no CIS text. © Center for Internet Security, Inc.,
+  CRGO 0.11.0's own paraphrased labels, no CIS text. © Center for Internet Security, Inc.,
   licensed CC BY-NC-ND 4.0. CIS Controls is a registered trademark of CIS.
 - **NIST CSF 1.1**, ISO/IEC 27002:2013 and CIS v7.1 rows come from the analyst's own list
   (Controls_list.xlsx); corrections are documented in the catalogue's flags.
@@ -151,7 +151,7 @@ file and on the screen, and it is not current threat intelligence.
   FIRST's terms of use, and `examples/threat-context/README.md` in the ThreatIntel repository for the
   refresh policy. Scores the analyst downloads at run time are still not redistributed.
 
-### CyberRiskGuardian Ontology (`data/crgo-snapshot.json`; CRGO 0.11.0, proposed)
+### CyberRiskGuardian Ontology (`data/crgo-snapshot.json`; CRGO 0.11.0)
 
 The identification export of the **CyberRiskGuardian Ontology (CRGO)** — © 2026 Marc-André Léger,
 CC BY-NC 4.0, https://github.com/ITriskMgr/CyberRiskGuardian-Ontology — rebuilt by
@@ -175,7 +175,7 @@ Exploited Vulnerabilities** catalogue (US Government work) and **FIRST EPSS** sc
 maximum per technique or weakness; EPSS is © FIRST, used under its terms), and the legal instruments with
 their applicability conditions (CRGO's own modelling, not legal advice).
 
-From CRGO 0.11.0 — a **proposed** release whose new terms await the CRGO author's approval — it also carries:
+From CRGO 0.11.0 (tag v0.11.0, approved by the CRGO author on 2026-11-02) it also carries:
 **CIS Critical Security Controls v8.1** control and safeguard **identifiers only**, with Implementation Group, asset
 type and security function, under CRGO's own paraphrased labels, linked to https://www.cisecurity.org/controls/v8-1
 (CIS Controls v8.1 are © Center for Internet Security, licensed CC BY-NC-ND 4.0; no CIS text is reproduced, and
@@ -183,7 +183,7 @@ commercial use of CIS material needs CIS approval); the **OWASP Top 10:2025**, *
 and **Top 10 for Agentic Applications 2026** identifiers with CRGO paraphrased labels (OWASP content is CC BY-SA 4.0);
 **ISO/IEC 27701:2025** and **ISO/IEC 42001:2023** as identifiers and CRGO short labels only (© ISO/IEC); the
 **Critical Cyber Systems Protection Act** (Bill C-8) as a cited instrument with a CRGO-paraphrased applicability
-condition; six scenario patterns (CRGO_0001389–0001394) with their proposed ATT&CK and CWE links; and a vocabulary
+condition; six scenario patterns (CRGO_0001389–0001394) with their ATT&CK and CWE links; and a vocabulary
 of technologies in use. The same CIS identifiers and labels are compiled into the control catalogue
 (`js/data/controls.js`).
 The snapshot is used when the ontology's own server is not running. With **CRGO v0.10.0 or later** installed, the

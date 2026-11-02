@@ -21,7 +21,7 @@ analysts:
 - design treatment portfolios and cybersecurity budgets;
 - produce decision-ready reports, including a threat-driven revision log;
 - optionally, read legal applicability, control evidence, compliance posture and detection and
-  response readiness from the CyberRiskGuardian Ontology (CRGO 0.11.0, proposed) and write results back to it
+  response readiness from the CyberRiskGuardian Ontology (CRGO 0.11.0, tag v0.11.0) and write results back to it
   as *proposed*.
 
 Cybersecurity professionals remain responsible for validating assumptions and for final risk
@@ -127,7 +127,7 @@ Cost-effectiveness = (Estimated − Residual) ÷ cost × 1,000   (risk units rem
   audit signals); coverage counts as validated only with an effective detection test; source
   confidence (e.g. STIX 0–100) is not a probability; respect TLP markings; licensed standards
   (ISO 37301 and its 2024 amendment, IIA, ISACA…) stay identifiers and paraphrases.
-- Pin CRGO release **0.11.0** (proposed; tag v0.11.0 once the author tags it; dss/v1 works from v0.9.1) and cite its release in reports, 0.11 terms as proposed.
+- Pin CRGO release **0.11.0** (tag `v0.11.0`, approved by the CRGO author on 2026-11-02; dss/v1 works from v0.9.1) and cite its release in reports; CIS v8.1 values CRGO flags `REVIEW:` stay unverified.
 
 ## Tech stack
 | Area | Tools |

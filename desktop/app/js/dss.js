@@ -77,7 +77,7 @@ export function facts(ws = S.ws) {
     const all = [...new Set([...own, ...linked])].filter(Boolean);
     if (all.length) obligations[s.id] = all;
   }
-  // 1.9.0 — CRGO 0.11.0 'has scenario pattern' (a proposed term): scenario id → pattern identifier
+  // 1.9.0 — CRGO 0.11.0 'has scenario pattern': scenario id → pattern identifier
   const patterns = Object.fromEntries(ws.assessment.SCEN.filter(s => /^CRGO_\d{7}$/.test(s.scenPattern || '')).map(s => [s.id, s.scenPattern]));
   return {
     profile: g.profile || {},
