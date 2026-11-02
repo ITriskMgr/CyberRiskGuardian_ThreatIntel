@@ -12,7 +12,8 @@
    Public Well-Being Impact = material. The SSVC decision-point definition (mission_and_well_being_impact
    1.0.0) defines low = minimal AND minimal, medium = support AND (minimal OR material), high = essential OR
    irreversible, which leaves minimal + material undefined; CISA's SSVC Guide (November 2022), Table
-   "Mission and Well-being Impact", gives MEDIUM for it. Marked CHECK below — author to verify.
+   "Mission and Well-being Impact", gives MEDIUM for it, and so does CISA's SSVC calculator
+   (https://www.cisa.gov/ssvc-calculator, checked 2026-11-02). Verified; accepted by the author 2026-11-02.
    Nothing here is a probability and nothing here is ever converted into one.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
@@ -212,7 +213,7 @@ export const PUBLIC_SAFETY_ROWS = [
 /** Mission and Well-Being Impact (CISA): mission prevalence, public well-being impact → mission & well-being. */
 export const MWB_ROWS = [
     ['minimal','minimal','low'],
-    ['minimal','material','medium'],      // CHECK — CISA SSVC Guide (Nov 2022) table; not in the MWI 1.0.0 definition
+    ['minimal','material','medium'],      // CISA SSVC Guide (Nov 2022) and CISA SSVC calculator; not in the MWI 1.0.0 definition (verified 2026-11-02)
     ['minimal','irreversible','high'],
     ['support','minimal','medium'],
     ['support','material','medium'],

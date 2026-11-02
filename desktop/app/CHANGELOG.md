@@ -228,7 +228,8 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   Vulnerability Categorization decision per registered vulnerability, beside EPSS and KEV. Tree per workspace: *Deployer —
   CISA SSVC* (default; Track · Track* · Attend · Act), *Deployer — CERT/CC* and *Supplier — CERT/CC* (Defer · Scheduled ·
   Out-of-Cycle · Immediate), tables copied row for row from the CERT/CC SSVC repository (commit `bf3213bc`; one cell
-  not in a published CSV is marked CHECK). Exploitation is suggested from the evidence — KEV → active, a public PoC in
+  not in a published CSV, Mission & Well-being minimal + material = medium, is verified against CISA's SSVC Guide and
+  calculator). Exploitation is suggested from the evidence — KEV → active, a public PoC in
   the loaded feeds → public PoC, else none; an EPSS at or above the snapshot's rung-4 thresholds is shown as a high
   exploitation probability (EPSS), never as a public PoC — and an override needs a justification. One decision record per vulnerability (points, derived points, outcome, evidence, who, when,
   justification, history); SSVC column in the register, line in the CVE detail, CSV export. An SSVC outcome is a
@@ -278,8 +279,8 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
 - **L4 — EPSS no longer suggests "public PoC".** SSVC's Exploitation values describe evidence (public exploit code), not a
   score: a high EPSS now appears in the basis and the register as "high exploitation probability (EPSS)" and leaves the
   suggestion at *None* unless KEV or a PoC report says otherwise — in `js/ssvc.js` and in the plugin's `ssvc.py` alike.
-  Guides EN/FR 7.4.2.1; tests `t33`, `test_ssvc.py`. The MWB minimal + material cell marked CHECK is left for the author
-  to verify against the CISA guide.
+  Guides EN/FR 7.4.2.1; tests `t33`, `test_ssvc.py`. The MWB minimal + material cell (medium) is verified against CISA's
+  SSVC Guide and calculator.
 - **L5 — CI supply chain.** `.github/workflows/desktop-ci.yml` pins `actions/checkout`, `actions/setup-python` and
   `actions/setup-node` to commit SHAs (v4.4.0, v5.6.0, v4.4.0; resolved with `git ls-remote` and checked to be commits),
   the tag kept as a comment for Dependabot. *Not done:* a `package-lock.json` for `desktop/tests` (Playwright) and for the
