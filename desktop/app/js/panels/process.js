@@ -6,7 +6,7 @@
 'use strict';
 import * as IPC from '../ipc.js';
 import { VERSION, SERIES } from '../version.js';
-import { el, card, pill, banner, go, kpi, n0 } from '../util.js';
+import { el, card, pill, banner, go } from '../util.js';
 import { S, compute } from '../state.js';
 import * as SCENP from './scenario.js';
 import { STEPS, GROUPS, statuses, nextStep, partsOf } from '../process.js';
@@ -49,11 +49,9 @@ function openScreen(route, stepId) {
   if (route === 'scenario' && STEP_TAB[stepId]) SCENP.requestTab(STEP_TAB[stepId]);
   go(route);
 }
-const stepLabel = s => s.n === 'R' ? tr(s.title) : `${s.n}. ${tr(s.title)}`;
 
 export function render(sec) {
   const ws = S.ws, list = statuses(ws), nx = nextStep(ws);
-  const done = list.filter(x => x.st === 'done').length, part = list.filter(x => x.st === 'partial').length;
   const numbered = list.filter(x => x.s.n !== 'R'), doneN = numbered.filter(x => x.st === 'done').length;
   const ring = arc(doneN, numbered.length, 62, 14, 'ring');
   ring.setAttribute('aria-hidden', 'false'); ring.setAttribute('role', 'img');
@@ -132,12 +130,8 @@ export function render(sec) {
       el('span', { class: 'd', style: { display: 'block' } }, 'Treat these first: they decide the portfolio.')),
     el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go('calc') }, 'Open Risk calculator')));
   drawRows(cur);
-  sec.append(el('h2', null, 'Seven groups'), tiles, rowsBox,
-    el('div', 'grid g4', { style: { marginTop: '18px' } },
-      kpi('Steps done', `${done} / ${STEPS.length}`, part ? `${part} in progress` : '', done === STEPS.length ? 'good' : ''),
-      kpi('Workspace', ws.name, ws.org?.name || ''),
-      kpi('Scenarios', n0(ws.assessment.SCEN.length), 'in the register'),
-      kpi('Next recommended step', nx ? stepLabel(nx.s) : 'All steps done', nx ? ST[nx.st][0] : '', nx ? 'warn' : 'good')));
+  // (the ring above says how many steps are done and the band which one is next: no figures repeated below the groups)
+  sec.append(el('h2', null, 'Seven groups'), tiles, rowsBox);
 
   // the flow
   const flow = el('ol', { class: 'process-flow' });

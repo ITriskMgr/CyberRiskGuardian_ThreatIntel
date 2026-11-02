@@ -672,6 +672,8 @@ Registry · Tools · Settings · Help**. This chapter follows it screen by scree
 - **Rail mode.** The **«** button beside the application name folds the whole menu into a narrow rail of
   section icons; a section's screens then open in a flyout. **»** brings the full menu back.
 - **Narrow screens.** On a phone-sized window the menu becomes a drawer, opened with **☰** in the top bar.
+- **Tabs from the keyboard.** In any row of tabs, the Tab key reaches the selected tab; the left and right arrows, Home
+  and End then move to another tab and open it.
 - **What is not there.** A feature switched off in **Settings → Modules**, or hidden from you in
   **Settings → Users & RACI → Menu access**, is left out of the menu, and a section or sub-menu left empty
   disappears with it. Its data is not deleted.

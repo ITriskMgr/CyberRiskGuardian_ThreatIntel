@@ -697,6 +697,8 @@ suit écran par écran.
   menu complet.
 - **Écrans étroits.** Dans une fenêtre de la taille d'un téléphone, le menu devient un tiroir, ouvert
   avec **☰** dans la barre du haut.
+- **Les onglets au clavier.** Dans toute rangée d'onglets, la touche Tab atteint l'onglet sélectionné ; les flèches gauche
+  et droite, Début et Fin passent ensuite à un autre onglet et l'ouvrent.
 - **Ce qui n'y figure pas.** Une fonctionnalité désactivée dans **Paramètres → Modules**, ou masquée pour
   vous dans **Paramètres → Utilisateurs et RACI → Accès aux menus**, est omise du menu, et une section ou
   un sous-menu laissé vide disparaît avec elle. Ses données ne sont pas supprimées.
