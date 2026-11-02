@@ -17,7 +17,7 @@ const KEEP_HOSTS = /(^|\.)(mitre\.org|nist\.gov|cve\.org|first\.org|cisa\.gov|cy
 const TEXT_KEYS = new Set(['rat', 'ev', 'evidence', 'rationale', 'notes', 'note', 'narrative', 'desc_private', 'acceptance_note', 'cvss_note', 'history']);
 const ROLE_WORDS = /\b(lead|manager|officer|director|team|operations|ciso|cio|cto|ceo|owner|administrator|admin|architect|security|it|hr|privacy|procurement|facilities|board|committee|vendor|supplier|department|service|desk|analyst|engineer|head|chief|responsible|dpo|soc)\b/i;
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const looksLikeName = s => /^[A-ZÀ-Ý][a-zà-ÿ'’-]+(?:[ -][A-ZÀ-Ý][a-zà-ÿ'’-]+){1,3}$/.test(String(s).trim()) && !ROLE_WORDS.test(s);
+export const looksLikeName = s => /^[A-ZÀ-Ý][a-zà-ÿ'’-]+(?:[ -][A-ZÀ-Ý][a-zà-ÿ'’-]+){1,3}$/.test(String(s).trim()) && !ROLE_WORDS.test(s);
 
 /** Build the replacement context from the workspace. */
 export function context(ws, opts) {

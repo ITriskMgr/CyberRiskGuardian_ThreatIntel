@@ -14,6 +14,7 @@ import * as CRGO from '../crgo.js';
 import { tr } from '../i18n.js';
 import * as SEED from '../secops_seed.js';
 import { statusAt, TLP_RESTRICTED } from '../siem.js';
+import * as IPCP from './ipc.js';
 import * as EQ from '../equiv.js';
 
 const CONS = ['Confidentiality/privacy', 'Integrity', 'Availability', 'Operations', 'Financial', 'Regulatory', 'Reputation', 'Safety'];
@@ -189,6 +190,7 @@ export function render(sec, arg) {
   sec.append(secopsCard(s, sec));
 
   // threat basis
+  { const c = IPCP.scenarioCard(s); if (c) sec.append(c); }   // identity, privilege & configuration evidence (read-only)
   if (Array.isArray(s.threat_basis) && s.threat_basis.length) {
     sec.append(card(el('h2', null, 'Threat-context basis (audit trail)'), ...s.threat_basis.map((b, i) => el('div', 'docrow',
       el('div', null, el('b', null, (b.cve || '') + ' · ' + (b.parameter || '') + ' · rung ' + (b.ladder_rung ?? '')), el('div', 'small', (b.evidence || []).join('; ')), el('div', 'small muted', 'Exposure: ' + (b.exposure || '—'))),

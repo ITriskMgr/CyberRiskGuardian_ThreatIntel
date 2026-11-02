@@ -46,7 +46,9 @@ export const CONTEXT = ['assets', 'assetLog', 'assetScoreHist', 'vulns', 'exposu
   // 1.5.8 — governance, risk and compliance records, audits, cybersecurity management (incidents included), ISMS, ontology link
   'grc', 'audit', 'csm', 'isms', 'crgo',
   // shared registers, compliance management, SIEM and SOAR
-  'shared', 'cms', 'siem', 'soar'];
+  'shared', 'cms', 'siem', 'soar',
+  // identity, privilege & configuration registers (organizational facts, like the shared registers)
+  'ipc'];
 /** The assessment itself and everything derived from it. */
 export const ASSESSMENT = ['excluded', 'decisions', 'measures', 'risks', 'recommendations', 'revisionLog',
   'linkLog', 'linkDraft', 'batchDraft', 'batchSeed', 'batchSpread', 'initPlan', 'published', 'kriHistory',

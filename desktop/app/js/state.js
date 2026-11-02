@@ -49,6 +49,8 @@ export function newWorkspace({ name = 'New organization', kind = 'organization',
     shared: MIG.blankShared(), cms: MIG.blankCms(), siem: MIG.blankSiem(), soar: MIG.blankSoar(),
     // 1.8.0
     screening: MIG.blankScreening(), mgmtSummary: MIG.blankSummary(), catalogueMigration: [],
+    // 1.9.0 — identity, privilege & configuration registers
+    ipc: MIG.blankIpc(),
     dataVersion: MIG.DATA_VERSION, appVersion: VERSION, migrationLog: [],
   };
 }
@@ -74,6 +76,10 @@ export function medibecWorkspace() {
   ws.classroom = null;
   // 1.8.0 — the screening of the 45 candidates into ten families, from the case's selection workbook
   if (self.CRG_MEDIBEC_SCREENING) ws.screening = JSON.parse(JSON.stringify(self.CRG_MEDIBEC_SCREENING));
+  // 1.9.0 — the identity, privilege & configuration sample of the case (evidence only, nothing accepted)
+  MIG.seedIpc(ws);
+  // 1.9.0 — the identity, privilege & configuration sample of the case (evidence only, nothing accepted)
+  MIG.seedIpc(ws);
   ws.org.materiality = 'Any credible threat to clinical decisions or patient safety; any exposure of health information for many patients; any loss of clinical systems at several clinics beyond a working day. Analytical estimate — validation required.';
   return ws;
 }
@@ -202,6 +208,7 @@ export function migrate(w) {
   w.isp = Object.assign({ policies: [], issues: [] }, MIG.blankIspExtra(), w.isp || {});
   w.screening = Object.assign(MIG.blankScreening(), w.screening || {}); w.mgmtSummary = Object.assign(MIG.blankSummary(), w.mgmtSummary || {});
   if (!Array.isArray(w.catalogueMigration)) w.catalogueMigration = [];
+  w.ipc = Object.assign(MIG.blankIpc(), w.ipc || {});
   w.migrationLog ||= [];
   return w;
 }

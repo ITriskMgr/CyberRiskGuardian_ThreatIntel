@@ -18,6 +18,8 @@ export const MODULES = [
     what: 'Writes the enterprise policy, topic policies, standards and procedures (English and French) from an interview, the organization’s documents and the ontology, as drafts for ISP management; Word export and re-import; OCR of scanned documents on this computer.' },
   { id: 'csm', group: 'Governance', label: 'Cybersecurity management', panels: ['csm'], def: true,
     what: 'Control testing by line of defence with conflicts shown, governing bodies, Three Lines roles, delegations of authority, decision records and the incident register.' },
+  { id: 'ipc', group: 'Governance', label: 'Identity, privilege & configuration', panels: ['ipc'], def: false,
+    what: 'Population-level registers of accounts, privileged roles, emergency accounts, access reviews, baselines, deviations, segregation of duties and changes; eight KRIs; findings as evidence and scenario proposals. No connector, no names, no secrets.' },
   { id: 'shared', group: 'Governance', label: 'Shared registers', panels: ['shared'], def: true,
     what: 'Evidence, corrective actions, exceptions and qualified mappings kept once and used by every management module.' },
   { id: 'qc', group: 'Governance', label: 'Quality review', panels: ['qc'], def: true,
