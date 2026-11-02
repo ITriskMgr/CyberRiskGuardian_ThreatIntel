@@ -73,6 +73,10 @@ export async function open(hash = '#/process') {
   await waitReady(page);
   await page.waitForTimeout(1000);
   await waitReady(page);
+  // ...and the start-up chain has finished (app.js: storage, catalogues, language and users loaded, then the chrome
+  // and the first screen drawn): a screen is visible with its title. Before that, a click can race the start-up.
+  await page.waitForFunction(() => !![...document.querySelectorAll('main > section')].find(s => !s.hidden)?.querySelector('h1'),
+    null, { timeout: 20000, polling: 200 }).catch(() => {});
   // A fresh profile seeds the MediBec teaching case just after the first workspace opens; most suites select it.
   await page.waitForFunction(async () => { const m = await import('/js/state.js'); if (!m.S.list.some(w => w.kind === 'example')) await m.refreshList?.(); return m.S.list.some(w => w.kind === 'example'); },
     null, { timeout: 20000, polling: 300 }).catch(() => {});
