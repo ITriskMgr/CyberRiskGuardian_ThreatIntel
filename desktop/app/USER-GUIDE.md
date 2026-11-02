@@ -724,7 +724,7 @@ AV:N. A real organization's workspace never sees this banner: a migration, or an
 ### 7.2 Organization
 
 What you set up once and come back to: the organization profile (with its documents and Import from
-documents), information assets, maturity and resilience, and resetting data.
+documents), information assets, maturity and resilience, the ontology (Ontology · CRGO), and resetting data.
 
 ### 7.2.1 Organization profile {#org}
 
@@ -1709,7 +1709,7 @@ teaching case is labelled fictional in the export. Attach the Excel workbook (Ex
 
 ### 7.4 Threats & vulnerabilities
 
-Who could act, how, through which weaknesses — and what the threat landscape and the ontology say about it.
+Who could act, how, through which weaknesses — and what the threat landscape says about it.
 
 ### 7.4.1 Threats · ATT&CK {#threats}
 
@@ -2412,7 +2412,8 @@ applicability depends on the organization's legal context.
 
 The ontology alignment of these records (account populations, privileged-role populations, emergency
 account sets, campaigns, segregation rules, identity and privilege findings and the indicators) follows CRGO
-0.11; the overview states how many of its terms are still proposed.
+0.11.0, whose terms are all approved; the overview says so (*Ontology alignment: CRGO 0.11.0 identifiers, all
+approved by the CRGO project owner*).
 
 ### 7.5.7 Configuration management {#cm}
 
@@ -3889,8 +3890,8 @@ None of this is legal advice.
 
 **Data, ontology and quality**
 
-40. **Backup & restore → Data versions and migrations**: data version 4; import an older workspace export that
-    held evidence records and policy exceptions: its journal shows the steps to version 4, the evidence is in
+40. **Backup & restore → Data versions and migrations**: data version 5; import an older workspace export that
+    held evidence records and policy exceptions: its journal shows the steps to version 5, the evidence is in
     **Shared registers → Evidence**, the exceptions in **Shared registers → Exceptions**, and its numbers are
     unchanged.
 41. **Ontology · CRGO → Connection** names CRGO v0.11.0 and says it is an approved release; *Organisation link* → *Build the organisation graph*

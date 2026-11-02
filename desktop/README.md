@@ -17,18 +17,18 @@ supported by the [CyberRiskGuardian Ontology (CRGO)](https://w3id.org/crgo/).
 
 | | |
 |---|---|
-| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip) — about 4 MB, everything included |
+| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip) — about 6 MB, everything included; check it against [`…zip.sha256`](https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel/releases/tag/desktop-v1.9.0) from the release |
 | **Install** | [`app/INSTALL.md`](app/INSTALL.md) — one page, **in English and in French** |
-| **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 12 pages |
+| **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 14 pages |
 
 In short, on **Windows** and **macOS**:
 
 1. Download the zip and unpack it anywhere you can write.
 2. Double-click **`start.bat`** (Windows) or **`start.command`** (macOS). A terminal window opens and
    your browser opens on the application. Leave that window open while you work.
-3. Check the bottom of the left sidebar reads **`engine verified · 84,305 / 41,023`** before you trust
-   any number — at every start the application recomputes the bundled teaching case and compares the
-   totals with the reference implementation.
+3. Check the bottom of the left sidebar reads **`engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`**
+   before you trust any number — at every start the application recomputes the bundled teaching cases and
+   compares the totals with the reference implementation.
 
 You need a current browser and Python 3 (already on macOS; on Windows install it from python.org and
 tick *Add python.exe to PATH*). No account, no licence key, no installer, no administrator rights.
@@ -53,7 +53,10 @@ risque*, *joyaux de la couronne*, *registre des éléments probants*, *ratio de 
 ("Read more: Chapter N — section") on every screen and step; a second bundled teaching example, **CanaRetail** (English
 and French, 27,526 / 16,049), and **MediBec in French**; two optional modules, **Identity & access
 management (IAM/PAM)** and **Configuration management** (population-level registers, six and three KRIs, findings as
-evidence and proposals — nothing applied automatically); **SSVC**
+evidence and proposals — nothing applied automatically; both off until switched on in Settings → Modules); **CRGO 0.11.0**
+(scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701 and 42001, the CCSPA),
+with **Ontology · CRGO** now under Organization; the **Atlas** redesign of every screen (the Scenario editor in six tabs
+beside a live risk card); **SSVC**
 decisions beside EPSS and KEV (a response priority, never a likelihood); and **AI forecasting** — exploitation over 30
 days, a mitigation optimizer and the residual-risk path, every number from the verified engine. Workspaces move to data
 version 5 (journalled); the MediBec reference stays **84,305 / 41,023**. The browser suites, gates and a GitHub Actions

@@ -1,6 +1,6 @@
 # Publier CyberRiskGuardian with Threat Live-feed
 
-Édition dérivée de CyberRiskGuardian v1.1.0, qui reste inchangée. Dépôt cible :
+Édition dérivée de CyberRiskGuardian v1.1.0 (devenu l’édition Core, plugiciel Core 2.2.0 en novembre 2026). Dépôt cible :
 **https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel**
 
 ## 1. Avant le premier push
@@ -37,7 +37,7 @@ Le dépôt est déjà initialisé avec un premier commit et le remote configuré
 ```bash
 git branch -M main
 git push -u origin main
-git tag v1.6.0
+git tag v1.7.0          # version du plugiciel (plugin.json = marketplace.json)
 git push --tags
 ```
 
@@ -67,6 +67,21 @@ garde-fous contradictoires, deux serveurs MCP nommés `crg-calculator` et deux c
 `cyber-risk-assessment` aux descriptions quasi identiques rendent arbitraire le choix de la
 méthode qui répond. Recommandez la portée locale ou projet, ou `claude plugin disable` pour
 basculer.
+
+## 4. Publier l’application de bureau
+
+Une version de l’application de bureau a sa propre étiquette, `desktop-v<version>` (par exemple `desktop-v1.9.0`),
+et sa propre version GitHub avec trois fichiers :
+
+| Fichier | D’où il vient |
+|---|---|
+| `CyberRiskGuardian_Desktop_v<version>-beta.zip` | `desktop/dist/` (le contenu exact de `desktop/app/`) |
+| `CyberRiskGuardian_Desktop_v<version>-beta.zip.sha256` | `shasum -a 256 <zip> > <zip>.sha256` — **obligatoire depuis la 1.9.0** : la vérification des mises à jour contrôle le téléchargement avec ce fichier et marque « non vérifié » une version qui ne l’a pas |
+| `CyberRiskGuardian_Desktop_v<version>-beta_Installation_Windows_macOS_EN_FR.pdf` | `desktop/app/INSTALL-Windows-macOS-EN-FR.pdf`, reconstruit par `python3 desktop/app/tools/build_install_pdf.py` chaque fois que `INSTALL.md` change |
+
+Avant d’étiqueter : les contrôles de `desktop/app/tools` (`version_check`, `cache_check`, `label_check`, `history_check`,
+`anchor_check`, `csp_check`, `i18n_coverage fr`) et `desktop/tests/run_all.sh` doivent tous passer, et le pied de page doit
+afficher `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
 
 ## Rappels propres à cette édition
 

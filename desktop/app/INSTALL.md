@@ -65,22 +65,23 @@ another port.
 The bottom of the left sidebar must read:
 
 ```
-engine verified · 84,305 / 41,023
+engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049
 ```
 
 At every start the application recomputes the bundled MediBec teaching case — 30 scenarios — and
-compares the totals with the reference implementation. When they match, the engine in your browser
+compares the totals with the reference implementation, then the French MediBec (same totals) and the
+CanaRetail case in English and French (27,526 / 16,049). When they match, the engine in your browser
 agrees with the reference.
 
 | The footer reads | What it means | What to do |
 |---|---|---|
-| `engine verified · 84,305 / 41,023` | Correct. | Carry on. |
+| `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` | Correct. | Carry on. |
 | `engine loading…`, and it stays | Opened as a file instead of being served. | Section 3. |
 | `engine missing` | `crg.js`, `cvss4.js` or `sample.js` did not load. | Unzip again and keep the folder intact. |
 | `engine DIVERGES` and a red banner | The engine disagrees with the reference. | **Do not rely on any number.** Restore a clean copy. |
 | `engine error` | An exception during the self-check. | Open the browser console and send me what it says. |
 
-Then open **Help → User guide** for everything else, or **Help → Step by step** for the 13
+Then open **Help → User guide** for everything else, or **Help → Step by step** for the 19
 steps of an assessment. Both open in a window of their own and both work offline. Every screen also has a
 **?** beside its title that opens its own help and its section of the guide.
 
@@ -198,7 +199,11 @@ application picks up the new files.
 from CRGO 0.11.0 (tag v0.11.0: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
 and 42001, CCSPA). The page and the helper now share a token made at each
 start, so start 1.9.0 with its own launcher and close any tab still open on the previous version. API keys stored in the
-feeds folder are moved once to the macOS keychain or `~/.cyberriskguardian` (Windows shows a warning). **From 1.8.0:** the
+feeds folder are moved once to the macOS keychain or `~/.cyberriskguardian` (Windows shows a warning). **Ontology · CRGO**
+is now under **Organization**; the AI assistant is now the **Virtual consultant** (Tools, and the **Consultant** button of the
+top bar). The two new modules, **Identity & access management (IAM/PAM)** and **Configuration management**, are off until you
+switch them on in **Settings → Modules**. An update downloaded by the update check is verified against the `.sha256` file
+published with the release. **From 1.8.0:** the
 ontology copy also carries the earlier changes (MediBec S2 and S8 scored AV:L in the scenario library, risk-index
 wording).
 
@@ -216,7 +221,7 @@ same either way:
    reason a browser keeps showing the previous version.
 4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
    8099 — and your workspaces are there.
-5. **Help → About → Versions** must read `1.9.0 beta`, and the footer `engine verified · 84,305 / 41,023`
+5. **Help → About → Versions** must read `1.9.0 beta`, and the footer `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`
    (1.7.x read 84,491 / 41,104: the MediBec reference changed because S2 and S8 now use AV:L, as the textbook does).
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
@@ -359,23 +364,24 @@ Le bas de la barre latérale gauche doit afficher ceci (les nombres gardent le m
 toutes les langues) :
 
 ```
-moteur vérifié · 84,305 / 41,023
+moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049
 ```
 
 À chaque démarrage, l’application recalcule le cas pédagogique MediBec fourni — 30 scénarios — et
-compare les totaux à ceux de l’implémentation de référence. S’ils concordent, le moteur de votre
+compare les totaux à ceux de l’implémentation de référence, puis le MediBec en français (mêmes totaux) et
+le cas CanaRetail en anglais et en français (27,526 / 16,049). S’ils concordent, le moteur de votre
 navigateur est d’accord avec la référence.
 
 | Le pied de page affiche | Ce que cela signifie | Quoi faire |
 |---|---|---|
-| `moteur vérifié · 84,305 / 41,023` | Tout est correct. | Continuez. |
+| `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` | Tout est correct. | Continuez. |
 | `chargement du moteur…`, et cela persiste | Ouvert comme fichier au lieu d’être servi. | Section 3. |
 | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` n’a pas été chargé. | Décompressez de nouveau et gardez le dossier intact. |
 | `moteur DIVERGENT` et une bannière rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
 | `erreur du moteur` | Une exception pendant l’autovérification. | Ouvrez la console du navigateur et envoyez-moi ce qu’elle indique. |
 
 Ouvrez ensuite **Aide → Guide de l’utilisateur** pour tout le reste, ou **Aide → Pas à pas**
-pour les 13 étapes d’une analyse. Les deux s’ouvrent dans une fenêtre distincte et fonctionnent hors
+pour les 19 étapes d’une analyse. Les deux s’ouvrent dans une fenêtre distincte et fonctionnent hors
 ligne; le guide s’affiche en français quand l’interface est en français (bouton **FR** de la barre
 supérieure). Chaque écran a aussi un **?** à côté de son titre, qui ouvre son aide et sa section du guide.
 
@@ -497,12 +503,16 @@ fois avec le lanceur pour que l’application installée reprenne les nouveaux f
 ## 7. Passer de la 1.8.x, de la 1.7.x (ou d’une copie antérieure) à la 1.9.0
 
 **Depuis la 1.8.x :** les étapes ci-dessous sont les mêmes. Au premier démarrage, chaque espace de travail passe une fois à
-la version de données 4 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). L’exemplaire hors ligne de l’ontologie est reconstruit à partir de
+la version de données 5 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). L’exemplaire hors ligne de l’ontologie est reconstruit à partir de
 CRGO 0.11.0 (étiquette v0.11.0 : modèles de scénarios, mesures de protection des CIS Controls v8.1 avec les libellés propres à CRGO,
 listes OWASP, ISO/IEC 27701 et 42001, Loi sur la protection des cybersystèmes essentiels). La page et l’assistant
 local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.0 avec son propre lanceur et fermez tout onglet
 encore ouvert sur la version précédente. Les clés d’API rangées dans le dossier des flux sont déplacées une fois vers le
-trousseau macOS ou `~/.cyberriskguardian` (Windows affiche un avertissement). **Depuis la 1.8.0 :** l’exemplaire de
+trousseau macOS ou `~/.cyberriskguardian` (Windows affiche un avertissement). **Ontologie · CRGO** se trouve maintenant
+sous **Organisation**; l’assistant IA devient le **Consultant virtuel** (Outils, et le bouton **Consultant** de la barre
+du haut). Les deux nouveaux modules, **Gestion des identités et des accès (GIA/GAP)** et **Gestion de la configuration**,
+restent désactivés tant que vous ne les activez pas dans **Paramètres → Modules**. Une mise à jour téléchargée par la
+vérification des mises à jour est contrôlée à l’aide du fichier `.sha256` publié avec la version. **Depuis la 1.8.0 :** l’exemplaire de
 l’ontologie comprend aussi les changements antérieurs (MediBec S2 et S8 cotés AV:L dans la bibliothèque de scénarios,
 vocabulaire des indices de risque).
 
@@ -524,7 +534,7 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
 5. **Aide → À propos → Versions** doit afficher `1.9.0 beta`, et le pied de page
-   `moteur vérifié · 84,305 / 41,023` (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
+   `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
    parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.

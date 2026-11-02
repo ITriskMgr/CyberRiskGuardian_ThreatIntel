@@ -8,7 +8,7 @@ treatment options; track **KRIs over time**; position funding choices on the ris
 risk-seeking budget band; and export the assessment to **Excel** with live formulas. Around the
 assessment: policy, compliance and audit management, the **Security Policy Writer** (it drafts the policy
 set in English and French for ISP management to manage), a local SIEM and SOAR fed by files, the
-**CyberRiskGuardian Ontology** (CRGO v0.10.0), a shared **Risk Registry**, and a pack that turns the KRI
+**CyberRiskGuardian Ontology** (CRGO 0.11.0), a shared **Risk Registry**, and a pack that turns the KRI
 dashboard into a **Claude Dashboard** on claude.ai.
 
 **Version 1.9.0 Beta (1.9.x).** For teaching, exploration and method validation; validate every result
@@ -53,7 +53,8 @@ and `crg.js` matches `crg_calc.py` on MediBec. A third implementation of the for
 third thing to keep in step with `crg_calc.py`, and reproducibility is the point of the method.
 
 On every start the app recomputes the bundled MediBec case and compares the totals with
-**84,305 / 41,023**. The footer shows the result. If the engine ever diverges, a red banner says
+**84,305 / 41,023**, then the French MediBec (same totals) and CanaRetail in English and French
+(**27,526 / 16,049**). The footer shows the result. If the engine ever diverges, a red banner says
 so and tells you not to rely on any number until it matches again.
 
 ## Run it
@@ -93,7 +94,7 @@ arrangement as the mobile app.
 
 **The ontology (optional).** The application ships with a snapshot of CRGO. To use the ontology's own MCP
 server — organisation context, write-back as proposals, compliance and security-operations contexts — clone
-CRGO v0.10.0 beside the application (`CyberRiskGuardian-Ontology*` folders are found newest first) or register
+CRGO 0.11.0 beside the application (v0.10.0 or later works; the 0.11 terms then stay absent) (`CyberRiskGuardian-Ontology*` folders are found newest first) or register
 it in Claude as `crgo-ontology`. `INSTALL.md` section 5.3.
 
 See `USER-GUIDE.md` for the full walkthrough, first-run verification and troubleshooting.
@@ -109,16 +110,17 @@ links to its section of the user guide.
 | Section | Screen | What it is for |
 |---|---|---|
 | Start | **Process** | The nineteen steps of a complete risk assessment (the textbook's, in seven groups) and the report, with their status in this workspace, the next recommended step, buttons to the right screens, guidelines and a printable checklist. |
-| Organization | **Organization profile** | Workspaces (with several Word/PDF documents imported at creation); profile, obligations, crown jewels, appetite and budget; classroom setting; context documents with local text extraction and keyword hints; **Import from documents** — add documents at any time and extract the profile, the crown jewels and fourteen other targets from them alone (step 1); evidence. |
+| Organization | **Organization profile** | Workspaces (with several Word/PDF documents imported at creation, or started from one of the four bundled teaching examples: MediBec and CanaRetail, in English and in French); profile, obligations, crown jewels, appetite and budget; classroom setting; context documents with local text extraction and keyword hints; **Import from documents** — add documents at any time and extract the profile, the crown jewels and fourteen other targets from them alone (step 1); evidence. |
 | | **Information assets** | Inventory linked to scenarios and risks; discovery imports and drop folder; software and data; classification and criticality; BIA; dynamic risk; vulnerability and configuration correlation; endpoint status; dependency graph and blast radius; lifecycle; audit trail; asset compliance. |
 | | **Maturity & resilience** | NIST CSF 2.0 maturity — six functions, 22 categories, scored 0–5 against a target — and an eighteen-question resilience instrument on the six capabilities θ is defined as; the two readings of θ shown with the gap named; dated history; the scenario count the measured level suggests. |
+| | **Ontology · CRGO** | Scenarios suggested from the ontology for the organization, controls by technique and scenarios by control; the **organisation link**: organisation graph, context of a scenario, write-back of results as proposals (dss/v1), and the compliance and security-operations contexts (compliance/v1, secops/v1, CRGO v0.10.0 or later); **Connection** names the CRGO release (0.11.0, approved) and its additions. |
 | | **Reset data** | Put a teaching case back to its starting point, handing step 2 (context and crown jewels) back to the student, or — as an administrator — reset a workspace at one of four depths or delete it, with what would go counted before you confirm. |
 | Risk assessment | **Evidence register** | The sources of the assessment numbered E1, E2…, typed documented / exercise / SME input / external, with strength and where each is cited. |
 | | **KRI dashboard** | Top 5 indicators by default (worst first), gauges with thresholds, search and multi-select, recorded measurements, trends and charts. |
 | | **Existing safeguards** | What already protects the organization: owner, state, scope and what it does not cover, framework controls, annual run cost, last shown to work. Proposes θ from the six resilience capabilities; feeds the budget baseline. |
 | | **Scenario screening** | Candidates scored on the twelve criteria (total /60), escalation flags, families, four weighting schemes with judgment flags, coverage matrix, watch list and evidence plan, final portfolio of ten. |
 | | **Scenario register** | Every scenario with threat and vulnerability links, status, search, include/exclude, JSON load and export. |
-| | **Scenario editor** | One scenario completely, with live risk indices, CVSS by equivalency for non-technical weaknesses, AI-drafted causal chain, ontology card and a read-only **security-operations evidence** card. |
+| | **Scenario editor** | One scenario completely, in six tabs (Causal chain, Quantification, CVSS v4.0, Treatment, Links & evidence, Ontology · CRGO with the scenario pattern) beside a live risk card, CVSS by equivalency for non-technical weaknesses, AI-drafted causal chain, ontology card and a read-only **security-operations evidence** card. |
 | | **Batch scenarios** | Candidates from threat patterns, AI, ATT&CK techniques, register CVEs or CWE weaknesses, CSV — and **scenario seeds from security operations** (detection gaps, untested coverage, degraded telemetry, alert clusters, confirmed incidents, approval gaps…), which propose a causal chain and the parameters they may inform, never a value. |
 | | **Risk calculator** | Risk of every scenario with search, filters and include/exclude; what-if appetite; full single-scenario calculation with sensitivity. |
 | | **Risk register** | Risks with threats, vulnerabilities, assets, scenarios and measures; inherent / current / target ratings; treatment, review and acceptance; heat map; history. |
@@ -126,13 +128,14 @@ links to its section of the user guide.
 | | **Recommendations** | Treatment need (the residual-to-tolerance verdict first); mitigate / transfer / avoid / accept per scenario; the register from draft to completion with an approval gate that freezes the figures; consolidation; shared controls; roadmap; initiative portfolio; decision register (a transfer records the share of loss covered and its approver). |
 | | **Management summary** | One page for management: decisions requested, residual against tolerance before and after treatment, portfolio and budget, top risks, markers, limitations; Markdown or print. |
 | Threats & vulnerabilities | **Threats · ATT&CK** | ATT&CK Enterprise v19.2 matrix, technique detail with mitigations and CWE links, coverage map, Navigator export. |
-| | **Vulnerabilities · CVE/CWE** | CVE register (exposure gate) enriched with KEV/EPSS/ladder; download of KEV, EPSS and NVD through the launcher's helper; NVD, CVE JSON 5 and scanner imports; CWE explorer; vulnerability ↔ scenario link suggestions (rules, then optional AI). |
+| | **Vulnerabilities · CVE/CWE** | CVE register (exposure gate) enriched with KEV/EPSS/ladder; download of KEV, EPSS and NVD through the launcher's helper; NVD, CVE JSON 5 and scanner imports; CWE explorer; vulnerability ↔ scenario link suggestions (rules, then optional AI); **SSVC decisions** (CISA or CERT/CC trees, one decision record per CVE — a response priority, never a likelihood). |
 | | **Threat feeds & social** | Triage first — stories bucketed *needs a decision* / *worth watching* / *not relevant* with the reason stated, and a weekly briefing written without AI; sources matched to this organization; IOC watch list (CSV, STIX 2.1); triage profile for the scheduled task. |
 | | **Threat context** | Load or generate a snapshot (`threat-context-YYYY-MM-DD.json` — used in the workspace, or downloaded as a file), place exposed CVEs on the Threat Evidence Ladder, accept exposure-gated Pb(ψ,A) proposals, revision log. |
-| | **Ontology · CRGO** | Scenarios suggested from the ontology for the organization, controls by technique and scenarios by control; the **organisation link**: organisation graph, context of a scenario, write-back of results as proposals (dss/v1), and the compliance and security-operations contexts (compliance/v1, secops/v1, CRGO v0.10.0). |
 | Governance | **Information security management** | Scope and boundaries, security objectives, management reviews, where the parts stand; exceptions — never waiving a law, no longer a mitigation once expired. |
 | | **ISP management** | Policy library and families, sixteen templates, AI drafting; structured editor with clauses and statements (identifier, modality, controls, training) and version comparison; versions frozen with a hash at approval, approver independent of the author; applicability rules and assignments; acknowledgements of an exact version and training; non-compliance. |
 | | **Cybersecurity management** | Control testing by assessor line and aspect with conflicts kept visible; governing bodies, roles and delegations of authority; decision records decided only by a named person under valid authority; the incident register. |
+| | **Identity & access management (IAM/PAM)** | Optional module, off by default (Settings → Modules). Population-level registers — account populations, privileged roles by tier, emergency accounts, access reviews, segregation of duties — with no names or secrets; KRIs CRG-17 to CRG-21 and CRG-23; deterministic findings recorded as evidence and proposals of Pb(ψ,A) or θ changes that the analyst accepts; maturity prefill; import of counts from a report. |
+| | **Configuration management** | Optional module, off by default. Versioned baselines and configuration scopes, deviations by drift class with their exceptions (an expired one never counts), configuration changes; KRIs CRG-22, CRG-24 and CRG-25; findings, proposals and report import as for IAM/PAM. |
 | | **Frameworks & standards** | Control catalogues (with SP 800-171 r3, ITSP.10.171 and COBIT 2019 packs loaded on request) and the methods-and-standards register with where CRG stops; import of a CRG pack, an OSCAL catalogue or a CSV with diff and impact shown first. |
 | | **Shared registers** | Evidence, corrective actions, exceptions and qualified mappings kept once and used by every management module. |
 | | **Quality review** | Eighteen checks before a report or a write-back leaves the analyst — among them: no compliance from a mapping, no incident from an alert, no response action presented as authorised, TLP respected, source confidence never a probability. |
@@ -145,7 +148,7 @@ links to its section of the user guide.
 | | **Budget** | Budgets by year, initiatives over up to 3 years; guideline target, band chart of funding options, arbitrage table, funding frontier. |
 | | **Export · Excel** | Workbook regenerated from scratch with live formulas — scope, sheets and years — plus assessment JSON, context pack, workspace backup. |
 | | **Virtual consultant** | Answers from passages retrieved on this computer — the textbook, the ontology, the workspace's documents and records, the catalogues and your own licensed library — kept apart from general knowledge; also from the **Consultant** button of the top bar on every screen. Saved conversations (Markdown export, citable as evidence), parameter critique and scenario generation, with the exact payload shown before anything is sent and a log of every call and your verdict. |
-| | **Forecasts** | Monte Carlo over the CRG model from three-point parameter ranges with a driver tornado, and KRI projection with a 95% prediction interval. No AI. |
+| | **Forecasts** | Monte Carlo over the CRG model from three-point parameter ranges with a driver tornado; KRI projection with a 95% prediction interval; **Exploitation (30 days)** from the EPSS history, KEV and PoC reports; **Mitigation optimizer** (the portfolio that brings the most scenarios within tolerance for a Year-1 budget); **Residual-risk path** month by month per funding option. Every residual from the verified engine; an optional AI second opinion is a labelled proposal, local model by default. |
 | | **Backup & restore** | One checksummed file with every workspace, the document text, the loaded catalogues and the helper settings — never an API key; a restore plan shown first; data versions and migrations. |
 | Settings | **Settings** | Language · **Modules** · **Logs** (access and data logs) · AI — local & remote · **Knowledge base** (the consultant's sources and your library) · Users & RACI (with menu access) · Documents & files · Links & shared folders · Feed sources & keys · Scheduled task · Network allowlist · **Simulation data** (fictional SIEM/SOAR packs for teaching, bundled or generated with AI) · Export / import. |
 | Help | **Step by step** ↗ · **User guide** ↗ · **About** | The steps and guidelines and this guide in windows of their own; creator, licence, use of generative AI, versions. |
@@ -259,6 +262,11 @@ js/kri.js  js/charts.js                   KRIs, trends, SVG charts
 js/xlsx.js  js/exportx.js                 dependency-free .xlsx writer and the workbook layout
 crg.js  cvss4.js  sample.js               verbatim from CyberRiskGuardian_IOS, do not edit here
 medibec.js                                full MediBec teaching case for the example workspace
+medibec-fr.js  canaretail.js              MediBec in French; CanaRetail in English and French (teaching examples)
+js/iam.js  js/cm.js  js/regcore.js        Identity & access management and Configuration management modules, shared register core
+js/ssvc.js  js/aiforecast.js             SSVC decisions; exploitation forecast, mitigation optimizer, residual-risk path
+js/consult.js  js/kbindex.js  js/kblib.js  the Virtual consultant: sources, retrieval index, licensed library
+js/data/chapters.js  js/chapterhelp.js    the chapter-linked help line under every screen title
 js/catalog.js  js/data/controls.js        control catalogue and measure model
 js/feedparse.js  js/data/sources.js       feed parsers, relevance matching, STIX export; source catalogue
 js/triage.js                              feed triage: story merging, exposure gate, buckets, briefing
@@ -273,7 +281,7 @@ js/backup.js  js/migrate.js               backup format and restore plan; data v
 js/forecast.js                            Monte Carlo, distributions, tornado, KRI regression
 js/ai.js  js/aiui.js                      AI tasks, routes, consent, decision log; the AI preview dialog
 js/linker.js                              vulnerability ↔ scenario link suggestions
-js/process.js  js/guidelines.js           the 13 process steps and the guidelines, as data
+js/process.js  js/guidelines.js           the 19 process steps and the guidelines, as data
 js/i18n.js  js/i18n/fr.js  js/prefs.js    interface languages and the French catalogue; preferences
 js/help.js  js/chat.js                    help corpus and the help chatbot
 js/reset.js                               reset scopes and teaching starting points
