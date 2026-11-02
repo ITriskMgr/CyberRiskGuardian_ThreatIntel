@@ -118,8 +118,9 @@ function overview(X, body, redraw, ws) {
   maturityCard(X, body, redraw, ws);
   thresholds(X, body, redraw, ws);
   if (X.crgoPending().length) body.append(el('p', 'note small', tr('Ontology alignment: {0} concepts wait for their CRGO 0.11 identifiers.').replace('{0}', X.crgoPending().length)));
-  else body.append(el('p', 'note small', tr('Ontology alignment: CRGO {0} identifiers; {1} of them are proposed terms awaiting the CRGO project owner’s approval.')
+  else if (X.crgoProposed().length) body.append(el('p', 'note small', tr('Ontology alignment: CRGO {0} identifiers; {1} of them are proposed terms awaiting the CRGO project owner’s approval.')
     .replace('{0}', X.CRGO_RELEASE).replace('{1}', X.crgoProposed().length)));
+  else body.append(el('p', 'note small', tr('Ontology alignment: CRGO {0} identifiers, all approved by the CRGO project owner.').replace('{0}', X.CRGO_RELEASE)));
 }
 
 function maturityCard(X, body, redraw, ws) {

@@ -28,11 +28,11 @@ export const on = () => MOD.enabled(ID);
 const isNum = v => C.isNum(v), sum = (r, f) => C.sum(r, f), fixed = x => C.fixed(x), rowStale = (k, r, w) => C.rowStale(k, r, w), daysBetween = (a, b) => C.daysBetween(a, b);
 
 /* ---------------- CRGO alignment ----------------
-   Filled from CRGO 0.11.0 (docs/crg-brief-0.11.0.md; every 0.11 term is *proposed* until the CRGO project owner
-   approves it in src/approvals.tsv). A release build fails if a placeholder ever comes back
+   Filled from CRGO 0.11.0 (docs/crg-brief-0.11.0.md; every 0.11 term approved by the CRGO project owner on
+   2026-11-02, src/approvals.tsv, tag v0.11.0). A release build fails if a placeholder ever comes back
    (tools/crgo_tbd_check.py --release). */
 const CRGO_NS = 'https://w3id.org/crgo/';
-const T = (n, sup, status = 'proposed') => ({ iri: CRGO_NS + n, sup, status });
+const T = (n, sup, status = 'approved') => ({ iri: CRGO_NS + n, sup, status });
 /** The CRGO release the identifiers come from. */
 export const CRGO_RELEASE = '0.11.0';
 export const CRGO = {
