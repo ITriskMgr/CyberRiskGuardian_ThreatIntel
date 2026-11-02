@@ -2133,7 +2133,7 @@ dans Contexte de menace.
 
 **Charger l'exemple fourni**. `examples/threat-context/threat-context-example.json` est livré avec
 l'application — environ 1,5 Mo — et le bouton à côté du sélecteur de fichier le charge en un clic. Il
-contient le **catalogue CISA KEV complet à sa date de construction (1 733 entrées), 38 533 scores EPSS,
+contient le **catalogue CISA KEV complet à sa date de construction (1 766 entrées), 40 134 scores EPSS,
 l'Échelle des preuves de menace, les seuils et les contraintes**. C'est suffisant pour placer des CVE
 sur l'échelle, exécuter la jointure d'exposition et terminer l'étape 3 du Processus sur une machine sans
 aucun accès à Internet.
@@ -2142,7 +2142,7 @@ La table EPSS est **élaguée au plafond de l'échelon 1 de l'échelle elle-mêm
 chaque score égal ou supérieur à ce plafond, chaque score dont le *centile* atteint le centile de
 l'échelon 4, et chaque CVE inscrite au KEV. Cette règle est sans perte pour la classification : tout ce
 qui est retiré aurait été à l'échelon 1 selon son score, et une CVE absente de la table est lue à
-l'échelon 1 avec le motif *« EPSS below 0.05 (pruned from this snapshot) »*. Chacune des 147 271 CVE de
+l'échelon 1 avec le motif *« EPSS below 0.05 (pruned from this snapshot) »*. Chacune des 148 380 CVE de
 l'instantané source se classe de façon identique avec la table élaguée — c'est vérifié au moment de la
 construction, et non présumé. Ce que l'élagage vous fait perdre, c'est le score exact d'une CVE qui
 était déjà négligeable.
@@ -4207,7 +4207,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
    CVE-2026-59310
    CVE-2026-102490
    CVE-1999-0016
-   CVE-1999-0001
+   CVE-1999-0013
    ```
 
    puis cliquez sur **Placer sur l'échelle**. Attendez-vous à l'échelon 4 pour les deux premières —
