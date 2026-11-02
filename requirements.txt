@@ -1,9 +1,9 @@
-cvss>=3.0
-openpyxl>=3.1
-mcp>=1.0
-certifi
-# optional, for the CyberRiskGuardian Ontology (CRGO v0.10.0; dss/v1 from v0.9.1) and crgo_contract.py:
-# mcp>=1.2
-# pyoxigraph
-# rdflib
-# jsonschema
+# Pinned (1.9.0): exact versions tested with this release; Dependabot proposes updates (.github/dependabot.yml).
+cvss==3.6
+openpyxl==3.1.5
+mcp==2.3.0
+certifi==2026.10.18
+# optional, for the CyberRiskGuardian Ontology (CRGO v0.10.1; dss/v1 from v0.9.1) and crgo_contract.py:
+# pyoxigraph==0.5.13
+# rdflib==7.6.0
+# jsonschema==4.26.0
