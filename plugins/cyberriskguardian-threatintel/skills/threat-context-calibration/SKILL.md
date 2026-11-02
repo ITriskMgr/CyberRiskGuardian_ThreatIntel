@@ -92,6 +92,7 @@ does.
 - **Walk the tree with the tool, never by eye:** the `ssvc_decision` MCP tool or
   `python3 ../cyber-risk-assessment/scripts/ssvc.py --tree deployer exploitation=… automatable=… …`.
 - **One decision record per CVE:** decision points and values, who, when, justification, outcome.
+  Values set without organizational evidence are labelled **Analytical estimate — validation required**.
 - **Never a likelihood.** An SSVC outcome does not move `Pb(A)` or `Pb(ψ,A)` and is not a risk index.
   Parameters move only through the ladder, behind the exposure gate.
 

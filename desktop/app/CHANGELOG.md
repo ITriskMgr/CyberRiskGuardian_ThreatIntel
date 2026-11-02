@@ -1,5 +1,35 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.9.0 Beta (in progress)
+
+### SSVC and AI forecasting (groups 5 and 6)
+- **Vulnerabilities → SSVC decisions** (`js/ssvc.js`, `js/data/ssvc-tables.js`, `js/panels/ssvc.js`): a Stakeholder-Specific
+  Vulnerability Categorization decision per registered vulnerability, beside EPSS and KEV. Tree per workspace: *Deployer —
+  CISA SSVC* (default; Track · Track* · Attend · Act), *Deployer — CERT/CC* and *Supplier — CERT/CC* (Defer · Scheduled ·
+  Out-of-Cycle · Immediate), tables copied row for row from the CERT/CC SSVC repository (commit `bf3213bc`; one cell
+  not in a published CSV is marked CHECK). Exploitation is suggested from the evidence — KEV → active, EPSS at or above the
+  snapshot's rung-4 thresholds or a public PoC in the loaded feeds → public PoC, else none — and an override needs a
+  justification. One decision record per vulnerability (points, derived points, outcome, evidence, who, when,
+  justification, history); SSVC column in the register, line in the CVE detail, CSV export. An SSVC outcome is a
+  response priority: it is never converted into a likelihood and changes no parameter.
+- **Forecasts → Exploitation (30 days)** (`js/aiforecast.js`, `js/panels/aiforecast.js`): per registered CVE, a published
+  rule over the EPSS history of the dated `threat-context-YYYY-MM-DD.json` snapshots in the feeds folder (new helper
+  endpoint `POST /api/epss/series`, local only), KEV, PoC and other feed reports, and exposure. Exposed CVEs that are in
+  KEV, high or rising are flagged; the analyst raises **review items** (nothing else changes). Optional AI second opinion
+  (routing row *exploit_forecast*, local by default) shown in its own column.
+- **Forecasts → Mitigation optimizer**: extends the funding frontier — initiatives counted once, a scenario treated only when
+  all its initiatives are funded; exact search for the portfolio that brings the most scenarios within tolerance under a
+  Year-1 budget (greedy, and said so, beyond 20 candidate scenarios); compared with the frontier at the same budget. AI
+  (routing row *mitigation_optimizer*, local by default) proposes cost and per-scenario effect corrections; *Compute “if
+  accepted”* runs the engine on a copy; only ticked proposals are applied, after confirmation, and logged.
+- **Forecasts → Residual-risk path**: residual risk month by month over 1–3 years for options A–D of the Budget screen and the
+  optimizer's portfolio, phased in by start month, budget year and months to benefit, every residual through `CRG.calc`;
+  seeded Monte Carlo bands (parameter ranges and delivery delays); risk avoided and risk avoided per $1,000.
+- New workspace field **`ssvc`** (tree, decisions, review items): in `KNOWN_FIELDS`, the factory, the shape repair and the
+  reset group *Context*; `migrateSsvc4(w)` in `js/migrate.js` for the combined 3 → 4 step (data version not bumped here).
+- Guides EN/FR 7.4.2.1, 7.10.5.1–7.10.5.3 and 8.3; French catalogue 100 %; new files in `sw.js`; suites
+  `tests-new/t33_ssvc.mjs` and `t34_forecast.mjs`. MediBec self-check unchanged (84,305 / 41,023).
+
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 
 A wording and reference patch. `crg.js`, `cvss4.js`, `sample.js`, `medibec.js` and `threat.js` are unchanged; the self-check

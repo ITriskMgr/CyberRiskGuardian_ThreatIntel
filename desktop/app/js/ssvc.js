@@ -32,8 +32,8 @@ import { today } from './util.js';
 /** id → { label, values: [[key, label, meaning]] }. Keys are the published SSVC keys, in lower case. */
 export const POINTS = {
   exploitation: { label: 'Exploitation', values: [
-    ['none', 'None', 'No evidence of exploitation and no public proof of concept.'],
-    ['public poc', 'Public PoC', 'A public proof of concept or exploit code exists, or exploitation is straightforward from public information.'],
+    ['none', 'None', 'No evidence of exploitation and no public exploit code (PoC).'],
+    ['public poc', 'Public PoC', 'Public exploit code (PoC) exists, or exploitation is straightforward from public information.'],
     ['active', 'Active', 'Credible public evidence of exploitation in the wild (for example, a CISA KEV listing).']] },
   exposure: { label: 'System Exposure', values: [
     ['small', 'Small', 'Local service or program, or a highly controlled network.'],
@@ -181,7 +181,7 @@ export function suggestExploitation(v, snap, items = []) {
   if (kev) { value = 'active'; basis.push(`CISA KEV: listed ${kev.added || ''}`.trim()); }
   const hiEpss = epss && (epss[0] >= th.score || epss[1] >= th.percentile);
   if (epss) basis.push(`EPSS ${(epss[0] * 100).toFixed(1)}% (percentile ${(epss[1] * 100).toFixed(0)})${hiEpss ? ' — at or above the high threshold' : ''}`);
-  if (feed.poc) basis.push(`${feed.poc} feed item(s) report a public proof of concept`);
+  if (feed.poc) basis.push(`${feed.poc} feed item(s) report public exploit code (PoC)`);
   if (value === 'none' && (hiEpss || feed.poc)) value = 'public poc';
   if (!snap) basis.push('No threat-context snapshot loaded: KEV and EPSS unknown');
   else if (!kev && !epss) basis.push('Not in CISA KEV; no EPSS score in the snapshot');

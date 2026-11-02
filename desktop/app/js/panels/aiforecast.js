@@ -77,9 +77,9 @@ export async function exploit(body, sec, redraw) {
       el('button', { class: 'btn ghost', onclick: () => download('exploitation-forecast.csv', toCSV([['cve', 'exposed', 'kev', 'epss_latest', 'trend_per_30d', 'feed_reports', 'poc_reports', 'forecast_30d', 'band', 'reasons', 'ai_likelihood', 'ai_rationale', 'label'],
         ...rows.map(r => [r.id, r.exposed ? 'yes' : 'no', r.kev ? 'yes' : 'no', r.epss ?? '', r.trend.slope30 ?? '', r.items, r.poc, r.forecast ?? '', r.band, r.reasons.join(' | '), aiBy.get(r.id)?.likelihood ?? '', aiBy.get(r.id)?.rationale ?? '', AI.MARK])])) }, 'Export CSV')),
     el('details', null, el('summary', null, 'The rule'), el('ul', 'small',
-      el('li', null, tr('Start from the latest EPSS score (itself a 30-day probability of exploitation activity) and add its trend per 30 days, capped at ±{0}.').replace('{0}', X.RULE.trendCap)),
-      el('li', null, tr('A public proof of concept in the loaded feeds: combined uplift of {0}; other feed reports naming the CVE: {1} each, up to {2}.').replace('{0}', X.RULE.pocUplift).replace('{1}', X.RULE.chatterPerItem).replace('{2}', X.RULE.chatterMax)),
-      el('li', null, tr('In CISA KEV: at least {0} (exploitation already observed).').replace('{0}', X.RULE.kevFloor)),
+      el('li', null, tr('Start from the latest EPSS score (itself a 30-day probability of exploitation activity) and add its trend per 30 days, capped at ±{0}.').replace('{0}', n2(X.RULE.trendCap))),
+      el('li', null, tr('Public exploit code (PoC) reported in the loaded feeds: combined uplift of {0}; other feed reports naming the CVE: {1} each, up to {2}.').replace('{0}', n2(X.RULE.pocUplift)).replace('{1}', n2(X.RULE.chatterPerItem)).replace('{2}', n2(X.RULE.chatterMax))),
+      el('li', null, tr('In CISA KEV: at least {0} (exploitation already observed).').replace('{0}', n2(X.RULE.kevFloor))),
       el('li', null, 'Bands: high ≥ 50%, moderate ≥ 10%, low below. A review item is proposed when exposure is confirmed and the CVE is in KEV, the band is high or the trend rises by 5 points or more per 30 days.'),
       el('li', null, 'The history is only as long as the dated snapshots kept in the feeds folder (threat-context-YYYY-MM-DD.json). Nothing is downloaded for this screen.')))));
 

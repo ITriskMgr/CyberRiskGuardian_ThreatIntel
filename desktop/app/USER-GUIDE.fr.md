@@ -1738,6 +1738,39 @@ récentes* conserve qui a lié ou rejeté quoi, et par quelle méthode.
 Un lien ne modifie aucun score. Pb(ψ,A) ne change que pour les CVE **exposées**, au moyen des
 propositions de l'échelle que vous acceptez dans Contexte de menace (section 7.4.4).
 
+### 7.4.2.1 Décisions SSVC — dans quel délai répondre {#ssvc}
+
+*Vulnérabilités → Décisions SSVC* (1.9.0) ajoute une décision **SSVC** (*Stakeholder-Specific
+Vulnerability Categorization*) à chaque entrée du registre. SSVC répond à une question que le moteur de
+risque ne traite pas : *dans quel délai répondre à cette vulnérabilité ?* C'est une **priorité de
+réponse, jamais une vraisemblance** : aucun résultat SSVC ne modifie Pb(A), Pb(ψ,A) ni aucun autre
+paramètre, et les totaux de risque sont les mêmes avant et après toute décision.
+
+**L'arbre** se choisit une fois par espace de travail :
+
+| Arbre | Points de décision | Résultats |
+|---|---|---|
+| *Déployeur — SSVC de la CISA* (par défaut) | Exploitation · Automatisable · Impact technique · Mission et bien-être (à partir de l'Importance pour la mission et de l'Impact sur le bien-être public) | Suivre · Suivre* · Surveiller · Agir (Track · Track* · Attend · Act) |
+| *Déployeur — SSVC du CERT/CC, priorité d'application des correctifs* | Exploitation · Exposition du système · Automatisable · Impact humain (à partir de l'Impact sur la sécurité des personnes et de l'Impact sur la mission) | Reporter · Planifié · Hors cycle · Immédiat (Defer · Scheduled · Out-of-Cycle · Immediate) |
+| *Fournisseur — SSVC du CERT/CC, priorité de développement des correctifs* | Exploitation · Utilité (à partir d'Automatisable et de la Densité de valeur) · Impact technique · Impact sur la sécurité publique | Reporter · Planifié · Hors cycle · Immédiat |
+
+Les tables sont celles qui sont publiées, ligne pour ligne (dépôt SSVC du CERT/CC, qui publie aussi
+l'arbre de la CISA) ; la source est indiquée à l'écran. Changer d'arbre conserve les décisions
+antérieures et les marque *autre arbre — à revoir*.
+
+**L'exploitation à partir des preuves.** L'EPSS et le CISA KEV de l'instantané chargé, ainsi que les
+éléments chargés sous Flux de menaces, suggèrent la valeur d'Exploitation : inscrite au KEV → *Active* ;
+EPSS au seuil élevé de l'instantané ou au-dessus (score 0,50 ou centile 0,90), ou code d'exploitation
+public (PoC) signalé dans les flux → *PoC publique* ; sinon *Aucune*. Vous pouvez choisir une autre valeur ;
+la fiche exige alors une justification et conserve les deux valeurs.
+
+**La fiche de décision** — une par vulnérabilité : les points de décision et leurs valeurs, les points
+dérivés, le résultat, les preuves (date d'inscription au KEV, score et centile EPSS, mentions de PoC,
+date de l'instantané), qui a décidé, quand, la justification et l'historique des décisions antérieures.
+*Décidée par* est obligatoire. Le registre affiche le résultat dans sa colonne **SSVC** et la fiche de la
+CVE le reprend ; *À revoir* apparaît lorsque l'arbre a changé ou que les preuves indiquent maintenant une
+valeur d'Exploitation plus forte. *Exporter les décisions (CSV)* donne l'ensemble.
+
 ### 7.4.3 Flux de menaces et réseaux sociaux {#feeds}
 
 **Tri** (premier onglet). Un flux est une pile de manchettes ; un tri est une décision. Cet onglet
@@ -3151,6 +3184,78 @@ Chaque prévision est présentée à l'écart des résultats calculés et porte 
 analytique — validation requise**. Une prévision représente l'ampleur de votre incertitude, et non une
 prédiction d'événements.
 
+### 7.10.5.1 Prévision d'exploitation (30 jours) {#forecast-exploit}
+
+*Prévisions → Exploitation (30 jours)* (1.9.0) donne, pour chaque CVE du registre, la vraisemblance
+d'une **activité d'exploitation active au cours des 30 prochains jours** — une preuve sur
+l'environnement de menace, **jamais** la vraisemblance d'un scénario. Elle est calculée par une règle
+publiée, affichée sous *La règle* :
+
+1. le dernier score EPSS (lui-même une probabilité d'activité d'exploitation sur 30 jours), plus sa
+   tendance par 30 jours, plafonnée à ±0,25 — la tendance est une pente des moindres carrés sur les
+   valeurs EPSS des **instantanés datés conservés dans le dossier des flux**
+   (`threat-context-AAAA-MM-JJ.json`) : l'historique ne remonte qu'aussi loin que les instantanés
+   conservés, et rien n'est téléchargé pour cet écran ;
+2. un code d'exploitation public (PoC) signalé dans les flux chargés : hausse combinée de 0,15 ; autres
+   mentions de la CVE dans les flux : 0,03 chacune, jusqu'à 0,12 ;
+3. inscrite au CISA KEV : au moins 0,90 (exploitation déjà observée).
+
+Bandes : élevée ≥ 50 %, modérée ≥ 10 %, faible en deçà. Chaque ligne indique ses raisons. Lorsque
+l'**exposition est confirmée** et que la CVE figure au KEV, que la bande est élevée ou que la tendance
+monte de 5 points ou plus par 30 jours, la CVE est signalée ; *Soulever des éléments à revoir pour les CVE
+signalées* crée des **éléments à revoir** — rien d'autre. Un élément à revoir demande à une personne de
+réexaminer la décision SSVC et, exposition confirmée, l'Échelle des preuves de menace ; *Terminé* et
+*Écarter* (avec une raison) le ferment. Une CVE non confirmée reste en veille (filtre d'exposition).
+
+*Demander à l'IA (aperçu d'abord)* envoie le tableau — identifiants des CVE, produits, exposition,
+historique EPSS, statut KEV, titres des flux — au modèle vers lequel la fonction *Prévision
+d'exploitation* est acheminée (**le modèle local par défaut**). La réponse s'affiche dans sa propre
+colonne, marquée **Estimation analytique — validation requise**, et ne soulève rien à moins que vous en
+tiriez un élément à revoir.
+
+### 7.10.5.2 Optimiseur d'atténuation {#forecast-optimizer}
+
+*Prévisions → Optimiseur d'atténuation* prolonge la **frontière de financement** de l'écran Budget. La
+frontière finance les scénarios un à un par ordre de rapport coût-efficacité, en répartissant les
+initiatives partagées ; l'optimiseur choisit des **initiatives**, chacune comptée une seule fois quel que
+soit le nombre de scénarios qu'elle sert, et ne compte un scénario comme traité que lorsque toutes les
+initiatives dont il a besoin sont financées. Pour un budget de l'année 1 (par défaut, l'enveloppe
+cohérente avec l'appétence : cible × budget TI − base), il trouve le portefeuille qui ramène **le plus
+de scénarios à la tolérance ou en deçà** (ou strictement en deçà, à votre choix) ; à égalité, le plus de
+risque retiré, puis le coût le plus bas. Jusqu'à 20 scénarios pouvant atteindre la cible, il essaie
+toutes les combinaisons (*Méthode : exacte*) ; au-delà, il indique avoir utilisé une recherche
+gloutonne. Le résultat est comparé à la frontière au même budget. Chaque risque résiduel provient du
+moteur vérifié.
+
+*Demander à l'IA (aperçu d'abord)* envoie ensuite les initiatives (noms, coûts, calendrier), les
+scénarios qu'elles traitent et le profil de l'organisation au modèle vers lequel la fonction
+*Optimiseur d'atténuation* est acheminée (**local par défaut**). Le modèle peut proposer des coûts
+d'initiatives et des réductions par scénario (red_p, red_i) corrigés, avec une justification et un
+niveau de confiance. Les identifiants inconnus sont écartés et les valeurs restent dans leurs limites.
+*Calculer « si accepté »* laisse le moteur montrer ce que les propositions changeraient, sur une copie —
+rien n'est appliqué. *Accepter les propositions cochées* n'applique que les lignes cochées, après
+confirmation ; le journal de l'IA consigne l'acceptation.
+
+### 7.10.5.3 Trajectoire du risque résiduel {#forecast-path}
+
+*Prévisions → Trajectoire du risque résiduel* montre le risque résiduel **mois par mois sur un à trois
+ans** pour chaque option de financement de l'écran Budget — A statu quo, B scénarios au-dessus de la
+tolérance, C meilleure valeur dans le budget cohérent avec l'appétence, D portefeuille complet — et le
+portefeuille de l'optimiseur s'il a été lancé. Chaque initiative commence dans son année budgétaire
+(Budget → initiatives réparties sur les années) et son mois de début, et atteint son plein effet après
+ses **mois avant bénéfice** (du mois de début au mois de fin ; 6 mois supposés, et indiqués, sans mois de
+fin). La mise en place module la réduction de probabilité du scénario et le moteur calcule chaque
+risque résiduel ; une option entièrement en place aboutit au risque résiduel calculé (MediBec, option D :
+41 023).
+
+Les **bandes** (p10–p90) proviennent d'un Monte-Carlo à germe fixe sur les plages de l'onglet *Plages de
+paramètres* et sur les retards de livraison (×0,8 à ×1,5 des mois avant bénéfice de chaque initiative).
+La trajectoire centrale est le plan tel qu'énoncé ; elle se situe donc souvent au bord optimiste de sa
+bande. *Options comparées* donne les dépenses sur l'horizon (initial et récurrent tels que répartis par
+année), le risque résiduel à 12, 24 et 36 mois, le mois du plein bénéfice, le **risque évité** (aire
+entre la trajectoire du statu quo et celle de l'option, en unités de risque × années) et le **risque
+évité par tranche de 1 000 $**, avec sa bande. Même germe et mêmes essais, mêmes chiffres.
+
 ### 7.10.6 Sauvegarde et restauration {#backup}
 
 Un seul fichier contient tous les espaces de travail, le texte extrait de vos documents de contexte,
@@ -3598,7 +3703,8 @@ modèle d'IA.
   extraction du profil et des actifs essentiels, importation à partir des documents (deux groupes),
   propositions de scénarios, chaînes causales, l'analyste et la critique de l'assistant IA, la synthèse
   hebdomadaire, la rédaction de politiques, les données de simulation pour l'enseignement,
-  l'évaluation de la conformité, l'agent conversationnel d'aide — ce qu'elle envoie, sa sensibilité et
+  l'évaluation de la conformité, l'agent conversationnel d'aide, la prévision d'exploitation et
+  l'optimiseur d'atténuation (tous deux locaux par défaut, 1.9.0) — ce qu'elle envoie, sa sensibilité et
   son acheminement : *Fournisseur de l'espace de travail*, *Modèle local seulement*, *Fournisseur
   distant* ou *Désactivé*. *Rétablir les acheminements recommandés* remet les fonctions sensibles sur
   le modèle local.

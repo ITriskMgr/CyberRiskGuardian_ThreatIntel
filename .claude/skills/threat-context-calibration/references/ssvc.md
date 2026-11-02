@@ -33,7 +33,10 @@ holds it.
 | Otherwise | `none` |
 
 The analyst confirms or overrides the suggestion. An override needs a written justification, and
-the record keeps both the suggested and the chosen value.
+the record keeps both the suggested and the chosen value. A decision point the analyst sets without
+organizational evidence (Mission Prevalence, Automatable, Technical Impact…) is written up as
+**Analytical estimate — validation required**; where the evidence is missing, **Information gap —
+organizational validation required**.
 
 ## The decision record (one per CVE)
 

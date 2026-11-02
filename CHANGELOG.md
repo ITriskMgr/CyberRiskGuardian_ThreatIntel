@@ -3,6 +3,15 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## Unreleased — 1.9.0 Beta (in progress)
+
+- Threat Intel plugin: **SSVC beside EPSS and KEV** in vulnerability triage — `scripts/ssvc.py` (CISA SSVC 2.0.3 and the
+  CERT/CC deployer and supplier trees, row for row from CERTCC/SSVC commit `bf3213bc`; Exploitation suggested from a local
+  snapshot), `test_ssvc.py` (every combination; diffs every row against the CSVs when `SSVC_REPO` is set), the
+  `ssvc_decision` tool of the `crg-calculator` MCP server, a *Triage: SSVC beside EPSS and KEV* section in
+  `threat-context-calibration` and `references/ssvc.md` (with the `.claude` copies). An SSVC outcome is a response
+  priority, never a likelihood.
+
 ## 1.6.2 — 2026-10-30
 
 Textbook reference set brought to **v2.51b** (the corrected v2.51 of October 2026). No method, formula or tool change.

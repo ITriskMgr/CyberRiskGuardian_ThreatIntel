@@ -86,7 +86,7 @@ export function forecastCve(v, { series = [], snap = S.snap, items = [] } = {}) 
     p = clamp(p + step, 0, 1);
     reasons.push(`EPSS trend ${tr.slope30 >= 0 ? '+' : ''}${tr.slope30.toFixed(4)} per 30 days${Math.abs(tr.slope30) > RULE.trendCap ? ` (capped at ±${RULE.trendCap})` : ''}`);
   }
-  if (feed.poc) { p = 1 - (1 - (p ?? 0)) * (1 - RULE.pocUplift); reasons.push(`${feed.poc} feed report(s) of a public proof of concept (+${RULE.pocUplift} combined)`); }
+  if (feed.poc) { p = 1 - (1 - (p ?? 0)) * (1 - RULE.pocUplift); reasons.push(`${feed.poc} feed report(s) of public exploit code (PoC) (+${RULE.pocUplift} combined)`); }
   const chatter = Math.min(RULE.chatterMax, RULE.chatterPerItem * Math.max(0, feed.items - feed.poc));
   if (chatter > 0) { p = 1 - (1 - (p ?? 0)) * (1 - chatter); reasons.push(`${feed.items - feed.poc} other feed report(s) naming it (+${chatter.toFixed(2)} combined)`); }
   if (kev) { p = Math.max(p ?? 0, RULE.kevFloor); reasons.push(`In CISA KEV: exploitation already observed (floor ${RULE.kevFloor})`); }
@@ -125,16 +125,19 @@ AI.TASKS.exploit_forecast = {
     const lines = rows.slice(0, 80).map(r => JSON.stringify({ id: r.id, product: r.product, exposed: r.exposed, kev: r.kev,
       epss: r.series.filter(p => p.epss != null).slice(-12).map(p => [p.date, p.epss]), feed_reports: r.items, poc_reports: r.poc, poc_headlines: r.pocTitles,
       rule_forecast: r.forecast }));
-    const body = ['TASK: exploit_forecast',
-      'For each CVE below, propose the likelihood (0 to 1) of exploitation activity in the wild within the next 30 days.',
-      'You are given, per CVE: whether the organization confirmed it operates the affected technology (exposed), CISA KEV status,',
-      'the EPSS history from dated snapshots (EPSS is itself a 30-day probability of exploitation activity), the number of feed reports',
-      'naming it and of reports of a public proof of concept, and the value the application\'s published rule gives (rule_forecast).',
-      'Explain where and why you depart from the rule. Do not propose a scenario likelihood, Pb(A), Pb(psi,A) or any risk figure:',
-      'this forecast is evidence about the threat environment and is never converted into a parameter.',
-      'Every value you give is an "Analytical estimate — validation required". Confidence: High, Medium or Low.', '',
-      'CVES (one JSON object per line):', ...lines, '',
-      'Return JSON only: {"cves":[{"id":"","likelihood":0.0,"band":"low|moderate|high","rationale":"","confidence":""}]}'];
+    const body = [`TASK: exploit_forecast
+For each CVE below, propose the likelihood (0 to 1) of exploitation activity in the wild within the next 30 days.
+You are given, per CVE: whether the organization confirmed it operates the affected technology (exposed), CISA KEV status,
+the EPSS history from dated snapshots (EPSS is itself a 30-day probability of exploitation activity), the number of feed reports
+naming it and of reports of public exploit code (PoC), and the value the application's published rule gives (rule_forecast).
+Explain where and why you depart from the rule. Do not propose a scenario likelihood, Pb(A), Pb(psi,A) or any risk figure:
+this forecast is evidence about the threat environment and is never converted into a parameter.
+Every value you give is an "${MARK}" Confidence: High, Medium or Low.
+
+CVES (one JSON object per line):`, ...lines, '',
+      `Return JSON only:
+{"cves":[{"id":"","likelihood":0.0,"band":"low|moderate|high","rationale":"","confidence":""}]}
+`];
     return { system: 'You are a senior threat-intelligence analyst. You reason from the evidence given, say when it is thin, and never present an estimate as a fact. You return JSON only.', prompt: body.join('\n'), max_tokens: 3000, json: true };
   },
 };
@@ -298,19 +301,24 @@ AI.TASKS.mitigation_optimizer = {
     const U = result.units;
     const inUse = new Set(result.funded);
     const scs = R.inc.filter(r => U.some(u => u.scenarios.includes(r.id)));
-    const body = ['TASK: mitigation_optimizer', AI.orgContext(ws), '',
-      `The application's deterministic optimizer chose the initiatives marked FUNDED to bring the most scenarios ${result.targetLabel} within a Year-1 budget of ${Math.round(result.budget)}.`,
-      'Its figures come from the verified engine and are not yours to recompute. Your task is narrower: review the inputs it relied on and',
-      'propose corrections where you have a reason — (a) an initiative cost (initial, recurring per year) that looks out of line for what it',
-      'describes and this organization, and (b) a per-scenario reduction (red_p = probability reduction, red_i = impact reduction, each 0 to 1)',
-      'that looks optimistic or pessimistic for the initiatives treating it. Leave out anything you would not change.',
-      'Each proposal is an "Analytical estimate — validation required"; give a short rationale and a confidence (High, Medium, Low).', '',
-      'INITIATIVES (id | name | initial | recurring/yr | months to benefit | scenarios | FUNDED?):',
+    const head = `TASK: mitigation_optimizer
+The application's deterministic optimizer chose the initiatives marked FUNDED to bring the most scenarios
+TARGET within a Year-1 budget of BUDGET. Its figures come from the verified engine and are not yours to
+recompute. Your task is narrower: review the inputs it relied on and propose corrections where you have a reason:
+(a) an initiative cost (initial, recurring per year) that looks out of line for what it describes and this organization;
+(b) a per-scenario reduction (red_p = probability reduction, red_i = impact reduction, each 0 to 1) that looks
+optimistic or pessimistic for the initiatives treating it. Leave out anything you would not change.
+Each proposal is an "${MARK}" Give a short rationale and a confidence (High, Medium, Low).`;
+    const tail = `Return JSON only:
+{"costs":[{"unit":"","initial":0,"recurring":0,"rationale":"","confidence":""}],
+ "effects":[{"scenario":"","red_p":0.0,"red_i":0.0,"rationale":"","confidence":""}], "notes":""}
+INITIATIVES are listed as: id | name | initial | recurring/yr | months to benefit | scenarios | FUNDED?
+SCENARIOS are listed as: id | name | red_p | red_i | ratio before treatment | ratio after
+Use only identifiers that appear above.
+`;
+    const body = [head.replace('TARGET', result.targetLabel).replace('BUDGET', String(Math.round(result.budget))), '', AI.orgContext(ws), '', 'INITIATIVES:',
       ...U.map(u => `${u.id} | ${u.name} | ${u.initial} | ${u.recurring} | ${u.months}${u.monthsAssumed ? ' (assumed)' : ''} | ${u.scenarios.join(',')} | ${inUse.has(u.id) ? 'FUNDED' : 'not funded'}`), '',
-      'SCENARIOS (id | name | red_p | red_i | ratio before treatment | ratio after):',
-      ...scs.map(r => `${r.id} | ${r.name} | ${r.s.red_p} | ${r.s.red_i} | ${(r.est / r.tol).toFixed(2)} | ${r.ratio.toFixed(2)}`), '',
-      'Return JSON only: {"costs":[{"unit":"","initial":0,"recurring":0,"rationale":"","confidence":""}],',
-      ' "effects":[{"scenario":"","red_p":0.0,"red_i":0.0,"rationale":"","confidence":""}], "notes":""}'];
+      'SCENARIOS:', ...scs.map(r => `${r.id} | ${r.name} | ${r.s.red_p} | ${r.s.red_i} | ${(r.est / r.tol).toFixed(2)} | ${r.ratio.toFixed(2)}`), '', tail];
     return { system: 'You are a senior cybersecurity risk analyst. You review inputs, never recompute the engine\'s figures, and propose; the analyst decides. You return JSON only.', prompt: body.join('\n'), max_tokens: 3000, json: true };
   },
 };
