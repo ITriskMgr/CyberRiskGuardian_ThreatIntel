@@ -201,7 +201,7 @@ function catalogue(body, sec) {
   const fnSel = select([['all', 'All functions'], ...K.FN.map(f => [f, f])], cflt.fn);
   const tagSel = select([['all', 'All capabilities'], ...Object.entries(K.TAGS).map(([k, t]) => [k, t.label])], cflt.tag);
   const q = el('input', { placeholder: 'Search identifier or title — e.g. 8.13, AC-02, backup, phishing', value: cflt.q });
-  const enh = el('label', { class: 'small', style: { display: 'flex', gap: '6px', alignItems: 'center' } }, el('input', { type: 'checkbox', checked: cflt.enh, style: { width: 'auto' } }), 'SP 800-53 enhancements');
+  const enh = el('label', { class: 'small', style: { display: 'flex', gap: '6px', alignItems: 'center' } }, el('input', { type: 'checkbox', checked: cflt.enh, style: { width: 'auto' } }), 'SP 800-53 enhancements and CIS safeguards');
   const count = el('div', 'selcount'), wrap = el('div', 'tablewrap');
   const fw = K.frameworkList().find(f => f.id === cflt.fw);
   const info = el('div');

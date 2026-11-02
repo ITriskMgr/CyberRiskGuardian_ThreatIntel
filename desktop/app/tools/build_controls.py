@@ -9,6 +9,13 @@ CIS v7.1 — is no longer built in, and parse_userlist() is kept only to read an
   * NIST SP 800-53 Rev. 5 and NIST CSF 2.0 OSCAL catalogues (public domain, usnistgov/oscal-content);
   * ISO/IEC 27002:2022 and CIS Controls v8.1: identifiers and short titles only (the texts are
     copyrighted by ISO and CIS and are not reproduced);
+  * 1.9.0 — CIS Controls v8.1 safeguards: identifier, Implementation Groups, asset type, security function and
+    CRGO's OWN paraphrased label (CRGO 0.11.0 vocab/cis81, read from data/crgo-snapshot.json, which
+    tools/build_crgo.py writes) — never CIS text; values CRGO flags REVIEW: are noted as unverified. Safeguards
+    are listed like SP 800-53 enhancements (shown on search or with "enhancements and safeguards" ticked).
+
+Usage: python3 tools/build_controls.py DATA_DIR      full build (NIST OSCAL catalogues in DATA_DIR)
+       python3 tools/build_controls.py --cis-only    replace only the CIS v8.1 rows of js/data/controls.js
   * MITRE ATT&CK mitigations come from kb.js at run time (not duplicated here).
 
 Every control gets a CRG function (Governance, Identify, Prevention, Detection, Response,
@@ -18,7 +25,8 @@ measure catalogue, to ATT&CK mitigations, and to default effectiveness ranges.
 import json, re, sys, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATA = sys.argv[1] if len(sys.argv) > 1 else '/home/claude/data'
+SNAP = os.path.join(HERE, '..', 'data', 'crgo-snapshot.json')
+DATA = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith('--') else '/home/claude/data'
 OUT = os.path.join(HERE, '..', 'js', 'data', 'controls.js')
 
 # ---------------------------------------------------------------- capability tags
@@ -182,10 +190,56 @@ FRAMEWORKS = [
   {'id': 'ISO22', 'name': 'ISO/IEC 27002:2022', 'short': 'ISO 27002:2022', 'origin': 'Bundled — identifiers and short titles', 'note': 'Current edition (93 controls in 4 themes). © ISO/IEC — titles only; consult the standard for the control text.'},
   {'id': 'NIST-53', 'name': 'NIST SP 800-53 Rev. 5', 'short': 'SP 800-53 r5', 'origin': 'Bundled — NIST OSCAL catalogue (public domain)', 'note': 'Base controls and control enhancements, withdrawn items excluded.'},
   {'id': 'CSF2', 'name': 'NIST Cybersecurity Framework 2.0', 'short': 'NIST CSF 2.0', 'origin': 'Bundled — NIST OSCAL catalogue (public domain)', 'note': 'Subcategory outcomes with their statements.'},
-  {'id': 'CIS81', 'name': 'CIS Controls v8.1', 'short': 'CIS v8.1', 'origin': 'Bundled — control level', 'note': '18 controls (safeguards not reproduced). CIS Controls © Center for Internet Security, CC BY-NC-ND 4.0.'},
+  {'id': 'CIS81', 'name': 'CIS Controls v8.1', 'short': 'CIS v8.1', 'origin': 'Bundled — controls; safeguards with CRGO labels (CRGO 0.11)', 'note': '18 controls by identifier and title; 153 safeguards by identifier with CRGO’s own paraphrased labels (CRGO 0.11.0, proposed) — no CIS text; cite CIS by identifier: https://www.cisecurity.org/controls/v8-1. CIS Controls © Center for Internet Security, CC BY-NC-ND 4.0.'},
   {'id': 'ATTACK-M', 'name': 'MITRE ATT&CK Enterprise mitigations', 'short': 'ATT&CK M', 'origin': 'Bundled — kb.js (ATT&CK v19.2)', 'note': 'Read from the bundled ATT&CK knowledge base at run time; linked to techniques.'},
   {'id': 'CRG', 'name': 'CyberRiskGuardian measure catalogue', 'short': 'CRG', 'origin': 'Built in', 'note': 'The 20 CRG measures used by Recommendations, mapped to ATT&CK mitigations.'},
 ]
+
+CSF_FN = {'GV': 'Governance', 'ID': 'Identify', 'PR': 'Prevention', 'DE': 'Detection', 'RS': 'Response', 'RC': 'Recovery'}
+CIS_ASSET = {'Devices': 'devices', 'Software': 'software', 'Data': 'data', 'Users': 'users', 'Network': 'network', 'Documentation': 'documentation', 'NA': 'n/a', 'None': 'no asset type'}
+
+
+def cis81_safeguards():
+    """CIS v8.1 safeguards from the CRGO snapshot: identifier + CRGO label + attributes (no CIS text)."""
+    snap = json.load(open(SNAP, encoding='utf-8'))
+    v = (snap.get('v011') or {}).get('cis81')
+    if not v:
+        sys.exit('build_controls: the CRGO snapshot has no CIS v8.1 vocabulary (CRGO 0.11.0 or later; run tools/build_crgo.py first)')
+    rel = snap.get('release'); status = snap.get('status', 'approved')
+    title = dict(line.split(' ', 1) for line in CIS81.split('|'))
+    out = []
+    for s in v['safeguards']:
+        note = [f"CRGO {rel} label ({s.get('status', status)}; a paraphrase, not CIS text)",
+                'IG' + '/'.join(map(str, s['ig'])) if s['ig'] else '', CIS_ASSET.get(s['asset'], s['asset']), 'CSF ' + s['function'] if s['function'] else '',
+                'unverified (CRGO REVIEW)' if s['unverified'] else '']
+        out.append({'fw': 'CIS81', 'id': s['id'], 't': s['label']['en'], 'grp': f"CIS {s['control']} {title[s['control']]}",
+                    'fn': CSF_FN.get(s['function']) or None, 'tags': CIS81_TAGS[s['control']], 'note': ' · '.join(x for x in note if x), 'enh': 1})
+    return out
+
+
+def cis_only():
+    """Replace the CIS v8.1 rows of the existing controls.js (no NIST download needed)."""
+    js = open(OUT, encoding='utf-8').read()
+    head, body = js[:js.index('self.CRG_CONTROLS = ')], js[js.index('self.CRG_CONTROLS = ') + len('self.CRG_CONTROLS = '):].rstrip().rstrip(';')
+    data = json.loads(body)
+    fwi = {f['id']: i for i, f in enumerate(data['frameworks'])}
+    i = fwi['CIS81']
+    rows = [r for r in data['controls'] if r[0] != i]
+    cis = [r for r in data['controls'] if r[0] == i and r[7] == 0]
+    for c in cis81_safeguards():
+        c['fn'] = c['fn'] or fn_for(c['tags'])
+        cis.append([i, c['id'], c['t'], c['grp'], c['fn'], c['tags'], c['note'], 1])
+    key = lambda r: tuple(int(x) for x in r[1].replace('CIS ', '').split('.')) + ((0,) if r[1].startswith('CIS ') else ())
+    cis.sort(key=lambda r: (int(r[1].replace('CIS ', '').split('.')[0]), 0 if r[1].startswith('CIS ') else 1, key(r)))
+    at = next((k for k, r in enumerate(rows) if r[0] > i), len(rows))
+    data['controls'] = rows[:at] + cis + rows[at:]
+    fw = next(f for f in FRAMEWORKS if f['id'] == 'CIS81')
+    data['frameworks'][i].update({k: fw[k] for k in ('origin', 'note')}, count=len(cis))
+    data['version'] = '1.9.0'
+    head = head.replace('Current editions only (1.8.0). */', 'Current editions only (1.8.0); CIS v8.1 safeguards with CRGO labels (1.9.0). */')
+    open(OUT, 'w', encoding='utf-8').write(head + 'self.CRG_CONTROLS = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';\n')
+    print('controls: CIS v8.1', len(cis), 'rows (controls and safeguards)')
+
 
 def main():
     # 1.8.0 — the analyst's legacy list (ISO/IEC 27002:2013, NIST CSF 1.1, CIS v7.1) is no longer shipped:
@@ -200,6 +254,7 @@ def main():
     for line in CIS81.split('|'):
         cid, title = line.split(' ', 1)
         ctl.append({'fw': 'CIS81', 'id': 'CIS ' + cid, 't': title, 'grp': 'CIS Controls v8.1', 'tags': CIS81_TAGS[cid]})
+        ctl += [s for s in cis81_safeguards() if s['id'].split('.')[0] == cid]      # 1.9.0 — CRGO labels
     for c in ctl:
         if 'tags' not in c: c['tags'] = tags_for(c['t'] + ' ' + (c.get('grp') or ''))
         c['fn'] = c.get('fn') or fn_for(c['tags'])
@@ -211,15 +266,15 @@ def main():
     # compact arrays: [fw, id, title, group, fn, tags, note, enh]
     fwi = {f['id']: i for i, f in enumerate(FRAMEWORKS)}
     packed = [[fwi[c['fw']], c['id'], c['t'], c.get('grp', ''), c['fn'], c['tags'], c.get('note', ''), c.get('enh', 0)] for c in ctl]
-    data = {'version': '1.8.0', 'frameworks': FRAMEWORKS, 'tags': tags, 'controls': packed,
+    data = {'version': '1.9.0', 'frameworks': FRAMEWORKS, 'tags': tags, 'controls': packed,
             'flags': [{'source': a, 'id': b, 'title': c, 'note': d} for a, b, c, d in flags]}
     js = ('/* controls.js — mitigation-control catalogue for CyberRiskGuardian Desktop (generated by tools/build_controls.py).\n'
           '   NIST SP 800-53 r5 and CSF 2.0: public domain (NIST OSCAL). ISO/IEC 27002: identifiers and titles only, © ISO/IEC.\n'
-          '   CIS Controls: identifiers and titles only, © Center for Internet Security. Current editions only (1.8.0). */\n'
+          '   CIS Controls: identifiers and titles only, © Center for Internet Security. Current editions only (1.8.0); CIS v8.1 safeguards with CRGO labels (1.9.0). */\n'
           'self.CRG_CONTROLS = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';\n')
     open(OUT, 'w', encoding='utf-8').write(js)
     print('controls', len(ctl), counts, 'flags', len(flags), 'bytes', len(js))
     for f in flags: print('  FLAG', f)
 
 if __name__ == '__main__':
-    main()
+    cis_only() if '--cis-only' in sys.argv else main()
