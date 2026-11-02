@@ -69,7 +69,7 @@ export async function buildWorkbook(opts = {}) {
   const lines = [
     `Assessment period: ${A.PERIOD || 'next 12 months'}. Currency: ${A.CURRENCY || 'CAD'}. Cost basis: Year-1 = initial implementation + first-year recurring.`,
     `Source: ${A.SOURCE || 'organizational evidence supplied'}. Formulas: CyberRiskGuardian Excel Guide v1.0c (s.11), used without modification.`,
-    'All parameter values, CVSS vectors, costs and reductions are ANALYST ESTIMATES - VALIDATION REQUIRED. Scores are relative decision-support indicators, not loss predictions.',
+    'Analytical estimate — validation required: all parameter values, CVSS vectors, costs and reductions are analytical estimates. Scores are relative decision-support indicators, not loss predictions.',
     `Exported from ${GENERATOR} on ${new Date().toISOString().slice(0, 10)} — workspace "${ws.name}" (${ws.kind}). Scope: ${scope === 'picked' ? `${N} scenarios picked for this export` : SCOPES[scope][0].toLowerCase()} — ${N} of ${rowsAll.length} scenarios. Generated from scratch from the current workspace.`,
     ws.kind !== 'organization' ? 'This workspace is a teaching case: the organization and its data are fictional.' : '',
     '',
