@@ -280,8 +280,10 @@ def main(argv):
         cat = load_catalogue(code)
         miss = sorted(s for s in found if not covered(cat, s))
         print(f'{code}: {len(cat)} catalogue entries · {len(found) - len(miss)}/{len(found)} interface strings covered ({100 * (len(found) - len(miss)) / max(1, len(found)):.1f} %)')
-        if '--missing' in argv:
+        if '--missing' in argv or '--strict' in argv:
             for s in miss: print('  ', json.dumps(s, ensure_ascii=False), '·', ', '.join(sorted(found[s]))[:80])
+        if '--strict' in argv and miss:          # 1.9.0 — CI gate: French 100 %
+            sys.exit(1)
 
 
 if __name__ == '__main__':

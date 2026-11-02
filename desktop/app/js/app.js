@@ -57,8 +57,10 @@ import * as LOG from './logs.js';
 import * as HELP from './helpdesc.js';
 import * as users from './users.js';
 import * as chat from './chat.js';
+import * as consultui from './consultui.js';
 import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
+import { hfetch } from './helper.js';
 
 const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, ipc, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
 export const ENGINE = { ok: false };
@@ -221,6 +223,7 @@ try { const t = localStorage.getItem('crg-theme'); if (t) document.documentEleme
 $('lang-box').append(i18n.switcher(el));
 window.addEventListener('crg-lang', () => { drawChrome(); draw(); });
 $('help-toggle').addEventListener('click', () => chat.toggle());
+$('consult-toggle').addEventListener('click', () => consultui.toggle());
 $('exit-btn').addEventListener('click', exitApp);
 function drawUser() {
   const box = $('user-box'); if (!box) return;
@@ -251,7 +254,7 @@ async function exitApp() {
   try { const st = await import('./state.js'); await st.saveNow(); } catch { /* nothing to save */ }
   users.audit('exit', '');
   let stopped = false;
-  try { const r = await fetch('/api/quit', { method: 'POST', headers: { 'X-CRG': '1', 'Content-Type': 'application/json' }, body: '{}' }); stopped = r.ok; } catch { /* no helper */ }
+  try { const r = await hfetch('/api/quit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); stopped = r.ok; } catch { /* no helper */ }
   try { window.close(); } catch { /* not a script-opened window */ }
   setTimeout(() => {
     document.body.replaceChildren(el('div', { class: 'exit-screen' }, el('img', { src: 'icons/icon-192.png', alt: '', width: 72, height: 72 }),
@@ -275,7 +278,7 @@ ENGINE.ok = selfCheck();
 nav.init();
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); consultui.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

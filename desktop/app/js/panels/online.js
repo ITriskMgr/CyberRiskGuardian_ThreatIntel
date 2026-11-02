@@ -8,17 +8,12 @@
 import { el, n0, card, banner, field, select, toast, today, pill, table } from '../util.js';
 import { S, touch, setSnapshot } from '../state.js';
 import { parseKev, parseEpss, build, KEV_URL, KEV_MIRROR, epssUrl } from '../snapgen.js';
+import { api } from '../helper.js';   // 1.9.0 — X-CRG and the per-launch token
 
-const H = { 'X-CRG': '1' };
 let helper = undefined;          // undefined = not probed, null = absent, object = present
 let poll = null;
 const staged = { kev: null, epss: null, kevName: null, epssName: null };
 
-async function api(path, opts = {}) {
-  const r = await fetch(path, Object.assign({ headers: Object.assign({ 'Content-Type': 'application/json' }, H), cache: 'no-store' }, opts));
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
-  return r;
-}
 export async function probe() {
   try { helper = await (await api('/api/helper')).json(); } catch { helper = null; }
   return helper;

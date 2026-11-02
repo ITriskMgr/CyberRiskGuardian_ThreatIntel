@@ -34,7 +34,12 @@ export function inline(src) {
   return out;
 }
 function link(a) {
-  if (/^https?:/i.test(a.href)) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+  // 1.9.0 — only http(s), mailto and relative / #fragment addresses become links. A javascript:, data: or other
+  // scheme (workspace text in the printed compliance report, for instance) is dropped: the text stays, inert.
+  const raw = String(a.getAttribute('href') || '').replace(/[\u0000-\u0020\u007f-\u009f]/g, '');
+  const m = /^([a-z][a-z0-9+.-]*):/i.exec(raw);
+  if (m && !['http', 'https', 'mailto'].includes(m[1].toLowerCase())) { a.removeAttribute('href'); a.className = 'unsafe-link'; return; }
+  if (/^https?:/i.test(raw)) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
 }
 
 const isRule = l => /^(\s*)([-*_])\s*\2\s*\2[\s\2]*$/.test(l);

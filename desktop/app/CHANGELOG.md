@@ -65,6 +65,98 @@
 > **NOTE — native read-through required.** The French text of *CanaRetail (français)* and *MediBec (français)* is a
 > draft translation by Claude (Opus 5.5). A native French read-through by the author is pending before the cases are
 > used in class or published as reference material.
+## 1.9.0 Beta (in progress)
+
+### Security (group 0 — review of 2 November 2026, Part B)
+- **Local helper authentication.** `serve.py` makes a random token at each start; the page reads it from `/api/session`
+  (same origin only) and every `/api/*` call must carry it with `X-CRG`, a loopback `Host` naming the helper's port, and —
+  when the browser sends them — an `Origin` of the helper itself and `Sec-Fetch-Site: same-origin`. Static files are refused
+  for a foreign `Host` (DNS rebinding), directory listings are off, every answer carries `nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: no-referrer` and `frame-ancestors 'none'`. On Windows the port is bound exclusively.
+- **Settings that start a program or write files.** The ontology command saved through the helper must be a Python
+  interpreter (absolute path) with exactly one argument, an existing `…/pipeline/mcp/crgo_server.py`; checked when saved and
+  again before the server starts. The shared registry folder may not be the home folder, a hidden, settings or system folder,
+  the application, feeds or key folder, or a folder holding configuration files (`claude_desktop_config.json`, `.mcp.json`…).
+- **API keys.** Out of `~/Downloads`: macOS login keychain (`security`, the key passed on stdin), elsewhere
+  `~/.cyberriskguardian/crg-keys.json` created with mode 600 from the start (`os.open`) in a mode-700 folder; Windows shows a
+  warning. An existing `crg-keys.json` in the feeds folder is moved once and deleted. Each key is bound to the hosts it was
+  stored for (an AI provider's endpoint at the time, a feed's published domains): a changed endpoint or a custom source never
+  receives it, redirects of a keyed request stay on its host, and Settings → AI says when a key must be stored again.
+  A provider marked "this machine" must point to 127.0.0.1 or localhost.
+- **Feed URLs** are checked on the parsed host (https anywhere, plain http only to this machine; no user name in the
+  address; label-boundary domain match); a key is never placed in an address.
+- **AI routing** checks the task instead of trusting it: it must be a known task, and the task named in the request must be
+  the one in its prompt. The helper's policy now mirrors the page's (causal chain local by default).
+- **Content-Security-Policy** `<meta>` on `index.html` and the help pages (scripts and connections from the application only,
+  inline help scripts by SHA-256 hash, no objects, no framing); new gate `tools/csp_check.py`.
+- **Workspace text never becomes markup.** Chart tips and field labels are built by `safeMarkup` (only `b`, `i`, `br`,
+  `span class`); `el()` drops the `html` sink and any `javascript:`/`data:` address; `help/md.js` links only http(s),
+  mailto and relative addresses (the printed compliance report included).
+- **Update downloads are verified** against `<zip name>.sha256` published with the release (the convention from this release
+  on); a mismatch deletes the download, a release without the file keeps it marked *unverified*; the address reached after
+  redirects is checked too.
+- **CSV exports** write a cell starting with `= + - @` as text (leading apostrophe); plain numbers are unchanged.
+- `requirements.txt` pinned to exact versions; Dependabot for pip, npm and Actions.
+
+### Fixed (review of 1.8.2, Part A)
+- AV:L offer: after *Keep AV:N* the Process page offers *Reconsider: take the AV:L vectors* and QC-26 says so; the decision is
+  journalled with the workspace's identifier, so a classroom copy or an imported file is offered again; a read-only
+  (newer-release) workspace is never offered; a typed CVSS score other than the stale AV:N score is kept and recorded in the
+  revision; Backup → Migration journal shows re-vector decisions (decision, person, scenarios, notes); French joiners and
+  notes; one copy of the vector constants (`migrate.js`).
+- Wording: the context pack asks for at least 20 candidates (typically 25–40); the Excel cover sheet, the guide and the README
+  carry the standard markers; the plugin version in `marketplace.json` matches `plugin.json` (now checked by
+  `tools/version_check.py`).
+
+### Tests and CI
+- The browser suites (t01–t32), fixtures, mocks and helpers are in `desktop/tests/`, every path from environment variables
+  with defaults relative to the repository (`lib.mjs`, `serve.sh`, `run_all.sh`); new `t32_security.mjs` and
+  `test_helper_guard.py`. `.github/workflows/desktop-ci.yml` runs the gates (French 100 % now strict), the engine regression,
+  the CRGO bridge tests against CRGO v0.10.1, the helper tests and every suite.
+## 1.9.0 Beta (in progress)
+
+### Virtual consultant (replaces the AI assistant)
+- **The AI assistant becomes the Virtual consultant** (FR *Consultant virtuel*), in every edition. The label "AI
+  assistant" is retired from the menu, the modules, the guides, help and the routing table; the in-app "analyst" task is
+  folded into the consultant. The **"?" help chatbot is help-only**: its AI mode (and the *Let the chatbot use AI*
+  setting and *Help chatbot* routing row) is gone; *Ask the Virtual consultant* under each answer hands the question over.
+- **Reach.** A **Consultant** button in the top bar opens a slide-over panel on every screen (the screen stays visible;
+  on a wide window it moves aside). **Tools → Virtual consultant** is the full view: Conversation, History, Parameter
+  critique, Scenario generation, Decision log, and a link to the library.
+- **Knowledge base, five sources, each cited its own way** (`js/consult.js`): the textbook v2.51b bundled as local text
+  (`kb/book/`, built by `tools/build_book.py` from the Threat Intel plugin's references; the MCQ answer key, front
+  matter and reference lists are left out) — *Chapter N — section*; CRGO through the live server when the helper runs
+  it, otherwise the bundled snapshot — identifier and release; the workspace's context documents and records; the
+  bundled catalogues and guides (ATT&CK, CWE, controls, framework packs, the user guide, the policy templates).
+- **Settings → Knowledge base** (`js/kblib.js`, `js/panels/settings_kb.js`): an installation-level **library** of PDF,
+  Word, Markdown and text files, extracted on this computer with the context-document reader, indexed once and available
+  in every workspace, tagged by source. Adding a file requires the attestation *I hold a licence for this text; it stays
+  on this computer.* Library text never goes into a backup (and a restore never writes it), a registry package or an
+  export; answers quote it in short excerpts (240 characters). The Quality review's licensed-standards check (QC-13)
+  extends to the library.
+- **Retrieval** (`js/kbindex.js`): a chunker and a BM25 index per source, in the browser, offline and deterministic,
+  at most three passages per source and eight per question. A workspace may switch to **hybrid** retrieval in
+  Settings → AI — local & remote: lexical fused with a **local** embedding model (Ollama `/api/embeddings` or a local
+  OpenAI-compatible `/embeddings`), configured for the installation and greyed out until it is. The helper's new
+  `/api/embed` refuses any provider that is not on this machine ("Remote providers never embed") and any non-loopback
+  endpoint; the vector index is dropped when the model changes and never backed up.
+- **Context per question:** the screen and the object selected (an open scenario is the first passage), the
+  organization summary and the risk picture; documents and records only as retrieved passages; the 400 kB cap holds.
+- **Routing:** a new row **Virtual consultant**, on the local model by default (enforced by the helper too); the
+  workspace provider when switched; confidential workspaces confirm each call; the payload preview and anonymizer as
+  for every AI feature.
+- **Answers:** paragraphs citing a passage the consultant was sent are shown under *From your sources*, everything else
+  under *General knowledge, not from your sources* with the estimate marker; markers for passages never sent are
+  removed; a risk figure the engine did not compute is removed (*[figure removed — not computed by the engine]*);
+  links open a screen, a scenario or a textbook chapter; proposals go to Batch scenarios unreviewed — nothing is written.
+- **History:** conversations are saved per workspace in the new field `consultant`, exportable as Markdown and citable
+  as evidence (an E-number, typed External, classified as an assumption); AI decision-log entries as before.
+- **Data version 4** (`js/migrate.js`): one step 3 → 4 made of sub-steps (`STEP4`); each declares its field, blank
+  value, reset group and journal title, and KNOWN_FIELDS, the workspace factory, the shape repair and the reset groups
+  read the list. The consultant record is its first sub-step (reset group: assessment). Numbers are never touched; the
+  MediBec self-check (84,305 / 41,023) holds.
+- Tests (`desktop/tests-new/`): t40 retrieval (with a mock local embedding endpoint, `mock_embed.py`), t41 library,
+  t42 history and the 3 → 4 migration, t43 routing. `tools/cache_check.py` covers the new modules and `kb/book/`.
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 

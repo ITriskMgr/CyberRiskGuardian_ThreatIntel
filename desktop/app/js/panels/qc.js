@@ -27,6 +27,8 @@ import * as SOAR from '../soar.js';
 import * as MK from '../markers.js';
 import * as EQ from '../equiv.js';
 import * as SCR from '../screening.js';
+import * as AVL from '../avl.js';
+import * as LIB from '../kblib.js';
 
 /** Every check: { id, title, state: 'pass'|'warn'|'fail', detail, fix (route) }. */
 export function checks(ws = S.ws) {
@@ -77,7 +79,14 @@ export function checks(ws = S.ws) {
   let ok = false;
   try { const r = self.CRG.run(self.CRG_SAMPLE); ok = Math.round(r.totals.est) === 84305 && Math.round(r.totals.res) === 41023; } catch { ok = false; }
   add('QC-12', 'The engine reproduces the MediBec baseline (84,305 / 41,023)', ok ? 'pass' : 'fail', ok ? tr('Verified at start-up.') : tr('The engine self-check did not pass: no number should be used.'), 'about');
-  add('QC-13', 'Licensed standards are cited by identifier only', 'pass', tr('IIA, ISACA, AICPA, COSO and ISO texts are not stored in the application; reports cite identifiers and headings. Check text you paste yourself.'), null);
+  // 1.9.0 — the check extends to the knowledge base library and to the consultant's saved answers
+  const lib = LIB.list(), unattested = lib.filter(f => f.attestation?.text !== LIB.ATTESTATION), signal = lib.filter(f => f.licensedSignal);
+  const longQuotes = (ws.consultant?.conversations || []).flatMap(c => c.messages.flatMap(m => (m.passages || []).filter(p => p.source === 'library' && String(p.quote || '').length > LIB.QUOTE_MAX + 2).map(() => c.title)));
+  add('QC-13', 'Licensed standards are cited by identifier only', unattested.length || longQuotes.length ? 'fail' : signal.length ? 'warn' : 'pass',
+    unattested.length ? tr('Library file(s) without the licence attestation: {0}. Remove them or add them again with the attestation.').replace('{0}', unattested.map(f => f.name).join(', '))
+      : longQuotes.length ? tr('Saved consultant answers quote the library at length: {0}. Delete those conversations.').replace('{0}', [...new Set(longQuotes)].join(', '))
+      : signal.length ? tr('{0} library file(s) look like licensed standards ({1}); each carries the attestation “I hold a licence for this text; it stays on this computer.” Their text is never in a backup, a package or an export, and answers quote them briefly. Reports still cite identifiers and headings only.').replace('{0}', signal.length).replace('{1}', signal.map(f => f.name).join(', '))
+      : tr('IIA, ISACA, AICPA, COSO and ISO texts are not stored in the application; reports cite identifiers and headings. Check text you paste yourself.') + (lib.length ? ' ' + tr('Knowledge base library: {0} attested file(s), kept on this computer and quoted briefly.').replace('{0}', lib.length) : ''), lib.length ? 'settings/kb' : null);
   // 1.6.0 — CRGO 0.10.0 brief §4
   const c14 = compliantWithoutEvidence(ws);
   add('QC-14', 'No obligation is called compliant from a mapping, an acknowledgement or an attestation', c14.length ? 'fail' : 'pass',
@@ -118,10 +127,14 @@ export function checks(ws = S.ws) {
   const tx = Object.entries(ws.decisions || {}).filter(([, d]) => d?.option === 'Transfer' && !String(d.approver || '').trim());
   add('QC-25', 'Every transfer names its approver and claims no reduction', tx.length ? 'warn' : 'pass',
     tx.length ? tr('Transfers without an approver: {0}').replace('{0}', tx.map(([k]) => k).join(', ')) : tr('A transfer records the share of loss covered for information and its approver; it never reduces the risk index.'), 'recs');
-  const AVN = ['CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L'];
-  const oldCase = (ws.kind === 'example' || ws.kind === 'classroom') && ws.assessment.SCEN.some(x => (x.id === 'S2' || x.id === 'S8') && AVN.includes(x.cvss));
+  // 1.9.0 — the vectors and the decision come from avl.js (one copy of the constants); after a decline the text says
+  // that the Process page lets the person reconsider, which it does.
+  const oldCase = AVL.detect(ws).length > 0;
+  const declined = oldCase && AVL.decision(ws) === 'declined';
   add('QC-26', 'The teaching case carries the current MediBec vectors', oldCase ? 'warn' : 'pass',
-    oldCase ? tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.') : tr('Not a teaching case on the earlier vectors.'), 'process');
+    !oldCase ? tr('Not a teaching case on the earlier vectors.')
+      : declined ? tr('S2 and S8 still use AV:N: the AV:L vectors were declined on {0}. The Process page lets you reconsider and take them (journalled), or Reset data → Start over takes the current case.').replace('{0}', AVL.lastEntry(ws)?.date || '—')
+      : tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.'), 'process');
   return out;
 }
 

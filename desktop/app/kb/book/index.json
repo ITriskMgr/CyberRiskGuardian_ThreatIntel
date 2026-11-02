@@ -1,0 +1,171 @@
+{
+ "schema": "crg-book/1",
+ "title": "Introduction to Cybersecurity Governance for Business Technology Management, 3rd ed.",
+ "author": "Marc-André Léger",
+ "edition": "v2.51b",
+ "licence": "CC BY-NC 4.0",
+ "language": "en",
+ "files": [
+  {
+   "file": "00-introduction.md",
+   "n": 0,
+   "kind": "introduction",
+   "title": "Introduction",
+   "bytes": 11466
+  },
+  {
+   "file": "ch01.md",
+   "n": 1,
+   "kind": "chapter",
+   "title": "Basic Concepts of Cybersecurity",
+   "bytes": 55056
+  },
+  {
+   "file": "ch02.md",
+   "n": 2,
+   "kind": "chapter",
+   "title": "Cybersecurity Governance",
+   "bytes": 46003
+  },
+  {
+   "file": "ch03.md",
+   "n": 3,
+   "kind": "chapter",
+   "title": "Cybersecurity Compliance",
+   "bytes": 41789
+  },
+  {
+   "file": "ch04.md",
+   "n": 4,
+   "kind": "chapter",
+   "title": "Cybersecurity Risk Management",
+   "bytes": 91233
+  },
+  {
+   "file": "ch05.md",
+   "n": 5,
+   "kind": "chapter",
+   "title": "Creating Cybersecurity Risk Scenarios",
+   "bytes": 95489
+  },
+  {
+   "file": "ch06.md",
+   "n": 6,
+   "kind": "chapter",
+   "title": "Performing a Cybersecurity Risk Assessment",
+   "bytes": 110258
+  },
+  {
+   "file": "ch07.md",
+   "n": 7,
+   "kind": "chapter",
+   "title": "Cybersecurity Operations",
+   "bytes": 74350
+  },
+  {
+   "file": "ch08.md",
+   "n": 8,
+   "kind": "chapter",
+   "title": "Cybersecurity Detection, Orchestration, Vulnerabilities, Response, and Testing",
+   "bytes": 129470
+  },
+  {
+   "file": "ch09.md",
+   "n": 9,
+   "kind": "chapter",
+   "title": "Cybersecurity Control Frameworks",
+   "bytes": 116226
+  },
+  {
+   "file": "ch10.md",
+   "n": 10,
+   "kind": "chapter",
+   "title": "Identity and Access Management",
+   "bytes": 133603
+  },
+  {
+   "file": "ch11.md",
+   "n": 11,
+   "kind": "chapter",
+   "title": "OT, IoT, and Cyber-Physical Security",
+   "bytes": 104859
+  },
+  {
+   "file": "ch12.md",
+   "n": 12,
+   "kind": "chapter",
+   "title": "Incident Management, Business Continuity, and Resilience",
+   "bytes": 103138
+  },
+  {
+   "file": "ch13.md",
+   "n": 13,
+   "kind": "chapter",
+   "title": "Security Architecture and Security Engineering",
+   "bytes": 94728
+  },
+  {
+   "file": "ch14.md",
+   "n": 14,
+   "kind": "chapter",
+   "title": "Security Baselines and Configuration Governance",
+   "bytes": 97234
+  },
+  {
+   "file": "ch15.md",
+   "n": 15,
+   "kind": "chapter",
+   "title": "Cloud Cybersecurity",
+   "bytes": 91588
+  },
+  {
+   "file": "ch16.md",
+   "n": 16,
+   "kind": "chapter",
+   "title": "Data Protection and Privacy",
+   "bytes": 102328
+  },
+  {
+   "file": "ch17.md",
+   "n": 17,
+   "kind": "chapter",
+   "title": "Cybersecurity Economics and Investment Governance",
+   "bytes": 105325
+  },
+  {
+   "file": "ch18.md",
+   "n": 18,
+   "kind": "chapter",
+   "title": "AI for Cybersecurity and the Cybersecurity of AI",
+   "bytes": 102192
+  },
+  {
+   "file": "ch19.md",
+   "n": 19,
+   "kind": "chapter",
+   "title": "Third-Party and Supply-Chain Cybersecurity Governance",
+   "bytes": 100103
+  },
+  {
+   "file": "ch20.md",
+   "n": 20,
+   "kind": "chapter",
+   "title": "Cryptography and Key Management in Managerial Terms",
+   "bytes": 97116
+  },
+  {
+   "file": "ch21.md",
+   "n": 21,
+   "kind": "chapter",
+   "title": "People, Organizational Design, and Accountability Mechanisms",
+   "bytes": 93386
+  },
+  {
+   "file": "zz-appendix.md",
+   "n": 99,
+   "kind": "appendix",
+   "title": "Using CyberRiskGuardian with this book",
+   "bytes": 20554
+  }
+ ]
+}

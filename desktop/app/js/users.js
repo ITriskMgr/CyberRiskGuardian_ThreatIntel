@@ -82,7 +82,7 @@ export function template(t) {
 export const MENUS = [['process', 'Process'], ['org', 'Organization'], ['dashboard', 'KRI dashboard'], ['assets', 'Information assets'], ['safeguards', 'Existing safeguards'], ['maturity', 'Maturity & resilience'], ['evidence', 'Evidence register'], ['register', 'Scenario register'],
   ['scenario', 'Scenario editor'], ['batch', 'Batch scenarios'], ['screening', 'Scenario screening'], ['calc', 'Risk calculator'], ['riskreg', 'Risk register'], ['mitigation', 'Risk mitigation'], ['recs', 'Recommendations'], ['summary', 'Management summary'],
   ['threats', 'Threats · ATT&CK'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['feeds', 'Threat feeds & social'], ['threat', 'Threat context'], ['ontology', 'Ontology · CRGO'], ['registry', 'Risk Registry'], ['frameworks', 'Frameworks & standards'], ['isms', 'Information security management'], ['isp', 'Security policies (ISP)'], ['writer', 'Security Policy Writer'], ['csm', 'Cybersecurity management'], ['audit', 'Audit management'], ['qc', 'Quality review'], ['shared', 'Shared registers'], ['ipc', 'Identity, privilege & configuration'], ['siem', 'SIEM'], ['soar', 'SOAR'],
-  ['compliance', 'Compliance'], ['share', 'Publish & share'], ['reset', 'Reset data'], ['cvss', 'CVSS v4.0'], ['budget', 'Budget'], ['export', 'Export · Excel'], ['ai', 'AI assistant'], ['forecast', 'Forecasts'],
+  ['compliance', 'Compliance'], ['share', 'Publish & share'], ['reset', 'Reset data'], ['cvss', 'CVSS v4.0'], ['budget', 'Budget'], ['export', 'Export · Excel'], ['ai', 'Virtual consultant'], ['forecast', 'Forecasts'],
   ['backup', 'Backup & restore'], ['settings', 'Settings'], ['about', 'About']];
 export const MODES = [['default', 'Default (RACI)'], ['full', 'Full'], ['view', 'View only'], ['hidden', 'Hidden']];
 const RANK = { hidden: 1, view: 2, full: 3 };
@@ -121,7 +121,7 @@ export function rights(step, u = U.current) {
   if (!u) return [];
   if (u.admin) return ['view', 'edit', 'approve', 'admin'];
   if (step === '_admin') return ['view'];
-  if (!step) return ['view', 'edit'];          // screens outside the process (Process, About, AI assistant)
+  if (!step) return ['view', 'edit'];          // screens outside the process (Process, About, Virtual consultant)
   return RIGHTS[u.raci?.[step] || 'I'] || [];
 }
 export const can = (right, step, u) => rights(step, u).includes(right);

@@ -8,7 +8,7 @@
 'use strict';
 import { el, n0, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, field, today, debounce, go } from '../util.js';
 import { S, touch, compute, scen } from '../state.js';
-import { HS, probe, apiJson } from '../helper.js';
+import { HS, probe, apiJson, hfetch } from '../helper.js';
 import * as X from '../assets.js';
 import { sparkline } from '../charts.js';
 
@@ -180,7 +180,7 @@ function discovery(body, sec) {
         r.files.length ? table([{ key: 'name', label: 'File' }, { key: 'modified', label: 'Modified', cls: 'mono' }, { key: 'bytes', label: 'Size', num: true, render: f => n0(f.bytes) },
           { key: 's', label: '', render: f => ws.discoverySeen[f.name] === f.modified ? pill('imported', 'good') : pill('new', 'warn') },
           { key: 'a', label: '', sortable: false, render: f => el('button', { class: 'btn sm', onclick: async () => {
-            const txt = await (await fetch('/api/discovery/' + encodeURIComponent(f.name), { headers: { 'X-CRG': '1' }, cache: 'no-store' })).text();
+            const txt = await (await hfetch('/api/discovery/' + encodeURIComponent(f.name))).text();
             try { const { kind, items } = X.parseDiscovery(f.name, txt); show(f.name.replace(/\.[^.]+$/, ''), kind, items); pending.file = f; } catch (e) { toast(e.message, 'bad'); }
           } }, 'Compare') }], r.files, { class: 'compact' }) : el('div', 'small muted', 'No file yet.'),
         fresh.length ? banner('warn', `${fresh.length} new or changed discovery file(s)`, 'Compare them with the inventory.') : null);

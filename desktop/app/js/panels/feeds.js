@@ -8,7 +8,7 @@
 import { el, n0, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, today, field, go, debounce } from '../util.js';
 import { S, touch, scen } from '../state.js';
 import * as store from '../store.js';
-import { HS, probe, apiJson, post, loadConfig } from '../helper.js';
+import { HS, probe, apiJson, post, loadConfig, hfetch } from '../helper.js';
 import { parse, profileTerms, relevance, stixBundle } from '../feedparse.js';
 import * as TR from '../triage.js';
 import * as AI from '../ai.js';
@@ -171,7 +171,7 @@ async function loadLatest(ids) {
   const have = (await apiJson('/api/feeds/state').catch(() => ({ latest: {} }))).latest || {};
   for (const id of ids.filter(i => have[i])) {
     try {
-      const r = await fetch('/api/feeds/latest/' + id, { headers: { 'X-CRG': '1' }, cache: 'no-store' }); if (!r.ok) continue;
+      const r = await hfetch('/api/feeds/latest/' + id); if (!r.ok) continue;
       const s = srcMeta(id); const its = parse(id, await r.text(), { cat: s.category, fmt: s.format });
       cache.bySrc[id] = { loaded: today(), file: 'latest', items: its }; n++;
     } catch (e) { console.warn(id, e); }
@@ -304,7 +304,7 @@ function triageView(body, sec, items) {
         const prepared = AI.prepare('briefing', ws, { input: TR.briefingInput(tri, ws), note: triCfg.note });
         if (!confirm(`Send the triage result to ${AI.isLocal(prepared.provider) ? 'the local model' : AI.provider(prepared.provider).label}?\n\n` +
                      `${prepared.bytes} bytes — the summarised triage, not the raw items.\n\n` +
-                     'Cancel to see the payload on the AI assistant screen first.')) { briefBusy = false; render(sec); return; }
+                     'Cancel to see the payload on the Virtual consultant screen first.')) { briefBusy = false; render(sec); return; }
         const out = await AI.send(prepared, ws);
         brief = { text: TR.markdown(tri, ws, { note: triCfg.note }), ai: out };
       } catch (err) { sec.append(banner('bad', 'The briefing could not be written', String(err.message || err))); }

@@ -7,6 +7,7 @@ import { el, card, pill, chip, select, toast, table, banner, download, copyText,
 import { general, usersView } from './settings_more.js';
 import * as settingsAi from './settings_ai.js';
 import * as settingsFiles from './settings_files.js';
+import * as settingsKb from './settings_kb.js';
 import { tr } from '../i18n.js';
 import * as settingsLogs from './settings_logs.js';
 import * as settingsSim from './settings_sim.js';
@@ -33,7 +34,7 @@ export async function render(sec, arg) {
   sec.append(HS.helper ? banner('good', 'Saved in the feeds folder', `crg-config.json in ${HS.feedsDir || HS.helper.feeds_dir} — the same file the scheduled task reads. A copy is kept in this browser.`)
     : banner('warn', 'Helper not running — settings saved in this browser only', 'Start the app with its launcher so the settings are written to the feeds folder, where the scheduled task reads them. API keys can be stored only through the helper.'));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['users', 'Users & RACI'], ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'], ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']])
+  for (const [k, t] of [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'], ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'], ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; history.replaceState(null, '', '#/settings/' + k); render(sec); } }, t));
   sec.append(st);
   const body = el('div'); sec.append(body);
@@ -45,6 +46,7 @@ export async function render(sec, arg) {
   if (view === 'users') return usersView(body, sec, rerender);
   if (view === 'ai') return settingsAi.render(body, sec, rerender, aiSection);
   if (view === 'files') return settingsFiles.render(body, sec, rerender);
+  if (view === 'kb') return settingsKb.render(body, sec, rerender);
   ({ links, sources, ai: aiSection, schedule, network, backup }[view] || links)(body, sec);
 }
 const saveBtn = (sec, label = 'Save settings') => el('button', { class: 'btn', onclick: async () => { try { await saveConfig(); toast('Settings saved'); render(sec); } catch (e) { toast(e.message, 'bad'); } } }, label);
@@ -304,6 +306,7 @@ async function saveAi(patch) {
   await saveConfig(); await probe(true);
 }
 
+const keyWhere = info => { const st = info.key_storage || {}; return st.backend === 'keychain' ? tr('Keys are stored in the macOS login keychain.') : tr('Keys are stored in {0}, readable by your account only.').replace('{0}', st.path || '~/.cyberriskguardian/crg-keys.json'); };
 function providerCard(k, pv, info, sec) {
   const keyName = pv.key_name || (k === 'claude' ? 'anthropic' : 'local_ai');
   const base = info.bases?.[k] || '';
@@ -314,16 +317,19 @@ function providerCard(k, pv, info, sec) {
     pv.local ? pill('stays on this machine', 'good') : pill('leaves this machine', 'warn'),
     info.keys?.[k] ? pill('key stored', 'good') : pill('no key', '')));
   if (pv.note) c.append(el('p', 'note', pv.note));
+  // 1.9.0 — a stored key goes only to the endpoint it was saved for
+  if (info.key_mismatch?.[k]) c.append(banner('warn', 'The endpoint changed since the key was stored',
+    tr('The key was stored for {0}. It is not sent to the new endpoint until you store it again here.').replace('{0}', (info.key_hosts?.[k] || []).join(', ') || '—')));
 
   /* --- key --- */
   const key = el('input', { type: 'password', autocomplete: 'off',
     placeholder: info.keys?.[k] ? '•••••••• stored — type to replace' : 'paste the key' });
   c.append(el('div', 'row',
     el('div', { style: { flex: 1 } }, field(pv.local ? 'API key (if your endpoint needs one)' : 'API key', key,
-      pv.key_url ? el('span', null, 'Keys are stored by the helper in crg-keys.json, mode 600. ',
-        el('a', { href: pv.key_url, target: '_blank', rel: 'noopener' }, 'Where to get one')) : 'Stored by the helper in crg-keys.json, mode 600.')),
+      pv.key_url ? el('span', null, keyWhere(info), ' ',
+        el('a', { href: pv.key_url, target: '_blank', rel: 'noopener' }, 'Where to get one')) : keyWhere(info))),
     el('button', { class: 'btn sm', onclick: async () => {
-      try { await setKey(keyName, key.value); key.value = ''; await probe(true); toast('Key stored, mode 600'); render(sec); }
+      try { await setKey(keyName, key.value); key.value = ''; await probe(true); toast('Key stored'); render(sec); }
       catch (err) { sec.append(banner('bad', 'The key could not be stored', String(err.message || err))); }
     } }, 'Store'),
     info.keys?.[k] ? el('button', { class: 'btn sm ghost', onclick: async () => {
@@ -416,8 +422,9 @@ async function aiSection(body, sec) {
   const ready = provs.filter(([k2, v]) => (info.models?.[k2] || '') && (v.local || info.keys?.[k2])).length;
   body.append(card(el('p', 'note',
     'The browser never calls a model. It posts to the helper on this machine, and the helper makes the ' +
-    'request. Keys are written to crg-keys.json beside the feeds, mode 600 — never in crg-config.json, ' +
-    'never in a log, and never in a backup.'),
+    'request. Keys are kept in the macOS login keychain, or elsewhere in a file of your user folder readable by you only — never in crg-config.json, ' +
+    'never in a log, and never in a backup. A key is sent only to the endpoint it was stored for.'),
+    info.key_storage?.warning ? banner('warn', 'API keys on this computer', tr(info.key_storage.warning)) : null,
     el('div', 'grid g4', { style: { marginTop: '8px' } },
       kpi('Providers offered', String(provs.length), 'in the registry'),
       kpi('Ready to use', String(ready), 'endpoint, model and key set', ready ? 'good' : 'warn'),

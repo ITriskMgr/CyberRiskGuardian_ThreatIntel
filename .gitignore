@@ -59,3 +59,7 @@ desktop/app/feeds-dir.txt
 .env
 .env.*
 .agentflowplus-trash/
+# desktop test harness: scratch folder and local installs
+desktop/tests/.tmp/
+desktop/tests/node_modules
+desktop/tests/mock/_last.json

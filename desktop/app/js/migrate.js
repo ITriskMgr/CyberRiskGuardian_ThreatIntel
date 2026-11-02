@@ -35,6 +35,9 @@
         the old identifier kept in a note, or flagged for review when no correspondence exists — never
         dropped; outdated marker wordings take the standard markers; a MediBec teaching case still on the AV:N
         vectors of S2 and S8 keeps them (a migration changes no number) and is told how to take AV:L; empty scenario-screening and management-summary records are added.
+     4  1.9.0 — one step made of sub-steps (STEP4 below), one per piece of 1.9.0 work that adds a workspace
+        field: the Virtual consultant's conversation history (consultant), and those the other 1.9.0 modules
+        append.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { VERSION } from './version.js';
@@ -42,7 +45,42 @@ import { LEGACY } from './data/legacy-map.js';
 import * as MK from './markers.js';
 import * as IPC from './ipc.js';
 
-export const DATA_VERSION = 3;
+/** MediBec S2 and S8: the earlier (AV:N) vector → the current (AV:L) one. The single copy of these constants
+    (1.9.0): avl.js re-exports them and the Quality review (QC-26) reads them from there. */
+export const AVL_VECTORS = Object.freeze({
+  S2: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' }),
+  S8: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L' }),
+});
+
+export const DATA_VERSION = 4;
+
+/* ---------------- the 1.9.0 records (data version 4) ----------------
+   Data version 4 is ONE migration step made of sub-steps, one per piece of 1.9.0 work that adds a
+   workspace field. To add a field in 1.9.0, append one entry to STEP4 — nothing else: KNOWN_FIELDS, the
+   step 3 → 4 itself, the workspace factory (state.newWorkspace), the shape repair (state.migrate) and the
+   reset groups (reset.GROUPS) all read this list.
+     field   the top-level workspace field
+     blank   () => its empty value: what a new workspace gets and what an older one is given
+     group   the reset group it belongs to (reset.js: ORGANIZATION, DOCUMENTS, CONTEXT, ASSESSMENT, KRI_DEFS, AUDIT)
+     title   one line for the migration journal
+     up      optional (w, note) => void, for a sub-step that does more than add the blank field; it must
+             leave numbers untouched and may only read fields earlier steps guarantee
+   Sub-steps run in the order listed, on the copy the migration works on. */
+
+/** Virtual consultant: saved conversations and the retrieval mode of this workspace. */
+export const blankConsultant = () => ({
+  conversations: [],            // { id, title, started, updated, evidence, messages: [{ role: 'user'|'consultant', at, text, screen, selected, parts, passages, model, provider, logId }] }
+  retrieval: 'lexical',         // 'lexical' (default, offline) or 'hybrid' (lexical + a local embedding model)
+});
+export const STEP4 = [
+  { field: 'consultant', blank: blankConsultant, group: 'ASSESSMENT', title: 'Virtual consultant: conversation history' },
+  // Identity, privilege & configuration: registers, baselines promoted from the asset register (the asset gains only
+  // baseline.ref), drift deviations to classify, the teaching-case sample; invariants throw (migrateIpc4 below)
+  { field: 'ipc', blank: () => IPC.blank(), group: 'CONTEXT', title: 'Identity, privilege & configuration registers (baselines promoted from assets)',
+    up: (w, note) => { migrateIpc4(w, note); } },
+];
+/** The blank value of every data-version-4 field, for the workspace factory. */
+export const fieldsV4 = () => Object.fromEntries(STEP4.map(s => [s.field, s.blank()]));
 
 /** Every top-level field of a workspace at DATA_VERSION (the test compares the factory with this list). */
 export const KNOWN_FIELDS = [
@@ -61,8 +99,8 @@ export const KNOWN_FIELDS = [
   'shared', 'cms', 'siem', 'soar',
   // 1.8.0
   'screening', 'mgmtSummary', 'catalogueMigration',
-  // 1.9.0
-  'ipc',
+  // 1.9.0 — data version 4, one entry per sub-step
+  ...STEP4.map(s => s.field),
 ];
 
 /* ---------------- the 1.5.8 records ---------------- */
@@ -301,10 +339,9 @@ export const MIGRATIONS = [
       if (mk) note(`${mk} text(s) given the standard markers (Analytical estimate — validation required; Information gap — organizational validation required)`);
       // The shipped teaching case follows the book: the e-mailed document of S2 and S8 is opened locally (AV:L).
       if (w.kind === 'example') {
-        const AVN = { 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H': 1, 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L': 1 };
         // A migration never changes a number, so the vectors are left as they are and the case says how to
         // take the current ones: Reset data → Start over (the Quality review lists it too, QC-26).
-        const n = (w.assessment?.SCEN || []).filter(sc => (sc.id === 'S2' || sc.id === 'S8') && AVN[sc.cvss]).length;
+        const n = (w.assessment?.SCEN || []).filter(sc => AVL_VECTORS[sc.id] && sc.cvss === AVL_VECTORS[sc.id].from).length;
         if (n) note(`teaching case: S2 and S8 keep the AV:N vectors of the earlier case (numbers are never changed by a migration); the Process page offers the AV:L vectors of the current case (journalled), or Reset data → Start over takes the whole current case`);
       }
       w.screening ||= blankScreening(); w.mgmtSummary ||= blankSummary(); w.catalogueMigration ||= [];
@@ -314,11 +351,20 @@ export const MIGRATIONS = [
       } else note('empty scenario-screening and management-summary records added');
     },
   },
+  {
+    from: 3, to: 4, release: '1.9.0',
+    get title() { return 'Data version 3 → 4: ' + STEP4.map(s => s.title).join('; '); },
+    up(w, note) {
+      for (const s of STEP4) {
+        if (s.up) { s.up(w, note); continue; }
+        if (w[s.field] === undefined) { w[s.field] = s.blank(); note(`${s.title}: empty record added`); }
+      }
+    },
+  },
 ];
 
 /* ================= 1.9.0 — Identity, privilege & configuration (ipc) =================
-   The ipc part of the data-version 3 → 4 step. The step itself (DATA_VERSION, the MIGRATIONS entry and
-   the combined title) is wired where the 1.9.0 data version is bumped; it calls migrateIpc4(w, note).
+   The ipc sub-step of data version 3 → 4 (its STEP4 entry calls migrateIpc4).
    Idempotent, and it never changes a risk number: it throws (and the original is kept) when an
    invariant breaks. */
 

@@ -6,11 +6,33 @@
 import * as LOG from './logs.js';
 import * as store from './store.js';
 
-const H = { 'X-CRG': '1' };
 export const HS = { helper: undefined, config: null, keys: [], sources: [], catalogue: [], feedsDir: '', ai: null };
 
+/* 1.9.0 — every /api/* call carries X-CRG and the helper's per-launch token. The token is read once from
+   /api/session (same origin only: a foreign page cannot add X-CRG without a preflight the helper refuses, and
+   cannot read the answer); a 403 "TOKEN" means the helper was restarted, so the token is read again once. */
+let token = null;
+async function session(force = false) {
+  if (token && !force) return token;
+  const r = await fetch('/api/session', { headers: { 'X-CRG': '1' }, cache: 'no-store' });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
+  token = (await r.json()).token || null;
+  return token;
+}
+/** Headers for a direct fetch of the helper API (X-CRG and the per-launch token). */
+export async function headers(extra = {}) {
+  return Object.assign({ 'X-CRG': '1', 'X-CRG-Token': await session() }, extra);
+}
+/** fetch() of the helper API with the token; retried once with a fresh token after a helper restart. */
+export async function hfetch(path, opts = {}) {
+  const go = async () => fetch(path, Object.assign({ cache: 'no-store' }, opts, { headers: await headers(opts.headers || {}) }));
+  let r = await go();
+  if (r.status === 403 && (await r.clone().json().catch(() => ({}))).code === 'TOKEN') { await session(true); r = await go(); }
+  return r;
+}
+
 export async function api(path, opts = {}) {
-  const r = await fetch(path, Object.assign({ headers: Object.assign({ 'Content-Type': 'application/json' }, H), cache: 'no-store' }, opts));
+  const r = await hfetch(path, Object.assign({}, opts, { headers: Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {}) }));
   if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
   return r;
 }

@@ -1,0 +1,10 @@
+import { open } from './lib.mjs';
+const { browser, page, errors } = await open('#/scenario');
+await page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => w.kind === 'example'); await st.select(ex.id); location.hash = '#/scenario/S1'; });
+await page.waitForSelector('text=Ontology · CRGO >> nth=1');
+await page.click('button:has-text("Controls for its techniques")');
+await page.waitForSelector('text=Controls the ontology associates', { timeout: 30000 });
+await page.click('button:has-text("Find similar ontology scenarios")');
+await page.waitForSelector('text=Similar ontology scenarios', { timeout: 30000 });
+console.log((await page.innerText('#panel-scenario')).split('Ontology · CRGO')[1]?.slice(0, 900), errors);
+await browser.close();

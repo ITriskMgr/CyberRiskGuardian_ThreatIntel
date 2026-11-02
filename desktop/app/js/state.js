@@ -49,8 +49,8 @@ export function newWorkspace({ name = 'New organization', kind = 'organization',
     shared: MIG.blankShared(), cms: MIG.blankCms(), siem: MIG.blankSiem(), soar: MIG.blankSoar(),
     // 1.8.0
     screening: MIG.blankScreening(), mgmtSummary: MIG.blankSummary(), catalogueMigration: [],
-    // 1.9.0 — identity, privilege & configuration registers
-    ipc: MIG.blankIpc(),
+    // 1.9.0 — data version 4: every field of migrate.js STEP4
+    ...MIG.fieldsV4(),
     dataVersion: MIG.DATA_VERSION, appVersion: VERSION, migrationLog: [],
   };
 }
@@ -245,7 +245,12 @@ export function migrate(w) {
   w.isp = Object.assign({ policies: [], issues: [] }, MIG.blankIspExtra(), w.isp || {});
   w.screening = Object.assign(MIG.blankScreening(), w.screening || {}); w.mgmtSummary = Object.assign(MIG.blankSummary(), w.mgmtSummary || {});
   if (!Array.isArray(w.catalogueMigration)) w.catalogueMigration = [];
-  w.ipc = Object.assign(MIG.blankIpc(), w.ipc || {});
+  // 1.9.0 — data version 4: an object record keeps what it holds and gains the keys its blank has
+  for (const st of MIG.STEP4) {
+    const b = st.blank();
+    if (b && typeof b === 'object' && !Array.isArray(b)) w[st.field] = Object.assign(b, w[st.field] && typeof w[st.field] === 'object' ? w[st.field] : {});
+    else if (w[st.field] === undefined) w[st.field] = b;
+  }
   w.migrationLog ||= [];
   return w;
 }

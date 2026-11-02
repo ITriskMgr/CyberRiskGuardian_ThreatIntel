@@ -25,6 +25,7 @@
 import * as store from './store.js';
 import { S, newWorkspace, blankOrg, exampleWorkspace, caseOf, migrate, refreshList, select, emit } from './state.js';
 import { today } from './util.js';
+import { STEP4 } from './migrate.js';
 
 /* ---------------- the fields of a workspace, in groups ---------------- */
 
@@ -46,9 +47,7 @@ export const CONTEXT = ['assets', 'assetLog', 'assetScoreHist', 'vulns', 'exposu
   // 1.5.8 — governance, risk and compliance records, audits, cybersecurity management (incidents included), ISMS, ontology link
   'grc', 'audit', 'csm', 'isms', 'crgo',
   // shared registers, compliance management, SIEM and SOAR
-  'shared', 'cms', 'siem', 'soar',
-  // identity, privilege & configuration registers (organizational facts, like the shared registers)
-  'ipc'];
+  'shared', 'cms', 'siem', 'soar'];
 /** The assessment itself and everything derived from it. */
 export const ASSESSMENT = ['excluded', 'decisions', 'measures', 'risks', 'recommendations', 'revisionLog',
   'linkLog', 'linkDraft', 'batchDraft', 'batchSeed', 'batchSpread', 'initPlan', 'published', 'kriHistory',
@@ -89,6 +88,8 @@ export const SCOPES = [
 export const scope = id => SCOPES.find(s => s.id === id) || null;
 
 export const GROUPS = { IDENTITY, NAMING, ORGANIZATION, DOCUMENTS, CONTEXT, ASSESSMENT, KRI_DEFS, AUDIT, JOURNAL };
+/* 1.9.0 — each data-version-4 field declares its group in migrate.js STEP4. */
+for (const st of STEP4) { const g = GROUPS[st.group]; if (!g) throw new Error(`migrate.js STEP4: ${st.field} names no reset group (${st.group})`); if (!g.includes(st.field)) g.push(st.field); }
 /** Kept whatever the scope. */
 export const ALWAYS = [...IDENTITY, ...NAMING, ...JOURNAL];
 

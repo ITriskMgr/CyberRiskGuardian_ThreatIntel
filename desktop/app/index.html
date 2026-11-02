@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CyberRiskGuardian Desktop</title>
 <meta name="description" content="CyberRiskGuardian with Threat Live-feed — organization workspaces, scenario register and editor, risk calculator, ATT&CK threats, CVE/CWE vulnerabilities, threat-context snapshots, recommendations, KRI dashboard, budget arbitrage, risk mitigation from ISO 27002 / NIST / CIS controls, risk register, threat feeds and social media, compliance, information assets and Excel export.">
@@ -40,6 +41,7 @@
     <div class="topright">
       <span id="lang-box"></span>
       <span id="user-box"></span>
+      <button class="btn ghost sm" id="consult-toggle" title="Virtual consultant" aria-controls="consult-panel" aria-expanded="false">Consultant</button>
       <button class="btn ghost sm" id="help-toggle" title="Help chatbot">Help</button>
       <button class="btn ghost sm" id="theme-toggle" title="Switch light / dark">Theme</button>
       <button class="btn ghost sm danger" id="exit-btn" title="Save, stop the local helper and close the app">Exit</button>

@@ -39,17 +39,16 @@ export const FEATURES = [
   ['extract_crown', 'Crown-jewel extraction', 'Text of the context documents and the profile', 'high', 'workspace'],
   ['extract_sensitive', 'Import from documents — assets & BIA, existing controls, incidents, weaknesses', 'Text of the context documents; the answer maps the organization’s systems and exposure', 'high', 'local'],
   ['extract_more', 'Import from documents — third parties, compliance, scenarios, evidence, risks, budget, KRIs, roles, classroom', 'Text of the context documents', 'high', 'workspace'],
-  ['scenarios', 'Scenario proposals (Batch scenarios, AI assistant)', 'Organization profile, crown jewels and information assets', 'medium', 'workspace'],
+  ['scenarios', 'Scenario proposals (Batch scenarios, Virtual consultant)', 'Organization profile, crown jewels and information assets', 'medium', 'workspace'],
   ['causal_chain', 'Causal chain of one scenario (Scenario editor)', 'The scenario’s name and statement, the organization profile, and the assets and controls already recorded against it', 'high', 'local'],
-  ['analyst', 'AI assistant — analyst', 'Profile, included scenarios with their figures, your question', 'medium', 'workspace'],
-  ['critique', 'AI assistant — parameter critique', 'Scenarios with their parameters and rationales', 'medium', 'workspace'],
+  ['consultant', 'Virtual consultant', 'Your question, the screen and the object selected, the organization summary and the risk picture, and the passages retrieved on this computer from the textbook, the ontology, this workspace’s documents and records, the catalogues and your library', 'high', 'local'],
+  ['critique', 'Virtual consultant — parameter critique', 'Scenarios with their parameters and rationales', 'medium', 'workspace'],
   ['briefing', 'Weekly threat briefing', 'Triaged feed stories matched to this organization', 'medium', 'workspace'],
   ['isp_draft', 'Policy drafting (Security policies)', 'Organization profile and the policy or template being drafted', 'medium', 'workspace'],
   ['writer_facts', 'Security Policy Writer — facts from documents', 'Text of the context documents (passages that look like instructions excluded)', 'high', 'workspace'],
   ['writer_tailor', 'Security Policy Writer — wording of a draft', 'Organization profile and the statements of one draft policy', 'medium', 'workspace'],
   ['simulation_pack', 'Simulation data for teaching (Settings)', 'Organization profile, scenarios (ids, names, ATT&CK), crown jewels and assets', 'medium', 'workspace'],
   ['compliance_assess', 'Compliance assessment', 'Requirements, safeguards, policies and measures of the workspace; optionally document excerpts', 'high', 'workspace'],
-  ['chat', 'Help chatbot — Ask AI', 'Your question, the screen, help passages, a short workspace summary', 'low', 'workspace'],
 ];
 export const MODES = [['workspace', 'Workspace provider'], ['local', 'Local model only'], ['remote', 'Remote provider'], ['off', 'Off']];
 export const DEFAULT_POLICY = { remote_allowed: true, web_search: true, tasks: Object.fromEntries(FEATURES.map(f => [f[0], f[4]])) };
@@ -244,34 +243,7 @@ Rules you must follow:
 - Be concise and specific. Cite the scenario, measure or indicator identifiers you used.`;
 
 export const TASKS = {
-  /** 6 — the in-app analyst. */
-  analyst: {
-    label: 'Analyst',
-    build(ws, { question = '', screen = '' } = {}) {
-      const R = compute(ws);
-      const rows = R.rows.filter(r => r.inc).sort((a, b) => b.ratio - a.ratio);
-      const body = [
-        orgContext(ws), '',
-        `Scenarios (${rows.length} included, worst first):`,
-        ...rows.slice(0, 30).map(r => scenarioLine(r.s, r)),
-        '',
-        `Portfolio: estimated ${Math.round(R.totals.est)}, tolerated ${Math.round(R.totals.tol)}, residual ${Math.round(R.totals.res)}; ` +
-        `${R.counts.above} above tolerance, ${R.counts.at} at it, ${R.counts.below} below.`,
-      ];
-      const ms = (ws.measures || []).filter(m => m.status !== 'rejected');
-      if (ms.length) body.push('', `Measures (${ms.length}):`,
-        ...ms.slice(0, 40).map(m => `${m.id} | ${m.name} | rp=${n2(m.rp)} ri=${n2(m.ri)} | scenarios ${(m.scen || []).join(',') || 'none'} | ${m.status}`));
-      const recs = ws.recommendations || [];
-      if (recs.length) body.push('', `Recommendations (${recs.length}):`,
-        ...recs.map(r => `${r.code} | ${r.title || '(untitled)'} | ${r.status} | scenarios ${r.scenarios.join(',')}`));
-      const kd = KRI.allDefs(ws);
-      if (kd.length) body.push('', 'Indicators: ' + kd.map(d => d.id).join(', '));
-      if (screen) body.push('', `The analyst is looking at the "${screen}" screen.`);
-      body.push('', 'Question: ' + (question || 'Summarize where this assessment stands and what deserves attention next.'),
-        '', 'Answer in at most 250 words. Name the identifiers you used so the analyst can check you.');
-      return { system: SYSTEM, prompt: body.join('\n'), max_tokens: 1200 };
-    },
-  },
+  /* The in-app analyst became the Virtual consultant (consult.js registers TASKS.consultant). */
 
   /** 8 — parameter critique. Suggests; never applies. */
   critique: {

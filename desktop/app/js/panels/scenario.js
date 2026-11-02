@@ -517,7 +517,7 @@ function equivBox(s, ch, vec) {
       el('details', { open: g.length > 0 }, el('summary', null, tr('Justification of each metric') + (g.length ? ` — ${tr('missing')}: ${g.join(', ')}` : ' ✓')),
         el('div', 'grid g2', ...EQ.METRICS.map(k => { const t = el('textarea', { rows: 1, placeholder: EQ.QUESTIONS[k] }); t.value = e.just[k] || '';
           t.addEventListener('input', () => { e.just[k] = t.value; touch(); }); t.addEventListener('change', draw);
-          return field(`<b>${k}:${vm[k] || '?'}</b> <span class="small muted">${EQ.QUESTIONS[k]}</span>`, t); }))));
+          return field(el('span', null, el('b', null, `${k}:${vm[k] || '?'}`), ' ', el('span', 'small muted', EQ.QUESTIONS[k])), t); }))));
   };
   vec.addEventListener('change', draw);
   draw();
