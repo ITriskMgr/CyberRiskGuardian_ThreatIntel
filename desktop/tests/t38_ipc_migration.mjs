@@ -1,6 +1,6 @@
 // Identity, privilege & configuration — the ipc part of data version 3 → 4 (migrateIpc4): baseline promotion, drift deviations,
 // teaching-case seed, invariants, idempotence. Fixtures 1.5.4–1.5.8 and ws-1.8.2.json (DV 3, assets with baselines, two in drift).
-import { open, ok, done, APP, CRGO } from './lib.mjs';
+import { open, ok, done, APP, CRGO, CRGO_011 } from './lib.mjs';
 import fs from 'fs';
 import { execSync } from 'child_process';
 const FX = v => new URL(`./fixtures/ws-${v}.json`, import.meta.url);
@@ -67,8 +67,8 @@ ok(r.medibec.ev === 15 && r.medibec.f === 5 && !r.medibec.accepted && r.medibec.
 ok(r.newer === 'newer', 'a newer workspace opens read-only');
 ok(r.dataVersion === 4 && r.full.to === 4 && r.full.ipc && r.full.journal && r.full.drift === 2 && r.full.ref, 'the 1.8.2 fixture reaches data version 4 through the STEP4 ipc sub-step ' + JSON.stringify(r.full));
 // 1.9.0 — IPC.CRGO is filled from CRGO 0.11.0: the release gate passes and every identifier is defined in the CRGO checkout
-let rel = 0, relOut = ''; try { relOut = execSync(`python3 ${APP}/tools/crgo_tbd_check.py --release --crgo ${CRGO}`, { stdio: 'pipe' }).toString(); } catch (e) { rel = e.status; relOut = String(e.stdout || e); }
-ok(rel === 0 && /every CRGO identifier is filled/.test(relOut), 'release gate: no CRGO_TBD left, every IPC.CRGO identifier defined in CRGO ' + relOut.trim().replace(/\n/g, ' · '));
+let rel = 0, relOut = ''; try { relOut = execSync(`python3 ${APP}/tools/crgo_tbd_check.py --release${CRGO_011 ? ' --crgo ' + CRGO : ''}`, { stdio: 'pipe' }).toString(); } catch (e) { rel = e.status; relOut = String(e.stdout || e); }
+ok(rel === 0 && /every CRGO identifier is filled/.test(relOut), (CRGO_011 ? 'release gate: no CRGO_TBD left, every IPC.CRGO identifier defined in CRGO ' : 'release gate: no CRGO_TBD left ') + relOut.trim().replace(/\n/g, ' · '));
 const map = await page.evaluate(async () => { const I = await import('/js/ipc.js'); return { rel: I.CRGO_RELEASE, pending: I.crgoPending().length, proposed: I.crgoProposed().length,
   acc: I.CRGO.AccountPopulation.iri, kri: I.CRGO['CRG-24'].iri, drift: I.CRGO['drift:unknown'].iri }; });
 ok(map.rel === '0.11.0' && map.pending === 0 && map.proposed > 0 && map.acc === 'https://w3id.org/crgo/CRGO_0001384' && map.kri === 'https://w3id.org/crgo/CRGO_0001476'

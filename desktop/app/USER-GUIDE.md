@@ -77,7 +77,7 @@ engine. AI, feeds, the ontology and the registry *propose*; only values you acce
 | A current browser | Chrome or Edge for the installable app. Safari and Firefox run it in a tab. |
 | Python 3 | Only to serve the folder locally. macOS and most Linux distributions already have it. On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH**. |
 | About 16 MB of disk | Plus your workspaces and any snapshot you load. The bundled example snapshot is about 1.5 MB, the ontology snapshot about 6.5 MB and the simulation pack for teaching about 0.1 MB; a full threat snapshot from `threat_snapshot.py` is 8 MB or more. |
-| *Optional:* the CyberRiskGuardian Ontology v0.10.1 | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
+| *Optional:* the CyberRiskGuardian Ontology 0.11.0 (proposed) | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
 
 No account, licence key, installer or administrator rights are required. Nothing is written outside
 the folder and your browser's own storage.
@@ -165,13 +165,13 @@ context, write-back, and the compliance and security-operations contexts — the
    its `args` at the `pipeline/mcp/crgo_server.py` of a v0.10.0 clone.
 2. **If a `CyberRiskGuardian-Ontology` folder sits near the application folder** — for example both
    inside `CyberRiskGuardian_ThreatIntel` — it is found automatically and started with the Python that
-   runs the helper. Versioned clones such as `CyberRiskGuardian-Ontology-0.10.1` are preferred, **newest
+   runs the helper. Versioned clones such as `CyberRiskGuardian-Ontology-0.11.0` are preferred, **newest
    first**. That Python needs `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`.
 3. **Otherwise**, give the Python interpreter and the path of `pipeline/mcp/crgo_server.py` in
    **Ontology · CRGO → Connection → Where the ontology is**, then **Save**.
 
 ```
-git clone --branch v0.10.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.1
+git clone --branch v0.11.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.0
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -179,7 +179,10 @@ pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 contracts it supports: scenario identification works with any release, the organisation link (dss/v1)
 needs v0.9.1 or later, and the compliance and security-operations contexts (compliance/v1, secops/v1)
 need v0.10.0. It starts the server on request; the first start builds its store, about ten to twenty
-seconds. Section 7.4.5.
+seconds. Section 7.4.5. This release is built for **CRGO 0.11.0**, a *proposed* release: its new terms (identity and
+configuration registers, the six scenario patterns, CIS Controls v8.1 with CRGO's own labels, the OWASP lists, ISO/IEC 27701
+and 42001, the CCSPA) await the CRGO author's approval, and the Connection tab says so. Until the author tags v0.11.0,
+check out the branch `release/0.11.0` instead of the tag. The snapshot shipped with the application is CRGO 0.11.0.
 
 ---
 
@@ -3799,7 +3802,7 @@ None of this is legal advice.
     held evidence records and policy exceptions: its journal shows the steps to version 4, the evidence is in
     **Shared registers → Evidence**, the exceptions in **Shared registers → Exceptions**, and its numbers are
     unchanged.
-41. **Ontology · CRGO → Connection** names CRGO v0.10.1; *Organisation link* → *Build the organisation graph*
+41. **Ontology · CRGO → Connection** names CRGO v0.11.0 and says it is a proposed release; *Organisation link* → *Build the organisation graph*
     on MediBec shows **same totals**; *Read the context* of S1 gives no risk score; *Send the ticked results as
     proposals* shows **proposed** in the journal; **Read both contexts** returns the compliance and
     security-operations contexts.
@@ -3914,8 +3917,8 @@ copy it here. The self-check will catch a mismatch, but only after the fact.
 | Import from documents reads only one document | The documents just added are the only ones selected by default. | Tick the others, or *Select all documents*. |
 | Red `engine DIVERGES` banner | Engine disagrees with the reference totals. | Stop. Restore a clean copy. |
 | *This workspace is open read-only* | It was written by a newer release, or its migration failed. | Backup & restore → Data versions and migrations says which; open it with the newer release, or send the error to support. Nothing was changed. |
-| *Organisation link* says the contract is not available | The ontology found is older than v0.9.1. | Clone tag v0.10.1 (section 3.5) and point the server at it. |
-| The compliance and security-operations contexts say they need CRGO v0.10.0 | The ontology found is older. | Clone tag v0.10.1 beside the application (it is found newest first), or point `crgo-ontology` in Claude at it. |
+| *Organisation link* says the contract is not available | The ontology found is older than v0.9.1. | Clone CRGO 0.11.0 (section 3.5) and point the server at it. |
+| The compliance and security-operations contexts say they need CRGO v0.10.0 | The ontology found is older. | Clone CRGO 0.11.0 beside the application (it is found newest first), or point `crgo-ontology` in Claude at it. |
 | A write-back is refused with `UNKNOWN_SUBJECT` or `INPUT_UNKNOWN` | Scenarios were added, renamed or excluded since the graph was built. | *Rebuild the organisation graph*, then send again. |
 | *The organisation graph folder is inside a git repository* | The confidential folder chosen is in a repository. | Choose a folder outside any repository (Organisation link → *Save the folder*). |
 | A simulation pack shows errors and cannot be imported | It cites scenarios or crown jewels this workspace does not have. | Import it into a workspace of its case (for MediBec, the example or a copy of it). |

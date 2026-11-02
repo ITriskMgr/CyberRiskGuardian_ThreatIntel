@@ -9,7 +9,8 @@
 //   CRG_AI_MOCK   the helper's canned-answer folder (default $CRG_TMP/mock, a copy of ./mock made by serve.sh and
 //                 here: suites rewrite consultant.txt and the helper writes _last.json there, never in the repository)
 //   CRG_AI_MOCK_SRC  the canned answers in the repository (default ./mock) · CRG_SHARED_REGISTRY ($CRG_TMP/shared-registry)
-//   CRGO_HOME     a CRGO v0.10.1 checkout (default ../../CyberRiskGuardian-Ontology-0.10.1)
+//   CRGO_HOME     a CRGO checkout (default ../../CyberRiskGuardian-Ontology-0.11.0); 1.9.0 targets CRGO 0.11.0
+//   CRGO_RELEASE  the release the suites expect that checkout to be (default 0.11.0; 0.10.1 still runs the 0.10 contracts)
 //   CRG_MOCK_GITHUB_PORT  port of the mock GitHub API used by t29 (default 8199)
 //   CRG_EMBED_PORT        port of the mock local embedding endpoint used by t44 (default 8115)
 // serve.sh starts the helper with the same values (it reads them the same way).
@@ -30,7 +31,10 @@ export const KEYS = path.resolve(env('CRG_KEYS_DIR', path.join(TMP, 'keys')));
 export const MOCK_SRC = path.resolve(env('CRG_AI_MOCK_SRC', path.join(TESTS, 'mock')));
 export const MOCK = path.resolve(env('CRG_AI_MOCK', path.join(TMP, 'mock')));
 export const SHARED = path.resolve(env('CRG_SHARED_REGISTRY', path.join(TMP, 'shared-registry')));
-export const CRGO = path.resolve(env('CRGO_HOME', path.join(TESTS, '..', '..', 'CyberRiskGuardian-Ontology-0.10.1')));
+export const CRGO = path.resolve(env('CRGO_HOME', path.join(TESTS, '..', '..', 'CyberRiskGuardian-Ontology-0.11.0')));
+/** The CRGO release the suites expect at CRGO_HOME, and whether it has the 0.11 terms (scenario patterns, CIS v8.1, crgo-iam). */
+export const CRGO_RELEASE = env('CRGO_RELEASE', '0.11.0');
+export const CRGO_011 = CRGO_RELEASE.split('.').map(Number).reduce((a, x) => a * 1000 + x, 0) >= 11000;
 export const MOCK_GITHUB_PORT = Number(env('CRG_MOCK_GITHUB_PORT', '8199'));
 export const EMBED_PORT = Number(env('CRG_EMBED_PORT', '8115'));
 export const FIXTURES = path.join(TESTS, 'fixtures');

@@ -1,6 +1,6 @@
-// CRGO dss/v1 acceptance (0.9.1 brief §8) through the app, the helper and the real ontology server — CRGO v0.10.0 (CRGO_HOME).
+// CRGO dss/v1 acceptance (0.9.1 brief §8) through the app, the helper and the real ontology server — CRGO 0.11.0 (CRGO_HOME, CRGO_RELEASE).
 // The context is read as of the graph's build date (today): the applicability assessments are dated when the graph is built.
-import { open, ok, done, tmp, CRGO, ORG } from './lib.mjs';
+import { open, ok, done, tmp, CRGO, ORG, CRGO_RELEASE } from './lib.mjs';
 import fs from 'fs';
 import { execFileSync } from 'child_process';
 const { browser, page, errors } = await open('#/process');
@@ -43,7 +43,7 @@ const r = await page.evaluate(async () => {
 });
 ok(r.defaultBaseOk && r.w3idRefused, 'default base is private (.invalid); a base under w3id.org/crgo is refused');
 ok(!r.graph.error && Math.round(r.graph.totals.est) === 84305 && Math.round(r.graph.totals.res) === 41023 && r.graph.agrees, 'organisation graph built through CRGO\'s bridge reproduces 84,305 / 41,023 ' + JSON.stringify(r.graph).slice(0, 300));
-ok(r.graph.release?.tag === '0.10.1' && r.graph.release?.contractUsable && r.graph.release?.viewsUsable, 'CRGO v0.10.1 detected, dss/v1 contract and the 0.10 views usable');
+ok(r.graph.release?.tag === CRGO_RELEASE && r.graph.release?.contractUsable && r.graph.release?.viewsUsable, `CRGO v${CRGO_RELEASE} detected, dss/v1 contract and the 0.10 views usable ` + JSON.stringify(r.graph.release));
 ok(JSON.stringify(Object.fromEntries(Object.entries(r.local).map(([k, v]) => [k, v.state]))) === JSON.stringify(Object.fromEntries(Object.entries(r.helper).map(([k, v]) => [k, v.state]))), 'browser port of the applicability evaluator agrees with CRGO\'s evaluator ' + JSON.stringify(r.helper));
 ok(r.local['P-39.1'].state === 'Applicable' && r.local.GDPR.state === 'Unknown', 'Loi 25 applicable; GDPR unknown (facts missing), never "not applicable"');
 fs.writeFileSync(tmp('ctx.json'), JSON.stringify(r.ctx));
@@ -55,7 +55,7 @@ ok(ob && ob.applicability === 'applicable' && ob.complianceState === 'partially-
 const cl = (r.ctx.controlLinks || [])[0];
 ok(cl && cl.latestAssessments.length === 2 && cl.openFindings.length === 1, 'control link carries the latest result per assessor line and the open finding');
 ok(r.localConflict, 'self-assessment contradicted by internal audit is a conflict (local)');
-ok(r.ctx.ontologyRelease && !JSON.stringify(r.ctx).includes('"riskScore"'), 'no risk score in the context; ontology release cited');
+ok(r.ctx.ontologyRelease === CRGO_RELEASE && !JSON.stringify(r.ctx).includes('"riskScore"'), 'no risk score in the context; ontology release cited ' + r.ctx.ontologyRelease);
 ok(r.ok.status === 'proposed' && /dss-result/.test(r.ok.stored || ''), 'residual-risk write-back stored as proposed ' + JSON.stringify(r.ok).slice(0, 200));
 ok(r.doc.modelVersion === r.appVersion && r.doc.inputDocumentSha256 === r.graph.sha && r.doc.inputs.length === 9 && r.doc.result.value > 0, 'write-back carries model version, sha256 of the exact input and the inputs');
 const prop = `${ORG}/${r.wsid}/org-dss-proposed.ttl`;

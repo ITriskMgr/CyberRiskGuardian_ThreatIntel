@@ -1,6 +1,7 @@
 #!/bin/bash
 # Run every browser suite (t*.mjs) and the helper's Python tests against the helper at CRG_URL.
-#   CRG_URL=http://127.0.0.1:8101/ CRGO_HOME=/path/to/CRGO-0.10.1 bash run_all.sh [t05 t29 …]
+#   CRG_URL=http://127.0.0.1:8101/ CRGO_HOME=/path/to/CRGO-0.11.0 bash run_all.sh [t05 t29 …]
+#   (CRGO_RELEASE=0.10.1 with a 0.10.1 checkout runs the 0.10 contracts only)
 # Starts the helper with serve.sh (same folders as lib.mjs), runs the suites one after the other (several
 # restart the helper or share its folders), prints one line per suite and exits 1 if any failed.
 set -u
