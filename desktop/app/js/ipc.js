@@ -58,37 +58,45 @@ export const REGISTERS = {
 export const REGISTER_KEYS = ['accounts', 'privileged', 'emergency', 'reviews', 'baselines', 'ciScopes', 'deviations', 'sod', 'changes'];
 
 /* ---------------- CRGO alignment (§10.2) ----------------
-   One map. The IRIs are placeholders until CRGO 0.11 is released — see CRGO 0.11 release notes — and a
-   release build fails while any CRGO_TBD remains (tools/crgo_tbd_check.py --release). */
-const TBD = n => 'https://w3id.org/crgo/CRGO_TBD-' + String(n).padStart(2, '0');
+   One map, filled from CRGO 0.11.0 (docs/crg-brief-0.11.0.md; every 0.11 term is *proposed* until the CRGO
+   project owner approves it in src/approvals.tsv). `sup` is the CRGO (or CCO) superclass or value set the term
+   sits under in 0.11.0. A release build fails if a placeholder ever comes back (tools/crgo_tbd_check.py --release). */
+const CRGO_NS = 'https://w3id.org/crgo/';
+const T = (n, sup, status = 'proposed') => ({ iri: CRGO_NS + n, sup, status });
+/** The CRGO release the identifiers come from. */
+export const CRGO_RELEASE = '0.11.0';
 export const CRGO = {
-  AccountPopulation: { iri: TBD(1), sup: 'CRGO_0000001' },
-  PrivilegedRolePopulation: { iri: TBD(2), sup: 'CRGO_0000001' },
-  EmergencyAccessAccountSet: { iri: TBD(3), sup: 'CRGO_0000001' },
-  AccessReviewCampaign: { iri: TBD(4), sup: 'CRGO_0000019' },
-  SegregationRule: { iri: TBD(5), sup: 'CRGO_0000020' },
-  SecurityBaseline: { iri: TBD(6), sup: 'CRGO_0000501' },
-  BaselineVersion: { iri: TBD(7), sup: 'CRGO_0000501' },
-  ConfigurationDrift: { iri: TBD(8), sup: 'CRGO_0000018' },
-  IdentityFinding: { iri: TBD(9), sup: 'CRGO_0000527' },
-  PrivilegeFinding: { iri: TBD(10), sup: 'CRGO_0000527' },
-  ConfigurationFinding: { iri: TBD(11), sup: 'CRGO_0000527' },
-  Misconfiguration: { iri: TBD(12), sup: 'CRGO_0000016' },
-  ConfigurationException: { iri: TBD(13), sup: 'CRGO_0000502' },
-  IPCRegisterRecord: { iri: TBD(14), sup: 'CRGO_0000036' },
-  // drift classes (SKOS concepts of ConfigurationDrift)
-  'drift:degradation': { iri: TBD(15), sup: 'ConfigurationDrift' }, 'drift:functional': { iri: TBD(16), sup: 'ConfigurationDrift' },
-  'drift:transitional': { iri: TBD(17), sup: 'ConfigurationDrift' }, 'drift:compensated': { iri: TBD(18), sup: 'ConfigurationDrift' },
-  'drift:strengthening': { iri: TBD(19), sup: 'ConfigurationDrift' }, 'drift:unknown': { iri: TBD(20), sup: 'ConfigurationDrift' },
-  // the eight indicators (individuals of KRI CRGO_0000034)
-  'CRG-17': { iri: TBD(21), sup: 'CRGO_0000034' }, 'CRG-18': { iri: TBD(22), sup: 'CRGO_0000034' }, 'CRG-19': { iri: TBD(23), sup: 'CRGO_0000034' },
-  'CRG-20': { iri: TBD(24), sup: 'CRGO_0000034' }, 'CRG-21': { iri: TBD(25), sup: 'CRGO_0000034' }, 'CRG-22': { iri: TBD(26), sup: 'CRGO_0000034' },
-  'CRG-23': { iri: TBD(27), sup: 'CRGO_0000034' }, 'CRG-24': { iri: TBD(28), sup: 'CRGO_0000034' },
+  AccountPopulation: T('CRGO_0001384', 'CRGO_0000528'),             // account population ⊑ population
+  PrivilegedRolePopulation: T('CRGO_0001386', 'CRGO_0000528'),      // privileged role holder population ⊑ population
+  EmergencyAccessAccountSet: T('CRGO_0001385', 'CRGO_0001384'),     // emergency access account population ⊑ account population
+  AccessReviewCampaign: T('CRGO_0001354', 'cco:ont00000228'),       // access review campaign (a planned act)
+  SegregationRule: T('CRGO_0001350', 'CRGO_0000019'),               // segregation-of-duties rule ⊑ control
+  SecurityBaseline: T('CRGO_0000501', 'cco:ont00000965', 'approved'), // configuration baseline (existing, approved term)
+  BaselineVersion: T('CRGO_0001374', 'CRGO_0000886'),               // baseline version ⊑ directive version (of a CRGO_0000501)
+  ConfigurationDrift: T('CRGO_0001377', 'cco:ont00000853'),         // baseline deviation (a description, with a drift class)
+  IdentityFinding: T('CRGO_0001364', 'CRGO_0000018'),               // identity finding ⊑ control gap finding
+  PrivilegeFinding: T('CRGO_0001365', 'CRGO_0001364'),              // privilege finding ⊑ identity finding
+  ConfigurationFinding: T('CRGO_0001367', 'CRGO_0000018'),          // configuration finding ⊑ control gap finding
+  // CRGO 0.11 has no narrower misconfiguration class: a misconfiguration is recorded as a vulnerability (existing term)
+  Misconfiguration: T('CRGO_0000016', 'CRGO_0000016', 'approved'),
+  ConfigurationException: T('CRGO_0000502', 'CRGO_0000502', 'approved'), // policy exception (existing term)
+  IPCRegisterRecord: T('CRGO_0000036', 'CRGO_0000036', 'approved'), // evidence register entry (existing term)
+  // drift classes: values of the value set drift class CRGO_0001453 (scheme CRGO_0001454)
+  'drift:degradation': T('CRGO_0001455', 'CRGO_0001453'), 'drift:functional': T('CRGO_0001456', 'CRGO_0001453'),
+  'drift:transitional': T('CRGO_0001457', 'CRGO_0001453'), 'drift:compensated': T('CRGO_0001458', 'CRGO_0001453'),
+  'drift:strengthening': T('CRGO_0001459', 'CRGO_0001453'), 'drift:unknown': T('CRGO_0001460', 'CRGO_0001453'),
+  // the eight indicators: values of the value set identity and configuration indicator CRGO_0001467 (an outcome
+  // metric CRGO_0001382, a key risk indicator, has indicator kind CRGO_0001532 → one of these)
+  'CRG-17': T('CRGO_0001469', 'CRGO_0001467'), 'CRG-18': T('CRGO_0001470', 'CRGO_0001467'), 'CRG-19': T('CRGO_0001471', 'CRGO_0001467'),
+  'CRG-20': T('CRGO_0001472', 'CRGO_0001467'), 'CRG-21': T('CRGO_0001473', 'CRGO_0001467'), 'CRG-22': T('CRGO_0001474', 'CRGO_0001467'),
+  'CRG-23': T('CRGO_0001475', 'CRGO_0001467'), 'CRG-24': T('CRGO_0001476', 'CRGO_0001467'),
   // an accepted proposal is an existing decision record
-  AcceptedProposal: { iri: 'https://w3id.org/crgo/CRGO_0000504', sup: 'CRGO_0000504' },
+  AcceptedProposal: T('CRGO_0000504', 'CRGO_0000504', 'approved'),
 };
-/** The CRGO concepts still waiting for their CRGO 0.11 identifier. */
-export const crgoPending = () => Object.entries(CRGO).filter(([, v]) => /CRGO_TBD/.test(v.iri)).map(([k]) => k);
+/** The CRGO concepts still waiting for a CRGO identifier (none since CRGO 0.11.0). */
+export const crgoPending = () => Object.entries(CRGO).filter(([, v]) => !/\/CRGO_\d{7}$/.test(v.iri)).map(([k]) => k);
+/** The CRGO concepts whose 0.11 term is still proposed (awaiting the CRGO project owner's approval). */
+export const crgoProposed = () => Object.entries(CRGO).filter(([, v]) => v.status === 'proposed').map(([k]) => k);
 
 /** CIS Controls v8.1 used by the module: identifiers with the author's own short labels (no CIS text). */
 export const CIS = [

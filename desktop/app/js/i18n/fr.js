@@ -3760,6 +3760,7 @@ export default {
 "Only a pending proposal can be accepted.": "Seule une proposition en attente peut être acceptée.",
 "Only counts are proposed and kept. The file's SHA-256, size and row count are recorded as the import trace.": "Seuls des décomptes sont proposés et conservés. Le SHA-256, la taille et le nombre de lignes du fichier sont consignés comme trace d’importation.",
 "Ontology alignment: {0} concepts wait for their CRGO 0.11 identifiers.": "Alignement ontologique : {0} concepts attendent leurs identifiants CRGO 0.11.",
+"Ontology alignment: CRGO {0} identifiers; {1} of them are proposed terms awaiting the CRGO project owner’s approval.": "Alignement ontologique : identifiants CRGO {0}; {1} d’entre eux sont des termes proposés en attente de l’approbation du responsable du projet CRGO.",
 "Open Findings & proposals": "Ouvrir Constats et propositions",
 "Open Maturity & resilience": "Ouvrir Maturité et résilience",
 "Open high-severity configuration degradation": "Dégradation de configuration ouverte de gravité élevée",
