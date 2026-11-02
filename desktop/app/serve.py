@@ -1616,6 +1616,10 @@ def main():
         moved = crg_feeds.migrate_legacy_keys(FEEDS, hosts_for=lambda n: _key_hosts_at_save(n, cfg))
         if moved:
             print(f"Moved {moved} API key(s) out of the feeds folder into {crg_feeds.key_storage()['path']}.", flush=True)
+        left = crg_feeds.unmigrated_keys()
+        if left:
+            print(f"{len(left)} API key(s) could not be moved and wait in {crg_feeds.key_storage()['unmigrated']['path']}: "
+                  f"{', '.join(left)}. Enter them again in Settings → AI.", flush=True)
     except Exception as exc:                            # noqa: BLE001
         sys.stderr.write(f"helper: the API keys could not be moved out of the feeds folder: {exc}\n")
     global HTTPD

@@ -11837,6 +11837,8 @@ export default {
 "by {0}": "par {0}",
 "{0} and {1}": "{0} et {1}",
 "~/.cyberriskguardian/crg-keys.json": "~/.cyberriskguardian/crg-keys.json",
+"API keys not moved": "Clés d’API non déplacées",
+"{0} stored key(s) could not be moved into the key store and wait, readable by you only, in {1}: {2}. Enter each one again below; the file is removed when none is left.": "{0} clé(s) enregistrée(s) n’ont pas pu être déplacées dans le magasin de clés et attendent, lisibles par vous seul, dans {1} : {2}. Saisissez chacune de nouveau ci-dessous ; le fichier est supprimé lorsqu’il n’en reste aucune.",
 "On Windows the key file is protected only by the permissions of your user profile; anyone who administers this computer, or a program running as you, can read it. Prefer a local model, or remove the keys when you no longer need them.": "Sous Windows, le fichier des clés n’est protégé que par les autorisations de votre profil d’utilisateur ; quiconque administre cet ordinateur, ou un programme qui s’exécute sous votre compte, peut le lire. Préférez un modèle local, ou retirez les clés lorsque vous n’en avez plus besoin.",
 "Kept the earlier vectors for {0}": "Vecteurs antérieurs conservés pour {0}",
 "S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.": "S2 et S8 utilisent encore AV:N. Le cas actuel et le livre utilisent AV:L (le document reçu par courriel est ouvert localement) : la page Processus propose les vecteurs AV:L (journalisé), ou Réinitialiser les données → Recommencer prend le cas actuel.",

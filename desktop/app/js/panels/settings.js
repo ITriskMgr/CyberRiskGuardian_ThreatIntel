@@ -425,6 +425,8 @@ async function aiSection(body, sec) {
     'request. Keys are kept in the macOS login keychain, or elsewhere in a file of your user folder readable by you only — never in crg-config.json, ' +
     'never in a log, and never in a backup. A key is sent only to the endpoint it was stored for.'),
     info.key_storage?.warning ? banner('warn', 'API keys on this computer', tr(info.key_storage.warning)) : null,
+    info.key_storage?.unmigrated?.names?.length ? banner('warn', 'API keys not moved', tr('{0} stored key(s) could not be moved into the key store and wait, readable by you only, in {1}: {2}. Enter each one again below; the file is removed when none is left.')
+      .replace('{0}', info.key_storage.unmigrated.names.length).replace('{1}', info.key_storage.unmigrated.path).replace('{2}', info.key_storage.unmigrated.names.join(', '))) : null,
     el('div', 'grid g4', { style: { marginTop: '8px' } },
       kpi('Providers offered', String(provs.length), 'in the registry'),
       kpi('Ready to use', String(ready), 'endpoint, model and key set', ready ? 'good' : 'warn'),

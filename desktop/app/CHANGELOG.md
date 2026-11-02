@@ -266,6 +266,12 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   applicable* only when at least one row has a known denominator value; when every denominator value is unknown they give
   *no data*, the unknown count and "Information gap — organizational validation required" (spec §5: never hide
   unknowns). Guides EN/FR 7.5.6 updated. Test `t39`.
+- **L2 — one unusual legacy key no longer makes every key unreadable (macOS keychain).** The key goes to `security -i` as
+  hexadecimal password data (`-X`), so spaces, quotes and backslashes need no quoting and are not refused. The move of the
+  old `crg-keys.json` out of the feeds folder handles each key on its own: a key that cannot be stored is kept, with the
+  others that failed, in `crg-keys.unmigrated.json` of the keys folder (mode 600), reported at start and in Settings → AI,
+  and removed from there when entered again; the migration runs once per start, not on every key read. Helper tests with
+  a mocked `security`.
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 

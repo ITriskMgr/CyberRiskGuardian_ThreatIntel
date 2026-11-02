@@ -150,8 +150,82 @@ class KeyStore(unittest.TestCase):
             crg_feeds.set_key("openai", "sk-kc", None, hosts=["api.openai.com"])
             self.assertEqual(crg_feeds.load_keys().get("openai"), "sk-kc")
         add = [c for c in calls if c[0][:2] == ["security", "-i"]]
-        self.assertTrue(add and "sk-kc" in add[0][1], "the key goes through stdin")
+        self.assertTrue(add and "-X " + "sk-kc".encode().hex() in add[0][1], "the key goes through stdin (hexadecimal password data)")
         self.assertTrue(all("sk-kc" not in " ".join(c[0]) for c in calls), "the key never appears in a command line")
+
+    def _fake_keychain(self, refuse=()):
+        """A dict-backed `security`: add (-i, -X hex) and find (-w); `refuse` names fail on add."""
+        store, calls = {}, []
+
+        def fake(args, **kw):
+            calls.append((args, kw.get("input")))
+            if args[:2] == ["security", "-i"]:
+                line = kw.get("input") or ""
+                name = line.split(" -a ", 1)[1].split(" ", 1)[0]
+                if name in refuse:
+                    return mock.Mock(returncode=1, stdout="", stderr="security: SecKeychainItemCreateFromContent: error")
+                store[name] = bytes.fromhex(line.split(" -X ", 1)[1].split()[0]).decode("utf-8")
+                return mock.Mock(returncode=0, stdout="", stderr="")
+            if "find-generic-password" in args:
+                name = args[args.index("-a") + 1]
+                return mock.Mock(returncode=0 if name in store else 44, stdout=(store.get(name, "") + "\n"), stderr="")
+            return mock.Mock(returncode=0, stdout="", stderr="")
+        return store, calls, fake
+
+    def test_keychain_any_character_round_trips(self):
+        """Review L2: a key with spaces, quotes or backslashes is stored and read back, never refused for its characters."""
+        store, calls, fake = self._fake_keychain()
+        odd = 'ab c"d\\e\'f g'
+        with mock.patch.dict(os.environ, {"CRG_KEYS_BACKEND": "keychain"}), mock.patch.object(crg_feeds.subprocess, "run", fake):
+            crg_feeds.set_key("abusech", odd, None, hosts=["abuse.ch"])
+            self.assertEqual(crg_feeds.load_keys().get("abusech"), odd)
+            crg_feeds.set_key("abusech", "", None)
+        add = [c[1] for c in calls if c[0][:2] == ["security", "-i"]]
+        self.assertTrue(add and all(len(line.splitlines()) == 1 and '"d' not in line for line in add), "one command line, nothing of the value unquoted")
+
+    def test_keychain_one_bad_legacy_key_isolated(self):
+        """Review L2: one legacy key the keychain refuses does not make the others unreadable; it is kept and reported."""
+        feeds = tempfile.mkdtemp(prefix="crg-feeds-l2-")
+        keysd = tempfile.mkdtemp(prefix="crg-keys-l2-")
+        with open(os.path.join(feeds, "crg-keys.json"), "w", encoding="utf-8") as fh:
+            json.dump({"otx": "otx key with space", "nvd": "nvd-1", "virustotal": "vt-1", "bad name!": "x", "abusech": "bad\u0007ctl"}, fh)
+        refuse = {"virustotal"}
+        store, calls, fake = self._fake_keychain(refuse=refuse)
+        env = {"CRG_KEYS_BACKEND": "keychain", "CRG_KEYS_DIR": keysd}
+        with mock.patch.dict(os.environ, env), mock.patch.object(crg_feeds.subprocess, "run", fake):
+            moved = crg_feeds.migrate_legacy_keys(feeds)
+            self.assertEqual(moved, 2)
+            self.assertFalse(os.path.exists(os.path.join(feeds, "crg-keys.json")), "the plaintext file left the feeds folder")
+            keys = crg_feeds.load_keys(feeds)
+            self.assertEqual(keys.get("otx"), "otx key with space")
+            self.assertEqual(keys.get("nvd"), "nvd-1")
+            self.assertEqual(crg_feeds.unmigrated_keys(), sorted(["virustotal", "bad name!", "abusech"]))
+            path = os.path.join(keysd, crg_feeds.UNMIGRATED)
+            if os.name != "nt":
+                self.assertEqual(stat.S_IMODE(os.stat(path).st_mode), 0o600)
+            info = crg_feeds.key_storage()
+            self.assertEqual(info["unmigrated"]["names"], sorted(["virustotal", "bad name!", "abusech"]))
+            n_calls = len(calls)
+            crg_feeds.load_keys(feeds).get("nvd")
+            self.assertFalse(any(c[0][:2] == ["security", "-i"] for c in calls[n_calls:]), "load_keys does not run the migration again")
+            # entering the refused key again (the keychain now takes it) removes it from the unmigrated file
+            refuse.clear()
+            crg_feeds.set_key("virustotal", "vt-2", feeds, hosts=["virustotal.com"])
+            crg_feeds.set_key("abusech", "ab-2", feeds, hosts=["abuse.ch"])
+            self.assertEqual(crg_feeds.unmigrated_keys(), ["bad name!"])
+            self.assertEqual(crg_feeds.load_keys(feeds).get("virustotal"), "vt-2")
+
+    def test_file_backend_unreadable_legacy_kept(self):
+        """Review L2: an unreadable legacy file is kept whole under the new name, and the store stays usable."""
+        feeds = tempfile.mkdtemp(prefix="crg-feeds-l2b-")
+        keysd = tempfile.mkdtemp(prefix="crg-keys-l2b-")
+        with open(os.path.join(feeds, "crg-keys.json"), "w", encoding="utf-8") as fh:
+            fh.write('{"otx": "abc", oops')
+        with mock.patch.dict(os.environ, {"CRG_KEYS_BACKEND": "file", "CRG_KEYS_DIR": keysd}):
+            self.assertEqual(crg_feeds.migrate_legacy_keys(feeds), 0)
+            self.assertEqual(crg_feeds.unmigrated_keys(), ["(file)"])
+            crg_feeds.set_key("nvd", "n-1", feeds, hosts=["nvd.nist.gov"])
+            self.assertEqual(crg_feeds.load_keys(feeds).get("nvd"), "n-1")
 
     def test_ai_key_bound_to_host(self):
         crg_feeds.set_key("anthropic", "sk-2", None, hosts=["api.anthropic.com"])

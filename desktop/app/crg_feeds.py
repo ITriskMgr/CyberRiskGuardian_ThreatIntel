@@ -158,6 +158,14 @@ def _read_json(path, default):
         return default
 
 
+def _read_text(path):
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            return fh.read()
+    except OSError:
+        return ""
+
+
 def _write_json(path, obj, mode=None):
     """Atomic write. With `mode`, the temporary file is created with that mode from the start (os.open), so a
     secret is never readable by others, not even for the moment between writing and a chmod (1.9.0)."""
@@ -225,6 +233,9 @@ def key_storage():
     """Where keys are kept, for Settings: {backend, path, warning}."""
     b = key_backend()
     out = {"backend": b, "path": "login keychain (service CyberRiskGuardian)" if b == "keychain" else os.path.join(keys_dir(), "crg-keys.json")}
+    left = unmigrated_keys()
+    if left:
+        out["unmigrated"] = {"names": left, "path": os.path.join(keys_dir(), UNMIGRATED)}
     if b == "file" and os.name == "nt":
         out["warning"] = ("On Windows the key file is protected only by the permissions of your user profile; anyone who "
                           "administers this computer, or a program running as you, can read it. Prefer a local model, "
@@ -260,10 +271,13 @@ def _kc_get(name):
 
 
 def _kc_set(name, value):
-    # `security -i` reads the command from stdin, so the key never appears in a process list.
-    if re.search(r'[\s"\\]', value):
-        raise ValueError("This key contains spaces, quotes or backslashes, which the keychain command line cannot take safely.")
-    r = _security(["-i"], stdin=f'add-generic-password -U -s {KEYCHAIN_SERVICE} -a {name} -l "CyberRiskGuardian {name}" -w "{value}"\n')
+    # `security -i` reads the command from stdin, so the key never appears in a process list. The value goes as -X
+    # (hexadecimal password data): any character a key may hold — space, quote, backslash — needs no quoting, so no key is
+    # refused for its characters and none can break out of the command line (1.9.0 review L2). The name is KEY_NAME-checked.
+    if not KEY_NAME.match(name or ""):
+        raise ValueError("bad key name")
+    hexval = value.encode("utf-8").hex()
+    r = _security(["-i"], stdin=f'add-generic-password -U -s {KEYCHAIN_SERVICE} -a {name} -l "CyberRiskGuardian {name}" -X {hexval}\n')
     if r.returncode != 0 or "error" in (r.stderr or "").lower():
         raise RuntimeError("The macOS keychain refused the key: " + (r.stderr or "").strip()[:200])
 
@@ -309,23 +323,94 @@ class Keys:
         return self.get(name)
 
 
+def clean_key(value):
+    """A key as stored: surrounding whitespace removed; refused (ValueError) when too long or with control characters."""
+    value = (value or "").strip() if isinstance(value, str) else None
+    if value is None or len(value) > 4096 or re.search(r"[\x00-\x1f\x7f]", value):
+        raise ValueError("This does not look like an API key.")
+    return value
+
+
+UNMIGRATED = "crg-keys.unmigrated.json"
+_MIGRATED = set()          # feeds folders whose legacy key file has been handled in this process
+
+
 def migrate_legacy_keys(d=None, hosts_for=None):
-    """Move crg-keys.json out of the feeds folder (once). `hosts_for(name)` gives the hosts a key is bound to."""
-    legacy = os.path.join(feeds_dir(d), "crg-keys.json")
+    """Move crg-keys.json out of the feeds folder (once). `hosts_for(name)` gives the hosts a key is bound to.
+    Each key is moved on its own (1.9.0 review L2): one that cannot be stored — an unusual value, a keychain refusal —
+    is left, with the others that failed, in crg-keys.unmigrated.json of the keys folder (readable by you only) and
+    reported by unmigrated_keys(); the others are moved and never become unreadable because of it. Returns the number moved."""
+    folder = feeds_dir(d)
+    legacy = os.path.join(folder, "crg-keys.json")
+    if not os.path.exists(legacy):
+        _MIGRATED.add(folder)
+        return 0
     old = _read_json(legacy, None)
     if not isinstance(old, dict):
-        return 0
+        old = {}                                        # unreadable: kept whole under the new name below
+        failed = {"(file)": _read_text(legacy)}
+    else:
+        failed = {}
     n = 0
     for name, value in old.items():
-        if KEY_NAME.match(str(name)) and isinstance(value, str) and value:
-            _store(name, value, list((hosts_for(name) if hosts_for else []) or []))
+        try:
+            if not KEY_NAME.match(str(name)) or not isinstance(value, str):
+                raise ValueError("not a key name and value")
+            v = clean_key(value)
+            if not v:
+                continue
+            _store(name, v, list((hosts_for(name) if hosts_for else []) or []))
             n += 1
-    os.remove(legacy)
+        except Exception as exc:                         # noqa: BLE001 — isolate every key
+            failed[str(name)] = value
+            sys.stderr.write(f"helper: the API key '{str(name)[:40]}' could not be moved: {str(exc)[:160]}\n")
+    if failed:
+        try:
+            keep = _read_json(os.path.join(keys_dir(), UNMIGRATED), {})
+            keep = keep if isinstance(keep, dict) else {}
+            keep.update(failed)
+            _write_json(os.path.join(_ensure_keys_dir(), UNMIGRATED), keep, mode=0o600)
+        except OSError as exc:                           # the legacy file stays where it was; nothing is lost
+            sys.stderr.write(f"helper: the keys that could not be moved stay in {legacy}: {exc}\n")
+            _MIGRATED.add(folder)
+            return n
+    try:
+        os.remove(legacy)
+    except OSError:
+        pass
+    _MIGRATED.add(folder)
     return n
 
 
+def unmigrated_keys():
+    """Names of the legacy keys that could not be moved (kept in the keys folder until entered again)."""
+    keep = _read_json(os.path.join(keys_dir(), UNMIGRATED), {})
+    return sorted(str(k) for k in keep) if isinstance(keep, dict) else []
+
+
+def _forget_unmigrated(name):
+    """A key entered again replaces its unmigrated copy; the file goes when it is empty."""
+    path = os.path.join(keys_dir(), UNMIGRATED)
+    keep = _read_json(path, None)
+    if not isinstance(keep, dict) or name not in keep:
+        return
+    keep.pop(name)
+    if keep:
+        _write_json(path, keep, mode=0o600)
+    else:
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
+
+def _migrate_once(d=None):
+    if feeds_dir(d) not in _MIGRATED:
+        migrate_legacy_keys(d)
+
+
 def load_keys(d=None):
-    migrate_legacy_keys(d)
+    _migrate_once(d)
     names = set(_index())
     if key_backend() == "file":
         names |= set(_file_keys())
@@ -368,12 +453,11 @@ def _store(name, value, hosts):
 def set_key(name, value, d=None, hosts=None):
     if not KEY_NAME.match(name or ""):
         raise ValueError("bad key name")
-    value = (value or "").strip()
-    if len(value) > 4096 or re.search(r"[\x00-\x1f\x7f]", value):
-        raise ValueError("This does not look like an API key.")
-    migrate_legacy_keys(d)
+    value = clean_key(value or "")
+    _migrate_once(d)
     if value:
         _store(name, value, hosts or [])
+        _forget_unmigrated(name)
     else:
         if key_backend() == "keychain":
             _kc_del(name)
