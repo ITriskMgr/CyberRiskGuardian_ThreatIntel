@@ -24,9 +24,9 @@ assessment from end to end and to keep it alive afterwards:
 
 | Menu | What you get |
 |---|---|
-| **Organization** | Workspaces for real organizations and classroom cases; context documents read on your computer; the profile, risk appetite and crown jewels extracted from the documents with a provenance tag on every value; documents added and extracted at any time; information assets; maturity and resilience; reset. |
+| **Organization** | Workspaces for real organizations and classroom cases; context documents read on your computer; the profile, risk appetite and crown jewels extracted from the documents with a provenance tag on every value; documents added and extracted at any time; information assets; maturity and resilience; reset; and the **CyberRiskGuardian Ontology** (CRGO) — a library of risk scenarios linked to techniques, weaknesses, controls and Quebec Law 25 obligations, and the organisation, compliance and security-operations contexts (Organization → Ontology · CRGO). |
 | **Risk assessment** | The evidence register; KRIs with history; existing safeguards; a batch builder (including cloud patterns and scenario seeds from security operations) and **scenario screening** on the twelve criteria of the method; a scenario register and editor with CVSS v4.0 by equivalency for non-technical weaknesses; the verified risk calculator; the risk register; mitigation measures from ISO/IEC 27002:2022, NIST SP 800-53 and CSF 2.0 and CIS Controls v8.1; recommendations with an approval workflow; the **management summary**. |
-| **Threats & vulnerabilities** | MITRE ATT&CK, CAPEC and CWE offline; the CVE register with CISA KEV and FIRST EPSS; threat-context snapshots and the Threat Evidence Ladder; threat feeds triaged into a weekly briefing; and the **CyberRiskGuardian Ontology** (CRGO) — a library of risk scenarios linked to techniques, weaknesses, controls and Quebec Law 25 obligations, and the organisation, compliance and security-operations contexts. |
+| **Threats & vulnerabilities** | MITRE ATT&CK, CAPEC and CWE offline; the CVE register with CISA KEV and FIRST EPSS; threat-context snapshots and the Threat Evidence Ladder; threat feeds triaged into a weekly briefing. |
 | **Governance** | Information security management; **ISP management** (policy library, structured editor, versions frozen at approval, applicability, acknowledgements, non-compliance); cybersecurity management (control testing, governance, decisions, incidents); frameworks and standards; **shared registers** of evidence, corrective actions, exceptions and mappings; and a **quality review**. |
 | **Compliance management** | Sources and obligations, legal applicability, programmes and frameworks, qualified mappings, statements of applicability and requirements, campaigns and determinations backed by evidence, the regulatory calendar, submissions, regulatory change, AI-assisted assessment and reporting. |
 | **Audit management** | Charter and methodology, audit universe, risk-weighted plan, engagements, SP 800-53A procedures, workpapers and sampling, observations and findings, responses and independent follow-up, reports, quality and independence, SOC reports and evidence, traceability. |
@@ -179,7 +179,7 @@ pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 contracts it supports: scenario identification works with any release, the organisation link (dss/v1)
 needs v0.9.1 or later, and the compliance and security-operations contexts (compliance/v1, secops/v1)
 need v0.10.0. It starts the server on request; the first start builds its store, about ten to twenty
-seconds. Section 7.4.5.
+seconds. Section 7.2.4.
 
 ---
 
@@ -220,7 +220,7 @@ selector at the top of every screen switches between them; its last entry create
 The first start creates **MediBec — teaching case (fictional)**, the complete 30-scenario example.
 Use it to learn the screens; create your own workspace for real work. A workspace is either a **real
 organization** or a **classroom business case**; the MediBec example and classroom cases are *teaching
-cases*, which can be started over (section 7.2.4).
+cases*, which can be started over (section 7.2.5).
 
 Workspaces are saved automatically in the browser's local database (IndexedDB) on this computer —
 the time of the last save is shown top right. They are not shared with other browsers or computers.
@@ -958,7 +958,150 @@ CSF 2.0 categories PR.AA and PR.PS and the resilience questions pv1, pv3, ct2 an
 the statement of applicability in Compliance management → Frameworks & checklists). The module's overview
 proposes values for them from its registers; **Apply ticked** fills empty answers only.
 
-### 7.2.4 Reset data {#reset}
+### 7.2.4 Ontology · CRGO {#ontology}
+
+The **CyberRiskGuardian Ontology** (CRGO) is a formal description of cybersecurity risk assessment —
+assets, threats, weaknesses, controls, scenarios and the CRG parameters — with a library of about 1,900
+risk scenarios. Each scenario is linked to MITRE ATT&CK techniques, weaknesses, controls of NIST CSF
+2.0, NIST SP 800-53 r5 and ISO/IEC 27002:2022, the Quebec Law 25 obligations it can trigger, and
+calibration estimates. Every link carries a confidence (high, medium, low) and an approval status.
+
+> **Calibration priors, not evidence.** The ontology's values are AI estimates made in 2023 for a
+> fictitious healthcare organization, or instructor values of teaching cases. They are starting points
+> for a discussion with the organization: everything taken from the ontology is labelled *Analytical
+> estimate — validation required*, and nothing it proposes reaches a score until you accept it.
+
+**How the application reaches it.** Two ways, one answer shape:
+
+1. **The ontology's own MCP server** — `pipeline/mcp/crgo_server.py` in the ontology folder, the same
+   server Claude uses. The helper starts it on your computer and speaks to it; it reads its own files
+   and sends nothing anywhere. This is the reference: its ranking, near-duplicate merging and gap
+   reporting are the ontology's own.
+2. **The snapshot shipped with the application** — `data/crgo-snapshot.json`, the ontology's
+   identification export. Used when the helper is not running or the server cannot be started. It is
+   queried in the browser with a port of the server's rules; every answer it gives is marked
+   *snapshot*.
+
+Every result shows which one answered.
+
+**Suggest scenarios.** The organization described in the ontology's terms, built from the workspace:
+
+- **Sector** — a word found in the scenario's sector (*health*, *bank*, *retail*, *hospitality*);
+- **ATT&CK techniques seen** — from the scenarios already in the register; add those of your incidents
+  and threat intelligence;
+- **Keywords** — notable systems or weaknesses (*EHR*, *telehealth*, *MFA*, *HL7*…); the server expands
+  synonyms;
+- **Asset categories present** and **Themes of concern** — tick them from the ontology's vocabularies
+  (ten categories, twenty-three themes).
+
+Choose the **Link confidence** (high only, approved high and medium, or all), how many scenarios *Per
+theme* and *At most*, whether to **Include teaching-case scenarios**, and — for an exercise — **Blind
+test: hold out the MediBec case**, which hides the case's own scenarios from the ontology. Click
+**Suggest scenarios**. A scenario matches when it shares any element of the profile; techniques and
+keywords count double, the sector adds one; near-duplicates are merged under one representative
+(*Merged* shows how many); each requested theme gets its representatives, then one representative for
+each risk commonly assessed in any organization, then the best others.
+
+The result shows the candidates, how many are distinct, and the **Theme gaps** — themes you asked for
+that no scenario covers. Those are the scenarios to write yourself. For each suggestion: its themes,
+ATT&CK techniques, the number of linked controls per framework, a *Prior risk* in CRG risk units (a
+relative figure from the ontology's calibration, factor 1000, appetite 0.30 — not a score for your
+organization) and **Details**: the statement, techniques, weaknesses, Law 25 obligations, controls per
+framework and the calibration priors.
+
+Tick what fits and click **Add ticked to Batch scenarios**. With **Use the ontology’s priors as starting
+values**, each parameter starts from the ontology's case-calibrated value (or the 2023 library value)
+with the rationale *Prior from the CyberRiskGuardian Ontology — not organizational evidence* at Low
+confidence; untick it to start every parameter at 0.5. In the grid they are marked *[CRGO]* and reviewed
+like any candidate; once in the register they keep their ontology identifier, themes, controls and
+obligations, which the Risk Registry and the Scenario editor use.
+
+**Explore.** *One scenario* by identifier (`LIB-F1436`, `MediBec/MED-A1`); *Controls for a technique* —
+how often each control is linked to the library scenarios that use the technique, per framework, with
+the replacement of a revoked technique identifier; *Scenarios a control addresses* — for a CSF 2.0, SP
+800-53 or ISO/IEC 27002 control.
+
+**Connection.** Whether the MCP server is running, ready or unavailable and where its command comes from:
+
+| Source | Meaning |
+|---|---|
+| *set in Settings* | You gave the interpreter and the server script on this tab. |
+| *taken from the Claude desktop configuration* | The `crgo-ontology` server registered for Claude on this computer is reused, with its own Python. |
+| *found next to the application* | A `CyberRiskGuardian-Ontology` folder was found near the application folder (or in `CRGO_HOME`). |
+| *not found* | No server: the snapshot answers. |
+
+**Start the server** (or *Restart*) starts it now; the first start builds its store from the ontology's
+files, about ten seconds. *Where the ontology is* lets you set the **Python interpreter** and the
+**Server script (crgo_server.py)**; leave both empty to use the automatic search. The server needs a
+Python with the `mcp` and `pyoxigraph` packages — the one Claude uses for it has them. Untick *Use the
+ontology’s MCP server* to always use the snapshot. The tab also states the snapshot's version and size.
+
+#### Organisation link — dss/v1, compliance/v1 and secops/v1
+
+The ontology can read **this organisation's** context and record this application's results — through
+tools of its server over a graph of the organisation. The ontology states facts, links and their review
+status; **it never computes a risk**. The organisation link needs CRGO v0.9.1 or later; its fifth part
+needs CRGO v0.10.0.
+
+1. **Organisation base.** Every identifier of the organisation's records starts with it, so two
+   organisations are never mixed. The default, `https://crg.invalid/<workspace>/`, is private (the
+   `.invalid` domain is reserved and resolves nowhere); use an address the organisation controls if it has
+   one. A base under `https://w3id.org/crgo/` — the ontology's own namespace — is refused.
+2. **Organisation graph.** *Build the organisation graph* sends the included scenarios to CRGO's own bridge
+   (`crg2rdf.py`, with the calculation engine `engine/crg_calc.py`), and adds this application's records in
+   CRGO terms: control tests by assessor line and aspect, audit findings with their closures and
+   reopenings, compliance determinations, obligations linked to scenarios, and the applicability profile
+   with its evaluation. The totals of the graph must equal this application's (**same totals** pill). The
+   files are written by the helper in a **confidential folder** — `~/CyberRiskGuardian-confidential/crgo/`
+   by default, one sub-folder per workspace — never in the application, the ontology or a git repository;
+   the helper refuses such a folder.
+3. **Context of a scenario.** *Read the context* returns, at a date: the candidate obligations with their
+   applicability (*applicable*, *not applicable*, *potentially applicable* → qualified review, *unknown* →
+   evidence gap), the compliance state and evidence gap; each control with its latest result per assessor
+   line and its open findings — a self-assessment that an independent line contradicts is shown as a
+   **conflict**; the estimates with their confidence, assumptions and evidence quality (low or very low →
+   *Analytical estimate — validation required*). There is no risk score in it.
+4. **Write results back as proposals.** Tick scenarios and quantities — estimated, tolerated, mitigated,
+   residual risk, the risk-to-tolerance ratio, the budget target — and *Send the ticked results as
+   proposals*. One document per quantity, computed by this application's engine, with the application's
+   model version, the inputs used and the SHA-256 of the exact assessment sent; status **proposed** and nothing
+   else. CRGO stores it in the organisation's proposed graph. A write-back is never an approval, a risk
+   acceptance or a funding decision: those are recorded by people in Cybersecurity management →
+   Decisions.
+5. **Compliance and security-operations contexts** (CRGO v0.10.0, read only). Choose an as-of date and
+   **Read both contexts**. The organisation graph now also carries the records of the management modules
+   in CRGO terms — policy versions and statements, obligations and determinations with their evidence,
+   exceptions, findings and actions, detection rules, telemetry, alerts, cases, approvals and executions.
+   - **Compliance context** (`crgo_compliance_context`, contract compliance/v1): each obligation with its
+     applicability, its compliance state **as the latest recorded determination** (never inferred), the
+     evidence status and validity, the supporting statements (*mappings — not compliance*) and open
+     findings; legal provisions without a regulatory exemption (an internal exception never waives a law);
+     findings and nonconformities with root causes and overdue actions; the versions of policies, standards
+     and playbooks.
+   - **Security-operations context** (`crgo_secops_context`, contract secops/v1): coverage per scenario and
+     technique, validated only by an effective detection test; detection gaps; rules with their required
+     telemetry (a rule whose required telemetry is silent does not detect); untriaged alerts (*not
+     incidents*) with crown jewels first; executions without a valid approval (*an audit signal, not a
+     verdict*); open regulatory triage.
+
+   Records dated after the as-of date are ignored and another organisation's records are withheld. With an
+   older CRGO the card says that these contexts need v0.10.0; everything else keeps working.
+
+When the ontology refuses a document, the **write-back journal** shows its code and message as they came
+(`SCHEMA_INVALID`, `UNKNOWN_ORGANISATION`, `UNKNOWN_SUBJECT`, `TENANT_MISMATCH`, `REFERENCE_NAMESPACE`,
+`STATUS_NOT_PROPOSED`, `MODEL_VERSION_MISSING`, `INPUT_UNKNOWN`); the batch stops and nothing is retried
+with altered data. Correct the cause — usually rebuilding the graph after adding or renaming scenarios —
+and send again.
+
+In the **Scenario editor**, the *Ontology* tab adds *Other regimes, D3FEND and exploitation evidence* — obligations under
+A-2.1, PIPEDA, OSFI B-13 and the GDPR, MITRE D3FEND countermeasures, and KEV/EPSS figures per technique and
+weakness, **shown as evidence that exploitation happens in the wild, never as a likelihood** (EPSS is not
+Pb(A) or Pb(ψ,A), and KEV says nothing about the organisation's own systems). The *CRGO* tab holds the obligations the
+scenario can trigger, by CRGO notation (`P-39.1 s. 10`), and *Organisation context and
+control evidence* — the context above, or, without the graph, the control evidence recorded in the
+workspace. Incidents that inform the scenario and the policy exceptions it counts on are listed beneath.
+
+### 7.2.5 Reset data {#reset}
 
 **Organization → Reset data.** Two audiences, kept apart on purpose.
 
@@ -1827,149 +1970,6 @@ threat landscape rather than the organization.
 The limits that cannot be configured away: intelligence calibrates Pb(A) and Pb(ψ,A) only, to a
 band, never δe, δm, θ or μ(E); without confirmed exposure it is watch-list context; CVSS stays
 Base-only; outside KEV a CVE older than ten years cannot reach rung 4 on EPSS alone.
-
-### 7.4.5 Ontology · CRGO {#ontology}
-
-The **CyberRiskGuardian Ontology** (CRGO) is a formal description of cybersecurity risk assessment —
-assets, threats, weaknesses, controls, scenarios and the CRG parameters — with a library of about 1,900
-risk scenarios. Each scenario is linked to MITRE ATT&CK techniques, weaknesses, controls of NIST CSF
-2.0, NIST SP 800-53 r5 and ISO/IEC 27002:2022, the Quebec Law 25 obligations it can trigger, and
-calibration estimates. Every link carries a confidence (high, medium, low) and an approval status.
-
-> **Calibration priors, not evidence.** The ontology's values are AI estimates made in 2023 for a
-> fictitious healthcare organization, or instructor values of teaching cases. They are starting points
-> for a discussion with the organization: everything taken from the ontology is labelled *Analytical
-> estimate — validation required*, and nothing it proposes reaches a score until you accept it.
-
-**How the application reaches it.** Two ways, one answer shape:
-
-1. **The ontology's own MCP server** — `pipeline/mcp/crgo_server.py` in the ontology folder, the same
-   server Claude uses. The helper starts it on your computer and speaks to it; it reads its own files
-   and sends nothing anywhere. This is the reference: its ranking, near-duplicate merging and gap
-   reporting are the ontology's own.
-2. **The snapshot shipped with the application** — `data/crgo-snapshot.json`, the ontology's
-   identification export. Used when the helper is not running or the server cannot be started. It is
-   queried in the browser with a port of the server's rules; every answer it gives is marked
-   *snapshot*.
-
-Every result shows which one answered.
-
-**Suggest scenarios.** The organization described in the ontology's terms, built from the workspace:
-
-- **Sector** — a word found in the scenario's sector (*health*, *bank*, *retail*, *hospitality*);
-- **ATT&CK techniques seen** — from the scenarios already in the register; add those of your incidents
-  and threat intelligence;
-- **Keywords** — notable systems or weaknesses (*EHR*, *telehealth*, *MFA*, *HL7*…); the server expands
-  synonyms;
-- **Asset categories present** and **Themes of concern** — tick them from the ontology's vocabularies
-  (ten categories, twenty-three themes).
-
-Choose the **Link confidence** (high only, approved high and medium, or all), how many scenarios *Per
-theme* and *At most*, whether to **Include teaching-case scenarios**, and — for an exercise — **Blind
-test: hold out the MediBec case**, which hides the case's own scenarios from the ontology. Click
-**Suggest scenarios**. A scenario matches when it shares any element of the profile; techniques and
-keywords count double, the sector adds one; near-duplicates are merged under one representative
-(*Merged* shows how many); each requested theme gets its representatives, then one representative for
-each risk commonly assessed in any organization, then the best others.
-
-The result shows the candidates, how many are distinct, and the **Theme gaps** — themes you asked for
-that no scenario covers. Those are the scenarios to write yourself. For each suggestion: its themes,
-ATT&CK techniques, the number of linked controls per framework, a *Prior risk* in CRG risk units (a
-relative figure from the ontology's calibration, factor 1000, appetite 0.30 — not a score for your
-organization) and **Details**: the statement, techniques, weaknesses, Law 25 obligations, controls per
-framework and the calibration priors.
-
-Tick what fits and click **Add ticked to Batch scenarios**. With **Use the ontology’s priors as starting
-values**, each parameter starts from the ontology's case-calibrated value (or the 2023 library value)
-with the rationale *Prior from the CyberRiskGuardian Ontology — not organizational evidence* at Low
-confidence; untick it to start every parameter at 0.5. In the grid they are marked *[CRGO]* and reviewed
-like any candidate; once in the register they keep their ontology identifier, themes, controls and
-obligations, which the Risk Registry and the Scenario editor use.
-
-**Explore.** *One scenario* by identifier (`LIB-F1436`, `MediBec/MED-A1`); *Controls for a technique* —
-how often each control is linked to the library scenarios that use the technique, per framework, with
-the replacement of a revoked technique identifier; *Scenarios a control addresses* — for a CSF 2.0, SP
-800-53 or ISO/IEC 27002 control.
-
-**Connection.** Whether the MCP server is running, ready or unavailable and where its command comes from:
-
-| Source | Meaning |
-|---|---|
-| *set in Settings* | You gave the interpreter and the server script on this tab. |
-| *taken from the Claude desktop configuration* | The `crgo-ontology` server registered for Claude on this computer is reused, with its own Python. |
-| *found next to the application* | A `CyberRiskGuardian-Ontology` folder was found near the application folder (or in `CRGO_HOME`). |
-| *not found* | No server: the snapshot answers. |
-
-**Start the server** (or *Restart*) starts it now; the first start builds its store from the ontology's
-files, about ten seconds. *Where the ontology is* lets you set the **Python interpreter** and the
-**Server script (crgo_server.py)**; leave both empty to use the automatic search. The server needs a
-Python with the `mcp` and `pyoxigraph` packages — the one Claude uses for it has them. Untick *Use the
-ontology’s MCP server* to always use the snapshot. The tab also states the snapshot's version and size.
-
-#### Organisation link — dss/v1, compliance/v1 and secops/v1
-
-The ontology can read **this organisation's** context and record this application's results — through
-tools of its server over a graph of the organisation. The ontology states facts, links and their review
-status; **it never computes a risk**. The organisation link needs CRGO v0.9.1 or later; its fifth part
-needs CRGO v0.10.0.
-
-1. **Organisation base.** Every identifier of the organisation's records starts with it, so two
-   organisations are never mixed. The default, `https://crg.invalid/<workspace>/`, is private (the
-   `.invalid` domain is reserved and resolves nowhere); use an address the organisation controls if it has
-   one. A base under `https://w3id.org/crgo/` — the ontology's own namespace — is refused.
-2. **Organisation graph.** *Build the organisation graph* sends the included scenarios to CRGO's own bridge
-   (`crg2rdf.py`, with the calculation engine `engine/crg_calc.py`), and adds this application's records in
-   CRGO terms: control tests by assessor line and aspect, audit findings with their closures and
-   reopenings, compliance determinations, obligations linked to scenarios, and the applicability profile
-   with its evaluation. The totals of the graph must equal this application's (**same totals** pill). The
-   files are written by the helper in a **confidential folder** — `~/CyberRiskGuardian-confidential/crgo/`
-   by default, one sub-folder per workspace — never in the application, the ontology or a git repository;
-   the helper refuses such a folder.
-3. **Context of a scenario.** *Read the context* returns, at a date: the candidate obligations with their
-   applicability (*applicable*, *not applicable*, *potentially applicable* → qualified review, *unknown* →
-   evidence gap), the compliance state and evidence gap; each control with its latest result per assessor
-   line and its open findings — a self-assessment that an independent line contradicts is shown as a
-   **conflict**; the estimates with their confidence, assumptions and evidence quality (low or very low →
-   *Analytical estimate — validation required*). There is no risk score in it.
-4. **Write results back as proposals.** Tick scenarios and quantities — estimated, tolerated, mitigated,
-   residual risk, the risk-to-tolerance ratio, the budget target — and *Send the ticked results as
-   proposals*. One document per quantity, computed by this application's engine, with the application's
-   model version, the inputs used and the SHA-256 of the exact assessment sent; status **proposed** and nothing
-   else. CRGO stores it in the organisation's proposed graph. A write-back is never an approval, a risk
-   acceptance or a funding decision: those are recorded by people in Cybersecurity management →
-   Decisions.
-5. **Compliance and security-operations contexts** (CRGO v0.10.0, read only). Choose an as-of date and
-   **Read both contexts**. The organisation graph now also carries the records of the management modules
-   in CRGO terms — policy versions and statements, obligations and determinations with their evidence,
-   exceptions, findings and actions, detection rules, telemetry, alerts, cases, approvals and executions.
-   - **Compliance context** (`crgo_compliance_context`, contract compliance/v1): each obligation with its
-     applicability, its compliance state **as the latest recorded determination** (never inferred), the
-     evidence status and validity, the supporting statements (*mappings — not compliance*) and open
-     findings; legal provisions without a regulatory exemption (an internal exception never waives a law);
-     findings and nonconformities with root causes and overdue actions; the versions of policies, standards
-     and playbooks.
-   - **Security-operations context** (`crgo_secops_context`, contract secops/v1): coverage per scenario and
-     technique, validated only by an effective detection test; detection gaps; rules with their required
-     telemetry (a rule whose required telemetry is silent does not detect); untriaged alerts (*not
-     incidents*) with crown jewels first; executions without a valid approval (*an audit signal, not a
-     verdict*); open regulatory triage.
-
-   Records dated after the as-of date are ignored and another organisation's records are withheld. With an
-   older CRGO the card says that these contexts need v0.10.0; everything else keeps working.
-
-When the ontology refuses a document, the **write-back journal** shows its code and message as they came
-(`SCHEMA_INVALID`, `UNKNOWN_ORGANISATION`, `UNKNOWN_SUBJECT`, `TENANT_MISMATCH`, `REFERENCE_NAMESPACE`,
-`STATUS_NOT_PROPOSED`, `MODEL_VERSION_MISSING`, `INPUT_UNKNOWN`); the batch stops and nothing is retried
-with altered data. Correct the cause — usually rebuilding the graph after adding or renaming scenarios —
-and send again.
-
-In the **Scenario editor**, the *Ontology* tab adds *Other regimes, D3FEND and exploitation evidence* — obligations under
-A-2.1, PIPEDA, OSFI B-13 and the GDPR, MITRE D3FEND countermeasures, and KEV/EPSS figures per technique and
-weakness, **shown as evidence that exploitation happens in the wild, never as a likelihood** (EPSS is not
-Pb(A) or Pb(ψ,A), and KEV says nothing about the organisation's own systems). The *CRGO* tab holds the obligations the
-scenario can trigger, by CRGO notation (`P-39.1 s. 10`), and *Organisation context and
-control evidence* — the context above, or, without the graph, the control evidence recorded in the
-workspace. Incidents that inform the scenario and the policy exceptions it counts on are listed beneath.
 
 ### 7.5 Governance
 

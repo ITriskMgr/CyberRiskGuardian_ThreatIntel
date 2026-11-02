@@ -26,9 +26,9 @@ suite :
 
 | Menu | Ce que vous obtenez |
 |---|---|
-| **Organisation** | Des espaces de travail pour des organisations réelles et des cas pour la classe ; des documents de contexte lus sur votre ordinateur ; le profil, l'appétence pour le risque et les joyaux de la couronne extraits des documents, avec une étiquette de provenance sur chaque valeur ; des documents ajoutés et extraits à tout moment ; les actifs informationnels ; la maturité et la résilience ; la réinitialisation. |
+| **Organisation** | Des espaces de travail pour des organisations réelles et des cas pour la classe ; des documents de contexte lus sur votre ordinateur ; le profil, l'appétence pour le risque et les joyaux de la couronne extraits des documents, avec une étiquette de provenance sur chaque valeur ; des documents ajoutés et extraits à tout moment ; les actifs informationnels ; la maturité et la résilience ; la réinitialisation ; et l'**Ontologie CyberRiskGuardian** (CRGO) — une bibliothèque de scénarios de risque liés à des techniques, des faiblesses, des contrôles et des obligations de la Loi 25 du Québec, ainsi que les contextes de l'organisation, de la conformité et des opérations de sécurité (Organisation → Ontologie · CRGO). |
 | **Évaluation des risques** | Le registre des éléments probants ; des ICR avec historique ; les mesures de protection existantes ; un générateur de scénarios en lot (y compris des modèles infonuagiques et des amorces issues des opérations de sécurité) et le **filtrage des scénarios** sur les douze critères de la méthode ; un registre et un éditeur de scénarios avec le CVSS v4.0 par équivalence pour les faiblesses non techniques ; le calculateur de risque vérifié ; le registre des risques ; des mesures d'atténuation tirées d'ISO/IEC 27002:2022, de NIST SP 800-53 et CSF 2.0 et de CIS Controls v8.1 ; des recommandations avec un processus d'approbation ; le **sommaire de gestion**. |
-| **Menaces et vulnérabilités** | MITRE ATT&CK, CAPEC et CWE hors ligne ; le registre des CVE avec CISA KEV et FIRST EPSS ; les instantanés de contexte de menace et l'Échelle des preuves de menace ; des flux de menaces triés dans un bulletin hebdomadaire ; et l'**Ontologie CyberRiskGuardian** (CRGO) — une bibliothèque de scénarios de risque liés à des techniques, des faiblesses, des contrôles et des obligations de la Loi 25 du Québec, ainsi que les contextes de l'organisation, de la conformité et des opérations de sécurité. |
+| **Menaces et vulnérabilités** | MITRE ATT&CK, CAPEC et CWE hors ligne ; le registre des CVE avec CISA KEV et FIRST EPSS ; les instantanés de contexte de menace et l'Échelle des preuves de menace ; des flux de menaces triés dans un bulletin hebdomadaire. |
 | **Gouvernance** | La gestion de la sécurité de l'information ; la **gestion des PSI** (bibliothèque de politiques, éditeur structuré, versions figées à l'approbation, applicabilité, prises de connaissance, non-conformités) ; la gestion de la cybersécurité (essais des contrôles, gouvernance, décisions, incidents) ; les cadres et normes ; des **registres partagés** de preuves, de mesures correctives, d'exceptions et de correspondances ; et une **revue de qualité**. |
 | **Gestion de la conformité** | Sources et obligations, applicabilité juridique, programmes et référentiels, correspondances qualifiées, déclarations d'applicabilité et exigences, campagnes et déterminations appuyées par des preuves, calendrier réglementaire, soumissions, changement réglementaire, évaluation assistée par l'IA et production de rapports. |
 | **Gestion de l'audit** | Charte et méthodologie, univers d'audit, plan pondéré selon le risque, missions, procédures SP 800-53A, feuilles de travail et échantillonnage, observations et constatations, réponses et suivi indépendant, rapports, qualité et indépendance, rapports SOC et éléments probants, traçabilité. |
@@ -193,7 +193,7 @@ les contrats qu'elle prend en charge : la détermination des scénarios fonctio
 version, le lien avec l'organisation (dss/v1) exige v0.9.1 ou une version ultérieure, et les contextes
 de la conformité et des opérations de sécurité (compliance/v1, secops/v1) exigent v0.10.0. L'onglet
 démarre le serveur sur demande ; le premier démarrage construit son magasin de données, en dix à vingt
-secondes environ. Section 7.4.5.
+secondes environ. Section 7.2.4.
 
 ---
 
@@ -236,7 +236,7 @@ Le premier démarrage crée **MediBec — cas pédagogique (fictif)**, l'exemple
 Servez-vous-en pour apprendre les écrans ; créez votre propre espace de travail pour le travail réel. Un
 espace de travail est soit une **organisation réelle**, soit un **cas d'affaires pour la classe** ;
 l'exemple MediBec et les cas pour la classe sont des *cas pédagogiques*, que l'on peut recommencer
-(section 7.2.4).
+(section 7.2.5).
 
 Les espaces de travail sont enregistrés automatiquement dans la base de données locale du navigateur
 (IndexedDB) sur cet ordinateur — l'heure du dernier enregistrement est affichée en haut à droite. Ils
@@ -1024,7 +1024,176 @@ même puce filtre la déclaration d'applicabilité dans Gestion de la conformit�
 contrôle). La vue d'ensemble du module leur propose des valeurs tirées de ses registres; **Appliquer les
 éléments cochés** ne remplit que les réponses vides.
 
-### 7.2.4 Réinitialiser les données {#reset}
+### 7.2.4 Ontologie · CRGO {#ontology}
+
+L'**Ontologie CyberRiskGuardian** (CRGO) est une description formelle de l'évaluation des risques de
+cybersécurité — actifs, menaces, faiblesses, contrôles, scénarios et paramètres CRG — accompagnée d'une
+bibliothèque d'environ 1 900 scénarios de risque. Chaque scénario est lié à des techniques MITRE ATT&CK,
+à des faiblesses, à des contrôles du NIST CSF 2.0, du NIST SP 800-53 r5 et de l'ISO/IEC 27002:2022, aux
+obligations de la Loi 25 du Québec qu'il peut déclencher, et à des estimations d'étalonnage. Chaque lien
+comporte un niveau de confiance (élevé, moyen, faible) et un statut d'approbation.
+
+> **Valeurs a priori d'étalonnage, pas des preuves.** Les valeurs de l'ontologie sont des
+> estimations de l'IA établies en 2023 pour une organisation de santé fictive, ou des valeurs
+> d'enseignant pour des cas pédagogiques. Ce sont des points de départ pour une discussion avec
+> l'organisation : tout ce qui est tiré de l'ontologie porte la mention *Estimation analytique —
+> validation requise*, et rien de ce qu'elle propose n'atteint un score tant que vous ne l'avez pas
+> accepté.
+
+**Comment l'application y accède.** Deux voies, une même forme de réponse :
+
+1. **Le serveur MCP propre à l'ontologie** — `pipeline/mcp/crgo_server.py` dans le dossier de
+   l'ontologie, le même serveur que celui qu'utilise Claude. L'assistant local le démarre sur votre
+   ordinateur et communique avec lui ; le serveur lit ses propres fichiers et n'envoie rien nulle part.
+   C'est la référence : son classement, la fusion des quasi-doublons et le signalement des lacunes sont
+   ceux de l'ontologie elle-même.
+2. **L'instantané livré avec l'application** — `data/crgo-snapshot.json`, l'exportation
+   d'identification de l'ontologie. Utilisé lorsque l'assistant local n'est pas en marche ou que le
+   serveur ne peut être démarré. Il est interrogé dans le navigateur au moyen d'une adaptation des
+   règles du serveur ; chaque réponse qu'il donne est marquée *instantané*.
+
+Chaque résultat indique laquelle des deux voies a répondu.
+
+**Suggérer des scénarios.** L'organisation décrite dans les termes de l'ontologie, construite à partir
+de l'espace de travail :
+
+- **Secteur** — un mot présent dans le secteur du scénario (*santé*, *banque*, *commerce de détail*,
+  *hôtellerie*) ;
+- **Techniques ATT&CK observées** — tirées des scénarios déjà présents dans le registre ; ajoutez celles
+  de vos incidents et de votre renseignement sur les menaces ;
+- **Mots-clés** — systèmes ou faiblesses notables (*DME*, *télésanté*, *AMF*, *HL7*…) ; le serveur
+  développe les synonymes ;
+- **Catégories d'actifs présentes** et **Thèmes préoccupants** — cochez-les dans les vocabulaires de
+  l'ontologie (dix catégories, vingt-trois thèmes).
+
+Choisissez la **Confiance des liens** (élevée seulement, élevée et moyenne approuvées, ou toutes), le
+nombre de scénarios *Par thème* et *Au plus*, s'il faut **Inclure les scénarios des cas pédagogiques**,
+et — pour un exercice — **Test à l'aveugle : exclure le cas MediBec**, qui masque à l'ontologie les
+scénarios propres à ce cas. Cliquez sur **Suggérer des scénarios**. Un scénario correspond lorsqu'il
+partage un élément quelconque du profil ; les techniques et les mots-clés comptent double, le secteur
+ajoute un point ; les quasi-doublons sont fusionnés sous un seul représentant (*Fusionnés* indique
+combien) ; chaque thème demandé obtient ses représentants, puis un représentant pour chaque risque
+couramment évalué dans toute organisation, puis les meilleurs autres.
+
+Le résultat affiche les candidats, le nombre de candidats distincts et les **Thèmes sans scénario** —
+les thèmes que vous avez demandés et qu'aucun scénario ne couvre. Ce sont les scénarios à rédiger
+vous-même. Pour chaque suggestion : ses thèmes, ses techniques ATT&CK, le nombre de contrôles liés par
+cadre, un *Risque a priori* en unités de risque CRG (un chiffre relatif issu de l'étalonnage de
+l'ontologie, facteur 1000, appétence 0.30 — et non un score pour votre organisation) et **Détails** :
+l'énoncé, les techniques, les faiblesses, les obligations de la Loi 25, les contrôles par cadre et les
+valeurs a priori d'étalonnage.
+
+Cochez ce qui convient et cliquez sur **Ajouter les cochés aux scénarios en lot**. Avec **Utiliser les
+valeurs a priori de l'ontologie comme valeurs de départ**, chaque paramètre part de la valeur étalonnée
+selon le cas dans l'ontologie (ou de la valeur de la bibliothèque 2023) avec la justification *Valeur a
+priori de l'ontologie CyberRiskGuardian — pas une preuve organisationnelle* à un niveau de confiance Faible ;
+décochez cette option pour faire partir chaque paramètre à 0,5. Dans la grille, ils sont marqués
+*[CRGO]* et examinés comme tout candidat ; une fois au registre, ils conservent leur identifiant
+d'ontologie, leurs thèmes, leurs contrôles et leurs obligations, qu'utilisent le Registre partagé des
+risques et l'Éditeur de scénarios.
+
+**Explorer.** *Un scénario* par identifiant (`LIB-F1436`, `MediBec/MED-A1`) ; *Contrôles pour une
+technique* — la fréquence à laquelle chaque contrôle est lié aux scénarios de la bibliothèque qui
+utilisent la technique, par cadre, avec le remplacement d'un identifiant de technique révoqué ;
+*Scénarios traités par un contrôle* — pour un contrôle du CSF 2.0, du SP 800-53 ou de l'ISO/IEC 27002.
+
+**Connexion.** Indique si le serveur MCP est en marche, prêt ou indisponible, et d'où provient sa
+commande :
+
+| Source | Signification |
+|---|---|
+| *défini dans Paramètres* | Vous avez indiqué l'interpréteur et le script du serveur dans cet onglet. |
+| *tiré de la configuration de Claude Desktop* | Le serveur `crgo-ontology` enregistré pour Claude sur cet ordinateur est réutilisé, avec son propre Python. |
+| *trouvé à côté de l'application* | Un dossier `CyberRiskGuardian-Ontology` a été trouvé près du dossier de l'application (ou dans `CRGO_HOME`). |
+| *introuvable* | Aucun serveur : l'instantané répond. |
+
+**Démarrer le serveur** (ou *Redémarrer*) le démarre immédiatement ; le premier démarrage construit son
+magasin à partir des fichiers de l'ontologie, ce qui prend environ dix secondes. *Où se trouve
+l'ontologie* vous permet de définir l'**Interpréteur Python** et le **Script du serveur
+(crgo_server.py)** ; laissez les deux vides pour utiliser la recherche automatique. Le serveur a besoin
+d'un Python doté des paquets `mcp` et `pyoxigraph` — celui qu'utilise Claude pour ce serveur les
+possède. Décochez *Utiliser le serveur MCP de l'ontologie* pour toujours utiliser l'instantané. L'onglet
+indique aussi la version et la taille de l'instantané.
+
+#### Lien avec l'organisation — dss/v1, compliance/v1 et secops/v1
+
+L'ontologie peut lire le contexte de **cette organisation** et consigner les résultats de cette
+application — au moyen d'outils de son serveur, sur un graphe de l'organisation. L'ontologie énonce des
+faits, des liens et leur statut de revue ; **elle ne calcule jamais un risque**. Le lien avec
+l'organisation exige CRGO v0.9.1 ou une version ultérieure ; sa cinquième partie exige CRGO v0.10.0.
+
+1. **Base de l'organisation.** Chaque identifiant des enregistrements de l'organisation commence par
+   celle-ci, de sorte que deux organisations ne sont jamais confondues. La valeur par défaut,
+   `https://crg.invalid/<workspace>/`, est privée (le domaine `.invalid` est réservé et ne se résout
+   nulle part) ; utilisez une adresse que l'organisation contrôle si elle en possède une. Une base sous
+   `https://w3id.org/crgo/` — l'espace de noms propre à l'ontologie — est refusée.
+2. **Graphe de l'organisation.** *Construire le graphe de l'organisation* envoie les scénarios inclus au
+   pont propre à CRGO (`crg2rdf.py`, avec le moteur de calcul `engine/crg_calc.py`) et ajoute, dans les
+   termes de CRGO, les enregistrements de cette application : les essais des contrôles par ligne
+   d'évaluation et par aspect, les constatations d'audit avec leurs clôtures et leurs réouvertures, les
+   déterminations de conformité, les obligations liées aux scénarios, ainsi que le profil
+   d'applicabilité avec son évaluation. Les totaux du graphe doivent être égaux à ceux de cette
+   application (pastille **mêmes totaux que cette application**). Les fichiers sont écrits par
+   l'assistant local dans un **dossier confidentiel** — `~/CyberRiskGuardian-confidential/crgo/` par
+   défaut, un sous-dossier par espace de travail — jamais dans l'application, dans l'ontologie ni dans
+   un dépôt git ; l'assistant local refuse un tel dossier.
+3. **Contexte d'un scénario.** *Lire le contexte* renvoie, à une date donnée : les obligations
+   candidates avec leur applicabilité (*applicable*, *non applicable*, *potentiellement applicable* →
+   revue par une personne qualifiée, *inconnu* → lacune de preuve), l'état de conformité et la lacune de
+   preuve ; chaque contrôle avec son dernier résultat par ligne d'évaluation et ses constatations
+   ouvertes — une autoévaluation que contredit une ligne indépendante est présentée comme un
+   **conflit** ; les estimations avec leur niveau de confiance, leurs hypothèses et la qualité de leurs
+   éléments probants (faible ou très faible → *Estimation analytique — validation requise*). Il ne
+   contient aucune cote de risque.
+4. **Renvoyer les résultats sous forme de propositions.** Cochez des scénarios et des grandeurs —
+   risque estimé, toléré, atténué et résiduel, le ratio de tolérance, la cible budgétaire — puis
+   *Envoyer les résultats cochés sous forme de propositions*. Un document par grandeur, calculé par le
+   moteur de cette application, avec la version du modèle de l'application, les intrants utilisés et le
+   SHA-256 de l'évaluation exacte envoyée ; statut **proposé** et rien d'autre. CRGO le stocke dans le
+   graphe proposé de l'organisation. Un renvoi n'est jamais une approbation, une acceptation du risque
+   ni une décision de financement : celles-ci sont consignées par des personnes dans Gestion de la
+   cybersécurité → Décisions.
+5. **Contextes de conformité et d'opérations de sécurité** (CRGO v0.10.0, lecture seule). Choisissez une
+   date de référence et **Lire les deux contextes**. Le graphe de l'organisation porte désormais aussi
+   les enregistrements des modules de gestion dans les termes de CRGO — versions et énoncés des
+   politiques, obligations et déterminations avec leurs preuves, exceptions, constatations et mesures,
+   règles de détection, télémétrie, alertes, dossiers, approbations et exécutions.
+   - **Contexte de conformité** (`crgo_compliance_context`, contrat compliance/v1) : chaque obligation
+     avec son applicabilité, son état de conformité **selon la plus récente détermination consignée**
+     (jamais inféré), l'état et la validité des preuves, les énoncés à l'appui (*correspondances — pas la
+     conformité*) et les constatations ouvertes ; les dispositions légales sans exemption réglementaire
+     (une exception interne ne déroge jamais à une loi) ; les constatations et les non-conformités avec
+     leurs causes profondes et les mesures en retard ; les versions des politiques, des normes et des
+     guides d'intervention.
+   - **Contexte d'opérations de sécurité** (`crgo_secops_context`, contrat secops/v1) : la couverture
+     par scénario et par technique, validée seulement par un essai de détection concluant ; les lacunes de
+     détection ; les règles avec la télémétrie qu'elles exigent (une règle dont la télémétrie requise est
+     muette ne détecte rien) ; les alertes non triées (*pas des incidents*), les joyaux de la couronne en
+     premier ; les exécutions sans approbation valide (*un signal d'audit, pas un verdict*) ; le tri
+     réglementaire en cours.
+
+   Les enregistrements datés après la date de référence sont ignorés et ceux d'une autre organisation
+   sont retenus. Avec une version plus ancienne de CRGO, la fiche indique que ces contextes exigent
+   v0.10.0 ; tout le reste continue de fonctionner.
+
+Lorsque l'ontologie refuse un document, le **Journal des renvois** en affiche le code et le message tels
+qu'ils ont été reçus (`SCHEMA_INVALID`, `UNKNOWN_ORGANISATION`, `UNKNOWN_SUBJECT`, `TENANT_MISMATCH`,
+`REFERENCE_NAMESPACE`, `STATUS_NOT_PROPOSED`, `MODEL_VERSION_MISSING`, `INPUT_UNKNOWN`) ; le lot s'arrête
+et rien n'est retenté avec des données modifiées. Corrigez la cause — habituellement en reconstruisant
+le graphe après avoir ajouté ou renommé des scénarios — puis envoyez de nouveau.
+
+Dans l'**Éditeur de scénarios**, l'onglet *Ontologie* ajoute *Autres régimes, D3FEND et preuves
+d'exploitation* — les obligations découlant de A-2.1, de la LPRPDE, de la ligne directrice B-13 du BSIF
+et du RGPD, les contre-mesures MITRE D3FEND, ainsi que les données KEV/EPSS par technique et par
+faiblesse, **présentées comme des éléments probants que l'exploitation se produit dans la nature,
+jamais comme une vraisemblance** (l'EPSS n'est ni Pb(A) ni Pb(ψ,A), et le KEV ne dit rien des systèmes
+propres à l'organisation). L'onglet *CRGO* contient les obligations que le scénario peut déclencher, selon
+la notation de CRGO (`P-39.1 s. 10`), et *Contexte de l'organisation et éléments probants des contrôles* — le
+contexte ci-dessus ou, sans le graphe, les éléments probants des contrôles consignés dans l'espace de
+travail. Les incidents qui éclairent le scénario et les exceptions aux politiques sur lesquelles il
+repose sont énumérés en dessous.
+
+### 7.2.5 Réinitialiser les données {#reset}
 
 **Organisation → Réinitialiser les données.** Deux publics, tenus séparés à dessein.
 
@@ -2024,175 +2193,6 @@ Les limites qu'aucun paramétrage ne peut lever : le renseignement étalonne se
 à une fourchette, jamais δe, δm, θ ou μ(E) ; sans exposition confirmée, il ne constitue qu'un contexte de
 liste de surveillance ; le CVSS reste limité au score de base ; hors du KEV, une CVE de plus de dix ans ne
 peut atteindre l'échelon 4 sur la seule base de l'EPSS.
-
-### 7.4.5 Ontologie · CRGO {#ontology}
-
-L'**Ontologie CyberRiskGuardian** (CRGO) est une description formelle de l'évaluation des risques de
-cybersécurité — actifs, menaces, faiblesses, contrôles, scénarios et paramètres CRG — accompagnée d'une
-bibliothèque d'environ 1 900 scénarios de risque. Chaque scénario est lié à des techniques MITRE ATT&CK,
-à des faiblesses, à des contrôles du NIST CSF 2.0, du NIST SP 800-53 r5 et de l'ISO/IEC 27002:2022, aux
-obligations de la Loi 25 du Québec qu'il peut déclencher, et à des estimations d'étalonnage. Chaque lien
-comporte un niveau de confiance (élevé, moyen, faible) et un statut d'approbation.
-
-> **Valeurs a priori d'étalonnage, pas des preuves.** Les valeurs de l'ontologie sont des
-> estimations de l'IA établies en 2023 pour une organisation de santé fictive, ou des valeurs
-> d'enseignant pour des cas pédagogiques. Ce sont des points de départ pour une discussion avec
-> l'organisation : tout ce qui est tiré de l'ontologie porte la mention *Estimation analytique —
-> validation requise*, et rien de ce qu'elle propose n'atteint un score tant que vous ne l'avez pas
-> accepté.
-
-**Comment l'application y accède.** Deux voies, une même forme de réponse :
-
-1. **Le serveur MCP propre à l'ontologie** — `pipeline/mcp/crgo_server.py` dans le dossier de
-   l'ontologie, le même serveur que celui qu'utilise Claude. L'assistant local le démarre sur votre
-   ordinateur et communique avec lui ; le serveur lit ses propres fichiers et n'envoie rien nulle part.
-   C'est la référence : son classement, la fusion des quasi-doublons et le signalement des lacunes sont
-   ceux de l'ontologie elle-même.
-2. **L'instantané livré avec l'application** — `data/crgo-snapshot.json`, l'exportation
-   d'identification de l'ontologie. Utilisé lorsque l'assistant local n'est pas en marche ou que le
-   serveur ne peut être démarré. Il est interrogé dans le navigateur au moyen d'une adaptation des
-   règles du serveur ; chaque réponse qu'il donne est marquée *instantané*.
-
-Chaque résultat indique laquelle des deux voies a répondu.
-
-**Suggérer des scénarios.** L'organisation décrite dans les termes de l'ontologie, construite à partir
-de l'espace de travail :
-
-- **Secteur** — un mot présent dans le secteur du scénario (*santé*, *banque*, *commerce de détail*,
-  *hôtellerie*) ;
-- **Techniques ATT&CK observées** — tirées des scénarios déjà présents dans le registre ; ajoutez celles
-  de vos incidents et de votre renseignement sur les menaces ;
-- **Mots-clés** — systèmes ou faiblesses notables (*DME*, *télésanté*, *AMF*, *HL7*…) ; le serveur
-  développe les synonymes ;
-- **Catégories d'actifs présentes** et **Thèmes préoccupants** — cochez-les dans les vocabulaires de
-  l'ontologie (dix catégories, vingt-trois thèmes).
-
-Choisissez la **Confiance des liens** (élevée seulement, élevée et moyenne approuvées, ou toutes), le
-nombre de scénarios *Par thème* et *Au plus*, s'il faut **Inclure les scénarios des cas pédagogiques**,
-et — pour un exercice — **Test à l'aveugle : exclure le cas MediBec**, qui masque à l'ontologie les
-scénarios propres à ce cas. Cliquez sur **Suggérer des scénarios**. Un scénario correspond lorsqu'il
-partage un élément quelconque du profil ; les techniques et les mots-clés comptent double, le secteur
-ajoute un point ; les quasi-doublons sont fusionnés sous un seul représentant (*Fusionnés* indique
-combien) ; chaque thème demandé obtient ses représentants, puis un représentant pour chaque risque
-couramment évalué dans toute organisation, puis les meilleurs autres.
-
-Le résultat affiche les candidats, le nombre de candidats distincts et les **Thèmes sans scénario** —
-les thèmes que vous avez demandés et qu'aucun scénario ne couvre. Ce sont les scénarios à rédiger
-vous-même. Pour chaque suggestion : ses thèmes, ses techniques ATT&CK, le nombre de contrôles liés par
-cadre, un *Risque a priori* en unités de risque CRG (un chiffre relatif issu de l'étalonnage de
-l'ontologie, facteur 1000, appétence 0.30 — et non un score pour votre organisation) et **Détails** :
-l'énoncé, les techniques, les faiblesses, les obligations de la Loi 25, les contrôles par cadre et les
-valeurs a priori d'étalonnage.
-
-Cochez ce qui convient et cliquez sur **Ajouter les cochés aux scénarios en lot**. Avec **Utiliser les
-valeurs a priori de l'ontologie comme valeurs de départ**, chaque paramètre part de la valeur étalonnée
-selon le cas dans l'ontologie (ou de la valeur de la bibliothèque 2023) avec la justification *Valeur a
-priori de l'ontologie CyberRiskGuardian — pas une preuve organisationnelle* à un niveau de confiance Faible ;
-décochez cette option pour faire partir chaque paramètre à 0,5. Dans la grille, ils sont marqués
-*[CRGO]* et examinés comme tout candidat ; une fois au registre, ils conservent leur identifiant
-d'ontologie, leurs thèmes, leurs contrôles et leurs obligations, qu'utilisent le Registre partagé des
-risques et l'Éditeur de scénarios.
-
-**Explorer.** *Un scénario* par identifiant (`LIB-F1436`, `MediBec/MED-A1`) ; *Contrôles pour une
-technique* — la fréquence à laquelle chaque contrôle est lié aux scénarios de la bibliothèque qui
-utilisent la technique, par cadre, avec le remplacement d'un identifiant de technique révoqué ;
-*Scénarios traités par un contrôle* — pour un contrôle du CSF 2.0, du SP 800-53 ou de l'ISO/IEC 27002.
-
-**Connexion.** Indique si le serveur MCP est en marche, prêt ou indisponible, et d'où provient sa
-commande :
-
-| Source | Signification |
-|---|---|
-| *défini dans Paramètres* | Vous avez indiqué l'interpréteur et le script du serveur dans cet onglet. |
-| *tiré de la configuration de Claude Desktop* | Le serveur `crgo-ontology` enregistré pour Claude sur cet ordinateur est réutilisé, avec son propre Python. |
-| *trouvé à côté de l'application* | Un dossier `CyberRiskGuardian-Ontology` a été trouvé près du dossier de l'application (ou dans `CRGO_HOME`). |
-| *introuvable* | Aucun serveur : l'instantané répond. |
-
-**Démarrer le serveur** (ou *Redémarrer*) le démarre immédiatement ; le premier démarrage construit son
-magasin à partir des fichiers de l'ontologie, ce qui prend environ dix secondes. *Où se trouve
-l'ontologie* vous permet de définir l'**Interpréteur Python** et le **Script du serveur
-(crgo_server.py)** ; laissez les deux vides pour utiliser la recherche automatique. Le serveur a besoin
-d'un Python doté des paquets `mcp` et `pyoxigraph` — celui qu'utilise Claude pour ce serveur les
-possède. Décochez *Utiliser le serveur MCP de l'ontologie* pour toujours utiliser l'instantané. L'onglet
-indique aussi la version et la taille de l'instantané.
-
-#### Lien avec l'organisation — dss/v1, compliance/v1 et secops/v1
-
-L'ontologie peut lire le contexte de **cette organisation** et consigner les résultats de cette
-application — au moyen d'outils de son serveur, sur un graphe de l'organisation. L'ontologie énonce des
-faits, des liens et leur statut de revue ; **elle ne calcule jamais un risque**. Le lien avec
-l'organisation exige CRGO v0.9.1 ou une version ultérieure ; sa cinquième partie exige CRGO v0.10.0.
-
-1. **Base de l'organisation.** Chaque identifiant des enregistrements de l'organisation commence par
-   celle-ci, de sorte que deux organisations ne sont jamais confondues. La valeur par défaut,
-   `https://crg.invalid/<workspace>/`, est privée (le domaine `.invalid` est réservé et ne se résout
-   nulle part) ; utilisez une adresse que l'organisation contrôle si elle en possède une. Une base sous
-   `https://w3id.org/crgo/` — l'espace de noms propre à l'ontologie — est refusée.
-2. **Graphe de l'organisation.** *Construire le graphe de l'organisation* envoie les scénarios inclus au
-   pont propre à CRGO (`crg2rdf.py`, avec le moteur de calcul `engine/crg_calc.py`) et ajoute, dans les
-   termes de CRGO, les enregistrements de cette application : les essais des contrôles par ligne
-   d'évaluation et par aspect, les constatations d'audit avec leurs clôtures et leurs réouvertures, les
-   déterminations de conformité, les obligations liées aux scénarios, ainsi que le profil
-   d'applicabilité avec son évaluation. Les totaux du graphe doivent être égaux à ceux de cette
-   application (pastille **mêmes totaux que cette application**). Les fichiers sont écrits par
-   l'assistant local dans un **dossier confidentiel** — `~/CyberRiskGuardian-confidential/crgo/` par
-   défaut, un sous-dossier par espace de travail — jamais dans l'application, dans l'ontologie ni dans
-   un dépôt git ; l'assistant local refuse un tel dossier.
-3. **Contexte d'un scénario.** *Lire le contexte* renvoie, à une date donnée : les obligations
-   candidates avec leur applicabilité (*applicable*, *non applicable*, *potentiellement applicable* →
-   revue par une personne qualifiée, *inconnu* → lacune de preuve), l'état de conformité et la lacune de
-   preuve ; chaque contrôle avec son dernier résultat par ligne d'évaluation et ses constatations
-   ouvertes — une autoévaluation que contredit une ligne indépendante est présentée comme un
-   **conflit** ; les estimations avec leur niveau de confiance, leurs hypothèses et la qualité de leurs
-   éléments probants (faible ou très faible → *Estimation analytique — validation requise*). Il ne
-   contient aucune cote de risque.
-4. **Renvoyer les résultats sous forme de propositions.** Cochez des scénarios et des grandeurs —
-   risque estimé, toléré, atténué et résiduel, le ratio de tolérance, la cible budgétaire — puis
-   *Envoyer les résultats cochés sous forme de propositions*. Un document par grandeur, calculé par le
-   moteur de cette application, avec la version du modèle de l'application, les intrants utilisés et le
-   SHA-256 de l'évaluation exacte envoyée ; statut **proposé** et rien d'autre. CRGO le stocke dans le
-   graphe proposé de l'organisation. Un renvoi n'est jamais une approbation, une acceptation du risque
-   ni une décision de financement : celles-ci sont consignées par des personnes dans Gestion de la
-   cybersécurité → Décisions.
-5. **Contextes de conformité et d'opérations de sécurité** (CRGO v0.10.0, lecture seule). Choisissez une
-   date de référence et **Lire les deux contextes**. Le graphe de l'organisation porte désormais aussi
-   les enregistrements des modules de gestion dans les termes de CRGO — versions et énoncés des
-   politiques, obligations et déterminations avec leurs preuves, exceptions, constatations et mesures,
-   règles de détection, télémétrie, alertes, dossiers, approbations et exécutions.
-   - **Contexte de conformité** (`crgo_compliance_context`, contrat compliance/v1) : chaque obligation
-     avec son applicabilité, son état de conformité **selon la plus récente détermination consignée**
-     (jamais inféré), l'état et la validité des preuves, les énoncés à l'appui (*correspondances — pas la
-     conformité*) et les constatations ouvertes ; les dispositions légales sans exemption réglementaire
-     (une exception interne ne déroge jamais à une loi) ; les constatations et les non-conformités avec
-     leurs causes profondes et les mesures en retard ; les versions des politiques, des normes et des
-     guides d'intervention.
-   - **Contexte d'opérations de sécurité** (`crgo_secops_context`, contrat secops/v1) : la couverture
-     par scénario et par technique, validée seulement par un essai de détection concluant ; les lacunes de
-     détection ; les règles avec la télémétrie qu'elles exigent (une règle dont la télémétrie requise est
-     muette ne détecte rien) ; les alertes non triées (*pas des incidents*), les joyaux de la couronne en
-     premier ; les exécutions sans approbation valide (*un signal d'audit, pas un verdict*) ; le tri
-     réglementaire en cours.
-
-   Les enregistrements datés après la date de référence sont ignorés et ceux d'une autre organisation
-   sont retenus. Avec une version plus ancienne de CRGO, la fiche indique que ces contextes exigent
-   v0.10.0 ; tout le reste continue de fonctionner.
-
-Lorsque l'ontologie refuse un document, le **Journal des renvois** en affiche le code et le message tels
-qu'ils ont été reçus (`SCHEMA_INVALID`, `UNKNOWN_ORGANISATION`, `UNKNOWN_SUBJECT`, `TENANT_MISMATCH`,
-`REFERENCE_NAMESPACE`, `STATUS_NOT_PROPOSED`, `MODEL_VERSION_MISSING`, `INPUT_UNKNOWN`) ; le lot s'arrête
-et rien n'est retenté avec des données modifiées. Corrigez la cause — habituellement en reconstruisant
-le graphe après avoir ajouté ou renommé des scénarios — puis envoyez de nouveau.
-
-Dans l'**Éditeur de scénarios**, l'onglet *Ontologie* ajoute *Autres régimes, D3FEND et preuves
-d'exploitation* — les obligations découlant de A-2.1, de la LPRPDE, de la ligne directrice B-13 du BSIF
-et du RGPD, les contre-mesures MITRE D3FEND, ainsi que les données KEV/EPSS par technique et par
-faiblesse, **présentées comme des éléments probants que l'exploitation se produit dans la nature,
-jamais comme une vraisemblance** (l'EPSS n'est ni Pb(A) ni Pb(ψ,A), et le KEV ne dit rien des systèmes
-propres à l'organisation). L'onglet *CRGO* contient les obligations que le scénario peut déclencher, selon
-la notation de CRGO (`P-39.1 s. 10`), et *Contexte de l'organisation et éléments probants des contrôles* — le
-contexte ci-dessus ou, sans le graphe, les éléments probants des contrôles consignés dans l'espace de
-travail. Les incidents qui éclairent le scénario et les exceptions aux politiques sur lesquelles il
-repose sont énumérés en dessous.
 
 ### 7.5 Gouvernance
 
