@@ -53,10 +53,10 @@ const r = await page.evaluate(async ({ fx, tiny }) => {
   return out;
 }, { fx, tiny });
 ok(!r.unknownInFactory.length, 'every factory field is in KNOWN_FIELDS ' + r.unknownInFactory);
-ok(r.factoryVersion === 4, 'new workspaces carry data version 4');
+ok(r.factoryVersion === 5, 'new workspaces carry data version 5');
 ok(!r.knownWithoutGroup.length, 'every known field belongs to a reset group ' + r.knownWithoutGroup);
 for (const p of r.per) {
-  ok(p.status === 'migrated' && p.to === 4, `${p.app} · ${p.name}: migrated to data version 4 (${p.status})`);
+  ok(p.status === 'migrated' && p.to === 5, `${p.app} · ${p.name}: migrated to data version 5 (${p.status})`);
   ok(p.evMoved && p.newRecords, `${p.app} · ${p.name}: evidence moved to the shared register, new records present`);
   ok(!p.missing.length, `${p.app} · ${p.name}: every field present ${p.missing}`);
   ok(p.same, `${p.app} · ${p.name}: engine totals unchanged`);
@@ -77,7 +77,7 @@ const s2 = await page.evaluate(async () => {
   const fut2 = await store.get('ws', 'ws_future');
   return { v: w.dataVersion, pre: !!pre && pre.ws.dataVersion === undefined, ro: st.isReadOnly(), futName: fut2.name, futField: fut2.futureField, migs: st.S.migrations.map(m => m.status + ':' + m.id + ':' + m.error), keys: Object.keys(w).length, dv: w.dataVersion, wid: w.id };
 });
-ok(s2.v === 4 && s2.pre, 'start-up migrates stored workspaces and keeps the copy from before');
+ok(s2.v === 5 && s2.pre, 'start-up migrates stored workspaces and keeps the copy from before');
 ok(s2.ro && s2.futName === 'From the future' && s2.futField === 1, 'a newer workspace opens read-only and is never saved over');
 await page.evaluate(() => { location.hash = '#/backup'; });
 ok(await page.waitForSelector('#panel-backup >> text=Data versions and migrations', { timeout: 8000 }).then(() => true, () => false), 'Backup & restore explains data versions');

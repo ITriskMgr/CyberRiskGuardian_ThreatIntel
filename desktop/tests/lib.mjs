@@ -96,10 +96,10 @@ export async function open(hash = '#/process') {
   return { browser, ctx, page, errors };
 }
 
-// --- Identity, privilege & configuration suites (t36–t43) ---
-/** Switch the ipc module on or off (Settings → Modules). */
-export async function ipcOn(page, on = true) {
-  await page.evaluate(async on => (await import('/js/modules.js')).set('ipc', on), on);
+// --- Identity & access management and Configuration management suites (t36–t43) ---
+/** Switch the iam and cm modules (or the ones named) on or off (Settings → Modules). */
+export async function modulesOn(page, on = true, ids = ['iam', 'cm']) {
+  await page.evaluate(async ({ on, ids }) => { const M = await import('/js/modules.js'); for (const id of ids) M.set(id, on); }, { on, ids });
 }
 /** Select the MediBec example workspace; returns the name of the open workspace. */
 export async function medibec(page) {

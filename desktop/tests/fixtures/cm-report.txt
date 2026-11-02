@@ -1,0 +1,2 @@
+Quarterly configuration report, prepared by zz.sentinel.gamma@sentinel-corp.example (CORP\zzsentinel). 120 servers in scope, 110 assigned a baseline, 100 assessed, 90 compliant.
+Six emergency changes in the quarter, four verified. Deployment key: AKIAZZSENTINEL000003

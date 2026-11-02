@@ -24,7 +24,7 @@ const r = await page.evaluate(async () => {
 });
 ok(!r.fws.some(f => /^USR-/.test(f)) && r.legacyCount === 0, 'no legacy catalogue in the application ' + r.fws);
 ok(['ISO22', 'CSF2', 'CIS81', 'NIST-53'].every(f => r.fws.includes(f)), 'current editions present');
-ok(r.status === 'migrated' && r.to === 4, 'migrated to data version 4');
+ok(r.status === 'migrated' && r.to === 5, 'migrated to data version 5');
 ok(JSON.stringify(r.ctl) === JSON.stringify(['ISO22:8.5', 'CSF2:PR.AA-03', 'CIS81:CIS 5', 'USR-CSF11:ORG-APPLICATION', 'ISO22:5.15']), 'mapped keys, the unmapped one kept ' + JSON.stringify(r.ctl));
 ok(r.notes.length === 4 && /USR-ISO13:9\.4\.2 \(legacy\) → ISO22:8\.5/.test(r.notes[0].note) && r.review === true, 'old identifiers kept in a note; the item is flagged for review');
 ok(JSON.stringify(r.fwList) === '["ISO22","CSF2"]', 'framework list mapped and de-duplicated');

@@ -1,0 +1,7 @@
+{"items":[
+ {"register":"ciScopes","inScope":120,"assigned":110,"assessed":100,"compliant":90,"tag":"FACT","page":2},
+ {"register":"changes","type":"emergency","count":6,"verified":4,"tag":"FACT","page":3},
+ {"register":"changes","type":"unauthorized_suspected","count":1,"verified":0,"ticket":"zz.sentinel.gamma@sentinel-corp.example","tag":"INFERENCE"},
+ {"register":"accounts","type":"service","count":120,"ownerless":19,"tag":"FACT"},
+ {"register":"hosts","name":"srv-sentinel-delta","count":1}
+]}
