@@ -92,7 +92,9 @@ choose, and neither is required — the application runs offline with none of th
 ### 5.1 The feeds folder — the one that matters
 
 Everything the application writes outside your browser goes here: the threat sources it downloads, the
-weekly briefing, and **your API keys** (`crg-keys.json`, readable by your user only). By default:
+weekly briefing. **Your API keys** are not here: they are in the macOS login keychain, or in
+`~/.cyberriskguardian/crg-keys.json`, readable by your user only (a key file found here is moved there at start-up).
+By default:
 
 | | |
 |---|---|
@@ -211,8 +213,8 @@ same either way:
    (1.7.x read 84,491 / 41,104: the MediBec reference changed because S2 and S8 now use AV:L, as the textbook does).
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
-   are not in the application folder at all — they are in `crg-keys.json` in the feeds folder — so
-   they survive the change.
+   are not in the application folder at all — they are in the macOS login keychain or in
+   `~/.cyberriskguardian/crg-keys.json` — so they survive the change.
 
 7. At the first start, answer the question **Check for updates at start-up?** — *No* keeps the application
    from asking GitHub anything; you can change it later in Help → About → Versions.
@@ -273,7 +275,7 @@ its cache with no server at all.
 |---|---|---|
 | Workspaces, documents, snapshots | Your browser’s own storage, for the address you use | Yes |
 | Framework catalogues, AI settings, modules, users and rights, the Risk Registry catalogue | The same storage | Yes |
-| API keys | `crg-keys.json` in the feeds folder, readable by your user only (mode 600) | Yes |
+| API keys | macOS login keychain; elsewhere `~/.cyberriskguardian/crg-keys.json`, readable by your user only (mode 600; on Windows, the profile's permissions) | Yes |
 | Downloaded threat sources and briefings | The feeds folder — see section 5.1 | Yes |
 | The application itself | The folder you unzipped | It *is* the folder |
 
@@ -379,8 +381,9 @@ qu’aucun ne soit configuré.
 ### 5.1 Le dossier des flux — celui qui compte
 
 Tout ce que l’application écrit en dehors de votre navigateur va là : les sources de menace qu’elle
-télécharge, le breffage hebdomadaire et **vos clés d’API** (`crg-keys.json`, lisible par votre seul
-compte). Par défaut :
+télécharge et le breffage hebdomadaire. **Vos clés d’API** n’y sont pas : elles sont dans le trousseau de session de
+macOS, ou dans `~/.cyberriskguardian/crg-keys.json`, lisible par votre seul compte (un fichier de clés trouvé ici y est
+déplacé au démarrage). Par défaut :
 
 | | |
 |---|---|
@@ -511,8 +514,8 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.
-   Vos clés d’API ne sont pas du tout dans le dossier de l’application — elles sont dans
-   `crg-keys.json`, au dossier des flux — et survivent donc au changement.
+   Vos clés d’API ne sont pas du tout dans le dossier de l’application — elles sont dans le
+   trousseau de session de macOS ou dans `~/.cyberriskguardian/crg-keys.json` — et survivent donc au changement.
 
 7. Au premier démarrage, répondez à la question **Rechercher les mises à jour au démarrage ?** — *Non* empêche
    l’application de demander quoi que ce soit à GitHub ; vous pourrez changer d’avis dans Aide → À propos →
@@ -579,7 +582,7 @@ continue de fonctionner à partir de sa cache, sans aucun serveur.
 |---|---|---|
 | Espaces de travail, documents, instantanés | Le stockage propre à votre navigateur, pour l’adresse que vous utilisez | Oui |
 | Catalogues de référentiels, paramètres d’IA, modules, utilisateurs et droits, le catalogue du registre partagé des risques | Le même stockage | Oui |
-| Clés d’API | `crg-keys.json`, au dossier des flux, lisible par votre seul compte (mode 600) | Oui |
+| Clés d’API | Trousseau de session de macOS ; ailleurs `~/.cyberriskguardian/crg-keys.json`, lisible par votre seul compte (mode 600 ; sous Windows, les autorisations du profil) | Oui |
 | Sources de menace téléchargées et breffages | Le dossier des flux — voir la section 5.1 | Oui |
 | L’application elle-même | Le dossier que vous avez décompressé | C'*est* le dossier |
 

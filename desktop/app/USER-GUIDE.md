@@ -97,8 +97,8 @@ application loads its own files by relative path.
 **Replacing an earlier copy of the application?** Unzip into a *new* folder beside the old one, stop
 the old server if its terminal window is still open, and start the new one **on the same port** — your
 workspaces are kept by the browser for the exact address you use, not in the folder, so the same port
-finds them. Your API keys are not in the folder either; they are in `crg-keys.json` in the feeds
-folder, and `feeds-dir.txt` carries that path over. The launchers detect an earlier copy still serving
+finds them. Your API keys are not in the folder either; they are in the macOS login keychain, or in
+`~/.cyberriskguardian/crg-keys.json` on Windows and Linux, and `feeds-dir.txt` carries the feeds path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
 `1.8.2 beta`.
 
@@ -982,7 +982,7 @@ restore → the file → **Replace everything**.
 |---|---|---|
 | In the workspace | Profile, documents, assets, safeguards, maturity, vulnerabilities, threat snapshot, scenarios, measures, risks, recommendations, KRI history, policies, compliance | Only what the chosen level keeps |
 | With the installation | Framework catalogues, the bundled example snapshot, AI settings, interface language, modules, users and rights, the Risk Registry catalogue | Yes, unless you untick “keep” |
-| With the helper | The API keys, in `crg-keys.json` in the feeds folder, mode 600 | Yes, unless you untick “keep” |
+| With the helper | The API keys: macOS login keychain, elsewhere `~/.cyberriskguardian/crg-keys.json`, mode 600 | Yes, unless you untick “keep” |
 
 Every reset is recorded in the workspace and survives even the deepest level.
 
@@ -1021,7 +1021,7 @@ record.
 
 Two kinds of key risk indicators:
 
-- **Computed KRIs** (CRG-01 … CRG-10) come from the workspace itself: portfolio risk-to-tolerance
+- **KRIs derived from the workspace** (CRG-01 … CRG-10) come from the assessment itself: portfolio risk-to-tolerance
   ratio, scenarios above tolerance, the total residual risk index (shown for reference: a risk index is
   computed from estimates and is **not a KRI**), snapshot age, share of material scenarios
   with an exposure-gated intel-backed Pb(ψ,A), exposed CVEs in KEV, ATT&CK mapping coverage,
@@ -1032,7 +1032,7 @@ Two kinds of key risk indicators:
   forms such as `100%`, `< 95%`, `> 8%`. A `<` warning means higher is better.
 
 **Tracking over time.** Choose a date, optionally enter the operational values you measured, and
-click **Record**. The computed KRIs are captured as they stand. Recording again on the same date
+click **Record**. The KRIs derived from the workspace are captured as they stand. Recording again on the same date
 updates it; earlier dates can be back-filled, or a whole history imported from CSV.
 
 **Top 5 by default.** The dashboard opens on the five indicators that most need attention:
@@ -1822,7 +1822,7 @@ needs CRGO v0.10.0.
    evidence gap), the compliance state and evidence gap; each control with its latest result per assessor
    line and its open findings — a self-assessment that an independent line contradicts is shown as a
    **conflict**; the estimates with their confidence, assumptions and evidence quality (low or very low →
-   *Analyst estimate — validation required*). There is no risk score in it.
+   *Analytical estimate — validation required*). There is no risk score in it.
 4. **Write results back as proposals.** Tick scenarios and quantities — estimated, tolerated, mitigated,
    residual risk, the risk-to-tolerance ratio, the budget target — and *Send the ticked results as
    proposals*. One document per quantity, computed by this application's engine, with the application's
@@ -2938,7 +2938,7 @@ example) with **Remove unreferenced text**. In multi-user mode Settings is admin
   and paste it in; the folder id is shown back so you can check it.
 - **Feed sources & keys.** Accept, keep as proposed or reject each source; set its frequency; add your
   own source; accept or reject the sources the scheduled task suggests. Store API keys (OTX, abuse.ch,
-  X) through the helper — they go to `crg-keys.json` in the feeds folder (readable by you only), never
+  X) through the helper — they go to the macOS login keychain or `~/.cyberriskguardian/crg-keys.json` (readable by you only), never
   into workspaces, exports or packages. Set the social-media query and tags, and the **watch terms**
   matched locally.
 - **Scheduled task.** Pause downloads, choose what the task uploads to Drive, allow source

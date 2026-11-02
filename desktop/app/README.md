@@ -14,6 +14,10 @@ dashboard into a **Claude Dashboard** on claude.ai.
 **Version 1.8.2 Beta (1.8.x).** For teaching, exploration and method validation; validate every result
 before it supports a real decision.
 
+**Markers.** Every output follows the book's evidence discipline: provisional values carry *Analytical estimate —
+validation required*, missing facts *Information gap — organizational validation required*, and results that ask for a
+choice *Management decision required*.
+
 **Installing it:** `INSTALL.md` in the folder — one page, in English and in French, including how to set up
 your own file locations, connecting the ontology, replacing an earlier copy, and where your workspaces
 and API keys actually live. The user guide is `USER-GUIDE.md` (English) and `USER-GUIDE.fr.md` (French);
@@ -191,7 +195,7 @@ helper checks the route again before any call, so a feature set to the local mod
 provider. A master switch turns remote providers off for the whole installation. Each provider has a
 **Test** button that sends a few tokens and no workspace data.
 
-Keys live in `crg-keys.json` beside the feeds, mode 600. They are never in `crg-config.json`, never
+Keys live in the macOS login keychain, or elsewhere in `~/.cyberriskguardian/crg-keys.json` (mode 600) — not beside the feeds (a key file found there is moved at start-up). They are never in `crg-config.json`, never
 in a log, and never in a backup: the backup strips any field whose name looks like a key, token,
 secret or password.
 
