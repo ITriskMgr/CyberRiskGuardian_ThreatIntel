@@ -72,7 +72,7 @@ terms directly.
 
 ## CyberRiskGuardian Ontology (CRGO)
 Since version 1.4.0 the plugin can connect to the **CyberRiskGuardian Ontology** (CRGO), © 2026 Marc-André Léger,
-licensed under CC BY-NC 4.0 (https://github.com/ITriskMgr/cyberriskguardian-ontology). The release
+licensed under CC BY-NC 4.0 (https://github.com/ITriskMgr/CyberRiskGuardian-Ontology). The release
 used and cited is **0.11.0** (tag `v0.11.0`, 2026-11-02, approved by the author; the dss/v1 commands also work with v0.9.1). CRGO
 is a separate work and is **not redistributed** in this repository: the analyst clones it
 (`CyberRiskGuardian-Ontology*/` is git-ignored). Its third-party imports and vocabularies (BFO,

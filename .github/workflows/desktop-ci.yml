@@ -35,7 +35,7 @@ jobs:
       - name: CRGO ${{ env.CRGO_RELEASE }} (${{ env.CRGO_REF }})
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          repository: ITriskMgr/cyberriskguardian-ontology
+          repository: ITriskMgr/CyberRiskGuardian-Ontology
           ref: ${{ env.CRGO_REF }}
           path: CyberRiskGuardian-Ontology-0.11.0
           persist-credentials: false

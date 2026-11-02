@@ -188,7 +188,7 @@ v0.9.1 (v0.9.0 lacks the bridge fix); `compliance` and `secops` need v0.10.0 and
 message on an older checkout:
 ```bash
 # inside this repository's folder; CyberRiskGuardian-Ontology*/ is git-ignored
-git clone --branch v0.11.0 --depth 1 https://github.com/ITriskMgr/cyberriskguardian-ontology CyberRiskGuardian-Ontology-0.11.0
+git clone --branch v0.11.0 --depth 1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology CyberRiskGuardian-Ontology-0.11.0
 # or keep your own clone anywhere (e.g. ~/GitHub/CyberRiskGuardian-Ontology on a Mac) and: export CRGO_HOME=/absolute/path/to/it
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```

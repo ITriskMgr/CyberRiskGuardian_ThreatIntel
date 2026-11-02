@@ -41,7 +41,7 @@ export const V_STATES = [['draft', 'Draft'], ['approved', 'Approved'], ['superse
 export const DRIFT = [['', 'To be classified'], ['degradation', 'Degradation'], ['functional', 'Functional'], ['transitional', 'Transitional'], ['compensated', 'Compensated'],
   ['strengthening', 'Strengthening'], ['unknown', 'Unknown']];
 export const SEVERITY = [['high', 'High'], ['medium', 'Medium'], ['low', 'Low']];
-export const DV_STATES = [['open', 'Open'], ['closed', 'Closed']];
+export const DV_STATES = [['open', 'Open (not closed)'], ['closed', 'Closed']];   // 'Open' alone is the verb in fr.js
 export const CH_TYPES = [['standard', 'Standard'], ['normal', 'Normal'], ['emergency', 'Emergency'], ['unauthorized_suspected', 'Unauthorized (suspected)']];
 export const STATUS = [['inferred', 'Inferred'], ['confirmed', 'Confirmed'], ['unknown', 'Unknown'], ['conflicting', 'Conflicting']];
 export const CONF = [['Low', 'Low'], ['Medium', 'Medium'], ['High', 'High']];

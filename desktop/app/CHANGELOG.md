@@ -1,5 +1,12 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.9.1 Beta (unreleased)
+
+### Fixed
+- French interface: the Identity & access management tab "Segregation of duties" now reads « Séparation des tâches »;
+  a deviation's state "Open" reads « Ouvert (non fermé) » instead of the verb « Ouvrir ».
+- Documentation: links to the ontology repository use its new name `ITriskMgr/CyberRiskGuardian-Ontology`.
+
 ## 1.9.0 Beta (Beta 1.9.x) — 2 November 2026
 
 One comprehensive release (decision record of 2 November 2026). The 1.8.2 build of 30 October 2026 was never released on
