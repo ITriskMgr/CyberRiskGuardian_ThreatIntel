@@ -77,6 +77,24 @@ movement write one sentence naming the cause:
 Always separate movements caused by the **threat landscape** from movements caused by the
 **organization**. A CISO needs to know which of the two happened.
 
+## Triage: SSVC beside EPSS and KEV
+
+When the analyst triages registered CVEs, add an SSVC decision per CVE (details and the decision
+tables: `references/ssvc.md`). SSVC answers *how soon to respond*, which neither EPSS nor the ladder
+does.
+
+- **Tree.** One per workspace: `deployer` (CISA SSVC — Track, Track\*, Attend, Act; the default),
+  `deployer-cert` (CERT/CC deployer — Defer, Scheduled, Out-of-Cycle, Immediate) or `supplier`
+  (CERT/CC supplier, same four outcomes) for organizations that develop the software.
+- **Exploitation from the snapshot, as evidence.** KEV listed → `active`; EPSS at or above the
+  snapshot's rung-4 thresholds, or a reported public proof of concept → `public poc`; otherwise
+  `none`. The analyst may choose another value with a written justification.
+- **Walk the tree with the tool, never by eye:** the `ssvc_decision` MCP tool or
+  `python3 ../cyber-risk-assessment/scripts/ssvc.py --tree deployer exploitation=… automatable=… …`.
+- **One decision record per CVE:** decision points and values, who, when, justification, outcome.
+- **Never a likelihood.** An SSVC outcome does not move `Pb(A)` or `Pb(ψ,A)` and is not a risk index.
+  Parameters move only through the ladder, behind the exposure gate.
+
 ## Scenario generation
 
 When generating candidates, add an eighth perspective to the seven in `scenario-selection`:

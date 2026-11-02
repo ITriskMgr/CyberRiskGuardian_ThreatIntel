@@ -60,6 +60,8 @@ export const KNOWN_FIELDS = [
   'shared', 'cms', 'siem', 'soar',
   // 1.8.0
   'screening', 'mgmtSummary', 'catalogueMigration',
+  // 1.9.0 (SSVC lane) — SSVC decision records and forecast review items; given to older workspaces by migrateSsvc4
+  'ssvc',
 ];
 
 /* ---------------- the 1.5.8 records ---------------- */
@@ -365,4 +367,23 @@ export async function migrateMeta(store) {
   for (const m of META_MIGRATIONS) if (m.from >= from) await m.up(store);
   if (from !== META_VERSION) await store.put('meta', 'dataVersion', META_VERSION);
   return { from, to: META_VERSION, newer: false };
+}
+
+/* ================= 1.9.0 — SSVC lane: data version 3 → 4 (to be wired by the integrator) =================
+   The new top-level field `ssvc` holds the SSVC tree chosen for the workspace, one decision record per
+   registered vulnerability, and the review items the exploitation forecast raises. It changes no number:
+   an SSVC outcome is a response priority, never a likelihood, and nothing here touches a parameter.
+   The integrator calls migrateSsvc4(w, note) from the single combined 3 → 4 step. Until then the shape
+   repair in state.js (migrate) and js/ssvc.js (ensure) give older workspaces an empty record lazily. */
+/** An empty SSVC record: tree 'deployer' (CISA SSVC) by default. */
+export const blankSsvc = () => ({
+  tree: 'deployer',           // 'deployer' (CISA SSVC) · 'deployer-cert' (CERT/CC deployer) · 'supplier' (CERT/CC supplier)
+  decisions: {},              // vulnerability id → { tree, points, derived, outcome, evidence, override, by, date, justification, history[] }
+  review: [],                 // exploitation-forecast review items: { id, cve, date, forecast, band, reasons[], source, status, by, closed, note }
+});
+/** Data version 3 → 4, SSVC part. Adds the empty record; returns what it did for the migration journal. */
+export function migrateSsvc4(w, note = () => {}) {
+  if (w.ssvc && typeof w.ssvc === 'object') { w.ssvc = Object.assign(blankSsvc(), w.ssvc); return; }
+  w.ssvc = blankSsvc();
+  note('empty SSVC record added (tree: deployer — CISA SSVC); SSVC outcomes are response priorities, never likelihoods');
 }

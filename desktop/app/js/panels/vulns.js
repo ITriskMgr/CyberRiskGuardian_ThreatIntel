@@ -8,7 +8,15 @@ import { S, touch, scen, blankScenario, nextScenarioId } from '../state.js';
 import { KB, cwe, searchCwe, techniquesForCwe, techName } from '../ontology.js';
 import { classify as ladder } from '../../threat.js';
 import * as online from './online.js';
+
+/** 1.9.0 — help for the SSVC tab (the other tabs use the entry in helpdesc.js). */
+export const HELP = {
+  ssvc: { d: 'SSVC decisions: how soon to respond to each registered vulnerability, on the CISA or CERT/CC decision tree.', g: 'ssvc',
+    h: ['EPSS and CISA KEV feed the Exploitation decision point as evidence; the analyst may override it with a justification.', 'An SSVC outcome is a response priority. It is never converted into a likelihood and never changes a parameter.'] },
+};
 import * as links from './links.js';
+import * as ssvcp from './ssvc.js';
+import * as SV from '../ssvc.js';
 
 let view = 'register';
 
@@ -16,19 +24,21 @@ const scenariosFor = id => S.ws.assessment.SCEN.filter(s => (s.cves || []).inclu
 const rungPill = r => el('span', { class: 'pill ' + (r.rung >= 4 ? 'bad' : r.rung >= 3 ? 'warn' : 'good'), title: r.evidence }, `rung ${r.rung}`);
 
 export function render(sec, arg) {
-  if (arg === 'online') view = 'online';
+  if (arg && /^ssvc(\/|$)/.test(arg)) view = 'ssvc';   // 1.9.0 — SSVC decisions
+  else if (arg === 'online') view = 'online';
   else if (arg === 'links') view = 'links';
   else if (arg) view = arg.startsWith('CWE') ? 'cwe' : 'cve';   // CVE-… and W-… (named weakness) open the detail
   if (!sec._onl) { sec._onl = true; sec.addEventListener('online-redraw', () => render(sec, null)); }
   sec.replaceChildren(el('h1', null, 'Vulnerabilities — CVE, CWE, KEV, EPSS'),
     el('p', 'lede', 'The vulnerabilities the organization is confirmed to operate are the exposure gate of the threat-context method: intelligence moves Pb(ψ,A) only where exposure is confirmed. CVEs are enriched from the loaded snapshot (CISA KEV and FIRST EPSS) by a local join — nothing is transmitted. Weakness types come from CWE.'));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['register', `CVE register (${S.ws.vulns.length})`], ['links', `Suggest links${(S.ws.linkDraft?.links || []).length ? ' (' + S.ws.linkDraft.links.length + ')' : ''}`], ['online', 'Online sources'], ['import', 'Import files'], ['cwe', 'CWE explorer'], ['cve', 'CVE detail']])
-    st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; history.replaceState(null, '', k === 'links' ? '#/vulns/links' : '#/vulns'); render(sec, k === 'links' ? 'links' : null); } }, t));
+  for (const [k, t] of [['register', `CVE register (${S.ws.vulns.length})`], ['links', `Suggest links${(S.ws.linkDraft?.links || []).length ? ' (' + S.ws.linkDraft.links.length + ')' : ''}`], ['ssvc', 'SSVC decisions'], ['online', 'Online sources'], ['import', 'Import files'], ['cwe', 'CWE explorer'], ['cve', 'CVE detail']])
+    st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; history.replaceState(null, '', k === 'links' ? '#/vulns/links' : k === 'ssvc' ? '#/vulns/ssvc' : '#/vulns'); render(sec, k === 'links' ? 'links' : k === 'ssvc' ? 'ssvc' : null); } }, t));
   sec.append(st);
   const body = el('div'); sec.append(body);
   if (view === 'online') { online.render(body, sec); return; }
   if (view === 'links') { links.render(body, sec, () => render(sec, 'links')); return; }
+  if (view === 'ssvc') { ssvcp.render(body, sec, arg || 'ssvc'); return; }
   ({ register, import: importer, cwe: cweView, cve: cveView }[view])(body, arg, sec);
 }
 
@@ -93,6 +103,7 @@ function register(body, _, sec) {
     { key: 'cwe', label: 'CWE', sortable: false, render: r => el('div', 'chips', ...(r.v.cwe || []).map(c => chip(c, { kind: 'c', href: '#/vulns/' + c, title: cwe(c)?.name }))) },
     { key: 'kev', label: 'KEV', render: r => r.kev ? pill('KEV ' + (r.kev.added || '') + (r.kev.ransomware === 'Known' ? ' · ransomware' : ''), 'bad') : (S.snap ? 'no' : '—'), sort: r => r.kev ? 1 : 0 },
     { key: 'epss', label: 'EPSS', num: true, render: r => r.epss ? n2(r.epss[0] * 100) + '%' : '—', sort: r => r.epss?.[0] ?? -1 },
+    { key: 'ssvc', label: 'SSVC', render: r => { const d = SV.decisionFor(S.ws, r.v.id); return el('a', { href: '#/vulns/ssvc/' + r.v.id, title: d ? `${d.by} · ${d.date}` : 'Take the SSVC decision' }, d && d.tree === SV.treeOf(S.ws) ? pill(SV.outcomeLabel(d.outcome), SV.OUTCOMES[d.outcome]?.kind || '') : pill(d ? 'review' : 'decide', d ? 'warn' : '')); }, sort: r => SV.OUTCOMES[SV.decisionFor(S.ws, r.v.id)?.outcome]?.rank ?? -1 },
     { key: 'rung', label: 'Ladder', render: r => r.rung ? el('span', null, rungPill(r.rung), r.v.exposed ? '' : el('span', 'small muted', ' watch')) : '—', sort: r => r.rung?.rung ?? 0 },
     { key: 'sc', label: 'Scenarios', sortable: false, render: r => { const ss = scenariosFor(r.v.id); return el('div', 'chips', ...ss.map(s => chip(s.id, { href: '#/scenario/' + s.id, title: s.name })), linkSel(r.v.id, sec)); } },
     { key: 'x', label: '', sortable: false, render: r => el('button', { class: 'btn sm ghost danger', onclick: () => { V.splice(V.indexOf(r.v), 1); touch(); render(sec); } }, '×') },
@@ -229,6 +240,7 @@ function cveView(body, arg, sec) {
     el('div', 'grid g4', kpi('In register', inReg ? 'yes' : 'no', inReg ? v.source : ''), kpi('Exposure', v.exposed ? 'confirmed' : 'not confirmed', v.asset || '', v.exposed ? 'good' : 'warn'),
       kpi('CISA KEV', S.snap ? (e.kev ? 'listed ' + (e.kev.added || '') : 'not listed') : '—', e.kev ? [e.kev.vendor, e.kev.product].filter(Boolean).join(' ') + (e.kev.ransomware === 'Known' ? ' · ransomware' : '') : '', e.kev ? 'bad' : ''),
       kpi('EPSS', e.epss ? n2(e.epss[0] * 100) + '%' : '—', e.epss ? 'percentile ' + n2(e.epss[1] * 100) : S.snap ? 'not in snapshot table' : 'no snapshot')),
+    inReg ? (d => el('div', { style: { marginTop: '12px' } }, el('b', null, 'SSVC: '), d ? pill(SV.outcomeLabel(d.outcome), SV.OUTCOMES[d.outcome]?.kind || '') : pill('not decided', ''), ' ', el('a', { href: '#/vulns/ssvc/' + id }, d ? 'Review the decision' : 'Take the decision'), el('span', 'small muted', ' — a response priority, never a likelihood')))(SV.decisionFor(S.ws, id)) : null,
     e.rung ? el('div', { style: { marginTop: '12px' } }, el('b', null, 'Threat Evidence Ladder: '), rungPill(e.rung), ' ' + e.rung.label + ' — band ' + e.rung.band.map(x => x.toFixed(2)).join('–'), el('div', 'small muted', e.rung.evidence), el('div', 'note', e.rung.note)) : null,
     el('div', 'btnrow', { style: { marginTop: '12px' } },
       inReg ? null : el('button', { class: 'btn', onclick: () => { S.ws.vulns.push({ id, kind: 'CVE', title: '', product: '', asset: '', exposed: false, source: 'Manual entry', added: today(), cwe: [], notes: '' }); touch(); render(sec, id); } }, 'Add to register'),

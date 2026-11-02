@@ -14,6 +14,8 @@ Exposes deterministic tools so the agent never computes risk indices, CVSS score
   - budget_check       : each year's planned spend against the appetite-consistent target, implied appetite
   - sensitivity        : lower / central / higher case for one scenario
   - threat_context     : places CVEs on the Threat Evidence Ladder from a LOCAL snapshot file
+  - ssvc_decision      : walks a CISA or CERT/CC SSVC tree to its outcome; optionally suggests Exploitation from a
+                         LOCAL snapshot (KEV -> active, high EPSS / PoC -> public poc). A response priority, never a likelihood
 
 Every tool is offline and deterministic (threat-intel rule 1): no network I/O. Inputs are validated as in
 crg_calc.py (CRG 1.8.0 decision 4); an invalid input returns {"error": ..., "errors": [...]}.
@@ -197,6 +199,38 @@ def threat_context(snapshot_path: str, cves: list[str] | None = None, exposure_c
                           "on it; QC review will fail otherwise.")
     if cves:
         out["classification"] = [_ts.classify(c, snap, exposed=exposure_confirmed) for c in cves]
+    return out
+
+
+@mcp.tool()
+def ssvc_decision(tree: str = "deployer", points: dict | None = None, cve: str | None = None,
+                  snapshot_path: str | None = None, poc_reports: int = 0) -> dict:
+    """Walk an SSVC decision tree (offline). The outcome is a response priority, never a likelihood:
+    it never changes Pb(A) or Pb(psi,A). EPSS and KEV are evidence for the Exploitation decision point only.
+
+    Args:
+        tree: "deployer" (CISA SSVC: track / track* / attend / act), "deployer-cert" (CERT/CC deployer) or
+              "supplier" (CERT/CC supplier: defer / scheduled / out-of-cycle / immediate).
+        points: decision point -> value, e.g. {"exploitation": "active", "automatable": "yes", ...}.
+                Omit to get only the Exploitation suggestion.
+        cve: with snapshot_path, suggest the Exploitation value from the local snapshot.
+        snapshot_path: a threat-context-YYYY-MM-DD.json file.
+        poc_reports: number of public proof-of-concept reports the analyst has seen for this CVE.
+    """
+    sys.path.insert(0, str(_SCRIPTS))
+    import ssvc as _ssvc
+    out = {}
+    if cve and snapshot_path:
+        snap = json.loads(pathlib.Path(snapshot_path).read_text(encoding="utf-8"))
+        out["suggestion"] = _ssvc.suggest_exploitation(cve, snap, poc_reports)
+    if points:
+        try:
+            out["decision"] = _ssvc.evaluate(tree, points)
+        except ValueError as exc:
+            return {"error": "Input validation failed", "errors": [str(exc)]}
+    if not out:
+        out["inputs"] = {k: {"inputs": t["inputs"], "outcomes": t["outcomes"], "source": t["source"]} for k, t in _ssvc.TREES.items()}
+        out["values"] = _ssvc.VALUES
     return out
 
 

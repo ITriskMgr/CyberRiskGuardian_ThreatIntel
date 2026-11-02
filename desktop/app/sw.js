@@ -21,7 +21,9 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "js/ams.js", "js/cms.js", "js/helpdesc.js", "js/logs.js", "js/menu.js", "js/shared.js", "js/siem.js", "js/soar.js", "js/panels/audit_findings.js", "js/panels/audit_plan.js", "js/panels/audit_ui.js", "js/panels/audit_work.js", "js/panels/cms.js", "js/panels/isp_common.js", "js/panels/isp_editor.js", "js/panels/isp_people.js", "js/panels/isp_reviews.js", "js/panels/settings_logs.js", "js/panels/settings_sim.js", "js/panels/shared.js", "js/panels/siem.js", "js/panels/siem_alerts.js", "js/panels/siem_rules.js", "js/panels/soar.js", "js/panels/soar_ops.js",
   "js/secops_seed.js", "js/simgen.js",
   "medibec-screening.js", "js/equiv.js", "js/markers.js", "js/screening.js", "js/updates.js", "js/updateui.js", "js/data/legacy-map.js", "js/panels/evidence.js", "js/panels/screening.js", "js/panels/summary.js", "js/writer.js", "js/panels/writer.js", "js/panels/writer_steps.js", "js/dashpack.js",
-  "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json"
+  "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json",
+  // 1.9.0 — SSVC and AI forecasting lane
+  "js/ssvc.js", "js/data/ssvc-tables.js", "js/panels/ssvc.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

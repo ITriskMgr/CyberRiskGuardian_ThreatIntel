@@ -49,6 +49,8 @@ export function newWorkspace({ name = 'New organization', kind = 'organization',
     shared: MIG.blankShared(), cms: MIG.blankCms(), siem: MIG.blankSiem(), soar: MIG.blankSoar(),
     // 1.8.0
     screening: MIG.blankScreening(), mgmtSummary: MIG.blankSummary(), catalogueMigration: [],
+    // 1.9.0 (SSVC lane)
+    ssvc: MIG.blankSsvc(),
     dataVersion: MIG.DATA_VERSION, appVersion: VERSION, migrationLog: [],
   };
 }
@@ -202,6 +204,7 @@ export function migrate(w) {
   w.isp = Object.assign({ policies: [], issues: [] }, MIG.blankIspExtra(), w.isp || {});
   w.screening = Object.assign(MIG.blankScreening(), w.screening || {}); w.mgmtSummary = Object.assign(MIG.blankSummary(), w.mgmtSummary || {});
   if (!Array.isArray(w.catalogueMigration)) w.catalogueMigration = [];
+  w.ssvc = Object.assign(MIG.blankSsvc(), w.ssvc || {});   // 1.9.0 (SSVC lane)
   w.migrationLog ||= [];
   return w;
 }
