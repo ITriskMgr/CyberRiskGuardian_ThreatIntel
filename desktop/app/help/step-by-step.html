@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WE0WgXOOsMwuZtmy5v5yA3d/fG/AVnAVfzzpblthMm4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WKIJ9wHQgnavp+UckjPyNUXG8M6EYOxGxKj7emKyyb0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Step by step — CyberRiskGuardian</title>
 <link rel="icon" href="../icons/icon-64.png">
@@ -28,6 +28,7 @@ import { STEPS } from '../js/process.js';
 import { GUIDELINES } from '../js/guidelines.js';
 import { VERSION, CHANNEL, SERIES } from '../js/version.js';
 import * as i18n from '../js/i18n.js';
+import * as CH from '../js/chapterhelp.js';
 
 const E = (tag, cls, ...kids) => {
   const n = document.createElement(tag);
@@ -78,6 +79,8 @@ function build() {
     box.append(E('p', 'where', E('span', null, 'Where:'), ' ', joinLinks(s.screens)));
     box.append(E('p', 'done', E('span', null, 'Done when:'), ' ', s.done));
     if (s.tips?.length) box.append(E('ul', 'small', s.tips.map(t => E('li', null, t))));
+    const ref = CH.forStep(s.id, { cls: 'readmore' });   // 1.9.0 — chapter and section of the book
+    if (ref) box.append(ref);
     wrap.append(box);
   }
 

@@ -29,7 +29,7 @@ export function render(sec) {
   const setSel = ids => { ws.kriSel = [...ids]; ws.kriSelMode = 'custom'; touch(); render(sec); };
   const setTop = () => { ws.kriSelMode = 'top5'; touch(); render(sec); };
   sec.replaceChildren(el('h1', null, 'KRI dashboard'),
-    el('p', 'lede', 'Key risk indicators for this workspace. Computed KRIs come from the assessment itself; operational KRIs (MFA coverage, patch SLAs, restore tests…) are measured by the organization and entered here. Record a measurement regularly to build the history from which trends are read.'));
+    el('p', 'lede', 'Key risk indicators for this workspace. Automatic KRIs are measured from this workspace’s own records; operational KRIs (MFA coverage, patch SLAs, restore tests…) are measured by the organization and entered here. Record a measurement regularly to build the history from which trends are read.'));
 
   const sts = defs.map(d => status(d, curVal(d), meta[d.id]).k);
   sec.append(el('div', 'grid g5',

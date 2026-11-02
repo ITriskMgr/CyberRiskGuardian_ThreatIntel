@@ -26,7 +26,7 @@ suite :
 
 | Menu | Ce que vous obtenez |
 |---|---|
-| **Organisation** | Des espaces de travail pour des organisations réelles et des cas pour la classe ; des documents de contexte lus sur votre ordinateur ; le profil, l'appétit pour le risque et les actifs essentiels extraits des documents, avec une étiquette de provenance sur chaque valeur ; des documents ajoutés et extraits à tout moment ; les actifs informationnels ; la maturité et la résilience ; la réinitialisation. |
+| **Organisation** | Des espaces de travail pour des organisations réelles et des cas pour la classe ; des documents de contexte lus sur votre ordinateur ; le profil, l'appétence pour le risque et les joyaux de la couronne extraits des documents, avec une étiquette de provenance sur chaque valeur ; des documents ajoutés et extraits à tout moment ; les actifs informationnels ; la maturité et la résilience ; la réinitialisation. |
 | **Évaluation des risques** | Le registre des éléments probants ; des ICR avec historique ; les mesures de protection existantes ; un générateur de scénarios en lot (y compris des modèles infonuagiques et des amorces issues des opérations de sécurité) et le **filtrage des scénarios** sur les douze critères de la méthode ; un registre et un éditeur de scénarios avec le CVSS v4.0 par équivalence pour les faiblesses non techniques ; le calculateur de risque vérifié ; le registre des risques ; des mesures d'atténuation tirées d'ISO/IEC 27002:2022, de NIST SP 800-53 et CSF 2.0 et de CIS Controls v8.1 ; des recommandations avec un processus d'approbation ; le **sommaire de gestion**. |
 | **Menaces et vulnérabilités** | MITRE ATT&CK, CAPEC et CWE hors ligne ; le registre des CVE avec CISA KEV et FIRST EPSS ; les instantanés de contexte de menace et l'Échelle des preuves de menace ; des flux de menaces triés dans un bulletin hebdomadaire ; et l'**Ontologie CyberRiskGuardian** (CRGO) — une bibliothèque de scénarios de risque liés à des techniques, des faiblesses, des contrôles et des obligations de la Loi 25 du Québec, ainsi que les contextes de l'organisation, de la conformité et des opérations de sécurité. |
 | **Gouvernance** | La gestion de la sécurité de l'information ; la **gestion des PSI** (bibliothèque de politiques, éditeur structuré, versions figées à l'approbation, applicabilité, prises de connaissance, non-conformités) ; la gestion de la cybersécurité (essais des contrôles, gouvernance, décisions, incidents) ; les cadres et normes ; des **registres partagés** de preuves, de mesures correctives, d'exceptions et de correspondances ; et une **revue de qualité**. |
@@ -278,7 +278,7 @@ travail :
 | Étape | Ce qu'elle fait |
 |---|---|
 | 0 → 1 | Les champs qui n'étaient créés que lorsqu'un écran les utilisait pour la première fois sont présents dès le départ ; les incidents importés à partir de documents passent au registre des incidents (Gestion de la cybersécurité → Incidents) et demeurent affichés sous Organisation → Preuves ; les exceptions aux politiques reçoivent un périmètre, un approbateur et des contrôles compensatoires ; les enregistrements de gouvernance, d'audit, de gestion de la cybersécurité, du SGSI et du lien avec l'ontologie sont ajoutés, vides. |
-| 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **preuves** passent, inchangés, au registre partagé des preuves (Gouvernance → Registres partagés → Preuves) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
+| 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **preuves** passent, inchangés, au registre partagé des éléments probants (Gouvernance → Registres partagés → Preuves) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
 | 2 → 3 | Seuls les catalogues de contrôles actuels demeurent (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1) : chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou CIS v7.1 — dans les mesures, les déclarations d'applicabilité, les listes de cadres — est mise en correspondance, l'ancien identifiant étant conservé dans une note à côté ; une référence sans correspondance (ou dont le nouvel identifiant a déjà un dossier) est conservée et **signalée pour examen**, jamais supprimée, et la Revue de qualité la signale (QC-23). Les anciens libellés de marqueurs prennent les marqueurs normalisés. Un cas d'enseignement MediBec encore sur les vecteurs AV:N antérieurs de S2 et S8 les conserve — une migration ne change aucun chiffre — et la page Processus propose les vecteurs AV:L (journalisé ; voir 7.1), ou Réinitialiser les données → Recommencer prend tout le cas actuel ; la Revue de qualité (QC-26) signale un cas laissé sur AV:N. Des dossiers vides de filtrage des scénarios et de sommaire de gestion sont ajoutés (le cas d'enseignement reçoit son filtrage). |
 | 3 → 4 | Une seule étape formée de sous-étapes, une par nouveau type de dossier. Un dossier vide du **consultant virtuel** est ajouté (conversations enregistrées et mode de recherche, lexical) ; les autres dossiers de cette version s'ajoutent de la même façon. Hormis une référence de configuration sur les actifs, rien d'existant ne change. Identité, privilèges et configuration : des registres vides sont ajoutés; chaque configuration de référence nommée sur un actif informationnel devient une configuration de référence versionnée (une version *héritée*) et l'actif ne reçoit qu'une référence vers elle, son propre statut inchangé; un actif en dérive reçoit un écart à classer; un périmètre compté en direct à partir des actifs informationnels est ajouté; les cas d'enseignement MediBec et CanaRetail reçoivent leur exemple (preuves et propositions en attente seulement, rien d'accepté). Aucun chiffre de risque ne change. |
 
@@ -297,9 +297,9 @@ multiutilisateur, chaque étape indique aussi qui est Responsable (R) et Approba
 | # | Étape | Terminée quand | Écrans |
 |---|---|---|---|
 | 1 | Constituer le registre des éléments probants | L’espace de travail a un nom d’organisation, au moins un document de contexte et au moins une entrée dans le registre des éléments probants. | Registre des éléments probants, Documents de contexte, Importer des documents, Espaces de travail |
-| 2 | Décrire le contexte et identifier les actifs essentiels | Au moins 8 des 12 champs de contexte sont remplis, et il y a au moins 3 actifs essentiels ou 5 actifs informationnels. | Profil et appétit, Actifs essentiels, Actifs informationnels, Mesures de protection existantes, Maturité et résilience |
-| 3 | Définir la portée, l’horizon et le contexte de menace | La période d’évaluation est indiquée, un instantané du contexte de menace est chargé et le registre des vulnérabilités contient au moins une entrée. | Profil et appétit, Contexte de menace, Vulnérabilités · CVE/CWE, Menaces · ATT&CK, Flux de menaces et réseaux sociaux |
-| 4 | Fixer l’appétit pour le risque et les critères d’importance | L’appétit est strictement entre 0 et 1 avec une justification, le budget TI est saisi et les critères d’importance sont rédigés. | Profil et appétit, Budget |
+| 2 | Décrire le contexte et identifier les joyaux de la couronne | Au moins 8 des 12 champs de contexte sont remplis, et il y a au moins 3 joyaux de la couronne ou 5 actifs informationnels. | Profil et appétence, Joyaux de la couronne, Actifs informationnels, Mesures de protection existantes, Maturité et résilience |
+| 3 | Définir la portée, l’horizon et le contexte de menace | La période d’évaluation est indiquée, un instantané du contexte de menace est chargé et le registre des vulnérabilités contient au moins une entrée. | Profil et appétence, Contexte de menace, Vulnérabilités · CVE/CWE, Menaces · ATT&CK, Flux de menaces et réseaux sociaux |
+| 4 | Fixer l’appétence pour le risque et les critères d’importance | L’appétence est strictement entre 0 et 1 avec une justification, le budget TI est saisi et les critères d’importance sont rédigés. | Profil et appétence, Budget |
 | 5 | Générer les scénarios candidats | Au moins 20 candidats (environ 25 à 40 pour un portefeuille de dix ; 20 correspond à la version rapide des laboratoires). | Scénarios en lot, Filtrage des scénarios, Ontologie · CRGO |
 | 6 | Filtrer les candidats | Chaque candidat a ses douze notes et une décision. | Filtrage des scénarios |
 | 7 | Sélectionner les scénarios les plus importants | Au moins une famille est retenue, chaque sélection fondée sur le jugement a sa justification et chaque exclusion signalée est examinée. | Familles, Schémas de pondération, Matrice de couverture, Portefeuille final |
@@ -321,7 +321,7 @@ Les étapes conservent leurs identifiants dans la matrice RACI du mode multiutil
 
 **Lignes directrices qui simplifient l'évaluation** — chacune est détaillée dans la section suivante, avec les écrans, les étapes et le moment où elle est terminée ; le même texte figure dans la page Processus (ouvrez une ligne directrice), dans la fenêtre Pas à pas et dans la liste de contrôle imprimable.
 
-1. **Partir des documents.** Créez l'espace de travail avec tous les documents du cas et laissez « Extraire des documents » proposer le profil et les actifs essentiels. Acceptez, modifiez ou rejetez chaque valeur, puis enregistrez.
+1. **Partir des documents.** Créez l'espace de travail avec tous les documents du cas et laissez « Extraire des documents » proposer le profil et les joyaux de la couronne. Acceptez, modifiez ou rejetez chaque valeur, puis enregistrez.
 2. **Résolvez d'abord les valeurs UNKNOWN.** Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
 3. **Numéroter chaque source dans le registre des éléments probants.** Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est une preuve indicative à valider, jamais un incident confirmé.
 4. **Filtrer sur douze critères, puis regrouper.** Notez chaque candidat de 1 à 5 sur les douze critères avec une justification d’une ligne. Le total sur 60 est une aide au filtrage ; les indicateurs d’escalade gardent en vue les scénarios graves mais improbables, et les familles empêchent une seule technique de dominer.
@@ -353,32 +353,32 @@ Les libellés entre guillemets sont les noms exacts des boutons, onglets et opti
 
 #### 1. Partir des documents
 
-Créez l'espace de travail avec tous les documents du cas et laissez « Extraire des documents » proposer le profil et les actifs essentiels. Acceptez, modifiez ou rejetez chaque valeur, puis enregistrez.
+Créez l'espace de travail avec tous les documents du cas et laissez « Extraire des documents » proposer le profil et les joyaux de la couronne. Acceptez, modifiez ou rejetez chaque valeur, puis enregistrez.
 
 *Où :* Organisation → Espaces de travail → Nouvel espace de travail; Organisation → Importer des documents
 
 1. Saisissez le nom de l'espace de travail; choisissez “Organisation réelle” ou “Cas d'affaires pour la classe”; pour l'enseignement, cochez “Cas pédagogique utilisé à des fins de formation”.
 2. Déposez tous les documents du cas (Word, PDF, Excel, PowerPoint, texte) dans la zone des documents.
-3. Cochez “Extraire le profil et l'appétit de ces documents après la création”, “Puis extraire les actifs essentiels” et, pour aller plus loin, “Puis importer d'autres éléments des documents”; cliquez sur “Créer l'espace de travail”.
+3. Cochez “Extraire le profil et l'appétence de ces documents après la création”, “Puis extraire les joyaux de la couronne” et, pour aller plus loin, “Puis importer d'autres éléments des documents”; cliquez sur “Créer l'espace de travail”.
 4. Choisissez “Utiliser l'IA (aperçu avant l'envoi)” — vous voyez le texte exact avant tout envoi — ou “Règles seulement (sans IA, hors ligne)”.
 5. Dans la revue, modifiez toute valeur, cochez celles à conserver et cliquez sur “Mettre les valeurs cochées dans le formulaire”; vérifiez les champs et cliquez sur “Enregistrer”.
-6. Examinez les actifs essentiels et cliquez sur “Ajouter les actifs essentiels cochés”.
+6. Examinez les joyaux de la couronne et cliquez sur “Ajouter les joyaux de la couronne cochés”.
 7. Dans l'aperçu, modifiez au besoin le contenu envoyé — retirez ce qui ne doit pas sortir, ajoutez du contexte — et choisissez la créativité de la réponse : « Stricte » s'en tient aux faits documentés, « Créative » propose aussi ce qu'une organisation comme celle-ci possède habituellement, étiqueté ASSUMPTION pour que vous le vérifiiez.
 8. Ouvrez ensuite Organisation → « Importer des documents » (étape 1 du processus) : cochez les cibles (actifs informationnels, BIA, tiers, contrôles existants, conformité, incidents, faiblesses, scénarios candidats, preuves des paramètres, risques, budget, KRI, personnes et rôles, classe), cliquez sur « Démarrer l'importation » et, pour chaque cible, cochez puis cliquez sur « Ajouter les cochés ».
 9. De nouveaux documents plus tard : déposez-les sur « Importer des documents ». Ils sont sélectionnés seuls, de sorte que seuls eux sont lus; cochez ce qu'il faut extraire et cliquez sur « Démarrer l'importation ». Les valeurs existantes sont conservées, sauf si vous cochez la proposition qui les remplace.
 
-*Terminé quand :* Les étapes 1, 2 et 4 du processus indiquent Terminé : un nom, au moins un document et le registre des éléments probants ; au moins 8 des 12 champs de contexte et les actifs essentiels ; l’appétit et sa justification, le budget TI et les critères d’importance.
+*Terminé quand :* Les étapes 1, 2 et 4 du processus indiquent Terminé : un nom, au moins un document et le registre des éléments probants ; au moins 8 des 12 champs de contexte et les joyaux de la couronne ; l’appétence et sa justification, le budget TI et les critères d’importance.
 
 #### 2. Résolvez d'abord les valeurs UNKNOWN
 
 Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
 
-*Où :* Organisation → Profil et appétit (et Éléments probants pour les enregistrements importés)
+*Où :* Organisation → Profil et appétence (et Éléments probants pour les enregistrements importés)
 
 1. Lisez l'étiquette colorée à côté de chaque libellé de champ.
 2. UNKNOWN : recueillez l'information, saisissez-la et cliquez sur “Enregistrer”.
 3. ASSUMPTION et EXTERNAL : faites-les valider par l'organisation; survolez l'étiquette pour voir la source (document ou page Web). Un astérisque après l'étiquette signifie que la valeur a été modifiée après l'extraction.
-4. Lorsque la direction n'a pas approuvé d'appétit, utilisez l'“Estimateur d'appétit” au bas de l'onglet; son résultat est indiqué comme une estimation analytique.
+4. Lorsque la direction n'a pas approuvé d'appétence, utilisez l'“Estimateur d'appétence” au bas de l'onglet; son résultat est indiqué comme une estimation analytique.
 
 *Terminé quand :* Aucune étiquette UNKNOWN ne subsiste sur les champs sur lesquels repose l'évaluation.
 
@@ -414,7 +414,7 @@ Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20
 
 *Où :* Scénarios en lot
 
-1. Règles : dans « Modèles de menace × actifs », cochez les modèles, puis « Cocher les actifs essentiels + les 5 plus critiques », choisissez les sources de menace, réglez « Nombre de candidats » à 30 et cliquez sur « Générer des candidats ». Gardez « Varier les modèles et les actifs » coché pour que les candidats se répartissent dans la grille au lieu de répéter une seule menace ; « Rebrasser » tire un autre ensemble et la graine le reproduit.
+1. Règles : dans « Modèles de menace × actifs », cochez les modèles, puis « Cocher les joyaux de la couronne + les 5 plus critiques », choisissez les sources de menace, réglez « Nombre de candidats » à 30 et cliquez sur « Générer des candidats ». Gardez « Varier les modèles et les actifs » coché pour que les candidats se répartissent dans la grille au lieu de répéter une seule menace ; « Rebrasser » tire un autre ensemble et la graine le reproduit.
 2. IA : sous “Proposer avec l'IA”, indiquez le nombre, ajoutez une orientation au besoin, laissez “Inclure le texte des documents de contexte” coché et cliquez sur “Proposer des candidats” (aperçu d'abord).
 3. Également disponibles : “À partir de MITRE ATT&CK”, “À partir de CVE”, “À partir de CWE” et les scénarios candidats importés des documents (marqués [Docs]).
 4. Dans la grille, modifiez les noms, les énoncés et les paramètres, cochez les 10 plus importants et cliquez sur « Ajouter … sélectionnés au registre ». Dix est le nombre de départ recommandé, pas un plafond : portez-en davantage à mesure que la maturité en cybersécurité de l'organisation augmente et qu'elle peut tenir à jour plus de scénarios — Maturité et résilience suggère un nombre d'après le niveau que vous avez mesuré, et explique pourquoi.
@@ -521,11 +521,11 @@ Les recommandations et les acceptations de risque sont approuvées par la person
 
 Saisissez le budget TI, les dépenses actuelles en cybersécurité et le coût de base (fonctionnement); l'écran Budget indique où se situe chaque option.
 
-*Où :* Organisation → Profil et appétit (en bas); Budget
+*Où :* Organisation → Profil et appétence (en bas); Budget
 
 1. Saisissez “Budget TI total (salaires inclus)”, “Budget de cybersécurité (dépenses actuelles)” et “Coût de base (fonctionnement) de la sécurité”, puis “Enregistrer”.
 2. Budget : renseignez l'année budgétaire et répartissez les initiatives sur un maximum de trois ans; les projets importés des documents figurent déjà comme initiatives.
-3. Le graphique de bande place chaque option de financement par rapport à la cible cohérente avec l’appétit — bonne pratique : 12 % des TI à un appétit de 0,30, 7,8 % à 0,50, 4 % à 0,70, interpolée entre ces points.
+3. Le graphique de bande place chaque option de financement par rapport à la cible cohérente avec l’appétence — bonne pratique : 12 % des TI à une appétence de 0,30, 7,8 % à 0,50, 4 % à 0,70, interpolée entre ces points.
 
 *Terminé quand :* L’étape 18 du processus indique Terminé : l’année budgétaire est remplie et les initiatives sont réparties.
 
@@ -708,9 +708,18 @@ quoi sert l'écran ; le **?** à côté du titre ouvre une courte aide — les 
 écran — avec **Ouvrir cette section du guide de l'utilisateur**, qui ouvre ce guide à la section
 correspondante, dans sa propre fenêtre.
 
+**Pour en savoir plus dans le manuel.** Sous la description, une ligne en italique nomme le chapitre et
+la section d'*Introduction to Cybersecurity Governance for Business Technology Management* (3e éd.,
+v2.51b) qui traitent de l'écran — par exemple *Pour en savoir plus : chapitre 4 — Appétence pour le
+risque et tolérance au risque : traduire la gouvernance en critères de décision*. Chacune des
+dix-neuf étapes porte sa propre ligne sur la page Processus, dans la fenêtre Pas à pas et dans la liste
+de contrôle imprimée. Il s'agit d'une simple référence : aucun texte du manuel n'est fourni avec elle.
+Les lignes suivent l'annexe du manuel *Using CyberRiskGuardian with this book* ; un écran qu'aucun
+chapitre ne traite (Paramètres, Sauvegarde, À propos…) n'en affiche pas.
+
 ### 7.1 Démarrer — Processus {#process}
 
-Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétit et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*). Les fiches d'étape avec leur état dans l'espace de travail, la prochaine étape recommandée,
+Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétence et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*). Les fiches d'étape avec leur état dans l'espace de travail, la prochaine étape recommandée,
 les lignes directrices en détail et la liste de contrôle imprimable. Le bandeau du haut rappelle que
 l'application est une version bêta et que chaque résultat est une hypothèse analytique à valider.
 
@@ -733,7 +742,7 @@ réinitialisation des données.
 
 ### 7.2.1 Profil de l'organisation {#org}
 
-L'écran **Profil de l'organisation** comporte six onglets : *Profil et appétit*, *Actifs essentiels*,
+L'écran **Profil de l'organisation** comporte six onglets : *Profil et appétence*, *Joyaux de la couronne*,
 *Documents de contexte*, *Importer des documents*, *Preuves* et *Espaces de travail* (plus *Classe* pour
 un cas de classe).
 
@@ -765,18 +774,18 @@ Le formulaire du nouvel espace de travail a sa propre zone de dépôt : dépose
 fichiers Word (.docx) ou PDF à la fois — le cas d'affaires, le profil de l'entreprise, un rapport
 d'audit, l'historique des incidents ; les fichiers Excel, PowerPoint et texte sont aussi acceptés.
 Retirez ceux que vous avez ajoutés par erreur. Trois options enchaînent les extractions tout de suite
-après la création : *Extraire le profil et l'appétit de ces documents après la création*, *Puis
-extraire les actifs essentiels* et *Puis importer d'autres éléments des documents*, qui ouvre
+après la création : *Extraire le profil et l'appétence de ces documents après la création*, *Puis
+extraire les joyaux de la couronne* et *Puis importer d'autres éléments des documents*, qui ouvre
 **Importer des documents** (ci-dessous). Cliquez sur **Créer l'espace de travail** : chaque fichier est
 lu sur votre ordinateur avec une ligne de progression (mots trouvés, *peu de texte trouvé*, ou une
 erreur).
 
-**Profil et appétit.** Contexte, mission, produits et services, processus et systèmes critiques,
+**Profil et appétence.** Contexte, mission, produits et services, processus et systèmes critiques,
 infonuagique, fournisseurs, information sensible, exigences de disponibilité, contrôles et maturité,
-historique des incidents et obligations légales et réglementaires. En dessous : l'**appétit pour le
+historique des incidents et obligations légales et réglementaires. En dessous : l'**appétence pour le
 risque** avec sa justification, le facteur de multiplication et la devise, ainsi que le **budget TI**,
 les dépenses actuelles en cybersécurité et le coût de base de fonctionnement utilisés par l'écran
-Budget. Lorsque la direction n'a pas approuvé d'appétit, l'*estimateur de l'appétit* en suggère un à
+Budget. Lorsque la direction n'a pas approuvé d'appétence, l'*Estimateur d'appétence* en suggère une à
 partir des facteurs cochés — présenté comme une estimation analytique, à valider.
 
 *Budget de cybersécurité (dépenses actuelles)* correspond à tout ce qui est dépensé en cybersécurité
@@ -785,7 +794,7 @@ la part de ces dépenses nécessaire simplement pour maintenir la sécurité exi
 salaires du personnel de sécurité actuel, renouvellements de licences, services gérés existants,
 maintenance. Il ne couvre aucun nouveau traitement.
 
-**Enregistrer et Annuler.** Les modifications dans Profil et appétit sont un brouillon : la barre du
+**Enregistrer et Annuler.** Les modifications dans Profil et appétence sont un brouillon : la barre du
 haut affiche *Modifications non enregistrées* jusqu'à ce que vous cliquiez sur **Enregistrer** ;
 **Annuler** rétablit les valeurs enregistrées. Quitter l'onglet ou l'écran avec des modifications non
 enregistrées demande d'abord une confirmation.
@@ -801,11 +810,11 @@ des documents de contexte. Choisissez :
   UNKNOWN. Pour un cas de classe, l'organisation est fictive : la recherche se limite donc aux données
   de référence du secteur.
 - **Règles seulement (sans IA, hors ligne)** — les phrases correspondant à chaque champ sont tirées des
-  documents ; les valeurs trouvées de cette façon sont étiquetées FACT ou INFERENCE, l'appétit est une
+  documents ; les valeurs trouvées de cette façon sont étiquetées FACT ou INFERENCE, l'appétence est une
   ASSUMPTION, le reste UNKNOWN.
 
 La revue énumère chaque champ avec sa valeur actuelle, la valeur proposée (modifiable, normalisée en un
-énoncé structuré court de moins de 50 mots, ou en un nombre, un code de devise ISO, un appétit entre
+énoncé structuré court de moins de 50 mots, ou en un nombre, un code de devise ISO, une appétence entre
 0,1 et 0,9), son **étiquette** et sa **source** :
 
 | Étiquette | Signification |
@@ -822,9 +831,9 @@ cochées dans le formulaire** : elles vont dans le brouillon, rien n'est encore
 de couleur reste à côté du libellé de chaque champ — un astérisque signifie que vous avez modifié la
 valeur après l'extraction. Cliquez sur **Enregistrer** pour les conserver.
 
-**Actifs essentiels.** Les actifs et services dont la perte nuirait le plus à la mission, avec leur
+**Joyaux de la couronne.** Les actifs et services dont la perte nuirait le plus à la mission, avec leur
 responsable, l'importance C/I/A, les dépendances et les fournisseurs. Ils alimentent le générateur de
-scénarios en lot. **Extraire des documents…** dans cet onglet propose des actifs essentiels de la même
+scénarios en lot. **Extraire des documents…** dans cet onglet propose des joyaux de la couronne de la même
 façon, avec une étiquette et une source pour chacun ; ceux qui figurent déjà dans la liste sont reconnus
 et ignorés.
 
@@ -841,7 +850,7 @@ ajoutez des documents ici, une fiche propose **Extraire des nouveaux documents�
 des documents avec ces documents déjà sélectionnés.
 
 Le panneau des **indices de contexte** parcourt le texte à la recherche de signaux sectoriels, de lois
-et de normes, de technologies, d'actifs essentiels candidats, d'identifiants CVE et de montants. Il
+et de normes, de technologies, de joyaux de la couronne candidats, d'identifiants CVE et de montants. Il
 s'agit d'un balayage par mots clés, pas d'une interprétation ; rien n'est ajouté tant que vous ne
 cliquez pas, et les CVE trouvées de cette façon entrent dans le registre des vulnérabilités comme *non
 confirmées*. L'extraction du texte et les indices n'utilisent aucune IA.
@@ -866,8 +875,8 @@ et l'acheminement de ses requêtes d'IA :
 
 | Cible | Où elle va | Règles | Remarques |
 |---|---|---|---|
-| Profil et appétit | les 18 champs du profil, sous forme de brouillon que vous enregistrez | oui | les propositions pour les champs remplis restent non cochées |
-| Actifs essentiels | Organisation → Actifs essentiels | oui | les noms existants sont ignorés |
+| Profil et appétence | les 18 champs du profil, sous forme de brouillon que vous enregistrez | oui | les propositions pour les champs remplis restent non cochées |
+| Joyaux de la couronne | Organisation → Joyaux de la couronne | oui | les noms existants sont ignorés |
 | Actifs informationnels | Actifs informationnels (responsable, type, classification, C/I/A, hébergement, fournisseur/produit, dépendances) | oui | alimente l'étape 2 des scénarios en lot, la liaison des vulnérabilités et le rayon d'impact |
 | Impact sur les affaires (BIA) | le BIA de l'actif : RTO, RPO, durée maximale d'interruption tolérable, impact 0–5, processus | oui (RTO/RPO) | preuves pour μ(E), δe, δm |
 | Tiers | Actifs informationnels de type *Fournisseur / tiers* | oui | scénarios et mesures liés aux fournisseurs |
@@ -886,7 +895,7 @@ et l'acheminement de ses requêtes d'IA :
 Les cibles cochées ici constituent le **plan d'importation**, présenté comme parties facultatives de
 l'étape 1 du Processus, chacune cochée une fois examinée. Choisissez la **Méthode** — IA
 (aperçu avant l'envoi) ou Règles seulement, sans IA, hors ligne (lorsqu'une règle existe) — et cliquez
-sur **Démarrer l'importation**. Le profil s'ouvre en premier, puis les actifs essentiels, puis chaque
+sur **Démarrer l'importation**. Le profil s'ouvre en premier, puis les joyaux de la couronne, puis chaque
 cible à tour de rôle ; chacune ouvre sa revue : modifiez, cochez, **Ajouter les cochés**. Si les valeurs
 du profil que vous avez acceptées ne sont pas encore enregistrées lorsque le traitement passe à la
 suite, l'application demande : *Enregistrer le profil et continuer*, *Rester sur le profil* ou
@@ -894,7 +903,7 @@ suite, l'application demande : *Enregistrer le profil et continuer*, *Rester su
 
 **Fusionner, et non écraser.** Les valeurs acceptées s'ajoutent à ce que contient l'espace de travail.
 Une proposition qui remplacerait une valeur existante du profil est affichée à côté de celle-ci et
-laissée non cochée ; les actifs essentiels déjà dans la liste sont ignorés ; les enregistrements
+laissée non cochée ; les joyaux de la couronne déjà dans la liste sont ignorés ; les enregistrements
 conservent leur étiquette, leur source, la méthode et la date. Une importation ne modifie jamais un
 score.
 
@@ -918,7 +927,7 @@ Les systèmes, applications, données, services d'affaires, locataires infonuagi
 fournisseurs et installations de l'organisation, chacun lié aux scénarios et aux risques qu'il porte.
 
 - **Inventaire.** Recherchez et filtrez par type, niveau de criticité, classification et étape du cycle
-  de vie. *Créer à partir du profil et des actifs essentiels* transforme les systèmes critiques de
+  de vie. *Créer à partir du profil et des joyaux de la couronne* transforme les systèmes critiques de
   l'écran Organisation en actifs à examiner. Cliquez sur un actif pour le modifier : données générales
   (responsable, gardien, hôte, IP, SE, fournisseur, produit, version, CPE, étiquettes comme
   `internet-facing`), classification et cotes C/I/A, **étiquettes de données sensibles** (PII, PHI, PCI,
@@ -1026,8 +1035,8 @@ Processus les affiche comme *à faire* :
 
 | Étape | Ce que recommencer vide |
 |---|---|
-| 2 — Décrire le contexte et l'appétit pour le risque | les douze champs de contexte du profil, la justification de l'appétit et le budget TI |
-| 3 — Repérer les actifs essentiels et les actifs informationnels | les actifs essentiels et l'inventaire des actifs informationnels |
+| 2 — Décrire le contexte et l'appétence pour le risque | les douze champs de contexte du profil, la justification de l'appétence et le budget TI |
+| 3 — Repérer les joyaux de la couronne et les actifs informationnels | les joyaux de la couronne et l'inventaire des actifs informationnels |
 
 Le nom de l'organisation, ses documents et tout le reste du point de départ demeurent. L'enseignant
 choisit ces étapes pour chaque cas, sous *Pour l'enseignant* → **Étapes que l'étudiant refait après
@@ -1048,10 +1057,10 @@ utilise l'ordinateur). Quatre niveaux, chacun décrit par ce qu'il **conserve**�
 
 | Niveau | Conserve | Efface |
 |---|---|---|
-| Réinitialiser l'évaluation, garder l'organisation | Profil, appétit, actifs essentiels, documents, actifs informationnels, inventaire des mesures de protection, évaluation de la maturité, politiques de sécurité, travaux de conformité, définitions des ICR | Scénarios, candidats, mesures, recommandations, le registre des risques, mesures des ICR, décisions |
+| Réinitialiser l'évaluation, garder l'organisation | Profil, appétence, joyaux de la couronne, documents, actifs informationnels, inventaire des mesures de protection, évaluation de la maturité, politiques de sécurité, travaux de conformité, définitions des ICR | Scénarios, candidats, mesures, recommandations, le registre des risques, mesures des ICR, décisions |
 | Garder le contexte, abandonner l'évaluation | Comme ci-dessus, moins les définitions des ICR | Comme ci-dessus, plus les indicateurs clés de risque que vous avez conçus |
-| Table rase, en gardant les détails de l'organisation | Profil, appétit, actifs essentiels, documents | Tout le reste — actifs, mesures de protection, maturité, vulnérabilités, contexte de menace, politiques, conformité, toute l'évaluation |
-| Retirer complètement l'organisation | L'espace de travail et son nom | Tout, y compris le profil, l'appétit, le budget et les documents |
+| Table rase, en gardant les détails de l'organisation | Profil, appétence, joyaux de la couronne, documents | Tout le reste — actifs, mesures de protection, maturité, vulnérabilités, contexte de menace, politiques, conformité, toute l'évaluation |
+| Retirer complètement l'organisation | L'espace de travail et son nom | Tout, y compris le profil, l'appétence, le budget et les documents |
 
 En plus de n'importe quel niveau : **Effacer aussi** l'inventaire des mesures de protection,
 l'évaluation de la maturité ou l'instantané des menaces — les trois désactivés par défaut — et
@@ -1114,7 +1123,7 @@ aides à la calibration, pas des preuves organisationnelles. Le registre aliment
 *force de la preuve* et la confiance de chaque paramètre ; l'exportation Excel l'écrit dans la feuille
 *Evidence*.
 
-Ce registre est celui de l'évaluation. Le **registre partagé des preuves** des modules de gestion
+Ce registre est celui de l'évaluation. Le **registre partagé des éléments probants** des modules de gestion
 (Gouvernance → Registres partagés → Preuves) consigne les preuves de conformité avec leur période et leur
 validité ; c'est un autre dossier.
 
@@ -1134,7 +1143,7 @@ Deux types d'indicateurs clés de risque :
   l'instantané, part des scénarios importants dont la Pb(ψ,A) repose sur le renseignement et est
   conditionnée par l'exposition, CVE exposées figurant au KEV, couverture de la correspondance ATT&CK,
   scénarios au-dessus de la tolérance dont le traitement est financé, décisions consignées, et dépenses
-  en cybersécurité en proportion du budget TI par rapport à la cible cohérente avec l'appétit pour le
+  en cybersécurité en proportion du budget TI par rapport à la cible cohérente avec l'appétence pour le
   risque.
 - Les **ICR opérationnels** sont ceux de l'évaluation (le cas MediBec en fournit vingt : couverture de
   l'AMF, délais de correction, essais de restauration…). Définissez-les ou modifiez-les au bas de
@@ -1319,7 +1328,7 @@ des révisions.
   l'hameçonnage visant les identifiants, le rançongiciel, l'exploitation d'équipements de périphérie, la
   mauvaise configuration infonuagique, la compromission d'un fournisseur, la fraude par compromission de
   courriel d'affaires (BEC), la destruction des sauvegardes…) ou ajoutez n'importe quelle technique
-  ATT&CK comme modèle ; cochez des actifs (les actifs essentiels, ou saisissez-en d'autres) ; choisissez
+  ATT&CK comme modèle ; cochez des actifs (les joyaux de la couronne, ou saisissez-en d'autres) ; choisissez
   les sources de menace. Chaque combinaison devient un candidat avec un énoncé de chaîne causale, des
   techniques et des CWE liées, et des paramètres par défaut.
 - **À partir de MITRE ATT&CK.** Recherchez des techniques par nom ou par ID, ou filtrez par tactique, et
@@ -1343,7 +1352,7 @@ des révisions.
   cochées dans cet espace de travail* (marqués *[Registre]*) aboutissent également ici.
 - **Proposer avec l'IA.** Choisissez le nombre de candidats (1 à 40) et, au besoin, une orientation
   (« mettre l'accent sur les fournisseurs », « TO dans les usines »). Le profil de l'organisation, les
-  actifs essentiels et les actifs informationnels sont envoyés — affichés d'abord dans l'aperçu
+  joyaux de la couronne et les actifs informationnels sont envoyés — affichés d'abord dans l'aperçu
   habituel. Chaque candidat revient avec une chaîne causale complète et les six paramètres, chacun
   accompagné d'une justification et d'un niveau de confiance ; il arrive dans la grille, nommé *[IA]*,
   pour examen, et n'entre jamais directement dans le registre.
@@ -1355,7 +1364,7 @@ des révisions.
   une chaîne causale suggérée, les techniques ATT&CK, les scénarios qu'elle touche, ses preuves (type,
   identifiant, date, TLP — et une confiance de la source *telle qu'énoncée, et non une probabilité*) et
   les paramètres qu'elle **peut éclairer** — jamais une valeur. Une amorce dont les techniques et
-  l'actif essentiel (ou l'actif) correspondent à un scénario existant est marquée *Preuve pour un
+  le joyau de la couronne (ou l'actif) correspondent à un scénario existant est marquée *Preuve pour un
   scénario existant* : **Consigner la preuve dans S…** la rattache à ce scénario sans modifier aucun
   paramètre. Choisissez la date *En date du* (la couverture, l'état de la télémétrie et les alertes
   sont lus à cette date) et le *Type*, cochez des amorces et **Créer … candidat(s) provisoire(s)** : ils
@@ -1376,8 +1385,8 @@ requête un résumé de ces amorces — affiché dans l'aperçu comme tout le re
 sources. Une amorce qui constitue une preuve pour un scénario existant est décrite comme telle, de
 sorte que le modèle ne la propose pas de nouveau.
 
-**Actifs.** L'étape 2 énumère les actifs essentiels **et** les actifs informationnels de l'inventaire,
-les plus critiques en premier ; *Cocher les actifs essentiels + les 5 plus critiques* permet de démarrer
+**Actifs.** L'étape 2 énumère les joyaux de la couronne **et** les actifs informationnels de l'inventaire,
+les plus critiques en premier ; *Cocher les joyaux de la couronne + les 5 plus critiques* permet de démarrer
 rapidement.
 
 **Nombre de candidats.** Les modèles de menace × actifs × sources peuvent produire des centaines de
@@ -1483,7 +1492,7 @@ affichés*, *Exclure les éléments affichés* et *Inclure seulement les éléme
 lignes à l'écran ; la case à cocher de l'en-tête les inclut ou les exclut toutes ; la ligne de décompte
 indique combien sont affichés et inclus.
 
-L'appétit pour le risque et le facteur peuvent être modifiés à titre d'**hypothèse de simulation** ;
+L'appétence pour le risque et le facteur peuvent être modifiés à titre d'**hypothèse de simulation** ;
 rien n'est enregistré tant que vous ne choisissez pas *Enregistrer comme valeurs de l'espace de
 travail*.
 
@@ -1499,7 +1508,7 @@ enregistrez-les dans le scénario ou comme nouveau scénario. **Consigner l'exam
 que la sensibilité du scénario a été examinée (étape 15 du Processus).
 
 **Chaque donnée d'entrée est vérifiée.** Pb(A), Pb(ψ,A), δe, δm, μ(E) et les réductions doivent être
-entre 0 et 1, θ dans (0, 1], l'appétit strictement entre 0 et 1, δm au moins égal à δe, et un score CVSS —
+entre 0 et 1, θ dans (0, 1], l'appétence strictement entre 0 et 1, δm au moins égal à δe, et un score CVSS —
 un vecteur ou un score de 0 à 10 — est **obligatoire** : un champ CVSS vide est signalé *CVSS requis*,
 jamais calculé comme 0. Un score enregistré à côté d'un vecteur est recalculé à partir du vecteur et un
 désaccord est signalé (Éditeur de scénarios et Revue de qualité QC-21) ; le score enregistré est utilisé
@@ -1511,7 +1520,7 @@ Les risques sont ce dont la direction est responsable ; les scénarios sont la 
 *Créer à partir des scénarios* crée un risque par scénario avec ses techniques, ses CWE/CVE, ses actifs
 et ses mesures, et des cotes sur une échelle de 1 à 5 vraisemblance × impact : **actuelle** d'après les
 paramètres du scénario, **cible** après les réductions combinées de ses mesures ; **inhérente** part
-d'une valeur égale à l'actuelle, que vous ajustez. Chaque risque affiche le ratio résiduel/toléré de
+d'une valeur égale à l'actuelle, que vous ajustez. Chaque risque affiche le ratio de tolérance de
 ses scénarios. Consignez le responsable, la catégorie, le traitement, le statut, le prochain examen et
 une **acceptation formelle** (par, date, valide jusqu'au, justification) ; chaque modification est
 journalisée dans l'historique du risque. La carte de chaleur (inhérente, actuelle ou cible) et la liste
@@ -1652,16 +1661,16 @@ exactement à cela.
 ### 7.3.12 Sommaire de gestion {#summary}
 
 Une page qui obtient des décisions — l'étape *Rapport* du Processus. Elle commence par les **décisions
-demandées** : celles que l'évaluation fait elle-même ressortir (approuver l'appétit lorsqu'il est une
+demandées** : celles que l'évaluation fait elle-même ressortir (approuver l'appétence lorsqu'elle est une
 estimation, chaque scénario encore au-dessus de la tolérance après traitement, l'écart par rapport au budget
-cohérent avec l'appétit, le portefeuille à financer, les candidats signalés exclus sans examen, les
+cohérent avec l'appétence, le portefeuille à financer, les candidats signalés exclus sans examen, les
 transferts sans approbateur) et celles que vous ajoutez, une par ligne. Chacune est exportée avec le marqueur
 **Décision de la direction requise**.
 
 Ensuite : combien de scénarios sont **au-dessus, environ à et sous la tolérance avant et après
 traitement**, avec les totaux estimé, toléré et résiduel ; le **portefeuille et le budget** — coût de la
-première année du portefeuille recommandé, cible cohérente avec l'appétit, dépense actuelle et écart ; les
-**principaux risques** avec leur ratio risque/tolérance et leur décision ; les **marqueurs** — valeurs de
+première année du portefeuille recommandé, cible cohérente avec l'appétence, dépense actuelle et écart ; les
+**principaux risques** avec leur ratio de tolérance et leur décision ; les **marqueurs** — valeurs de
 paramètres présentées comme estimations, valeurs sans référence de preuve, scores CVSS d'applicabilité
 limitée et chaque **Lacune d'information — validation organisationnelle requise** ; les **limites** et les
 **prochaines étapes**.
@@ -2049,7 +2058,7 @@ Le résultat affiche les candidats, le nombre de candidats distincts et les **Th
 les thèmes que vous avez demandés et qu'aucun scénario ne couvre. Ce sont les scénarios à rédiger
 vous-même. Pour chaque suggestion : ses thèmes, ses techniques ATT&CK, le nombre de contrôles liés par
 cadre, un *Risque a priori* en unités de risque CRG (un chiffre relatif issu de l'étalonnage de
-l'ontologie, facteur 1000, appétit 0.30 — et non un score pour votre organisation) et **Détails** :
+l'ontologie, facteur 1000, appétence 0.30 — et non un score pour votre organisation) et **Détails** :
 l'énoncé, les techniques, les faiblesses, les obligations de la Loi 25, les contrôles par cadre et les
 valeurs a priori d'étalonnage.
 
@@ -2116,7 +2125,7 @@ l'organisation exige CRGO v0.9.1 ou une version ultérieure ; sa cinquième par
    éléments probants (faible ou très faible → *Estimation analytique — validation requise*). Il ne
    contient aucune cote de risque.
 4. **Renvoyer les résultats sous forme de propositions.** Cochez des scénarios et des grandeurs —
-   risque estimé, toléré, atténué et résiduel, le ratio risque-tolérance, la cible budgétaire — puis
+   risque estimé, toléré, atténué et résiduel, le ratio de tolérance, la cible budgétaire — puis
    *Envoyer les résultats cochés sous forme de propositions*. Un document par grandeur, calculé par le
    moteur de cette application, avec la version du modèle de l'application, les intrants utilisés et le
    SHA-256 de l'évaluation exacte envoyée ; statut **proposé** et rien d'autre. CRGO le stocke dans le
@@ -2138,7 +2147,7 @@ l'organisation exige CRGO v0.9.1 ou une version ultérieure ; sa cinquième par
    - **Contexte d'opérations de sécurité** (`crgo_secops_context`, contrat secops/v1) : la couverture
      par scénario et par technique, validée seulement par un essai de détection concluant ; les lacunes de
      détection ; les règles avec la télémétrie qu'elles exigent (une règle dont la télémétrie requise est
-     muette ne détecte rien) ; les alertes non triées (*pas des incidents*), les actifs essentiels en
+     muette ne détecte rien) ; les alertes non triées (*pas des incidents*), les joyaux de la couronne en
      premier ; les exécutions sans approbation valide (*un signal d'audit, pas un verdict*) ; le tri
      réglementaire en cours.
 
@@ -2296,7 +2305,7 @@ s'exécute dans l'assistant local sur cet ordinateur : le lanceur doit être en 
 Où en est le rédacteur, la **Langue des documents** (anglais, français ou les deux — chaque document est alors
 rédigé deux fois avec les mêmes identifiants d'énoncés) et la profondeur de l'**Entrevue** (Express, environ
 vingt questions; Standard, environ soixante). **Proposer des réponses à partir du profil et des documents**
-lit le profil de l'organisation, les actifs essentiels et les documents de contexte de l'espace de travail
+lit le profil de l'organisation, les joyaux de la couronne et les documents de contexte de l'espace de travail
 et propose des réponses, chacune avec sa source. **Effacer les données du rédacteur** oublie les réponses,
 les faits, les décisions juridiques et la sélection; les politiques déjà dans la gestion des PSI restent.
 
@@ -2786,7 +2795,7 @@ Les exigences peuvent aussi être importées à partir d'un fichier CSV (**Impor
 
 Des campagnes d'évaluation portant sur un ensemble d'obligations, pour une portée et une période ; elles
 produisent les déterminations de conformité (**Évaluer**). Chaque détermination exige une preuve du
-registre partagé des preuves ou une lacune de preuve explicite. **L'évaluateur ne peut pas être le
+registre partagé des éléments probants ou une lacune de preuve explicite. **L'évaluateur ne peut pas être le
 responsable de l'obligation, et le réviseur qui approuve ne peut pas être l'évaluateur.** **Approuver et
 figer** fige la campagne et ses déterminations.
 
@@ -2977,7 +2986,7 @@ jamais son propre travail.
 Les rapports SOC et autres rapports d'assurance reçus des organisations de services — type, période,
 opinion, catégories des Trust Services Criteria, **exceptions**, les **contrôles complémentaires de
 l'entité utilisatrice** attendus de vous et la façon dont vous y répondez, les scénarios qui dépendent
-du fournisseur — et le registre partagé des preuves, lié aux missions, aux feuilles de travail et aux
+du fournisseur — et le registre partagé des éléments probants, lié aux missions, aux feuilles de travail et aux
 constatations. **Calculer l'empreinte d'un fichier local et l'inscrire** consigne son SHA-256 et sa
 provenance ; le fichier lui-même reste là où il est conservé. Les éléments probants dont la date de
 validité est dépassée sont signalés comme périmés.
@@ -3056,7 +3065,7 @@ lie au registre partagé des mesures.
 
 #### Alertes et tri {#siem-alerts}
 
-Les alertes importées du SIEM ou d'observations STIX, dans une **file de tri où les actifs essentiels
+Les alertes importées du SIEM ou d'observations STIX, dans une **file de tri où les joyaux de la couronne
 viennent en premier**, puis selon la gravité pondérée par la criticité de l'actif — et non selon l'heure
 d'arrivée. Réglez le tri (*nouvelle*, *en cours de tri*, *bénigne*, *faux positif*…), **Ajouter la
 note**, ou **Transmettre à un dossier SOAR**. Une alerte n'est jamais un incident : la transmission
@@ -3182,7 +3191,7 @@ résiduel/toléré sous forme de tranche, et un **catalogue** :
 | Techniques ATT&CK | Comment cela se produit — la langue commune du renseignement sur les menaces. |
 | Contrôles | Références ISO/IEC 27002, NIST CSF 2.0 et SP 800-53 de ce qui traite le risque. |
 | Tranche de maturité | La maturité CSF globale du contributeur, sous forme de tranche — contexte pour les valeurs. |
-| Tranche de gravité | Tirée du ratio résiduel/toléré du contributeur — jamais les chiffres bruts. |
+| Tranche de gravité | Tirée du ratio de tolérance du contributeur — jamais les chiffres bruts. |
 | Niveau de preuve | Incident observé, évalué, hypothétique ou renseignement sur les menaces. |
 | Valide jusqu'au | Les risques vieillissent ; une fiche dont la date est dépassée est affichée comme périmée. |
 
@@ -3286,7 +3295,7 @@ pour obtenir un classement préféré.
 ### 7.10.2 Budget — années, projets pluriannuels et fourchettes, de l'aversion pour le risque à la recherche du risque {#budget}
 
 **La règle.** La bonne pratique fixe une **cible ponctuelle**, et non une plage : 12 % du budget TI total
-(salaires compris) à un appétit de 0,30, 7,8 % à 0,50 et 4 % à 0,70, interpolée linéairement entre ces
+(salaires compris) à une appétence de 0,30, 7,8 % à 0,50 et 4 % à 0,70, interpolée linéairement entre ces
 points et maintenue à la valeur extrême au-delà. Le critère est l'écart par rapport à cette cible, qui est
 remonté plutôt que réconcilié en silence.
 
@@ -3296,9 +3305,9 @@ coût de base (fonctionnement) et une note. *Ajouter* l'année suivante ou l'ann
 nouvelle année copie la précédente comme point de départ. Pour chaque année, le tableau indique les
 initiatives engagées cette année-là, la base + les engagements en proportion du budget TI, et leur
 position par rapport à la ligne directrice (sous le plancher de 4 %, sous / à / au-dessus de la cible
-d'appétit, au-dessus du plafond de 12 %). Le **graphique par année** présente, empilées, la base et les
+d'appétence, au-dessus du plafond de 12 %). Le **graphique par année** présente, empilées, la base et les
 initiatives engagées, les dépenses prévues (barre) et les dépenses réelles (◆), le tout en proportion du
-budget TI de l'année, par rapport aux lignes de 4 % / 7,8 % / 12 % et à la cible d'appétit.
+budget TI de l'année, par rapport aux lignes de 4 % / 7,8 % / 12 % et à la cible d'appétence.
 
 **Projets sur plusieurs années (3 ans au maximum).** Chaque initiative a une année de début, un nombre
 d'années (1 à 3) et une répartition : *coût initial la première année, récurrent chaque année* (par
@@ -3309,26 +3318,26 @@ une année qui ne figure pas encore dans le tableau.
 Le calibreur, le graphique des fourchettes, les options d'arbitrage et la frontière de financement
 ci-dessous portent tous sur l'**année sélectionnée**.
 
-La ligne directrice : **12 %** du budget TI total (salaires compris) pour un appétit de 0,30 ou moins,
+La ligne directrice : **12 %** du budget TI total (salaires compris) pour une appétence de 0,30 ou moins,
 **7,8 %** à 0,50, **4 %** à 0,70 ou plus, de façon linéaire entre ces points. L'écran fournit la cible
-cohérente avec l'appétit, l'appétit implicite des dépenses actuelles, et un avertissement lorsque les
+cohérente avec l'appétence, l'appétence implicite des dépenses actuelles, et un avertissement lorsque les
 deux divergent de 0,10 ou plus.
 
 **Graphique des fourchettes.** L'axe des x va de l'aversion pour le risque à la recherche du risque ;
 des bandes ombrées marquent les zones d'aversion, de neutralité et de recherche du risque, avec des
 zones de marge pour les dépenses au-dessus de 12 % ou sous 4 %. La courbe représente la ligne
-directrice ; le losange, l'appétit déclaré ; les autres points, les dépenses actuelles et quatre
-**options de financement**, chacune placée à l'appétit qu'implique sa dépense totale (base +
+directrice ; le losange, l'appétence déclarée ; les autres points, les dépenses actuelles et quatre
+**options de financement**, chacune placée à l'appétence qu'implique sa dépense totale (base +
 traitement de l'année 1) :
 
 - **A** statu quo — la base seulement ;
 - **B** ramener les scénarios au-dessus de la tolérance — financer chaque scénario dont le risque non
   traité dépasse la tolérance ;
-- **C** meilleur rapport qualité-prix dans le budget cohérent avec l'appétit — financer les scénarios
+- **C** meilleur rapport qualité-prix dans le budget cohérent avec l'appétence — financer les scénarios
   par ordre de rapport coût-efficacité jusqu'à la cible ;
 - **D** portefeuille de traitement complet.
 
-Le **tableau d'arbitrage** compare leur coût, leur part des TI, l'appétit implicite, le risque
+Le **tableau d'arbitrage** compare leur coût, leur part des TI, l'appétence implicite, le risque
 résiduel et le nombre de scénarios restant au-dessus de la tolérance. La **frontière de financement**
 montre la baisse du risque résiduel à mesure que les scénarios sont financés par ordre de rapport
 coût-efficacité, avec l'enveloppe de traitement disponible à 4 %, 7,8 % et 12 % après la base, et un
@@ -3752,7 +3761,7 @@ organisation, un bandeau l'indique, et en mode multiutilisateur, seul un adminis
 des données ou en retirer.
 
 - **Trousses fournies** — les trousses livrées dans `data/simulation`. Une trousse cite les
-  identifiants des scénarios et des actifs essentiels de son cas pédagogique ; elle **n'est donc valide
+  identifiants des scénarios et des joyaux de la couronne de son cas pédagogique ; elle **n'est donc valide
   que dans un espace de travail de ce cas** (pour MediBec : l'espace de travail d'exemple ou une copie de
   celui-ci). Chaque trousse indique si elle est *Valide pour cet espace de travail* (avec les
   avertissements éventuels) ou les erreurs qui empêchent l'importation, puis ses **objectifs
@@ -3767,7 +3776,7 @@ des données ou en retirer.
   l'**intensité**, le **thème de l'intrusion** (rançongiciel, hameçonnage et prise de contrôle de
   compte, menace interne, fournisseur, infonuagique, mixte), le **nombre d'alertes** et la **langue des
   textes**, puis **Préparer la requête…**. La requête ne transmet que le profil de l'organisation, les
-  scénarios (identifiants, noms, techniques ATT&CK), les actifs essentiels et les actifs
+  scénarios (identifiants, noms, techniques ATT&CK), les joyaux de la couronne et les actifs
   informationnels — aucun document, note, chiffre ou clé — ainsi que les règles du guide des données de
   simulation ; vous voyez et pouvez modifier d'abord le contenu exact à envoyer, comme pour toute
   fonction d'IA. La réponse porte la mention *Estimation analytique — validation requise*, est validée,
@@ -3835,7 +3844,7 @@ restauration qui attend toujours une approbation. Les dix exercices :
 
 Les constats attendus figurent sur la fiche de la trousse, sous chaque exercice, à l'intention de
 l'enseignant. Trois points qu'il faut habituellement rappeler aux étudiants : la file est ordonnée par
-actif essentiel, puis par gravité pondérée selon la criticité, et non par heure d'arrivée (EX-01) ; une
+joyau de la couronne, puis par gravité pondérée selon la criticité, et non par heure d'arrivée (EX-01) ; une
 confiance de source de 95 est l'affirmation du producteur, et non une probabilité, et ne devient jamais
 une Pb(A) (EX-06) ; CASE-MB-03 n'est pas un incident tant qu'une personne nommée ne l'a pas confirmé à
 une date avec **Confirmer comme incident** — ce que les étudiants font eux-mêmes, et qui déclenche alors
@@ -3956,7 +3965,7 @@ requête de plus de 400 ko est refusée plutôt qu'envoyée.
 
 ### 8.2 Créativité
 
-Pour les fonctions qui proposent — extraction du profil et des actifs essentiels, importation à partir
+Pour les fonctions qui proposent — extraction du profil et des joyaux de la couronne, importation à partir
 des documents, propositions de scénarios, chaînes causales, rédaction de politiques et évaluation de la
 conformité — vous choisissez jusqu'où la réponse peut aller au-delà du matériel fourni :
 
@@ -3987,7 +3996,7 @@ modèle d'IA.
   utiliser un modèle local. *Autoriser la recherche Web pour les renseignements de profil manquants*
   (Claude seulement).
 - **Acheminement de chaque fonctionnalité d'IA.** Pour chaque fonction — liaison des vulnérabilités,
-  extraction du profil et des actifs essentiels, importation à partir des documents (deux groupes),
+  extraction du profil et des joyaux de la couronne, importation à partir des documents (deux groupes),
   propositions de scénarios, chaînes causales, le **consultant virtuel** (modèle local par défaut) et sa
   critique des paramètres, la synthèse hebdomadaire, la rédaction de politiques, les données de simulation
   pour l'enseignement, l'évaluation de la conformité, la prévision d'exploitation et l'optimiseur
@@ -4125,7 +4134,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 5. **Organisation → Espaces de travail** → créez un espace de travail vierge en déposant deux fichiers
    Word ou PDF dans le formulaire ; l'espace de travail s'ouvre avec les deux documents énumérés.
-6. **Organisation → Profil et appétit** → modifiez un champ : la barre indique *Modifications non
+6. **Organisation → Profil et appétence** → modifiez un champ : la barre indique *Modifications non
    enregistrées* ; **Annuler** le rétablit.
 7. **Extraire des documents…** → *Utiliser l'IA (aperçu avant l'envoi)* (un fournisseur étant
    configuré) : l'aperçu affiche deux zones modifiables, la taille et la destination. Changez la
@@ -4133,7 +4142,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
    phrase à la requête, envoyez ; le journal de l'IA consigne *modifié*. Sans fournisseur, *Règles
    seulement* propose des valeurs étiquetées FACT, INFERENCE ou UNKNOWN.
 8. **Organisation → Importer des documents** → déposez un troisième document : il est énuméré comme
-   *nouveau* et est le seul coché. Décochez *Profil et appétit* et *Actifs essentiels*, conservez
+   *nouveau* et est le seul coché. Décochez *Profil et appétence* et *Joyaux de la couronne*, conservez
    *Actifs informationnels*, choisissez *Règles seulement* et **Démarrer l'importation** : seul le
    nouveau document est lu, la revue s'ouvre, **Ajouter les cochés** ; le document indique maintenant
    *Déjà extrait vers : Actifs informationnels* et les cibles du plan d'importation apparaissent à
@@ -4172,7 +4181,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 14. Le **Tableau de bord des ICR** s'ouvre avec cinq jauges et la pastille *automatique : le pire
     d'abord*. **Consigner** : le nombre de mesures passe à 1.
-15. **Scénarios en lot** → cochez tous les modèles, *Cocher les actifs essentiels + les 5 plus
+15. **Scénarios en lot** → cochez tous les modèles, *Cocher les joyaux de la couronne + les 5 plus
     critiques*, réglez à 20 ; générez : la grille contient des candidats issus de nombreux modèles.
     *Rebrasser* change l'ensemble et le germe ; le même germe le reproduit.
 16. **Atténuation des risques → Propositions** → *Non traités au-dessus de la tolérance* → *Ajouter les
@@ -4191,7 +4200,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 21. **Prévisions → Monte-Carlo**, sans aucune plage de paramètres définie, 10 000 essais : la médiane
     indique **41 023** exactement.
 22. **Exporter · Excel** → *Tous les scénarios* : les totaux de la feuille Analyse indiquent 84 305 et
-    41 023 et se recalculent lorsque l'appétit change dans la feuille Parameters.
+    41 023 et se recalculent lorsque l'appétence change dans la feuille Parameters.
 
 **Le Registre partagé des risques**
 
@@ -4235,7 +4244,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 **Cas d'enseignement et réinitialisation**
 
 31. **Réinitialiser les données** sur l'exemple MediBec → *Recommencer* énumère les *Étapes que vous
-    referez* : les deux parties de l'étape 2 (le contexte, et les actifs essentiels et informationnels).
+    referez* : les deux parties de l'étape 2 (le contexte, et les joyaux de la couronne et les actifs informationnels).
     **Recommencer ce cas…**, tapez `RECOMMENCER` : le registre compte de nouveau 30 scénarios et le
     Processus affiche l'étape 2 comme *à faire*. Sous *Pour l'enseignant*, décochez les deux et recommencez
     de nouveau : l'étape 2 est revenue telle que livrée.
@@ -4302,7 +4311,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 46. Sur une copie de MediBec, **Paramètres → Données de simulation** → trousse MediBec → **Importer dans
     cet espace de travail** : 40 alertes, 13 règles, 15 indicateurs, 4 dossiers ; APR-MB-04 refusé.
     Aucun incident n'a été créé.
-47. **SIEM → Alertes et tri** (en date du 9 octobre 2026) : les alertes des actifs essentiels en
+47. **SIEM → Alertes et tri** (en date du 9 octobre 2026) : les alertes des joyaux de la couronne en
     premier. **Couverture et lacunes** affiche des détections validées, non vérifiées, dégradées et
     absentes. **Indicateurs et TLP** → **Exporter les indicateurs (.csv)** demande quoi faire des
     éléments TLP:RED et TLP:AMBER+STRICT.
@@ -4398,7 +4407,7 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | Toute une section du menu a disparu | Tous ses écrans sont désactivés ou masqués. | Comme ci-dessus. |
 | Une politique publiée ne peut pas être modifiée | Le texte publié est figé à dessein. | *Commencer une nouvelle version* : la version publiée demeure dans l'historique. |
 | *Approuver* est refusé pour une politique | L'approbation exige le RACI **A** à l'étape Rapport ou un administrateur. | Faites-la approuver par la personne redevable. |
-| Après *Recommencer ce cas*, l'étape 2 affiche *à faire* | Le paramètre de l'enseignant redonne ces étapes à l'étudiant. | C'est voulu : extrayez de nouveau le profil et les actifs essentiels des documents du cas. Un enseignant peut le modifier sous *Pour l'enseignant*. |
+| Après *Recommencer ce cas*, l'étape 2 affiche *à faire* | Le paramètre de l'enseignant redonne ces étapes à l'étudiant. | C'est voulu : extrayez de nouveau le profil et les joyaux de la couronne des documents du cas. Un enseignant peut le modifier sous *Pour l'enseignant*. |
 | Importer des documents ne lit qu'un seul document | Les documents qui viennent d'être ajoutés sont les seuls sélectionnés par défaut. | Cochez les autres, ou *Sélectionner tous les documents*. |
 | Bandeau rouge `moteur DIVERGENT` | Le moteur est en désaccord avec les totaux de référence. | Arrêtez. Restaurez une copie propre. |
 | *Cet espace de travail est ouvert en lecture seule* | Il a été écrit par une application plus récente, ou sa migration a échoué. | Sauvegarde et restauration → Versions des données et migrations en indique la raison ; ouvrez-le avec l'application plus récente, ou envoyez l'erreur au soutien technique. Rien n'a été modifié. |
@@ -4406,7 +4415,7 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | Les contextes de conformité et d'opérations de sécurité indiquent qu'ils exigent CRGO v0.10.0 | L'ontologie trouvée est plus ancienne. | Clonez l'étiquette v0.10.1 à côté de l'application (le clone le plus récent est trouvé en premier), ou faites pointer `crgo-ontology` dans Claude vers celui-ci. |
 | Un renvoi est refusé avec `UNKNOWN_SUBJECT` ou `INPUT_UNKNOWN` | Des scénarios ont été ajoutés, renommés ou exclus depuis la construction du graphe. | *Reconstruire le graphe de l'organisation*, puis envoyez de nouveau. |
 | *Le dossier du graphe de l'organisation se trouve dans un dépôt git* | Le dossier confidentiel choisi se trouve dans un dépôt. | Choisissez un dossier situé hors de tout dépôt (Lien avec l'organisation → *Enregistrer le dossier*). |
-| Une trousse de simulation affiche des erreurs et ne peut pas être importée | Elle cite des scénarios ou des actifs essentiels que cet espace de travail ne contient pas. | Importez-la dans un espace de travail de son cas (pour MediBec, l'exemple ou une copie de celui-ci). |
+| Une trousse de simulation affiche des erreurs et ne peut pas être importée | Elle cite des scénarios ou des joyaux de la couronne que cet espace de travail ne contient pas. | Importez-la dans un espace de travail de son cas (pour MediBec, l'exemple ou une copie de celui-ci). |
 | La couverture du SIEM semble erronée pour l'exercice | La date de référence précède le déroulement. | SIEM → Vue d'ensemble → réglez la date de référence (le 9 octobre 2026 ou plus tard pour la trousse MediBec). |
 | Une alerte ou un dossier n'est pas compté comme incident | Personne ne l'a confirmé. | C'est la règle : SOAR → Dossiers → **Confirmer comme incident**, avec un nom et une date. |
 | Une importation dans le SIEM n'ajoute rien | Les enregistrements sont des doublons d'enregistrements déjà importés. | Rien à corriger ; l'historique des importations indique combien ont été écartés. |

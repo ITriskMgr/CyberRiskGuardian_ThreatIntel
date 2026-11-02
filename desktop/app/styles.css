@@ -357,6 +357,9 @@ body.navrail nav .navsec + .navsec { margin-top: 4px; padding-top: 4px; }
 @media (prefers-reduced-motion: reduce) { nav, nav .subtoggle .chev { transition: none; } }
 /* ---------- per-screen description and help ---------- */
 .paneldesc { color: var(--muted); margin: -4px 0 14px; max-width: 900px; }
+.readmore-screen, .readmore-step { color: var(--muted); font-size: 12px; font-style: italic; margin: -4px 0 14px; max-width: 900px; }
+.paneldesc + .readmore-screen, .lede + .readmore-screen { margin-top: -10px; }
+.readmore-step { margin: 4px 0 0; }
 .helpq { all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
   border: 1px solid var(--line); color: var(--accent); font-size: 13px; font-weight: 700; margin-left: 10px; vertical-align: middle; }
 .helpq:hover { background: var(--surface-2); }

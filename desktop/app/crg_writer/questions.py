@@ -312,7 +312,7 @@ QUESTIONS: list[dict] = [
      "options": [o("very_low", "Very low (0.1–0.2) — very risk-averse", "Très faible (0,1–0,2) — très averse au risque"),
                  o("low", "Low (0.3)", "Faible (0,3)"), o("moderate", "Moderate (0.5)", "Modéré (0,5)"),
                  o("high", "Relatively high (0.7)", "Relativement élevé (0,7)"), o("not_defined", "Not defined", "Non défini")],
-     "label": {"en": "Cybersecurity risk appetite approved by management", "fr": "Appétit pour le risque cyber approuvé par la direction"},
+     "label": {"en": "Cybersecurity risk appetite approved by management", "fr": "Appétence pour le risque cyber approuvée par la direction"},
      "help": {"en": "CyberRiskGuardian 0–1 scale. If none is approved, choose “Not defined”.", "fr": "Échelle CyberRiskGuardian de 0 à 1. Si aucun n’est approuvé, choisissez « Non défini »."},
      "why": {"en": "The risk-management policy states it — or flags it as a decision.", "fr": "La politique de gestion des risques l’énonce — ou le signale comme décision à prendre."}},
     {"code": "GOV-01B", S: "gov", "mode": "standard", "type": "select", "required": False,

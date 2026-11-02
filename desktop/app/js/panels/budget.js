@@ -162,7 +162,7 @@ function body(out) {
     card(bandChart({ target: CRG.budgetTarget, anchors: CRG.ANCHORS, band: B, points: pts }),
       el('div', 'legend', el('span', null, el('i', { style: { background: 'var(--ink)' } }), 'guideline curve and stated appetite (◆)'), el('span', null, el('i', { style: { background: 'var(--series-2)' } }), 'current spend'),
         ...options.map(o => el('span', null, el('i', { style: { background: o.color } }), o.label))),
-      el('p', 'note', 'Each option is positioned at the appetite its total cybersecurity spend (baseline + Year-1 treatment cost) implies on the guideline. A spend outside the 4–12% band implies no appetite on the guideline, so it sits in the grey margin zones. Year-1 cost = initial + first-year recurring, so it approximates an annual spend level.')));
+      el('p', 'note', 'Each option is positioned at the appetite its total cybersecurity spend (baseline + Year-1 treatment cost) implies on the guideline. A spend above the 12% point (appetite 0.30) or below the 4% point (appetite 0.70) implies no appetite on the guideline, so it sits in the grey margin zones. Year-1 cost = initial + first-year recurring, so it approximates an annual spend level.')));
   out.append(card(el('h2', null, 'Arbitrage options'), table([
     { key: 'label', label: 'Option', render: o => el('div', null, el('b', null, o.label), el('div', 'small muted', o.desc)) },
     { key: 'cost', label: 'New Y1 cost', num: true, render: o => money(o.cost) },

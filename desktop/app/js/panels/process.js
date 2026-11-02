@@ -9,6 +9,7 @@ import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go, kpi, n0 } from '../util.js';
 import { S } from '../state.js';
 import { STEPS, GROUPS, statuses, nextStep, partsOf } from '../process.js';
+import * as CH from '../chapterhelp.js';
 import { tr } from '../i18n.js';
 import * as users from '../users.js';
 import * as MT from '../maturity.js';
@@ -68,6 +69,7 @@ export function render(sec) {
         el('p', { style: { margin: '4px 0' } }, s.purpose),
         el('div', 'small muted', el('b', null, 'Needs: '), s.inputs),
         el('div', 'small muted', el('b', null, 'Done when: '), s.done),
+        CH.forStep(s.id, { tag: 'div', cls: 'readmore-step' }),   // 1.9.0 — the chapter and section of the book
         // 1.5.5 — where a step has named parts, show each one's state and the screen that fixes it.
         // One opaque "To do" for a step with two requirements tells the analyst nothing about which
         // half is missing, and step 4 was the case that mattered: one of its halves needed network.
@@ -112,7 +114,7 @@ function printChecklist(list) {
   const esc = s => String(tr(s) ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
   w.document.write(`<!doctype html><html lang="${document.documentElement.lang}"><meta charset="utf-8"><title>${esc('Checklist')} — ${String(ws.name).replace(/[&<>]/g, '')}</title><style>body{font:13px/1.45 system-ui,sans-serif;margin:28px;max-width:800px}h1{font-size:18px}li{margin:10px 0}.s{font-size:11px;color:#555}.w{font-size:11.5px;color:#1f4e79}.st li{margin:2px 0;font-size:12px}h2{font-size:15px;margin-top:22px}</style>
   <h1>${esc('Risk assessment checklist')} — ${String(ws.name).replace(/[&<>]/g, '')}</h1><p class="s">CyberRiskGuardian Desktop · ${esc(`Beta ${SERIES}`)} · ${new Date().toISOString().slice(0, 10)}</p><ol>` +
-    list.map(({ s, st }) => `<li><b>☐ ${esc(s.title)}</b> <span class="s">(${esc(ST[st][0])})</span><br>${esc(s.purpose)}<br><span class="w">${esc('Where:')} ${s.screens.map(([, l]) => esc(l)).join(' · ')}</span><br><span class="s">${esc('Done when:')} ${esc(s.done)}</span></li>`).join('') + '</ol>' +
+    list.map(({ s, st }) => `<li><b>☐ ${esc(s.title)}</b> <span class="s">(${esc(ST[st][0])})</span><br>${esc(s.purpose)}<br><span class="w">${esc('Where:')} ${s.screens.map(([, l]) => esc(l)).join(' · ')}</span><br><span class="s">${esc('Done when:')} ${esc(s.done)}</span>${CH.sectionForStep(s.id) ? `<br><i class="s">${esc(CH.text(CH.sectionForStep(s.id)))}</i>` : ''}</li>`).join('') + '</ol>' +
     `<h2>${esc('Guidelines — a complete assessment, simply')}</h2><ol>` + GUIDELINES.map(g => `<li><b>☐ ${esc(g.h)}.</b> ${esc(g.t)}<br><span class="w">${esc('Where:')} ${esc(g.where)}</span><ol class="st">${g.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol><span class="s">${esc('Done when:')} ${esc(g.done)}</span></li>`).join('') + '</ol>');
   w.document.close(); w.focus(); w.print();
 }

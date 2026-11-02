@@ -45,6 +45,7 @@ a { color: var(--accent); }
 .note { background: var(--surface); border-left: 3px solid var(--accent); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; }
 .where { color: var(--accent); font-size: 12.5px; }
 .done { color: var(--muted); font-size: 12.5px; }
+.readmore { color: var(--muted); font-size: 12px; font-style: italic; margin: 6px 0 0; }
 .step { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
 .step .n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 999px;
   background: var(--accent); color: var(--accent-ink); font-size: 12.5px; font-weight: 600; margin-right: 7px; }

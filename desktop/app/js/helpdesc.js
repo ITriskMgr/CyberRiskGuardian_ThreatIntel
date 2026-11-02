@@ -9,6 +9,7 @@
 'use strict';
 import { tr } from './i18n.js';
 import * as i18n from './i18n.js';
+import * as CH from './chapterhelp.js';
 
 export const HELP = {
   process: { d: 'The nineteen steps of a complete risk assessment, then the report and the quality review: where you are, and what to do next.', g: 'process',
@@ -114,16 +115,32 @@ function watch(sec) {
   sec._helpObs.observe(sec, { childList: true });
 }
 
+/* 1.9.0 — "Read more: Chapter N — section" (js/data/chapters.js) under the title, after the description or
+   the screen's own introduction. Idempotent: a line already in place for the same section is kept, so the
+   observer of a screen without a "?" entry does not redraw it in a loop. */
+function readMore(sec, h1, panel, arg) {
+  const id = CH.sectionFor(panel, arg);
+  const cur = [...sec.querySelectorAll('.readmore-screen')];
+  if (cur.length === 1 && cur[0].dataset.chref === id && cur[0].parentNode === h1.parentNode) return;
+  cur.forEach(n => n.remove());
+  const line = CH.line(id, { cls: 'readmore-screen' });
+  if (!line) return;
+  const next = h1.nextElementSibling;
+  (next && (next.classList.contains('paneldesc') || next.classList.contains('lede')) ? next : h1).after(line);
+}
+
 export function decorate(sec, panel, arg, mod) {
   sec._help = { panel, mod }; watch(sec);
   const e = entry(panel, arg, mod);
   const h1 = sec.querySelector('h1');
-  if (!e || !h1) return;
+  if (!h1) return;
+  if (!e) { readMore(sec, h1, panel, arg); return; }
   sec.querySelectorAll(':scope > .paneldesc, :scope > .helppop').forEach(n => n.remove());
   const next = h1.nextElementSibling;
   if (e.d && !(next && next.classList.contains('lede'))) {
     const p = document.createElement('p'); p.className = 'paneldesc'; p.textContent = tr(e.d); h1.after(p);
   }
+  readMore(sec, h1, panel, arg);
   if (h1.querySelector('.helpq')) return;
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'helpq'; b.textContent = '?'; b.title = tr('Help on this screen'); b.setAttribute('aria-label', tr('Help on this screen')); b.setAttribute('aria-expanded', 'false');
