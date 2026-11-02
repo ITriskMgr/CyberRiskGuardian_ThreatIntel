@@ -29,7 +29,7 @@ const sub = (panel, label, tabs, more = {}) => ({ panel, label, tabs: tabs.map((
 export const MENU = [
   { id: 'start', label: 'Start', items: [T('process', 'Process', { badge: 'nb-proc' })] },
   { id: 'organization', label: 'Organization', items: [
-    T('org', 'Organization profile'), T('assets', 'Information assets', { badge: 'nb-assets' }), T('maturity', 'Maturity & resilience'), T('reset', 'Reset data')] },
+    T('org', 'Organization profile'), T('assets', 'Information assets', { badge: 'nb-assets' }), T('maturity', 'Maturity & resilience'), T('ontology', 'Ontology · CRGO'), T('reset', 'Reset data')] },
   { id: 'assessment', label: 'Risk assessment', items: [
     T('evidence', 'Evidence register'), T('dashboard', 'KRI dashboard'), T('safeguards', 'Existing safeguards', { badge: 'nb-sg' }),
     T('batch', 'Batch scenarios'), sub('screening', 'Scenario screening', [['candidates', 'Candidates & scores'], ['families', 'Families'], ['weights', 'Weighting schemes'], ['coverage', 'Coverage matrix'], ['watch', 'Watch list & plan'], ['final', 'Final portfolio']]),
@@ -37,7 +37,7 @@ export const MENU = [
     T('mitigation', 'Risk mitigation', { badge: 'nb-meas' }), T('recs', 'Recommendations'), T('summary', 'Management summary')] },
   { id: 'threats', label: 'Threats & vulnerabilities', items: [
     T('threats', 'Threats · ATT&CK', { badge: 'nb-tech' }), T('vulns', 'Vulnerabilities · CVE/CWE', { badge: 'nb-vuln' }), T('feeds', 'Threat feeds & social'),
-    T('threat', 'Threat context', { badge: 'nb-snap' }), T('ontology', 'Ontology · CRGO')] },
+    T('threat', 'Threat context', { badge: 'nb-snap' })] },
   { id: 'governance', label: 'Governance', items: [
     sub('isms', 'Information security management', [['overview', 'Overview'], ['exceptions', 'Exceptions']]),
     sub('isp', 'ISP management', [['overview', 'Overview'], ['policies', 'Policy library'], ['policy', 'Policy editor'], ['reviews', 'Versions & approvals'],
