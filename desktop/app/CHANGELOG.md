@@ -228,9 +228,9 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   Vulnerability Categorization decision per registered vulnerability, beside EPSS and KEV. Tree per workspace: *Deployer —
   CISA SSVC* (default; Track · Track* · Attend · Act), *Deployer — CERT/CC* and *Supplier — CERT/CC* (Defer · Scheduled ·
   Out-of-Cycle · Immediate), tables copied row for row from the CERT/CC SSVC repository (commit `bf3213bc`; one cell
-  not in a published CSV is marked CHECK). Exploitation is suggested from the evidence — KEV → active, EPSS at or above the
-  snapshot's rung-4 thresholds or a public PoC in the loaded feeds → public PoC, else none — and an override needs a
-  justification. One decision record per vulnerability (points, derived points, outcome, evidence, who, when,
+  not in a published CSV is marked CHECK). Exploitation is suggested from the evidence — KEV → active, a public PoC in
+  the loaded feeds → public PoC, else none; an EPSS at or above the snapshot's rung-4 thresholds is shown as a high
+  exploitation probability (EPSS), never as a public PoC — and an override needs a justification. One decision record per vulnerability (points, derived points, outcome, evidence, who, when,
   justification, history); SSVC column in the register, line in the CVE detail, CSV export. An SSVC outcome is a
   response priority: it is never converted into a likelihood and changes no parameter.
 - **Forecasts → Exploitation (30 days)** (`js/aiforecast.js`, `js/panels/aiforecast.js`): per registered CVE, a published
@@ -275,6 +275,11 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
 - **L3 — helper task check tightened.** A `test` request is accepted only with the fixed connectivity prompt (the one
   `/api/ai/test` sends; no other system text, no web search); a feature missing from the helper's routing map is treated as
   **local**, never as the workspace provider. Every task the application sends keeps its routing. Helper tests.
+- **L4 — EPSS no longer suggests "public PoC".** SSVC's Exploitation values describe evidence (public exploit code), not a
+  score: a high EPSS now appears in the basis and the register as "high exploitation probability (EPSS)" and leaves the
+  suggestion at *None* unless KEV or a PoC report says otherwise — in `js/ssvc.js` and in the plugin's `ssvc.py` alike.
+  Guides EN/FR 7.4.2.1; tests `t33`, `test_ssvc.py`. The MWB minimal + material cell marked CHECK is left for the author
+  to verify against the CISA guide.
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 

@@ -49,9 +49,14 @@ class Suggest(unittest.TestCase):
     def test_ladder(self):
         f = lambda c, poc=0: S.suggest_exploitation(c, self.SNAP, poc)["suggested"]
         self.assertEqual(f("CVE-2026-0001"), "active")
-        self.assertEqual(f("CVE-2026-0002"), "public poc")
+        self.assertEqual(f("CVE-2026-0002"), "none", "a high EPSS alone is not a public PoC (review L4)")
         self.assertEqual(f("CVE-2026-0003"), "none")
         self.assertEqual(f("CVE-2026-0003", 1), "public poc")
+        self.assertEqual(f("CVE-2026-0002", 1), "public poc")
+        hi = S.suggest_exploitation("CVE-2026-0002", self.SNAP)
+        self.assertTrue(hi["epss_high"])
+        self.assertTrue(any("high exploitation probability (EPSS)" in b for b in hi["basis"]))
+        self.assertFalse(any("PoC" in b or "proof of concept" in b for b in hi["basis"]))
 
 
 @unittest.skipUnless(os.environ.get("SSVC_REPO"), "set SSVC_REPO to diff against the CERT/CC CSVs")

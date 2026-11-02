@@ -36,6 +36,9 @@ the MediBec regression stays at 84,305 / 41,023.
   hides an `ABS()` residual); `.js`, `.mjs` and `.py` files are checked for outdated wording (not for markers).
 - `.claude-plugin/marketplace.json` lists the same plugin version as `plugin.json` (1.7.0); the desktop gate
   `tools/version_check.py` now checks the two agree.
+- `scripts/ssvc.py` (review L4 of 2 November 2026): a high EPSS no longer suggests Exploitation `public poc` — it is
+  recorded as a high exploitation probability (`epss_high`), and only a public proof-of-concept report (or KEV, `active`)
+  moves the suggestion; `references/ssvc.md` and `test_ssvc.py` follow.
 
 ### Repository
 - `requirements.txt` pinned to exact versions; `.github/workflows/desktop-ci.yml` (gates, engine regression, CRGO bridge,

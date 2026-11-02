@@ -2032,8 +2032,10 @@ antérieures et les marque *autre arbre — à revoir*.
 
 **L'exploitation à partir des preuves.** L'EPSS et le CISA KEV de l'instantané chargé, ainsi que les
 éléments chargés sous Flux de menaces, suggèrent la valeur d'Exploitation : inscrite au KEV → *Active* ;
-EPSS au seuil élevé de l'instantané ou au-dessus (score 0,50 ou centile 0,90), ou code d'exploitation
-public (PoC) signalé dans les flux → *PoC publique* ; sinon *Aucune*. Vous pouvez choisir une autre valeur ;
+code d'exploitation public (PoC) signalé dans les flux → *PoC publique* ; sinon *Aucune*. Un EPSS au seuil
+élevé de l'instantané ou au-dessus (score 0,50 ou centile 0,90) figure dans les preuves comme une
+**probabilité d'exploitation élevée (EPSS)** : ce n'est pas une preuve que du code d'exploitation est public,
+et à lui seul il ne suggère jamais *PoC publique*. Vous pouvez choisir une autre valeur ;
 la fiche exige alors une justification et conserve les deux valeurs.
 
 **La fiche de décision** — une par vulnérabilité : les points de décision et leurs valeurs, les points

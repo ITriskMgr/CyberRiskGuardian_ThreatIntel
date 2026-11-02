@@ -39,6 +39,8 @@ const r = await page.evaluate(async () => {
   out.sug = ['CVE-2026-102490', 'CVE-1999-0016', 'CVE-2026-99999'].map(id => sug(id).value);
   out.sugPoc = SV.suggestExploitation({ id: 'CVE-2026-99999' }, st.S.snap, [{ title: 'PoC released for CVE-2026-99999', text: 'public exploit on GitHub', cves: ['CVE-2026-99999'] }]).value;
   out.basis = sug('CVE-2026-102490').basis.join(' | ');
+  { const h = sug('CVE-1999-0016'); out.hi = { high: h.epssHigh, basis: h.basis.join(' | ') }; }
+  out.hiPoc = SV.suggestExploitation({ id: 'CVE-1999-0016' }, st.S.snap, [{ title: 'PoC released for CVE-1999-0016', text: 'public exploit', cves: ['CVE-1999-0016'] }]).value;
   // a decision needs who, and a justification when Exploitation departs from the evidence
   const pts = { exploitation: 'none', automatable: 'no', technical_impact: 'partial', mission_prevalence: 'minimal', public_wellbeing: 'minimal' };
   try { SV.decide(ws, 'CVE-2026-99999', { points: pts, by: '', suggestion: sug('CVE-2026-99999') }); out.noBy = 'accepted'; } catch (e) { out.noBy = e.message; }
@@ -70,7 +72,9 @@ ok(r.sizes.join() === '36,72,36', 'tables: CISA 36 rows, CERT/CC deployer 72, su
 ok(r.cells.join() === 'act,track,track*,out-of-cycle,immediate', 'published cells ' + r.cells);
 ok(!r.incomplete.complete && r.incomplete.outcome === null && r.incomplete.missing.length === 4, 'an incomplete decision has no outcome');
 ok(r.allOk, 'every combination of every tree reaches one of its outcomes');
-ok(r.sug.join() === 'active,public poc,none', 'Exploitation suggested: KEV → active, EPSS high → public poc, nothing → none ' + r.sug);
+ok(r.sug.join() === 'active,none,none', 'Exploitation suggested: KEV → active, EPSS high alone → none (review L4), nothing → none ' + r.sug);
+ok(r.hi.high && /high exploitation probability \(EPSS\); not evidence of public exploit code/.test(r.hi.basis) && !/PoC/.test(r.hi.basis), 'review L4: a high EPSS is stated as a high exploitation probability (EPSS), not a public PoC ' + JSON.stringify(r.hi));
+ok(r.hiPoc === 'public poc', 'review L4: a PoC report (not the EPSS) sets public poc');
 ok(r.sugPoc === 'public poc', 'a public PoC in the feeds → public poc');
 ok(/CISA KEV: listed 2026-10-02/.test(r.basis) && /EPSS/.test(r.basis), 'the basis names KEV and EPSS ' + r.basis);
 ok(/Name the person/.test(r.noBy), 'a decision needs who decides');

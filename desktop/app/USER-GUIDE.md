@@ -1824,10 +1824,11 @@ tree); the source is named on the screen. Switching tree keeps earlier decisions
 *other tree — review*.
 
 **Exploitation from the evidence.** EPSS and CISA KEV from the loaded snapshot, and the feed items loaded
-under Threat feeds, suggest the Exploitation value: listed in KEV → *Active*; EPSS at or above the
-snapshot's high thresholds (score 0.50 or percentile 0.90), or public exploit code (PoC) reported in the
-feeds → *Public PoC*; otherwise *None*. You may choose another value; the record then needs a
-justification and keeps both values.
+under Threat feeds, suggest the Exploitation value: listed in KEV → *Active*; public exploit code (PoC)
+reported in the feeds → *Public PoC*; otherwise *None*. An EPSS at or above the snapshot's high thresholds
+(score 0.50 or percentile 0.90) is shown as a **high exploitation probability (EPSS)** in the evidence: it is
+not evidence that exploit code is public, so on its own it never suggests *Public PoC*. You may choose
+another value; the record then needs a justification and keeps both values.
 
 **The decision record** — one per vulnerability: the decision points and their values, the derived
 points, the outcome, the evidence (KEV listing date, EPSS score and percentile, PoC reports, snapshot

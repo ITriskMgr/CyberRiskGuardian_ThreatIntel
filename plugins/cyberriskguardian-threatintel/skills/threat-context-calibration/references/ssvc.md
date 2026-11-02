@@ -29,8 +29,12 @@ holds it.
 | Evidence (local snapshot, loaded feeds) | Suggested value |
 |---|---|
 | CVE listed in CISA KEV | `active` |
-| EPSS ≥ `thresholds.epss_rung4_min` (0.50) or percentile ≥ `epss_percentile_rung4_min` (0.90), or a reported public proof of concept | `public poc` |
+| A reported public proof of concept (exploit code) | `public poc` |
 | Otherwise | `none` |
+
+An EPSS ≥ `thresholds.epss_rung4_min` (0.50) or percentile ≥ `epss_percentile_rung4_min` (0.90) is recorded in the
+basis as a **high exploitation probability (EPSS)** (`epss_high: true`). It is not evidence that exploit code is public,
+so on its own it never suggests `public poc`: SSVC's Exploitation values describe evidence, not a score.
 
 The analyst confirms or overrides the suggestion. An override needs a written justification, and
 the record keeps both the suggested and the chosen value. A decision point the analyst sets without

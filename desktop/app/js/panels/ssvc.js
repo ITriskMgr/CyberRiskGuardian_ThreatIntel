@@ -48,7 +48,7 @@ export async function render(body, sec, arg) {
     el('div', 'tablewrap', table([
       { key: 'id', label: 'Vulnerability', render: r => el('div', null, el('a', { href: '#/vulns/' + r.v.id, class: 'mono' }, r.v.id), el('div', { class: 'small muted', 'data-noi18n': '' }, (r.v.title || r.v.product || '').slice(0, 60))), sort: r => r.v.id },
       { key: 'exp', label: 'Exposed', render: r => r.v.exposed ? 'yes' : 'no', sort: r => r.v.exposed ? 1 : 0 },
-      { key: 'ev', label: 'Evidence (KEV · EPSS · PoC)', sortable: false, render: r => el('div', 'small', r.sug.kev ? pill('KEV', 'bad') : null, ' ', r.sug.epss ? `EPSS ${(r.sug.epss[0] * 100).toFixed(1)}%` : '', r.sug.poc ? el('span', null, ' · ', tr('PoC in feeds')) : '') },
+      { key: 'ev', label: 'Evidence (KEV · EPSS · PoC)', sortable: false, render: r => el('div', 'small', r.sug.kev ? pill('KEV', 'bad') : null, ' ', r.sug.epss ? `EPSS ${(r.sug.epss[0] * 100).toFixed(1)}%` : '', r.sug.epssHigh ? el('span', null, ' · ', tr('high exploitation probability (EPSS)')) : '', r.sug.poc ? el('span', null, ' · ', tr('PoC in feeds')) : '') },
       { key: 'sug', label: 'Exploitation suggested', render: r => SV.valueLabel('exploitation', r.sug.value), sort: r => ['none', 'public poc', 'active'].indexOf(r.sug.value) },
       { key: 'out', label: 'SSVC outcome', render: r => el('div', null, r.d && r.d.tree === SV.treeOf(ws) ? outcomePill(r.d.outcome) : r.d ? pill('other tree — review', 'warn') : outcomePill(null), r.st ? el('div', 'small', pill('review', 'warn')) : null), sort: r => r.d ? (SV.OUTCOMES[r.d.outcome]?.rank ?? -1) : -1 },
       { key: 'by', label: 'Decided by · date', render: r => r.d ? el('span', 'small', `${r.d.by} · ${r.d.date}`) : '—', sort: r => r.d?.date || '' },
@@ -92,7 +92,7 @@ function drawForm(box, r, sec, body, arg) {
   box.replaceChildren(card(el('h2', null, tr('SSVC decision — {0}').replace('{0}', r.v.id)),
     el('div', { class: 'small muted', 'data-noi18n': '' }, T.source),
     el('div', { style: { margin: '10px 0' } }, el('b', null, 'Evidence for Exploitation'), el('ul', 'small', ...r.sug.basis.map(b => el('li', null, b))),
-      el('div', 'small', tr('Suggested value: {0}').replace('{0}', tr(SV.valueLabel('exploitation', r.sug.value))), ' — ', tr('KEV listed → Active; EPSS high or a public PoC in the feeds → Public PoC; otherwise None.'))),
+      el('div', 'small', tr('Suggested value: {0}').replace('{0}', tr(SV.valueLabel('exploitation', r.sug.value))), ' — ', tr('KEV listed → Active; a public PoC in the feeds → Public PoC; otherwise None. A high EPSS is shown as a high exploitation probability (EPSS), not as a public PoC.'))),
     grid, derivedBox, el('div', { style: { margin: '10px 0' } }, outBox),
     el('div', 'grid g2', field('Decided by', by), field('Justification', just)),
     el('div', 'btnrow', { style: { marginTop: '10px' } },

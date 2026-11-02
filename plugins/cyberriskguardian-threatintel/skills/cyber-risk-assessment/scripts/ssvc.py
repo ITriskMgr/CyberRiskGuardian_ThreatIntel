@@ -281,8 +281,9 @@ def evaluate(tree, points):
 
 
 def suggest_exploitation(cve, snap, poc_reports=0):
-    """KEV listed -> active; EPSS at/above the snapshot's rung-4 thresholds or a reported public PoC -> public poc;
-    otherwise none. Evidence for the decision point, not a probability."""
+    """KEV listed -> active; a reported public PoC -> public poc; otherwise none. Evidence for the decision point, not a
+    probability. A high EPSS is a high exploitation probability, not evidence of public exploit code: it is shown in
+    the basis (and flagged epss_high) but never sets "public poc" on its own (SSVC Exploitation values; review L4)."""
     cve = cve.upper()
     kev = (snap.get("kev") or {}).get("cves", {}).get(cve)
     epss = (snap.get("epss") or {}).get("scores", {}).get(cve)
@@ -293,12 +294,13 @@ def suggest_exploitation(cve, snap, poc_reports=0):
         value = "active"; basis.append(f"CISA KEV: listed {kev.get('added', '')}".strip())
     hi = bool(epss) and (epss[0] >= s_min or epss[1] >= p_min)
     if epss:
-        basis.append(f"EPSS {epss[0]:.5f} (percentile {epss[1]:.3f})" + (" - at or above the high threshold" if hi else ""))
+        basis.append(f"EPSS {epss[0]:.5f} (percentile {epss[1]:.3f})"
+                     + (" - high exploitation probability (EPSS); not evidence of public exploit code" if hi else ""))
     if poc_reports:
         basis.append(f"{poc_reports} report(s) of a public proof of concept")
-    if value == "none" and (hi or poc_reports):
+    if value == "none" and poc_reports:
         value = "public poc"
-    return {"cve": cve, "suggested": value, "basis": basis, "snapshot": snap.get("retrieved")}
+    return {"cve": cve, "suggested": value, "basis": basis, "epss_high": hi, "snapshot": snap.get("retrieved")}
 
 
 def main(argv=None):

@@ -166,8 +166,10 @@ export function epssThresholds(snap) {
 }
 
 /**
- * The value the evidence points to for Exploitation, and why. KEV → active; EPSS at or above the rung-4
- * thresholds or a public PoC reported in the loaded feeds → public PoC; otherwise none. A suggestion
+ * The value the evidence points to for Exploitation, and why. KEV → active; a public PoC reported in the loaded
+ * feeds → public PoC; otherwise none. A high EPSS (at or above the rung-4 thresholds) is a high exploitation
+ * probability, not evidence of public exploit code: it goes in the basis (and epssHigh) but never sets
+ * "public poc" on its own — SSVC's Exploitation values describe evidence (1.9.0 review L4). A suggestion
  * the analyst confirms or overrides — never a probability.
  */
 export function suggestExploitation(v, snap, items = []) {
@@ -180,12 +182,12 @@ export function suggestExploitation(v, snap, items = []) {
   let value = 'none';
   if (kev) { value = 'active'; basis.push(`CISA KEV: listed ${kev.added || ''}`.trim()); }
   const hiEpss = epss && (epss[0] >= th.score || epss[1] >= th.percentile);
-  if (epss) basis.push(`EPSS ${(epss[0] * 100).toFixed(1)}% (percentile ${(epss[1] * 100).toFixed(0)})${hiEpss ? ' — at or above the high threshold' : ''}`);
+  if (epss) basis.push(`EPSS ${(epss[0] * 100).toFixed(1)}% (percentile ${(epss[1] * 100).toFixed(0)})${hiEpss ? ' — high exploitation probability (EPSS); not evidence of public exploit code' : ''}`);
   if (feed.poc) basis.push(`${feed.poc} feed item(s) report public exploit code (PoC)`);
-  if (value === 'none' && (hiEpss || feed.poc)) value = 'public poc';
+  if (value === 'none' && feed.poc) value = 'public poc';
   if (!snap) basis.push('No threat-context snapshot loaded: KEV and EPSS unknown');
   else if (!kev && !epss) basis.push('Not in CISA KEV; no EPSS score in the snapshot');
-  return { value, basis, kev: kev ? { added: kev.added || '', ransomware: kev.ransomware || '' } : null,
+  return { value, basis, epssHigh: !!hiEpss, kev: kev ? { added: kev.added || '', ransomware: kev.ransomware || '' } : null,
            epss: epss ? [epss[0], epss[1]] : null, poc: feed.poc, items: feed.items, snapshot: snap?.retrieved || null };
 }
 
