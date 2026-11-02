@@ -10,22 +10,28 @@ import { S, touch, compute, scen } from '../state.js';
 import * as F from '../forecast.js';
 import * as KRI from '../kri.js';
 import { svg, lineChart } from '../charts.js';
+import * as AF from './aiforecast.js';
+
+export const HELP = AF.HELP;   // 1.9.0 — the AI forecasting tabs; the others use the entry in helpdesc.js
+const AF_TABS = { exploit: AF.exploit, optimizer: AF.optimizer, path: AF.pathView };
 
 let view = 'mc';
 let result = null, running = false, focusId = null;
 const cfg = { trials: 10000, seed: 20261004 };
 
 export function render(sec, arg) {
+  if (arg && AF_TABS[arg.split('/')[0]]) view = arg.split('/')[0];
   sec.replaceChildren(el('h1', null, 'Forecasts'));
   sec.append(el('p', 'lede', 'Uncertainty propagated through the ', el('b', null, 'verified engine'),
     ' — the same CRG.calc that produces the official figures. A Monte Carlo interval describes the ranges ' +
     'you entered, not the world; where the ranges are estimates, so is the interval. ',
     el('b', null, 'Analytical estimate — validation required.')));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['mc', 'Monte Carlo'], ['ranges', 'Parameter ranges'], ['kri', 'KRI projections']])
-    st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; render(sec); } }, t));
+  for (const [k, t] of [['mc', 'Monte Carlo'], ['ranges', 'Parameter ranges'], ['kri', 'KRI projections'], ['exploit', 'Exploitation (30 days)'], ['optimizer', 'Mitigation optimizer'], ['path', 'Residual-risk path']])
+    st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; history.replaceState(null, '', AF_TABS[k] ? '#/forecast/' + k : '#/forecast'); render(sec); } }, t));
   sec.append(st);
   const body = el('div'); sec.append(body);
+  if (AF_TABS[view]) { AF_TABS[view](body, sec, () => render(sec)); return; }
   ({ mc: monteCarlo, ranges: rangesView, kri: kriView }[view])(body, sec);
 }
 

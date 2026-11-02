@@ -300,7 +300,9 @@ AI_DEFAULT_POLICY = {
               "extract_sensitive": "local", "extract_more": "workspace", "simulation_pack": "workspace",
               "writer_facts": "workspace", "writer_tailor": "workspace",
               "causal_chain": "local", "isp_draft": "workspace", "compliance_assess": "workspace",
-              "consultant": "local"},
+              "consultant": "local",
+              # 1.9.0 - AI forecasting: both carry the CVE register or the treatment portfolio -> local by default
+              "exploit_forecast": "local", "mitigation_optimizer": "local"},
 }
 # 1.9.0 — the tasks the application sends. The policy is decided on the task, so the task is checked rather
 # than trusted: it must be one of these, and the TASK line of the prompt must name the same one.
@@ -1216,6 +1218,35 @@ def start_job(source, params):
     return job
 
 
+SNAP_NAME = re.compile(r"^threat-context-(\d{4}-\d{2}-\d{2})\.json$")
+EPSS_SERIES_MAX_FILES = 120
+
+
+def epss_series(cves):
+    """1.9.0 - the EPSS history of the registered CVEs, read from the dated threat-context-YYYY-MM-DD.json
+    snapshots kept in the feeds folder. Local only: nothing is fetched, nothing about the CVEs leaves the
+    machine. The history is only as long as the snapshots that were kept."""
+    want = sorted({str(c).upper() for c in (cves or []) if re.match(r"^CVE-\d{4}-\d{4,}$", str(c), re.I)})[:2000]
+    files = sorted((m.group(1), f) for f in os.listdir(FEEDS) if (m := SNAP_NAME.match(f)))[-EPSS_SERIES_MAX_FILES:]
+    series = {c: [] for c in want}
+    used = []
+    for date, f in files:
+        try:
+            with open(os.path.join(FEEDS, f), encoding="utf-8") as fh:
+                snap = json.load(fh)
+        except Exception:                               # noqa: BLE001 - a damaged file is skipped and named
+            used.append({"file": f, "date": date, "error": "unreadable"})
+            continue
+        scores = (snap.get("epss") or {}).get("scores") or {}
+        kev = (snap.get("kev") or {}).get("cves") or {}
+        sdate = (snap.get("epss") or {}).get("score_date") or snap.get("retrieved") or date
+        used.append({"file": f, "date": date, "score_date": sdate, "pruned_below": (snap.get("thresholds") or {}).get("epss_pruned_below")})
+        for c in want:
+            e = scores.get(c)
+            series[c].append({"date": sdate, "epss": e[0] if e else None, "pct": e[1] if e else None, "kev": c in kev})
+    return {"files": used, "series": series, "feeds_dir": FEEDS}
+
+
 def list_files():
     out = []
     for f in sorted(os.listdir(FEEDS)):
@@ -1446,6 +1477,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if code != 200:
                 sys.stderr.write(f"helper: writer {m.group(1)} → {code}\n")
             return self._json(code, out)
+        if path == "/api/epss/series":                  # 1.9.0 - exploitation forecast: local EPSS history
+            try:
+                return self._json(200, epss_series(body.get("cves") or []))
+            except Exception as exc:                    # noqa: BLE001
+                return self._json(400, {"error": str(exc)})
         if path == "/api/download":
             try:
                 job = start_job(body.get("source"), body.get("params") or {})

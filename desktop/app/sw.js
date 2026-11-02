@@ -24,7 +24,9 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "medibec-screening.js", "js/equiv.js", "js/markers.js", "js/screening.js", "js/updates.js", "js/updateui.js", "js/data/legacy-map.js", "js/panels/evidence.js", "js/ipc.js", "js/panels/ipc.js", "js/panels/ipc_regs.js", "js/panels/ipc_cm.js", "js/data/ipc-samples.js", "js/panels/screening.js", "js/panels/summary.js", "js/writer.js", "js/panels/writer.js", "js/panels/writer_steps.js", "js/dashpack.js",
   "js/kbindex.js", "js/kblib.js", "js/consult.js", "js/consultui.js", "js/panels/settings_kb.js",
   "kb/book/00-introduction.md", "kb/book/ch01.md", "kb/book/ch02.md", "kb/book/ch03.md", "kb/book/ch04.md", "kb/book/ch05.md", "kb/book/ch06.md", "kb/book/ch07.md", "kb/book/ch08.md", "kb/book/ch09.md", "kb/book/ch10.md", "kb/book/ch11.md", "kb/book/ch12.md", "kb/book/ch13.md", "kb/book/ch14.md", "kb/book/ch15.md", "kb/book/ch16.md", "kb/book/ch17.md", "kb/book/ch18.md", "kb/book/ch19.md", "kb/book/ch20.md", "kb/book/ch21.md", "kb/book/index.json", "kb/book/zz-appendix.md",
-  "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json"
+  "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json",
+  // 1.9.0 — SSVC and AI forecasting lane
+  "js/ssvc.js", "js/data/ssvc-tables.js", "js/panels/ssvc.js", "js/aiforecast.js", "js/panels/aiforecast.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

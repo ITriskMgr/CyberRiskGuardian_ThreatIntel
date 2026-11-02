@@ -78,6 +78,8 @@ export const STEP4 = [
   // baseline.ref), drift deviations to classify, the teaching-case sample; invariants throw (migrateIpc4 below)
   { field: 'ipc', blank: () => IPC.blank(), group: 'CONTEXT', title: 'Identity, privilege & configuration registers (baselines promoted from assets)',
     up: (w, note) => { migrateIpc4(w, note); } },
+  // SSVC decisions beside the vulnerability register, and the review items the exploitation forecast raises
+  { field: 'ssvc', blank: () => blankSsvc(), group: 'CONTEXT', title: 'SSVC decisions and exploitation-forecast review items (response priorities, never likelihoods)' },
 ];
 /** The blank value of every data-version-4 field, for the workspace factory. */
 export const fieldsV4 = () => Object.fromEntries(STEP4.map(s => [s.field, s.blank()]));
@@ -496,3 +498,12 @@ export async function migrateMeta(store) {
   if (from !== META_VERSION) await store.put('meta', 'dataVersion', META_VERSION);
   return { from, to: META_VERSION, newer: false };
 }
+
+/* ================= 1.9.0 — SSVC (STEP4 entry 'ssvc') =================
+   The tree chosen for the workspace, one decision record per registered vulnerability, and the review
+   items the exploitation forecast raises. Changes no number: an SSVC outcome is a response priority. */
+export const blankSsvc = () => ({
+  tree: 'deployer',           // 'deployer' (CISA SSVC) · 'deployer-cert' (CERT/CC deployer) · 'supplier' (CERT/CC supplier)
+  decisions: {},              // vulnerability id → { tree, points, derived, outcome, evidence, override, by, date, justification, history[] }
+  review: [],                 // exploitation-forecast review items: { id, cve, date, forecast, band, reasons[], source, status, by, closed, note }
+});

@@ -1616,6 +1616,39 @@ rejected what, by which method.
 A link changes no score. Pb(ψ,A) moves only for **exposed** CVEs, through the ladder proposals you
 accept in Threat context (section 7.4.4).
 
+### 7.4.2.1 SSVC decisions — how soon to respond {#ssvc}
+
+*Vulnerabilities → SSVC decisions* (1.9.0) adds a **Stakeholder-Specific Vulnerability Categorization**
+(SSVC) decision to every entry of the register. SSVC answers a question the risk engine does not: *how
+soon do we respond to this vulnerability?* It is a **response priority, never a likelihood**: no SSVC
+outcome changes Pb(A), Pb(ψ,A) or any other parameter, and the risk totals are the same before and after
+any decision.
+
+**The tree** is chosen once per workspace:
+
+| Tree | Decision points | Outcomes |
+|---|---|---|
+| *Deployer — CISA SSVC* (default) | Exploitation · Automatable · Technical Impact · Mission & Well-being (from Mission Prevalence and Public Well-Being Impact) | Track · Track* · Attend · Act |
+| *Deployer — CERT/CC SSVC patch application priority* | Exploitation · System Exposure · Automatable · Human Impact (from Safety Impact and Mission Impact) | Defer · Scheduled · Out-of-Cycle · Immediate |
+| *Supplier — CERT/CC SSVC patch development priority* | Exploitation · Utility (from Automatable and Value Density) · Technical Impact · Public Safety Impact (from Safety Impact) | Defer · Scheduled · Out-of-Cycle · Immediate |
+
+The tables are the published ones, row for row (CERT/CC SSVC repository, which also publishes CISA's
+tree); the source is named on the screen. Switching tree keeps earlier decisions and marks them
+*other tree — review*.
+
+**Exploitation from the evidence.** EPSS and CISA KEV from the loaded snapshot, and the feed items loaded
+under Threat feeds, suggest the Exploitation value: listed in KEV → *Active*; EPSS at or above the
+snapshot's high thresholds (score 0.50 or percentile 0.90), or public exploit code (PoC) reported in the
+feeds → *Public PoC*; otherwise *None*. You may choose another value; the record then needs a
+justification and keeps both values.
+
+**The decision record** — one per vulnerability: the decision points and their values, the derived
+points, the outcome, the evidence (KEV listing date, EPSS score and percentile, PoC reports, snapshot
+date), who decided, when, the justification, and the history of earlier decisions. *Decided by* is
+required. The register shows the outcome in its **SSVC** column and the CVE detail repeats it; *Review*
+appears when the tree has changed or the evidence now points to a stronger Exploitation value. *Export
+decisions (CSV)* gives the whole set.
+
 ### 7.4.3 Threat feeds & social {#feeds}
 
 **Triage** (first tab). A feed is a pile of headlines; a triage is a decision. This tab merges
@@ -3038,6 +3071,69 @@ already happened.
 Every forecast is shown apart from the calculated results and labelled **Analytical estimate —
 validation required**. A forecast is the width of your uncertainty, not a prediction of events.
 
+### 7.10.5.1 Exploitation forecast (30 days) {#forecast-exploit}
+
+*Forecasts → Exploitation (30 days)* (1.9.0) gives, for each CVE in the register, the likelihood of
+**exploitation activity in the wild over the next 30 days** — evidence about the threat environment,
+**never** the likelihood of a scenario. It is computed by a published rule, shown under *The rule*:
+
+1. the latest EPSS score (itself a 30-day probability of exploitation activity), plus its trend per 30
+   days, capped at ±0.25 — the trend is a least-squares slope over the EPSS values found in the **dated
+   snapshots kept in the feeds folder** (`threat-context-YYYY-MM-DD.json`), so the history is only as long
+   as the snapshots you kept; nothing is downloaded for this screen;
+2. public exploit code (PoC) reported in the loaded feeds: combined uplift of 0.15; other feed reports
+   naming the CVE: 0.03 each, up to 0.12;
+3. in CISA KEV: at least 0.90 (exploitation already observed).
+
+Bands: high ≥ 50%, moderate ≥ 10%, low below. Each row lists its reasons. When **exposure is confirmed**
+and the CVE is in KEV, the band is high or the trend rises by 5 points or more per 30 days, the CVE is
+flagged; *Raise review items for the flagged CVEs* creates **review items** — nothing else. A review item
+asks a person to look again at the SSVC decision and, exposure confirmed, at the Threat Evidence Ladder;
+*Done* and *Dismiss* (with a reason) close it. An unconfirmed CVE is watch-only (exposure gate).
+
+*Ask AI (preview first)* sends the table — CVE identifiers, products, exposure, EPSS history, KEV status,
+feed headlines — to the model the feature *Exploitation forecast* is routed to (**the local model by
+default**). The answer appears in its own column, labelled **Analytical estimate — validation required**,
+and raises nothing unless you raise a review item from it.
+
+### 7.10.5.2 Mitigation optimizer {#forecast-optimizer}
+
+*Forecasts → Mitigation optimizer* extends the **funding frontier** of the Budget screen. The frontier
+funds scenarios one by one in cost-effectiveness order, splitting shared initiatives; the optimizer
+chooses **initiatives**, each counted once however many scenarios it serves, and counts a scenario as
+treated only when every initiative it needs is funded. For a Year-1 budget (by default the
+appetite-consistent envelope: target × IT budget − baseline) it finds the portfolio that brings the
+**most scenarios at or below tolerance** (or strictly below, as you choose); ties go to more risk removed,
+then lower cost. With up to 20 scenarios that can reach the target it tries every combination (*Method:
+exact*); beyond, it says it used a greedy search. The result is set against the frontier at the same
+budget. Every residual comes from the verified engine.
+
+*Ask AI (preview first)* then sends the initiatives (names, costs, timing), the scenarios they treat and
+the organization profile to the model the feature *Mitigation optimizer* is routed to (**local by
+default**). The model may propose corrected initiative costs and per-scenario reductions (red_p, red_i),
+with a rationale and a confidence. Unknown identifiers are dropped and values are kept within their
+limits. *Compute “if accepted”* lets the engine show what the proposals would change, on a copy — nothing
+is applied. *Accept the ticked proposals* applies only the rows you tick, after a confirmation; the AI log
+records the acceptance.
+
+### 7.10.5.3 Residual-risk path {#forecast-path}
+
+*Forecasts → Residual-risk path* shows residual risk **month by month over one to three years** for
+each funding option of the Budget screen — A status quo, B above-tolerance scenarios, C best value within
+the appetite-consistent budget, D full portfolio — and the optimizer's portfolio when you ran it. Each
+initiative starts in its budget year (Budget → initiatives allocated over the years) and start month and
+reaches full effect after its **months to benefit** (start to end month; 6 months assumed, and said so,
+when no end is stated). The phase-in scales the scenario's probability reduction and the engine computes
+every residual; a fully phased-in option ends at the calculated residual (MediBec, option D: 41,023).
+
+The **bands** (p10–p90) come from a seeded Monte Carlo over the parameter ranges of the *Parameter
+ranges* tab and over delivery delays (×0.8 to ×1.5 of each initiative's months to benefit). The central
+path is the plan as stated, so it often sits at the optimistic edge of its band. *Options compared* gives
+the spend over the horizon (initial and recurring as allocated by year), the residual at 12, 24 and 36
+months, the month of full benefit, the **risk avoided** (area between the status-quo path and the
+option, in risk units × years) and **risk avoided per $1,000**, with its band. Same seed and trials,
+same figures.
+
 ### 7.10.6 Backup & restore {#backup}
 
 One file holds every workspace, the extracted text of your context documents, the framework
@@ -3440,7 +3536,8 @@ One page for every decision about what may leave this computer for an AI model.
 - **Route of each AI feature.** For each feature — vulnerability linking, profile and crown-jewel
   extraction, import from documents (two groups), scenario proposals, causal chains, the **Virtual
   consultant** (local model by default) and its parameter critique, the weekly briefing, policy drafting,
-  simulation data for teaching, compliance assessment —
+  simulation data for teaching, compliance assessment, the exploitation forecast and the
+  mitigation optimizer (both local by default) —
   what it sends, its sensitivity, and its route: *Workspace provider*, *Local model only*, *Remote
   provider* or *Off*. *Restore the recommended routes* puts the sensitive features back on the local
   model.

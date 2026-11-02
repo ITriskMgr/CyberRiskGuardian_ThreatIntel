@@ -9,6 +9,12 @@ Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition
   hides an `ABS()` residual); `.js`, `.mjs` and `.py` files are checked for outdated wording (not for markers).
 - `.claude-plugin/marketplace.json` lists plugin version 1.6.2, as `plugin.json` does.
 - `requirements.txt` pinned to exact versions; `.github/workflows/desktop-ci.yml` and `.github/dependabot.yml` added.
+- Threat Intel plugin: **SSVC beside EPSS and KEV** in vulnerability triage — `scripts/ssvc.py` (CISA SSVC 2.0.3 and the
+  CERT/CC deployer and supplier trees, row for row from CERTCC/SSVC commit `bf3213bc`; Exploitation suggested from a local
+  snapshot), `test_ssvc.py` (every combination; diffs every row against the CSVs when `SSVC_REPO` is set), the
+  `ssvc_decision` tool of the `crg-calculator` MCP server, a *Triage: SSVC beside EPSS and KEV* section in
+  `threat-context-calibration` and `references/ssvc.md` (with the `.claude` copies). An SSVC outcome is a response
+  priority, never a likelihood.
 
 ## 1.6.2 — 2026-10-30
 
