@@ -34,7 +34,7 @@ suite :
 | **Gestion de l'audit** | Charte et méthodologie, univers d'audit, plan pondéré selon le risque, missions, procédures SP 800-53A, feuilles de travail et échantillonnage, observations et constatations, réponses et suivi indépendant, rapports, qualité et indépendance, rapports SOC et éléments probants, traçabilité. |
 | **Opérations de sécurité** | Un **SIEM** local (sources de télémétrie, règles de détection, couverture validée par des essais, alertes et tri, indicateurs avec TLP) et un **SOAR** local (dossiers, incidents, guides d'intervention, points d'approbation, actions consignées, simulations à blanc, leçons apprises) — alimentés par des fichiers que vous importez, jamais par un connecteur en direct. |
 | **Registre partagé des risques** | Un catalogue de risques partagé entre organisations, consultable par secteur, région, taille, réglementation, thème, catégorie d'actifs et technique, avec des contributions anonymisées et une modération. |
-| **Outils · Paramètres · Aide** | CVSS v4.0 (Base), budget, exportation Excel avec formules actives, assistant IA, prévisions, sauvegarde et restauration ; les paramètres (modules, journaux, IA, utilisateurs, fichiers, flux, données de simulation pour l'enseignement) ; la fenêtre Pas à pas, ce guide, À propos, un agent conversationnel d'aide, l'anglais et le français. |
+| **Outils · Paramètres · Aide** | CVSS v4.0 (Base), budget, exportation Excel avec formules actives, le **consultant virtuel** (aussi depuis le bouton **Consultant** de la barre supérieure), prévisions, sauvegarde et restauration ; les paramètres (modules, journaux, IA, base de connaissances, utilisateurs, fichiers, flux, données de simulation pour l'enseignement) ; la fenêtre Pas à pas, ce guide, À propos, un agent conversationnel d'aide, l'anglais et le français. |
 
 La plupart des fonctionnalités sont des modules qu'un administrateur peut désactiver pour l'installation
 (Paramètres → Modules), et les écrans peuvent être masqués par personne ou par groupe (Paramètres →
@@ -272,7 +272,7 @@ portent aussi une version des données. Lorsque la façon dont les données sont
   enregistré par-dessus. Un fichier de sauvegarde est refusé lorsqu'il a été écrit par une application
   plus récente, et un espace de travail plus récent contenu dans une sauvegarde n'est pas restauré.
 
-La version courante des données est **2**. Les deux étapes sont consignées au journal de chaque espace de
+La version courante des données est **4**. Les quatre étapes sont consignées au journal de chaque espace de
 travail :
 
 | Étape | Ce qu'elle fait |
@@ -280,6 +280,7 @@ travail :
 | 0 → 1 | Les champs qui n'étaient créés que lorsqu'un écran les utilisait pour la première fois sont présents dès le départ ; les incidents importés à partir de documents passent au registre des incidents (Gestion de la cybersécurité → Incidents) et demeurent affichés sous Organisation → Preuves ; les exceptions aux politiques reçoivent un périmètre, un approbateur et des contrôles compensatoires ; les enregistrements de gouvernance, d'audit, de gestion de la cybersécurité, du SGSI et du lien avec l'ontologie sont ajoutés, vides. |
 | 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **preuves** passent, inchangés, au registre partagé des preuves (Gouvernance → Registres partagés → Preuves) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
 | 2 → 3 | Seuls les catalogues de contrôles actuels demeurent (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1) : chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou CIS v7.1 — dans les mesures, les déclarations d'applicabilité, les listes de cadres — est mise en correspondance, l'ancien identifiant étant conservé dans une note à côté ; une référence sans correspondance (ou dont le nouvel identifiant a déjà un dossier) est conservée et **signalée pour examen**, jamais supprimée, et la Revue de qualité la signale (QC-23). Les anciens libellés de marqueurs prennent les marqueurs normalisés. Un cas d'enseignement MediBec encore sur les vecteurs AV:N antérieurs de S2 et S8 les conserve — une migration ne change aucun chiffre — et la page Processus propose les vecteurs AV:L (journalisé ; voir 7.1), ou Réinitialiser les données → Recommencer prend tout le cas actuel ; la Revue de qualité (QC-26) signale un cas laissé sur AV:N. Des dossiers vides de filtrage des scénarios et de sommaire de gestion sont ajoutés (le cas d'enseignement reçoit son filtrage). |
+| 3 → 4 | Une seule étape formée de sous-étapes, une par nouveau type de dossier. Un dossier vide du **consultant virtuel** est ajouté (conversations enregistrées et mode de recherche, lexical) ; les autres dossiers de cette version s'ajoutent de la même façon. Rien d'existant ne change. |
 
 ---
 
@@ -475,7 +476,7 @@ Donnez à chaque paramètre une justification et un niveau de confiance; Prévis
 
 1. Pour chacun des six paramètres, indiquez la valeur, une justification, les éléments probants et une confiance (Élevée, Moyenne, Faible). Les éléments probants importés des documents s'ajoutent à ces champs, jamais comme un nombre.
 2. Prévisions → “Plages de paramètres” → “Proposer des plages là où aucune n'est définie” (Faible ±0.15, Moyenne ±0.10, Élevée ±0.05), puis “Monte-Carlo” → “Lancer la prévision”.
-3. Facultatif : Assistant IA → “Critique des paramètres” signale la confiance que les éléments probants n'appuient pas.
+3. Facultatif : Consultant virtuel → “Critique des paramètres” signale la confiance que les éléments probants n'appuient pas.
 
 *Terminé quand :* L’étape 9 du processus indique Terminé : 80 % des paramètres des scénarios inclus portent une justification.
 
@@ -1793,7 +1794,7 @@ sur exposition confirmée, au moyen de l'Échelle des preuves de menace, chaque 
 par vous ; le CVSS reste limité au score de base. Enregistrez-la dans le dossier des flux à côté du
 condensé, ou copiez-la.
 
-*Raconter au moyen de l'assistant IA* réécrit le même tri pour un public de gestionnaires. Le modèle
+*Raconter avec l'IA* réécrit le même tri pour un public de gestionnaires. Le modèle
 reçoit la consigne de n'énoncer aucun chiffre de risque. La synthèse sans IA demeure la version
 officielle ; le récit est une note d'accompagnement, et il est présenté comme tel.
 
@@ -3127,10 +3128,47 @@ se prend par initiative.
 Chaque fichier est enregistré dans le dossier de téléchargement de votre navigateur, et chaque
 exportation est consignée dans Paramètres → Journaux (journal des données).
 
-### 7.10.4 Assistant IA {#ai}
+### 7.10.4 Consultant virtuel {#ai}
 
-L'analyste, la critique des paramètres, la génération de scénarios, la narration des synthèses et le
-journal des décisions — section 8.
+Le consultant virtuel répond aux questions sur cet espace de travail, la méthode et l'écran où vous êtes, à
+partir de passages repérés **sur cet ordinateur** — le manuel, l'ontologie, les documents et enregistrements de
+cet espace de travail, les catalogues fournis et votre propre bibliothèque — et garde ce qui en provient séparé
+des connaissances générales du modèle. On y accède de deux façons :
+
+- **Le bouton Consultant** de la barre supérieure ouvre un **panneau** qui glisse sur la droite de chaque écran.
+  L'écran reste visible (dans une fenêtre large, il se décale), et le panneau sait où vous êtes : l'écran, et
+  l'objet qu'il affiche — un scénario ouvert dans l'éditeur est le premier passage envoyé. Tapez une question,
+  appuyez sur **Demander** : les passages sont repérés, la requête s'affiche dans l'aperçu habituel
+  (section 8.1), et rien n'est envoyé avant votre confirmation. **Nouvelle conversation** repart à zéro ;
+  **Vue complète et historique** ouvre la vue des Outils.
+- **Outils → Consultant virtuel** est la vue pleine largeur, en cinq onglets : **Conversation** (la même que
+  celle du panneau), **Historique** (les conversations enregistrées de cet espace de travail), **Critique des
+  paramètres**, **Génération de scénarios** et le **Journal des décisions**. Elle renvoie à **Paramètres → Base
+  de connaissances**, où se trouve votre bibliothèque.
+
+**Lire une réponse.** Elle arrive en deux blocs qui ne se mélangent jamais. **D'après vos sources** : les
+paragraphes qui citent un passage envoyé au consultant — chaque marqueur (P1, P2…) ouvre le passage sous
+*Passages repérés sur cet ordinateur*, avec sa citation (*Manuel v2.51b, chapitre 4 — section*, *identifiant
+CRGO (version)*, *Document de l'espace de travail « nom », passage n*, *Bibliothèque — fichier, passage n*…).
+**Connaissances générales, pas d'après vos sources** : tout le reste, marqué *Estimation analytique —
+validation requise*. Les liens d'une réponse ouvrent un écran, un scénario ou un chapitre du manuel (le texte
+fourni, dans une fenêtre). L'application vérifie chaque réponse : un marqueur visant un passage non envoyé est
+retiré, et **un chiffre de risque que le moteur n'a pas calculé est retiré** et remplacé par *[chiffre retiré —
+non calculé par le moteur]* ; *Vérifié par l'application* indique ce qui a été fait.
+
+**Rien n'est écrit.** Quand une réponse propose des scénarios, *Envoyer … scénario(s) proposé(s) aux Scénarios
+en lot pour revue* les place parmi les candidats, non examinés — le même parcours que la génération de
+scénarios. Les idées de paramètres sont à appliquer par vous dans l'éditeur de scénarios. *Utile* / *Pas utile*
+consigne votre verdict dans le journal des décisions.
+
+**Historique.** Les conversations sont enregistrées avec l'espace de travail. L'onglet **Historique** les
+énumère ; **Ouvrir** en rappelle une, **Exporter en Markdown** la télécharge (questions, réponses séparées selon
+leur provenance, passages cités — ceux de la bibliothèque en courtes citations), **Citer comme élément probant**
+l'ajoute au registre des éléments probants sous un numéro E (de type Externe, classé comme hypothèse : ce que le
+consultant a dit est une hypothèse à valider), et **Supprimer** l'enlève, le journal des décisions conservant ses
+entrées. La réinitialisation de l'évaluation vide les conversations.
+
+L'acheminement, la recherche et la base de connaissances sont décrits aux sections 8.3 à 8.5.
 
 ### 7.10.5 Prévisions {#forecast}
 
@@ -3217,7 +3255,7 @@ migration*. Section 5.1.
 
 ### 7.11 Paramètres {#settings}
 
-Des paramètres communs à tous les espaces de travail de cette installation, en douze onglets énumérés
+Des paramètres communs à tous les espaces de travail de cette installation, en treize onglets énumérés
 dans le menu. En mode multiutilisateur, Paramètres est réservé aux administrateurs.
 
 #### Langue
@@ -3234,7 +3272,7 @@ Anglais ou français (section 7.12.4).
 | Gouvernance | Gestion de la sécurité de l'information · Gestion des PSI · Gestion de la cybersécurité · Registres partagés · Revue de qualité |
 | Conformité et audit | Gestion de la conformité · Gestion de l'audit |
 | Opérations de sécurité | SIEM · SOAR |
-| Autres fonctionnalités | Registre partagé des risques (avec Publier et partager) · Flux de menaces et réseaux sociaux · Ontologie · CRGO · Assistant IA · Prévisions · Budget |
+| Autres fonctionnalités | Registre partagé des risques (avec Publier et partager) · Flux de menaces et réseaux sociaux · Ontologie · CRGO · Consultant virtuel · Prévisions · Budget |
 
 Une fonctionnalité désactivée quitte le menu, avec toute section ou tout sous-menu laissé vide, et son
 adresse indique comment la réactiver. **Rien de ce qu'elle contient n'est supprimé** : ses données
@@ -3262,8 +3300,33 @@ ou **Effacer le journal sélectionné**. Les journaux restent sur cet ordinateur
 #### IA — locale et distante {#settings-ai}
 
 Les commutateurs généraux, l'acheminement de chaque fonction d'IA, les paramètres d'IA de l'espace de
-travail, l'agent conversationnel d'aide et les fournisseurs — section 8.3. Les clés sont stockées par
+travail, la recherche du consultant virtuel et les fournisseurs — section 8.3. Les clés sont stockées par
 l'assistant local dans `crg-keys.json`, jamais dans un espace de travail.
+
+#### Base de connaissances {#consultant-kb}
+
+Ce que sait le consultant virtuel, et votre **bibliothèque**.
+
+- **Ce que sait le consultant virtuel** énumère les cinq sources, la façon dont chacune est citée et le nombre
+  de passages qu'elle contient : cet espace de travail (documents de contexte et enregistrements), la
+  bibliothèque, le **manuel** (*Introduction to Cybersecurity Governance for Business Technology Management*,
+  3e éd., v2.51b, fourni en texte local — cité *chapitre N — section*), l'**ontologie** (CRGO : le serveur actif
+  par l'assistant local quand il tourne, sinon l'instantané fourni — citée par identifiant et version), et les
+  **catalogues et guides** (ATT&CK, CWE, les catalogues de contrôles et ensembles de référentiels — identifiants
+  et titres —, ce guide et les gabarits de politiques).
+- **Bibliothèque — vos propres textes.** Ajoutez des fichiers PDF, Word (.docx), Markdown, texte ou HTML pour
+  lesquels vous détenez une licence — une norme, un règlement, des lignes directrices, des documents internes.
+  Cochez **Je détiens une licence pour ce texte ; il reste sur cet ordinateur.** — *Ajouter à la bibliothèque*
+  reste désactivé tant que ce n'est pas fait ; le libellé, la date et la personne connectée sont conservés avec
+  le fichier. Choisissez une **étiquette de source** (norme, loi ou règlement, lignes directrices, livre ou
+  article, document interne, autre). Le texte est extrait sur cet ordinateur avec le même lecteur que les
+  documents de contexte, indexé une fois et offert **dans chaque espace de travail**.
+- **Ce que la bibliothèque ne fait jamais.** Elle ne quitte jamais cet ordinateur : les sauvegardes l'excluent
+  (et une restauration ne l'écrit jamais), les paquets du registre et les exportations ne la lisent pas, et le
+  consultant n'en cite que de courts extraits. Un fichier dont le nom ou le texte ressemble à une norme sous
+  licence (ISO/IEC, ISACA, IIA, AICPA, COSO, PCI DSS, CIS…) est signalé, et la **Revue de qualité** (QC-13) le
+  rapporte ; un fichier sans l'attestation, ou une réponse enregistrée qui cite longuement la bibliothèque, fait
+  échouer la vérification. **Retirer** supprime le texte et ses passages.
 
 #### Utilisateurs et RACI {#settings-users}
 
@@ -3535,14 +3598,10 @@ pour l'écran où vous vous trouvez ; posez une question en anglais ou en fran�
 proviennent de l'aide intégrée — conseils d'écran, les 13 étapes du processus, questions fréquentes —
 et du guide de l'utilisateur, consultés sur cet ordinateur ; *Ouvrir cet écran* vous y mène.
 
-Par défaut, l'agent conversationnel est en mode **aide seulement** : aucune IA, rien n'est envoyé. Pour
-autoriser les réponses de l'IA, allez dans **Paramètres → IA — locale et distante** et cochez
-**Permettre à l'agent conversationnel d'utiliser l'IA** ; l'IA doit également être activée pour l'espace
-de travail (même page), et la fonction *Agent conversationnel d'aide* ne doit pas être acheminée vers
-*Désactivé*. Chaque réponse offre alors **Demander à l'IA**, qui montre exactement ce qui serait envoyé
-(votre question, l'écran, les passages d'aide correspondants et un bref résumé de l'espace de travail)
-avant que quoi que ce soit ne quitte l'ordinateur. La réponse de l'IA est identifiée comme telle ;
-l'agent conversationnel ne modifie jamais les données.
+L'agent conversationnel est en mode **aide seulement** : aucune IA, rien n'est envoyé. Sous chaque réponse,
+**Demander au consultant virtuel** ouvre le panneau du consultant avec votre question déjà tapée
+(section 7.10.4) : le consultant a son propre acheminement, son aperçu et son historique. L'agent
+conversationnel ne modifie jamais les données.
 
 ### 7.12.4 Langue — anglais et français
 
@@ -3618,16 +3677,17 @@ modèle d'IA.
   (Claude seulement).
 - **Acheminement de chaque fonctionnalité d'IA.** Pour chaque fonction — liaison des vulnérabilités,
   extraction du profil et des actifs essentiels, importation à partir des documents (deux groupes),
-  propositions de scénarios, chaînes causales, l'analyste et la critique de l'assistant IA, la synthèse
-  hebdomadaire, la rédaction de politiques, les données de simulation pour l'enseignement,
-  l'évaluation de la conformité, l'agent conversationnel d'aide — ce qu'elle envoie, sa sensibilité et
+  propositions de scénarios, chaînes causales, le **consultant virtuel** (modèle local par défaut) et sa
+  critique des paramètres, la synthèse hebdomadaire, la rédaction de politiques, les données de simulation
+  pour l'enseignement, l'évaluation de la conformité — ce qu'elle envoie, sa sensibilité et
   son acheminement : *Fournisseur de l'espace de travail*, *Modèle local seulement*, *Fournisseur
   distant* ou *Désactivé*. *Rétablir les acheminements recommandés* remet les fonctions sensibles sur
   le modèle local.
 - **Cet espace de travail.** IA activée ou désactivée, le fournisseur de l'espace de travail, *Traiter
   comme confidentiel*, *Anonymiser avant l'envoi* et la valeur par défaut de la **créativité**.
-- **Agent conversationnel d'aide.** *Permettre à l'agent conversationnel d'utiliser l'IA* (désactivé
-  par défaut).
+- **Consultant virtuel — recherche.** La façon dont le consultant trouve ses passages (section 8.5) : le
+  fournisseur et le modèle de plongement de cette installation (fournisseurs locaux seulement), *Recherche pour
+  cet espace de travail* (lexicale ou hybride) et *Construire l'index vectoriel*.
 - **Fournisseurs.** Une fiche par fournisseur, regroupées *Hors de cette machine* et *Sur cette
   machine* : l'API Claude, OpenAI, Google Gemini, Azure OpenAI, GitHub Models, Ollama, LM Studio, tout
   autre serveur local compatible OpenAI, et **Ajouter votre propre fournisseur**. Pour chaque
@@ -3641,11 +3701,11 @@ local les vérifie de nouveau avant chaque appel : une fonction réglée sur le
 joindre un fournisseur distant, quoi qu'une page demande. *Distant* désigne tout fournisseur qui ne se
 trouve pas sur cette machine, y compris un fournisseur que vous ajoutez.
 
-### 8.4 L'assistant IA
+### 8.4 Le consultant virtuel
 
 | Tâche | Ce qu'elle fait | Ce qu'elle ne peut pas faire |
 |---|---|---|
-| **Analyste** | Répond à une question sur cette évaluation, avec le contexte de l'organisation et les chiffres propres du moteur dans le contenu envoyé. | Recalculer. Les chiffres qu'elle cite sont ceux qu'on lui a fournis. |
+| **Conversation** | Répond à une question avec l'écran et l'objet sélectionné, le résumé de l'organisation et le portrait du risque (les chiffres propres du moteur), et les passages repérés sur cet ordinateur — les documents et enregistrements seulement sous forme de passages, jamais en entier. | Recalculer, ou citer un passage qui ne lui a pas été envoyé. Un chiffre de risque que le moteur n'a pas calculé est retiré de la réponse. |
 | **Critique des paramètres** | Examine vos Pb(A), Pb(ψ,A), δe, δm, θ et μ(E) au regard du texte du scénario et des preuves consignées, et indique où elle est en désaccord et pourquoi. | Appliquer quoi que ce soit. Elle suggère ; vous décidez, paramètre par paramètre. |
 | **Génération de scénarios** | Rédige des scénarios sous forme de chaînes causales complètes, éventuellement amorcées à partir d'éléments de flux triés. | Atteindre le registre. Ils aboutissent dans Scénarios en lot, marqués générés par l'IA, non examinés. |
 | **Narration de la synthèse** | Réécrit le tri de la semaine pour un public de gestionnaires. | Énoncer un chiffre de risque. |
@@ -3655,6 +3715,28 @@ contenu a été anonymisé ou modifié, le niveau de créativité, l'utilisation
 verdict** — accepté, partiellement utile, rejeté. Ce journal est la preuve que l'IA a été utilisée de
 façon responsable dans l'évaluation. Si une réponse atteint le plafond de sortie du modèle, l'écran
 indique *tronquée* et conserve les constats arrivés complets.
+
+**Acheminement.** Le consultant a sa propre ligne, **Consultant virtuel**, dans *Paramètres → IA — locale et
+distante*, sur le **modèle local** par défaut — ses requêtes contiennent du texte organisationnel. Réglé sur
+*Fournisseur de l'espace de travail*, il suit le fournisseur de l'espace de travail comme toute autre fonction.
+Un espace de travail confidentiel confirme chaque appel ; l'aperçu et l'anonymiseur fonctionnent comme pour
+toute fonction d'IA, et la limite de 400 ko s'applique.
+
+### 8.5 Base de connaissances et recherche
+
+Le consultant n'envoie à un modèle que ce qui correspond à la question. Pour chaque question, il interroge
+l'index de chaque source **sur cet ordinateur** et garde au plus trois passages par source et huit en tout, les
+correspondances faibles étant écartées (un scénario ouvert dans l'éditeur vient en premier). La recherche
+**lexicale** — par défaut — classe les passages selon les mots qu'ils partagent avec la question (BM25) : hors
+ligne, sans aucun modèle, et la même question donne toujours les mêmes passages. La recherche **hybride**,
+activée par espace de travail dans *Paramètres → IA — locale et distante → Consultant virtuel — recherche*,
+ajoute le classement d'un **modèle de plongement sur cette machine** : Ollama (son point de terminaison
+`/api/embeddings`) ou un serveur local compatible OpenAI (`/embeddings`). Indiquez le fournisseur et le modèle
+de l'installation, puis **Construire l'index vectoriel** ; les sources sans vecteurs restent lexicales. Le choix
+est grisé tant qu'aucun modèle local n'est configuré. **Les fournisseurs distants ne calculent jamais de
+plongements** : l'assistant local les refuse et n'accepte qu'un point de terminaison sur cet ordinateur.
+Changer le modèle de plongement vide l'index vectoriel, qui ne fait jamais partie d'une sauvegarde. Les sources
+elles-mêmes sont énumérées dans *Paramètres → Base de connaissances* (section 7.11).
 
 ---
 
@@ -3880,9 +3962,9 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 **Données, ontologie et qualité**
 
-40. **Sauvegarde et restauration → Versions des données et migrations** : version des données 3 ;
+40. **Sauvegarde et restauration → Versions des données et migrations** : version des données 4 ;
     importez une exportation d'espace de travail plus ancienne qui contenait des enregistrements de
-    preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 3, les
+    preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 4, les
     preuves se trouvent dans **Registres partagés → Preuves**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
 41. **Ontologie · CRGO → Connexion** nomme CRGO v0.10.1 ; *Lien avec l'organisation* → *Construire le
@@ -3981,7 +4063,7 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | *Publier dans le registre partagé* écrit dans la boîte d'envoi | Aucun dossier de registre synchronisé n'est défini. | Définissez *Dossier local synchronisé avec le registre* dans Paramètres, ou laissez la tâche planifiée téléverser la boîte d'envoi. |
 | Le ratio d'un scénario n'a pas changé après l'ajout de mesures | Les mesures ne sont pas encore appliquées, ou elles ne réduisent que la vraisemblance ou que l'impact. | Atténuation des risques → Appliquer ; ajoutez une mesure pour l'autre dimension. |
 | Une section de navigation semble avoir perdu ses écrans | La section est repliée. | Cliquez sur son titre ; le nombre à côté indique combien d'écrans elle contient. L'état est mémorisé. |
-| L'assistant IA indique qu'aucun fournisseur n'est configuré | Aucune clé stockée, ou aucun point de terminaison local défini. | Paramètres → IA — locale et distante → Fournisseurs. Pour un modèle local, indiquez l'URL de base incluant `/v1`. |
+| Le consultant virtuel indique qu'aucun fournisseur n'est configuré | Aucune clé stockée, ou aucun point de terminaison local défini. | Paramètres → IA — locale et distante → Fournisseurs. Pour un modèle local, indiquez l'URL de base incluant `/v1`. |
 | Une réponse de l'IA indique *tronquée* | La réponse a atteint le plafond de sortie du modèle. | Demandez moins de scénarios ou de constats à la fois ; ce qui est arrivé complet est affiché et utilisable. |
 | L'écran de l'IA n'offre rien à envoyer | L'IA est désactivée pour cet espace de travail. | Paramètres sur l'écran de l'IA → activez-la. Un espace de travail **confidentiel** demandera tout de même une confirmation à chaque appel. |
 | La médiane Monte-Carlo n'est pas le chiffre calculé, sans aucune plage définie | Une plage de paramètres a été laissée sur un scénario. | Plages de paramètres → effacez-la. Sans plage, la médiane doit être exactement égale au total calculé. |
@@ -4038,7 +4120,7 @@ l'environnement externe, et non une mesure de votre organisation. Les indices de
 balayage par mots clés, et non une analyse. Le générateur de scénarios en lot produit des candidats, et
 non une évaluation.
 
-Tout ce que produit l'**assistant IA** est une hypothèse qui a moins de poids que le reste, et non
+Tout ce que produit le **consultant virtuel** est une hypothèse qui a moins de poids que le reste, et non
 davantage : une critique est l'opinion d'un lecteur sur vos estimations, un scénario généré est une
 ébauche qui n'a pas rencontré votre organisation, et une synthèse narrée est une note d'accompagnement.
 Rien de cela ne constitue une preuve, rien de cela ne modifie par soi-même une valeur enregistrée, et le

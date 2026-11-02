@@ -7,6 +7,7 @@ import { el, card, pill, chip, select, toast, table, banner, download, copyText,
 import { general, usersView } from './settings_more.js';
 import * as settingsAi from './settings_ai.js';
 import * as settingsFiles from './settings_files.js';
+import * as settingsKb from './settings_kb.js';
 import { tr } from '../i18n.js';
 import * as settingsLogs from './settings_logs.js';
 import * as settingsSim from './settings_sim.js';
@@ -33,7 +34,7 @@ export async function render(sec, arg) {
   sec.append(HS.helper ? banner('good', 'Saved in the feeds folder', `crg-config.json in ${HS.feedsDir || HS.helper.feeds_dir} — the same file the scheduled task reads. A copy is kept in this browser.`)
     : banner('warn', 'Helper not running — settings saved in this browser only', 'Start the app with its launcher so the settings are written to the feeds folder, where the scheduled task reads them. API keys can be stored only through the helper.'));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['users', 'Users & RACI'], ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'], ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']])
+  for (const [k, t] of [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'], ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'], ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; history.replaceState(null, '', '#/settings/' + k); render(sec); } }, t));
   sec.append(st);
   const body = el('div'); sec.append(body);
@@ -45,6 +46,7 @@ export async function render(sec, arg) {
   if (view === 'users') return usersView(body, sec, rerender);
   if (view === 'ai') return settingsAi.render(body, sec, rerender, aiSection);
   if (view === 'files') return settingsFiles.render(body, sec, rerender);
+  if (view === 'kb') return settingsKb.render(body, sec, rerender);
   ({ links, sources, ai: aiSection, schedule, network, backup }[view] || links)(body, sec);
 }
 const saveBtn = (sec, label = 'Save settings') => el('button', { class: 'btn', onclick: async () => { try { await saveConfig(); toast('Settings saved'); render(sec); } catch (e) { toast(e.message, 'bad'); } } }, label);

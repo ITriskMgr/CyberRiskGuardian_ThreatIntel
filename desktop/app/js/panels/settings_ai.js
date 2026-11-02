@@ -1,13 +1,13 @@
 /* Settings → AI — local & remote (1.5.3). One place for every decision about what may
    leave this computer for an AI model: the master switches, the route of each AI feature, this
-   workspace's AI settings, the help chatbot, and the providers themselves (keys, local endpoint, models,
-   connection test). The routing policy is saved in crg-config.json, where the helper enforces it.
+   workspace's AI settings, the Virtual consultant's retrieval (lexical, or hybrid with a LOCAL embedding
+   model), and the providers themselves (keys, local endpoint, models, connection test). The routing policy is saved in crg-config.json, where the helper enforces it.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, select, toast, banner, table, field, kpi } from '../util.js';
 import { S, touch } from '../state.js';
 import * as AI from '../ai.js';
-import * as prefs from '../prefs.js';
+import * as CONS from '../consult.js';
 import { HS, saveConfig, loadConfig } from '../helper.js';
 import { tr } from '../i18n.js';
 
@@ -90,11 +90,8 @@ export async function render(body, sec, rerender, providersSection) {
     row(an, 'Anonymize before sending', 'Organization, people, assets, hosts and amounts are replaced in the payload; the preview shows the result.'),
     creativityField(a)));
 
-  // chatbot
-  const bot = el('input', { type: 'checkbox', checked: !!prefs.get('chatbotAI'), style: { width: 'auto' }, 'data-ro-ok': '' });
-  bot.addEventListener('change', () => { prefs.set('chatbotAI', bot.checked); toast(bot.checked ? tr('The chatbot may use AI') : tr('The chatbot answers from the built-in help only')); rerender(); });
-  body.append(card(el('h2', { style: { marginTop: 0 } }, 'Help chatbot'),
-    row(bot, 'Let the chatbot use AI', 'Off by default: answers come from the built-in help and the user guide, on this computer. On: each answer offers “Ask AI”, routed like the “Help chatbot” feature above.')));
+  // the Virtual consultant's retrieval
+  await retrievalCard(body, ws, rerender, row);
 
   // providers (keys, endpoint, models, test)
   body.append(el('h2', { style: { margin: '18px 0 6px' } }, 'Providers'));
@@ -109,4 +106,48 @@ function creativityField(a) {
   sel.addEventListener('change', () => { a.creativity = sel.value; help.textContent = AI.creativityLevel(sel.value).help; touch('ai'); });
   return el('div', 'grid g2', el('div', 'field', el('label', null, 'Creativity of extraction and proposals'), sel, help),
     el('p', 'small muted', tr('Applies to profile and crown-jewel extraction, import from documents, scenario proposals, causal chains and ontology suggestions. Higher levels propose more, including items the documents do not mention; each proposal is tagged ASSUMPTION and waits for your decision.') + ' ' + tr(AI.MARK)));
+}
+
+/* Virtual consultant — retrieval. Lexical (BM25, offline, deterministic) by default; a workspace may switch to
+   hybrid, which adds the ranking of a LOCAL embedding model. The model is set for the installation; the
+   helper refuses any provider that is not on this machine, and the vector index is dropped when the
+   model changes. The hybrid choice stays greyed out until a local embedding model is configured. */
+async function retrievalCard(body, ws, rerender, row) {
+  const e = Object.assign({ provider: '', model: '' }, HS.config?.ai?.embed || HS.ai?.embed || {});
+  const locals = AI.providers().filter(p => p.local);
+  const prov = select([['', '— none —'], ...locals.map(p => [p.id, p.label])], locals.some(p => p.id === e.provider) ? e.provider : '');
+  const model = el('input', { type: 'text', value: e.model, placeholder: 'nomic-embed-text', 'aria-label': 'Embedding model' });
+  const save = el('button', { class: 'btn sm', onclick: async () => {
+    const next = { provider: prov.value, model: model.value.trim() };
+    const changed = next.provider !== e.provider || next.model !== e.model;
+    HS.config.ai = Object.assign({}, HS.config.ai, { embed: next });
+    try { await saveConfig(); } catch (err) { toast(String(err.message || err), 'bad'); return; }
+    if (changed) { await CONS.invalidateVectors(); toast(tr('Embedding model saved — the vector index was cleared and must be built again')); }
+    else toast(tr('Embedding model saved'));
+    rerender();
+  } }, 'Save the embedding model');
+  const ready = CONS.embedReady();
+  const c = ws.consultant ||= { conversations: [], retrieval: 'lexical' };
+  const mode = el('select', { 'aria-label': 'Retrieval for this workspace' },
+    el('option', { value: 'lexical', selected: c.retrieval !== 'hybrid' }, 'Lexical — on this computer, offline (default)'),
+    el('option', { value: 'hybrid', selected: c.retrieval === 'hybrid', disabled: !ready }, 'Hybrid — lexical + local embedding model'));
+  mode.addEventListener('change', () => { c.retrieval = mode.value; touch('consultant'); rerender(); });
+  const st = ready ? await CONS.vectorStatus(ws).catch(() => ({})) : {};
+  const prog = el('span', 'small muted');
+  const build = el('button', { class: 'btn sm ghost', disabled: !ready, onclick: async () => {
+    build.disabled = true;
+    try {
+      for (const s of CONS.SOURCES) { prog.textContent = tr(s.label) + '…'; await CONS.buildVectors(s.id, ws, (d, t) => { prog.textContent = `${tr(s.label)} ${d}/${t}`; }); }
+      toast(tr('Vector index built'));
+    } catch (err) { toast(String(err.message || err), 'bad'); }
+    rerender();
+  } }, 'Build the vector index');
+  body.append(card(el('h2', { style: { marginTop: 0 } }, 'Virtual consultant — retrieval'),
+    el('p', null, 'How the consultant finds the passages it sends with a question. ', el('b', null, 'Lexical'), ' ranks passages by the words they share with the question, on this computer, with no model at all. ',
+      el('b', null, 'Hybrid'), ' adds the ranking of an embedding model — a ', el('b', null, 'local'), ' one only: Ollama (/api/embeddings) or a local OpenAI-compatible endpoint (/embeddings). Remote providers never embed; the helper refuses them.'),
+    el('div', 'grid g3', field('Embedding provider (this installation)', prov, 'Providers on this machine only.'), field('Embedding model', model, 'Changing it clears the vector index.'), el('div', { style: { alignSelf: 'end' } }, save)),
+    el('div', 'grid g2', { style: { marginTop: '8px' } }, field('Retrieval for this workspace', mode, ready ? 'Hybrid uses the vectors built below; sources without vectors stay lexical.' : 'Hybrid is available once a local embedding model is configured above.')),
+    ready ? el('div', null, el('div', 'small muted', { style: { margin: '8px 0 4px' } }, tr('Vector index') + ' — ' + e.model + ': ',
+      ...CONS.SOURCES.flatMap((s, i) => [i ? ' · ' : '', `${tr(s.label)} ${st[s.id]?.count || 0}`])), el('div', 'btnrow', build, prog)) : null,
+    el('p', 'note', 'The consultant’s route — local model by default — is the “Virtual consultant” row of the table above. The help chatbot (“?”) answers from the built-in help only; its “Ask the Virtual consultant” button hands the question over.')));
 }

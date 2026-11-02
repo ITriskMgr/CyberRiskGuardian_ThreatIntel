@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """cache_check.py — every module and data file the application loads is in the offline cache (1.5.7).
+Includes the Virtual consultant's retrieval modules (kbindex.js chunker and index, kblib.js, consult.js) and
+the bundled textbook in kb/book/.
 
 A module missing from sw.js FILES works while the helper serves the folder and fails the day the
 installed app runs offline — which is when nobody is looking. This gate fails the build instead.
@@ -12,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 src = open(os.path.join(ROOT, "sw.js"), encoding="utf-8").read()
 listed = set(re.findall(r'"([^"]+)"', src[src.index("const FILES"):src.index("];", src.index("const FILES"))]))
 need = []
-for d in ("js", "js/panels", "js/data", "js/i18n", "help", "frameworks", "data", "examples/threat-context", "data/simulation", "data/simulation/medibec"):
+for d in ("js", "js/panels", "js/data", "js/i18n", "help", "frameworks", "data", "examples/threat-context", "data/simulation", "data/simulation/medibec", "kb/book"):
     for f in sorted(os.listdir(os.path.join(ROOT, d))):
         p = f"{d}/{f}"
         if os.path.isfile(os.path.join(ROOT, p)) and not f.startswith("."):

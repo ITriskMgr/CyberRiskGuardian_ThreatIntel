@@ -304,7 +304,7 @@ function triageView(body, sec, items) {
         const prepared = AI.prepare('briefing', ws, { input: TR.briefingInput(tri, ws), note: triCfg.note });
         if (!confirm(`Send the triage result to ${AI.isLocal(prepared.provider) ? 'the local model' : AI.provider(prepared.provider).label}?\n\n` +
                      `${prepared.bytes} bytes — the summarised triage, not the raw items.\n\n` +
-                     'Cancel to see the payload on the AI assistant screen first.')) { briefBusy = false; render(sec); return; }
+                     'Cancel to see the payload on the Virtual consultant screen first.')) { briefBusy = false; render(sec); return; }
         const out = await AI.send(prepared, ws);
         brief = { text: TR.markdown(tri, ws, { note: triCfg.note }), ai: out };
       } catch (err) { sec.append(banner('bad', 'The briefing could not be written', String(err.message || err))); }

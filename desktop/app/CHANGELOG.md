@@ -78,6 +78,50 @@
   with defaults relative to the repository (`lib.mjs`, `serve.sh`, `run_all.sh`); new `t32_security.mjs` and
   `test_helper_guard.py`. `.github/workflows/desktop-ci.yml` runs the gates (French 100 % now strict), the engine regression,
   the CRGO bridge tests against CRGO v0.10.1, the helper tests and every suite.
+## 1.9.0 Beta (in progress)
+
+### Virtual consultant (replaces the AI assistant)
+- **The AI assistant becomes the Virtual consultant** (FR *Consultant virtuel*), in every edition. The label "AI
+  assistant" is retired from the menu, the modules, the guides, help and the routing table; the in-app "analyst" task is
+  folded into the consultant. The **"?" help chatbot is help-only**: its AI mode (and the *Let the chatbot use AI*
+  setting and *Help chatbot* routing row) is gone; *Ask the Virtual consultant* under each answer hands the question over.
+- **Reach.** A **Consultant** button in the top bar opens a slide-over panel on every screen (the screen stays visible;
+  on a wide window it moves aside). **Tools → Virtual consultant** is the full view: Conversation, History, Parameter
+  critique, Scenario generation, Decision log, and a link to the library.
+- **Knowledge base, five sources, each cited its own way** (`js/consult.js`): the textbook v2.51b bundled as local text
+  (`kb/book/`, built by `tools/build_book.py` from the Threat Intel plugin's references; the MCQ answer key, front
+  matter and reference lists are left out) — *Chapter N — section*; CRGO through the live server when the helper runs
+  it, otherwise the bundled snapshot — identifier and release; the workspace's context documents and records; the
+  bundled catalogues and guides (ATT&CK, CWE, controls, framework packs, the user guide, the policy templates).
+- **Settings → Knowledge base** (`js/kblib.js`, `js/panels/settings_kb.js`): an installation-level **library** of PDF,
+  Word, Markdown and text files, extracted on this computer with the context-document reader, indexed once and available
+  in every workspace, tagged by source. Adding a file requires the attestation *I hold a licence for this text; it stays
+  on this computer.* Library text never goes into a backup (and a restore never writes it), a registry package or an
+  export; answers quote it in short excerpts (240 characters). The Quality review's licensed-standards check (QC-13)
+  extends to the library.
+- **Retrieval** (`js/kbindex.js`): a chunker and a BM25 index per source, in the browser, offline and deterministic,
+  at most three passages per source and eight per question. A workspace may switch to **hybrid** retrieval in
+  Settings → AI — local & remote: lexical fused with a **local** embedding model (Ollama `/api/embeddings` or a local
+  OpenAI-compatible `/embeddings`), configured for the installation and greyed out until it is. The helper's new
+  `/api/embed` refuses any provider that is not on this machine ("Remote providers never embed") and any non-loopback
+  endpoint; the vector index is dropped when the model changes and never backed up.
+- **Context per question:** the screen and the object selected (an open scenario is the first passage), the
+  organization summary and the risk picture; documents and records only as retrieved passages; the 400 kB cap holds.
+- **Routing:** a new row **Virtual consultant**, on the local model by default (enforced by the helper too); the
+  workspace provider when switched; confidential workspaces confirm each call; the payload preview and anonymizer as
+  for every AI feature.
+- **Answers:** paragraphs citing a passage the consultant was sent are shown under *From your sources*, everything else
+  under *General knowledge, not from your sources* with the estimate marker; markers for passages never sent are
+  removed; a risk figure the engine did not compute is removed (*[figure removed — not computed by the engine]*);
+  links open a screen, a scenario or a textbook chapter; proposals go to Batch scenarios unreviewed — nothing is written.
+- **History:** conversations are saved per workspace in the new field `consultant`, exportable as Markdown and citable
+  as evidence (an E-number, typed External, classified as an assumption); AI decision-log entries as before.
+- **Data version 4** (`js/migrate.js`): one step 3 → 4 made of sub-steps (`STEP4`); each declares its field, blank
+  value, reset group and journal title, and KNOWN_FIELDS, the workspace factory, the shape repair and the reset groups
+  read the list. The consultant record is its first sub-step (reset group: assessment). Numbers are never touched; the
+  MediBec self-check (84,305 / 41,023) holds.
+- Tests (`desktop/tests-new/`): t40 retrieval (with a mock local embedding endpoint, `mock_embed.py`), t41 library,
+  t42 history and the 3 → 4 migration, t43 routing. `tools/cache_check.py` covers the new modules and `kb/book/`.
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 

@@ -299,7 +299,8 @@ AI_DEFAULT_POLICY = {
               "briefing": "workspace", "chat": "workspace",
               "extract_sensitive": "local", "extract_more": "workspace", "simulation_pack": "workspace",
               "writer_facts": "workspace", "writer_tailor": "workspace",
-              "causal_chain": "local", "isp_draft": "workspace", "compliance_assess": "workspace"},
+              "causal_chain": "local", "isp_draft": "workspace", "compliance_assess": "workspace",
+              "consultant": "local"},
 }
 # 1.9.0 — the tasks the application sends. The policy is decided on the task, so the task is checked rather
 # than trusted: it must be one of these, and the TASK line of the prompt must name the same one.
@@ -614,6 +615,58 @@ def ai_complete(provider, cfg, body):
     usage = out.get("usage") or {}
     return {"text": text, "model": out.get("model") or model, "provider": provider,
             "usage": {"in": usage.get("prompt_tokens"), "out": usage.get("completion_tokens")}}
+
+
+# ---------------------------------------------------------------- embeddings (1.9.0, Virtual consultant)
+# The optional embedding path of the consultant's retrieval. LOCAL models only: the provider is read from
+# this installation's configuration (ai.embed.provider / ai.embed.model, set in Settings -> AI), never from
+# the page, and a provider whose registry row is not `local` is refused whatever the configuration says —
+# remote providers never embed. Ollama is reached on its own /api/embeddings; any other local provider on
+# the OpenAI-compatible {base}/embeddings.
+MAX_EMBED_TEXTS = 128
+
+
+def embed_config(cfg):
+    e = (cfg.get("ai") or {}).get("embed") or {}
+    return {"provider": str(e.get("provider") or ""), "model": str(e.get("model") or "")}
+
+
+def ai_embed(cfg, texts):
+    """Vectors for a batch of texts from the configured local embedding model: {model, provider, vectors}."""
+    ec = embed_config(cfg)
+    pid, model = ec["provider"], ec["model"]
+    if not pid or not model:
+        raise PermissionError("No local embedding model is configured. Set one in Settings \u2192 AI \u2192 Retrieval.")
+    p = ai_providers(cfg).get(pid)
+    if not p:
+        raise PermissionError(f"Unknown provider '{pid}' for embeddings.")
+    if not p.get("local"):
+        raise PermissionError(f"Remote providers never embed: {p.get('label') or pid} is not on this machine. "
+                              "Choose a local embedding model (Ollama or a local OpenAI-compatible endpoint).")
+    if not isinstance(texts, list) or not texts or len(texts) > MAX_EMBED_TEXTS:
+        raise ValueError(f"Send between 1 and {MAX_EMBED_TEXTS} texts per request.")
+    texts = [str(t)[:8000] for t in texts]
+    if sum(len(t.encode("utf-8")) for t in texts) > MAX_AI_BYTES:
+        raise ValueError(f"The batch is larger than the {MAX_AI_BYTES // 1000} kB limit.")
+    base = _ai_base(cfg, pid)
+    host = urllib.parse.urlparse(base).hostname or ""
+    if host not in ("127.0.0.1", "localhost", "::1"):
+        raise PermissionError(f"The endpoint of {p.get('label') or pid} ({host or 'none'}) is not on this machine; "
+                              "embeddings go to a loopback address only.")
+    key = _ai_key(cfg, pid)
+    if pid == "ollama":                          # Ollama's own endpoint: one prompt per call
+        root = re.sub(r"/v1$", "", base)
+        vecs = []
+        for t in texts:
+            out = _post_json(root + "/api/embeddings", {"model": model, "prompt": t}, _ai_headers(p, key, cfg), timeout=120)
+            vecs.append(out.get("embedding") or [])
+    else:                                        # OpenAI-compatible: one call per batch
+        out = _post_json(base + "/embeddings", {"model": model, "input": texts}, _ai_headers(p, key, cfg), timeout=180)
+        data = sorted(out.get("data") or [], key=lambda d: d.get("index", 0))
+        vecs = [d.get("embedding") or [] for d in data]
+    if len(vecs) != len(texts) or not all(isinstance(v, list) and v for v in vecs):
+        raise RuntimeError("The embedding endpoint returned no vector for some texts.")
+    return {"provider": pid, "model": model, "dims": len(vecs[0]), "vectors": vecs}
 
 
 def _write(job, name, data: bytes):
@@ -1356,6 +1409,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "api_versions": {k: (cfg.get("ai") or {}).get(k + "_api_version") or "" for k in provs},
             # kept for 1.5.1-1.5.4 pages that read a single local endpoint
             "local_base": _ai_base(cfg, "local"),
+            "embed": embed_config(cfg),
         }
 
     def _ai_models(self, qs):
@@ -1419,6 +1473,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 sys.stderr.write(f"helper: ai {provider} {out.get('model')} "
                                  f"in={out['usage'].get('in')} out={out['usage'].get('out')}\n")
                 return self._json(200, out)
+            except Exception as exc:                    # noqa: BLE001
+                return self._json(502, {"error": str(exc)})
+        if path == "/api/embed":                       # 1.9.0 — Virtual consultant: local embeddings only
+            cfg = crg_feeds.load_config(FEEDS)
+            try:
+                out = ai_embed(cfg, body.get("texts"))
+                sys.stderr.write(f"helper: embed {out['provider']} {out['model']} n={len(out['vectors'])}\n")
+                return self._json(200, out)
+            except PermissionError as exc:
+                sys.stderr.write("helper: embed refused\n")
+                return self._json(403, {"error": str(exc)})
+            except ValueError as exc:
+                return self._json(400, {"error": str(exc)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(502, {"error": str(exc)})
         if path == "/api/ai/test":

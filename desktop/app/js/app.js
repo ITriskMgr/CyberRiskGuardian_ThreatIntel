@@ -56,6 +56,7 @@ import * as LOG from './logs.js';
 import * as HELP from './helpdesc.js';
 import * as users from './users.js';
 import * as chat from './chat.js';
+import * as consultui from './consultui.js';
 import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
 import { hfetch } from './helper.js';
@@ -221,6 +222,7 @@ try { const t = localStorage.getItem('crg-theme'); if (t) document.documentEleme
 $('lang-box').append(i18n.switcher(el));
 window.addEventListener('crg-lang', () => { drawChrome(); draw(); });
 $('help-toggle').addEventListener('click', () => chat.toggle());
+$('consult-toggle').addEventListener('click', () => consultui.toggle());
 $('exit-btn').addEventListener('click', exitApp);
 function drawUser() {
   const box = $('user-box'); if (!box) return;
@@ -275,7 +277,7 @@ ENGINE.ok = selfCheck();
 nav.init();
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); consultui.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
