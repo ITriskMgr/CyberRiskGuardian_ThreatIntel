@@ -50,6 +50,9 @@ export const FEATURES = [
   ['simulation_pack', 'Simulation data for teaching (Settings)', 'Organization profile, scenarios (ids, names, ATT&CK), crown jewels and assets', 'medium', 'workspace'],
   ['compliance_assess', 'Compliance assessment', 'Requirements, safeguards, policies and measures of the workspace; optionally document excerpts', 'high', 'workspace'],
   ['chat', 'Help chatbot — Ask AI', 'Your question, the screen, help passages, a short workspace summary', 'low', 'workspace'],
+  // 1.9.0 — AI forecasting
+  ['exploit_forecast', 'Exploitation forecast (Forecasts)', 'Registered CVE identifiers with products, exposure, EPSS history, KEV status and feed headlines', 'high', 'local'],
+  ['mitigation_optimizer', 'Mitigation optimizer — cost and effect proposals (Forecasts)', 'Initiatives with costs and timing, the scenarios they treat with their reductions and tolerance ratios', 'high', 'local'],
 ];
 export const MODES = [['workspace', 'Workspace provider'], ['local', 'Local model only'], ['remote', 'Remote provider'], ['off', 'Off']];
 export const DEFAULT_POLICY = { remote_allowed: true, web_search: true, tasks: Object.fromEntries(FEATURES.map(f => [f[0], f[4]])) };

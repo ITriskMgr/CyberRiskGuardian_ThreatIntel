@@ -23,7 +23,7 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "medibec-screening.js", "js/equiv.js", "js/markers.js", "js/screening.js", "js/updates.js", "js/updateui.js", "js/data/legacy-map.js", "js/panels/evidence.js", "js/panels/screening.js", "js/panels/summary.js", "js/writer.js", "js/panels/writer.js", "js/panels/writer_steps.js", "js/dashpack.js",
   "data/simulation/index.json", "data/simulation/medibec/build-medibec.mjs", "data/simulation/medibec/manifest.json", "data/simulation/medibec/siem.json", "data/simulation/medibec/soar.json",
   // 1.9.0 — SSVC and AI forecasting lane
-  "js/ssvc.js", "js/data/ssvc-tables.js", "js/panels/ssvc.js"
+  "js/ssvc.js", "js/data/ssvc-tables.js", "js/panels/ssvc.js", "js/aiforecast.js", "js/panels/aiforecast.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
