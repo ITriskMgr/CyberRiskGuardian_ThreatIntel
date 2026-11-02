@@ -70,7 +70,7 @@ export function sparkline(values, color = 'var(--series-1)', w = 120, h = 30) {
 
 /** Budget positioning chart: x = appetite (risk-averse 0.1 → risk-seeking 0.9), y = cyber budget as % of IT.
  *  Shaded bands, the guideline curve, and points for the current spend and each arbitrage option.
- *  A point whose spend is outside the 4–12% band has no implied appetite; it sits in the margin zone
+ *  A point whose spend is above the 12% point or below the 4% point has no implied appetite; it sits in the margin zone
  *  ("above ceiling" left, "below floor" right) rather than being forced onto the curve. */
 export function bandChart({ target, anchors, band, points, width = 760, height = 340 }) {
   const m = { l: 52, r: 18, t: 30, b: 44 }, W = width - m.l - m.r, H = height - m.t - m.b;
