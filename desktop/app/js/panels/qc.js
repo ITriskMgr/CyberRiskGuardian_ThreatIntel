@@ -27,6 +27,7 @@ import * as SOAR from '../soar.js';
 import * as MK from '../markers.js';
 import * as EQ from '../equiv.js';
 import * as SCR from '../screening.js';
+import * as LIB from '../kblib.js';
 
 /** Every check: { id, title, state: 'pass'|'warn'|'fail', detail, fix (route) }. */
 export function checks(ws = S.ws) {
@@ -77,7 +78,14 @@ export function checks(ws = S.ws) {
   let ok = false;
   try { const r = self.CRG.run(self.CRG_SAMPLE); ok = Math.round(r.totals.est) === 84305 && Math.round(r.totals.res) === 41023; } catch { ok = false; }
   add('QC-12', 'The engine reproduces the MediBec baseline (84,305 / 41,023)', ok ? 'pass' : 'fail', ok ? tr('Verified at start-up.') : tr('The engine self-check did not pass: no number should be used.'), 'about');
-  add('QC-13', 'Licensed standards are cited by identifier only', 'pass', tr('IIA, ISACA, AICPA, COSO and ISO texts are not stored in the application; reports cite identifiers and headings. Check text you paste yourself.'), null);
+  // 1.9.0 — the check extends to the knowledge base library and to the consultant's saved answers
+  const lib = LIB.list(), unattested = lib.filter(f => f.attestation?.text !== LIB.ATTESTATION), signal = lib.filter(f => f.licensedSignal);
+  const longQuotes = (ws.consultant?.conversations || []).flatMap(c => c.messages.flatMap(m => (m.passages || []).filter(p => p.source === 'library' && String(p.quote || '').length > LIB.QUOTE_MAX + 2).map(() => c.title)));
+  add('QC-13', 'Licensed standards are cited by identifier only', unattested.length || longQuotes.length ? 'fail' : signal.length ? 'warn' : 'pass',
+    unattested.length ? tr('Library file(s) without the licence attestation: {0}. Remove them or add them again with the attestation.').replace('{0}', unattested.map(f => f.name).join(', '))
+      : longQuotes.length ? tr('Saved consultant answers quote the library at length: {0}. Delete those conversations.').replace('{0}', [...new Set(longQuotes)].join(', '))
+      : signal.length ? tr('{0} library file(s) look like licensed standards ({1}); each carries the attestation “I hold a licence for this text; it stays on this computer.” Their text is never in a backup, a package or an export, and answers quote them briefly. Reports still cite identifiers and headings only.').replace('{0}', signal.length).replace('{1}', signal.map(f => f.name).join(', '))
+      : tr('IIA, ISACA, AICPA, COSO and ISO texts are not stored in the application; reports cite identifiers and headings. Check text you paste yourself.') + (lib.length ? ' ' + tr('Knowledge base library: {0} attested file(s), kept on this computer and quoted briefly.').replace('{0}', lib.length) : ''), lib.length ? 'settings/kb' : null);
   // 1.6.0 — CRGO 0.10.0 brief §4
   const c14 = compliantWithoutEvidence(ws);
   add('QC-14', 'No obligation is called compliant from a mapping, an acknowledgement or an attestation', c14.length ? 'fail' : 'pass',

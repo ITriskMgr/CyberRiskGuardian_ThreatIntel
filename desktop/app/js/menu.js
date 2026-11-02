@@ -64,9 +64,9 @@ export const MENU = [
     T('registry', 'Browse & search', { arg: 'browse' }), T('registry', 'Contribute risks', { arg: 'contribute' }), T('registry', 'My contributions', { arg: 'mine' }),
     T('registry', 'Moderation', { arg: 'moderate' }), T('share', 'Publish & share'), T('registry', 'Registry settings', { arg: 'settings' })] },
   { id: 'tools', label: 'Tools', items: [
-    T('cvss', 'CVSS v4.0'), T('budget', 'Budget'), T('export', 'Export · Excel'), T('ai', 'AI assistant'), T('forecast', 'Forecasts'), T('backup', 'Backup & restore')] },
+    T('cvss', 'CVSS v4.0'), T('budget', 'Budget'), T('export', 'Export · Excel'), T('ai', 'Virtual consultant'), T('forecast', 'Forecasts'), T('backup', 'Backup & restore')] },
   { id: 'settings', label: 'Settings', items: [
-    sub('settings', 'Settings', [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['users', 'Users & RACI'],
+    sub('settings', 'Settings', [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'],
       ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'],
       ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']], { flat: true })] },
   { id: 'help', label: 'Help', items: [

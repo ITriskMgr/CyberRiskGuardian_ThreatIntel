@@ -128,7 +128,7 @@ function about(body) {
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Use of generative AI'),
     el('p', null, 'Generative AI was used to create this application. Anthropic’s Claude models, through Claude (Cowork) and Claude Code, assisted with writing and testing the code, the documentation, the French interface catalogue, the control and framework catalogues and the test suites, under the direction of the author, who specified the features, reviewed the results and remains responsible for them.'),
     el('p', null, 'The risk calculation itself does not use AI: the verified engine (crg.js, cvss4.js) reproduces the CyberRiskGuardian workbook formulas and is checked against the MediBec reference at every start.'),
-    el('p', null, 'Inside the app, AI features (AI assistant, extraction from documents, scenario proposals, the chatbot’s AI answers) are optional. They show what would be sent before anything leaves the computer, label every result “Analytical estimate — validation required”, and never change a stored value until a person accepts it.'),
+    el('p', null, 'Inside the app, AI features (the Virtual consultant, extraction from documents, scenario proposals) are optional. They show what would be sent before anything leaves the computer, label every result “Analytical estimate — validation required”, and never change a stored value until a person accepts it.'),
     el('p', 'small muted', 'Claude is a product of Anthropic. This application is not affiliated with or endorsed by Anthropic.')));
 }
 
