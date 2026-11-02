@@ -194,7 +194,7 @@ application picks up the new files.
 
 ## 7. Upgrading from 1.8.x, 1.7.x (or an earlier copy)
 
-**From 1.8.x:** the steps below are the same. At first start each workspace is brought to data version 4 once
+**From 1.8.x:** the steps below are the same. At first start each workspace is brought to data version 5 once
 (journalled in Backup & restore → Migration journal; no number changes). The offline copy of the ontology is rebuilt
 from CRGO 0.11.0 (proposed: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
 and 42001, CCSPA). The page and the helper now share a token made at each

@@ -4,7 +4,8 @@
 
 One comprehensive release (decision record of 2 November 2026). The 1.8.2 build of 30 October 2026 was never released on
 its own and is folded in (its notes follow below), as is the planned 1.8.3 security patch. Threat Intel plugin **1.7.0**
-ships with it (root `CHANGELOG.md`). Workspaces move to **data version 4** (one step 3 → 4 made of sub-steps, journalled);
+ships with it (root `CHANGELOG.md`). Workspaces move to **data version 5** (one step 3 → 4 made of sub-steps, and 4 → 5 for workspaces saved by a
+pre-release build with the single identity, privilege & configuration record; journalled);
 the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 / 16,049**.
 
 ### Security (group 0 — review of 2 November 2026, Part B)
@@ -55,7 +56,7 @@ the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 /
   `test_helper_guard.py`. `.github/workflows/desktop-ci.yml` runs the gates (French 100 % now strict), the engine regression,
   the CRGO bridge tests against CRGO 0.11.0, the helper tests and every suite.
 - `lib.mjs` is the only harness: the per-launch token (`apiHeaders()` for Node, `helper.js headers()` in the page), a
-  first-open wait that settles and survives the migration reload, the ipc helpers; `serve.sh` gives the helper a scratch
+  first-open wait that settles and survives the migration reload, the module helpers; `serve.sh` gives the helper a scratch
   copy of `mock/` (`$CRG_TMP/mock`), so suites that rewrite `consultant.txt` and the helper's `_last.json` never touch
   the repository. t29 reads the running version from `js/version.js` instead of a literal.
 - Suites: t01–t31 as before; t32 security; t33 SSVC; t34 AI forecasting; t35 CanaRetail and MediBec (French); t36–t43
@@ -150,47 +151,71 @@ the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 /
 > draft translation by Claude (Opus 5.5). A native French read-through by the author is pending before the cases are
 > used in class or published as reference material.
 
-### Identity, privilege & configuration module (group 4)
-- **Identity, privilege & configuration** (`ipc`), an optional module in Settings → Modules (Governance), **off by
-  default**, every edition. A strategic posture assessment with seven local registers kept at **population level**
-  — account populations by type, privileged roles by tier 0–2, emergency (break-glass) accounts, access-review
-  campaigns, versioned baselines with configuration scopes, deviations by drift class with their exceptions,
-  segregation-of-duties rules and configuration changes. No connector, no workflow, no remediation; **no names,
-  account identifiers or secrets** (personal-data and secret guards block e-mail/UPN, `DOMAIN\user`, SIDs, more than
-  three IP addresses, keys and tokens). Blank counts stay unknown; stale rows are badged. Spec: desktop edition v1.2.
-- **Eight automatic KRIs, CRG-17 to CRG-24** (identity ownership, privileged MFA, standing privilege, access-review
-  completion, emergency use reviewed, baseline assignment, known coverage, expired exceptions) with numerator and
-  denominator, *not applicable* for a zero denominator, and **never green by excluding unknowns**; threshold overrides
-  in `kriDefs` with Restore default; hidden when the module is off.
-- **Sixteen deterministic finding rules** (IR-01 to IR-16) with a direction hint only; **Record as evidence** (next
-  E-number, counted by the evidence register's citations), **Link scenario** (scenario unchanged), **Propose a parameter
-  change** (Pb(ψ,A) or θ, the value typed by the analyst, ratio now → after from the verified engine). **Accept** is a
-  separate act: parameter, `ipc_basis`, scenario revisions and revision log. Nothing is applied automatically.
-- Maturity reuse: a filter chip (PR.AA, PR.PS, pv1, pv3, ct2, ct3; the 15 statement-of-applicability keys in Compliance
-  → Frameworks & checklists) and proposals that fill **empty answers only**.
-- **Import from a report**: CSV/XLSX counted by offline rules, prose reports by AI (task `extract_s_ipc`, local model by
-  default, payload preview with token count and anonymizer, remote needs an explicit authorization tick, confidential
-  workspaces confirm every call). The file is read in memory only; only accepted counts and an import trace (file,
-  SHA-256, bytes, rows) are kept.
-- Teaching cases: MediBec (EN/FR) gets evidence E13–E15 and five recorded findings, no proposal (84,305 / 41,023
-  unchanged); CanaRetail (EN/FR) one finding with evidence E13 and one **pending** proposal on S10 (27,526 / 16,049
-  unchanged). Samples in `js/data/ipc-samples.js`.
-- Data version 3 → 4: the `ipc` entry of `STEP4` (js/migrate.js, group CONTEXT) runs `migrateIpc4`: baselines named on assets promoted
-  to versioned *legacy* baselines (the asset gains only `baseline.ref`), drift assets get a deviation to classify, a live
-  scope from Information assets, teaching-case seed; invariants throw. `IPC.CRGO` cites the CRGO 0.11.0 terms (see *CRGO 0.11* below).
-- Process steps 1, 2, 9 and 19 gain tips and links when the module is on; the Scenario editor shows the linked
-  evidence read-only. Guides EN/FR section 7.5.6 (Quality review becomes 7.5.7), help on every tab, French 100 %.
-- Tests t36–t43 `*_ipc_*` (fixture `ws-1.8.2.json`, mock `extract_s_ipc.txt`); t27 (MediBec evidence 15, next E16), t10 (module screens offline), t11 and t30 (data version 4) updated.
+### Identity & access management and Configuration management modules (group 4)
+- Two optional modules in Settings → Modules (Governance), each **off by default** and switched on or off on its own,
+  every edition, each with its own menu after Cybersecurity management. Strategic posture assessments with local
+  registers kept at **population level**; no connector, no workflow, no remediation; **no names, account identifiers or
+  secrets** (personal-data and secret guards block e-mail/UPN, `DOMAIN\user`, SIDs, more than three IP addresses, keys
+  and tokens). Blank counts stay unknown; stale rows are badged. Spec: desktop edition v1.3.
+  - **Identity & access management (IAM/PAM)** (`iam`; French *Gestion des identités et des accès (GIA/GAP)*): account
+    populations by type, privileged roles by tier 0–2, emergency (break-glass) accounts, access-review campaigns and
+    segregation-of-duties rules. Tabs Overview, Accounts, Privileged roles, Emergency accounts, Access reviews,
+    Segregation of duties, Findings & proposals, Import from a report.
+  - **Configuration management** (`cm`; *Gestion de la configuration*): versioned baselines with configuration scopes,
+    deviations by drift class with their exceptions (`shared.exceptions`; an expired one never counts) and
+    configuration changes. Tabs Overview, Baselines, Deviations & exceptions, Configuration changes, Findings &
+    proposals, Import from a report.
+  - One shared core (`js/regcore.js`, `js/panels/regcore.js`): register catalogue, guards, validation, KRI threshold
+    rule, finding → evidence → proposal → accept flow, report import, teaching-case loader.
+- **Automatic KRIs**, grouped on the KRI dashboard under each module's name: IAM **CRG-17 to CRG-21** (identity
+  ownership, privileged MFA, standing privilege, access-review completion, emergency use reviewed) and **CRG-23 identity
+  data known coverage**; CM **CRG-22** baseline assignment, **CRG-24** expired exceptions and **CRG-25 configuration data
+  known coverage** (CRGO's known configuration coverage). Numerator and denominator, *not applicable* for a zero
+  denominator, **never green by excluding unknowns**; threshold overrides in `kriDefs` with Restore default; hidden when
+  their module is off.
+- **Deterministic finding rules** with a direction hint only: IAM IR-01 to IR-10, CM IR-11 to IR-15, and IR-16 (stale
+  or conflicting row) in each for its own registers; finding identifiers are one IF-nn sequence across both modules.
+  **Record as evidence** (next E-number, counted by the evidence register's citations), **Link scenario** (scenario
+  unchanged), **Propose a parameter change** (Pb(ψ,A) or θ, the value typed by the analyst, ratio now → after from the
+  verified engine). **Accept** is a separate act: parameter, the scenario's `ipc_basis` (each entry names its module),
+  scenario revisions and revision log. Nothing is applied automatically. Corrective actions raised from a finding carry
+  the kind `iam-finding` or `cm-finding`.
+- Maturity reuse: a filter chip per module (IAM: PR.AA, pv1, pv3, ct2, ct3 and 11 statement-of-applicability keys; CM:
+  PR.PS and 4 keys — 8.9, 8.32, PR.PS-01, CIS 4 — in Compliance → Frameworks & checklists); each module proposes only its
+  own keys and fills **empty answers only**.
+- **Import from a report**, read in memory only, only accepted counts and an import trace (file, SHA-256, bytes, rows)
+  kept: IAM counts CSV/XLSX by offline rules and prose reports by AI (task `extract_s_iam`); CM by AI only (task
+  `extract_s_cm`, configuration-scope and change counts). Local model by default, payload preview with token count and
+  anonymizer, remote needs an explicit authorization tick, confidential workspaces confirm every call.
+- Teaching cases (`js/data/iam-samples.js`, `js/data/cm-samples.js`; IAM loaded first): MediBec (EN/FR) gets evidence
+  E13–E14 (IAM) and E15 (CM), four IAM findings and one CM finding, no proposal (84,305 / 41,023 unchanged); CanaRetail
+  (EN/FR) one IAM finding with evidence E13 and one **pending** proposal on S10, and a compensated CM deviation
+  (27,526 / 16,049 unchanged).
+- Data version 3 → 4: the `iam` and `cm` entries of `STEP4` (js/migrate.js, group CONTEXT) run `migrateIam4` and
+  `migrateCm4`: baselines named on assets promoted to versioned *legacy* baselines of `cm` (the asset gains only
+  `baseline.ref`), drift assets get a deviation to classify, a live scope from Information assets, teaching-case seed per
+  module; invariants throw. **Data version 4 → 5** (`splitIpc5`): a workspace saved by a pre-release 1.9.0 build with
+  one `ipc` record has it split losslessly into `iam` and `cm` (rows, findings with their identifiers, import traces,
+  windows, action kinds), `ipc` removed, journalled, the copy from before kept, no number changed; a pre-release build
+  opens a split workspace read-only. An installation that had switched on the single module finds both switched on,
+  and per-user menu rights set on it apply to both. `IAM.CRGO` and `CM.CRGO` cite the CRGO 0.11.0 terms.
+- Process steps 1, 2, 9 and 19 gain tips and links from each module that is on; the Scenario editor shows each module's
+  linked evidence read-only. Guides EN/FR sections 7.5.6 (IAM) and 7.5.7 (CM) (Quality review becomes 7.5.8), help on
+  every tab, chapter help (IAM → chapter 10, CM → chapter 14), French 100 %.
+- Tests t36–t43 `*_iam_cm_*` (fixtures `ws-1.8.2.json` and `ws-1.9.0-preSplit.json`, mocks `extract_s_iam.txt` and
+  `extract_s_cm.txt`); t27 (MediBec evidence 15, next E16), t10 (module screens offline), t11, t30, t33 and t46 (data
+  version 5) updated.
 
 ### CRGO 0.11 (group 5)
 Built for the **CyberRiskGuardian Ontology 0.11.0**, a **proposed** release: its new terms await the CRGO author's
 approval and are shown and cited as *proposed* everywhere. Until the author tags `v0.11.0`, check out the branch
 `release/0.11.0`. The contracts dss/v1, compliance/v1 and secops/v1 are unchanged (0.10.x keeps working; the 0.11 terms
 then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049 unchanged.
-- **Identity, privilege & configuration ↔ CRGO.** The 28 placeholders of `IPC.CRGO` (`js/ipc.js`) now cite CRGO 0.11.0
-  terms: the register populations, access-review campaign, segregation-of-duties rule and conflict, baseline version and
-  deviation, configuration change record, identity/privilege/configuration findings, the drift classes and the eight
-  indicator kinds (proposed); misconfiguration, policy exception and register record keep existing approved terms.
+- **Identity & access management and Configuration management ↔ CRGO.** `IAM.CRGO` (`js/iam.js`) and `CM.CRGO`
+  (`js/cm.js`) cite CRGO 0.11.0 terms: the register populations, access-review campaign, segregation-of-duties rule,
+  baseline version and deviation, identity, privilege and configuration findings, the drift classes and the indicator
+  kinds (proposed; CRG-23, identity data known coverage, sits under the indicator value set until CRGO names a narrower
+  value); misconfiguration, policy exception and register record keep existing approved terms.
   `tools/crgo_tbd_check.py --release --crgo <checkout>` refuses any placeholder and any identifier the checkout does not
   define (29 checked).
 - **Offline snapshot rebuilt from CRGO 0.11.0** (`data/crgo-snapshot.json`, `data/crgo-assurance.json`,
@@ -253,17 +278,17 @@ then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and Cana
   `t33_ssvc.mjs` and `t34_forecast.mjs`. MediBec self-check unchanged (84,305 / 41,023).
 
 ### Fixed (independent pre-release review of 2 November 2026)
-- **M1 — a changed teaching case no longer blocks the 3 → 4 migration.** The identity, privilege & configuration sample is
+- **M1 — a changed teaching case no longer blocks the 3 → 4 migration.** The identity and configuration samples are
   seeded leniently: a finding link or pending proposal naming a scenario the copy lacks (a student deleted or renumbered
   S27, S28 or S10) is left out and journalled in the migration log; the rest of the sample is added and the workspace opens
-  writable. An explicit `IPC.applySample` stays strict. Test `t38` (MediBec without S27/S28, CanaRetail without S10).
+  writable. An explicit `applySample` stays strict. Test `t38` (MediBec without S27/S28, CanaRetail without S10).
 - **M2 — accepting mitigation-optimizer effects leaves a revision trail.** Each accepted reduction writes a scenario
   revision (from → to, ratio before → after, cause with the AI log id, who) and one `revisionLog` line per reduction, and
   keeps the previous values for *Revert*. On a scenario whose reductions come from measures, a value that differs from
   their combination 1 − ∏(1 − r) is recorded as the scenario's **explicit override** (shown in the Scenario editor and as a
   pill in Risk mitigation); *Apply to all covered scenarios* leaves it in place, the row's *Apply* replaces it (journalled).
   The proposal table names the measures. Test `t34`.
-- **L1 — an IPC indicator whose rows are all unknown is an information gap, not N/A.** CRG-17 to CRG-22 report *not
+- **L1 — a module indicator whose rows are all unknown is an information gap, not N/A.** CRG-17 to CRG-22 report *not
   applicable* only when at least one row has a known denominator value; when every denominator value is unknown they give
   *no data*, the unknown count and "Information gap — organizational validation required" (spec §5: never hide
   unknowns). Guides EN/FR 7.5.6 updated. Test `t39`.

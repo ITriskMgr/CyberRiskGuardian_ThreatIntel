@@ -254,14 +254,15 @@ added; nothing else in the application rewrites older data.
   banner on every screen, and nothing you change is saved over it. A backup file is refused when it was
   written by a newer application, and a newer workspace inside a backup is not restored.
 
-The current data version is **4**. The four steps are journalled in each workspace:
+The current data version is **5**. The five steps are journalled in each workspace:
 
 | Step | What it does |
 |---|---|
 | 0 → 1 | Fields created only when a screen first used them are present from the start; incidents imported from documents move to the incident register (Cybersecurity management → Incidents) and remain listed under Organization → Evidence; policy exceptions gain a scope, an approver and compensating controls; the governance, audit, cybersecurity-management, ISMS and ontology-link records are added, empty. |
 | 1 → 2 | The **shared registers** are created. **Evidence** records move, unchanged, to the shared evidence register (Governance → Shared registers → Evidence); **policy exceptions** move, unchanged, to the shared exception register, each linked to its policy. Policy statements receive a stable identifier, their modality left to be stated. Empty compliance-management, audit-management, SIEM and SOAR records are added. |
 | 2 → 3 | Only the current control catalogues remain (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1): every reference to ISO/IEC 27002:2013, NIST CSF 1.1 or CIS v7.1 — in measures, statements of applicability, framework lists — is mapped to its correspondence, the old identifier kept in a note beside it; a reference with no correspondence (or whose new identifier already has a record) is kept and **flagged for review**, never dropped, and the Quality review lists it (QC-23). Outdated marker wordings take the standard markers. A MediBec teaching case still on the earlier AV:N vectors of S2 and S8 keeps them — a migration changes no number — and the Process page offers the AV:L vectors (journalled; see 7.1), or Reset data → Start over takes the whole current case; the Quality review (QC-26) reports a case left on AV:N. Empty scenario-screening and management-summary records are added (the teaching case receives its screening). |
-| 3 → 4 | One step made of sub-steps, one per new kind of record. An empty **Virtual consultant** record is added (saved conversations and the retrieval mode, lexical); other records of this version are added the same way. Apart from a baseline reference on assets, nothing existing changes. Identity, privilege & configuration: empty registers are added; every baseline named on an information asset becomes a versioned baseline (a *legacy* version) and the asset gains only a reference to it, its own status unchanged; an asset in drift gets a deviation to be classified; a scope counted live from Information assets is added; the MediBec and CanaRetail teaching cases receive their sample (evidence and pending proposals only, nothing accepted). No risk number changes. |
+| 3 → 4 | One step made of sub-steps, one per new kind of record. An empty **Virtual consultant** record is added (saved conversations and the retrieval mode, lexical); other records of this version are added the same way. Apart from a baseline reference on assets, nothing existing changes. Identity & access management and Configuration management: empty registers are added; every baseline named on an information asset becomes a versioned baseline of Configuration management (a *legacy* version) and the asset gains only a reference to it, its own status unchanged; an asset in drift gets a deviation to be classified; a scope counted live from Information assets is added; the MediBec and CanaRetail teaching cases receive the sample of each module (evidence and pending proposals only, nothing accepted). No risk number changes. |
+| 4 → 5 | A workspace holding a single **identity, privilege & configuration** record has it split, losslessly, into the **Identity & access management** record (accounts, privileged roles, emergency accounts, access reviews, segregation of duties) and the **Configuration management** record (baselines, configuration scopes, deviations, configuration changes). Each finding goes with the module of its register, identifiers unchanged; an import trace goes with the module whose rows it created; a corrective action raised from a finding names its module. Scenarios, parameters and accepted changes are untouched; the split is journalled and the copy from before is kept. |
 
 ---
 
@@ -958,10 +959,12 @@ at 2, 20 at 3, 30 at 3.5 and above — shown on the Process page and in Batch sc
 
 *Where:* Maturity & resilience → Maturity (CSF 2.0) · Resilience (θ) · The two readings · History · Method
 
-**Identity, privilege & configuration.** When that module is on, a filter chip of that name shows only the
-CSF 2.0 categories PR.AA and PR.PS and the resilience questions pv1, pv3, ct2 and ct3 (the same chip filters
-the statement of applicability in Compliance management → Frameworks & checklists). The module's overview
-proposes values for them from its registers; **Apply ticked** fills empty answers only.
+**Identity & access management and Configuration management.** When one of these modules is on, a filter
+chip of its name shows only the CSF 2.0 category it speaks to — PR.AA for Identity & access management, with
+the resilience questions pv1, pv3, ct2 and ct3; PR.PS for Configuration management, which has no resilience
+question (the same chips filter the statement of applicability in Compliance management → Frameworks &
+checklists). Each module's overview proposes values for its own keys from its registers; **Apply ticked**
+fills empty answers only.
 
 ### 7.2.4 Ontology · CRGO {#ontology}
 
@@ -1210,7 +1213,7 @@ This register is the assessment's. The **shared evidence register** of the manag
 Shared registers → Evidence) records compliance evidence with its period and validity; it is a different
 record.
 
-**Identity, privilege & configuration findings.** When that module is on, **Record as evidence** on a
+**Identity & access management and Configuration management findings.** When one of these modules is on, **Record as evidence** on a
 finding adds one row here at the next E-number (documented or SME input from the row's provenance;
 moderate and verified when the row is confirmed, otherwise weak and an assumption). The finding's linked
 scenarios count as citations of that E-number.
@@ -1270,17 +1273,19 @@ CyberRiskGuardian dashboard from this pack"* — with the CyberRiskGuardian plug
 dashboard when the numbers change. Anyone who can open the Claude Dashboard can read its datasets: share it
 only with people allowed to see the assessment.
 
-**Identity, privilege & configuration.** When that module is on (section 7.5.6), eight indicators join
-the computed ones, grouped under its name: CRG-17 identity ownership coverage, CRG-18 privileged MFA
-coverage, CRG-19 standing-privilege ratio, CRG-20 access-review completion, CRG-21 emergency use reviewed,
-CRG-22 baseline assignment coverage, CRG-23 known coverage and CRG-24 expired exceptions. The method cell
+**Identity & access management and Configuration management.** When Identity & access management is on
+(section 7.5.6), six indicators join the computed ones, grouped under its name: CRG-17 identity ownership
+coverage, CRG-18 privileged MFA coverage, CRG-19 standing-privilege ratio, CRG-20 access-review completion,
+CRG-21 emergency use reviewed and CRG-23 identity data known coverage. When Configuration management is on
+(section 7.5.7), three join them under its own name: CRG-22 baseline assignment coverage, CRG-24 expired
+exceptions and CRG-25 configuration data known coverage. The method cell
 shows the formula, numerator and denominator, and the unknown and stale counts. An empty register gives
 *no data*; rows with a zero denominator (no use, no campaign due, nothing in scope) give **not applicable**;
 rows whose denominator values are all unknown give *no data* with the unknown count and the marker
 "Information gap — organizational validation required", never *not applicable*.
 An indicator is **never green by excluding unknowns**: an unknown or stale input caps it at *on target —
-incomplete data* (CRG-23 and CRG-24 excepted). Their thresholds are edited on the module's overview. When
-the module is off, they are hidden.
+incomplete data* (CRG-23, CRG-24 and CRG-25 excepted). Their thresholds are edited on each module's overview.
+When a module is off, its indicators are hidden.
 
 ### 7.3.3 Existing safeguards — what already protects you {#safeguards}
 
@@ -1337,7 +1342,7 @@ tab directly; saving a vector from the CVSS calculator returns to the *CVSS v4.0
   shows the kill chain they describe.
 - **Links & evidence — Vulnerabilities — CWE and CVE.** Link weakness types and specific CVEs. With a snapshot loaded,
   each CVE shows its ladder rung; *watch* means its exposure is not confirmed. The same tab holds the assets, measures,
-  risks and intelligence notes, the security-operations evidence, the identity, privilege and configuration evidence and
+  risks and intelligence notes, the security-operations evidence, the identity and access and configuration evidence and
   the threat-context basis.
 - **Quantification.** The six parameters with value, rationale, evidence and confidence.
 - **CVSS v4.0 (Base only)** — edit the vector here or in the CVSS calculator and save it back. *How the score was obtained* says whether the score is that of a technical vulnerability or a score **by equivalency** for a non-technical weakness: then the weakness type and a one-line justification of each metric, with the label *limited applicability* and the marker *Analytical estimate — validation required* (section 7.10.1). A stored score that disagrees with its vector is flagged.
@@ -1380,10 +1385,10 @@ Pb(ψ,A) or θ yourself. Alerts marked TLP:RED or TLP:AMBER+STRICT are masked un
 and TLP:AMBER+STRICT items on this computer*. Buttons lead to SIEM coverage & gaps, Alerts & triage, SOAR
 cases, Playbooks and the seeds in Batch scenarios.
 
-**Identity, privilege & configuration evidence.** When that module is on, a read-only card lists the
-recorded findings that cite the scenario, with their E-numbers, and any accepted change. A change to Pb(ψ,A)
-or θ from that module comes only from **Accept** on a proposal in Findings & proposals, journalled in the
-scenario's revisions and the revision log.
+**Identity & access management evidence** and **Configuration management evidence.** When a module is on,
+a read-only card lists its recorded findings that cite the scenario, with their E-numbers, and any accepted
+change. A change to Pb(ψ,A) or θ from these modules comes only from **Accept** on a proposal in Findings &
+proposals, journalled in the scenario's revisions and the revision log.
 
 ### 7.3.6 Batch scenarios — creating many scenarios at once {#batch}
 
@@ -2281,16 +2286,16 @@ linked to what you are looking at.
 Evidence records and policy exceptions entered before the shared registers existed were moved here
 unchanged by the data migration (section 5.1).
 
-### 7.5.6 Identity, privilege & configuration {#ipc}
+### 7.5.6 Identity & access management (IAM/PAM) {#iam}
 
 An optional module, **off by default**: switch it on in **Settings → Modules** (group Governance). It is a
-strategic posture assessment with seven local governance registers kept at **population level** — counts
-per group of accounts, roles, campaigns, configuration scopes or change types — entered by hand or proposed
-from an uploaded report. It has **no connector** (directory, identity provider, privileged-access vault,
-CMDB, cloud API), runs no provisioning, access-request or just-in-time workflow, launches no session and
-remediates nothing. It never holds a **name, username, e-mail address, account identifier or secret**.
-When it is off, its screen says so, its indicators, findings and proposals are hidden, and its data stays
-in the workspace.
+strategic posture assessment of identities and access with five local governance registers kept at
+**population level** — counts per group of accounts, roles or campaigns — entered by hand or proposed from an
+uploaded report. It has **no connector** (directory, identity provider, privileged-access vault, cloud API),
+runs no provisioning, access-request or just-in-time workflow, launches no session and remediates nothing. It
+never holds a **name, username, e-mail address, account identifier or secret**. When it is off, its screen
+says so, its indicators, findings and proposals are hidden, and its data stays in the workspace. Its
+companion module, **Configuration management** (section 7.5.7), is switched on or off on its own.
 
 Every row carries a source (at most 200 characters), a date, a **status** (*inferred*, *confirmed*,
 *unknown* or *conflicting*), a confidence, an optional evidence E-number, a provenance tag and a note. A
@@ -2302,32 +2307,31 @@ or assumed value shows "Analytical estimate — validation required" until the r
 The forms check as you type. **Save is disabled** when a subset rule is broken (MFA ≤ accounts,
 phishing-resistant MFA ≤ MFA, dormant ≤ accounts, without an owner ≤ accounts; standing, just-in-time,
 shared and MFA ≤ holders; uses reviewed ≤ uses; decisions made ≤ decisions due; revocations verified ≤
-revocations requested; verified ≤ changes; compliant ≤ assessed ≤ assigned ≤ in scope), when a
-reconciliation, review, test, use, as-of or closing date is in the future, when a compensated deviation has
-no exception, and when a text holds an **e-mail address or UPN, a `DOMAIN\user` name, a SID, more than three
-IP addresses, or a secret** (access keys, private keys, tokens, `password=`). A **warning** lets Save go:
-standing plus just-in-time not equal to holders, no owner on a service, AI-agent, emergency or tier 0
-population, and a text that looks like a person's name ("Registers hold groups, not people: use a role or
-team.").
+revocations requested), when a reconciliation, review, test, use or closing date is in the future, and when a
+text holds an **e-mail address or UPN, a `DOMAIN\user` name, a SID, more than three IP addresses, or a
+secret** (access keys, private keys, tokens, `password=`). A **warning** lets Save go: standing plus
+just-in-time not equal to holders, no owner on a service, AI-agent, emergency or tier 0 population, and a text
+that looks like a person's name ("Registers hold groups, not people: use a role or team.").
 
-#### Overview {#ipc-overview}
+#### Overview {#iam-overview}
 
-The eight indicator tiles (value, numerator and denominator, unknown and stale counts, status), the
-**completeness per register**, the **key figures** (dormant accounts, revocations not verified, open
-high-severity deviations with their age, changes verified, baseline adherence = compliant ÷ assessed with the
-unassessed share), the as-of date and the windows (freshness, privileged review, emergency test, dormancy),
-the **Maturity proposals** card and the **Indicator thresholds** table.
+The six indicator tiles — CRG-17 identity ownership coverage, CRG-18 privileged MFA coverage, CRG-19
+standing-privilege ratio, CRG-20 access-review completion, CRG-21 emergency use reviewed and CRG-23 identity
+data known coverage (value, numerator and denominator, unknown and stale counts, status) — the **completeness
+per register**, the **key figures** (dormant accounts, revocations not verified), the as-of date and the
+windows (freshness, privileged review, emergency test, dormancy), the **Maturity proposals** card and the
+**Indicator thresholds** table.
 
 **Maturity proposals** fill existing answers — there is no new question bank: resilience questions *pv1*
 (MFA on privileged access, from CRG-18) and *pv3* (joiners, movers and leavers, from CRG-20 and dormant
-accounts); CSF 2.0 categories **PR.AA** and **PR.PS** (never above 3); and statement-of-applicability rows
-ISO/IEC 27002:2022 5.15–5.18, 8.2, 8.5, 8.9, 8.32, CSF 2.0 PR.AA-01, PR.AA-03, PR.AA-05, PR.PS-01 and CIS
-Controls v8.1 CIS 4, CIS 5, CIS 6 (*implemented* when every mapped indicator is on target, *partial* when one
-has a value). **Apply ticked** fills **empty cells only**; a different existing answer is shown beside the
-proposal and never overwritten. *ct2* and *ct3* are in the filter but never proposed: no register supports
-them. Thresholds can be edited per indicator; **Restore default** brings back the module's values.
+accounts); the CSF 2.0 category **PR.AA** (never above 3); and statement-of-applicability rows ISO/IEC
+27002:2022 5.15–5.18, 8.2, 8.5, CSF 2.0 PR.AA-01, PR.AA-03, PR.AA-05 and CIS Controls v8.1 CIS 5, CIS 6
+(*implemented* when every mapped indicator is on target, *partial* when one has a value). **Apply ticked**
+fills **empty cells only**; a different existing answer is shown beside the proposal and never overwritten.
+*ct2* and *ct3* are in the filter but never proposed: no register supports them. Thresholds can be edited per
+indicator; **Restore default** brings back the module's values.
 
-#### Accounts {#ipc-accounts}
+#### Accounts {#iam-accounts}
 
 Account populations by type — *employee*, *contractor or vendor*, *service or workload*, *AI agent*,
 *emergency* — with the label of the group, scope, owner (a role or team), the number of accounts, with MFA,
@@ -2335,70 +2339,40 @@ with phishing-resistant MFA, dormant, without an owner, and the last reconciliat
 people and emergency accounts only; service and AI-agent identities have none. CIS Controls v8.1
 safeguards 5.1, 5.3 and 6.2.
 
-#### Privileged roles {#ipc-privileged}
+#### Privileged roles {#iam-privileged}
 
 Privileged role groups by **tier**: tier 0 is the control plane (identity, security, cloud tenant, keys),
 tier 1 critical production, tier 2 limited administration. Holders, standing and just-in-time, with MFA and
 phishing-resistant MFA, shared administrative accounts, the last review. CIS Controls v8.1 safeguards 5.4,
 6.5 and 6.8.
 
-#### Emergency accounts {#ipc-emergency}
+#### Emergency accounts {#iam-emergency}
 
 Break-glass account sets: the number of accounts, five protective controls (offline custody of the
 credentials, strong authentication, alert on every use, independent of the identity provider, credentials
 reset after use — each *yes*, *no* or *unknown*), the last test, the uses in the review window, the uses
 reviewed and the last use.
 
-#### Access reviews {#ipc-reviews}
+#### Access reviews {#iam-reviews}
 
 Access-review campaigns in summary: population (all accounts, privileged roles, tier 0 only, vendors and
 contractors, service accounts), scope, owner, due and closing dates, decisions due and made, revocations
 requested and verified, and reviewers reviewing their own access. **An unverified revocation never counts as
 done.** CIS Controls v8.1 safeguards 5.3 and 6.1.
 
-#### Baselines {#ipc-baselines}
-
-Configuration baselines (CIS Benchmark, DISA STIG, vendor hardening guide or internal standard) with their
-**versions**. **New version** copies the latest as a draft. **Approve** needs the approver; it records the
-date and the **SHA-256** of the version's content, the version becomes read-only, and the previous approved
-version becomes *superseded*. A licensed benchmark is cited by its licence reference only, never by its text.
-**Configuration scopes** record, per scope, the units in scope, assigned a baseline, assessed and compliant; a
-scope can be counted live from Information assets. **Assets not linked to a baseline** lists the servers,
-endpoints, network devices, cloud services and connected devices without one: **Link** writes the baseline
-name and its reference on the asset and leaves the asset's own compliance status as it is (that status keeps
-driving the asset's drift factor and check AC-7). CIS Controls v8.1 safeguards 4.1 and 4.7.
-
-#### Deviations & exceptions {#ipc-deviations}
-
-Deviations from a baseline version, for a scope or an asset: the number of items, the **drift class**
-(*degradation*, *functional*, *transitional*, *compensated*, *strengthening*, *unknown*, or to be
-classified), severity, a short requirement reference (never licensed text), dates, owner and state. A
-**compensated** deviation needs a linked exception from the shared exception register; an expired exception
-is shown **Expired — not counted**. **Request exception** opens the shared exception form with the deviation
-already named. A deviation on an asset shows its blast radius. **Assets in drift without a deviation** lists
-the assets whose baseline status is *drift*; **Record deviation** creates one.
-
-#### Segregation of duties {#ipc-sod}
+#### Segregation of duties {#iam-sod}
 
 Rules naming the two duties that must not be combined, the process, the number of conflicts, the owner, the
 mitigation and any compensating safeguards from Existing safeguards.
 
-#### Configuration changes {#ipc-changes}
+#### Findings & proposals {#iam-findings}
 
-Changes by period (`YYYY-Qn` or `YYYY-MM`) and type — *standard*, *normal*, *emergency*, *unauthorized
-(suspected)* — with the number of changes and how many were verified, and a ticket. A row is one change or
-an aggregate.
-
-#### Findings & proposals {#ipc-findings}
-
-Sixteen deterministic rules propose findings from the registers: service or AI-agent accounts without an
-owner (IR-01), tier 0–1 access without MFA for every holder (IR-02), standing tier 0 privilege (IR-03),
-dormant accounts (IR-04), shared administrative accounts (IR-05), emergency access not tested or missing a
-control (IR-06), emergency uses not reviewed (IR-07), incomplete reviews or unverified revocations (IR-08),
-reviewer conflicts (IR-09), unmitigated segregation-of-duties conflicts (IR-10), open high-severity
-degradation (IR-11), compensation by an expired exception (IR-12), suspected unauthorized changes (IR-13),
-unverified emergency changes (IR-14), a baseline only legacy or draft (IR-15) and stale or conflicting rows
-(IR-16). Each shows a **direction hint** — Pb(ψ,A) ↑ or θ ↓ — never a value. **Record** or **Dismiss** (with a
+Deterministic rules propose findings from the registers: service or AI-agent accounts without an owner
+(IR-01), tier 0–1 access without MFA for every holder (IR-02), standing tier 0 privilege (IR-03), dormant
+accounts (IR-04), shared administrative accounts (IR-05), emergency access not tested or missing a control
+(IR-06), emergency uses not reviewed (IR-07), incomplete reviews or unverified revocations (IR-08), reviewer
+conflicts (IR-09), unmitigated segregation-of-duties conflicts (IR-10) and stale or conflicting rows (IR-16).
+Each shows a **direction hint** — Pb(ψ,A) ↑ or θ ↓ — never a value. **Record** or **Dismiss** (with a
 reason). On a recorded finding: **Record as evidence** adds one row to the evidence register at the next
 E-number; **Link scenario** cites a scenario without modifying it; **Propose a parameter change** takes the
 value **you type** for Pb(ψ,A) or θ, with the confidence, a rationale citing the finding and its E-number, and
@@ -2406,21 +2380,23 @@ the ratio now and after from the verified engine. **Save as proposal** changes n
 act in the proposals table, writes the value into the scenario, adds the finding and E-number to the
 parameter's evidence, and records the change in the scenario's basis, its revisions and the revision log.
 **Dismiss** needs a reason. Nothing is ever applied automatically — not by a migration, an import, the AI,
-the teaching cases, the indicators or switching the module.
+the teaching cases, the indicators or switching the module. Finding identifiers (IF-nn) form one sequence
+with those of Configuration management, so an identifier names one finding in the workspace.
 
-#### Import from a report {#ipc-import}
+#### Import from a report {#iam-import}
 
 Choose a CSV, XLSX, PDF, DOCX or TXT file. It is read **in memory only** — never into the context
 documents, the stored files or the import log — and released after **Accept ticked** or when you leave the
 tab. For a table (CSV, XLSX), **rules** work offline: map the columns (type, enabled, last sign-in, MFA, MFA
 method, owner, role or tier) and the counts per population and tier are computed on this computer; dormant
 means a last sign-in older than the dormancy window. For a prose report, **Prepare the AI request** asks for
-aggregate counts only and goes to the **local model by default**; the preview shows the exact payload, how
-many e-mail, UPN, `DOMAIN\user` or SID shapes it contains, and offers the anonymizer. Sending it to a remote
-provider needs the tick "This report contains personal information about staff; I am authorized to send it
-to …", and a confidential workspace confirms every call. The answer keeps only whitelisted counts and
-enumerations; anything else is dropped. **Accept ticked** writes the counts as new rows with their provenance
-and nothing else; the import trace keeps the file name, its SHA-256, size and row count.
+aggregate counts of accounts, privileged roles, emergency accounts and access reviews only and goes to the
+**local model by default**; the preview shows the exact payload, how many e-mail, UPN, `DOMAIN\user` or SID
+shapes it contains, and offers the anonymizer. Sending it to a remote provider needs the tick "This report
+contains personal information about staff; I am authorized to send it to …", and a confidential workspace
+confirms every call. The answer keeps only whitelisted counts and enumerations; anything else is dropped.
+**Accept ticked** writes the counts as new rows with their provenance and nothing else; the import trace keeps
+the file name, its SHA-256, size and row count.
 
 **Privacy (Québec Law 25, data minimisation).** Account and access data about staff, contractors and locum
 physicians is personal information under the Québec *Act respecting the protection of personal information
@@ -2434,11 +2410,86 @@ protection of personal information. Labels never name individuals. **No claim of
 applicability depends on the organization's legal context.
 
 The ontology alignment of these records (account populations, privileged-role populations, emergency
-account sets, campaigns, segregation rules, baselines and versions, drift, findings, exceptions and the eight
-indicators) follows CRGO 0.11; until its identifiers are filled in, the overview says how many concepts wait
-for them.
+account sets, campaigns, segregation rules, identity and privilege findings and the indicators) follows CRGO
+0.11; the overview states how many of its terms are still proposed.
 
-### 7.5.7 Quality review {#qc}
+### 7.5.7 Configuration management {#cm}
+
+An optional module, **off by default**: switch it on in **Settings → Modules** (group Governance), on its own
+or with Identity & access management (section 7.5.6). It records the organization's **configuration
+baselines** and how far its systems follow them, in four local registers — baselines with their versions and
+configuration scopes, deviations, and configuration changes — kept as counts per scope or change type. It has
+no connector (CMDB, configuration scanner, cloud API), parses no benchmark file and remediates nothing; a
+licensed benchmark is cited by reference, never by its text. When it is off, its screen says so, its
+indicators, findings and proposals are hidden, and its data stays in the workspace.
+
+Rows follow the same rules as the identity registers: source, date, status, confidence, evidence E-number,
+provenance and note; a **blank count is unknown, not zero**; a scope whose as-of date is empty or older than
+the freshness window is badged **stale** and lowers CRG-25. **Save is disabled** when compliant > assessed,
+assessed > assigned or assigned > in scope, when verified > changes, when a period does not read `YYYY-Qn` or
+`YYYY-MM`, when an as-of date is in the future, when a compensated deviation has no exception, and when a
+text holds personal identifiers or a secret.
+
+#### Overview {#cm-overview}
+
+The three indicator tiles — CRG-22 baseline assignment coverage, CRG-24 expired exceptions and CRG-25
+configuration data known coverage — the **completeness per register**, the **key figures** (open
+high-severity deviations with their age, changes verified, baseline adherence = compliant ÷ assessed with the
+unassessed share), the as-of date and the freshness window, the **Maturity proposals** card and the
+**Indicator thresholds** table. **Maturity proposals**: the CSF 2.0 category **PR.PS** (never above 3) and
+statement-of-applicability rows ISO/IEC 27002:2022 8.9 and 8.32, CSF 2.0 PR.PS-01 and CIS Controls v8.1
+CIS 4; **Apply ticked** fills empty cells only.
+
+#### Baselines {#cm-baselines}
+
+Configuration baselines (CIS Benchmark, DISA STIG, vendor hardening guide or internal standard) with their
+**versions**. **New version** copies the latest as a draft. **Approve** needs the approver; it records the
+date and the **SHA-256** of the version's content, the version becomes read-only, and the previous approved
+version becomes *superseded*. A licensed benchmark is cited by its licence reference only, never by its text.
+**Configuration scopes** record, per scope, the units in scope, assigned a baseline, assessed and compliant; a
+scope can be counted live from Information assets. **Assets not linked to a baseline** lists the servers,
+endpoints, network devices, cloud services and connected devices without one: **Link** writes the baseline
+name and its reference on the asset and leaves the asset's own compliance status as it is (that status keeps
+driving the asset's drift factor and check AC-7). CIS Controls v8.1 safeguards 4.1 and 4.7.
+
+#### Deviations & exceptions {#cm-deviations}
+
+Deviations from a baseline version, for a scope or an asset: the number of items, the **drift class**
+(*degradation*, *functional*, *transitional*, *compensated*, *strengthening*, *unknown*, or to be
+classified), severity, a short requirement reference (never licensed text), dates, owner and state. A
+**compensated** deviation needs a linked exception from the shared exception register; an expired exception
+is shown **Expired — not counted** and counts in CRG-24. **Request exception** opens the shared exception form
+with the deviation already named. A deviation on an asset shows its blast radius. **Assets in drift without a
+deviation** lists the assets whose baseline status is *drift*; **Record deviation** creates one.
+
+#### Configuration changes {#cm-changes}
+
+Changes by period (`YYYY-Qn` or `YYYY-MM`) and type — *standard*, *normal*, *emergency*, *unauthorized
+(suspected)* — with the number of changes and how many were verified, and a ticket. A row is one change or
+an aggregate.
+
+#### Findings & proposals {#cm-findings}
+
+Deterministic rules propose findings from the configuration registers: open high-severity degradation
+(IR-11), compensation by an expired exception (IR-12), suspected unauthorized changes (IR-13), unverified
+emergency changes (IR-14), a baseline only legacy or draft (IR-15) and stale or conflicting rows (IR-16).
+Record, dismiss, record as evidence, link a scenario, propose and accept work as in Identity & access
+management (section 7.5.6): the rule gives a direction only, the value is typed by the analyst, saving a
+proposal changes nothing, and **Accept** is a separate, journalled act.
+
+#### Import from a report {#cm-import}
+
+A PDF, DOCX, TXT, CSV or XLSX report is read **in memory only**, as in Identity & access management. There
+are no column rules here: **Prepare the AI request** asks for aggregate configuration-scope counts (in scope,
+assigned, assessed, compliant) and configuration-change counts (by type, verified) only, goes to the **local
+model by default**, shows the exact payload and offers the anonymizer; a remote provider needs the tick and a
+confidential workspace confirms every call. **Accept ticked** writes the counts as new rows with their
+provenance; the import trace keeps the file name, its SHA-256, size and row count.
+
+The ontology alignment of these records (baselines and versions, drift classes, configuration findings,
+exceptions and the indicators, CRG-25 as CRGO's known configuration coverage) follows CRGO 0.11.
+
+### 7.5.8 Quality review {#qc}
 
 Eighteen checks to run before a report or a write-back leaves the analyst, each with *pass*, *attention* or
 *fail*, the detail, and a button to the screen that fixes it.
