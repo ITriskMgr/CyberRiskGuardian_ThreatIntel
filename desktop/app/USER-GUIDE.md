@@ -158,11 +158,11 @@ with a newer version, serve it once more so the installed app picks up the new c
 The application ships with a snapshot of the CyberRiskGuardian Ontology and works without anything
 more. To query the ontology through its own MCP server — the reference ranking, the organisation
 context, write-back, and the compliance and security-operations contexts — the helper needs to find
-**CRGO v0.10.0**:
+**CRGO v0.10.0 or later**; this release is built for **CRGO 0.11.0**:
 
 1. **If the `crgo-ontology` server is registered in Claude on this computer** (Claude desktop →
    Settings → Developer → Edit Config), the helper reuses the same command, with the same Python. Point
-   its `args` at the `pipeline/mcp/crgo_server.py` of a v0.10.0 clone.
+   its `args` at the `pipeline/mcp/crgo_server.py` of a 0.11.0 clone.
 2. **If a `CyberRiskGuardian-Ontology` folder sits near the application folder** — for example both
    inside `CyberRiskGuardian_ThreatIntel` — it is found automatically and started with the Python that
    runs the helper. Versioned clones such as `CyberRiskGuardian-Ontology-0.11.0` are preferred, **newest
@@ -1341,7 +1341,10 @@ it and the Quebec Law 25 obligations it can trigger. For any scenario, **Find si
 scenarios** searches the ontology by the scenario's ATT&CK techniques and the words of its name — *Link*
 attaches one, which gives the scenario its ontology keys — and **Controls for its techniques** lists,
 technique by technique, the controls the ontology most often associates with it: a starting list for
-Risk mitigation, not an assessment of the organization.
+Risk mitigation, not an assessment of the organization. **Scenario pattern (CRGO 0.11.0, proposed)** shows the
+pattern the scenario follows, its themes and proposed links, and lets you choose one of the six or *No scenario
+pattern*; the organisation graph records it as *has scenario pattern* (CRGO_0001478). A pattern is a
+classification, never evidence and never a parameter.
 
 **Security-operations evidence card.** Read only, it gathers what the SIEM and SOAR records say about the
 scenario — through its ATT&CK techniques, its assets and explicit links: detection coverage per technique
@@ -1360,13 +1363,19 @@ scenario's revisions and the revision log.
 
 ### 7.3.6 Batch scenarios — creating many scenarios at once {#batch}
 
-- **Generate from threats × assets.** Tick threat patterns (twenty-two archetypes such as credential
+- **Generate from threats × assets.** Tick threat patterns (twenty-eight archetypes such as credential
   phishing, ransomware, edge-device exploitation, supplier compromise, BEC, backup destruction, and the
   cloud patterns — misconfigured storage, token theft, identity federation abuse, outage of a critical SaaS
   supplier, a key or secret exposed in infrastructure-as-code, tenant-isolation failure or cloud-provider
   compromise…) or add any ATT&CK technique as a pattern; tick assets (the crown jewels, or
   type others); choose the threat sources. Each combination becomes a candidate with a causal-chain
   statement, linked techniques and CWE, and default parameters.
+  Six of the archetypes are the **CRGO 0.11.0 scenario patterns** (proposed terms): harvest now, decrypt later
+  (CRGO_0001389), crypto-agility failure (CRGO_0001390), certificate expiry outage (CRGO_0001391), agentic AI misuse
+  (CRGO_0001392), prompt injection in agent workflows (CRGO_0001393) and AI supply chain compromise (CRGO_0001394),
+  with the ATT&CK and CWE links CRGO proposes. Their rows show *Pattern: … (CRGO_…)* and keep the pattern when added
+  to the register. **Propose with AI** also asks the model to name one of the six when a candidate fits; any other
+  identifier is dropped.
 - **From MITRE ATT&CK.** Search techniques by name or ID, or filter by tactic, and tick one or many.
   Each technique becomes a scenario linking the technique and its CWE weaknesses (through CAPEC).
   Pb(A) starts from the technique's prevalence in ATT&CK — labelled as a prior, not as evidence.
@@ -2100,7 +2109,8 @@ Security Policy Writer** does the same reading right away, without AI.
 ##### Legal applicability {#writer-legal}
 
 Laws, regulations, contracts and frameworks that may apply. For the instruments CRGO knows (P-39.1, A-2.1,
-R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1), the ontology's evaluation of the organisation profile is shown as
+R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1, and — proposed in CRGO 0.11.0 — the CCSPA, ISO/IEC 27701 and 42001 and the
+OWASP Top 10:2025, LLM and Agentic lists), the ontology's evaluation of the organisation profile is shown as
 evidence; **Evaluate the profile now** runs it, and **Add them to the CRGO profile** adds the values your
 interview implies (never marking a list complete — unknown stays unknown). Other candidates (sector rules,
 contracts, frameworks) are the Writer's own. For each candidate choose a **Decision** — *Applies*, *Does not
@@ -2464,7 +2474,11 @@ subjects are and where data is transferred; and which of these the profile lists
 browser* runs the port of CRGO's evaluator; *Evaluate with CRGO (helper)* runs the original. Each instrument —
 Loi 25 (P-39.1), A-2.1, R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1 — is *applicable*, *not applicable*, *potentially
 applicable* (**qualified review required**) or *unknown* (**Information gap — organizational validation required**),
-with the conditions met, not met and unresolved. A value the profile does not list counts as absent only for the
+with the conditions met, not met and unresolved. CRGO 0.11.0 adds, as *proposed* terms, the Critical Cyber Systems
+Protection Act (CCSPA; designated operators, an interpretive condition, so never plainly applicable), ISO/IEC 27701:2025,
+ISO/IEC 42001:2023 and the OWASP Top 10:2025, Top 10 for LLM Applications 2025 and Top 10 for Agentic Applications 2026.
+The voluntary standards are at most *potentially applicable*; ISO/IEC 42001 and the OWASP lists are evaluated from
+**Technologies in use** (for example AI agents, web applications), shown in the profile when the ontology offers it. A value the profile does not list counts as absent only for the
 properties ticked as complete; otherwise the fact is missing, and missing data never makes an instrument "not
 applicable". This is not legal advice.
 

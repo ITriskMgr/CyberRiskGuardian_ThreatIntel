@@ -85,7 +85,7 @@ vous acceptez parviennent au moteur.
 | Un navigateur à jour | Chrome ou Edge pour l'application installable. Safari et Firefox l'exécutent dans un onglet. |
 | Python 3 | Uniquement pour servir le dossier localement. macOS et la plupart des distributions Linux l'ont déjà. Sous Windows, installez-le à partir de [python.org](https://www.python.org/downloads/) et cochez **Add python.exe to PATH**. |
 | Environ 16 Mo d'espace disque | Plus vos espaces de travail et tout instantané que vous chargez. L'instantané d'exemple fourni fait environ 1,5 Mo, l'instantané de l'ontologie environ 6,5 Mo et le paquet de simulation pour l'enseignement environ 0,1 Mo ; un instantané complet des menaces produit par `threat_snapshot.py` fait 8 Mo ou plus. |
-| *Facultatif :* l'Ontologie CyberRiskGuardian v0.10.1 | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
+| *Facultatif :* l'Ontologie CyberRiskGuardian 0.11.0 (proposée) | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
 
 Aucun compte, clé de licence, programme d'installation ni droit d'administrateur n'est requis. Rien
 n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateur.
@@ -170,21 +170,22 @@ servez-le une fois de plus pour que l'application installée prenne la nouvelle 
 L'application est livrée avec un instantané de l'Ontologie CyberRiskGuardian et fonctionne sans rien
 de plus. Pour interroger l'ontologie au moyen de son propre serveur MCP — le classement de référence,
 le contexte de l'organisation, le renvoi des résultats, ainsi que les contextes de la conformité et des
-opérations de sécurité —, l'assistant local doit trouver **CRGO v0.10.0** :
+opérations de sécurité —, l'assistant local doit trouver **CRGO v0.10.0 ou une version ultérieure** ; cette
+version de l'application est conçue pour **CRGO 0.11.0** :
 
 1. **Si le serveur `crgo-ontology` est enregistré dans Claude sur cet ordinateur** (Claude pour
    ordinateur → Settings → Developer → Edit Config), l'assistant local réutilise la même commande, avec
-   le même Python. Faites pointer ses `args` vers le `pipeline/mcp/crgo_server.py` d'un clone v0.10.0.
+   le même Python. Faites pointer ses `args` vers le `pipeline/mcp/crgo_server.py` d'un clone 0.11.0.
 2. **Si un dossier `CyberRiskGuardian-Ontology` se trouve près du dossier de l'application** — par
    exemple, tous deux dans `CyberRiskGuardian_ThreatIntel` —, il est trouvé automatiquement et démarré
    avec le Python qui exécute l'assistant local. Les clones versionnés comme
-   `CyberRiskGuardian-Ontology-0.10.1` sont privilégiés, **le plus récent en premier**. Ce Python a
+   `CyberRiskGuardian-Ontology-0.11.0` sont privilégiés, **le plus récent en premier**. Ce Python a
    besoin de `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`.
 3. **Sinon**, indiquez l'interpréteur Python et le chemin de `pipeline/mcp/crgo_server.py` dans
    **Ontologie · CRGO → Connexion → Où se trouve l'ontologie**, puis **Enregistrer**.
 
 ```
-git clone --branch v0.10.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.1
+git clone --branch v0.11.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.0
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -193,7 +194,12 @@ les contrats qu'elle prend en charge : la détermination des scénarios fonctio
 version, le lien avec l'organisation (dss/v1) exige v0.9.1 ou une version ultérieure, et les contextes
 de la conformité et des opérations de sécurité (compliance/v1, secops/v1) exigent v0.10.0. L'onglet
 démarre le serveur sur demande ; le premier démarrage construit son magasin de données, en dix à vingt
-secondes environ. Section 7.2.4.
+secondes environ. Section 7.2.4. Cette version est conçue pour **CRGO 0.11.0**, une version *proposée* : ses nouveaux
+termes (registres d'identité et de configuration, les six modèles de scénarios, les CIS Controls v8.1 avec les libellés
+propres à CRGO, les listes OWASP, ISO/IEC 27701 et 42001, la Loi sur la protection des cybersystèmes essentiels)
+attendent l'approbation de l'auteur de CRGO, et l'onglet Connexion le précise. Tant que l'auteur n'a pas créé
+l'étiquette v0.11.0, extrayez la branche `release/0.11.0` plutôt que l'étiquette. L'instantané livré avec
+l'application est CRGO 0.11.0.
 
 ---
 
@@ -1471,7 +1477,10 @@ Pour tout scénario, **Trouver des scénarios semblables dans l'ontologie** cher
 l'aide des techniques ATT&CK du scénario et des mots de son nom — *Lien* en rattache un, ce qui donne
 au scénario ses clés d'ontologie — et **Contrôles pour ses techniques** énumère, technique par
 technique, les contrôles que l'ontologie lui associe le plus souvent : une liste de départ pour
-Atténuation des risques, et non une évaluation de l'organisation.
+Atténuation des risques, et non une évaluation de l'organisation. **Patron de scénario (CRGO 0.11.0, proposé)**
+affiche le patron que suit le scénario, ses thèmes et ses liens proposés, et permet de choisir l'un des six ou
+*Aucun patron de scénario* ; le graphe de l'organisation l'enregistre comme *a pour patron de scénario*
+(CRGO_0001478). Un patron est une classification, jamais une preuve ni un paramètre.
 
 **Fiche des preuves des opérations de sécurité.** En lecture seule, elle rassemble ce que les
 enregistrements du SIEM et du SOAR disent du scénario — par ses techniques ATT&CK, ses actifs et des
@@ -1493,13 +1502,20 @@ des révisions.
 
 ### 7.3.6 Scénarios en lot — créer de nombreux scénarios à la fois {#batch}
 
-- **Générer à partir de menaces × actifs.** Cochez des modèles de menace (vingt-deux archétypes, dont les modèles infonuagiques — stockage mal configuré, vol de jetons, abus de fédération d'identité, panne d'un fournisseur SaaS critique, clé ou secret exposé dans l'infrastructure en tant que code, défaillance de l'isolement des locataires ou compromission du fournisseur infonuagique —, et comme
+- **Générer à partir de menaces × actifs.** Cochez des modèles de menace (vingt-huit archétypes, dont les modèles infonuagiques — stockage mal configuré, vol de jetons, abus de fédération d'identité, panne d'un fournisseur SaaS critique, clé ou secret exposé dans l'infrastructure en tant que code, défaillance de l'isolement des locataires ou compromission du fournisseur infonuagique —, et comme
   l'hameçonnage visant les identifiants, le rançongiciel, l'exploitation d'équipements de périphérie, la
   mauvaise configuration infonuagique, la compromission d'un fournisseur, la fraude par compromission de
   courriel d'affaires (BEC), la destruction des sauvegardes…) ou ajoutez n'importe quelle technique
   ATT&CK comme modèle ; cochez des actifs (les joyaux de la couronne, ou saisissez-en d'autres) ; choisissez
   les sources de menace. Chaque combinaison devient un candidat avec un énoncé de chaîne causale, des
   techniques et des CWE liées, et des paramètres par défaut.
+  Six de ces archétypes sont les **patrons de scénarios de CRGO 0.11.0** (termes proposés) : récolter maintenant,
+  déchiffrer plus tard (CRGO_0001389), défaut d’agilité cryptographique (CRGO_0001390), panne due à l’expiration d’un
+  certificat (CRGO_0001391), utilisation abusive d’IA agentique (CRGO_0001392), injection d’invite dans des flux
+  d’agents (CRGO_0001393) et compromission de la chaîne d’approvisionnement de l’IA (CRGO_0001394), avec les liens
+  ATT&CK et CWE que CRGO propose. Leurs lignes affichent *Patron : … (CRGO_…)* et gardent le patron lorsqu'elles sont
+  ajoutées au registre. **Proposer avec l'IA** demande aussi au modèle de nommer l'un des six lorsqu'un candidat s'y
+  prête ; tout autre identifiant est écarté.
 - **À partir de MITRE ATT&CK.** Recherchez des techniques par nom ou par ID, ou filtrez par tactique, et
   cochez-en une ou plusieurs. Chaque technique devient un scénario qui lie la technique et ses
   faiblesses CWE (par l'intermédiaire de CAPEC). Pb(A) part de la prévalence de la technique dans
@@ -2339,7 +2355,8 @@ immédiatement, sans IA.
 ##### Applicabilité juridique {#writer-legal}
 
 Les lois, règlements, contrats et référentiels qui peuvent s'appliquer. Pour les instruments que CRGO connaît
-(P-39.1, A-2.1, R-22.1, LPRPDE, BSIF B-13, RGPD, C-1.1), l'évaluation du profil de l'organisation par
+(P-39.1, A-2.1, R-22.1, LPRPDE, BSIF B-13, RGPD, C-1.1 et — proposés dans CRGO 0.11.0 — la Loi sur la protection des cybersystèmes essentiels, ISO/IEC 27701 et
+42001 et les listes OWASP Top 10:2025, LLM et agentiques), l'évaluation du profil de l'organisation par
 l'ontologie est présentée comme preuve; **Évaluer le profil maintenant** l'exécute, et **Les ajouter au
 profil CRGO** ajoute les valeurs que votre entrevue implique (sans jamais marquer une liste comme complète —
 l'inconnu reste inconnu). Les autres candidats (règles sectorielles, contrats, référentiels) sont ceux du
@@ -2745,7 +2762,13 @@ où les données sont transférées ; et lesquels de ces éléments le profil �
 (assistant local)* exécute l'original. Chaque instrument — Loi 25 (P-39.1), A-2.1, R-22.1, LPRPDE,
 B-13 du BSIF, RGPD, C-1.1 — est *applicable*, *non applicable*, *potentiellement applicable* (**revue
 par une personne qualifiée requise**) ou *inconnu* (**Lacune d’information — validation organisationnelle
-requise**), avec les conditions remplies, non remplies et non résolues. Une valeur que le profil
+requise**), avec les conditions remplies, non remplies et non résolues. CRGO 0.11.0 ajoute, comme termes
+*proposés*, la Loi sur la protection des cybersystèmes essentiels (exploitants désignés, une condition
+d'interprétation, donc jamais simplement applicable), ISO/IEC 27701:2025, ISO/IEC 42001:2023 et les listes OWASP
+Top 10:2025, Top 10 des applications de grands modèles de langage 2025 et Top 10 des applications agentiques 2026.
+Les normes volontaires sont au plus *potentiellement applicables*; ISO/IEC 42001 et les listes OWASP sont évaluées à
+partir des **Technologies utilisées** (par exemple agents d'IA, applications Web), affichées dans le profil lorsque
+l'ontologie les offre. Une valeur que le profil
 n'énumère pas n'est considérée comme absente que pour les propriétés cochées comme complètes ; sinon, le
 fait est manquant, et des données manquantes ne rendent jamais un instrument « non applicable ». Ceci
 n'est pas un avis juridique.
@@ -4288,7 +4311,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
     preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 4, les
     preuves se trouvent dans **Registres partagés → Preuves**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
-41. **Ontologie · CRGO → Connexion** nomme CRGO v0.10.1 ; *Lien avec l'organisation* → *Construire le
+41. **Ontologie · CRGO → Connexion** nomme CRGO v0.11.0 et indique qu'il s'agit d'une version proposée ; *Lien avec l'organisation* → *Construire le
     graphe de l'organisation* sur MediBec affiche **mêmes totaux que cette application** ; *Lire le
     contexte* de S1 ne donne aucune cote de risque ; *Envoyer les résultats cochés sous forme de
     propositions* affiche **proposé** dans le journal ; **Lire les deux contextes** renvoie les contextes
@@ -4411,8 +4434,8 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | Importer des documents ne lit qu'un seul document | Les documents qui viennent d'être ajoutés sont les seuls sélectionnés par défaut. | Cochez les autres, ou *Sélectionner tous les documents*. |
 | Bandeau rouge `moteur DIVERGENT` | Le moteur est en désaccord avec les totaux de référence. | Arrêtez. Restaurez une copie propre. |
 | *Cet espace de travail est ouvert en lecture seule* | Il a été écrit par une application plus récente, ou sa migration a échoué. | Sauvegarde et restauration → Versions des données et migrations en indique la raison ; ouvrez-le avec l'application plus récente, ou envoyez l'erreur au soutien technique. Rien n'a été modifié. |
-| *Lien avec l'organisation* indique que le contrat n'est pas disponible | L'ontologie trouvée est antérieure à v0.9.1. | Clonez l'étiquette v0.10.1 (section 3.5) et faites pointer le serveur vers celle-ci. |
-| Les contextes de conformité et d'opérations de sécurité indiquent qu'ils exigent CRGO v0.10.0 | L'ontologie trouvée est plus ancienne. | Clonez l'étiquette v0.10.1 à côté de l'application (le clone le plus récent est trouvé en premier), ou faites pointer `crgo-ontology` dans Claude vers celui-ci. |
+| *Lien avec l'organisation* indique que le contrat n'est pas disponible | L'ontologie trouvée est antérieure à v0.9.1. | Clonez CRGO 0.11.0 (section 3.5) et faites pointer le serveur vers celui-ci. |
+| Les contextes de conformité et d'opérations de sécurité indiquent qu'ils exigent CRGO v0.10.0 | L'ontologie trouvée est plus ancienne. | Clonez CRGO 0.11.0 à côté de l'application (le clone le plus récent est trouvé en premier), ou faites pointer `crgo-ontology` dans Claude vers celui-ci. |
 | Un renvoi est refusé avec `UNKNOWN_SUBJECT` ou `INPUT_UNKNOWN` | Des scénarios ont été ajoutés, renommés ou exclus depuis la construction du graphe. | *Reconstruire le graphe de l'organisation*, puis envoyez de nouveau. |
 | *Le dossier du graphe de l'organisation se trouve dans un dépôt git* | Le dossier confidentiel choisi se trouve dans un dépôt. | Choisissez un dossier situé hors de tout dépôt (Lien avec l'organisation → *Enregistrer le dossier*). |
 | Une trousse de simulation affiche des erreurs et ne peut pas être importée | Elle cite des scénarios ou des joyaux de la couronne que cet espace de travail ne contient pas. | Importez-la dans un espace de travail de son cas (pour MediBec, l'exemple ou une copie de celui-ci). |
