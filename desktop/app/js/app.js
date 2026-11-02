@@ -58,6 +58,7 @@ import * as users from './users.js';
 import * as chat from './chat.js';
 import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
+import { hfetch } from './helper.js';
 
 const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
 export const ENGINE = { ok: false };
@@ -225,7 +226,7 @@ async function exitApp() {
   try { const st = await import('./state.js'); await st.saveNow(); } catch { /* nothing to save */ }
   users.audit('exit', '');
   let stopped = false;
-  try { const r = await fetch('/api/quit', { method: 'POST', headers: { 'X-CRG': '1', 'Content-Type': 'application/json' }, body: '{}' }); stopped = r.ok; } catch { /* no helper */ }
+  try { const r = await hfetch('/api/quit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); stopped = r.ok; } catch { /* no helper */ }
   try { window.close(); } catch { /* not a script-opened window */ }
   setTimeout(() => {
     document.body.replaceChildren(el('div', { class: 'exit-screen' }, el('img', { src: 'icons/icon-192.png', alt: '', width: 72, height: 72 }),
