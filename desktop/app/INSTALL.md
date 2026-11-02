@@ -1,8 +1,8 @@
-# CyberRiskGuardian Desktop 1.8.2 Beta (1.8.x) — Installation
+# CyberRiskGuardian Desktop 1.9.0 Beta (1.9.x) — Installation
 
 **English below · [Français plus bas](#français)**
 
-Version 1.8.2 (beta) — for teaching, exploration and method validation. Validate every result before it
+Version 1.9.0 (beta) — for teaching, exploration and method validation. Validate every result before it
 supports a real decision. © 2026 Marc-André Léger · proprietary licence, free for students and non-profit organisations. Who
 needs which licence: **Help → About → Licence** in the application, or `LICENSE` and the `licences` folder.
 
@@ -25,7 +25,7 @@ is never reachable from your network, even while it is running.
 
 ## 2. Unpack
 
-Unzip **`CyberRiskGuardian_Desktop_v1.8.2-beta.zip`** anywhere you can write — your Documents folder
+Unzip **`CyberRiskGuardian_Desktop_v1.9.0-beta.zip`** anywhere you can write — your Documents folder
 is fine. Keep the folder intact: the application loads its own files by relative path.
 
 ## 3. Start it
@@ -47,7 +47,7 @@ fetches them. **Control-C** stops it.
 By hand, if you prefer:
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.8.2-beta
+cd CyberRiskGuardian_Desktop_v1.9.0-beta
 python3 serve.py 8099
 ```
 
@@ -190,10 +190,14 @@ You get a windowed application with its own icon that starts without a terminal 
 After replacing the folder with a newer version, serve it once with the launcher so the installed
 application picks up the new files.
 
-## 7. Upgrading from 1.8.0, 1.7.x (or an earlier copy)
+## 7. Upgrading from 1.8.x, 1.7.x (or an earlier copy)
 
-**From 1.8.1:** the steps below are the same; 1.8.2 is a wording and reference patch (textbook references v2.51b, the opt-in AV:L offer for teaching cases on the Process page). **From 1.8.0:** the steps below are the same; the only change for your work is the offline copy of the ontology,
-rebuilt from CRGO v0.10.1 (MediBec S2 and S8 scored AV:L in the scenario library, risk-index wording).
+**From 1.8.x:** the steps below are the same. At first start each workspace is brought to data version 4 once
+(journalled in Backup & restore → Migration journal; no number changes). The page and the helper now share a token made at each
+start, so start 1.9.0 with its own launcher and close any tab still open on the previous version. API keys stored in the
+feeds folder are moved once to the macOS keychain or `~/.cyberriskguardian` (Windows shows a warning). **From 1.8.0:** the
+offline copy of the ontology is rebuilt from CRGO v0.10.1 (MediBec S2 and S8 scored AV:L in the scenario library,
+risk-index wording).
 
 If you switched it on, **Help → About → Versions → Check now** (or the check at start-up) tells you when a newer
 release exists and downloads its ZIP into your feeds folder; nothing is installed for you. The steps are the
@@ -203,13 +207,13 @@ same either way:
 1. **Export anything you would hate to lose first** — Backup & restore → *Make a backup* → *Download backup*,
    which writes one file holding every workspace. Your workspaces live in the browser, not in the folder,
    so unzipping a new version does not touch them; a backup is for the day something else does.
-2. Unzip 1.8.2 into a **new** folder beside the old one. Do not unzip over the old folder.
+2. Unzip 1.9.0 into a **new** folder beside the old one. Do not unzip over the old folder.
 3. **Stop the old server** if its terminal window is still open (Control-C). The launchers detect an
    earlier copy on the same port, stop it and say so, but an old window left running is the usual
    reason a browser keeps showing the previous version.
 4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
    8099 — and your workspaces are there.
-5. **Help → About → Versions** must read `1.8.2 beta`, and the footer `engine verified · 84,305 / 41,023`
+5. **Help → About → Versions** must read `1.9.0 beta`, and the footer `engine verified · 84,305 / 41,023`
    (1.7.x read 84,491 / 41,104: the MediBec reference changed because S2 and S8 now use AV:L, as the textbook does).
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
@@ -245,7 +249,7 @@ read-only and never saved over.
 **8.1 `start.command` opens in a text editor instead of running (macOS).**
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.8.2-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.9.0-beta
 chmod +x start.command start.sh
 ```
 
@@ -287,7 +291,7 @@ To start a teaching case over, or to clear or delete a workspace, use **Organiza
 
 # Français
 
-Version 1.8.2 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
+Version 1.9.0 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
 Validez chaque résultat avant qu’il n’appuie une décision réelle. © 2026 Marc-André Léger ·
 licence propriétaire, gratuite pour les étudiants et les organismes sans but lucratif. Quelle licence
 s’applique : **Aide → À propos → Licence** dans l’application, ou `LICENSE` et le dossier `licences`.
@@ -308,7 +312,7 @@ fonctionne.
 
 ## 2. Décompresser
 
-Décompressez **`CyberRiskGuardian_Desktop_v1.8.2-beta.zip`** à un endroit où vous avez le droit
+Décompressez **`CyberRiskGuardian_Desktop_v1.9.0-beta.zip`** à un endroit où vous avez le droit
 d’écrire ; votre dossier Documents convient. Gardez le dossier intact : l’application charge ses
 propres fichiers par chemin relatif.
 
@@ -332,7 +336,7 @@ téléchargez des sources de menace, l’assistant qui va les chercher. **Contr�
 À la main, si vous préférez :
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.8.2-beta
+cd CyberRiskGuardian_Desktop_v1.9.0-beta
 python3 serve.py 8099
 ```
 
@@ -486,9 +490,13 @@ Vous obtenez une application en fenêtre, avec sa propre icône, qui démarre sa
 fonctionne hors ligne. Après avoir remplacé le dossier par une version plus récente, servez-la une
 fois avec le lanceur pour que l’application installée reprenne les nouveaux fichiers.
 
-## 7. Passer de la 1.8.1, de la 1.8.0, de la 1.7.x (ou d’une copie antérieure) à la 1.8.2
+## 7. Passer de la 1.8.x, de la 1.7.x (ou d’une copie antérieure) à la 1.9.0
 
-**Depuis la 1.8.1 :** les étapes ci-dessous sont les mêmes; la 1.8.2 est un correctif de libellés et de références (références au manuel v2.51b, proposition facultative des vecteurs AV:L pour les cas d’enseignement sur la page Processus). **Depuis la 1.8.0 :** les étapes ci-dessous sont les mêmes; seul change pour votre travail l’exemplaire hors ligne de
+**Depuis la 1.8.x :** les étapes ci-dessous sont les mêmes. Au premier démarrage, chaque espace de travail passe une fois à
+la version de données 4 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). La page et l’assistant
+local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.0 avec son propre lanceur et fermez tout onglet
+encore ouvert sur la version précédente. Les clés d’API rangées dans le dossier des flux sont déplacées une fois vers le
+trousseau macOS ou `~/.cyberriskguardian` (Windows affiche un avertissement). **Depuis la 1.8.0 :** l’exemplaire hors ligne de
 l’ontologie, reconstruit à partir de CRGO v0.10.1 (MediBec S2 et S8 cotés AV:L dans la bibliothèque de scénarios,
 vocabulaire des indices de risque).
 
@@ -501,7 +509,7 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    sauvegarde* → *Télécharger la sauvegarde*, qui écrit un seul fichier contenant tous les espaces
    de travail. Vos espaces de travail résident dans le navigateur et non dans le dossier : décompresser
    une nouvelle version ne les touche pas. Une sauvegarde sert pour le jour où autre chose les touchera.
-2. Décompressez la 1.8.2 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
+2. Décompressez la 1.9.0 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
    par-dessus l’ancien dossier.
 3. **Arrêtez l’ancien serveur** si sa fenêtre de terminal est encore ouverte (Contrôle-C). Les
    lanceurs détectent une copie antérieure sur le même port, l’arrêtent et vous le disent, mais une
@@ -509,7 +517,7 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    d’afficher la version précédente.
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
-5. **Aide → À propos → Versions** doit afficher `1.8.2 beta`, et le pied de page
+5. **Aide → À propos → Versions** doit afficher `1.9.0 beta`, et le pied de page
    `moteur vérifié · 84,305 / 41,023` (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
    parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
@@ -551,7 +559,7 @@ récente s’ouvre en lecture seule et n’est jamais écrasé.
 **8.1 `start.command` s’ouvre dans un éditeur de texte au lieu de s’exécuter (macOS).**
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.8.2-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.0-beta
 chmod +x start.command start.sh
 ```
 

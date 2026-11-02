@@ -1,8 +1,8 @@
 # CyberRiskGuardian Desktop — User Guide
 
-**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.8.2 (beta) · Beta 1.8.x**
+**CyberRiskGuardian with Threat Live-feed — standalone desktop edition, version 1.9.0 (beta) · Beta 1.9.x**
 
-> **Beta 1.8.x.** This application is a beta for teaching, exploration and method validation. Treat
+> **Beta 1.9.x.** This application is a beta for teaching, exploration and method validation. Treat
 > every result as an initial analytical hypothesis and validate it before it supports a real decision.
 
 © 2026 Marc-André Léger · proprietary licence, free for students and non-profit organisations — who
@@ -88,7 +88,7 @@ the folder and your browser's own storage.
 
 ### 3.1 Unpack
 
-Unzip `CyberRiskGuardian_Desktop_v1.8.2-beta.zip` anywhere you can write. Keep the folder intact: the
+Unzip `CyberRiskGuardian_Desktop_v1.9.0-beta.zip` anywhere you can write. Keep the folder intact: the
 application loads its own files by relative path.
 
 > `INSTALL.md` in the folder is the same instructions on one page, **in English and in French**,
@@ -100,7 +100,7 @@ workspaces are kept by the browser for the exact address you use, not in the fol
 finds them. Your API keys are not in the folder either; they are in the macOS login keychain, or in
 `~/.cyberriskguardian/crg-keys.json` on Windows and Linux, and `feeds-dir.txt` carries the feeds path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
-`1.8.2 beta`.
+`1.9.0 beta`.
 
 ### 3.2 Start it
 
@@ -3775,7 +3775,7 @@ None of this is legal advice.
     **84,305 / 41,023** and your workspace, its policies and its requirements are present.
 34. **Help → Step by step** → a separate window with the nineteen steps, the report and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About → Versions** reads `1.8.2 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
+35. **Help → About → Versions** reads `1.9.0 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
     the proprietary licence, the four licence files, cyberriskguardian.ca and sales@cyberriskguardian.ca;
     **Check now** under *Updates* answers (a newer release, the latest release, or why it could not tell).
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM

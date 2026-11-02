@@ -1,8 +1,8 @@
 # CyberRiskGuardian Desktop — Guide de l'utilisateur
 
-**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.8.2 (bêta) · Bêta 1.8.x**
+**CyberRiskGuardian avec flux de menaces en direct — édition autonome pour ordinateur, version 1.9.0 (bêta) · Bêta 1.9.x**
 
-> **Bêta 1.8.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
+> **Bêta 1.9.x.** Cette application est une version bêta destinée à l'enseignement, à l'exploration et à
 > la validation de la méthode. Traitez chaque résultat comme une hypothèse analytique initiale et
 > validez-le avant qu'il n'appuie une décision réelle.
 
@@ -96,7 +96,7 @@ n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateu
 
 ### 3.1 Décompresser
 
-Décompressez `CyberRiskGuardian_Desktop_v1.8.2-beta.zip` à tout endroit où vous pouvez écrire. Gardez
+Décompressez `CyberRiskGuardian_Desktop_v1.9.0-beta.zip` à tout endroit où vous pouvez écrire. Gardez
 le dossier intact : l'application charge ses propres fichiers par chemin relatif.
 
 > `INSTALL.md`, dans le dossier, reprend les mêmes instructions sur une seule page, **en anglais et en
@@ -109,7 +109,7 @@ exacte que vous utilisez, et non dans le dossier ; le même port les retrouve d
 sont pas non plus dans le dossier ; elles se trouvent dans le trousseau de session de macOS, ou dans
 `~/.cyberriskguardian/crg-keys.json` sous Windows et Linux, et `feeds-dir.txt` reporte le chemin des flux. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos → Versions** n'affiche pas
-`1.8.2 beta`.
+`1.9.0 beta`.
 
 ### 3.2 Le démarrer
 
@@ -4260,7 +4260,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 34. **Aide → Pas à pas** → une fenêtre distincte avec les dix-neuf étapes, le rapport et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos → Versions** indique `1.8.2 beta` et `moteur vérifié · 84,305 / 41,023` ;
+35. **Aide → À propos → Versions** indique `1.9.0 beta` et `moteur vérifié · 84,305 / 41,023` ;
     **Licence** nomme la licence propriétaire, les quatre fichiers de licence, cyberriskguardian.ca et
     sales@cyberriskguardian.ca ; **Vérifier maintenant** sous *Mises à jour* répond (une version plus
     récente, la dernière version, ou pourquoi elle ne peut le dire).

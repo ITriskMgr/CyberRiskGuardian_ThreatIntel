@@ -3,18 +3,31 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
-## Unreleased (with Desktop 1.9.0)
+## 1.7.0 — with Desktop 1.9.0 Beta (date TBD)
 
+Plugin minor release shipped with CyberRiskGuardian Desktop 1.9.0 Beta (`desktop/app/CHANGELOG.md`). No formula change:
+the MediBec regression stays at 84,305 / 41,023.
+
+### Added
+- **SSVC beside EPSS and KEV** in vulnerability triage — `scripts/ssvc.py` (CISA SSVC 2.0.3 and the CERT/CC deployer and
+  supplier trees, row for row from CERTCC/SSVC commit `bf3213bc`; Exploitation suggested from a local snapshot),
+  `test_ssvc.py` (every combination; diffs every row against the CSVs when `SSVC_REPO` is set), the `ssvc_decision` tool
+  of the `crg-calculator` MCP server, a *Triage: SSVC beside EPSS and KEV* section in `threat-context-calibration` and
+  `references/ssvc.md` (with the `.claude` copies). An SSVC outcome is a response priority, never a likelihood.
+- Textbook references (v2.51b) in `references/ssvc.md`: Chapter 8 (*Vulnerability management as an operational
+  discipline*; *Vulnerability intelligence data sources*), Chapter 11 (*Risk-based vulnerability prioritization*),
+  Chapter 6 (*Scoring vulnerabilities with CVSS v4.0*) — the same sections the desktop application's chapter-linked help
+  cites.
+
+### Fixed
 - `hooks/check_labels.py`: a negation only counts in the same sentence (a "never" ending the previous sentence no longer
   hides an `ABS()` residual); `.js`, `.mjs` and `.py` files are checked for outdated wording (not for markers).
-- `.claude-plugin/marketplace.json` lists plugin version 1.6.2, as `plugin.json` does.
-- `requirements.txt` pinned to exact versions; `.github/workflows/desktop-ci.yml` and `.github/dependabot.yml` added.
-- Threat Intel plugin: **SSVC beside EPSS and KEV** in vulnerability triage — `scripts/ssvc.py` (CISA SSVC 2.0.3 and the
-  CERT/CC deployer and supplier trees, row for row from CERTCC/SSVC commit `bf3213bc`; Exploitation suggested from a local
-  snapshot), `test_ssvc.py` (every combination; diffs every row against the CSVs when `SSVC_REPO` is set), the
-  `ssvc_decision` tool of the `crg-calculator` MCP server, a *Triage: SSVC beside EPSS and KEV* section in
-  `threat-context-calibration` and `references/ssvc.md` (with the `.claude` copies). An SSVC outcome is a response
-  priority, never a likelihood.
+- `.claude-plugin/marketplace.json` lists the same plugin version as `plugin.json` (1.7.0); the desktop gate
+  `tools/version_check.py` now checks the two agree.
+
+### Repository
+- `requirements.txt` pinned to exact versions; `.github/workflows/desktop-ci.yml` (gates, engine regression, CRGO bridge,
+  plugin tests, helper tests and every desktop browser suite) and `.github/dependabot.yml` added.
 
 ## 1.6.2 — 2026-10-30
 

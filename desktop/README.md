@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — with Threat Intel features
 
-**Version 1.8.2 Beta (1.8.x).** For teaching, exploration and method validation. Validate
+**Version 1.9.0 Beta (1.9.x).** For teaching, exploration and method validation. Validate
 every result before it supports a real decision.
 
 A desktop companion to the CyberRiskGuardian method that runs entirely in your browser, offline, with
@@ -17,7 +17,7 @@ supported by the [CyberRiskGuardian Ontology (CRGO)](https://w3id.org/crgo/).
 
 | | |
 |---|---|
-| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.8.2-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.8.2-beta.zip) — about 4 MB, everything included |
+| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip) — about 4 MB, everything included |
 | **Install** | [`app/INSTALL.md`](app/INSTALL.md) — one page, **in English and in French** |
 | **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 12 pages |
 
@@ -42,21 +42,26 @@ briefing and any API keys live — defaults to `~/Downloads/CyberRiskGuardian-fe
 and moves with one line in `feeds-dir.txt`; the optional shared Google Drive folders start empty and
 are set in Settings → Links & shared folders. Section 5 of the installation instructions covers both.
 
-## What is new in 1.8.2
+## What is new in 1.9.0
 
-A wording and reference patch: the textbook references are v2.51b (the corrected v2.51); "at least 20 candidates, typically 25 to 40" everywhere; the last marker-style uses of the retired "evidence gap" wording take the standard marker; and a teaching case still on the earlier MediBec AV:N vectors is **offered** the AV:L vectors on the Process page — opt-in, journalled, never for a real organization. The 1.8.x line otherwise: aligned with *Introduction to Cybersecurity Governance for Business Technology Management*, v2.51: the
-**nineteen steps** of the book on the Process screen; an **evidence register**; **scenario screening** on the
-twelve criteria of chapter 5 with escalation flags, families, four weighting schemes, a coverage matrix and the
-watch list; **CVSS by equivalency** for non-technical weaknesses (*limited applicability*); a one-page
-**management summary**; full **input validation** (a missing CVSS is an error, never 0); the standard markers;
-only the current control catalogues (ISO/IEC 27002:2022, NIST CSF 2.0, CIS v8.1) with legacy references migrated;
-and an **opt-in update check** against this repository's GitHub releases (off by default, nothing sent, nothing
-installed). The MediBec reference becomes **84,305 / 41,023** (S2 and S8 at AV:L). See `app/CHANGELOG.md`;
-upgrading from 1.7.x: `app/INSTALL.md`, section 7.
+One comprehensive beta release (the unreleased 1.8.2 wording patch and the planned security patch are folded in):
+**security** of the local helper (a token made at each start, Host and Origin checks, a Content-Security-Policy, API keys
+out of the Downloads folder, update downloads checked against a published SHA-256); the **Virtual consultant**, which
+answers from passages retrieved on this computer (the textbook, CRGO, the workspace, the bundled catalogues and an
+optional licensed library) and replaces the AI assistant; **French that follows the French book** (*appétence pour le
+risque*, *joyaux de la couronne*, *registre des éléments probants*, *ratio de tolérance*) and **chapter-linked help**
+("Read more: Chapter N — section") on every screen and step; a second bundled teaching example, **CanaRetail** (English
+and French, 27,526 / 16,049), and **MediBec in French**; an optional **Identity, privilege & configuration** module
+(population-level registers, eight KRIs, findings as evidence and proposals — nothing applied automatically); **SSVC**
+decisions beside EPSS and KEV (a response priority, never a likelihood); and **AI forecasting** — exploitation over 30
+days, a mitigation optimizer and the residual-risk path, every number from the verified engine. Workspaces move to data
+version 4 (journalled); the MediBec reference stays **84,305 / 41,023**. The browser suites, gates and a GitHub Actions
+workflow are in `tests/` and `.github/workflows/desktop-ci.yml`. See `app/CHANGELOG.md`; upgrading: `app/INSTALL.md`,
+section 7.
 
 ## Feedback welcome
 
-This is a beta (1.8.x), and anyone interested is welcome to test it. If you are trying it, the useful things to report are: what the
+This is a beta (1.9.x), and anyone interested is welcome to test it. If you are trying it, the useful things to report are: what the
 footer said at first start, anything that did not open or made no sense, any screen whose wording is
 wrong for how you actually work, and anything in the French interface that reads badly. Open an issue
 here, or write to **marcandre@leger.ca** (licences and quotes: **sales@cyberriskguardian.ca**).

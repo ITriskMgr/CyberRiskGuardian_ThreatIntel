@@ -1,100 +1,11 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
-## 1.9.0 Beta (in progress) — groups 5 and 6: SSVC and AI forecasting
+## 1.9.0 Beta — (date TBD)
 
-### Added
-- **Vulnerabilities → SSVC decisions** (`js/ssvc.js`, `js/data/ssvc-tables.js`, `js/panels/ssvc.js`): a Stakeholder-Specific
-  Vulnerability Categorization decision per registered vulnerability, beside EPSS and KEV. Tree per workspace: *Deployer —
-  CISA SSVC* (default; Track · Track* · Attend · Act), *Deployer — CERT/CC* and *Supplier — CERT/CC* (Defer · Scheduled ·
-  Out-of-Cycle · Immediate), tables copied row for row from the CERT/CC SSVC repository (commit `bf3213bc`; one cell
-  not in a published CSV is marked CHECK). Exploitation is suggested from the evidence — KEV → active, EPSS at or above the
-  snapshot's rung-4 thresholds or a public PoC in the loaded feeds → public PoC, else none — and an override needs a
-  justification. One decision record per vulnerability (points, derived points, outcome, evidence, who, when,
-  justification, history); SSVC column in the register, line in the CVE detail, CSV export. An SSVC outcome is a
-  response priority: it is never converted into a likelihood and changes no parameter.
-- **Forecasts → Exploitation (30 days)** (`js/aiforecast.js`, `js/panels/aiforecast.js`): per registered CVE, a published
-  rule over the EPSS history of the dated `threat-context-YYYY-MM-DD.json` snapshots in the feeds folder (new helper
-  endpoint `POST /api/epss/series`, local only), KEV, PoC and other feed reports, and exposure. Exposed CVEs that are in
-  KEV, high or rising are flagged; the analyst raises **review items** (nothing else changes). Optional AI second opinion
-  (routing row *exploit_forecast*, local by default) shown in its own column.
-- **Forecasts → Mitigation optimizer**: extends the funding frontier — initiatives counted once, a scenario treated only when
-  all its initiatives are funded; exact search for the portfolio that brings the most scenarios within tolerance under a
-  Year-1 budget (greedy, and said so, beyond 20 candidate scenarios); compared with the frontier at the same budget. AI
-  (routing row *mitigation_optimizer*, local by default) proposes cost and per-scenario effect corrections; *Compute “if
-  accepted”* runs the engine on a copy; only ticked proposals are applied, after confirmation, and logged.
-- **Forecasts → Residual-risk path**: residual risk month by month over 1–3 years for options A–D of the Budget screen and the
-  optimizer's portfolio, phased in by start month, budget year and months to benefit, every residual through `CRG.calc`;
-  seeded Monte Carlo bands (parameter ranges and delivery delays); risk avoided and risk avoided per $1,000.
-- New workspace field **`ssvc`** (tree, decisions, review items): in `KNOWN_FIELDS`, the factory, the shape repair and the
-  reset group *Context* through its `STEP4` entry in `js/migrate.js` (data version 4).
-- Guides EN/FR 7.4.2.1, 7.10.5.1–7.10.5.3 and 8.3; French catalogue 100 %; new files in `sw.js`; suites
-  `tests-new/t33_ssvc.mjs` and `t34_forecast.mjs`. MediBec self-check unchanged (84,305 / 41,023).
-## 1.9.0 Beta (in progress) — group 4: Identity, privilege & configuration
-
-### Added
-- **Identity, privilege & configuration** (`ipc`), an optional module in Settings → Modules (Governance), **off by
-  default**, every edition. A strategic posture assessment with seven local registers kept at **population level**
-  — account populations by type, privileged roles by tier 0–2, emergency (break-glass) accounts, access-review
-  campaigns, versioned baselines with configuration scopes, deviations by drift class with their exceptions,
-  segregation-of-duties rules and configuration changes. No connector, no workflow, no remediation; **no names,
-  account identifiers or secrets** (personal-data and secret guards block e-mail/UPN, `DOMAIN\user`, SIDs, more than
-  three IP addresses, keys and tokens). Blank counts stay unknown; stale rows are badged. Spec: desktop edition v1.2.
-- **Eight automatic KRIs, CRG-17 to CRG-24** (identity ownership, privileged MFA, standing privilege, access-review
-  completion, emergency use reviewed, baseline assignment, known coverage, expired exceptions) with numerator and
-  denominator, *not applicable* for a zero denominator, and **never green by excluding unknowns**; threshold overrides
-  in `kriDefs` with Restore default; hidden when the module is off.
-- **Sixteen deterministic finding rules** (IR-01 to IR-16) with a direction hint only; **Record as evidence** (next
-  E-number, counted by the evidence register's citations), **Link scenario** (scenario unchanged), **Propose a parameter
-  change** (Pb(ψ,A) or θ, the value typed by the analyst, ratio now → after from the verified engine). **Accept** is a
-  separate act: parameter, `ipc_basis`, scenario revisions and revision log. Nothing is applied automatically.
-- Maturity reuse: a filter chip (PR.AA, PR.PS, pv1, pv3, ct2, ct3; the 15 statement-of-applicability keys in Compliance
-  → Frameworks & checklists) and proposals that fill **empty answers only**.
-- **Import from a report**: CSV/XLSX counted by offline rules, prose reports by AI (task `extract_s_ipc`, local model by
-  default, payload preview with token count and anonymizer, remote needs an explicit authorization tick, confidential
-  workspaces confirm every call). The file is read in memory only; only accepted counts and an import trace (file,
-  SHA-256, bytes, rows) are kept.
-- Teaching cases: MediBec (EN/FR) gets evidence E13–E15 and five recorded findings, no proposal (84,305 / 41,023
-  unchanged); CanaRetail (EN/FR) one finding with evidence E13 and one **pending** proposal on S10 (27,526 / 16,049
-  unchanged). Samples in `js/data/ipc-samples.js`.
-- Data version 3 → 4: the `ipc` entry of `STEP4` (js/migrate.js, group CONTEXT) runs `migrateIpc4`: baselines named on assets promoted
-  to versioned *legacy* baselines (the asset gains only `baseline.ref`), drift assets get a deviation to classify, a live
-  scope from Information assets, teaching-case seed; invariants throw. CRGO 0.11 identifiers are placeholders in
-  `IPC.CRGO` (`tools/crgo_tbd_check.py --release` fails until they are filled).
-- Process steps 1, 2, 9 and 19 gain tips and links when the module is on; the Scenario editor shows the linked
-  evidence read-only. Guides EN/FR section 7.5.6 (Quality review becomes 7.5.7), help on every tab, French 100 %.
-- Tests t32–t39 `*_ipc_*` (`desktop/tests-new/`, fixture `ws-1.8.2.json`, mock `extract_s_ipc.txt`); t27 (MediBec evidence 15, next E16), t10 (module screens offline), t11 and t30 (data version 4) updated.
-
-## 1.9.0 Beta (unreleased) — group 3: teaching examples
-
-### Added
-- **CanaRetail — a second bundled teaching example**, in English and in French with the same numbers (`canaretail.js`,
-  built by `examples/canaretail/source/build_canaretail.py` from the student version of the CanaRetail case v2.0c):
-  organization profile, appetite 0.5 (risk neutral) with its rationale, eight crown jewels, a twelve-row evidence
-  register, 40 candidates from the case's 50 prompts screened on the twelve criteria into ten families (watch list,
-  evidence-collection plan), ten scenarios with full causal chains — the nine the case supplies for Module D and one
-  original, an over-privileged integration service account (S10) — six-parameter quantification with rationale,
-  evidence and confidence, CVSS v4.0 vectors (three by equivalency, every metric justified), ten measures (M1–M10 as
-  I01–I10) with costs, twelve KRIs, the case's IT budget years 2026–2028 and a management summary. Reference totals
-  **27,526 / 16,049** (engine/crg_calc.py and crg.js agree); two scenarios above, three approximately at and five below
-  tolerance after treatment.
-- **MediBec (français)** — the 30 MediBec scenarios, their documents and the screening of the 45 candidates in French as
-  a separate bundled example (`medibec-fr.js`, built by `examples/medibec/source/build_medibec_fr.py` from `medibec.js`,
-  `medibec-screening.js` and `examples/medibec/source/fr/*.tsv`). Only text is translated: every number, vector,
-  identifier and enumeration is the English case's, so it reproduces **84,305 / 41,023**. Terminology of the French book
-  (appétence pour le risque, joyaux de la couronne, registre des éléments probants) and the standard French markers.
-- **Organization → Workspaces → Start from** offers the four bundled examples (MediBec and CanaRetail, English and French);
-  choosing one sets the new type *Teaching example (bundled)*. The case a workspace was built from is recorded in
-  `ws.teaching.case` (an existing field, NAMING reset group — no new workspace field, no data-version change); **Start
-  over** rebuilds that case (a workspace without it is MediBec, as before).
-- **Start-up self-check**: after MediBec, the French MediBec must give 84,305 / 41,023 and both CanaRetail workspaces
-  27,526 / 16,049 (own guarded constant); the footer reads `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
-- Evidence register: French type labels (exercice, externe, secteur…) are recognised like the English ones.
-- Guides EN/FR (sections 4, 7.2.1 and 7.2.4); test `t35_canaretail.mjs`.
-
-> **NOTE — native read-through required.** The French text of *CanaRetail (français)* and *MediBec (français)* is a
-> draft translation by Claude (Opus 5.5). A native French read-through by the author is pending before the cases are
-> used in class or published as reference material.
-## 1.9.0 Beta (in progress)
+One comprehensive release (decision record of 2 November 2026). The 1.8.2 build of 30 October 2026 was never released on
+its own and is folded in (its notes follow below), as is the planned 1.8.3 security patch. Threat Intel plugin **1.7.0**
+ships with it (root `CHANGELOG.md`). Workspaces move to **data version 4** (one step 3 → 4 made of sub-steps, journalled);
+the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 / 16,049**.
 
 ### Security (group 0 — review of 2 November 2026, Part B)
 - **Local helper authentication.** `serve.py` makes a random token at each start; the page reads it from `/api/session`
@@ -137,14 +48,37 @@
   carry the standard markers; the plugin version in `marketplace.json` matches `plugin.json` (now checked by
   `tools/version_check.py`).
 
-### Tests and CI
-- The browser suites (t01–t32), fixtures, mocks and helpers are in `desktop/tests/`, every path from environment variables
+### Tests and CI (group 0)
+- **One harness.** The browser suites, fixtures, canned AI answers and helpers are in `desktop/tests/` (the lane folder
+  `tests-new/` is merged into it; suites numbered t01–t48 without collision), every path from environment variables
   with defaults relative to the repository (`lib.mjs`, `serve.sh`, `run_all.sh`); new `t32_security.mjs` and
   `test_helper_guard.py`. `.github/workflows/desktop-ci.yml` runs the gates (French 100 % now strict), the engine regression,
   the CRGO bridge tests against CRGO v0.10.1, the helper tests and every suite.
-## 1.9.0 Beta (in progress)
+- `lib.mjs` is the only harness: the per-launch token (`apiHeaders()` for Node, `helper.js headers()` in the page), a
+  first-open wait that settles and survives the migration reload, the ipc helpers; `serve.sh` gives the helper a scratch
+  copy of `mock/` (`$CRG_TMP/mock`), so suites that rewrite `consultant.txt` and the helper's `_last.json` never touch
+  the repository. t29 reads the running version from `js/version.js` instead of a literal.
+- Suites: t01–t31 as before; t32 security; t33 SSVC; t34 AI forecasting; t35 CanaRetail and MediBec (French); t36–t43
+  identity, privilege & configuration; t44–t47 Virtual consultant; t48 chapter-linked help.
 
-### Virtual consultant (replaces the AI assistant)
+### French terminology and chapter-linked help (group 2)
+- **French follows the French book** (`docs/fr-terminology-1.9.md`): *appétence pour le risque* (not *appétit*),
+  *joyaux de la couronne* (not *actifs essentiels*), *registre des éléments probants* (not *registre des preuves*) and
+  *ratio de tolérance* in the catalogue (`js/i18n/fr.js`), the French guide and the Security Policy Writer's French text,
+  with agreement, elision and pronoun fixes; the strings added by the SSVC, identity/privilege/configuration, consultant
+  and teaching-case work follow the same terms. Native read-through pending.
+- **Chapter-linked help — “Read more: Chapter N — section”** (FR *Pour en savoir plus : chapitre N — section*) under every
+  screen title, on every Process step, in the Step by step window and in the printed checklist, from one table
+  (`js/data/chapters.js`, rendered by `js/chapterhelp.js`) derived from the book appendix's chapter-by-chapter guide:
+  section → chapter, English heading verbatim and French heading; screen or tab → section or `none`; step → section.
+  Every screen and tab added in this release has its row (identity, privilege & configuration → Chapters 10 and 14;
+  SSVC → Chapter 8; exploitation forecast → Chapter 8, mitigation optimizer and residual-risk path → Chapter 17; Virtual
+  consultant → Chapter 18; Settings → Knowledge base → none). Only the reference line is shipped, no textbook text.
+  `tools/anchor_check.py` checks that every screen and step has an entry and that every heading exists in `kb/book/`.
+- Budget and KRI dashboard wording reworded to pass the label check (three point targets, not a band; automatic KRIs are
+  measured counts and coverages).
+
+### Virtual consultant, replacing the AI assistant (group 2)
 - **The AI assistant becomes the Virtual consultant** (FR *Consultant virtuel*), in every edition. The label "AI
   assistant" is retired from the menu, the modules, the guides, help and the routing table; the in-app "analyst" task is
   folded into the consultant. The **"?" help chatbot is help-only**: its AI mode (and the *Let the chatbot use AI*
@@ -184,8 +118,98 @@
   value, reset group and journal title, and KNOWN_FIELDS, the workspace factory, the shape repair and the reset groups
   read the list. The consultant record is its first sub-step (reset group: assessment). Numbers are never touched; the
   MediBec self-check (84,305 / 41,023) holds.
-- Tests (`desktop/tests-new/`): t40 retrieval (with a mock local embedding endpoint, `mock_embed.py`), t41 library,
-  t42 history and the 3 → 4 migration, t43 routing. `tools/cache_check.py` covers the new modules and `kb/book/`.
+- Tests: t44 retrieval (with a mock local embedding endpoint, `mock_embed.py`), t45 library,
+  t46 history and the 3 → 4 migration, t47 routing. `tools/cache_check.py` covers the new modules and `kb/book/`.
+
+### Teaching examples: CanaRetail and MediBec in French (group 3)
+- **CanaRetail — a second bundled teaching example**, in English and in French with the same numbers (`canaretail.js`,
+  built by `examples/canaretail/source/build_canaretail.py` from the student version of the CanaRetail case v2.0c):
+  organization profile, appetite 0.5 (risk neutral) with its rationale, eight crown jewels, a twelve-row evidence
+  register, 40 candidates from the case's 50 prompts screened on the twelve criteria into ten families (watch list,
+  evidence-collection plan), ten scenarios with full causal chains — the nine the case supplies for Module D and one
+  original, an over-privileged integration service account (S10) — six-parameter quantification with rationale,
+  evidence and confidence, CVSS v4.0 vectors (three by equivalency, every metric justified), ten measures (M1–M10 as
+  I01–I10) with costs, twelve KRIs, the case's IT budget years 2026–2028 and a management summary. Reference totals
+  **27,526 / 16,049** (engine/crg_calc.py and crg.js agree); two scenarios above, three approximately at and five below
+  tolerance after treatment.
+- **MediBec (français)** — the 30 MediBec scenarios, their documents and the screening of the 45 candidates in French as
+  a separate bundled example (`medibec-fr.js`, built by `examples/medibec/source/build_medibec_fr.py` from `medibec.js`,
+  `medibec-screening.js` and `examples/medibec/source/fr/*.tsv`). Only text is translated: every number, vector,
+  identifier and enumeration is the English case's, so it reproduces **84,305 / 41,023**. Terminology of the French book
+  (appétence pour le risque, joyaux de la couronne, registre des éléments probants) and the standard French markers.
+- **Organization → Workspaces → Start from** offers the four bundled examples (MediBec and CanaRetail, English and French);
+  choosing one sets the new type *Teaching example (bundled)*. The case a workspace was built from is recorded in
+  `ws.teaching.case` (an existing field, NAMING reset group — no new workspace field, no data-version change); **Start
+  over** rebuilds that case (a workspace without it is MediBec, as before).
+- **Start-up self-check**: after MediBec, the French MediBec must give 84,305 / 41,023 and both CanaRetail workspaces
+  27,526 / 16,049 (own guarded constant); the footer reads `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
+- Evidence register: French type labels (exercice, externe, secteur…) are recognised like the English ones.
+- Guides EN/FR (sections 4, 7.2.1 and 7.2.4); test `t35_canaretail.mjs`.
+
+> **NOTE — native read-through required.** The French text of *CanaRetail (français)* and *MediBec (français)* is a
+> draft translation by Claude (Opus 5.5). A native French read-through by the author is pending before the cases are
+> used in class or published as reference material.
+
+### Identity, privilege & configuration module (group 4)
+- **Identity, privilege & configuration** (`ipc`), an optional module in Settings → Modules (Governance), **off by
+  default**, every edition. A strategic posture assessment with seven local registers kept at **population level**
+  — account populations by type, privileged roles by tier 0–2, emergency (break-glass) accounts, access-review
+  campaigns, versioned baselines with configuration scopes, deviations by drift class with their exceptions,
+  segregation-of-duties rules and configuration changes. No connector, no workflow, no remediation; **no names,
+  account identifiers or secrets** (personal-data and secret guards block e-mail/UPN, `DOMAIN\user`, SIDs, more than
+  three IP addresses, keys and tokens). Blank counts stay unknown; stale rows are badged. Spec: desktop edition v1.2.
+- **Eight automatic KRIs, CRG-17 to CRG-24** (identity ownership, privileged MFA, standing privilege, access-review
+  completion, emergency use reviewed, baseline assignment, known coverage, expired exceptions) with numerator and
+  denominator, *not applicable* for a zero denominator, and **never green by excluding unknowns**; threshold overrides
+  in `kriDefs` with Restore default; hidden when the module is off.
+- **Sixteen deterministic finding rules** (IR-01 to IR-16) with a direction hint only; **Record as evidence** (next
+  E-number, counted by the evidence register's citations), **Link scenario** (scenario unchanged), **Propose a parameter
+  change** (Pb(ψ,A) or θ, the value typed by the analyst, ratio now → after from the verified engine). **Accept** is a
+  separate act: parameter, `ipc_basis`, scenario revisions and revision log. Nothing is applied automatically.
+- Maturity reuse: a filter chip (PR.AA, PR.PS, pv1, pv3, ct2, ct3; the 15 statement-of-applicability keys in Compliance
+  → Frameworks & checklists) and proposals that fill **empty answers only**.
+- **Import from a report**: CSV/XLSX counted by offline rules, prose reports by AI (task `extract_s_ipc`, local model by
+  default, payload preview with token count and anonymizer, remote needs an explicit authorization tick, confidential
+  workspaces confirm every call). The file is read in memory only; only accepted counts and an import trace (file,
+  SHA-256, bytes, rows) are kept.
+- Teaching cases: MediBec (EN/FR) gets evidence E13–E15 and five recorded findings, no proposal (84,305 / 41,023
+  unchanged); CanaRetail (EN/FR) one finding with evidence E13 and one **pending** proposal on S10 (27,526 / 16,049
+  unchanged). Samples in `js/data/ipc-samples.js`.
+- Data version 3 → 4: the `ipc` entry of `STEP4` (js/migrate.js, group CONTEXT) runs `migrateIpc4`: baselines named on assets promoted
+  to versioned *legacy* baselines (the asset gains only `baseline.ref`), drift assets get a deviation to classify, a live
+  scope from Information assets, teaching-case seed; invariants throw. CRGO 0.11 identifiers are placeholders in
+  `IPC.CRGO` (`tools/crgo_tbd_check.py --release` fails until they are filled).
+- Process steps 1, 2, 9 and 19 gain tips and links when the module is on; the Scenario editor shows the linked
+  evidence read-only. Guides EN/FR section 7.5.6 (Quality review becomes 7.5.7), help on every tab, French 100 %.
+- Tests t36–t43 `*_ipc_*` (fixture `ws-1.8.2.json`, mock `extract_s_ipc.txt`); t27 (MediBec evidence 15, next E16), t10 (module screens offline), t11 and t30 (data version 4) updated.
+
+### SSVC and AI forecasting (groups 5 and 6)
+- **Vulnerabilities → SSVC decisions** (`js/ssvc.js`, `js/data/ssvc-tables.js`, `js/panels/ssvc.js`): a Stakeholder-Specific
+  Vulnerability Categorization decision per registered vulnerability, beside EPSS and KEV. Tree per workspace: *Deployer —
+  CISA SSVC* (default; Track · Track* · Attend · Act), *Deployer — CERT/CC* and *Supplier — CERT/CC* (Defer · Scheduled ·
+  Out-of-Cycle · Immediate), tables copied row for row from the CERT/CC SSVC repository (commit `bf3213bc`; one cell
+  not in a published CSV is marked CHECK). Exploitation is suggested from the evidence — KEV → active, EPSS at or above the
+  snapshot's rung-4 thresholds or a public PoC in the loaded feeds → public PoC, else none — and an override needs a
+  justification. One decision record per vulnerability (points, derived points, outcome, evidence, who, when,
+  justification, history); SSVC column in the register, line in the CVE detail, CSV export. An SSVC outcome is a
+  response priority: it is never converted into a likelihood and changes no parameter.
+- **Forecasts → Exploitation (30 days)** (`js/aiforecast.js`, `js/panels/aiforecast.js`): per registered CVE, a published
+  rule over the EPSS history of the dated `threat-context-YYYY-MM-DD.json` snapshots in the feeds folder (new helper
+  endpoint `POST /api/epss/series`, local only), KEV, PoC and other feed reports, and exposure. Exposed CVEs that are in
+  KEV, high or rising are flagged; the analyst raises **review items** (nothing else changes). Optional AI second opinion
+  (routing row *exploit_forecast*, local by default) shown in its own column.
+- **Forecasts → Mitigation optimizer**: extends the funding frontier — initiatives counted once, a scenario treated only when
+  all its initiatives are funded; exact search for the portfolio that brings the most scenarios within tolerance under a
+  Year-1 budget (greedy, and said so, beyond 20 candidate scenarios); compared with the frontier at the same budget. AI
+  (routing row *mitigation_optimizer*, local by default) proposes cost and per-scenario effect corrections; *Compute “if
+  accepted”* runs the engine on a copy; only ticked proposals are applied, after confirmation, and logged.
+- **Forecasts → Residual-risk path**: residual risk month by month over 1–3 years for options A–D of the Budget screen and the
+  optimizer's portfolio, phased in by start month, budget year and months to benefit, every residual through `CRG.calc`;
+  seeded Monte Carlo bands (parameter ranges and delivery delays); risk avoided and risk avoided per $1,000.
+- New workspace field **`ssvc`** (tree, decisions, review items): in `KNOWN_FIELDS`, the factory, the shape repair and the
+  reset group *Context* through its `STEP4` entry in `js/migrate.js` (data version 4).
+- Guides EN/FR 7.4.2.1, 7.10.5.1–7.10.5.3 and 8.3; French catalogue 100 %; new files in `sw.js`; suites
+  `t33_ssvc.mjs` and `t34_forecast.mjs`. MediBec self-check unchanged (84,305 / 41,023).
 
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 

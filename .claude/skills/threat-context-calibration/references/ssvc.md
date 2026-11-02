@@ -44,6 +44,14 @@ organizational validation required**.
 listing date, EPSS score and percentile, PoC reports, snapshot date), any override with its
 justification, `by`, `date`, `justification`, and the history of earlier decisions.
 
+## Textbook references
+
+*Introduction to Cybersecurity Governance for Business Technology Management*, 3rd ed., v2.51b:
+Chapter 8, *Vulnerability management as an operational discipline* and *Vulnerability intelligence data
+sources: CVE, CWE, CVSS, and advisories* (where the desktop application's SSVC tab links its help);
+Chapter 11, *Risk-based vulnerability prioritization*; Chapter 6, *Scoring vulnerabilities with CVSS v4.0*
+(why exploitation evidence goes to `Pb(ψ,A)` and never to CVSS).
+
 ## What SSVC does not do
 
 - It does not set or adjust `Pb(A)`, `Pb(ψ,A)`, CVSS or any other parameter.
