@@ -71,11 +71,11 @@ await goto(page, '#/scenario/S2', 800);
 const aria = await page.evaluate(() => { const l = document.querySelector('#panel-scenario [role="tablist"]'); const tabs = [...l.querySelectorAll('[role="tab"]')];
   return { label: l.getAttribute('aria-label'), names: tabs.map(t => t.textContent.trim()), sel: tabs.filter(t => t.getAttribute('aria-selected') === 'true').length,
     tabindex: tabs.map(t => t.tabIndex), panels: tabs.every(t => { const p = document.getElementById(t.getAttribute('aria-controls')); return p && p.getAttribute('role') === 'tabpanel' && p.getAttribute('aria-labelledby') === t.id; }) }; });
-ok(aria.names.join('|') === 'Causal chain|Quantification|CVSS v4.0|Treatment|Links & evidence|Ontology|CRGO', 'seven tabs: ' + aria.names.join(' · '));
+ok(aria.names.join('|') === 'Causal chain|Quantification|CVSS v4.0|Treatment|Links & evidence|Ontology · CRGO', 'six tabs: ' + aria.names.join(' | '));
 ok(aria.label && aria.sel === 1 && aria.tabindex.filter(x => x === 0).length === 1 && aria.panels, 'tablist labelled, one selected, roving tabindex, panels labelled by their tab');
 await page.click('#scen-tab-chain'); await page.keyboard.press('ArrowRight'); await page.waitForTimeout(100);
 ok(await tabOf() === 'quant' && await page.evaluate(() => document.activeElement?.id) === 'scen-tab-quant', 'ArrowRight moves focus and selection to Quantification');
-await page.keyboard.press('End'); ok(await tabOf() === 'crgo', 'End selects the last tab');
+await page.keyboard.press('End'); ok(await tabOf() === 'onto', 'End selects the last tab');
 await page.keyboard.press('ArrowRight'); ok(await tabOf() === 'chain', 'ArrowRight wraps to the first tab');
 await page.keyboard.press('ArrowLeft'); await page.keyboard.press('Home'); ok(await tabOf() === 'chain', 'Home selects the first tab');
 await page.click('#scen-tab-treat'); await goto(page, '#/scenario/S3', 700);
@@ -159,7 +159,7 @@ ok(still.name === 'none', 'prefers-reduced-motion: no reveal animation ' + JSON.
 await page.evaluate(async () => (await import('/js/i18n.js')).setLang('fr')); await page.waitForTimeout(500);
 await goto(page, '#/scenario/S2', 800);
 const frTabs = await page.evaluate(() => [...document.querySelectorAll('#panel-scenario [role="tab"]')].map(t => t.textContent.trim()).join('|'));
-ok(frTabs === 'Chaîne causale|Quantification|CVSS v4.0|Traitement|Liens et preuves|Ontologie|CRGO', 'French tabs: ' + frTabs);
+ok(frTabs === 'Chaîne causale|Quantification|CVSS v4.0|Traitement|Liens et preuves|Ontologie · CRGO', 'French tabs: ' + frTabs);
 await goto(page, '#/process', 800);
 ok(/Sept groupes/.test(await page.textContent('#panel-process')) && /étapes sur 19 terminées/.test(await page.evaluate(() => document.querySelector('svg.ring').getAttribute('aria-label'))), 'French Process page');
 await page.evaluate(async () => (await import('/js/i18n.js')).setLang('en')); await page.waitForTimeout(300);

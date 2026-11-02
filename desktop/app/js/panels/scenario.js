@@ -23,7 +23,7 @@ const CONF = ['High', 'Medium', 'Low'];
 
 /* ---------------- 1.9.0 — Atlas: the editor's tabs ---------------- */
 const TABS = [['chain', 'Causal chain'], ['quant', 'Quantification'], ['cvss', 'CVSS v4.0'], ['treat', 'Treatment'],
-  ['links', 'Links & evidence'], ['onto', 'Ontology'], ['crgo', 'CRGO']];
+  ['links', 'Links & evidence'], ['onto', 'Ontology · CRGO']];
 let pendingTab = null;
 const MOVE = { ArrowRight: 1, ArrowLeft: -1, Home: 'first', End: 'last' };
 /** Open the editor on a given tab next time it is drawn (Process step 8 → chain, 9 → quant, 10 → cvss). */
@@ -241,7 +241,7 @@ export function render(sec, arg) {
         el('button', { class: 'btn sm ghost danger', onclick: () => { s.intel.splice(i, 1); touch(); render(sec, s.id); } }, 'Remove')))) : null));
 
   // 1.5.7 — the ontology: tags, controls and obligations this scenario carries, and what CRGO links to its techniques
-  const [ontoC, crgoC] = ontologyCards(s, sec); P.onto.append(ontoC); P.crgo.append(crgoC);
+  P.onto.append(ontologyCard(s, sec));
 
   // 1.6.0 — what SIEM and SOAR hold about this scenario: evidence only, no parameter changes
   P.links.append(secopsCard(s, sec));
@@ -394,8 +394,8 @@ function apply(s, sec, rows, picked, edits, cons, pickedCons, attack, takeAttack
 }
 
 /* ---------------- 1.5.7 — the ontology card ---------------- */
-function ontologyCards(s, sec) {
-  const out = el('div'), out2 = el('div');
+function ontologyCard(s, sec) {
+  const out = el('div');
   const c = s.crgo;
   const body = [el('h2', null, 'Ontology · CRGO')];
   if (c) body.push(el('p', 'small', 'Imported from ', el('span', { class: 'mono', 'data-noi18n': '' }, c.id), c.basis ? ` · ${c.basis}` : '', c.imported ? ` · ${c.imported}` : ''),
@@ -439,22 +439,16 @@ function ontologyCards(s, sec) {
       try { const r = await CRGO.call('crgo_scenario', { scenario_id: c.id }); out.replaceChildren(detail09(r.result, r.via)); }
       catch (e) { out.replaceChildren(banner('bad', 'The ontology could not answer', String(e.message || e))); }
     } }, 'Other regimes, D3FEND and exploitation evidence') : null,
-    null));
-  /* 1.9.0 — the organisation's own context through CRGO (dss/v1), the obligations it can trigger and the incidents and
-     exceptions that bear on it: their own tab, beside the ontology's library view. */
-  const crgo = card({ class: 'card', 'data-crgo-org': '' }, el('h2', null, 'CRGO — organisation context'),
-    el('p', 'note', 'What the organisation graph says about this scenario: obligations, applicability and control evidence. A control that supports an obligation is not evidence of compliance.'),
-    el('div', 'btnrow', { style: { marginTop: '8px' } },
-      el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
-        const LK = await import('./ontology_link.js'), D = await import('../dss.js');
-        if (!S.ws.crgo?.graph) { out2.replaceChildren(localEvidence(s, D)); return; }
-        out2.replaceChildren(el('p', 'note', 'Asking the ontology…'));
-        const d = await D.context(s.id, today());
-        out2.replaceChildren(d.error ? el('div', null, LK.errorBox(d), localEvidence(s, D)) : LK.contextView(d));
-        if (!d.error) touch();
-      } }, 'Organisation context and control evidence')),
-    obligationsEditor(s), lifeEvidence(s), out2);
-  return [card(...body, out), crgo];
+    el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: async () => {
+      const LK = await import('./ontology_link.js'), D = await import('../dss.js');
+      if (!S.ws.crgo?.graph) { out.replaceChildren(localEvidence(s, D)); return; }
+      out.replaceChildren(el('p', 'note', 'Asking the ontology…'));
+      const d = await D.context(s.id, today());
+      out.replaceChildren(d.error ? el('div', null, LK.errorBox(d), localEvidence(s, D)) : LK.contextView(d));
+      if (!d.error) touch();
+    } }, 'Organisation context and control evidence')));
+  body.push(obligationsEditor(s), lifeEvidence(s));
+  return card(...body, out);
 }
 
 /** Loi 25 and other provisions this scenario can trigger, by CRGO notation (e.g. "P-39.1 s. 10"). */

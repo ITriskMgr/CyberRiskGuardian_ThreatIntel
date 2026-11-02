@@ -1182,13 +1182,13 @@ qu'ils ont été reçus (`SCHEMA_INVALID`, `UNKNOWN_ORGANISATION`, `UNKNOWN_SUBJ
 et rien n'est retenté avec des données modifiées. Corrigez la cause — habituellement en reconstruisant
 le graphe après avoir ajouté ou renommé des scénarios — puis envoyez de nouveau.
 
-Dans l'**Éditeur de scénarios**, l'onglet *Ontologie* ajoute *Autres régimes, D3FEND et preuves
+Dans l'**Éditeur de scénarios**, l'onglet *Ontologie · CRGO* ajoute : les obligations que le scénario
+peut déclencher, selon la notation de CRGO (`P-39.1 s. 10`) ; *Autres régimes, D3FEND et preuves
 d'exploitation* — les obligations découlant de A-2.1, de la LPRPDE, de la ligne directrice B-13 du BSIF
 et du RGPD, les contre-mesures MITRE D3FEND, ainsi que les données KEV/EPSS par technique et par
 faiblesse, **présentées comme des éléments probants que l'exploitation se produit dans la nature,
 jamais comme une vraisemblance** (l'EPSS n'est ni Pb(A) ni Pb(ψ,A), et le KEV ne dit rien des systèmes
-propres à l'organisation). L'onglet *CRGO* contient les obligations que le scénario peut déclencher, selon
-la notation de CRGO (`P-39.1 s. 10`), et *Contexte de l'organisation et éléments probants des contrôles* — le
+propres à l'organisation) ; et *Contexte de l'organisation et éléments probants des contrôles* — le
 contexte ci-dessus ou, sans le graphe, les éléments probants des contrôles consignés dans l'espace de
 travail. Les incidents qui éclairent le scénario et les exceptions aux politiques sur lesquelles il
 repose sont énumérés en dessous.
@@ -1438,8 +1438,8 @@ les scénarios ou les ajoute à la suite (les ID en conflit sont renumérotés)�
 ### 7.3.5 Éditeur de scénarios — consulter et modifier un scénario {#scenario}
 
 Tout ce qui concerne un scénario sur un seul écran. Le sélecteur de scénario est en haut (avec *‹ Précédent*,
-*Suivant ›*, **Inclure dans les totaux**, *Dupliquer* et *Supprimer*) ; chaque section a son onglet — **Chaîne causale ·
-Quantification · CVSS v4.0 · Traitement · Liens et preuves · Ontologie · CRGO** — et la fiche **Indices de risque en direct** reste à droite
+*Suivant ›*, **Inclure dans les totaux**, *Dupliquer* et *Supprimer*) ; chaque section a son onglet — **Chaîne causale**,
+**Quantification**, **CVSS v4.0**, **Traitement**, **Liens et preuves** et **Ontologie · CRGO** — et la fiche **Indices de risque en direct** reste à droite
 quel que soit l'onglet : le ratio de tolérance en grands caractères avec sa classification, puis le CVSS-B, les risques
 estimé, toléré, atténué et résiduel et le ratio avant traitement, et le coût du traitement de l'année 1 avec son
 rapport coût-efficacité. Le moteur vérifié recalcule la fiche à chaque modification ; elle signale aussi une atténuation
@@ -1486,7 +1486,7 @@ l'ébauche. Modifiez toute ébauche sur place. Rien n'est écrit avant **Appliqu
 ce que vous acceptez est consigné dans le journal des révisions avec le nom des champs retenus. La
 fonction utilise par défaut le modèle local, car elle transmet le texte du scénario.
 
-**Onglet Ontologie (fiche Ontologie · CRGO).** Un scénario tiré de l'ontologie affiche son
+**Onglet Ontologie · CRGO.** Un scénario tiré de l'ontologie affiche son
 identifiant dans l'ontologie, ses thèmes, ses catégories d'actifs, ses types de sources de menace, les
 contrôles que l'ontologie lui associe et les obligations de la Loi 25 du Québec qu'il peut déclencher.
 Pour tout scénario, **Trouver des scénarios semblables dans l'ontologie** cherche dans l'ontologie à
@@ -4195,7 +4195,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
     *[CRGO]*, avec une justification nommant l'identifiant de l'ontologie.
 12. **Ontologie · CRGO → Explorer → Contrôles pour une technique** → `T1486` : contrôles énumérés par
     cadre. **Connexion** indique la provenance du serveur, ou pourquoi c'est l'instantané qui répond.
-13. **Éditeur de scénarios** → S1 → onglet *Ontologie* → **Contrôles pour ses techniques**
+13. **Éditeur de scénarios** → S1 → onglet *Ontologie · CRGO* → **Contrôles pour ses techniques**
     énumère les contrôles par technique ; **Trouver des scénarios semblables dans l'ontologie** propose
     des scénarios à lier (*Lien*).
 

@@ -1093,11 +1093,11 @@ When the ontology refuses a document, the **write-back journal** shows its code 
 with altered data. Correct the cause — usually rebuilding the graph after adding or renaming scenarios —
 and send again.
 
-In the **Scenario editor**, the *Ontology* tab adds *Other regimes, D3FEND and exploitation evidence* — obligations under
+In the **Scenario editor**, the *Ontology · CRGO* tab adds: the obligations the scenario can trigger, by
+CRGO notation (`P-39.1 s. 10`); *Other regimes, D3FEND and exploitation evidence* — obligations under
 A-2.1, PIPEDA, OSFI B-13 and the GDPR, MITRE D3FEND countermeasures, and KEV/EPSS figures per technique and
 weakness, **shown as evidence that exploitation happens in the wild, never as a likelihood** (EPSS is not
-Pb(A) or Pb(ψ,A), and KEV says nothing about the organisation's own systems). The *CRGO* tab holds the obligations the
-scenario can trigger, by CRGO notation (`P-39.1 s. 10`), and *Organisation context and
+Pb(A) or Pb(ψ,A), and KEV says nothing about the organisation's own systems); and *Organisation context and
 control evidence* — the context above, or, without the graph, the control evidence recorded in the
 workspace. Incidents that inform the scenario and the policy exceptions it counts on are listed beneath.
 
@@ -1315,8 +1315,8 @@ a scenario name opens the editor. The checkbox includes or excludes the scenario
 ### 7.3.5 Scenario editor — view and edit a scenario {#scenario}
 
 Everything about one scenario on one screen. The scenario picker sits on top (with *‹ Previous*, *Next ›*, **Include in
-totals**, *Duplicate* and *Delete*); each section has its own tab — **Causal chain · Quantification · CVSS v4.0 ·
-Treatment · Links & evidence · Ontology · CRGO** — and the **Live risk indices** card stays on the right whatever the tab: the
+totals**, *Duplicate* and *Delete*); each section has its own tab — **Causal chain**, **Quantification**, **CVSS v4.0**,
+**Treatment**, **Links & evidence** and **Ontology · CRGO** — and the **Live risk indices** card stays on the right whatever the tab: the
 risk-to-tolerance ratio in large type with its classification, then CVSS-B, estimated, tolerated, mitigated and residual
 risk and the ratio before treatment, and the Year-1 treatment cost with its cost-effectiveness. The verified engine
 recalculates the card on every edit; it also shows when the mitigation exceeds the estimated risk or a stored CVSS score
@@ -1352,7 +1352,7 @@ unticked and says so**, with the current value beside the draft. Edit any draft 
 written until **Apply the ticked fields**, and what you accept goes into the revision log naming the
 fields taken. The feature defaults to the local model, because it carries scenario text.
 
-**Ontology tab (Ontology · CRGO card).** A scenario taken from the ontology shows its
+**Ontology · CRGO tab.** A scenario taken from the ontology shows its
 ontology identifier, themes, asset categories, threat source types, the controls the ontology links to
 it and the Quebec Law 25 obligations it can trigger. For any scenario, **Find similar ontology
 scenarios** searches the ontology by the scenario's ATT&CK techniques and the words of its name — *Link*
@@ -3722,7 +3722,7 @@ None of this is legal advice.
     grid shows them marked *[CRGO]* with a rationale naming the ontology identifier.
 12. **Ontology · CRGO → Explore → Controls for a technique** → `T1486`: controls listed per framework.
     **Connection** names where the server comes from, or why the snapshot answers.
-13. **Scenario editor** → S1 → *Ontology* tab → **Controls for its techniques** lists controls
+13. **Scenario editor** → S1 → *Ontology · CRGO* tab → **Controls for its techniques** lists controls
     per technique; **Find similar ontology scenarios** offers scenarios to *Link*.
 
 **The assessment**
