@@ -3,7 +3,7 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
-## 1.7.0 — with Desktop 1.9.0 Beta (date TBD)
+## 1.7.0 — with Desktop 1.9.0 Beta — 2 November 2026
 
 Plugin minor release shipped with CyberRiskGuardian Desktop 1.9.0 Beta (`desktop/app/CHANGELOG.md`). No formula change:
 the MediBec regression stays at 84,305 / 41,023.

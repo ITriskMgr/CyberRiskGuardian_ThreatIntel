@@ -1,6 +1,6 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
-## 1.9.0 Beta — (date TBD)
+## 1.9.0 Beta (Beta 1.9.x) — 2 November 2026
 
 One comprehensive release (decision record of 2 November 2026). The 1.8.2 build of 30 October 2026 was never released on
 its own and is folded in (its notes follow below), as is the planned 1.8.3 security patch. Threat Intel plugin **1.7.0**
