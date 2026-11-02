@@ -1,5 +1,36 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.9.0 Beta (unreleased) — group 3: teaching examples
+
+### Added
+- **CanaRetail — a second bundled teaching example**, in English and in French with the same numbers (`canaretail.js`,
+  built by `examples/canaretail/source/build_canaretail.py` from the student version of the CanaRetail case v2.0c):
+  organization profile, appetite 0.5 (risk neutral) with its rationale, eight crown jewels, a twelve-row evidence
+  register, 40 candidates from the case's 50 prompts screened on the twelve criteria into ten families (watch list,
+  evidence-collection plan), ten scenarios with full causal chains — the nine the case supplies for Module D and one
+  original, an over-privileged integration service account (S10) — six-parameter quantification with rationale,
+  evidence and confidence, CVSS v4.0 vectors (three by equivalency, every metric justified), ten measures (M1–M10 as
+  I01–I10) with costs, twelve KRIs, the case's IT budget years 2026–2028 and a management summary. Reference totals
+  **27,526 / 16,049** (engine/crg_calc.py and crg.js agree); two scenarios above, three approximately at and five below
+  tolerance after treatment.
+- **MediBec (français)** — the 30 MediBec scenarios, their documents and the screening of the 45 candidates in French as
+  a separate bundled example (`medibec-fr.js`, built by `examples/medibec/source/build_medibec_fr.py` from `medibec.js`,
+  `medibec-screening.js` and `examples/medibec/source/fr/*.tsv`). Only text is translated: every number, vector,
+  identifier and enumeration is the English case's, so it reproduces **84,305 / 41,023**. Terminology of the French book
+  (appétence pour le risque, joyaux de la couronne, registre des éléments probants) and the standard French markers.
+- **Organization → Workspaces → Start from** offers the four bundled examples (MediBec and CanaRetail, English and French);
+  choosing one sets the new type *Teaching example (bundled)*. The case a workspace was built from is recorded in
+  `ws.teaching.case` (an existing field, NAMING reset group — no new workspace field, no data-version change); **Start
+  over** rebuilds that case (a workspace without it is MediBec, as before).
+- **Start-up self-check**: after MediBec, the French MediBec must give 84,305 / 41,023 and both CanaRetail workspaces
+  27,526 / 16,049 (own guarded constant); the footer reads `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
+- Evidence register: French type labels (exercice, externe, secteur…) are recognised like the English ones.
+- Guides EN/FR (sections 4, 7.2.1 and 7.2.4); test `t35_canaretail.mjs`.
+
+> **NOTE — native read-through required.** The French text of *CanaRetail (français)* and *MediBec (français)* is a
+> draft translation by Claude (Opus 5.5). A native French read-through by the author is pending before the cases are
+> used in class or published as reference material.
+
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 
 A wording and reference patch. `crg.js`, `cvss4.js`, `sample.js`, `medibec.js` and `threat.js` are unchanged; the self-check

@@ -3,6 +3,7 @@
    version shows at once; the cache is used only when no server is running (installed app offline). */
 const CACHE = "crg-desktop-1.8.2";
 const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.js", "sample.js", "medibec.js", "kb.js",
+  "canaretail.js", "medibec-fr.js",
   "js/app.js", "js/version.js", "js/nav.js", "js/util.js", "js/store.js", "js/state.js", "js/ontology.js", "js/picker.js", "js/extract.js", "js/snapgen.js",
   "js/charts.js", "js/kri.js", "js/xlsx.js", "js/exportx.js",
   "js/helper.js", "js/catalog.js", "js/recommend.js", "js/backup.js", "js/forecast.js", "js/ai.js", "js/triage.js", "js/feedparse.js", "js/anon.js", "js/registry.js", "js/assets.js", "js/data/controls.js", "js/data/sources.js", "js/data/methods.js", "js/frameworks.js",

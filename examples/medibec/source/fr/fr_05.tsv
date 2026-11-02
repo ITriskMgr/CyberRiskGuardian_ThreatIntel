@@ -1,0 +1,121 @@
+912	Scénario complet de rançongiciel et d’atteinte.
+913	La détection et la réponse sont elles-mêmes la capacité déficiente.
+914	La capacité de réponse protège chaque service.
+915	Applicabilité limitée : une lacune de détection est une faiblesse des mesures, non une vulnérabilité. Vulnérabilité représentative retenue pour le classeur : le vecteur initial d’exécution de code non détecté (macro/PowerShell, E6). Ne pas interpréter le score comme la gravité de la lacune de détection. AV:L : le document est livré par courriel, mais ouvert localement.
+916	Détection et réponse gérées en continu avec journalisation centralisée et critères d’escalade (I03); plan de réponse aux incidents, guides, contrat de service et exercices sur table dans les cliniques (I11); rapports de gouvernance (I12).
+917	Compromission d’un fournisseur critique disposant d’un accès à distance aux systèmes de MediBec
+918	Un acteur malveillant compromet un fournisseur du DSE, de systèmes diagnostiques, d’appareils ou de soutien des TI et utilise l’accès à distance permanent ou le canal de mise à jour logicielle de ce fournisseur pour entrer dans l’environnement de MediBec, contournant les mesures périmétriques pour accéder aux données de santé ou déployer un maliciel.
+919	Approvisionnement; DPI; responsable de la cybersécurité; responsable de la coordination des fournisseurs; vie privée / services juridiques; Opérations cliniques; fournisseurs touchés.
+920	MediBec dépend de fournisseurs pour le DSE, l’infonuagique, les appareils et le soutien (E2, E7). L’assurance des fournisseurs, les clauses contractuelles et les restrictions d’accès figurent parmi les éléments à évaluer, non parmi les mesures existantes (E5, E7).
+921	Attaquant de la chaîne d’approvisionnement (cybercriminel ou lié à un État).
+922	Intrusion par un chemin d’accès de confiance d’un tiers.
+923	Accès à distance permanent des fournisseurs (hypothèse de l’analyste)
+924	Aucun classement ni évaluation des fournisseurs démontré (E7)
+925	Clauses d’avis d’incident inconnues (E5)
+926	Sessions des fournisseurs ni relayées ni enregistrées
+927	CJ1, CJ2, CJ8 et composants gérés par les fournisseurs.
+928	Soutien du DSE, entretien des appareils, soutien des TI.
+929	Pare-feu (E2)
+930	Rôle de coordination des fournisseurs défini pour les incidents (E6)
+931	Un outil de soutien à distance utilisé par un fournisseur de systèmes diagnostiques est compromis; l’attaquant utilise la connexion permanente du fournisseur pour accéder au serveur d’imagerie et pivoter. Le fournisseur avise ses clients deux semaines plus tard.
+932	Accès initial — par l’accès à distance du fournisseur
+933	Exploitation — session de confiance
+934	Découverte — serveurs gérés par le fournisseur
+935	Déplacement latéral — vers le réseau de MediBec
+936	Collecte / perturbation
+937	Détection — avis du fournisseur ou alerte de détection et réponse gérées
+938	Impact d’affaires — atteinte et panne, litiges contractuels
+939	Données de santé exposées par la voie du fournisseur.
+940	Altération possible des systèmes gérés par le fournisseur.
+941	Systèmes du fournisseur isolés pendant l’enquête.
+942	Services diagnostiques dégradés.
+943	Litiges sur la responsabilité partagée.
+944	MediBec demeure responsable de ses données.
+945	Les attaques de la chaîne d’approvisionnement visant les fournisseurs de la santé sont récurrentes.
+946	Mesures encadrant l’accès des fournisseurs non démontrées.
+947	Atteinte par la voie d’un fournisseur.
+948	Compromission du fournisseur du DSE touchant toutes les cliniques.
+949	Visibilité limitée sur l’activité des fournisseurs.
+950	Les fournisseurs soutiennent les systèmes joyaux de la couronne.
+951	Applicabilité limitée : la concentration des fournisseurs n’est pas une vulnérabilité unique. Vulnérabilité représentative : canal d’accès à distance authentifié permanent. AT:P le fournisseur doit d’abord être compromis; PR:L compte du fournisseur; impacts complets. Valider selon la conception réelle de l’accès des fournisseurs.
+952	Programme de gestion du risque lié aux tiers et clauses contractuelles (I10); accès des fournisseurs uniquement par la GAP avec AMF et enregistrement (I01/I02); surveillance des sessions des fournisseurs par la détection et réponse gérées (I03); réponse conjointe aux incidents (I11). Le risque résiduel échappe en grande partie à MediBec — envisager un transfert contractuel et à l’assurance.
+953	Approvisionnement avec le DPI
+954	2 à 12 mois
+955	Manipulation de dossiers de patients, de médicaments ou de facturation compromettant les décisions cliniques
+956	Un attaquant disposant d’identifiants cliniques compromis, ou un initié malveillant, modifie sans être détecté des données de médicaments, d’allergies, de laboratoire ou de facturation dans le DSE ou le système de pharmacie, ce qui entraîne des décisions cliniques erronées, un préjudice aux patients et une perte de confiance envers le dossier.
+957	Opérations cliniques; responsable de la pharmacie; responsable du laboratoire; médecins; responsable de la protection des renseignements personnels; DPI; responsable de la cybersécurité; patients; ordres professionnels.
+958	Les décisions cliniques reposent sur les données du DSE, du laboratoire et de la pharmacie (E1). Les mesures d’intégrité figurent parmi les mesures attendues, mais ne sont pas démontrées (E8). L’énoncé d’appétence n’admet aucun risque résiduel créant une menace immédiate crédible pour les soins (E5).
+959	Attaquant externe (extorsion ou sabotage) ou initié malveillant.
+960	Modification non autorisée de dossiers cliniques ou de facturation.
+961	Aucune surveillance de l’intégrité ni rapprochement démontré (E8)
+962	Privilèges d’écriture étendus (hypothèse de l’analyste)
+963	Examen des pistes d’audit non démontré
+964	Vérification de l’intégrité après restauration absente
+965	CJ1 DSE; CJ2 systèmes de pharmacie et de laboratoire; CJ4 facturation.
+966	Prescription, délivrance des médicaments, diagnostic, facturation.
+967	Journalisation d’audit du DSE (E6)
+968	Stockage chiffré (E2 — aucune protection de l’intégrité)
+969	À la suite d’une compromission d’identifiants, un groupe d’extorsion modifie des allergies pour un échantillon de patients, puis exige un paiement pour révéler les dossiers modifiés. MediBec doit vérifier manuellement des milliers de dossiers.
+970	Accès initial — compte clinique compromis
+971	Manipulation — modifications ciblées de dossiers
+972	Détection — un clinicien remarque une incohérence ou une note d’extorsion
+973	Réponse — vérification à partir des sauvegardes
+974	Impact d’affaires — examen de la sécurité clinique, perte de confiance envers le dossier
+975	Grave — confiance envers le dossier clinique.
+976	DSE en mode restreint pendant la vérification.
+977	Charge de vérification manuelle.
+978	Coûts de vérification, frais juridiques.
+979	Obligations professionnelles et en matière de vie privée.
+980	Grave en cas de préjudice.
+981	Directe — mauvais médicament ou diagnostic.
+982	Peu probable à plausible
+983	Les attaques contre l’intégrité sont plus rares que le vol ou le chiffrement.
+984	Exige un accès en écriture; surveillance absente.
+985	Ensemble limité de dossiers modifié et détecté.
+986	Préjudice aux patients par une modification non détectée.
+987	Des sauvegardes existent, mais la vérification de l’intégrité est absente.
+988	L’intégrité du dossier clinique soutient la sécurité des soins.
+989	Vulnérabilité représentative : utilisateur authentifié pouvant modifier des dossiers au-delà de ses besoins (autorisation inadéquate, CWE-285). PR:L; VI:H; SI:H parce que les systèmes de pharmacie et de laboratoire en aval utilisent les données modifiées.
+990	Surveillance de l’intégrité et rapprochement (I13), accès en écriture selon le moindre privilège (I09/I02), authentification forte (I01), vérification à partir des sauvegardes (I04), détection et réponse gérées (I03), guide clinique (I11).
+991	Opérations cliniques (directeur médical)
+992	3 à 15 mois
+993	Clé d’API ou secret exposé dans le code, les journaux ou la configuration permettant un accès direct aux données
+994	Un acteur opportuniste trouve une clé d’API, une chaîne de connexion à une base de données ou un jeton d’accès infonuagique qu’un développeur a versé dans un dépôt de code, laissé dans un journal ou intégré à un fichier de configuration, et l’utilise pour appeler directement les API d’intégration du DSE ou de stockage infonuagique de MediBec, extrayant des données de patients sans passer par l’authentification des utilisateurs.
+995	Équipe de développement d’applications; DPI; responsable de la cybersécurité; responsable de la protection des renseignements personnels; fournisseur infonuagique; partenaires d’intégration.
+996	MediBec compte du personnel interne de développement logiciel et de bases de données (E3). La gestion des clés d’API et l’analyse des dépôts figurent comme domaine auditable (E7) et comme scénario MED-CYR-04 (E8). Aucun outil de gestion des secrets n’est démontré.
+997	Acteur opportuniste balayant les dépôts publics et les sites de partage de texte; cybercriminel.
+998	Utilisation d’un identifiant divulgué contre une API.
+999	Aucune détection des secrets ni coffre-fort démontré (E7)
+1000	Clés d’API à longue durée de vie sans rotation (hypothèse de l’analyste)
+1001	Appels d’API non surveillés pour un volume anormal (E7)
+1002	Pratiques de développement et visibilité des dépôts inconnues (lacune d’information)
+1003	CJ1 API d’intégration du DSE; CJ7 stockage infonuagique.
+1004	Intégration des applications, échange de données avec les partenaires.
+1005	Stockage chiffré (E2 — ne protège pas contre un accès avec une clé valide)
+1006	Un développeur verse dans un dépôt public un script d’essai contenant une clé d’accès au stockage. En quelques heures, des outils automatisés la récoltent; un acteur liste et télécharge des fichiers d’exportation de patients et interroge un point de terminaison d’intégration jusqu’à la révocation de la clé, des semaines plus tard.
+1007	Découverte — détection automatisée des secrets dans les sources publiques
+1008	Accès initial — clé d’API valide
+1009	Collecte — énumération et téléchargements par l’API
+1010	Exfiltration — transfert massif
+1011	Détection — tardive, par une anomalie de facturation ou un avis externe
+1012	Impact d’affaires — atteinte à la vie privée
+1013	Accès massif aux données accessibles avec la clé.
+1014	Possible si la clé a une portée en écriture.
+1015	La révocation de la clé peut interrompre des intégrations.
+1016	Rotation d’urgence dans tous les systèmes.
+1017	Coûts de notification et de criminalistique.
+1018	Incident de confidentialité à déclarer probable.
+1019	La fuite de secrets est courante là où il se fait du développement; l’empreinte de développement de MediBec est incertaine.
+1020	Aucun coffre-fort, balayage ni rotation démontré.
+1021	Données accessibles avec une seule clé.
+1022	Clé à portée étendue sur le DSE ou le stockage.
+1023	Surveillance des API non démontrée.
+1024	Les intégrations soutiennent le DSE et l’échange d’images.
+1025	Vulnérabilité représentative : identifiant codé en dur (CWE-798). AT:P l’attaquant doit d’abord obtenir le secret divulgué; PR:N une fois le secret en main, aucun autre privilège n’est requis; VC:H accès aux données; VI:L portée d’écriture limitée.
+1026	Détection des secrets dans les dépôts et les chaînes, coffre-fort central avec jetons à courte durée de vie et rotation (I14); surveillance des anomalies d’API (I03); clés infonuagiques à portée restreinte (I08).
+1027	3 à 9 mois
+1028	Compromission du Wi-Fi d’une clinique ou point d’accès illégitime donnant accès au réseau clinique
+1029	Un attaquant dans une clinique ou à proximité exploite une sécurité sans fil faible, un réseau invité non segmenté ou un point d’accès illégitime pour rejoindre le réseau de la clinique, intercepter des identifiants et atteindre les postes du DSE et le stockage local.
+1030	Gestionnaires de clinique; équipe d’infrastructure; responsable de la cybersécurité; patients et visiteurs; Opérations cliniques.
+1031	Les réseaux sans fil et invités forment un domaine auditable; les paramètres WPA, les balayages de points d’accès illégitimes et les essais de segmentation du réseau invité sont des preuves attendues, mais aucune n’est documentée (E7). Les cliniques sont géographiquement dispersées (E1).
+1032	Attaquant local (visiteur, patient, passant) ou cybercriminel opportuniste.

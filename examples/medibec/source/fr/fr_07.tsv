@@ -1,0 +1,154 @@
+1172	Déclencheur — coupure chez le fournisseur, défaillance d’un équipement ou attaque contre les équipements de périphérie
+1173	Impact — réseau étendu ou concentrateur indisponible
+1174	Détection — immédiate
+1175	Réponse — escalade auprès du fournisseur, solutions manuelles de contournement
+1176	Reprise — de quelques heures à quelques jours
+1177	Impact d’affaires — perturbation clinique dans tout le réseau
+1178	Dossiers papier à rapprocher ensuite.
+1179	Tous les systèmes centraux inaccessibles.
+1180	Soins dégradés dans tout le réseau.
+1181	Activité perdue, heures supplémentaires.
+1182	Obligations de continuité.
+1183	Historique manquant au point de service.
+1184	Des pannes de plusieurs heures d’un concentrateur unique surviennent sur un horizon de 12 mois.
+1185	Redondance non démontrée.
+1186	Des heures de panne dans tout le réseau.
+1187	Perte du concentrateur pendant plusieurs jours.
+1188	Aucun site de rechange ni procédure en mode dégradé testée.
+1189	Le concentrateur dessert chaque clinique.
+1190	Applicabilité limitée : dépendance architecturale, en grande partie non malveillante. Vulnérabilité représentative : déni de service contre un équipement de périphérie unique sans redondance (AT:P conditions particulières); VA:H et SA:H pour les systèmes en aval.
+1191	Double fournisseur de télécommunications / SD-WAN, haute disponibilité des pare-feu, basculement vers le nuage ou un site secondaire pour l’accès en lecture au DSE (I18); procédures des cliniques en mode dégradé testées (I11).
+1192	DPI (infrastructure) avec les Opérations cliniques
+1193	6 à 24 mois
+1194	Annexe B nos 55 et 111
+1195	Données de patients non gérées sur le stockage local des cliniques exposées ou perdues
+1196	Des exportations de patients, des documents numérisés et des copies d’imagerie s’accumulent sur les unités de stockage locales des cliniques, hors du contrôle d’accès, de la conservation et de la surveillance centraux; un initié, un intrus ou un partage mal configuré les expose, ou ils sont perdus faute de sauvegarde.
+1197	Gestionnaires de clinique; responsable de la protection des renseignements personnels; DPI; infrastructure; patients.
+1198	Des unités de stockage locales existent dans les cliniques en plus du centre de données central (E2); on demande aux étudiants où sont conservés les copies, exportations et dossiers locaux (E4). Des tâches de sauvegarde du stockage des cliniques ont échoué pendant l’exercice (E6).
+1199	Initié curieux ou malveillant; intrus; mauvaise configuration accidentelle.
+1200	Accès non autorisé à des données stockées localement ou perte de celles-ci.
+1201	Prolifération des données sans inventaire (E4)
+1202	Permissions de partage permissives (hypothèse de l’analyste)
+1203	Calendrier de conservation non démontré
+1204	Fiabilité douteuse des sauvegardes locales (E6)
+1205	Stockage local des cliniques; copies des données de CJ1/CJ2.
+1206	Administration des cliniques, références, numérisation.
+1207	Un dossier partagé « Numérisations » sur une unité de stockage d’une clinique est lisible par tous les utilisateurs du domaine et contient huit ans de lettres de référence. Un compte compromis l’indexe; par ailleurs, une défaillance de disque détruit des fichiers jamais sauvegardés.
+1208	Condition — données accumulées localement
+1209	Accès — permissions de partage étendues ou compte compromis
+1210	Collecte — copie massive
+1211	Détection — rarement
+1212	Impact d’affaires — atteinte à la vie privée ou perte de données
+1213	Des années de dossiers locaux exposées.
+1214	Doublons de dossiers non vérifiés.
+1215	Perte de données détenues localement.
+1216	Effort de nettoyage.
+1217	Coûts de notification.
+1218	Obligations de conservation et de protection.
+1219	Stockage local dans 10 cliniques; initiés et intrus sont tous deux pertinents.
+1220	Contrôles d’accès et inventaire inconnus.
+1221	Données locales d’une clinique.
+1222	Données historiques de plusieurs cliniques.
+1223	Aucune surveillance du stockage local.
+1224	Soutient l’exploitation des cliniques.
+1225	Vulnérabilité représentative : permissions par défaut incorrectes sur les partages réseau (CWE-276). AV:A réseau de la clinique; PR:L tout utilisateur du domaine.
+1226	Découverte des données, regroupement des données locales dans des dépôts centraux gérés, partages selon le moindre privilège, calendrier de conservation (I19); postes et stockage chiffrés et gérés (I17).
+1227	Responsable de la protection des renseignements personnels avec le DPI
+1228	Annexe B nos 171 et 83
+1229	Faille de l’application Web du portail patient exposant les dossiers d’autres patients
+1230	Un attaquant, ou un patient curieux, exploite une faille d’autorisation (référence directe non sécurisée à un objet) ou d’injection dans l’application en ligne d’accès aux dossiers ou de prise de rendez-vous de MediBec et récupère à grande échelle les dossiers d’autres patients.
+1231	Responsable de l’application; équipe de développement ou fournisseur; responsable de la protection des renseignements personnels; DPI; patients.
+1232	Des services en ligne servent aux rendez-vous, à l’accès aux dossiers et aux communications (E8, MED-CYR-10). Le développement sécuritaire et les essais applicatifs sont des domaines auditables (E7); aucun essai d’intrusion n’est documenté.
+1233	Attaquant externe ou patient authentifié curieux.
+1234	Exploitation d’une faille au niveau de l’application.
+1235	Aucun essai d’intrusion applicatif démontré
+1236	Cycle de développement sécuritaire non démontré (E7)
+1237	Aucun pare-feu applicatif Web démontré
+1238	Journalisation applicative de l’énumération inconnue
+1239	CJ3 portail patient; données du DSE de CJ1 exposées par son intermédiaire.
+1240	Accès des patients aux dossiers, prise de rendez-vous.
+1241	Pare-feu, IDS/IPS (E2 — limités pour la logique applicative)
+1242	Un patient remarque que l’adresse d’un document contient un numéro séquentiel, le modifie et voit le résultat de laboratoire d’un autre patient. Un script télécharge ensuite 40 000 documents en une fin de semaine.
+1243	Découverte — manipulation de paramètres
+1244	Exploitation — référence directe non sécurisée / injection
+1245	Collecte — énumération automatisée
+1246	Détection — plainte ou publication dans les médias sociaux
+1247	Dossiers de nombreux patients.
+1248	Possible si des fonctions d’écriture sont touchées.
+1249	Portail retiré.
+1250	Volume des communications des patients.
+1251	Notification et correction.
+1252	Élevée — exposé au public.
+1253	Les applications publiques sont sondées en continu.
+1254	Présence de la faille inconnue; aucune preuve d’essai.
+1255	Énumération partielle avant la détection.
+1256	Tout le dépôt de documents des patients.
+1257	Surveillance applicative inconnue.
+1258	Destiné aux patients et essentiel à la confiance.
+1259	Vulnérabilité représentative : contournement de l’autorisation par une clé contrôlée par l’utilisateur (CWE-639). PR:L tout compte patient; VC:H données d’autres patients.
+1260	Essai d’intrusion applicatif annuel et cycle de développement sécuritaire (I14), pare-feu applicatif Web avec limitation du débit (I15), balayage du niveau Web (I05), détection de l’énumération (I03).
+1261	DPI (responsable de l’application)
+1262	Annexe B nos 40 et 99
+1263	Mise à jour logicielle piégée provenant d’un fournisseur de logiciels cliniques ou des TI
+1264	Un acteur malveillant compromet l’infrastructure de compilation ou de mise à jour d’un logiciel utilisé par MediBec (composant du DSE, visionneuse d’imagerie, outil de gestion à distance) et distribue une mise à jour malveillante signée que MediBec installe automatiquement, ce qui donne à l’acteur un point d’appui sur de nombreux systèmes à la fois.
+1265	DPI; responsable de la cybersécurité; approvisionnement; fournisseur touché; Opérations cliniques.
+1266	MediBec exploite de nombreuses applications de fournisseurs (E2). La vérification de la chaîne d’approvisionnement n’est pas démontrée (E7). Contrairement à S9 (accès à distance des fournisseurs), cette voie passe par le logiciel lui-même.
+1267	Acteur de la chaîne d’approvisionnement lié à un État ou criminel avancé.
+1268	Installation d’une mise à jour signée malveillante.
+1269	Mises à jour automatiques sans étape de préproduction (hypothèse de l’analyste)
+1270	Aucune nomenclature logicielle ni assurance des fournisseurs (E7)
+1271	Filtrage limité des sorties depuis les serveurs (hypothèse de l’analyste)
+1272	Serveurs et postes exécutant le logiciel touché; CJ1, CJ2.
+1273	Tout processus reposant sur le produit touché.
+1274	Antimaliciel (E2 — les mises à jour signées le contournent habituellement)
+1275	Un agent de surveillance à distance largement utilisé reçoit une mise à jour malveillante. Il s’installe en quelques heures sur 300 postes et serveurs de MediBec et communique avec l’infrastructure de l’attaquant. Le fournisseur divulgue la compromission une semaine plus tard.
+1276	Accès initial — mise à jour signée malveillante
+1277	Exécution — sur tous les hôtes ayant le produit
+1278	Persistance — agent légitime
+1279	Découverte et collecte
+1280	Détection — avis du fournisseur ou du gouvernement
+1281	Impact d’affaires — reconstruction à l’échelle de l’entreprise
+1282	Accès potentiel étendu.
+1283	Confiance perdue envers tous les hôtes touchés.
+1284	Réinstallation massive.
+1285	Coût de correction élevé.
+1286	Évaluation de l’atteinte dans tous les systèmes.
+1287	Modérée (partagée avec de nombreuses victimes).
+1288	Événements rares, mais à fort impact.
+1289	Les mises à jour signées contournent la plupart des mesures des clients.
+1290	Point d’appui sur de nombreux hôtes.
+1291	Compromission de toute l’entreprise.
+1292	La détection dépend d’avis externes.
+1293	Peut toucher les logiciels des joyaux de la couronne.
+1294	Applicabilité limitée : compromission d’un fournisseur. Vulnérabilité représentative : téléchargement de code sans vérification de l’intégrité (CWE-494). AC:H et AT:P — la chaîne de production du fournisseur doit d’abord être compromise.
+1295	Assurance des fournisseurs et mises à jour par étapes pour les logiciels critiques (I10); contrôle des sorties et détection comportementale (I03); guide de reconstruction (I11). La prévention échappe en grande partie à MediBec — transfert et acceptation requis.
+1296	DPI avec l’approvisionnement
+1297	Annexe B nos 29 et 144
+1298	Prise de contrôle de l’administration du locataire infonuagique par vol de jeton ou consentement à une application malveillante
+1299	Un attaquant vole un jeton de session ou amène un administrateur infonuagique à consentir à une application malveillante, obtenant le contrôle persistant du locataire infonuagique de MediBec, d’où il lit le courriel et les fichiers, crée des comptes dérobés et désactive la journalisation.
+1300	DPI; responsable de la cybersécurité; administrateurs infonuagiques; fournisseur infonuagique; responsable de la protection des renseignements personnels.
+1301	L’intégration infonuagique soutient l’accès à distance et la récupération des données (E2); la configuration infonuagique, l’identité et la journalisation sont des questions ouvertes (E4). L’AMF par notification n’arrête pas le vol de jetons (E6).
+1302	Cybercriminel ou acteur lié à un État.
+1303	Compromission du plan de contrôle infonuagique.
+1304	Mesures résistantes au vol de jetons (liaison à l’appareil, accès conditionnel) non démontrées
+1305	Les utilisateurs peuvent consentir à des applications tierces (hypothèse de l’analyste)
+1306	Rôles d’administration infonuagique ni séparés ni juste-à-temps (E7)
+1307	Journaux d’audit infonuagiques non centralisés (E4)
+1308	CJ5 identité infonuagique; CJ7 stockage infonuagique; courriel et collaboration.
+1309	Travail à distance, communications, partage d’images.
+1310	Notification AMF (E6)
+1311	Identité infonuagique (E2)
+1312	Une trousse d’hameçonnage de type adversaire au milieu capte le témoin de session d’un administrateur infonuagique, contournant l’AMF. L’attaquant inscrit une application autorisée à lire le courriel et les fichiers, ajoute un administrateur général et désactive la conservation des journaux d’audit.
+1313	Accès initial — vol de jeton ou hameçonnage par consentement
+1314	Persistance — application malveillante, administrateur dérobé
+1315	Contournement des défenses — journalisation désactivée
+1316	Collecte — courriel, fichiers, images
+1317	Exfiltration — par l’API
+1318	Détection — tardive
+1319	Impact d’affaires — atteinte étendue, reconstruction du locataire
+1320	Courriel et fichiers infonuagiques contenant des renseignements de santé.
+1321	Configuration du locataire modifiée.
+1322	Verrouillage possible.
+1323	Reprise du locataire.
+1324	Les trousses d’adversaire au milieu et l’hameçonnage par consentement sont répandus.
+1325	AMF par notification et aucun accès conditionnel.

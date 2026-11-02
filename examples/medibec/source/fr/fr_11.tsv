@@ -1,0 +1,110 @@
+1736	Conséquence combinée la plus élevée; chaîne complète visible dans l’exercice; touche plusieurs critères d’escalade (sécurité, service essentiel, destruction des sauvegardes, défaillance de l’environnement principal et de relève). Les lacunes de détection, la réponse aux incidents non testée et la compromission des sauvegardes sont des étapes de cette chaîne; elles sont donc analysées à l’intérieur de celle-ci plutôt que comme scénarios distincts.
+1737	Les cliniques dépendent des services centraux; le secteur de la santé est une cible constante des rançongiciels.
+1738	Chronologie complète de l’exercice; échecs de sauvegarde; alerte fermée comme peu grave (E6).
+1739	Soins sécuritaires et continus (O1) et tous les autres.
+1740	Tri faible, réseau à plat, sauvegardes accessibles, réponse aux incidents non testée.
+1741	Panne de plusieurs cliniques, vol de données, reprise ratée.
+1742	Conséquence combinée la plus importante; plusieurs critères d’escalade obligatoires.
+1743	Exploitation de systèmes exposés à Internet (équipements de périphérie non corrigés, interfaces d’administration, systèmes en fin de vie)
+1744	Un cybercriminel ou un acteur lié à un État exploite une vulnérabilité connue d’un dispositif RPV ou d’un pare-feu non corrigé, ou des identifiants par défaut ou réutilisés sur une interface de gestion exposée à Internet, parce que MediBec n’a ni inventaire de sa surface d’attaque ni correction en temps opportun, obtenant un accès administratif à l’infrastructure et une voie vers un vol de données ou P02.
+1745	Voie d’entrée technique distincte de l’identité (P01) : mesures différentes (gestion de la surface d’attaque, délais de correction), responsable différent (infrastructure) et vitesse différente (quelques jours entre la divulgation et l’exploitation). Directement liée à une règle d’appétence explicite sur les vulnérabilités critiques.
+1746	L’accès à distance est essentiel et les équipements de périphérie sont des cibles de choix.
+1747	Contraintes de correction documentées (E3, E7); exposition inconnue (E4).
+1748	O1 et O2 par la compromission de l’infrastructure.
+1749	Retard de correction, interfaces exposées inconnues, identifiants par défaut possibles.
+1750	Prise de contrôle de l’infrastructure, panne, accès aux données.
+1751	Ensemble de mesures et responsable distincts; lié à une règle d’appétence explicite sur les vulnérabilités critiques.
+1752	Compromission de dispositifs médicaux connectés perturbant le diagnostic et menaçant la sécurité des patients
+1753	Un attaquant ou un maliciel en propagation atteint le réseau d’une clinique — par un poste infecté, le Wi-Fi de la clinique, un support d’imagerie fourni par un patient ou l’IdO du bâtiment — et exploite des dispositifs médicaux non corrigés ou dotés d’identifiants par défaut qui partagent ce réseau, perturbant l’équipement d’imagerie et de diagnostic, modifiant les données des appareils et s’en servant comme points d’appui persistants.
+1754	Seul scénario où l’événement cyber touche directement l’équipement médical; actifs périphériques hors de la supervision des TI (consigne s. 2-3); les limites de certification font du traitement une décision de gestion distincte. Le Wi-Fi, les supports et l’IdO sont des voies d’entrée vers la même exposition.
+1755	L’équipement médical est interconnecté avec l’environnement du DSE (E2).
+1756	L’inventaire et la segmentation sont des questions ouvertes (E4); contraintes de certification (E3).
+1757	Soins sécuritaires (O1).
+1758	Appareils impossibles à corriger sur des réseaux partagés; voies d’entrée périphériques.
+1759	Diagnostic indisponible ou erroné; risque pour la sécurité des patients.
+1760	Seule voie directe vers la sécurité par l’équipement; actifs périphériques.
+1761	Manipulation de données cliniques (dossiers ou messages d’interface) menant à des soins dangereux
+1762	Un attaquant utilisant un compte clinique compromis, un initié malveillant ou un attaquant positionné sur le réseau modifie des données de médicaments, d’allergies, de laboratoire ou d’imagerie — dans le DSE ou dans le trafic d’interface HL7/DICOM en clair — sans être détecté, parce que la surveillance de l’intégrité et le rapprochement sont absents, ce qui mène à des décisions cliniques erronées.
+1763	Risque d’intégrité de faible fréquence et de conséquence élevée; sans lui, le portefeuille ne traiterait l’intégrité que comme effet secondaire. Mesures distinctes (surveillance de l’intégrité, rapprochement, chiffrement des interfaces) et responsable distinct (directeur médical / Opérations cliniques).
+1764	Retenu comme scénario de sécurité des patients de faible fréquence et de conséquence élevée : sans lui, le portefeuille ne traiterait l’intégrité que comme effet secondaire.
+1765	Les décisions cliniques reposent sur les données du DSE, du laboratoire et de la pharmacie (E1).
+1766	Mesures d’intégrité attendues, mais absentes (E8).
+1767	Soins sécuritaires (O1) et confiance (O4).
+1768	Aucune surveillance de l’intégrité; interfaces en clair; accès en écriture étendu.
+1769	Mauvais traitement; perte de confiance envers le dossier.
+1770	Faible fréquence et conséquence élevée; seul scénario centré sur l’intégrité.
+1771	Utilisation abusive d’accès légitimes au DSE ou de comptes de service pour extraire des dossiers de patients
+1772	Un employé malveillant ou curieux, ou un attaquant qui a pris le contrôle du compte de service surprivilégié ehr-sync-svc, utilise un accès légitime mais excessif pour interroger et exporter des dossiers de patients ou de facturation, parce que l’accès est étendu, que les comptes de service ne sont pas en coffre-fort et que l’accès au DSE n’est pas surveillé, ce qui entraîne une atteinte à la vie privée.
+1773	L’abus par un initié est une exposition récurrente en santé et il est démontré directement par l’anomalie du compte de service. Distinct de P01 (accès légitime, aucun franchissement du périmètre) et de P10 (intention malveillante); le responsable est le responsable de la protection des renseignements personnels.
+1774	L’accès au DSE est central et étendu; les initiés sont des acteurs fréquents en santé.
+1775	Anomalie d’ehr-sync-svc (E6); revues des accès non démontrées (E7).
+1776	Vie privée (O2).
+1777	Rôles étendus; compte de service hors coffre-fort; aucune surveillance.
+1778	Atteinte à la vie privée, conséquences juridiques et RH.
+1779	Acteur et mesures distincts de P01/P10; preuve directe.
+1780	Exposition massive de données de santé détenues hors des systèmes centraux (exportations infonuagiques, API, stockage des cliniques)
+1781	Un acteur opportuniste ou un intrus obtient en masse des données de patients à partir de dépôts qui échappent aux contrôles du DSE — stockage infonuagique servant au transfert d’images partagé par des liens à longue durée de vie, clés d’API divulguées dans du code ou de la configuration, stockage local non géré des cliniques — parce que la gestion de la posture, la gestion des secrets et la minimisation des données sont absentes, ce qui cause une atteinte importante à déclarer.
+1782	L’exposition de données au repos hors du DSE est démontrée (téléchargement externe d’une exportation d’images) et produit les plus grands volumes d’atteinte. Regroupe trois variantes qui partagent la décision de traitement (découverte des données, gestion de la posture, minimisation) et le responsable.
+1783	Le partage et l’exportation d’images utilisent le stockage infonuagique; les données sont dispersées dans les cliniques.
+1784	Téléchargement externe d’une exportation d’images (E6); question de la prolifération (E4).
+1785	Vie privée (O2), confiance (O4).
+1786	Partage permissif, aucune gestion de la posture ni des secrets, prolifération des données.
+1787	Atteinte à grande échelle à déclarer.
+1788	Plus grands volumes d’atteinte; démontré; regroupe des variantes.
+1789	Compromission par un fournisseur critique (accès à distance du fournisseur ou mise à jour logicielle piégée)
+1790	Un acteur malveillant compromet un fournisseur du DSE, de systèmes diagnostiques, d’appareils ou de soutien des TI et entre chez MediBec par l’accès à distance permanent du fournisseur ou par une mise à jour logicielle signée malveillante, contournant les mesures périmétriques, parce que l’assurance des fournisseurs, les clauses contractuelles, le relais des accès et les mises à jour par étapes sont absents.
+1791	La concentration critique de la chaîne d’approvisionnement est un critère d’escalade obligatoire; le risque résiduel reste au-dessus du niveau toléré même avec financement, de sorte qu’il oriente les décisions de transfert et d’acceptation plutôt que les dépenses. Les vecteurs d’accès à distance et de mise à jour partagent un responsable (approvisionnement / DPI) et la décision relative à l’assurance des fournisseurs.
+1792	MediBec dépend de fournisseurs pour le DSE, les appareils, l’infonuagique et le soutien.
+1793	Mesures relatives aux fournisseurs inscrites seulement comme attentes (E5, E7).
+1794	O1 et O2 par des chemins de confiance.
+1795	Accès permanent des fournisseurs; aucune assurance; mises à jour sans étapes.
+1796	Intrusion par un chemin de confiance dans de nombreux systèmes.
+1797	Critère obligatoire de concentration de la chaîne d’approvisionnement; oriente les décisions de transfert.
+1798	Perte du concentrateur de Montréal ou du réseau étendu isolant toutes les cliniques des systèmes cliniques
+1799	Une défaillance d’un fournisseur de télécommunications, une attaque contre les équipements réseau de périphérie, la défaillance de l’unique paire de pare-feu principale ou un incident au centre de données met hors ligne le concentrateur de Montréal; comme toutes les cliniques en dépendent sans redondance testée, site de rechange ni procédures en mode dégradé répétées, l’accès au DSE, à l’imagerie et à la pharmacie est perdu dans tout le réseau.
+1800	La consigne s. 3 exige une analyse explicite des points de défaillance uniques; il s’agit du plus grand risque de concentration de l’organisation et il ne dépend d’aucun attaquant, de sorte qu’il n’est pas pris en compte par P02. Décision distincte (investissement en redondance ou en site de rechange, financé par les TI).
+1801	Toutes les cliniques se raccordent par un seul concentrateur à Montréal (E2).
+1802	Architecture documentée; redondance non démontrée.
+1803	Continuité clinique (O1).
+1804	Concentrateur unique, possiblement un seul fournisseur ou une seule paire de pare-feu, aucun site de rechange.
+1805	Perte des systèmes cliniques dans tout le réseau.
+1806	Plus important point de défaillance unique; ne dépend d’aucun attaquant, donc non couvert par P02.
+1807	Divulgation non maîtrisée de renseignements sur des patients par le personnel au moyen d’outils d’IA et de communications non approuvés
+1808	Des cliniciens et du personnel administratif collent des renseignements identifiables sur des patients dans des services publics d’IA générative ou de rédaction par IA non évalués, ou acheminent mal des courriels et des télécopies, parce que MediBec n’a ni politique d’utilisation acceptable de l’IA, ni outil autorisé, ni mesures Web ou de prévention des pertes de données, ni canal sécurisé de références, ce qui entraîne une divulgation systémique non maîtrisée de renseignements de santé et un possible transfert hors frontières.
+1809	Préféré au candidat C31 (sabotage par un administrateur), au score plus élevé, pour la couverture du portefeuille et l’utilité décisionnelle : c’est la seule exposition importante liée aux initiés négligents et aux technologies émergentes, elle est quasi certaine de se produire et elle entraîne des décisions (politique sur l’IA, outil autorisé, mesures) qu’aucun autre scénario ne déclenche. Les traitements de C31 sont en grande partie assurés par les mesures de P01/P02.
+1810	Retenu pour la couverture et l’utilité décisionnelle : seule exposition liée aux initiés négligents et à l’IA, entraînant une décision distincte sur la politique d’IA et les outils autorisés.
+1811	Les cliniciens adoptent l’IA; MediBec poursuit une innovation encadrée (E5).
+1812	Preuve sectorielle; aucune politique de MediBec documentée.
+1813	Vie privée (O2), innovation encadrée (O5).
+1814	Aucune politique d’IA, aucun outil autorisé ni aucune mesure.
+1815	Divulgation systémique non maîtrisée; erreurs cliniques.
+1816	Seule exposition liée aux initiés négligents et aux technologies émergentes; décisions uniques.
+1817	Conséquence limitée et traitée par des mesures financières peu coûteuses; confirmer la procédure de vérification des paiements avec les Finances. Promouvoir si la procédure est absente et que les volumes de paiement sont importants.
+1818	Obtient un score brut plus élevé que P10 et déclenche des indicateurs d’escalade (infrastructure privilégiée, destruction des sauvegardes). Exclu parce que la GAP, les sauvegardes immuables et les mesures de départ de P01/P02 le traitent; la direction devrait confirmer cette dépendance.
+1819	L’existence d’un portail patient n’est pas confirmée; promouvoir immédiatement si elle l’est.
+1820	Domaine semblable observé; préjudice surtout hors des systèmes de MediBec; à traiter par les communications et la surveillance des domaines.
+1821	Criticité des services en ligne non documentée; réexaminer si la prise de rendez-vous en ligne devient essentielle.
+1822	Non évalué; coordonner avec le responsable de la sécurité physique.
+1823	Revue de la configuration de l’identité et de l’infonuagique (AMF, accès conditionnel, consentement aux applications, réinitialisation au centre d’assistance)
+1824	30 jours
+1825	Évaluation de compromission des indicateurs de l’exercice, au cas où certains refléteraient une activité réelle
+1826	Responsable de la cybersécurité + contrat de service de réponse aux incidents
+1827	Immédiat
+1828	Architecture des sauvegardes et essai de restauration; évaluation de la sécurité d’AD; revue de la couverture EDR et des journaux
+1829	60 jours
+1830	Balayage externe de la surface d’attaque et rapport sur l’état des correctifs
+1831	Inventaire des dispositifs médicaux en réseau, collecte des formulaires MDS2, revue de la segmentation
+1832	90 jours
+1833	Revue des pistes d’audit du DSE et des protocoles d’interface; pratiques de rapprochement
+1834	Opérations cliniques + équipe d’intégration
+1835	Revue de la matrice des rôles du DSE et des comptes de service; échantillonnage des journaux d’accès
+1836	Revue du stockage et du partage infonuagiques; balayage des secrets dans les dépôts; inventaire du contenu du stockage des cliniques
+1837	DPI + vie privée
+1838	Registre des fournisseurs critiques, contrats et mécanismes d’accès à distance et de mise à jour
+1839	Revue de la résilience du réseau et de la reprise; diversité des fournisseurs de télécommunications; essai des procédures en mode dégradé
+1840	DPI + continuité des activités
+1841	Découverte de l’utilisation de l’IA (journaux du mandataire, sondage auprès du personnel)
+1842	Atelier interfonctionnel de validation de ce portefeuille
+1843	Parrain de la haute direction
+1844	45 jours
+1845	Classeur de sélection de MediBec (examples/medibec/source/sel_data.py)

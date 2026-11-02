@@ -23,7 +23,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as store from './store.js';
-import { S, newWorkspace, blankOrg, medibecWorkspace, migrate, refreshList, select, emit } from './state.js';
+import { S, newWorkspace, blankOrg, exampleWorkspace, caseOf, migrate, refreshList, select, emit } from './state.js';
 import { today } from './util.js';
 
 /* ---------------- the fields of a workspace, in groups ---------------- */
@@ -305,7 +305,7 @@ export async function restoreTeaching(wsId, { keepName = true } = {}) {
   const name = live.name, kind = live.kind, created = live.created, id = live.id;
   let fresh;
   if (sp.source === 'bundled') {
-    fresh = medibecWorkspace();
+    fresh = exampleWorkspace(caseOf(live));        // 1.9.0 — the bundled case it was built from (MediBec when not recorded)
     for (const d of (live.docs || [])) await store.del('blob', 'doc:' + d.id);
   } else {
     const rec = await store.get('blob', baseKey(id));

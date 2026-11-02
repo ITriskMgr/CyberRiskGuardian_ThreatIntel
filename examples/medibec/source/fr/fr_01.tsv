@@ -1,0 +1,246 @@
+208	Approbation par notification sans appariement de nombres
+209	Prise de contrôle de compte
+210	Fusionné dans S1
+211	Même chaîne causale que C01.
+212	Faille d’autorisation du portail patient exposant les dossiers d’autres patients
+213	Acteur externe / patient
+214	Aucun essai applicatif ni pare-feu applicatif Web
+215	Exposition massive de dossiers
+216	Annexe B no 171
+217	Retenu (S18)
+218	Exposé au public, impact élevé sur la vie privée.
+219	Mise à jour logicielle piégée provenant d’un fournisseur
+220	Acteur de la chaîne d’approvisionnement
+221	Mises à jour automatiques, aucune assurance des fournisseurs
+222	De nombreux hôtes
+223	Point d’appui dans l’entreprise
+224	Annexe B no 40
+225	Retenu (S19)
+226	Distinct de S9 (voie logicielle par opposition à la voie d’accès à distance).
+227	Prise de contrôle du locataire infonuagique par vol de jeton ou hameçonnage par consentement
+228	Jeton non lié à l’appareil; consentement des utilisateurs permis
+229	Contrôle de l’ensemble du locataire
+230	Annexe B no 29
+231	Retenu (S20)
+232	Risque du plan de contrôle, distinct de l’exposition du stockage (S4) et des comptes cliniques (S1).
+233	Courriel ou télécopie mal acheminé ou divulgation au mauvais patient
+234	Initié négligent
+235	Aucune prévention des pertes de données, références manuelles
+236	Incident de confidentialité
+237	Annexe B no 14
+238	Retenu (S21)
+239	Type d’incident de confidentialité le plus fréquent.
+240	Téléconsultation ou messagerie clinique interceptée
+241	Intrus opportuniste
+242	Liens de réunion ouverts, applications grand public
+243	Communications
+244	Divulgation sensible
+245	Annexe B no 146
+246	Retenu (S22)
+247	Systèmes de communication signalés dans E2.
+248	Interfaces d’administration exposées attaquées avec des identifiants réutilisés ou par défaut
+249	Ports de gestion exposés à Internet
+250	Prise de contrôle de l’infrastructure
+251	Annexe B nos 82 et 90
+252	Retenu (S23)
+253	Voie de mauvaise configuration distincte de S6 (non corrigé).
+254	Maliciel sur un support d’imagerie fourni par un patient
+255	Maliciel courant
+256	Importation de supports sans analyse
+257	Interruption de l’imagerie
+258	Annexe B no 168
+259	Retenu (S24)
+260	Voie d’entrée propre au secteur de la santé.
+261	Données laissées sur des appareils éliminés et de l’équipement loué
+262	Acheteur en aval
+263	Aucun effacement certifié
+264	Actifs retirés
+265	Annexe B no 138
+266	Retenu (S25)
+267	Lacune du cycle de vie; peu coûteuse à corriger.
+268	Données de patients collées dans des outils publics d’IA générative
+269	Initié bien intentionné
+270	Aucune politique ni mesure relative à l’IA
+271	Divulgation non maîtrisée
+272	Annexe B no 141
+273	Retenu (S26)
+274	Risque émergent et fréquent pour la vie privée.
+275	Hameçonnage vocal du centre d’assistance menant à la réinitialisation de l’AMF
+276	Ingénieur social
+277	Vérification faible des réinitialisations
+278	Annexe B no 96
+279	Retenu (S27)
+280	Contourne les investissements en AMF de S1; faiblesse de processus distincte.
+281	Sabotage par un administrateur des TI malveillant ou sur le départ
+282	Initié privilégié
+283	Privilèges permanents, départs mal encadrés
+284	Panne destructrice
+285	Annexe B no 15
+286	Retenu (S28)
+287	Faible probabilité, impact extrême; dépendance envers des personnes clés.
+288	Interception ou altération du trafic HL7/DICOM
+289	Attaquant positionné à l’interne
+290	Interfaces en clair
+291	Résultats erronés
+292	Annexe B no 153
+293	Retenu (S29)
+294	Voie d’intégrité distincte de S10 (modifications au niveau des dossiers).
+295	Domaines semblables et hameçonnage par texto visant les patients
+296	Groupe de fraude
+297	Aucune surveillance de la marque, DMARC inconnu
+298	Confiance des patients
+299	Fraude envers les patients
+300	Annexe A
+301	Retenu (S30)
+302	Domaine semblable déjà observé.
+303	Chiffrement massif des hyperviseurs
+304	Gestion des hyperviseurs accessible
+305	Panne
+306	Annexe B no 44
+307	Fusionné dans S2/S23
+308	Même résultat que S2; voie d’exposition dans S23.
+309	Mauvaise configuration d’Active Directory permettant la prise de contrôle du domaine
+310	Tout intrus
+311	Aucun audit d’AD
+312	Contrôle total du domaine
+313	Annexe B no 186
+314	Fusionné dans S2
+315	Étape d’escalade dans la chaîne de S2; traitée par I02.
+316	Systèmes d’exploitation de postes de travail hors soutien dans les cliniques
+317	Système d’exploitation non pris en charge
+318	Exploitation
+319	Annexe B no 79
+320	Fusionné dans S6
+321	Couvert par l’élément « fin de vie » de S6 et par KRI-04.
+322	Minage de cryptomonnaie sur des ressources infonuagiques ou des serveurs
+323	Mesures infonuagiques faibles
+324	Infonuagique
+325	Coûts, ralentissement
+326	Annexe B no 48
+327	Non retenu
+328	Faible conséquence pour la mission.
+329	Écrémage sur la page de paiement en ligne
+330	Scripts tiers
+331	Paiements en ligne
+332	Vol de cartes
+333	Annexe B no 63
+334	Traitement des cartes non démontré; PCI hors périmètre.
+335	Intrusion physique dans le local des serveurs d’une clinique
+336	Voleur / intrus
+337	Mesures physiques faibles
+338	Équipement de la clinique
+339	Vol, altération
+340	Annexe B no 121
+341	Sécurité physique hors périmètre; couverte en partie par le chiffrement de S15/S17.
+342	Journaux insuffisants pour établir l’ampleur d’une atteinte
+343	Conservation courte
+344	Ampleur impossible à établir
+345	Annexe B no 140
+346	Même famille de mesures (I03).
+347	Compromission de la boîte de courriel d’un clinicien pour récolter des renseignements de santé
+348	AMF par notification
+349	Courriel
+350	Atteinte
+351	Annexe B no 33
+352	Fusionné dans S1/S20
+353	Même chaîne causale.
+354	Un service SaaS de rédaction par IA gère mal les enregistrements
+355	Tiers
+356	Fournisseur non évalué
+357	Fusionné dans S26/S9
+358	Couvert par la gouvernance de l’IA et la gestion du risque lié aux fournisseurs.
+359	IdO du bâtiment ou vidéosurveillance servant de point d’appui
+360	IdO non géré
+361	Point d’appui
+362	Annexe B no 43
+363	Fusionné dans S7
+364	Même traitement de segmentation.
+365	Conservation excessive des données amplifiant l’ampleur des atteintes
+366	S. O. (amplificateur)
+367	Aucun calendrier de conservation
+368	Toutes les données
+369	Atteintes plus importantes
+370	Annexe B no 74
+371	Fusionné dans S17
+372	Traité par I19.
+373	Pare-feu constituant un point de défaillance unique
+374	Accidentel / attaquant
+375	Aucune redondance
+376	Annexe B no 5
+377	Fusionné dans S16
+378	Même traitement de résilience (I18).
+379	AMF résistante à l’hameçonnage et accès conditionnel
+380	FIDO2/clés d’accès pour les comptes privilégiés, d’accès à distance et d’administrateur du DSE; AMF avec appariement de nombres pour tous les autres utilisateurs; accès conditionnel (géographie, état de l’appareil); blocage des macros Office provenant d’Internet.
+383	100 % des comptes privilégiés et d’accès à distance sur une AMF résistante à l’hameçonnage
+384	Nettoyage de l’annuaire et inventaire des comptes
+385	Prévention
+386	Gestion des accès privilégiés et des comptes de service (GAP)
+387	Administration par niveaux, coffre-fort d’identifiants, élévation juste-à-temps, rotation et moindre privilège pour les comptes de service (dont ehr-sync-svc), sessions des fournisseurs relayées et enregistrées.
+388	Responsable de la cybersécurité
+391	0 compte d’administrateur de domaine permanent; 100 % des comptes de service en coffre-fort
+392	I01; inventaire des comptes privilégiés
+393	Prévention / Gouvernance
+394	Détection et réponse gérées 24 h sur 24, 7 jours sur 7, avec journalisation centralisée
+395	Fournisseur de détection et réponse gérées sur une couverture EDR complète; SIEM recevant les journaux d’identité, d’accès à distance, d’audit du DSE, infonuagiques, de sauvegarde et de pare-feu; critères d’escalade définis; conservation des journaux de 12 mois.
+396	Délai moyen de détection < 1 h, de confinement < 4 h pour les alertes graves; > 95 % des sources de journaux critiques
+397	Inventaire des sources de journaux; déploiement complet de l’EDR
+398	Détection / Réponse
+399	Sauvegarde immuable et isolée avec reprise testée
+400	Copies immuables ou hors ligne, domaine d’identité distinct pour les sauvegardes avec AMF, isolement du réseau de sauvegarde, essais trimestriels de restauration incluant le stockage des cliniques, RTO/RPO documentés pour chaque joyau de la couronne.
+402	100 % des essais de restauration des joyaux de la couronne réussis dans le RTO
+403	RTO/RPO des joyaux de la couronne convenus avec les Opérations cliniques
+404	Reprise / Résilience
+405	Gestion des vulnérabilités et des correctifs fondée sur le risque
+406	Inventaire complet des actifs, balayage authentifié, surveillance externe de la surface d’attaque, délais (activement exploitées : 72 h si exposées à Internet / 14 jours à l’interne), gouvernance des exceptions, retrait des systèmes en fin de vie; 1 ETP dédié.
+408	> 95 % des vulnérabilités critiques corrigées dans le délai; 0 système non pris en charge exposé à Internet
+409	Inventaire des actifs; fenêtres de changement convenues avec les cliniques
+410	Segmentation du réseau et contrôle d’accès au réseau
+411	Zones pour les systèmes cliniques, les dispositifs médicaux, l’administration, le Wi-Fi invité (WPA3), les sauvegardes et les serveurs; contrôle d’accès au réseau dans les cliniques; règles de pare-feu est-ouest.
+413	100 % des dispositifs médicaux et du Wi-Fi invité dans des segments isolés
+414	Inventaire de I05; cartographie des appareils de I07
+415	Prévention / Résilience
+416	Programme de sécurité des dispositifs médicaux
+417	Inventaire et criticité des appareils, collecte des formulaires MDS2 des fabricants, surveillance passive du réseau d’IdO médical, mesures compensatoires lorsque la correction est restreinte, clauses de sécurité dans les acquisitions.
+419	100 % des appareils en réseau inventoriés et évalués selon le risque
+420	I06; collaboration des fournisseurs
+421	Identification / Détection
+422	Posture de sécurité infonuagique et transfert sécurisé des images
+423	Gestion de la posture infonuagique, blocage de l’accès public à l’échelle de l’organisation, liens de partage authentifiés à expiration, journalisation de l’accès aux objets dans le SIEM, chiffrement avec clés gérées par le client.
+424	DPI / Responsable de la radiologie
+425	0 objet de stockage accessible publiquement; 100 % des accès aux objets journalisés
+426	Inventaire infonuagique
+427	Prévention / Détection
+428	Gouvernance de l’accès aux données et surveillance de la confidentialité du DSE
+429	Refonte des accès par rôle, recertification trimestrielle des accès, analytique des accès au DSE (accès d’urgence, personnalités, requêtes massives), prévention des pertes de données de santé sur les postes et dans le nuage.
+430	Responsable de la protection des renseignements personnels / DPI
+431	100 % des rôles du DSE recertifiés chaque trimestre; alertes d’accès massif examinées en 24 h
+432	I02; classification des données
+433	Gouvernance / Détection
+434	Gestion du cyberrisque lié aux tiers
+435	Classement des fournisseurs par niveau, évaluations de sécurité des fournisseurs critiques, clauses contractuelles (avis d’incident en 24 à 72 h, droit d’audit, AMF), accès à distance des fournisseurs uniquement par la passerelle de GAP.
+436	Approvisionnement / Responsable de la cybersécurité
+437	100 % des fournisseurs critiques évalués et soumis aux clauses révisées
+438	I02 (relais des sessions des fournisseurs)
+439	Gouvernance
+440	Préparation à la réponse aux incidents et à la continuité clinique
+441	Plan et guides de réponse aux incidents mis à jour (rançongiciel, atteinte à la vie privée, appareil), contrat de service de réponse et de criminalistique, exercice sur table semestriel incluant les cliniques, procédures cliniques en mode dégradé.
+442	Responsable de la cybersécurité / Opérations cliniques
+443	2 exercices sur table par année; les 10 cliniques dotées de procédures en mode dégradé testées
+444	Parrainage de la haute direction
+445	Réponse / Résilience
+446	Gouvernance, sensibilisation et rapports sur les risques
+447	Sensibilisation par rôle et simulations d’hameçonnage, tableau de bord trimestriel des indicateurs pour le comité directeur, registre des risques et processus d’acceptation, revue de la couverture d’assurance cyber.
+448	Responsable de la cybersécurité / Parrain de la haute direction
+449	Rapport trimestriel sur les indicateurs remis; taux de signalement de l’hameçonnage > 70 %
+450	Mandat du comité directeur
+451	Mesures d’intégrité des données cliniques
+452	Pistes d’audit et alertes sur les modifications des dossiers de médicaments, d’allergies, de laboratoire et de facturation; rapprochement automatisé; vérification de l’intégrité après restauration.
+453	DPI / Opérations cliniques / Responsable de la pharmacie
+455	100 % des modifications de dossiers critiques attribuables et rapprochées
+456	Journalisation de I03; capacités du fournisseur du DSE
+457	Détection / Reprise
+458	Sécurité applicative et gestion des secrets
+459	Détection des secrets dans les dépôts et les chaînes, coffre-fort central avec identifiants à courte durée de vie, étapes de cycle de développement sécuritaire, essai d’intrusion annuel des applications destinées aux patients.
+460	DPI (développement d’applications)
+461	0 secret exposé non résolu; 0 constat critique d’essai d’intrusion ouvert depuis plus de 30 jours
+462	Inventaire des dépôts
