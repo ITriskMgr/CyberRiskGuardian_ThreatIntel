@@ -147,10 +147,12 @@ like, and the scheduled task reports that the upload step was skipped.
 ### 5.3 The CyberRiskGuardian Ontology — optional
 
 The application ships with a snapshot of the ontology and needs nothing more. To query the ontology
-through **its own MCP server** — the one Claude uses — install **CRGO v0.10.1** and let the helper find it:
+through **its own MCP server** — the one Claude uses — install **CRGO 0.11.0** and let the helper find it. CRGO 0.11.0
+is a *proposed* release: its new terms await the CRGO author's approval, and until the author tags v0.11.0, clone the
+branch `release/0.11.0` (`--branch release/0.11.0`) instead of the tag:
 
 ```
-git clone --branch v0.10.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.1
+git clone --branch v0.11.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.0
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -193,11 +195,13 @@ application picks up the new files.
 ## 7. Upgrading from 1.8.x, 1.7.x (or an earlier copy)
 
 **From 1.8.x:** the steps below are the same. At first start each workspace is brought to data version 4 once
-(journalled in Backup & restore → Migration journal; no number changes). The page and the helper now share a token made at each
+(journalled in Backup & restore → Migration journal; no number changes). The offline copy of the ontology is rebuilt
+from CRGO 0.11.0 (proposed: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
+and 42001, CCSPA). The page and the helper now share a token made at each
 start, so start 1.9.0 with its own launcher and close any tab still open on the previous version. API keys stored in the
 feeds folder are moved once to the macOS keychain or `~/.cyberriskguardian` (Windows shows a warning). **From 1.8.0:** the
-offline copy of the ontology is rebuilt from CRGO v0.10.1 (MediBec S2 and S8 scored AV:L in the scenario library,
-risk-index wording).
+ontology copy also carries the earlier changes (MediBec S2 and S8 scored AV:L in the scenario library, risk-index
+wording).
 
 If you switched it on, **Help → About → Versions → Check now** (or the check at start-up) tells you when a newer
 release exists and downloads its ZIP into your feeds folder; nothing is installed for you. The steps are the
@@ -445,10 +449,12 @@ déposer où vous voulez, et la tâche planifiée signale que l’étape de tél
 
 L’application est livrée avec un instantané de l’ontologie et n’a besoin de rien d’autre. Pour
 interroger l’ontologie au moyen de **son propre serveur MCP** — celui qu’utilise Claude —, installez
-**CRGO v0.10.1** et laissez l’assistant local le trouver :
+**CRGO 0.11.0** et laissez l’assistant local le trouver. CRGO 0.11.0 est une version *proposée* : ses nouveaux termes
+attendent l’approbation de l’auteur de CRGO, et tant que l’auteur n’a pas créé l’étiquette v0.11.0, clonez la branche
+`release/0.11.0` (`--branch release/0.11.0`) plutôt que l’étiquette :
 
 ```
-git clone --branch v0.10.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.1
+git clone --branch v0.11.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.0
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -493,11 +499,13 @@ fois avec le lanceur pour que l’application installée reprenne les nouveaux f
 ## 7. Passer de la 1.8.x, de la 1.7.x (ou d’une copie antérieure) à la 1.9.0
 
 **Depuis la 1.8.x :** les étapes ci-dessous sont les mêmes. Au premier démarrage, chaque espace de travail passe une fois à
-la version de données 4 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). La page et l’assistant
+la version de données 4 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). L’exemplaire hors ligne de l’ontologie est reconstruit à partir de
+CRGO 0.11.0 (proposée : modèles de scénarios, mesures de protection des CIS Controls v8.1 avec les libellés propres à CRGO,
+listes OWASP, ISO/IEC 27701 et 42001, Loi sur la protection des cybersystèmes essentiels). La page et l’assistant
 local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.0 avec son propre lanceur et fermez tout onglet
 encore ouvert sur la version précédente. Les clés d’API rangées dans le dossier des flux sont déplacées une fois vers le
-trousseau macOS ou `~/.cyberriskguardian` (Windows affiche un avertissement). **Depuis la 1.8.0 :** l’exemplaire hors ligne de
-l’ontologie, reconstruit à partir de CRGO v0.10.1 (MediBec S2 et S8 cotés AV:L dans la bibliothèque de scénarios,
+trousseau macOS ou `~/.cyberriskguardian` (Windows affiche un avertissement). **Depuis la 1.8.0 :** l’exemplaire de
+l’ontologie comprend aussi les changements antérieurs (MediBec S2 et S8 cotés AV:L dans la bibliothèque de scénarios,
 vocabulaire des indices de risque).
 
 Si vous l’avez activée, **Aide → À propos → Versions → Vérifier maintenant** (ou la vérification au démarrage)

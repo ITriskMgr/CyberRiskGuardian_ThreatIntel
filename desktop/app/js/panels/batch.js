@@ -17,6 +17,7 @@ import * as MT from '../maturity.js';
 import { tr } from '../i18n.js';
 import * as SEED from '../secops_seed.js';
 import { pill } from '../util.js';
+import * as PAT from '../data/scenpatterns.js';
 
 /** Scenario archetypes: a starting point, not an assessment. Every value is an analytical estimate. */
 export const PATTERNS = [
@@ -43,6 +44,14 @@ export const PATTERNS = [
   { key: 'device', name: 'Lost or stolen device exposes data', src: 'insider-err', weak: 'unencrypted or unmanaged portable devices', attack: ['T1005'], cwe: ['CWE-311'], cons: 0, p: [0.7, 0.35, 0.3, 0.6, 0.55, 0.5], cvss: 'CVSS:4.0/AV:P/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N' },
   { key: 'sabotage', name: 'Malicious administrator sabotages systems', src: 'insider-mal', weak: 'standing privileged access without separation of duties', attack: ['T1078', 'T1485', 'T1489'], cwe: ['CWE-269'], cons: 1, p: [0.3, 0.5, 0.6, 0.95, 0.35, 0.9], cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H' },
   { key: 'outage', name: 'Loss of a site, data centre or network link', src: 'environment', weak: 'single point of failure without tested failover', attack: [], cwe: [], cons: 1, p: [0.4, 0.5, 0.5, 0.85, 0.4, 0.85], cvss: 'CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H', note: 'Limited CVSS applicability: representative weakness is a single point of failure.' },
+  // 1.9.0 — the six CRGO 0.11.0 scenario patterns (proposed terms): each row carries `scenPattern`, written to the
+  // organisation graph as CRGO's 'has scenario pattern'. ATT&CK and CWE are CRGO's proposed pattern links.
+  { key: 'pqc', scenPattern: 'CRGO_0001389', name: 'Harvest now, decrypt later: encrypted data stored for future quantum decryption', src: 'nation', weak: 'long-lived confidential data protected in transit by quantum-vulnerable public-key algorithms, without a cryptographic inventory or a post-quantum migration plan', attack: ['T1040', 'T1557'], cwe: ['CWE-327', 'CWE-326'], cons: 0, p: [0.3, 0.35, 0.5, 0.9, 0.4, 0.8], cvss: 'CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N', note: 'Limited CVSS applicability: the harm is deferred until the data can be decrypted; the vector scores the interception.' },
+  { key: 'cryptoagility', scenPattern: 'CRGO_0001390', name: 'Crypto-agility failure: a broken algorithm cannot be replaced in time', src: 'opportunistic', weak: 'cryptographic algorithms hard-coded in applications and devices, with no inventory of where cryptography is used', attack: ['T1600'], cwe: ['CWE-327', 'CWE-326'], cons: 0, p: [0.35, 0.35, 0.5, 0.85, 0.4, 0.75], cvss: 'CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N' },
+  { key: 'certexpiry', scenPattern: 'CRGO_0001391', name: 'Certificate expiry halts a service', src: 'insider-err', weak: 'certificates without an inventory, an owner or automated renewal, while public TLS certificate lifetimes shorten', attack: [], cwe: ['CWE-298', 'CWE-324'], cons: 1, p: [0.6, 0.5, 0.45, 0.8, 0.5, 0.75], cvss: 'CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H', note: 'Limited CVSS applicability: an outage rather than an attack; representative weakness is an unmanaged certificate (equivalency).' },
+  { key: 'agentmisuse', scenPattern: 'CRGO_0001392', name: 'AI agent misuses its delegated access', src: 'cybercrime', weak: 'AI agent identities with broad standing permissions and tool access, without least privilege, human approval of high-impact actions or logs of agent actions', attack: ['T1078', 'T1059'], cwe: ['CWE-250', 'CWE-269'], cons: 1, p: [0.45, 0.4, 0.55, 0.85, 0.4, 0.8], cvss: 'CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:H/VI:H/VA:L/SC:L/SI:L/SA:N' },
+  { key: 'promptinj', scenPattern: 'CRGO_0001393', name: 'Prompt injection steers an agent workflow', src: 'opportunistic', weak: 'agent workflows that pass untrusted content (e-mail, web pages, documents) to a language model able to call tools, without separating instructions from data or limiting what the agent may do', attack: [], cwe: ['CWE-77'], cons: 0, p: [0.55, 0.45, 0.5, 0.8, 0.45, 0.75], cvss: 'CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:L/VA:N/SC:L/SI:L/SA:N', note: 'MITRE ATLAS AML.T0051 (LLM prompt injection) and CWE-1427 also apply; neither is in the bundled knowledge base.' },
+  { key: 'aisupply', scenPattern: 'CRGO_0001394', name: 'Compromised model, dataset or AI library enters production', src: 'supplier', weak: 'pre-trained models, datasets and AI libraries taken from public hubs without provenance, integrity verification or an AI bill of materials', attack: ['T1195.001', 'T1195'], cwe: ['CWE-494', 'CWE-1357'], cons: 2, p: [0.4, 0.4, 0.55, 0.9, 0.4, 0.8], cvss: 'CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:H/SA:N', note: 'MITRE ATLAS AML.T0010 (ML supply chain compromise) and AML.T0020 (poison training data) also apply.' },
 ];
 
 const srcLabel = id => THREAT_SOURCES.find(t => t.id === id)?.label || id;
@@ -64,7 +73,7 @@ function makeRow(p, asset, src) {
     statement: `A ${srcLabel(src).toLowerCase()} ${p.attack.length ? 'uses ' + p.attack.slice(0, 3).map(t => techName(t).toLowerCase()).join(', ') : 'event'}, exploiting ${p.weak}, to affect ${asset}, resulting in ${consq}.`,
     threat_source: srcLabel(src), assets: asset, vulns: p.weak, attack: p.attack.slice(), cwe: p.cwe.slice(),
     params: Object.fromEntries(PARAMS.map((k, i) => [k, p.p[i]])), cvss: p.cvss, cvss_score: p.cvss_score ?? null, cvss_note: p.note || '', red_p: 0.6, red_i: 0.6, owner: '', pattern: p.key,
-    cves: (p.cves || []).slice(), rat: p.rat || {},
+    cves: (p.cves || []).slice(), rat: p.rat || {}, ...(p.scenPattern ? { scenPattern: p.scenPattern } : {}),
   };
 }
 
@@ -95,7 +104,8 @@ function generator(top, drawGrid) {
     const c = el('input', { type: 'checkbox', checked: sel.patterns.has(p.key) });
     c.addEventListener('change', () => { c.checked ? sel.patterns.add(p.key) : sel.patterns.delete(p.key); count(); });
     pBox.append(el('label', { style: { display: 'flex', gap: '8px', color: 'var(--ink)', fontSize: '13px', alignItems: 'flex-start' } }, c,
-      el('span', null, p.name, el('div', 'small muted', p.attack.join(' · ') || 'non-adversarial'))));
+      el('span', null, p.name, el('div', 'small muted', p.attack.join(' · ') || 'non-adversarial',
+        p.scenPattern ? ' · ' + tr('CRGO scenario pattern {0} (proposed)').replace('{0}', p.scenPattern) : ''))));
   }
   const customEd = linkEditor(sel.custom, 'attack', count, { empty: 'Optional: add any other ATT&CK technique as its own pattern' });
 
@@ -238,6 +248,7 @@ function aiProposer(top, drawGrid) {
           vulns: sc.vulnerability || '', attack: Array.isArray(sc.attack) ? sc.attack.filter(t => /^T\d{4}/.test(t)) : [], cwe: [], cves: [],
           params: Object.fromEntries(PARAMS.map(k => [k, cl(P[k]?.v)])), cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N', cvss_score: null,
           cvss_note: 'Default vector for an AI-proposed candidate — set the vector in the scenario editor.', red_p: 0.6, red_i: 0.6, owner: '', pattern: 'ai',
+          ...(PAT.valid(sc.pattern) ? { scenPattern: PAT.valid(sc.pattern) } : {}),   // 1.9.0 — a CRGO 0.11 scenario pattern, checked against the six
           rat: Object.fromEntries(PARAMS.map(k => [k, (P[k]?.why ? 'AI: ' + P[k].why : 'AI-proposed') + ' — analytical estimate, validation required.'])),
           conf: Object.fromEntries(PARAMS.map(k => [k, ['High', 'Medium', 'Low'].includes(P[k]?.conf) ? P[k].conf : 'Low'])) });
         const sd = seedMap.get(String(sc.seed || ''));
@@ -294,7 +305,8 @@ function renderGrid(box, redraw) {
     const cv = el('input', { value: r.cvss || (r.cvss_score ?? ''), class: 'mono', style: { width: '170px' } });
     cv.addEventListener('input', () => { if (/^CVSS:4/i.test(cv.value)) { r.cvss = cv.value; r.cvss_score = null; } else { r.cvss = ''; r.cvss_score = cv.value === '' ? null : Number(cv.value); } touch(); });
     const links = el('div', 'chips', ...(r.attack || []).map(x => chip(x, { kind: 't', title: techName(x) })), ...(r.cwe || []).map(x => chip(x, { kind: 'c' })), ...(r.cves || []).map(x => chip(x, { kind: 'v' })),
-      ...(r.secopsEv?.length ? [pill(`${r.secopsEv.length} SIEM/SOAR evidence link(s)`, 'warn')] : []));
+      ...(r.secopsEv?.length ? [pill(`${r.secopsEv.length} SIEM/SOAR evidence link(s)`, 'warn')] : []),
+      ...(PAT.valid(r.scenPattern) ? [pill(tr('Pattern') + ': ' + tr(PAT.pattern(r.scenPattern).name) + ' (' + r.scenPattern + ')')] : []));
     tb.append(el('tr', r.pick ? null : 'off', el('td', 'cb', pk),
       el('td', null, inp('name', '300px'), ta('statement')),
       el('td', null, inp('threat_source', '170px'), inp('assets', '170px')),
@@ -341,6 +353,7 @@ function commit(redraw) {
     if (r.secopsEv?.length) s.secops = r.secopsEv.map(e => ({ ...e, seed: r.seed || '' }));   // 1.6.0 — evidence links, never a parameter
     if (r.secops) { if (r.threat_event) s.threat_event = r.threat_event; if (r.background) s.background = r.background; }
     if (r.crgo) s.crgo = structuredClone(r.crgo);              // 1.5.7 — ontology keys, controls and obligations travel with it
+    if (PAT.valid(r.scenPattern)) s.scenPattern = PAT.valid(r.scenPattern);   // 1.9.0 — CRGO 'has scenario pattern'
     for (const k of PARAMS) s.params[k] = { v: Number(r.params[k]), qual: '', rat: (r.rat && r.rat[k]) || 'Batch default — analytical estimate, validation required.', ev: (r.rat && r.rat[k + '_ev']) || '', conf: (r.conf && r.conf[k]) || 'Low' };
     if (r.cvss) s.cvss = r.cvss; else if (r.cvss_score !== null && r.cvss_score !== undefined && r.cvss_score !== '') { s.cvss_score = Number(r.cvss_score); }
     a.SCEN.push(s); added.push(s.id);

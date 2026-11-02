@@ -1,5 +1,5 @@
 # CyberRiskGuardian Desktop — gates, helper tests, engine regression and the browser suites (1.9.0).
-# Runs the application exactly as the launcher does (python3 serve.py), against CRGO v0.10.1, with canned AI answers
+# Runs the application exactly as the launcher does (python3 serve.py), against CRGO 0.11.0 (proposed), with canned AI answers
 # (desktop/tests/mock, copied to $CRG_TMP/mock for the run) — no key, no model and no network beyond the checkouts and the installs below.
 name: desktop-ci
 on:
@@ -19,22 +19,25 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     env:
+      # The CRGO ref the suites run against — set to v0.11.0 once the author tags CRGO 0.11.0
+      CRGO_REF: release/0.11.0
+      CRGO_RELEASE: "0.11.0"
       CRG_URL: http://127.0.0.1:8101/
       # outside the checkout: the helper refuses an organisation-graph folder inside a git repository (t12, t21)
       CRG_TMP: ${{ runner.temp }}/crg-ci
-      CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.10.1
+      CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.11.0
       CRG_MOCK_GITHUB_PORT: "8199"
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: CRGO v0.10.1
+      - name: CRGO ${{ env.CRGO_RELEASE }} (${{ env.CRGO_REF }})
         uses: actions/checkout@v4
         with:
           repository: ITriskMgr/cyberriskguardian-ontology
-          ref: v0.10.1
-          path: CyberRiskGuardian-Ontology-0.10.1
+          ref: ${{ env.CRGO_REF }}
+          path: CyberRiskGuardian-Ontology-0.11.0
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -61,8 +64,8 @@ jobs:
           python tools/anchor_check.py
           python tools/i18n_coverage.py fr --strict
           python tools/csp_check.py
-          # CRGO 0.11 identifiers are placeholders until CRGO 0.11 ships: listed here, refused only with --release
-          python tools/crgo_tbd_check.py
+          # IPC.CRGO is filled from CRGO 0.11.0: no placeholder may come back, every identifier must exist in CRGO
+          python tools/crgo_tbd_check.py --release --crgo "$CRGO_HOME"
       - name: Engine regression (MediBec 84,305 / 41,023), CRGO bridge and SSVC tables
         working-directory: plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts
         run: |

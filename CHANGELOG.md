@@ -19,6 +19,18 @@ the MediBec regression stays at 84,305 / 41,023.
   Chapter 6 (*Scoring vulnerabilities with CVSS v4.0*) — the same sections the desktop application's chapter-linked help
   cites.
 
+### CRGO 0.11
+- Pins the CyberRiskGuardian Ontology to **CRGO 0.11.0** (`crgo_contract.PINNED_RELEASE`), a **proposed** release: its
+  new terms (crgo-iam registers, scenario patterns, CIS v8.1 with CRGO labels, OWASP 2025/LLM/Agentic, ISO/IEC 27701 and
+  42001, CCSPA) await the CRGO author's approval and are cited as proposed. Tag `v0.11.0` once the author creates it; until
+  then branch `release/0.11.0`. Contracts dss/v1, compliance/v1 and secops/v1 are unchanged; 0.10.1 keeps working.
+- `.mcp.json` (project and plugin) read the CRGO folder from **`CRGO_HOME`**, default `./CyberRiskGuardian-Ontology-0.11.0`,
+  so a clone with another folder name (the Mac clone `CyberRiskGuardian-Ontology`) works by setting `CRGO_HOME`.
+- `test_crgo_contract.py` no longer ignores `ontologyRelease`: the risk context and the compliance/secops reads must report
+  the pinned release, as must CRGO's own contract examples (51/51 against CRGO 0.11.0).
+- Scenario patterns: `scenario-selection`, `risk-scenario-analyst` and `references/crgo-integration.md` list the six CRGO
+  0.11.0 patterns (CRGO_0001389–0001394) so candidates can carry *has scenario pattern* (CRGO_0001478).
+
 ### Fixed
 - `hooks/check_labels.py`: a negation only counts in the same sentence (a "never" ending the previous sentence no longer
   hides an `ABS()` residual); `.js`, `.mjs` and `.py` files are checked for outdated wording (not for markers).

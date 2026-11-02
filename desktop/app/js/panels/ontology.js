@@ -211,7 +211,7 @@ async function connection(body, sec) {
   body.append(el('div', 'grid g4',
     kpi('MCP server', st.running ? 'running' : st.usable ? 'ready' : 'unavailable', st.source ? srcLabel[st.source] || st.source : '', st.running || st.usable ? 'good' : 'warn'),
     kpi('Last answer from', C.state.via === 'mcp' ? 'the MCP server' : C.state.via === 'snapshot' ? 'the snapshot' : '—', C.state.last ? String(C.state.last).slice(0, 16).replace('T', ' ') : ''),
-    kpi('Snapshot', snap ? 'CRGO ' + (snap.release || snap.version) : 'missing', snap ? `${n0(snap.scenarios.length)} scenarios · built ${snap.built}` : '', snap ? 'good' : 'bad'),
+    kpi('Snapshot', snap ? 'CRGO ' + (snap.release || snap.version) + (snap.status === 'proposed' ? ' · ' + tr('proposed') : '') : 'missing', snap ? `${n0(snap.scenarios.length)} scenarios · built ${snap.built}` : '', snap ? 'good' : 'bad'),
     kpi('Local helper', st.helper === false ? 'not running' : 'running', st.helper === false ? 'start the app with its launcher' : '', st.helper === false ? 'warn' : 'good')));
   if (st.problem) body.append(banner('warn', 'The MCP server cannot be used', st.problem));
   // 1.5.8 — the release of the ontology found, and whether the dss/v1 contract can be used with it
@@ -221,6 +221,9 @@ async function connection(body, sec) {
       st.release.viewsUsable ? 'Scenario identification, organisation context and write-back (dss/v1), and the compliance and security-operations contexts (compliance/v1, secops/v1) are available.'
         : 'Scenario identification, organisation context and write-back (dss/v1) are available.')
     : banner('warn', tr('CRGO v{0}: the dss/v1 contract is not available').replace('{0}', st.release.tag || '?'), st.release.contractProblem || ''));
+  // 1.9.0 — CRGO 0.11.0 is a proposed release: its new terms await the CRGO project owner's approval
+  if (st.release?.status === 'proposed') body.append(banner('warn', tr('CRGO v{0} is a proposed release').replace('{0}', st.release.tag || '?'),
+    tr('Its new terms (identity and configuration registers, scenario patterns, CIS v8.1, OWASP lists, ISO/IEC 27701 and 42001, CCSPA) await the CRGO project owner’s approval: cite them as proposed.')));
   if (st.release?.contractUsable && !st.release.viewsUsable) body.append(banner('warn', tr('CRGO v{0}: the compliance and security-operations contexts need CRGO v0.10.0').replace('{0}', st.release.tag || '?'), st.release.viewsProblem || ''));
   if (st.command) body.append(card(el('h2', { style: { marginTop: 0 } }, 'How the server is started'),
     el('div', 'mono small', { 'data-noi18n': '' }, [st.command, ...(st.args || [])].join(' ')),
@@ -248,5 +251,18 @@ async function connection(body, sec) {
     } }, 'Save'), HS.helper ? null : el('span', 'small muted', 'The helper must be running to save this.'))));
   if (snap) body.append(card(el('h2', { style: { marginTop: 0 } }, 'The snapshot shipped with the application'),
     el('p', 'note', `${snap.title} ${snap.version} — ${n0(snap.scenarios.length)} scenarios. ${snap.licence}`),
-    el('p', 'small muted', snap.caveat)));
+    el('p', 'small muted', snap.caveat), snap.statusNote ? el('p', 'small muted', snap.statusNote) : null, v011Line(snap)));
+}
+
+/** 1.9.0 — what CRGO 0.11.0 adds to the snapshot, cited by identifier (CIS v8.1 with CRGO's own labels, never CIS text). */
+function v011Line(snap) {
+  const V = snap.v011; if (!V) return null;
+  const sg = V.cis81?.safeguards || [], newInst = (snap.legal?.instruments || []).filter(i => i.status === 'proposed').map(i => i.id);
+  return el('p', 'small', el('b', null, tr('CRGO {0} additions').replace('{0}', snap.release) + (snap.status === 'proposed' ? ' (' + tr('proposed') + ')' : '') + ': '),
+    el('span', { 'data-noi18n': '' }, [
+      `${(V.patterns || []).length} scenario patterns (${(V.patterns || []).map(p => p.id).join(', ')})`,
+      `CIS Controls v8.1: ${(V.cis81?.controls || []).length} controls, ${sg.length} safeguards with CRGO labels (${sg.filter(s => s.unverified).length} unverified)`,
+      `OWASP: ${Object.entries(V.owasp || {}).map(([k, v]) => `${k} (${v.length})`).join(', ')}`,
+      newInst.length ? 'instruments: ' + newInst.join(', ') : '',
+    ].filter(Boolean).join(' · ')));
 }

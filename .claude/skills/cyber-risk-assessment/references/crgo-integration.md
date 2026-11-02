@@ -1,4 +1,4 @@
-# CRGO integration (CyberRiskGuardian Ontology 0.10.1, contracts dss/v1, compliance/v1, secops/v1)
+# CRGO integration (CyberRiskGuardian Ontology 0.11.0, contracts dss/v1, compliance/v1, secops/v1)
 
 CyberRiskGuardian v1.4.0. © 2026 Marc-André Léger. CC BY-NC 4.0. Proof of concept: validate every output
 before organizational use.
@@ -13,11 +13,11 @@ factor of 1,000 and the MediBec regression (84,305 / 41,023) are unchanged by CR
 
 | Item | Value |
 |---|---|
-| Release | pinned tag **v0.10.1** (documents report `ontologyRelease: "0.10.1"`; cite "CRGO v0.10.1 (ontology release 0.10.1)"). Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
-| Location | `<repository>/CyberRiskGuardian-Ontology-0.10.1/` (git-ignored), or any path in `CRGO_HOME` |
+| Release | pinned release **0.11.0** (documents report `ontologyRelease: "0.11.0"`; cite "CRGO v0.11.0 (ontology release 0.11.0, proposed)"). 0.11.0 is **proposed**: its new terms (crgo-iam registers, scenario patterns, CIS v8.1, OWASP lists, ISO/IEC 27701 and 42001, CCSPA) await the CRGO author's approval, so cite them as proposed. Check out tag `v0.11.0` once the author tags it, until then branch `release/0.11.0`. The contracts are unchanged since 0.10.0; 0.10.1 still works. Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
+| Location | `$CRGO_HOME` — set it to your clone, whatever its folder name (for example `~/GitHub/CyberRiskGuardian-Ontology` on a Mac). Default when unset: `<repository>/CyberRiskGuardian-Ontology-0.11.0/` (git-ignored). Set `CRGO_HOME` in the shell that starts Claude Code (e.g. `export CRGO_HOME=…` in `~/.zshrc`): `.mcp.json` expands it when the server starts. |
 | Requirements | `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema` |
-| Project `.mcp.json` | `python3 ./CyberRiskGuardian-Ontology-0.10.1/pipeline/mcp/crgo_server.py` |
-| Plugin `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.10.1}/pipeline/mcp/crgo_server.py` |
+| Project `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.0}/pipeline/mcp/crgo_server.py` |
+| Plugin `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.0}/pipeline/mcp/crgo_server.py` |
 | First call | builds a local store in about 10 s |
 | Licence | CRGO is CC BY-NC 4.0, a separate work by the same author; it is not redistributed here |
 
@@ -68,7 +68,7 @@ Record the evidence period, validity date and custodian. Flag stale or out-of-sc
 ## Workflow with `scripts/crgo_contract.py`
 
 ```bash
-CRGO=${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.10.1}
+CRGO=${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.0}
 S=plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts
 
 # 1. organisation graph (crg2rdf.py + this skill's crg_calc.py); refuses bases under https://w3id.org/crgo/
@@ -184,6 +184,27 @@ an **Information gap — organizational validation required**, not "not applicab
 - Self-assessment vs independent result that differ: show both and flag the conflict (CQ-GRCA-08).
 - Open findings lower confidence. Operating-effectiveness tests record period, population, sample size and deviations; cite them.
 - Policy exceptions: scoped, approved, compensated, expiring. An expired exception is no longer a mitigation, and none waives a law.
+
+## Scenario patterns (CRGO 0.11.0, proposed)
+
+CRGO 0.11.0 adds six **scenario patterns** (value set CRGO_0001387). A candidate that is an instance of one carries
+*has scenario pattern* (CRGO_0001478) with the pattern's identifier; never force a pattern onto a scenario that does
+not fit. The links are CRGO's proposals (vocab/pattern-links, with a confidence): cite them as suggestions.
+
+| Pattern | IRI | Proposed links (ATT&CK / CWE / other) |
+|---|---|---|
+| Harvest now, decrypt later (post-quantum) | `CRGO_0001389` | T1040, T1557 / CWE-327, CWE-326 |
+| Crypto-agility failure | `CRGO_0001390` | T1600 / CWE-327, CWE-326 |
+| Certificate expiry outage (textbook ch20) | `CRGO_0001391` | — / CWE-298, CWE-324 (an outage, not an attack: CVSS by equivalency) |
+| Agentic AI misuse | `CRGO_0001392` | T1078, T1059 / CWE-250, CWE-269 |
+| Prompt injection in agent workflows | `CRGO_0001393` | ATLAS AML.T0051 / CWE-1427, CWE-77 |
+| AI supply chain compromise (textbook ch18) | `CRGO_0001394` | T1195.001, T1195; ATLAS AML.T0010, AML.T0020 / CWE-494, CWE-1357 |
+
+CIS Controls v8.1 (vocab/cis81) carries identifiers, Implementation Groups, asset types and **CRGO's own paraphrased
+labels only**: cite CIS by identifier with a link to https://www.cisecurity.org/controls/v8-1, never reproduce CIS
+text, and show values CRGO flags `REVIEW:` as unverified. ISO/IEC 27701:2025, ISO/IEC 42001:2023 and the OWASP lists
+are at most *potentially applicable* (voluntary); the CCSPA (Bill C-8) applies to designated operators only, an
+interpretive condition.
 
 ## Known limits of CRGO 0.9.x and 0.10.0
 

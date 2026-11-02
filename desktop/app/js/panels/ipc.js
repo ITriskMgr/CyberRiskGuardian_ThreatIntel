@@ -111,6 +111,8 @@ function overview(body, redraw, ws) {
   maturityCard(body, redraw, ws);
   thresholds(body, redraw, ws);
   if (IPC.crgoPending().length) body.append(el('p', 'note small', tr('Ontology alignment: {0} concepts wait for their CRGO 0.11 identifiers.').replace('{0}', IPC.crgoPending().length)));
+  else body.append(el('p', 'note small', tr('Ontology alignment: CRGO {0} identifiers; {1} of them are proposed terms awaiting the CRGO project owner’s approval.')
+    .replace('{0}', IPC.CRGO_RELEASE).replace('{1}', IPC.crgoProposed().length)));
 }
 
 function maturityCard(body, redraw, ws) {

@@ -75,6 +75,14 @@ def profile_graph(T, X, prof):
                       ("monitorsBehaviourIn", "monitorsBehaviourIn")):
         for v in prof.get(key) or []:
             g.add((org, T(prop), T(v)))
+    # 1.9.0 — technologies in use (CRGO 0.11.0 'uses technology'); an older CRGO has no such term and gets none
+    if prof.get("technologies"):
+        try:
+            uses = T("usesTechnology")
+        except (KeyError, ValueError):
+            uses = None
+        for v in (prof.get("technologies") or []) if uses is not None else []:
+            g.add((org, uses, T(v)))
     for i, a in enumerate(prof.get("activities") or [], 1):
         n = X["activity-%d" % i]
         g.add((n, RDF.type, OWL.NamedIndividual)); g.add((n, RDF.type, T("ProcessingActivity")))
@@ -109,7 +117,7 @@ def applicability(req, T, X, prof_g):
 
 def facts_graph(req, T, X):
     """The application's own records about the organisation, in CRGO terms, under the organisation's base."""
-    from rdflib import Graph, Literal
+    from rdflib import Graph, Literal, URIRef
     from rdflib.namespace import RDF, OWL, RDFS
     f = req.get("facts") or {}
     g = profile_graph(T, X, f.get("profile") or {})
@@ -121,6 +129,15 @@ def facts_graph(req, T, X):
         for n in notations:
             if n in prov: g.add((X["scenario-" + sid], T("triggersObligation"), prov[n]))
             else: unknown.append(n)
+    # 1.9.0 — CRGO 0.11.0 'has scenario pattern' (proposed); an older CRGO has no such property and gets none
+    if f.get("patterns"):
+        try:
+            has_pattern = T("hasScenarioPattern")
+        except (KeyError, ValueError):
+            has_pattern = None
+        for sid, pid in (f.get("patterns") or {}).items() if has_pattern is not None else []:
+            if re.fullmatch(r"CRGO_\d{7}", str(pid)):
+                g.add((X["scenario-" + safe(sid)], has_pattern, URIRef(CRGO_NS + str(pid))))
     for t in f.get("controlTests") or []:
         if not t.get("control"): continue
         n = X["control-assessment/" + safe(t["id"])]

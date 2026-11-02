@@ -1,7 +1,7 @@
 // CRGO 0.10.0 read contracts compliance/v1 and secops/v1 through the app, the helper and the real ontology server
 // (CRGO_HOME, CRG_ORG_DIR). The MediBec teaching case is seeded with
 // records equivalent to CRGO's synthetic Nordelle story (nordelle-pca.ttl, nordelle-secops.ttl), then restored.
-import { open, ok, done, tmp, CRGO, ORG } from './lib.mjs';
+import { open, ok, done, tmp, CRGO, ORG, CRGO_RELEASE } from './lib.mjs';
 import fs from 'fs';
 import { execFileSync } from 'child_process';
 const { browser, page, errors } = await open('#/process');
@@ -115,7 +115,7 @@ const r = await page.evaluate(async () => {
 fs.writeFileSync(tmp('t21.json'), JSON.stringify(r, null, 1));
 const B = r.base, P = 'https://w3id.org/crgo/vocab/';
 ok(!r.graph.error && Math.round(r.graph.totals.est) === 84305 && Math.round(r.graph.totals.res) === 41023 && r.graph.agrees, 'graph with the 1.6.0 records keeps the MediBec totals 84,305 / 41,023 ' + JSON.stringify(r.graph).slice(0, 300));
-ok(r.graph.release?.tag === '0.10.1' && r.graph.release?.viewsUsable, 'CRGO v0.10.1 detected, views usable');
+ok(r.graph.release?.tag === CRGO_RELEASE && r.graph.release?.viewsUsable, `CRGO v${CRGO_RELEASE} detected, views usable`);
 ok(r.engine[0] === 84305 && r.engine[1] === 41023, 'engine regression unchanged');
 // schema validity of both documents (CRGO's own validator)
 fs.writeFileSync(tmp('t21c.json'), JSON.stringify(r.c)); fs.writeFileSync(tmp('t21s.json'), JSON.stringify(r.s));
@@ -183,7 +183,7 @@ ok(await page.locator('#panel-ontology >> text=No inference made in CRGO authori
 await page.fill('#crgo-views-asof', '');
 await page.click('#panel-ontology button:has-text("Read both contexts")');
 ok(await page.waitForSelector('#panel-ontology >> text=SCHEMA_INVALID', { timeout: 30000 }).then(() => true, () => false), 'a refusal is shown verbatim');
-ok(await page.locator('#panel-ontology >> text=CRGO v0.10.1').count() > 0, 'release banner names CRGO v0.10.1');
+ok(await page.locator(`#panel-ontology >> text=CRGO v${CRGO_RELEASE}`).count() > 0, `release banner names CRGO v${CRGO_RELEASE}`);
 // ---- QC
 const qc = await page.evaluate(async () => (await import('/js/panels/qc.js')).checks().reduce((o, c) => (o[c.id] = { s: c.state, d: c.detail }, o), {}));
 fs.writeFileSync(tmp('t21qc.json'), JSON.stringify(qc, null, 1));

@@ -53,13 +53,13 @@ the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 /
   `tests-new/` is merged into it; suites numbered t01–t48 without collision), every path from environment variables
   with defaults relative to the repository (`lib.mjs`, `serve.sh`, `run_all.sh`); new `t32_security.mjs` and
   `test_helper_guard.py`. `.github/workflows/desktop-ci.yml` runs the gates (French 100 % now strict), the engine regression,
-  the CRGO bridge tests against CRGO v0.10.1, the helper tests and every suite.
+  the CRGO bridge tests against CRGO 0.11.0, the helper tests and every suite.
 - `lib.mjs` is the only harness: the per-launch token (`apiHeaders()` for Node, `helper.js headers()` in the page), a
   first-open wait that settles and survives the migration reload, the ipc helpers; `serve.sh` gives the helper a scratch
   copy of `mock/` (`$CRG_TMP/mock`), so suites that rewrite `consultant.txt` and the helper's `_last.json` never touch
   the repository. t29 reads the running version from `js/version.js` instead of a literal.
 - Suites: t01–t31 as before; t32 security; t33 SSVC; t34 AI forecasting; t35 CanaRetail and MediBec (French); t36–t43
-  identity, privilege & configuration; t44–t47 Virtual consultant; t48 chapter-linked help.
+  identity, privilege & configuration; t44–t47 Virtual consultant; t48 chapter-linked help; t49 CRGO 0.11.
 
 ### French terminology and chapter-linked help (group 2)
 - **French follows the French book** (`docs/fr-terminology-1.9.md`): *appétence pour le risque* (not *appétit*),
@@ -177,11 +177,51 @@ the MediBec self-check holds at **84,305 / 41,023** and CanaRetail at **27,526 /
   unchanged). Samples in `js/data/ipc-samples.js`.
 - Data version 3 → 4: the `ipc` entry of `STEP4` (js/migrate.js, group CONTEXT) runs `migrateIpc4`: baselines named on assets promoted
   to versioned *legacy* baselines (the asset gains only `baseline.ref`), drift assets get a deviation to classify, a live
-  scope from Information assets, teaching-case seed; invariants throw. CRGO 0.11 identifiers are placeholders in
-  `IPC.CRGO` (`tools/crgo_tbd_check.py --release` fails until they are filled).
+  scope from Information assets, teaching-case seed; invariants throw. `IPC.CRGO` cites the CRGO 0.11.0 terms (see *CRGO 0.11* below).
 - Process steps 1, 2, 9 and 19 gain tips and links when the module is on; the Scenario editor shows the linked
   evidence read-only. Guides EN/FR section 7.5.6 (Quality review becomes 7.5.7), help on every tab, French 100 %.
 - Tests t36–t43 `*_ipc_*` (fixture `ws-1.8.2.json`, mock `extract_s_ipc.txt`); t27 (MediBec evidence 15, next E16), t10 (module screens offline), t11 and t30 (data version 4) updated.
+
+### CRGO 0.11 (group 5)
+Built for the **CyberRiskGuardian Ontology 0.11.0**, a **proposed** release: its new terms await the CRGO author's
+approval and are shown and cited as *proposed* everywhere. Until the author tags `v0.11.0`, check out the branch
+`release/0.11.0`. The contracts dss/v1, compliance/v1 and secops/v1 are unchanged (0.10.x keeps working; the 0.11 terms
+then stay absent). CRGO still computes no risk; MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049 unchanged.
+- **Identity, privilege & configuration ↔ CRGO.** The 28 placeholders of `IPC.CRGO` (`js/ipc.js`) now cite CRGO 0.11.0
+  terms: the register populations, access-review campaign, segregation-of-duties rule and conflict, baseline version and
+  deviation, configuration change record, identity/privilege/configuration findings, the drift classes and the eight
+  indicator kinds (proposed); misconfiguration, policy exception and register record keep existing approved terms.
+  `tools/crgo_tbd_check.py --release --crgo <checkout>` refuses any placeholder and any identifier the checkout does not
+  define (29 checked).
+- **Offline snapshot rebuilt from CRGO 0.11.0** (`data/crgo-snapshot.json`, `data/crgo-assurance.json`,
+  `tools/build_crgo.py`): release 0.11.0 with status *proposed* and its note; the six scenario patterns with their
+  proposed ATT&CK/CWE links, CIS v8.1 controls and safeguards with CRGO labels, OWASP identifiers, a governance status
+  per legal instrument and the technology vocabulary. Legal conditions are listed once each (no longer once per triple).
+- **Legal applicability** knows the 0.11 instruments — Critical Cyber Systems Protection Act (CCSPA; designated
+  operators, never plainly applicable), ISO/IEC 27701:2025, ISO/IEC 42001:2023, OWASP Top 10:2025, Top 10 for LLM
+  Applications 2025 and Top 10 for Agentic Applications 2026 (voluntary: at most *potentially applicable*) — and the
+  profile gains **Technologies in use**; the browser port and the bridge evaluate CRGO 0.11's technology test and agree
+  with CRGO's evaluator.
+- **Scenario patterns** (`js/data/scenpatterns.js`): the six CRGO 0.11.0 patterns CRGO_0001389–0001394 (harvest now,
+  decrypt later; crypto-agility failure; certificate expiry outage; agentic AI misuse; prompt injection in agent
+  workflows; AI supply chain compromise). Batch scenarios has one archetype per pattern; rows, AI proposals (the
+  scenario prompt lists the six and asks for `pattern`; anything else is dropped) and the register carry `scenPattern`;
+  the scenario editor's Ontology card shows and sets it; the organisation graph writes *has scenario pattern*
+  (CRGO_0001478) when the checkout defines it. EN/FR.
+- **CIS Controls v8.1 safeguards** in the control catalogue (`js/data/controls.js`, `tools/build_controls.py --cis-only`):
+  the 153 safeguards by identifier (CIS81:5.4 …) with CRGO 0.11.0's own paraphrased labels — **no CIS text** —,
+  Implementation Groups, asset type and CSF function; the 39 values CRGO flags for review are marked *unverified*.
+  Listed like SP 800-53 enhancements.
+- **Frameworks and standards → Methods and standards** cites ISO/IEC 27701, ISO/IEC 42001, the three OWASP lists and the
+  CCSPA (identifiers, CRGO short labels, publisher links; no text reproduced); the CIS entry names the v8.1 safeguards.
+- **Ontology · CRGO → Connection** shows a proposed-release banner and the list of 0.11 additions; the Virtual consultant
+  indexes the patterns, CIS safeguards and OWASP entries and cites them `(release 0.11.0, proposed, …)`.
+- Guides EN/FR (3.5, legal applicability, troubleshooting), installation notes and `NOTICE.md` point to CRGO 0.11.0.
+  Threat Intel plugin 1.7.0 pins 0.11.0 (root `CHANGELOG.md`).
+- Tests: `t49_crgo_011.mjs` (snapshot, patterns end to end, CIS catalogue, applicability with technologies, Connection);
+  t12 and t21 assert the detected release and `ontologyRelease` equal `CRGO_RELEASE` (default 0.11.0); t38 runs the
+  release gate against the checkout; t44 accepts the *proposed* citation. CI checks CRGO out through one variable,
+  `CRGO_REF` (`release/0.11.0` until the author tags v0.11.0).
 
 ### SSVC and AI forecasting (groups 5 and 6)
 - **Vulnerabilities → SSVC decisions** (`js/ssvc.js`, `js/data/ssvc-tables.js`, `js/panels/ssvc.js`): a Stakeholder-Specific

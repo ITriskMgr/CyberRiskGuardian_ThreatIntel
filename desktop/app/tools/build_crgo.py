@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_crgo.py — the offline snapshots of the CyberRiskGuardian Ontology (1.5.8, CRGO 0.9.x).
+"""build_crgo.py — the offline snapshots of the CyberRiskGuardian Ontology (1.5.8, CRGO 0.9.x; CRGO 0.11.0 in 1.9.0).
 
 Writes two files beside the application, from a CRGO checkout (v0.9.1 or later):
 
@@ -13,6 +13,13 @@ Writes two files beside the application, from a CRGO checkout (v0.9.1 or later):
                             (public domain, NIST), and CRGO's two ILLUSTRATIVE audit work programmes
                             (AUD-PAM-001, AUD-VULN-001). Licensed standards (IIA, ISACA, AICPA, COSO,
                             ISO) are NOT exported: CRGO holds them only as identifiers and headings.
+
+From CRGO 0.11.0 (1.9.0) the snapshot also carries, under "v011": the six scenario patterns (labels, definitions,
+pattern links with their confidence), CIS Controls v8.1 controls and safeguards (identifiers, Implementation Groups,
+asset type, security function and CRGO's OWN paraphrased labels — never CIS text; values CRGO flags REVIEW: are
+marked unverified), the OWASP Top 10:2025, LLM 2025 and Agentic 2026 identifiers with CRGO labels, and the status of
+the release: when CRGO's CHANGELOG marks the release "proposed", every 0.11 term is a proposal awaiting the CRGO
+project owner's approval, and the snapshot says so ("status", "statusNote").
 
 The application uses these when the ontology's MCP server cannot be reached, and says so on every result.
 Needs rdflib and pyoxigraph (as CRGO itself does). Takes about four minutes (the store is built first).
@@ -28,6 +35,11 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+STATUS_NOTE = {"proposed": "CRGO %s is proposed: its new terms (registers, scenario patterns, CIS v8.1, OWASP, ISO/IEC 27701 and 42001, CCSPA) "
+                           "await the CRGO project owner's approval (src/approvals.tsv). Cite them as proposed.",
+               "approved": "CRGO %s: every term approved by the CRGO project owner."}
+
+
 def strip(x):
     if isinstance(x, dict):
         return {k: strip(v) for k, v in x.items() if k not in ("iri", "caveat", "framework")}
@@ -37,14 +49,64 @@ def strip(x):
 
 
 def release(onto):
-    """(tag release from CHANGELOG, ontology release from src/build.py)."""
-    tag = None
+    """(tag release from CHANGELOG, ontology release from src/build.py, status: 'proposed' or 'approved')."""
+    tag = None; status = "approved"
     for line in open(os.path.join(onto, "CHANGELOG.md"), encoding="utf-8"):
-        m = re.match(r"## \[(\d+\.\d+\.\d+)\]", line)
+        m = re.match(r"## \[(\d+\.\d+\.\d+)\](.*)", line)
         if m:
-            tag = m.group(1); break
+            tag = m.group(1); status = "proposed" if "proposed" in m.group(2).lower() else "approved"; break
     onto_rel = next((l.split('"')[1] for l in open(os.path.join(onto, "src", "build.py"), encoding="utf-8") if l.startswith("VERSION")), None)
-    return tag, onto_rel
+    return tag, onto_rel, status
+
+
+def v011(onto):
+    """CRGO 0.11.0 additions: scenario patterns, CIS Controls v8.1 (CRGO labels only), OWASP identifiers."""
+    from rdflib import Graph, URIRef
+    from rdflib.namespace import RDFS, SKOS
+    ids = dict(l.rstrip("\n").split("\t") for l in open(os.path.join(onto, "src", "ids.tsv"), encoding="utf-8"))
+    T = lambda k: URIRef("https://w3id.org/crgo/CRGO_%07d" % int(ids[k]))
+    short = lambda u: str(u).rsplit("/", 1)[1]
+    lang = lambda g, s, p: {l.language or "en": str(l) for l in g.objects(s, p)}
+    gstat = lambda g, s: "proposed" if g.value(s, T("governanceStatus")) == T("StatusProposed") else "approved"
+    ctx = Graph().parse(os.path.join(onto, "ontology", "crgo-context.ttl"))
+    links = {}
+    tsv = os.path.join(onto, "data", "frameworks", "pattern_links.tsv")
+    for row in list(open(tsv, encoding="utf-8"))[1:]:
+        f = row.rstrip("\n").split("\t")
+        if len(f) >= 4:
+            links.setdefault(f[0], []).append({"kind": f[1], "target": f[2], "confidence": f[3], "note": f[5] if len(f) > 5 else ""})
+    pats = []
+    for s in ctx.subjects(SKOS.inScheme, T("ScenarioPatternScheme")):
+        key = next((k for k, v in ids.items() if int(v) == int(short(s)[5:])), None)
+        pats.append({"id": short(s), "key": key, "notation": str(ctx.value(s, SKOS.notation) or ""), "label": lang(ctx, s, RDFS.label),
+                     "definition": lang(ctx, s, SKOS.definition), "links": links.get(key, []), "status": gstat(ctx, s)})
+    pats.sort(key=lambda p: p["id"])
+    cg = Graph().parse(os.path.join(onto, "ontology", "vocab", "cis81.ttl"))
+    ig = {T("IG1"): 1, T("IG2"): 2, T("IG3"): 3}
+    ctls, sgs = [], []
+    for s, n in cg.subject_objects(SKOS.notation):
+        n = str(n); lab = lang(cg, s, SKOS.prefLabel)
+        note = " ".join(str(x) for x in cg.objects(s, SKOS.editorialNote))
+        if "." not in n:
+            ctls.append({"id": n, "label": lab, "status": gstat(cg, s)})
+            continue
+        at = cg.value(s, T("hasSafeguardAssetType"))
+        fn = cg.value(s, T("hasSecurityFunction"))
+        sgs.append({"id": n, "control": n.split(".")[0], "label": lab, "ig": sorted(ig[x] for x in cg.objects(s, T("inImplementationGroup")) if x in ig),
+                    "asset": next((k[9:] for k, v in ids.items() if at is not None and k.startswith("AssetType") and int(v) == int(short(at)[5:])), ""),
+                    "function": short(fn) if fn is not None else "", "unverified": "REVIEW:" in note, "status": gstat(cg, s),
+                    "seeAlso": sorted(short(x) for x in cg.objects(s, RDFS.seeAlso) if "w3id.org/crgo/CRGO_" in str(x))})
+    num = lambda x: tuple(int(p) for p in x["id"].split("."))
+    owasp = {}
+    for f in ("owasp-top10-2025", "owasp-llm-2025", "owasp-agentic-2026"):
+        og = Graph().parse(os.path.join(onto, "ontology", "vocab", f + ".ttl"))
+        owasp[f] = sorted(({"id": str(n), "label": lang(og, s, SKOS.prefLabel), "status": gstat(og, s),
+                            "patterns": sorted(short(x) for x in og.objects(s, T("partiallyOverlaps")) if "/CRGO_" in str(x))}
+                           for s, n in og.subject_objects(SKOS.notation)), key=lambda x: x["id"])
+    return {"patterns": pats, "property": {"hasScenarioPattern": short(T("hasScenarioPattern")), "ScenarioPattern": short(T("ScenarioPattern"))},
+            "cis81": {"source": "https://www.cisecurity.org/controls/v8-1", "labels": "CRGO paraphrases (no CIS text); cite CIS by identifier",
+                      "controls": sorted(ctls, key=lambda x: int(x["id"])), "safeguards": sorted(sgs, key=num)},
+            "owasp": owasp}
 
 
 def legal(onto):
@@ -61,7 +123,7 @@ def legal(onto):
     vocab = lambda prefix: [{"key": k, "label": lab(mods, T(k))} for k in ids if re.fullmatch(prefix + r"[A-Z]\w*", k) and lab(mods, T(k))]
     g = Graph().parse(os.path.join(onto, "ontology", "vocab", "legal.ttl"))
     insts = {}
-    for c in g.subjects(None, None):
+    for c in sorted(set(g.subjects(None, None)), key=str):
         test = g.value(c, T("conditionTest"))
         if test is None:
             continue
@@ -73,6 +135,7 @@ def legal(onto):
     import applicability as A
     for d in insts.values():
         d["starts"] = A.starts(g, URIRef(d["iri"]))
+        d["status"] = "proposed" if g.value(URIRef(d["iri"]), T("governanceStatus")) == T("StatusProposed") else "approved"   # 1.9.0
         d["jurisdictions"] = [KEY.get(j, str(j)) for j in g.objects(URIRef(d["iri"]), T("hasJurisdiction"))]
         d["conditions"].sort(key=lambda c: c["id"])
     prov = {}
@@ -81,7 +144,7 @@ def legal(onto):
         for s, n in vg.subject_objects(SKOS.notation):
             prov[str(n)] = {"iri": str(s), "scheme": f, "label": lab(vg, s)}
     return {"instruments": sorted(insts.values(), key=lambda d: d["id"]),
-            "orgTypes": vocab("Org"), "jurisdictions": vocab("Jur"), "dataCategories": vocab("Data"),
+            "orgTypes": vocab("Org"), "jurisdictions": vocab("Jur"), "dataCategories": vocab("Data"), "technologies": vocab("Tech"),
             "lines": vocab("Line"), "aspects": vocab("Aspect"), "testResults": vocab("Test"), "complianceStates": vocab("Comp"),
             "knowledgeStatus": vocab("Ks"), "applicabilityStates": vocab("App"), "provisions": prov,
             "evaluator": "pipeline/grc/applicability.py (ported to js/crgo.js for offline use; the helper runs the original)"}
@@ -132,7 +195,7 @@ def assurance(onto):
 
 
 def main(onto):
-    tag, onto_rel = release(onto)
+    tag, onto_rel, status = release(onto)
     src = os.path.join(onto, "data", "export", "crgo-identification.json")
     with open(src, encoding="utf-8") as fh:
         d = json.load(fh)
@@ -166,17 +229,24 @@ def main(onto):
                                           for k in ("by_technique", "by_weakness") for x in full["exploitation_evidence"].get(k, [])]
         n += 1
     out = {"schema": "crg-crgo-snapshot/2", "title": d.get("title"), "version": d.get("version"), "release": tag, "ontologyRelease": onto_rel,
+           "status": status, "statusNote": STATUS_NOTE[status] % tag,
            "licence": d.get("licence"), "caveat": d.get("caveat"), "built": dt.date.today().isoformat(), "values": d.get("values"),
            "legal": legal(onto), "notes": notes, "titles": titles,
            "rows": {"countermeasures_d3fend": ["id", "confidence", "for_techniques"], "other_regimes": "regime: [ids]; titles in titles[regime]",
                     "exploitation_evidence": ["id", "kev_vulnerabilities", "known_ransomware_use", "epss_median", "epss_max"]},
            "scenarios": scen}
+    if os.path.isfile(os.path.join(onto, "ontology", "vocab", "cis81.ttl")):
+        out["v011"] = v011(onto)
     dst = os.path.join(ROOT, "data", "crgo-snapshot.json")
     with open(dst, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))
-    print(f"crgo snapshot: CRGO {tag} (ontology {onto_rel}), {len(scen)} scenarios ({n} with 0.9 detail), {os.path.getsize(dst):,} bytes -> {dst}")
+    if out.get("v011"):
+        v = out["v011"]
+        print(f"crgo 0.11: {len(v['patterns'])} scenario patterns, CIS v8.1 {len(v['cis81']['controls'])} controls / {len(v['cis81']['safeguards'])} safeguards "
+              f"({sum(s['unverified'] for s in v['cis81']['safeguards'])} unverified), OWASP {sum(len(x) for x in v['owasp'].values())} entries")
+    print(f"crgo snapshot: CRGO {tag} ({status}; ontology {onto_rel}), {len(scen)} scenarios ({n} with 0.9 detail), {os.path.getsize(dst):,} bytes -> {dst}")
     a = assurance(onto)
-    a.update({"schema": "crg-crgo-assurance/1", "release": tag, "ontologyRelease": onto_rel, "built": out["built"],
+    a.update({"schema": "crg-crgo-assurance/1", "release": tag, "ontologyRelease": onto_rel, "built": out["built"], "status": status, "statusNote": out["statusNote"],
               "note": "NIST SP 800-53A Rev. 5 objectives and methods (public domain, NIST) and CRGO's illustrative work programmes (CC BY-NC 4.0). "
                       "The work programmes are illustrative, not a validated audit methodology."})
     dst2 = os.path.join(ROOT, "data", "crgo-assurance.json")

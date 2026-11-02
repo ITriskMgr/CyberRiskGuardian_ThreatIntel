@@ -3,7 +3,7 @@
 # Copyright (c) 2026 Marc-André Léger
 """Regression and acceptance checks for the CRGO bridge (crgo_contract.py): dss/v1, compliance/v1 and secops/v1.
 
-    python3 test_crgo_contract.py --crgo PATH/TO/CyberRiskGuardian-Ontology-0.10.1 [--assessment medibec30.json]
+    python3 test_crgo_contract.py --crgo PATH/TO/CyberRiskGuardian-Ontology-0.11.0 [--assessment medibec30.json]
 
 Checks: the MediBec regression (84,305 / 41,023) with crg_calc.py; graph -> context of S1 (schema-valid) ->
 residual-risk write-back stored as proposed; status 'approved' and modelVersion 'TBD' refused
@@ -12,7 +12,8 @@ unknown applicability as an evidence gap and flag a self-assessment vs independe
 Nordelle sample); with CRGO >= 0.10.0, the acceptance tests of the 0.10.0 brief (section 6) on the synthetic Nordelle
 files: compliance and secops as of 2026-10-12 (gaps reported as gaps, never as compliance; approval gap flagged
 without calling the action authorised or not), no validated coverage before 2026-06-10, contract errors returned
-verbatim and never retried, and a clear refusal on an older CRGO checkout. Everything is written to a temporary folder outside the repository and removed afterwards.
+verbatim and never retried, and a clear refusal on an older CRGO checkout. Every document must report the
+ontologyRelease the plugin pins (crgo_contract.PINNED_RELEASE, 0.11.0), and CRGO's own contract examples must carry it. Everything is written to a temporary folder outside the repository and removed afterwards.
 Prints PASS/FAIL per check and exits non-zero on any failure. MediBec and Nordelle are fictional.
 """
 import argparse, copy, hashlib, json, os, re, shutil, subprocess, sys, tempfile
@@ -60,10 +61,11 @@ def read_contracts(cc, crgo, nd, tmp):
     def same_as_example(doc, contract, name):
         ex = json.load(open(os.path.join(crgo, "contracts", contract, "examples", name), encoding="utf-8"))
         a, b = dict(doc), dict(ex)
-        # generatedAt and ontologyRelease vary by run and by CRGO release; the examples are release-agnostic.
-        for k in ("generatedAt", "ontologyRelease"):
+        # generatedAt varies by run. ontologyRelease is compared: it must be the release the plugin pins, in the
+        # document and in CRGO's example (CRGO 0.11.0 regenerated its examples with release 0.11.0).
+        for k in ("generatedAt",):
             a.pop(k, None); b.pop(k, None)
-        return canon(a) == canon(b)
+        return canon(a) == canon(b) and a.get("ontologyRelease") == cc.PINNED_RELEASE
 
     def canon(x):
         """Order-insensitive form: CRGO does not guarantee the order of some lists (e.g. implementingMeasures)."""
@@ -79,7 +81,7 @@ def read_contracts(cc, crgo, nd, tmp):
     check("compliance: crgo_compliance_context read as of 2026-10-12", r.returncode == 0 and os.path.exists(out_c), r.stderr.strip()[-200:])
     c = json.load(open(out_c, encoding="utf-8"))
     check("compliance: valid against compliance-context.schema.json", views.validate(c, "compliance/v1") == [])
-    check("compliance: same content as CRGO's example (except generatedAt and ontologyRelease; list order ignored)", same_as_example(c, "compliance/v1", "compliance-context.nordelle.json"))
+    check("compliance: same content as CRGO's example, ontologyRelease %s (except generatedAt; list order ignored)" % cc.PINNED_RELEASE, same_as_example(c, "compliance/v1", "compliance-context.nordelle.json"))
     ob = {o["id"]: o for o in c["obligations"]}
     check("compliance: Loi 25 s. 10 applicable and partially satisfied",
           ob[S10]["applicability"] == "applicable" and ob[S10]["complianceState"] == "partially-satisfied")
@@ -108,7 +110,7 @@ def read_contracts(cc, crgo, nd, tmp):
     check("secops: crgo_secops_context read as of 2026-10-12", r.returncode == 0 and os.path.exists(out_s), r.stderr.strip()[-200:])
     s = json.load(open(out_s, encoding="utf-8"))
     check("secops: valid against secops-context.schema.json", views.validate(s, "secops/v1") == [])
-    check("secops: same content as CRGO's example (except generatedAt and ontologyRelease; list order ignored)", same_as_example(s, "secops/v1", "secops-context.nordelle.json"))
+    check("secops: same content as CRGO's example, ontologyRelease %s (except generatedAt; list order ignored)" % cc.PINNED_RELEASE, same_as_example(s, "secops/v1", "secops-context.nordelle.json"))
     sc = {x["id"]: x for x in s["scenarios"]}
     rw, cr = sc.get(N + "scenario/ransomware", {}), sc.get(N + "scenario/credential-compromise", {})
     check("secops: ransomware coverage validated by a test", any(cv["validatedByTest"] for cv in rw.get("coverage", [])))
@@ -181,13 +183,13 @@ def read_contracts(cc, crgo, nd, tmp):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--crgo", default=os.environ.get("CRGO_HOME") or os.path.join(REPO, "CyberRiskGuardian-Ontology-0.10.1"))
+    ap.add_argument("--crgo", default=os.environ.get("CRGO_HOME") or os.path.join(REPO, "CyberRiskGuardian-Ontology-0.11.0"))
     ap.add_argument("--assessment", default=os.path.join(REPO, "examples", "medibec", "source", "medibec30.json"))
     ap.add_argument("--keep", action="store_true", help="keep the temporary folder")
     a = ap.parse_args()
     crgo = os.path.abspath(a.crgo)
     if not os.path.isfile(os.path.join(crgo, "pipeline", "contracts", "dss.py")):
-        sys.exit("CRGO not found at %s: pass --crgo or set CRGO_HOME (tag v0.10.1)." % crgo)
+        sys.exit("CRGO not found at %s: pass --crgo or set CRGO_HOME (release 0.11.0)." % crgo)
     sys.path.insert(0, HERE)
     import crg_calc
     import crgo_contract as cc
@@ -222,7 +224,7 @@ def main():
         check("context: valid against risk-context.schema.json", not errs, "%d error(s)" % len(errs))
         check("context: scenario is an analytical hypothesis, no risk score",
               doc["scenario"]["knowledgeStatus"] == "analytical-hypothesis" and "risk" not in {k.lower() for k in doc})
-        check("context: ontologyRelease reported", bool(doc.get("ontologyRelease")), doc.get("ontologyRelease"))
+        check("context: ontologyRelease is the pinned release %s" % cc.PINNED_RELEASE, doc.get("ontologyRelease") == cc.PINNED_RELEASE, doc.get("ontologyRelease"))
 
         # 4. residual-risk write-back, stored as proposed
         common = ["--crgo", crgo, "--graph", ttl, "--assessment", a.assessment, "--scenarios", "S1", "--actor", "Test analyst (fictional)"]

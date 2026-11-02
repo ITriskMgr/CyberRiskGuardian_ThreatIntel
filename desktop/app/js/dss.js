@@ -77,9 +77,12 @@ export function facts(ws = S.ws) {
     const all = [...new Set([...own, ...linked])].filter(Boolean);
     if (all.length) obligations[s.id] = all;
   }
+  // 1.9.0 — CRGO 0.11.0 'has scenario pattern' (a proposed term): scenario id → pattern identifier
+  const patterns = Object.fromEntries(ws.assessment.SCEN.filter(s => /^CRGO_\d{7}$/.test(s.scenPattern || '')).map(s => [s.id, s.scenPattern]));
   return {
     profile: g.profile || {},
     obligations,
+    ...(Object.keys(patterns).length ? { patterns } : {}),
     controlTests: (g.controlTests || []).map(t => ({ id: t.id, label: t.label, control: controlRef(ws, t.target), date: t.date, line: t.line, result: t.result, aspect: t.aspect })).filter(t => t.control),
     // 1.6.0 — every finding (the control link stays optional): compliance/v1 lists findings and their overdue actions
     findings: (ws.audit?.findings || []).map(f => ({ id: f.id, title: f.title, control: controlRef(ws, f.target), raisedOn: f.raisedOn, condition: f.condition,
@@ -312,7 +315,8 @@ function factsOf(p) {
   const acts = p.activities || [];
   return { hasOrganisationType: p.orgTypes || [], establishedIn: p.establishedIn || [], offersServicesIn: p.offersServicesIn || [],
     monitorsBehaviourIn: p.monitorsBehaviourIn || [], carriedOutBy: acts, processesDataCategory: acts.flatMap(a => a.dataCategories || []),
-    dataSubjectsIn: acts.flatMap(a => a.dataSubjectsIn || []), transfersDataTo: acts.flatMap(a => a.transfersTo || []), complete: p.complete || [] };
+    dataSubjectsIn: acts.flatMap(a => a.dataSubjectsIn || []), transfersDataTo: acts.flatMap(a => a.transfersTo || []),
+    usesTechnology: p.technologies || [], complete: p.complete || [] };     // 1.9.0 — CRGO 0.11.0 'uses technology'
 }
 function test(f, expr) {
   const [name, arg = ''] = expr.split(/=(.*)/s);
@@ -322,6 +326,7 @@ function test(f, expr) {
   if (name === 'activeIn') return member(f, ['offersServicesIn', 'dataSubjectsIn'], [arg]);
   if (name === 'processesPersonalInfo') return f.carriedOutBy.length ? MET : (f.complete.includes('carriedOutBy') ? NOT : UNK);
   if (name === 'processesData') return member(f, ['processesDataCategory'], [arg]);
+  if (name === 'usesTechnology') return member(f, ['usesTechnology'], [arg]);   // 1.9.0 — CRGO 0.11.0
   if (name === 'transfersOutside') {
     const places = new Set([...f.dataSubjectsIn, ...f.transfersDataTo]);
     if ([...places].some(x => x !== arg)) return MET;

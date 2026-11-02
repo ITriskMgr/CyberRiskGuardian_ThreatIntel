@@ -1,4 +1,4 @@
-# Test-only dependencies of desktop CI: the ontology server (CRGO v0.10.1) the suites start through the helper.
+# Test-only dependencies of desktop CI: the ontology server (CRGO 0.11.0) the suites start through the helper.
 mcp==2.3.0
 pyoxigraph==0.5.13
 rdflib==7.6.0

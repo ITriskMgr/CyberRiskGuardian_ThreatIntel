@@ -77,7 +77,7 @@ engine. AI, feeds, the ontology and the registry *propose*; only values you acce
 | A current browser | Chrome or Edge for the installable app. Safari and Firefox run it in a tab. |
 | Python 3 | Only to serve the folder locally. macOS and most Linux distributions already have it. On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH**. |
 | About 16 MB of disk | Plus your workspaces and any snapshot you load. The bundled example snapshot is about 1.5 MB, the ontology snapshot about 6.5 MB and the simulation pack for teaching about 0.1 MB; a full threat snapshot from `threat_snapshot.py` is 8 MB or more. |
-| *Optional:* the CyberRiskGuardian Ontology v0.10.1 | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
+| *Optional:* the CyberRiskGuardian Ontology 0.11.0 (proposed) | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
 
 No account, licence key, installer or administrator rights are required. Nothing is written outside
 the folder and your browser's own storage.
@@ -158,20 +158,20 @@ with a newer version, serve it once more so the installed app picks up the new c
 The application ships with a snapshot of the CyberRiskGuardian Ontology and works without anything
 more. To query the ontology through its own MCP server — the reference ranking, the organisation
 context, write-back, and the compliance and security-operations contexts — the helper needs to find
-**CRGO v0.10.0**:
+**CRGO v0.10.0 or later**; this release is built for **CRGO 0.11.0**:
 
 1. **If the `crgo-ontology` server is registered in Claude on this computer** (Claude desktop →
    Settings → Developer → Edit Config), the helper reuses the same command, with the same Python. Point
-   its `args` at the `pipeline/mcp/crgo_server.py` of a v0.10.0 clone.
+   its `args` at the `pipeline/mcp/crgo_server.py` of a 0.11.0 clone.
 2. **If a `CyberRiskGuardian-Ontology` folder sits near the application folder** — for example both
    inside `CyberRiskGuardian_ThreatIntel` — it is found automatically and started with the Python that
-   runs the helper. Versioned clones such as `CyberRiskGuardian-Ontology-0.10.1` are preferred, **newest
+   runs the helper. Versioned clones such as `CyberRiskGuardian-Ontology-0.11.0` are preferred, **newest
    first**. That Python needs `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`.
 3. **Otherwise**, give the Python interpreter and the path of `pipeline/mcp/crgo_server.py` in
    **Ontology · CRGO → Connection → Where the ontology is**, then **Save**.
 
 ```
-git clone --branch v0.10.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.10.1
+git clone --branch v0.11.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.0
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -179,7 +179,10 @@ pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 contracts it supports: scenario identification works with any release, the organisation link (dss/v1)
 needs v0.9.1 or later, and the compliance and security-operations contexts (compliance/v1, secops/v1)
 need v0.10.0. It starts the server on request; the first start builds its store, about ten to twenty
-seconds. Section 7.2.4.
+seconds. Section 7.2.4. This release is built for **CRGO 0.11.0**, a *proposed* release: its new terms (identity and
+configuration registers, the six scenario patterns, CIS Controls v8.1 with CRGO's own labels, the OWASP lists, ISO/IEC 27701
+and 42001, the CCSPA) await the CRGO author's approval, and the Connection tab says so. Until the author tags v0.11.0,
+check out the branch `release/0.11.0` instead of the tag. The snapshot shipped with the application is CRGO 0.11.0.
 
 ---
 
@@ -1360,7 +1363,10 @@ it and the Quebec Law 25 obligations it can trigger. For any scenario, **Find si
 scenarios** searches the ontology by the scenario's ATT&CK techniques and the words of its name — *Link*
 attaches one, which gives the scenario its ontology keys — and **Controls for its techniques** lists,
 technique by technique, the controls the ontology most often associates with it: a starting list for
-Risk mitigation, not an assessment of the organization.
+Risk mitigation, not an assessment of the organization. **Scenario pattern (CRGO 0.11.0, proposed)** shows the
+pattern the scenario follows, its themes and proposed links, and lets you choose one of the six or *No scenario
+pattern*; the organisation graph records it as *has scenario pattern* (CRGO_0001478). A pattern is a
+classification, never evidence and never a parameter.
 
 **Security-operations evidence card.** Read only, it gathers what the SIEM and SOAR records say about the
 scenario — through its ATT&CK techniques, its assets and explicit links: detection coverage per technique
@@ -1379,13 +1385,19 @@ scenario's revisions and the revision log.
 
 ### 7.3.6 Batch scenarios — creating many scenarios at once {#batch}
 
-- **Generate from threats × assets.** Tick threat patterns (twenty-two archetypes such as credential
+- **Generate from threats × assets.** Tick threat patterns (twenty-eight archetypes such as credential
   phishing, ransomware, edge-device exploitation, supplier compromise, BEC, backup destruction, and the
   cloud patterns — misconfigured storage, token theft, identity federation abuse, outage of a critical SaaS
   supplier, a key or secret exposed in infrastructure-as-code, tenant-isolation failure or cloud-provider
   compromise…) or add any ATT&CK technique as a pattern; tick assets (the crown jewels, or
   type others); choose the threat sources. Each combination becomes a candidate with a causal-chain
   statement, linked techniques and CWE, and default parameters.
+  Six of the archetypes are the **CRGO 0.11.0 scenario patterns** (proposed terms): harvest now, decrypt later
+  (CRGO_0001389), crypto-agility failure (CRGO_0001390), certificate expiry outage (CRGO_0001391), agentic AI misuse
+  (CRGO_0001392), prompt injection in agent workflows (CRGO_0001393) and AI supply chain compromise (CRGO_0001394),
+  with the ATT&CK and CWE links CRGO proposes. Their rows show *Pattern: … (CRGO_…)* and keep the pattern when added
+  to the register. **Propose with AI** also asks the model to name one of the six when a candidate fits; any other
+  identifier is dropped.
 - **From MITRE ATT&CK.** Search techniques by name or ID, or filter by tactic, and tick one or many.
   Each technique becomes a scenario linking the technique and its CWE weaknesses (through CAPEC).
   Pb(A) starts from the technique's prevalence in ATT&CK — labelled as a prior, not as evidence.
@@ -2119,7 +2131,8 @@ Security Policy Writer** does the same reading right away, without AI.
 ##### Legal applicability {#writer-legal}
 
 Laws, regulations, contracts and frameworks that may apply. For the instruments CRGO knows (P-39.1, A-2.1,
-R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1), the ontology's evaluation of the organisation profile is shown as
+R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1, and — proposed in CRGO 0.11.0 — the CCSPA, ISO/IEC 27701 and 42001 and the
+OWASP Top 10:2025, LLM and Agentic lists), the ontology's evaluation of the organisation profile is shown as
 evidence; **Evaluate the profile now** runs it, and **Add them to the CRGO profile** adds the values your
 interview implies (never marking a list complete — unknown stays unknown). Other candidates (sector rules,
 contracts, frameworks) are the Writer's own. For each candidate choose a **Decision** — *Applies*, *Does not
@@ -2483,7 +2496,11 @@ subjects are and where data is transferred; and which of these the profile lists
 browser* runs the port of CRGO's evaluator; *Evaluate with CRGO (helper)* runs the original. Each instrument —
 Loi 25 (P-39.1), A-2.1, R-22.1, PIPEDA, OSFI B-13, GDPR, C-1.1 — is *applicable*, *not applicable*, *potentially
 applicable* (**qualified review required**) or *unknown* (**Information gap — organizational validation required**),
-with the conditions met, not met and unresolved. A value the profile does not list counts as absent only for the
+with the conditions met, not met and unresolved. CRGO 0.11.0 adds, as *proposed* terms, the Critical Cyber Systems
+Protection Act (CCSPA; designated operators, an interpretive condition, so never plainly applicable), ISO/IEC 27701:2025,
+ISO/IEC 42001:2023 and the OWASP Top 10:2025, Top 10 for LLM Applications 2025 and Top 10 for Agentic Applications 2026.
+The voluntary standards are at most *potentially applicable*; ISO/IEC 42001 and the OWASP lists are evaluated from
+**Technologies in use** (for example AI agents, web applications), shown in the profile when the ontology offers it. A value the profile does not list counts as absent only for the
 properties ticked as complete; otherwise the fact is missing, and missing data never makes an instrument "not
 applicable". This is not legal advice.
 
@@ -3821,7 +3838,7 @@ None of this is legal advice.
     held evidence records and policy exceptions: its journal shows the steps to version 4, the evidence is in
     **Shared registers → Evidence**, the exceptions in **Shared registers → Exceptions**, and its numbers are
     unchanged.
-41. **Ontology · CRGO → Connection** names CRGO v0.10.1; *Organisation link* → *Build the organisation graph*
+41. **Ontology · CRGO → Connection** names CRGO v0.11.0 and says it is a proposed release; *Organisation link* → *Build the organisation graph*
     on MediBec shows **same totals**; *Read the context* of S1 gives no risk score; *Send the ticked results as
     proposals* shows **proposed** in the journal; **Read both contexts** returns the compliance and
     security-operations contexts.
@@ -3936,8 +3953,8 @@ copy it here. The self-check will catch a mismatch, but only after the fact.
 | Import from documents reads only one document | The documents just added are the only ones selected by default. | Tick the others, or *Select all documents*. |
 | Red `engine DIVERGES` banner | Engine disagrees with the reference totals. | Stop. Restore a clean copy. |
 | *This workspace is open read-only* | It was written by a newer release, or its migration failed. | Backup & restore → Data versions and migrations says which; open it with the newer release, or send the error to support. Nothing was changed. |
-| *Organisation link* says the contract is not available | The ontology found is older than v0.9.1. | Clone tag v0.10.1 (section 3.5) and point the server at it. |
-| The compliance and security-operations contexts say they need CRGO v0.10.0 | The ontology found is older. | Clone tag v0.10.1 beside the application (it is found newest first), or point `crgo-ontology` in Claude at it. |
+| *Organisation link* says the contract is not available | The ontology found is older than v0.9.1. | Clone CRGO 0.11.0 (section 3.5) and point the server at it. |
+| The compliance and security-operations contexts say they need CRGO v0.10.0 | The ontology found is older. | Clone CRGO 0.11.0 beside the application (it is found newest first), or point `crgo-ontology` in Claude at it. |
 | A write-back is refused with `UNKNOWN_SUBJECT` or `INPUT_UNKNOWN` | Scenarios were added, renamed or excluded since the graph was built. | *Rebuild the organisation graph*, then send again. |
 | *The organisation graph folder is inside a git repository* | The confidential folder chosen is in a repository. | Choose a folder outside any repository (Organisation link → *Save the folder*). |
 | A simulation pack shows errors and cannot be imported | It cites scenarios or crown jewels this workspace does not have. | Import it into a workspace of its case (for MediBec, the example or a copy of it). |

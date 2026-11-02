@@ -300,9 +300,10 @@ def release(home):
         return out
     try:
         for line in open(os.path.join(home, "CHANGELOG.md"), encoding="utf-8"):
-            m = re.match(r"## \[(\d+\.\d+\.\d+)\]", line)
+            m = re.match(r"## \[(\d+\.\d+\.\d+)\](.*)", line)
             if m:
-                out["tag"] = m.group(1); break
+                # 1.9.0 — a release CRGO's CHANGELOG marks "proposed" (0.11.0) awaits the project owner's approval
+                out["tag"] = m.group(1); out["status"] = "proposed" if "proposed" in m.group(2).lower() else "approved"; break
     except OSError:
         pass
     try:

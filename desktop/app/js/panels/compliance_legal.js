@@ -29,7 +29,7 @@ export async function applicability(body, redraw) {
   try { L = await legal(); } catch (e) { body.append(banner('bad', 'The ontology snapshot could not be read', String(e.message || e))); return; }
   body.append(banner('warn', 'Not legal advice', 'Applicability is CRGO\'s evaluation of the profile against each instrument\'s conditions. "Potentially applicable" needs a qualified person; "unknown" means a fact is missing from the profile and is an evidence gap, never "not applicable".'));
   const opts = list => list.map(x => [x.key, lab(x)]);
-  const jur = opts(L.jurisdictions), types = opts(L.orgTypes), cats = opts(L.dataCategories);
+  const jur = opts(L.jurisdictions), types = opts(L.orgTypes), cats = opts(L.dataCategories), techs = opts(L.technologies || []);
   const multi = (key, options, label) => {
     const set = new Set(P[key] || []);
     return el('div', 'field', el('label', null, label), el('div', 'chips', ...options.map(([v, t]) => {
@@ -39,10 +39,12 @@ export async function applicability(body, redraw) {
     })));
   };
   const COMPLETE = [['hasOrganisationType', 'Organisation types'], ['establishedIn', 'Where it is established'], ['offersServicesIn', 'Where it offers goods or services'],
-    ['monitorsBehaviourIn', 'Where it monitors behaviour'], ['carriedOutBy', 'Processing activities'], ['processesDataCategory', 'Data categories'], ['dataSubjectsIn', 'Where data subjects are'], ['transfersDataTo', 'Where data is transferred']];
+    ['monitorsBehaviourIn', 'Where it monitors behaviour'], ['carriedOutBy', 'Processing activities'], ['processesDataCategory', 'Data categories'], ['dataSubjectsIn', 'Where data subjects are'], ['transfersDataTo', 'Where data is transferred'],
+    ...(techs.length ? [['usesTechnology', 'Technologies in use']] : [])];
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Organisation profile for applicability'),
     multi('orgTypes', types, tr('Organisation type')), multi('establishedIn', jur, tr('Established in')), multi('offersServicesIn', jur, tr('Offers goods or services to people in')),
     multi('monitorsBehaviourIn', jur, tr('Monitors the behaviour of people in')),
+    techs.length ? multi('technologies', techs, tr('Technologies in use (CRGO 0.11: ISO/IEC 42001, OWASP lists — at most potentially applicable)')) : null,
     el('p', 'small muted', 'A value the profile lists is a fact. A value it does not list counts as absent only for the properties ticked as complete below; otherwise the fact is missing and the condition stays undetermined.'),
     multi('complete', COMPLETE, tr('The profile lists these completely'))));
   P.activities ||= [];

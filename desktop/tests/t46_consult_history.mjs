@@ -2,7 +2,7 @@
 // Markdown export, citation as evidence (E-number), decision-log entries, proposals through the existing
 // review flow (Batch scenarios), and the data-version 3 → 4 migration that adds the field, built as a list
 // of sub-steps other 1.9.0 work appends to.
-import { open, ok, done, MOCK, URL, FIXTURES } from './lib.mjs';
+import { open, ok, done, reload, MOCK, URL, FIXTURES } from './lib.mjs';
 import fs from 'fs';
 const FX = FIXTURES;
 const fx = ['1.5.4', '1.5.5', '1.5.6', '1.5.7', '1.5.8'].map(v => JSON.parse(fs.readFileSync(`${FX}/ws-${v}.json`, 'utf8')));
@@ -75,7 +75,7 @@ const H = await page.evaluate(async () => { const st = await import('/js/state.j
 ok(H.n === 1 && H.roles === 'user,consultant' && H.parts === 'cited,general', 'the conversation is saved in the workspace');
 ok(H.logTask === 'consultant' && H.logDecision === 'accepted', 'the AI decision log records the call and the verdict');
 // survives a reload
-await page.reload(); await page.waitForFunction(async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000 });
+await reload(page);
 const kept = await page.evaluate(async () => { const st = await import('/js/state.js'); return st.S.ws.consultant.conversations.length; });
 ok(kept === 1, 'conversations persist with the workspace');
 
