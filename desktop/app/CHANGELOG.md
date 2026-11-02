@@ -27,13 +27,13 @@
 - Teaching cases: MediBec (EN/FR) gets evidence E13–E15 and five recorded findings, no proposal (84,305 / 41,023
   unchanged); CanaRetail (EN/FR) one finding with evidence E13 and one **pending** proposal on S10 (27,526 / 16,049
   unchanged). Samples in `js/data/ipc-samples.js`.
-- Migration function `migrateIpc4` (js/migrate.js) for the data version 3 → 4 step: baselines named on assets promoted
+- Data version 3 → 4: the `ipc` entry of `STEP4` (js/migrate.js, group CONTEXT) runs `migrateIpc4`: baselines named on assets promoted
   to versioned *legacy* baselines (the asset gains only `baseline.ref`), drift assets get a deviation to classify, a live
   scope from Information assets, teaching-case seed; invariants throw. CRGO 0.11 identifiers are placeholders in
   `IPC.CRGO` (`tools/crgo_tbd_check.py --release` fails until they are filled).
 - Process steps 1, 2, 9 and 19 gain tips and links when the module is on; the Scenario editor shows the linked
   evidence read-only. Guides EN/FR section 7.5.6 (Quality review becomes 7.5.7), help on every tab, French 100 %.
-- Tests t32–t39 (`desktop/tests-new/`), t27 updated (MediBec evidence 15, next E16).
+- Tests t32–t39 `*_ipc_*` (`desktop/tests-new/`, fixture `ws-1.8.2.json`, mock `extract_s_ipc.txt`); t27 (MediBec evidence 15, next E16), t10 (module screens offline), t11 and t30 (data version 4) updated.
 
 ## 1.9.0 Beta (unreleased) — group 3: teaching examples
 

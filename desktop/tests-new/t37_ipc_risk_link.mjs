@@ -1,6 +1,6 @@
 // Identity, privilege & configuration — risk link: Record as evidence → next E-number cited, scenarios untouched by linking and saving
 // a proposal, Accept writes parameter + ipc_basis + revisions + revisionLog, Dismiss needs a reason, crg.js unchanged.
-import { open, ok, done, URL } from './lib.mjs';
+import { open, ok, done, URL } from '../tests/lib.mjs';
 import { ipcOn, goto } from './ipc_lib.mjs';
 import crypto from 'crypto';
 import fs from 'fs';

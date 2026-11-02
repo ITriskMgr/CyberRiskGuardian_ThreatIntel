@@ -430,7 +430,7 @@ export function migrateIpc4(w, note = () => {}) {
   const ev0 = before.assessment?.EVIDENCE || [];
   const a1 = clone(w.assessment); const ev1 = a1?.EVIDENCE || [];
   if (!same(ev1.slice(0, ev0.length), ev0) || (!seeded && ev1.length !== ev0.length)) throw new Error('ipc migration: the evidence register would change other than by appending');
-  if (a1) a1.EVIDENCE = ev0; 
+  if (a1) { if (before.assessment && 'EVIDENCE' in before.assessment) a1.EVIDENCE = ev0; else delete a1.EVIDENCE; }
   if (!same(a1, before.assessment)) throw new Error('ipc migration: the assessment would change');
   const t1 = engineTotals(w);
   if (before.totals && !same(before.totals, t1)) throw new Error('ipc migration: the engine totals would change');

@@ -1,5 +1,5 @@
 // Identity, privilege & configuration — the teaching-case samples (MediBec, CanaRetail; English and French) and the French screens.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done } from '../tests/lib.mjs';
 import { ipcOn, goto } from './ipc_lib.mjs';
 import fs from 'fs';
 const SRC = ['ipc.js', 'panels/ipc.js', 'panels/ipc_regs.js', 'panels/ipc_cm.js'].map(f => fs.readFileSync(new URL('../app/js/' + f, import.meta.url), 'utf8').replace(/\\'/g, "'")).join('\n');

@@ -1,5 +1,5 @@
 // Identity, privilege & configuration — registers: CRUD, CSV, blank → null, subset/future/personal-data/secret rules, compensated deviation, baseline approval.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done } from '../tests/lib.mjs';
 import { ipcOn, goto } from './ipc_lib.mjs';
 const { browser, page, errors } = await open('#/process');
 await ipcOn(page);

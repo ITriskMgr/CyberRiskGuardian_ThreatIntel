@@ -1,5 +1,5 @@
 // Identity, privilege & configuration — CRG-17 to CRG-24: formulas, "no data" vs N/A, the unknown/stale cap, threshold overrides, dashboard.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done } from '../tests/lib.mjs';
 import { ipcOn, goto } from './ipc_lib.mjs';
 const { browser, page, errors } = await open('#/process');
 await ipcOn(page);

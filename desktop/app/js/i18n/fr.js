@@ -3688,6 +3688,7 @@ export default {
 "Grant, change and remove access deliberately": "Attribuer, modifier et retirer les accès de façon contrôlée",
 "Holders": "Titulaires",
 "\"Link\" writes the baseline name and its reference on the asset; the asset's own compliance status is left as it is.": "« Lier » inscrit le nom de la configuration de référence et sa référence sur l’actif; le statut de conformité propre à l’actif reste tel quel.",
+"Identity, privilege & configuration registers (baselines promoted from assets)": "Registres d’identité, de privilèges et de configuration (configurations de référence reprises des actifs)",
 "IPC {0}: {1}": "IPC {0} : {1}",
 "IR-01": "IR-01",
 "IR-02": "IR-02",

@@ -1,9 +1,10 @@
 // Identity, privilege & configuration — the ipc part of data version 3 → 4 (migrateIpc4): baseline promotion, drift deviations,
 // teaching-case seed, invariants, idempotence. Fixtures 1.5.4–1.5.8 and ws-1.8.2.json (DV 3, assets with baselines, two in drift).
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done, APP } from '../tests/lib.mjs';
 import fs from 'fs';
 import { execSync } from 'child_process';
-const fx = ['1.5.4', '1.5.5', '1.5.6', '1.5.7', '1.5.8', '1.8.2'].map(v => JSON.parse(fs.readFileSync(`fixtures/ws-${v}.json`, 'utf8')));
+const FX = v => new URL(v === '1.8.2' ? `./fixtures/ws-${v}.json` : `../tests/fixtures/ws-${v}.json`, import.meta.url);
+const fx = ['1.5.4', '1.5.5', '1.5.6', '1.5.7', '1.5.8', '1.8.2'].map(v => JSON.parse(fs.readFileSync(FX(v), 'utf8')));
 const { browser, page, errors } = await open('#/process');
 const r = await page.evaluate(async fx => {
   const M = await import('/js/migrate.js'); const st = await import('/js/state.js'); const R = await import('/js/reset.js'); const A = await import('/js/assets.js');
@@ -24,7 +25,7 @@ const r = await page.evaluate(async fx => {
     const dyn0 = (w.assets || []).map(a => A.dynamic(a, w).score);
     const notes = []; const res = M.migrateIpc4(w, s => notes.push(s));
     const dyn1 = (w.assets || []).map(a => A.dynamic(a, w).score);
-    const base = (before.assets || []).every((a, i) => { const b = w.assets[i].baseline, o = a.baseline; const { ref, ...rest } = b || {}; return JSON.stringify(rest) === JSON.stringify(o) && (!o?.name || (ref && ref.v === 'legacy')); });
+    const base = (before.assets || []).every((a, i) => { const b = w.assets[i].baseline, o = a.baseline; const { ref, ...rest } = b || {}; const { ref: r0, ...o0 } = o || {}; return JSON.stringify(rest) === JSON.stringify(o0) && (!o?.name || (ref && ref.v === 'legacy')); });
     const snap = JSON.stringify(w); const again = M.migrateIpc4(w, () => {}); const idem = JSON.stringify(w) === snap;
     out.per.push({ app: f.app, name: w.name, res, notes: notes.length, baselines: w.ipc.baselines.map(b => `${b.id}|${b.kind}|${b.versions[0].state}|${b.versions[0].applicability.assetTypes.join('+')}`),
       drift: w.ipc.deviations.filter(d => d.migrated).map(d => `${d.asset}|${d.cls === ''}|${d.opened}|${d.note}`), scopes: w.ipc.ciScopes.filter(c => c.fromAssets).length,
@@ -39,6 +40,10 @@ const r = await page.evaluate(async fx => {
   const mb = st.medibecWorkspace(); delete mb.ipc; mb.assessment.EVIDENCE = mb.assessment.EVIDENCE.slice(0, 12); mb.shared.exceptions = [];
   const t0 = totals(mb); M.migrateIpc4(mb); const t1 = totals(mb);
   out.medibec = { ev: mb.assessment.EVIDENCE.length, f: mb.ipc.findings.length, accepted: mb.ipc.findings.some(f => f.proposals.some(p => p.state === 'accepted')), same: t0 === t1, t1 };
+  // the whole chain: the 1.8.2 fixture through migrateWorkspace (3 → 4, STEP4)
+  { const res = M.migrateWorkspace(JSON.parse(JSON.stringify(fx[5].workspaces[0])), { fill: st.migrate });
+    out.full = { to: res.ws.dataVersion, ipc: !!res.ws.ipc?.baselines?.length, drift: (res.ws.ipc?.deviations || []).filter(d => d.migrated).length,
+      ref: res.ws.assets.filter(a => a.baseline?.name).every(a => a.baseline.ref?.v === 'legacy'), journal: res.steps.some(s => s.to === 4 && s.notes.some(n => /promoted from the asset register/.test(n))) }; }
   // a workspace written by a newer release opens read-only
   const newer = M.migrateWorkspace({ ...nw, dataVersion: M.DATA_VERSION + 1 });
   out.newer = newer.status;
@@ -60,8 +65,8 @@ ok(x.scopes === 1 && x.notes >= 6, '1.8.2: one live scope from Information asset
 ok(r.throws, 'an invariant violation throws');
 ok(r.medibec.ev === 15 && r.medibec.f === 5 && !r.medibec.accepted && r.medibec.same && r.medibec.t1 === '84305/41023', 'MediBec seeded: E13–E15, five findings, nothing accepted, 84,305 / 41,023 ' + JSON.stringify(r.medibec));
 ok(r.newer === 'newer', 'a newer workspace opens read-only');
-if (r.dataVersion >= 4) ok(true, 'DATA_VERSION 4 wired by the integrator'); else console.log('note: DATA_VERSION is', r.dataVersion, '— the 3 → 4 step is wired by the integrator (migrateIpc4)');
-let rel = 0; try { execSync('python3 ../app/tools/crgo_tbd_check.py --release', { stdio: 'pipe' }); } catch (e) { rel = e.status; }
+ok(r.dataVersion === 4 && r.full.to === 4 && r.full.ipc && r.full.journal && r.full.drift === 2 && r.full.ref, 'the 1.8.2 fixture reaches data version 4 through the STEP4 ipc sub-step ' + JSON.stringify(r.full));
+let rel = 0; try { execSync(`python3 ${APP}/tools/crgo_tbd_check.py --release`, { stdio: 'pipe' }); } catch (e) { rel = e.status; }
 ok(process.env.CRG_RELEASE ? rel === 0 : rel === 1, process.env.CRG_RELEASE ? 'release mode: no CRGO_TBD left' : 'release gate refuses CRGO_TBD placeholders (CRGO 0.11 not filled yet)');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
 await browser.close(); done('t34 ipc migration');

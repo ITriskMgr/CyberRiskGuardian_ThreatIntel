@@ -1,5 +1,5 @@
 // Identity, privilege & configuration — maturity reuse: the filter chip shows exactly the §7 keys, the ladders, "Apply ticked" fills empty cells only.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done } from '../tests/lib.mjs';
 import { ipcOn, goto } from './ipc_lib.mjs';
 const { browser, page, errors } = await open('#/process');
 await goto(page, '#/maturity', 800);

@@ -1,5 +1,5 @@
 // Identity, privilege & configuration — the module switch: off by default, Settings → Modules, menu, data kept, KRIs hidden, access matrix.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done } from '../tests/lib.mjs';
 import { goto } from './ipc_lib.mjs';
 const { browser, page, errors } = await open('#/process');
 const on0 = await page.evaluate(async () => (await import('/js/modules.js')).enabled('ipc'));

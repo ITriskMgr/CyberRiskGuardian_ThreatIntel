@@ -1,6 +1,7 @@
 // Identity, privilege & configuration — Import from a report: CSV rules counts, AI to the local mock by default with the preview,
 // remote needs the tick, confidential asks every call, and sentinel names, e-mails and keys never land anywhere stored.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done, MOCK } from '../tests/lib.mjs';
+const FIX = f => new URL('./fixtures/' + f, import.meta.url).pathname;
 import { ipcOn, goto } from './ipc_lib.mjs';
 import fs from 'fs';
 const SENT = /sentinel|AKIAZZ|CORP\\\\zz/i;
@@ -8,7 +9,7 @@ const { browser, page, errors } = await open('#/process');
 await ipcOn(page);
 await page.evaluate(async () => { const st = await import('/js/state.js'); await st.create(st.newWorkspace({ name: 'Import test' })); const I = await import('/js/ipc.js'); I.reg(st.S.ws).settings.asOf = '2026-11-01'; });
 await goto(page, '#/ipc/import', 700);
-await page.setInputFiles('#ipc-file', 'fixtures/ipc-accounts.csv'); await page.waitForTimeout(700);
+await page.setInputFiles('#ipc-file', FIX('ipc-accounts.csv')); await page.waitForTimeout(700);
 ok(await page.isVisible('#ipc-rules'), 'CSV: rules offered');
 const cols = await page.$$eval('#panel-ipc select[data-col]', s => Object.fromEntries(s.map(x => [x.dataset.col, x.value])));
 ok(cols.type === '2' && cols.enabled === '3' && cols.lastSignIn === '4' && cols.mfa === '5' && cols.mfaMethod === '6' && cols.owner === '7' && cols.tier === '8', 'columns guessed ' + JSON.stringify(cols));
@@ -27,7 +28,7 @@ const imp = ws.ipc.imports[0];
 ok(imp && /^[0-9a-f]{64}$/.test(imp.sha256) && imp.rows === 8 && imp.bytes > 0 && imp.method === 'rules' && imp.accepted === 6, 'import trace: SHA-256, rows, bytes ' + JSON.stringify(imp).slice(0, 160));
 ok(await page.evaluate(async () => (await import('/js/panels/ipc.js'))._imp.text === ''), 'file released after Accept');
 // AI: local by default, preview shown
-await page.setInputFiles('#ipc-file', 'fixtures/ipc-report.txt'); await page.waitForTimeout(600);
+await page.setInputFiles('#ipc-file', FIX('ipc-report.txt')); await page.waitForTimeout(600);
 ok(/this machine/.test(await page.textContent('#ipc-ai-box')), 'AI routed to the local model by default');
 ok(/[1-9]/.test(await page.locator('#ipc-ai-box .kpi').nth(1).textContent()), 'personal-data-like tokens counted');
 await page.click('#ipc-ai'); await page.waitForSelector('.modal textarea');
@@ -35,19 +36,19 @@ ok(await page.isVisible('.modal >> text=Apply the anonymizer'), 'payload preview
 await page.click('.modal .btnrow .btn:not(.ghost)'); await page.waitForTimeout(800);
 const ai = await page.evaluate(async () => (await import('/js/panels/ipc.js'))._imp);
 ok(ai.items.length === 3 && ai.dropped >= 2 && !JSON.stringify(ai.items).match(/sentinel/i), 'AI answer: whitelisted counts kept, names and e-mails dropped ' + JSON.stringify(ai.items).slice(0, 200));
-const last = JSON.parse(fs.readFileSync('/home/claude/tmp/mock-ipc/_last.json', 'utf8'));
+const last = JSON.parse(fs.readFileSync(MOCK + '/_last.json', 'utf8'));
 ok(/^TASK: extract_s_ipc/.test(last.prompt) && /AGGREGATE COUNTS ONLY/.test(last.prompt), 'the request names the task and asks for counts only');
 await page.click('#ipc-accept'); await page.waitForTimeout(500);
 // remote routing needs the tick
 await page.evaluate(async () => { const h = await import('/js/helper.js'); h.HS.config = { ...(h.HS.config || {}), ai: { policy: { tasks: { extract_sensitive: 'remote' } } } }; });
-await page.setInputFiles('#ipc-file', 'fixtures/ipc-report.txt'); await page.waitForTimeout(600);
+await page.setInputFiles('#ipc-file', FIX('ipc-report.txt')); await page.waitForTimeout(600);
 ok(await page.isDisabled('#ipc-ai') && await page.isVisible('#ipc-remote-ok'), 'remote: send disabled until the tick');
 await page.check('#ipc-remote-ok'); ok(await page.isEnabled('#ipc-ai'), 'remote: enabled after the tick');
 // confidential: every call is confirmed
 await page.evaluate(async () => { const h = await import('/js/helper.js'); h.HS.config.ai.policy.tasks.extract_sensitive = 'local'; const AI = await import('/js/ai.js'); AI.settings().confidential = true; AI.settings().acknowledged = new Date().toISOString(); });
 for (let i = 0; i < 2; i++) {
   await goto(page, '#/ipc/overview', 300); await goto(page, '#/ipc/import', 500);
-  await page.setInputFiles('#ipc-file', 'fixtures/ipc-report.txt'); await page.waitForTimeout(600);
+  await page.setInputFiles('#ipc-file', FIX('ipc-report.txt')); await page.waitForTimeout(600);
   await page.click('#ipc-ai'); await page.waitForSelector('.modal textarea');
   ok(await page.isVisible('.modal >> text=Confirm and send') && await page.isVisible('.modal >> text=This workspace is marked confidential'), `confidential workspace: call ${i + 1} confirmed`);
   await page.click('.modal .btnrow .btn:not(.ghost)'); await page.waitForTimeout(700);
