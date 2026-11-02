@@ -3,6 +3,13 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## Unreleased (with Desktop 1.9.0)
+
+- `hooks/check_labels.py`: a negation only counts in the same sentence (a "never" ending the previous sentence no longer
+  hides an `ABS()` residual); `.js`, `.mjs` and `.py` files are checked for outdated wording (not for markers).
+- `.claude-plugin/marketplace.json` lists plugin version 1.6.2, as `plugin.json` does.
+- `requirements.txt` pinned to exact versions; `.github/workflows/desktop-ci.yml` and `.github/dependabot.yml` added.
+
 ## 1.6.2 — 2026-10-30
 
 Textbook reference set brought to **v2.51b** (the corrected v2.51 of October 2026). No method, formula or tool change.

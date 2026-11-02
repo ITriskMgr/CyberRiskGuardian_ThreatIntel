@@ -1,5 +1,54 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.9.0 Beta (in progress)
+
+### Security (group 0 — review of 2 November 2026, Part B)
+- **Local helper authentication.** `serve.py` makes a random token at each start; the page reads it from `/api/session`
+  (same origin only) and every `/api/*` call must carry it with `X-CRG`, a loopback `Host` naming the helper's port, and —
+  when the browser sends them — an `Origin` of the helper itself and `Sec-Fetch-Site: same-origin`. Static files are refused
+  for a foreign `Host` (DNS rebinding), directory listings are off, every answer carries `nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: no-referrer` and `frame-ancestors 'none'`. On Windows the port is bound exclusively.
+- **Settings that start a program or write files.** The ontology command saved through the helper must be a Python
+  interpreter (absolute path) with exactly one argument, an existing `…/pipeline/mcp/crgo_server.py`; checked when saved and
+  again before the server starts. The shared registry folder may not be the home folder, a hidden, settings or system folder,
+  the application, feeds or key folder, or a folder holding configuration files (`claude_desktop_config.json`, `.mcp.json`…).
+- **API keys.** Out of `~/Downloads`: macOS login keychain (`security`, the key passed on stdin), elsewhere
+  `~/.cyberriskguardian/crg-keys.json` created with mode 600 from the start (`os.open`) in a mode-700 folder; Windows shows a
+  warning. An existing `crg-keys.json` in the feeds folder is moved once and deleted. Each key is bound to the hosts it was
+  stored for (an AI provider's endpoint at the time, a feed's published domains): a changed endpoint or a custom source never
+  receives it, redirects of a keyed request stay on its host, and Settings → AI says when a key must be stored again.
+  A provider marked "this machine" must point to 127.0.0.1 or localhost.
+- **Feed URLs** are checked on the parsed host (https anywhere, plain http only to this machine; no user name in the
+  address; label-boundary domain match); a key is never placed in an address.
+- **AI routing** checks the task instead of trusting it: it must be a known task, and the task named in the request must be
+  the one in its prompt. The helper's policy now mirrors the page's (causal chain local by default).
+- **Content-Security-Policy** `<meta>` on `index.html` and the help pages (scripts and connections from the application only,
+  inline help scripts by SHA-256 hash, no objects, no framing); new gate `tools/csp_check.py`.
+- **Workspace text never becomes markup.** Chart tips and field labels are built by `safeMarkup` (only `b`, `i`, `br`,
+  `span class`); `el()` drops the `html` sink and any `javascript:`/`data:` address; `help/md.js` links only http(s),
+  mailto and relative addresses (the printed compliance report included).
+- **Update downloads are verified** against `<zip name>.sha256` published with the release (the convention from this release
+  on); a mismatch deletes the download, a release without the file keeps it marked *unverified*; the address reached after
+  redirects is checked too.
+- **CSV exports** write a cell starting with `= + - @` as text (leading apostrophe); plain numbers are unchanged.
+- `requirements.txt` pinned to exact versions; Dependabot for pip, npm and Actions.
+
+### Fixed (review of 1.8.2, Part A)
+- AV:L offer: after *Keep AV:N* the Process page offers *Reconsider: take the AV:L vectors* and QC-26 says so; the decision is
+  journalled with the workspace's identifier, so a classroom copy or an imported file is offered again; a read-only
+  (newer-release) workspace is never offered; a typed CVSS score other than the stale AV:N score is kept and recorded in the
+  revision; Backup → Migration journal shows re-vector decisions (decision, person, scenarios, notes); French joiners and
+  notes; one copy of the vector constants (`migrate.js`).
+- Wording: the context pack asks for at least 20 candidates (typically 25–40); the Excel cover sheet, the guide and the README
+  carry the standard markers; the plugin version in `marketplace.json` matches `plugin.json` (now checked by
+  `tools/version_check.py`).
+
+### Tests and CI
+- The browser suites (t01–t32), fixtures, mocks and helpers are in `desktop/tests/`, every path from environment variables
+  with defaults relative to the repository (`lib.mjs`, `serve.sh`, `run_all.sh`); new `t32_security.mjs` and
+  `test_helper_guard.py`. `.github/workflows/desktop-ci.yml` runs the gates (French 100 % now strict), the engine regression,
+  the CRGO bridge tests against CRGO v0.10.1, the helper tests and every suite.
+
 ## 1.8.2 Beta (Beta 1.8.x) — 30 October 2026
 
 A wording and reference patch. `crg.js`, `cvss4.js`, `sample.js`, `medibec.js` and `threat.js` are unchanged; the self-check
