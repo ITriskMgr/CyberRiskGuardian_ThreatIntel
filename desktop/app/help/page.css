@@ -2,29 +2,36 @@
    They are their own pages, so they carry their own base styles rather than the app's chrome. Light
    and dark follow the system, and the print rules make either one a clean handout.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
+@font-face { font-family: "Sora"; font-weight: 600; font-display: swap; src: url("../fonts/sora-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-display: swap; src: url("../fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: italic; font-weight: 400; font-display: swap; src: url("../fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-display: swap; src: url("../fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); }
+/* Atlas tokens (the same names and values as the application's styles.css) */
 :root {
-  --ink: #16202c; --muted: #5b6878; --line: #dde3ea; --bg: #ffffff; --surface: #f6f8fa;
-  --accent: #1f4e79; --accent-ink: #ffffff; --good: #1b6b3a; --warn: #8a5a00; --bad: #a32020;
+  --ink: #10201B; --muted: #4A5F56; --line: #D7E3DC; --page: #E6EEE9; --bg: #FFFFFF; --surface: #F4F8F5;
+  --accent: #0F5C45; --accent-ink: #FFFFFF; --good: #0F5C45; --warn: #7A5200; --bad: #9A3414; --coral: #E2552B; --rail: #103B30;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ink: #e6ecf3; --muted: #9aa7b5; --line: #2b3542; --bg: #121820; --surface: #1a212b;
-    --accent: #7fb0e0; --accent-ink: #0d1218; --good: #7cc99a; --warn: #e0b35e; --bad: #e98b8b;
+    --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --page: #0C1915; --bg: #13241F; --surface: #1A2F28;
+    --accent: #7FD6AE; --accent-ink: #0C1915; --good: #7FD6AE; --warn: #EBC766; --bad: #FFA285; --rail: #08201A;
   }
 }
 :root[data-theme="dark"] {
-  --ink: #e6ecf3; --muted: #9aa7b5; --line: #2b3542; --bg: #121820; --surface: #1a212b;
-  --accent: #7fb0e0; --accent-ink: #0d1218; --good: #7cc99a; --warn: #e0b35e; --bad: #e98b8b;
+  --ink: #E3EEE8; --muted: #A5BDB2; --line: #284439; --page: #0C1915; --bg: #13241F; --surface: #1A2F28;
+  --accent: #7FD6AE; --accent-ink: #0C1915; --good: #7FD6AE; --warn: #EBC766; --bad: #FFA285; --rail: #08201A;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink);
-  font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
-.wrap { max-width: 860px; margin: 0 auto; padding: 22px 16px 64px; }
-header.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 14.5px/1.6 "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif; }
+h1, h2, h3 { font-family: "Sora", "Atkinson Hyperlegible", system-ui, sans-serif; font-weight: 600; }
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
+.wrap { max-width: 900px; margin: 24px auto 64px; padding: 26px 36px 56px; background: var(--bg); border-radius: 18px; }
+header.top { position: sticky; top: 0; z-index: 5; background-color: var(--rail); background-image: radial-gradient(circle at 100% 0%, rgba(226, 85, 43, .30), transparent 40%); color: #FFFFFF; border-bottom: 1px solid var(--line);
   padding: 10px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 header.top b { font-size: 15px; }
 header.top .sp { flex: 1 1 auto; }
-h1 { font-size: 22px; margin: 18px 0 4px; }
+h1 { font-size: 28px; line-height: 1.15; letter-spacing: -.4px; margin: 4px 0 6px; }
 h2 { font-size: 17px; margin: 26px 0 6px; padding-top: 10px; border-top: 1px solid var(--line); }
 h3 { font-size: 14.5px; margin: 14px 0 4px; }
 p { margin: 6px 0; }
@@ -50,7 +57,11 @@ a { color: var(--accent); }
 .step .n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 999px;
   background: var(--accent); color: var(--accent-ink); font-size: 12.5px; font-weight: 600; margin-right: 7px; }
 .toc { columns: 2; column-gap: 26px; font-size: 13px; }
-@media (max-width: 620px) { .toc { columns: 1; } .wrap { padding: 16px; } }
+@media (max-width: 620px) { .toc { columns: 1; } .wrap { padding: 16px; margin: 0; border-radius: 0; } }
+/* the User guide: its table of contents beside the text; the text column may shrink, wide tables scroll */
+.wrap:has(> .layout) { max-width: 1180px; }
+.layout > .doc { min-width: 0; }
+.doc table { display: block; overflow-x: auto; }
 code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
 table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 13px; }
 th, td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
@@ -58,7 +69,7 @@ th { background: var(--surface); }
 @media print {
   header.top { display: none; }
   body { background: #fff; color: #000; }
-  .wrap { max-width: none; padding: 0; }
+  .wrap { max-width: none; padding: 0; margin: 0; background: #fff; }
   .step, .card { break-inside: avoid; border-color: #bbb; background: #fff; }
   h2 { break-after: avoid; }
   a { color: #000; text-decoration: none; }

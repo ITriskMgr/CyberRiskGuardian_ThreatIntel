@@ -90,6 +90,18 @@ An imported catalogue is the analyst's own material: the app validates and diffs
 claim about its licence. Reproducing a standard's control text may require a licence from its
 publisher.
 
+### Typefaces (`fonts/`)
+
+The interface is set in two typefaces bundled with the application (latin subset, WOFF2, from the Fontsource npm
+packages `@fontsource/sora` 5.3.0 and `@fontsource/atkinson-hyperlegible` 5.3.0), so it looks the same offline:
+
+- **Sora** (weights 500, 600, 700) — Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font).
+- **Atkinson Hyperlegible** (regular, italic, bold) — Copyright 2020 Braille Institute of America, Inc.
+
+Both are licensed under the **SIL Open Font License, Version 1.1**; the full licence texts are in
+`licences/Sora-OFL-1.1.txt` and `licences/AtkinsonHyperlegible-OFL-1.1.txt`. The fonts are not sold on their own and
+keep their names; no Reserved Font Name is used for a modified version (none is modified).
+
 ### Textbook bundled with the Virtual consultant
 
 `kb/book/` holds the text of *Introduction to Cybersecurity Governance for Business Technology Management*,

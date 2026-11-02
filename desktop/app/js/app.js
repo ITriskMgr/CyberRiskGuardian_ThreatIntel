@@ -3,6 +3,7 @@
    and are never reimplemented here. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { $, qsa, el, n0, banner, toast, go } from './util.js';
+import * as TABKEYS from './tabkeys.js';
 import { isReadOnly, S, on, loadAll, select, emit } from './state.js';
 import * as nav from './nav.js';
 import * as FW from './frameworks.js';
@@ -276,9 +277,10 @@ on(what => {
 /* ---------------- boot ---------------- */
 ENGINE.ok = selfCheck();
 nav.init();
+TABKEYS.init();   // 1.9.0 Atlas: arrow keys and a roving tabindex on every screen's tab list
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); consultui.mount(); drawChrome(); route(); UPUI.startup().catch(console.warn); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); consultui.mount(); drawChrome(); route(); setTimeout(() => document.body.classList.remove('boot'), 1400); UPUI.startup().catch(console.warn); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

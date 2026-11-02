@@ -204,6 +204,7 @@ const card = await page.evaluate(() => { const c = document.querySelector('#pane
 ok(/Security-operations evidence/.test(card) && /DR-2/.test(card) && /PB-1/.test(card) && /INC-1/.test(card), 'scenario card: rules, playbooks, incidents ' + card.slice(0, 200));
 ok(/not simulated/.test(card) && /confirmed/.test(card) && /degraded/.test(card), 'scenario card: simulation status, confirmation, coverage status');
 ok(!/XYZZY/.test(card) && /Masked/.test(card), 'scenario card masks the TLP:RED alert');
+await page.click('#scen-tab-links');   // 1.9.0 Atlas: the security-operations card sits under Links & evidence
 await page.click('#panel-scenario [data-secops] label input'); await page.waitForTimeout(200);
 ok(/XYZZY/.test(await page.evaluate(() => document.querySelector('#panel-scenario [data-secops]').textContent)), 'scenario card reveals on local opt-in');
 ok(/siem\/coverage/.test(await page.evaluate(() => document.querySelector('#panel-scenario [data-secops]').innerHTML)), 'links to SIEM/SOAR screens');

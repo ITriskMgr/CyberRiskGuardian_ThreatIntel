@@ -53,7 +53,7 @@ ok(/IF-06/.test(a.rev?.what || ''), 'scenario revision recorded');
 ok(a.n === before.log + 1 && a.log.scenario === 'S5' && a.log.cause === 'IPC IF-06: E16' && a.log.from === before.v && a.log.to === 0.8 && 'ratioFrom' in a.log && 'clsTo' in a.log, 'revisionLog line ' + JSON.stringify(a.log).slice(0, 200));
 ok(a.st === 'accepted', 'proposal state accepted');
 // scenario editor: read-only IPC evidence
-await goto(page, '#/scenario/S5', 900);
+await goto(page, '#/scenario/S5/links', 900);   // 1.9.0 Atlas: the IPC evidence sits under Links & evidence
 ok(await page.isVisible('#ipc-scenario') && /E16/.test(await page.textContent('#ipc-scenario')), 'Scenario editor lists the linked IPC evidence');
 // the engine file is unchanged
 const sha = crypto.createHash('sha256').update(fs.readFileSync(new globalThis.URL('../app/crg.js', import.meta.url))).digest('hex');

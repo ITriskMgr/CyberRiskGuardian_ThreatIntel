@@ -75,10 +75,12 @@ const qc = await page.evaluate(async () => (await import('/js/panels/qc.js')).ch
 ok(qc['QC-06'] === 'fail' && qc['QC-01'] === 'pass' && qc['QC-09'] === 'pass' && qc['QC-12'] === 'pass', 'QC flags the unresolved conflict; write-backs, base and engine pass ' + JSON.stringify(qc));
 await page.evaluate(() => { location.hash = '#/scenario/S1'; });
 await page.waitForTimeout(800);
+await page.click('#scen-tab-onto');   // 1.9.0 Atlas: the ontology card has its own tab
 await page.click('#panel-scenario button:has-text("Organisation context and control evidence")');
 ok(await page.waitForSelector('#panel-scenario >> text=self-assessment contradicted', { timeout: 30000 }).then(() => true, () => false), 'scenario editor shows the organisation context with the conflict');
 await page.evaluate(async () => { const st = await import('/js/state.js'); st.S.ws.assessment.SCEN.find(s => s.id === 'S1').crgo = { id: 'LIB-F1467', obligations: [] }; location.hash = '#/scenario/S2'; });
 await page.waitForTimeout(400); await page.evaluate(() => { location.hash = '#/scenario/S1'; }); await page.waitForTimeout(800);
+await page.click('#scen-tab-onto');   // 1.9.0 Atlas: the ontology card has its own tab
 await page.click('#panel-scenario button:has-text("Other regimes, D3FEND and exploitation evidence")');
 ok(await page.waitForSelector('#panel-scenario >> text=not a likelihood', { timeout: 30000 }).then(() => true, () => false), 'EPSS/KEV shown as evidence, not a likelihood');
 // put the example back

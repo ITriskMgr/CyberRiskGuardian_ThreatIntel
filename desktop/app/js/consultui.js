@@ -160,12 +160,15 @@ export function redrawAll() { for (const d of [...views]) d(); }
 export function mount() {
   LIB.load().catch(() => {});
   const body = el('div', 'consult-body');
-  panel = el('aside', { class: 'consult-panel', id: 'consult-panel', hidden: true, 'aria-label': 'Virtual consultant' },
-    el('div', 'consult-head', el('b', { style: { flex: 1 } }, 'Virtual consultant'),
+  // 1.9.0 — Atlas: a non-modal dialog (the screen beside it stays usable), labelled by its title; Escape closes it and
+  // gives the focus back to the Consultant button.
+  panel = el('aside', { class: 'consult-panel', id: 'consult-panel', hidden: true, role: 'dialog', 'aria-modal': 'false', 'aria-labelledby': 'consult-title' },
+    el('div', 'consult-head', el('b', { id: 'consult-title', style: { flex: 1 } }, 'Virtual consultant'),
       el('span', 'pill warn', AI.MARK),
-      el('button', { class: 'btn sm ghost', 'data-ro-ok': '', 'aria-label': 'Close', onclick: () => toggle(false) }, '×')),
+      el('button', { class: 'btn sm ghost', 'data-ro-ok': '', 'aria-label': 'Close', onclick: () => { toggle(false); document.getElementById('consult-toggle')?.focus(); } }, '×')),
     body);
   document.body.append(panel);
+  panel.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.defaultPrevented) { e.stopPropagation(); toggle(false); document.getElementById('consult-toggle')?.focus(); } });
   panel._view = null;
   panel._body = body;
   window.addEventListener('hashchange', () => { if (panel && !panel.hidden) redrawAll(); });
