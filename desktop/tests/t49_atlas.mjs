@@ -134,6 +134,16 @@ await page.focus('#scen-tab-chain'); await page.keyboard.press('ArrowRight');
 const fr = await page.evaluate(() => { const s = getComputedStyle(document.activeElement); return s.outlineStyle + ' ' + s.outlineWidth; });
 ok(/solid 3px/.test(fr), 'keyboard focus on a tab draws a 3px ring: ' + fr);
 
+/* ---------- every other screen's tab list: roving tabindex and arrow keys (tabkeys.js) ---------- */
+await goto(page, '#/ontology', 900);
+const sub0 = await page.evaluate(() => { const tabs = [...document.querySelectorAll('#panel-ontology .subtabs [role="tab"]')];
+  return { n: tabs.length, sel: tabs.findIndex(t => t.getAttribute('aria-selected') === 'true'), ti: tabs.map(t => t.tabIndex) }; });
+ok(sub0.n > 1 && sub0.ti.filter(x => x === 0).length === 1 && sub0.ti[sub0.sel] === 0, 'Ontology · CRGO tab list: only the selected tab is in the Tab order ' + JSON.stringify(sub0));
+await page.focus(`#panel-ontology .subtabs [role="tab"]:nth-child(${sub0.sel + 1})`); await page.keyboard.press('ArrowRight'); await page.waitForTimeout(500);
+const sub1 = await page.evaluate(() => { const tabs = [...document.querySelectorAll('#panel-ontology .subtabs [role="tab"]')];
+  return { sel: tabs.findIndex(t => t.getAttribute('aria-selected') === 'true'), focus: tabs.indexOf(document.activeElement) }; });
+ok(sub1.sel === (sub0.sel + 1) % sub0.n && sub1.focus === sub1.sel, 'ArrowRight selects the next sub-tab and keeps the focus on it ' + JSON.stringify(sub1));
+
 /* ---------- the Virtual consultant slide-over: dialog semantics, Escape closes and returns focus ---------- */
 await page.click('#consult-toggle'); await page.waitForTimeout(400);
 const so = await page.evaluate(() => { const p = document.getElementById('consult-panel'); return { role: p.getAttribute('role'), modal: p.getAttribute('aria-modal'), lab: !!document.getElementById(p.getAttribute('aria-labelledby') || '-'), exp: document.getElementById('consult-toggle').getAttribute('aria-expanded'), inside: p.contains(document.activeElement) }; });
