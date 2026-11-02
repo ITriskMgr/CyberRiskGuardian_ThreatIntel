@@ -18,8 +18,10 @@ export const MODULES = [
     what: 'Writes the enterprise policy, topic policies, standards and procedures (English and French) from an interview, the organization’s documents and the ontology, as drafts for ISP management; Word export and re-import; OCR of scanned documents on this computer.' },
   { id: 'csm', group: 'Governance', label: 'Cybersecurity management', panels: ['csm'], def: true,
     what: 'Control testing by line of defence with conflicts shown, governing bodies, Three Lines roles, delegations of authority, decision records and the incident register.' },
-  { id: 'ipc', group: 'Governance', label: 'Identity, privilege & configuration', panels: ['ipc'], def: false,
-    what: 'Population-level registers of accounts, privileged roles, emergency accounts, access reviews, baselines, deviations, segregation of duties and changes; eight KRIs; findings as evidence and scenario proposals. No connector, no names, no secrets.' },
+  { id: 'iam', group: 'Governance', label: 'Identity & access management (IAM/PAM)', panels: ['iam'], def: false,
+    what: 'Population-level registers of accounts, privileged roles, emergency accounts, access reviews and segregation of duties; six KRIs; findings as evidence and scenario proposals. No connector, no names, no secrets.' },
+  { id: 'cm', group: 'Governance', label: 'Configuration management', panels: ['cm'], def: false,
+    what: 'Versioned baselines with configuration scopes, deviations with their exceptions, and configuration changes; three KRIs; findings as evidence and scenario proposals. No connector, no secrets.' },
   { id: 'shared', group: 'Governance', label: 'Shared registers', panels: ['shared'], def: true,
     what: 'Evidence, corrective actions, exceptions and qualified mappings kept once and used by every management module.' },
   { id: 'qc', group: 'Governance', label: 'Quality review', panels: ['qc'], def: true,
@@ -50,7 +52,10 @@ export const MODULES = [
   { id: 'budget', group: 'Other features', label: 'Budget', panels: ['budget'], def: true,
     what: 'Multi-year budget arbitrage between treatment initiatives.' },
 ];
-const state = () => ({ ...Object.fromEntries(MODULES.map(m => [m.id, m.def])), ...(prefs.get('modules') || {}) });
+/* 1.9.0: an installation that switched on the earlier single "Identity, privilege & configuration" module (ipc) finds
+   both of its successors switched the same way until it sets them itself. */
+const carried = p => ('ipc' in p ? { iam: p.ipc, cm: p.ipc, ...p } : p);
+const state = () => ({ ...Object.fromEntries(MODULES.map(m => [m.id, m.def])), ...carried(prefs.get('modules') || {}) });
 export const enabled = id => !!state()[id];
 export function set(id, on) { prefs.set('modules', { ...state(), [id]: !!on }); apply(); }
 /** The module a screen belongs to, if any. */

@@ -1,9 +1,15 @@
-// Identity, privilege & configuration — CRG-17 to CRG-24: formulas, "no data" vs N/A, the unknown/stale cap, threshold overrides, dashboard.
-import { open, ok, done, ipcOn, goto } from './lib.mjs';
+// Identity & access management (CRG-17 to CRG-21, CRG-23) and Configuration management (CRG-22, CRG-24, CRG-25): formulas, "no data" vs N/A,
+// the unknown/stale cap, threshold overrides per module, the dashboard and its two groups.
+import { open, ok, done, modulesOn, goto } from './lib.mjs';
 const { browser, page, errors } = await open('#/process');
-await ipcOn(page);
+await modulesOn(page);
 const r = await page.evaluate(async () => {
-  const st = await import('/js/state.js'); const I = await import('/js/ipc.js');
+  const st = await import('/js/state.js'); const IAM = await import('/js/iam.js'); const CM = await import('/js/cm.js'); const C = await import('/js/regcore.js');
+  // one view over the two modules, so the formulas below read as before the split
+  const I = { blankRow: C.blankRow, blankVersion: C.blankVersion, status: C.status, KRIS: [...IAM.KRIS, ...CM.KRIS],
+    kri: w => { const a = IAM.kri(w), b = CM.kri(w); return { values: { ...a.values, ...b.values }, meta: { ...a.meta, ...b.meta } }; },
+    defsWithOverrides: w => [...IAM.defsWithOverrides(w), ...CM.defsWithOverrides(w)],
+    reg: w => { const a = IAM.reg(w), b = CM.reg(w); return new Proxy({}, { get: (_, k) => k === 'settings' ? { set asOf(v) { a.settings.asOf = v; b.settings.asOf = v; } } : (k in a ? a[k] : b[k]) }); } };
   const w = st.newWorkspace({ name: 'KRI fixture' }); const R = I.reg(w); R.settings.asOf = '2026-11-01';
   const out = {};
   out.empty = I.kri(w);
@@ -16,6 +22,7 @@ const r = await page.evaluate(async () => {
   row('reviews', { due: '2024-01-31', decisionsDue: 10, decisionsDone: 1 });                                // outside the window: N/A
   row('ciScopes', { inScope: 0, assigned: 0, assessed: 0, compliant: 0, asOf: '2026-10-01' });              // nothing in scope: N/A
   out.k = I.kri(w);
+  out.split = { iam: Object.keys(IAM.kri(w).values).join(), cm: Object.keys(CM.kri(w).values).join(), c23: [IAM.kri(w).meta['CRG-23'].num, IAM.kri(w).meta['CRG-23'].den], c25: [CM.kri(w).meta['CRG-25'].num, CM.kri(w).meta['CRG-25'].den] };
   const defs = Object.fromEntries(I.defsWithOverrides(w).map(d => [d.id, d]));
   out.st = Object.fromEntries(Object.keys(out.k.values).map(id => [id, I.status(defs[id], out.k.values[id], out.k.meta[id])]));
   // cap: a perfect value with a stale row is only "on target — incomplete data"
@@ -49,7 +56,7 @@ const r = await page.evaluate(async () => {
 const E = r.empty;
 for (const [id, g] of Object.entries(r.gap)) ok(g.v === null && !g.na && g.gap && !g.empty && g.u >= 1 && g.st === 'no data', `review L1: ${id} with every denominator unknown → no data, information gap, ${g.u} unknown (not N/A) ` + JSON.stringify(g));
 ok(r.mixed.na && !r.mixed.gap && r.mixed.u === 1, 'review L1: a known zero denominator beside an unknown row stays not applicable ' + JSON.stringify(r.mixed));
-ok(Object.values(E.values).every(v => v === null) && Object.values(E.meta).every(m => m.empty && !m.na), 'empty registers: no data (not N/A)');
+ok(Object.keys(E.values).length === 9 && Object.values(E.values).every(v => v === null) && Object.values(E.meta).every(m => m.empty && !m.na), 'empty registers: no data (not N/A), nine indicators');
 const k = r.k.values, m = r.k.meta;
 ok(k['CRG-17'] === +(100 * 98 / 150).toFixed(2) && m['CRG-17'].num === 98 && m['CRG-17'].den === 150 && m['CRG-17'].unknown === 1, 'CRG-17 = Σ(count − ownerless) over known ÷ Σ count ' + k['CRG-17']);
 ok(k['CRG-18'] === 40 && m['CRG-18'].num === 4 && m['CRG-18'].den === 10, 'CRG-18 unknown MFA counts as 0: ' + k['CRG-18']);
@@ -59,27 +66,37 @@ ok(k['CRG-21'] === null && m['CRG-21'].na, 'CRG-21 no use: not applicable');
 ok(k['CRG-22'] === null && m['CRG-22'].na, 'CRG-22 nothing in scope: not applicable');
 ok(k['CRG-24'] === null && m['CRG-24'].na, 'CRG-24 no deviation, no exception: not applicable');
 ok(typeof k['CRG-23'] === 'number' && m['CRG-23'].den > 0, 'CRG-23 computed ' + k['CRG-23'] + ' (' + m['CRG-23'].num + '/' + m['CRG-23'].den + ')');
+ok(r.split.iam === 'CRG-17,CRG-18,CRG-19,CRG-20,CRG-21,CRG-23' && r.split.cm === 'CRG-22,CRG-24,CRG-25', 'each module computes its own indicators ' + JSON.stringify(r.split));
+// CRG-23 counts identity values only: accounts 2 × (count, dormant, ownerless, reconciled) + employee MFA 2, privileged 2 × 5, emergency 1 × 9, reviews 1 × 4
+ok(r.split.c23[1] === 10 + 10 + 9 + 4, 'CRG-23 required identity values only ' + r.split.c23);
+// CRG-25: the scope's four counts and its as-of date
+ok(r.split.c25[0] === 5 && r.split.c25[1] === 5 && k['CRG-25'] === 100 && r.st['CRG-25'].k === 'good', 'CRG-25 configuration data known coverage ' + r.split.c25);
 ok(r.cap.k === 'warn' && r.cap.label === 'on target — incomplete data' && r.capOff.k === 'good', 'never green with a stale input; green when fresh');
 ok(r.c22[0] === 20 && r.c22[1] === 4, 'CRG-22: draft not assigned, legacy counted and shown ' + r.c22);
 ok(r.c24 === 1, 'CRG-24 counts an expired exception cited by an open deviation');
 // overrides through the overview, Restore default
 await page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => /MediBec/.test(w.name)); await st.select(ex.id); });
-await goto(page, '#/ipc/overview', 900);
-ok(await page.locator('#ipc-kris [data-kri]').count() === 8, 'eight tiles on the overview');
-ok(/1479 \/ 1505/.test(await page.textContent('#ipc-kris [data-kri="CRG-17"]')), 'tile shows num / den');
+await goto(page, '#/iam/overview', 900);
+ok(await page.locator('#iam-kris [data-kri]').count() === 6, 'six tiles on the IAM overview');
+ok(/1479 \/ 1505/.test(await page.textContent('#iam-kris [data-kri="CRG-17"]')), 'tile shows num / den');
+await goto(page, '#/cm/overview', 900);
+const cmTiles = await page.$$eval('#cm-kris [data-kri]', t => t.map(x => x.dataset.kri));
+ok(JSON.stringify(cmTiles) === '["CRG-22","CRG-24","CRG-25"]', 'three tiles on the CM overview ' + cmTiles);
+ok(/13 \/ 15/.test(await page.textContent('#cm-kris [data-kri="CRG-25"]')) && await page.locator('#cm-thresholds input[data-kri="CRG-25"]').count() === 3 && await page.locator('#cm-thresholds input[data-kri="CRG-17"]').count() === 0, 'CM tile CRG-25 13 / 15; CM thresholds list only its own');
+await goto(page, '#/iam/overview', 900);
 // review L1 on screen: all account counts unknown → the tile shows no data, the unknown count and the information-gap marker
-{ const saved = await page.evaluate(async () => { const st = await import('/js/state.js'); const A = st.S.ws.ipc.accounts; const keep = A.map(a => a.count); A.forEach(a => { a.count = null; }); st.touch(); return keep; });
-  await goto(page, '#/process', 400); await goto(page, '#/ipc/overview', 900);
-  const tt = await page.textContent('#ipc-kris [data-kri="CRG-17"]');
+{ const saved = await page.evaluate(async () => { const st = await import('/js/state.js'); const A = st.S.ws.iam.accounts; const keep = A.map(a => a.count); A.forEach(a => { a.count = null; }); st.touch(); return keep; });
+  await goto(page, '#/process', 400); await goto(page, '#/iam/overview', 900);
+  const tt = await page.textContent('#iam-kris [data-kri="CRG-17"]');
   ok(/no data · \d+ unknown · Information gap — organizational validation required/.test(tt) && !/not applicable/.test(tt), 'review L1: CRG-17 tile with every count unknown ' + tt.replace(/\s+/g, ' ').slice(0, 200));
-  await page.evaluate(async keep => { const st = await import('/js/state.js'); st.S.ws.ipc.accounts.forEach((a, i) => { a.count = keep[i]; }); st.touch(); }, saved);
-  await goto(page, '#/process', 400); await goto(page, '#/ipc/overview', 900); }
-await page.fill('#ipc-thresholds input[data-kri="CRG-17"][data-k="crit"]', '99'); await page.dispatchEvent('#ipc-thresholds input[data-kri="CRG-17"][data-k="crit"]', 'change'); await page.waitForTimeout(500);
+  await page.evaluate(async keep => { const st = await import('/js/state.js'); st.S.ws.iam.accounts.forEach((a, i) => { a.count = keep[i]; }); st.touch(); }, saved);
+  await goto(page, '#/process', 400); await goto(page, '#/iam/overview', 900); }
+await page.fill('#iam-thresholds input[data-kri="CRG-17"][data-k="crit"]', '99'); await page.dispatchEvent('#iam-thresholds input[data-kri="CRG-17"][data-k="crit"]', 'change'); await page.waitForTimeout(500);
 let ov = await page.evaluate(async () => (await import('/js/state.js')).S.ws.kriDefs.find(x => x.id === 'CRG-17'));
 ok(ov && ov.crit === 99 && ov.date, 'override stored in kriDefs ' + JSON.stringify(ov));
 const s17 = await page.evaluate(async () => { const K = await import('/js/kri.js'); const d = K.autoDefs().find(x => x.id === 'CRG-17'); return K.status(d, K.autoValues()['CRG-17'], K.autoMeta()['CRG-17']).k; });
 ok(s17 === 'bad', 'override changes the dashboard status (CRG-17 now critical)');
-await page.click('#ipc-thresholds button:text-is("Restore default")'); await page.waitForTimeout(400);
+await page.click('#iam-thresholds button:text-is("Restore default")'); await page.waitForTimeout(400);
 ov = await page.evaluate(async () => (await import('/js/state.js')).S.ws.kriDefs.find(x => x.id === 'CRG-17'));
 ok(!ov, 'Restore default removes the override');
 // dashboard: selection and history
@@ -87,8 +104,8 @@ await goto(page, '#/dashboard', 1000);
 ok(await page.isVisible('#panel-dashboard >> text=1479 / 1505'), 'dashboard method cell: num / den');
 await page.click('#panel-dashboard button:has-text("Record computed")'); await page.waitForTimeout(500);
 const h = await page.evaluate(async () => (await import('/js/state.js')).S.ws.kriHistory.at(-1).values);
-ok(h['CRG-17'] === 98.27 && h['CRG-24'] === 1, 'kriHistory records the module KRIs');
+ok(h['CRG-17'] === 98.27 && h['CRG-24'] === 1 && h['CRG-23'] === 80.6 && h['CRG-25'] === 86.67, 'kriHistory records the KRIs of both modules ' + JSON.stringify([h['CRG-23'], h['CRG-25']]));
 const top = await page.evaluate(async () => (await import('/js/state.js')).S.ws.kriSel);
 ok(Array.isArray(top) && top.length === 5, 'top-5 selection still works with the new KRIs: ' + top);
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
-await browser.close(); done('t39 ipc kri');
+await browser.close(); done('t39 iam cm kri');

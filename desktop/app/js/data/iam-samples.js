@@ -1,24 +1,21 @@
-/* ipc-samples.js — teaching-case samples of the Identity, privilege & configuration module.
-   Fictional, illustrative counts for the MediBec case: population level only (no names, no account
-   identifiers, no secrets). Labels are { en, fr }; the case language picks one. Evidence ids E13–E15 are
-   the sample's own and are remapped to the next free E-numbers when the sample is loaded. Findings are
-   recorded and linked as evidence only: no proposal, nothing accepted, so the reference totals
-   84,305 / 41,023 are unchanged. CanaRetail (below): one recorded finding with evidence at the next
-   E-number and ONE PENDING proposal on S10, its service-account scenario (Pb(ψ,A) 0.40 → 0.45), bound by
-   id — a case without S10 refuses the sample. Nothing is accepted, so 27,526 / 16,049 are unchanged. © 2026 Marc-André Léger. CC BY-NC 4.0 */
-self.CRG_IPC_SAMPLES = Object.assign(self.CRG_IPC_SAMPLES || {}, {
+/* iam-samples.js — teaching-case samples of the Identity & access management (IAM/PAM) module.
+   Fictional, illustrative counts: population level only (no names, no account identifiers, no secrets). Labels are
+   { en, fr }; the case language picks one. MediBec: evidence ids E13 and E14 are the sample's own and are remapped to the
+   next free E-numbers when the sample is loaded (the Configuration management sample, js/data/cm-samples.js, is loaded
+   after this one and takes E15). Findings are recorded and linked as evidence only: no proposal, nothing accepted, so
+   the reference totals 84,305 / 41,023 are unchanged. CanaRetail (below): one recorded finding with evidence at the
+   next E-number and ONE PENDING proposal on S10, its service-account scenario (Pb(ψ,A) 0.40 → 0.45), bound by id — a
+   case without S10 refuses the sample. Nothing is accepted, so 27,526 / 16,049 are unchanged. © 2026 Marc-André Léger. CC BY-NC 4.0 */
+self.CRG_IAM_SAMPLES = Object.assign(self.CRG_IAM_SAMPLES || {}, {
   medibec: {
     settings: { asOf: '2026-11-01' },
     evidence: [
       { id: 'E13', title: { en: 'IdP account and privileged-role counts, 2026-09-15 (counts only)', fr: 'Décomptes des comptes et des rôles privilégiés de l’IdP, 2026-09-15 (décomptes seulement)' },
-        supports: { en: 'Supports: S1, S5, S20 (privileged MFA), S27 (dormant accounts), S28 (emergency use) — identity, privilege & configuration registers', fr: 'Appuie : S1, S5, S20 (AMF des accès privilégiés), S27 (comptes dormants), S28 (utilisation d’urgence) — registres identité, privilèges et configuration' },
+        supports: { en: 'Supports: S1, S5, S20 (privileged MFA), S27 (dormant accounts), S28 (emergency use) — identity and access registers', fr: 'Appuie : S1, S5, S20 (AMF des accès privilégiés), S27 (comptes dormants), S28 (utilisation d’urgence) — registres d’identité et d’accès' },
         strength: 'moderate', date: '2026-09-15', custodian: 'Identity and access management team' },
       { id: 'E14', title: { en: 'Access-review campaign report H1 2026', fr: 'Rapport de campagne de revue des accès S1 2026' },
         supports: { en: 'Supports: S5, S28 (access-review completion, unverified revocations)', fr: 'Appuie : S5, S28 (achèvement des revues des accès, révocations non vérifiées)' },
         strength: 'moderate', date: '2026-07-15', custodian: 'Clinical systems access governance' },
-      { id: 'E15', title: { en: 'Baseline compliance summary Q3 2026', fr: 'Sommaire de conformité aux configurations de référence T3 2026' },
-        supports: { en: 'Supports: S6 (open high-severity configuration degradation)', fr: 'Appuie : S6 (dégradation de configuration ouverte de gravité élevée)' },
-        strength: 'moderate', date: '2026-10-15', custodian: 'Infrastructure operations' },
     ],
     accounts: [
       { id: 'AP-01', type: 'employee', label: { en: 'Clinical and administrative staff', fr: 'Personnel clinique et administratif' }, scope: { en: 'All clinics and head office', fr: 'Toutes les cliniques et le siège' }, owner: { en: 'Human resources and IAM team', fr: 'Ressources humaines et équipe GIA' },
@@ -54,56 +51,23 @@ self.CRG_IPC_SAMPLES = Object.assign(self.CRG_IPC_SAMPLES || {}, {
       { id: 'AR-02', name: { en: 'Tier 0 review Q3 2026', fr: 'Revue niveau 0 T3 2026' }, population: 'tier0', scope: { en: 'Identity provider, domain, cloud tenant', fr: 'Fournisseur d’identité, domaine, locataire infonuagique' }, owner: { en: 'Cybersecurity lead', fr: 'Responsable de la cybersécurité' },
         due: '2026-09-30', closed: '', decisionsDue: 9, decisionsDone: 9, revocationsRequested: 1, revocationsVerified: 1, reviewerConflicts: 0, source: 'E14', status: 'confirmed', conf: 'Medium', evidence: 'E14' },
     ],
-    baselines: [
-      { id: 'BL-01', name: 'Windows Server 2022 hardening', platform: 'Windows Server 2022', kind: 'cis-benchmark', licenceRef: 'CIS SecureSuite — to confirm', owner: { en: 'Infrastructure operations', fr: 'Exploitation de l’infrastructure' }, legacy: false,
-        versions: [{ v: '1.2', state: 'approved', approved: '2026-02-01', approvedBy: { en: 'Chief information officer', fr: 'Directeur des technologies de l’information' }, effective: '2026-02-01', review: '2027-02-01', hash: '', rationale: { en: 'Level 1 profile adapted to clinical servers', fr: 'Profil de niveau 1 adapté aux serveurs cliniques' }, applicability: { assetTypes: ['server'], note: '' } }], note: '' },
-      { id: 'BL-02', name: 'Clinical workstations Windows 11', platform: 'Windows 11', kind: 'internal', licenceRef: '', owner: { en: 'End-user services', fr: 'Services aux utilisateurs' }, legacy: false,
-        versions: [{ v: '2.0', state: 'approved', approved: '2026-04-15', approvedBy: { en: 'Chief information officer', fr: 'Directeur des technologies de l’information' }, effective: '2026-05-01', review: '2027-04-15', hash: '', rationale: { en: 'Workstation build for clinics', fr: 'Configuration des postes des cliniques' }, applicability: { assetTypes: ['hardware'], note: '' } }], note: '' },
-      { id: 'BL-03', name: 'Medical-device segment (vendor guide)', platform: 'Connected medical devices', kind: 'vendor', licenceRef: '', owner: { en: 'Biomedical engineering', fr: 'Génie biomédical' }, legacy: false,
-        versions: [{ v: '1.0', state: 'draft', approved: '', approvedBy: '', effective: '', review: '', hash: '', rationale: { en: 'Draft from the manufacturers’ hardening guides', fr: 'Ébauche tirée des guides de renforcement des fabricants' }, applicability: { assetTypes: ['iot'], note: '' } }], note: '' },
-    ],
-    ciScopes: [
-      { id: 'CS-01', label: { en: 'Windows servers', fr: 'Serveurs Windows' }, baseline: 'BL-01', version: '1.2', inScope: 96, assigned: 88, assessed: 70, compliant: 58, asOf: '2026-10-15', source: 'E15', status: 'confirmed', conf: 'Medium', evidence: 'E15' },
-      { id: 'CS-02', label: { en: 'Clinical workstations', fr: 'Postes cliniques' }, baseline: 'BL-02', version: '2.0', inScope: 1020, assigned: 1020, assessed: 912, compliant: 801, asOf: '2026-10-15', source: 'E15', status: 'confirmed', conf: 'Medium', evidence: 'E15' },
-      { id: 'CS-03', label: { en: 'Connected medical devices', fr: 'Dispositifs médicaux connectés' }, baseline: 'BL-03', version: '1.0', inScope: 340, assigned: 0, assessed: null, compliant: null, asOf: '2026-10-15', source: 'E15', status: 'inferred', conf: 'Low', evidence: 'E15' },
-    ],
-    deviations: [
-      { id: 'DV-01', baseline: 'BL-01', version: '1.2', ciScope: 'CS-01', count: 4, cls: 'degradation', severity: 'high', requirement: { en: 'SMBv1 enabled on imaging servers', fr: 'SMBv1 activé sur les serveurs d’imagerie' },
-        opened: '2026-08-20', lastSeen: '2026-10-15', state: 'open', owner: { en: 'Infrastructure operations', fr: 'Exploitation de l’infrastructure' }, source: 'E15', status: 'confirmed', conf: 'Medium', evidence: 'E15' },
-      { id: 'DV-02', baseline: 'BL-02', version: '2.0', ciScope: 'CS-02', count: 12, cls: 'compensated', severity: 'medium', requirement: { en: 'Laboratory analyser driver needs local administrator rights', fr: 'Le pilote des analyseurs de laboratoire exige des droits d’administrateur local' },
-        opened: '2026-05-10', lastSeen: '2026-10-15', exception: 'EXC-90', state: 'open', owner: { en: 'Laboratory manager', fr: 'Gestionnaire du laboratoire' }, source: 'E15', status: 'confirmed', conf: 'Medium', evidence: 'E15' },
-      { id: 'DV-03', baseline: 'BL-01', version: '1.2', ciScope: 'CS-01', count: 6, cls: 'unknown', severity: 'medium', requirement: { en: 'Audit policy settings differ from the baseline', fr: 'Les paramètres de la stratégie d’audit diffèrent de la configuration de référence' },
-        opened: '2026-09-30', lastSeen: '2026-10-15', state: 'open', owner: { en: 'Infrastructure operations', fr: 'Exploitation de l’infrastructure' }, source: 'E15', status: 'inferred', conf: 'Low', evidence: 'E15' },
-    ],
-    exceptions: [
-      { id: 'EXC-90', title: { en: 'Local administrator rights on laboratory workstations', fr: 'Droits d’administrateur local sur les postes du laboratoire' }, scope: { en: 'Twelve laboratory workstations', fr: 'Douze postes du laboratoire' },
-        description: { en: 'Departure from the clinical workstation baseline for the analyser driver', fr: 'Dérogation à la configuration de référence des postes cliniques pour le pilote des analyseurs' },
-        compensatedBy: [{ en: 'Application allow-listing on the twelve workstations', fr: 'Liste d’applications autorisées sur les douze postes' }], approvedBy: { en: 'Chief information officer', fr: 'Directeur des technologies de l’information' },
-        status: 'accepted', expiry: '2026-09-30', opened: '2026-05-12', concerns: [{ kind: 'deviation', id: 'DV-02' }] },
-    ],
     sod: [
       { id: 'SD-01', rule: { en: 'Create supplier and approve payment (billing)', fr: 'Créer un fournisseur et approuver un paiement (facturation)' }, process: { en: 'Billing', fr: 'Facturation' }, conflicts: 3, owner: { en: 'Finance lead', fr: 'Responsable des finances' },
         mitigation: { en: 'Monthly dual review of supplier and payment changes', fr: 'Double revue mensuelle des changements de fournisseurs et de paiements' }, reviewed: '2026-09-30', source: 'E14', status: 'confirmed', conf: 'Medium', evidence: '' },
       { id: 'SD-02', rule: { en: 'Prescribe and dispense (pharmacy)', fr: 'Prescrire et délivrer (pharmacie)' }, process: { en: 'Pharmacy', fr: 'Pharmacie' }, conflicts: 0, owner: { en: 'Pharmacy manager', fr: 'Gestionnaire de la pharmacie' },
         mitigation: '', reviewed: '2026-09-30', source: 'E14', status: 'confirmed', conf: 'Medium', evidence: '' },
     ],
-    changes: [
-      { id: 'CH-01', period: '2026-Q3', type: 'normal', scope: { en: 'Servers and clinical applications', fr: 'Serveurs et applications cliniques' }, count: 212, verified: 188, ticket: '', source: 'E15', status: 'confirmed', conf: 'Medium', evidence: '' },
-      { id: 'CH-02', period: '2026-Q3', type: 'emergency', scope: { en: 'Servers and clinical applications', fr: 'Serveurs et applications cliniques' }, count: 9, verified: 5, ticket: '', source: 'E15', status: 'confirmed', conf: 'Medium', evidence: '' },
-      { id: 'CH-03', period: '2026-Q3', type: 'unauthorized_suspected', scope: { en: 'Servers', fr: 'Serveurs' }, count: 2, verified: 0, ticket: '', source: 'E15', status: 'inferred', conf: 'Low', evidence: '' },
-    ],
     findings: [
       { rule: 'IR-02', register: 'privileged', rowId: 'PR-02', scenarios: ['S1', 'S5', 'S20'], eid: 'E13' },
       { rule: 'IR-04', register: 'accounts', rowId: 'AP-01', scenarios: ['S27'], eid: 'E13' },
       { rule: 'IR-07', register: 'emergency', rowId: 'BG-01', scenarios: ['S28'], eid: 'E13' },
       { rule: 'IR-08', register: 'reviews', rowId: 'AR-01', scenarios: ['S5', 'S28'], eid: 'E14' },
-      { rule: 'IR-11', register: 'deviations', rowId: 'DV-01', scenarios: ['S6'], eid: 'E15' },
     ],
   },
 });
 
 /* CanaRetail — fictional, illustrative counts, population level only. */
-self.CRG_IPC_SAMPLES.canaretail = {
+self.CRG_IAM_SAMPLES.canaretail = {
   settings: { asOf: '2026-11-01' },
   evidence: [],
   accounts: [
@@ -135,20 +99,6 @@ self.CRG_IPC_SAMPLES.canaretail = {
       due: '2026-09-30', closed: '2026-09-28', decisionsDue: 640, decisionsDone: 640, revocationsRequested: 38, revocationsVerified: 38, reviewerConflicts: null, status: 'confirmed', conf: 'Medium' },
     { id: 'AR-02', name: { en: 'Store-staff recertification 2026', fr: 'Recertification du personnel des magasins 2026' }, population: 'all', owner: { en: 'Store operations', fr: 'Exploitation des magasins' },
       due: '2026-10-31', closed: '', decisionsDue: 3850, decisionsDone: 3520, revocationsRequested: 410, revocationsVerified: 302, reviewerConflicts: 2, status: 'confirmed', conf: 'Medium' },
-  ],
-  ciScopes: [
-    { id: 'CS-01', label: { en: 'POS terminals', fr: 'Terminaux PDV' }, inScope: 1180, assigned: 1180, assessed: 1150, compliant: 1101, asOf: '2026-10-20', status: 'confirmed', conf: 'Medium' },
-    { id: 'CS-02', label: { en: 'Back-office PCs', fr: 'Ordinateurs de l’arrière-boutique' }, inScope: 410, assigned: 395, assessed: 380, compliant: 350, asOf: '2026-10-20', status: 'confirmed', conf: 'Medium' },
-    { id: 'CS-03', label: { en: 'AWS e-commerce accounts', fr: 'Comptes AWS du commerce électronique' }, inScope: 12, assigned: 12, assessed: 12, compliant: 10, asOf: '2026-10-20', status: 'confirmed', conf: 'Medium' },
-  ],
-  deviations: [
-    { id: 'DV-01', ciScope: 'CS-01', count: 2, cls: 'compensated', severity: 'medium', requirement: { en: 'TLS 1.0 on two store routers', fr: 'TLS 1.0 sur deux routeurs de magasin' }, opened: '2026-08-12', lastSeen: '2026-10-20',
-      exception: 'EXC-91', state: 'open', owner: { en: 'Network operations', fr: 'Exploitation du réseau' }, status: 'confirmed', conf: 'Medium' },
-  ],
-  exceptions: [
-    { id: 'EXC-91', title: { en: 'TLS 1.0 on two store routers until replacement', fr: 'TLS 1.0 sur deux routeurs de magasin jusqu’à leur remplacement' }, scope: { en: 'Two store routers', fr: 'Deux routeurs de magasin' },
-      description: { en: 'Legacy routers awaiting replacement', fr: 'Routeurs anciens en attente de remplacement' }, compensatedBy: [{ en: 'Traffic restricted to the payment processor through an encrypted tunnel', fr: 'Trafic limité au processeur de paiement par un tunnel chiffré' }],
-      approvedBy: { en: 'Chief information security officer', fr: 'Chef de la sécurité de l’information' }, status: 'accepted', expiry: '2027-01-31', opened: '2026-08-15', concerns: [{ kind: 'deviation', id: 'DV-01' }] },
   ],
   findings: [
     { rule: 'IR-01', register: 'accounts', rowId: 'AP-03', scenarios: [],

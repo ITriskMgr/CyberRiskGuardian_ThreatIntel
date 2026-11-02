@@ -278,7 +278,7 @@ portent aussi une version des données. Lorsque la façon dont les données sont
   enregistré par-dessus. Un fichier de sauvegarde est refusé lorsqu'il a été écrit par une application
   plus récente, et un espace de travail plus récent contenu dans une sauvegarde n'est pas restauré.
 
-La version courante des données est **4**. Les quatre étapes sont consignées au journal de chaque espace de
+La version courante des données est **5**. Les cinq étapes sont consignées au journal de chaque espace de
 travail :
 
 | Étape | Ce qu'elle fait |
@@ -286,7 +286,8 @@ travail :
 | 0 → 1 | Les champs qui n'étaient créés que lorsqu'un écran les utilisait pour la première fois sont présents dès le départ ; les incidents importés à partir de documents passent au registre des incidents (Gestion de la cybersécurité → Incidents) et demeurent affichés sous Organisation → Preuves ; les exceptions aux politiques reçoivent un périmètre, un approbateur et des contrôles compensatoires ; les enregistrements de gouvernance, d'audit, de gestion de la cybersécurité, du SGSI et du lien avec l'ontologie sont ajoutés, vides. |
 | 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **preuves** passent, inchangés, au registre partagé des éléments probants (Gouvernance → Registres partagés → Preuves) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
 | 2 → 3 | Seuls les catalogues de contrôles actuels demeurent (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1) : chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou CIS v7.1 — dans les mesures, les déclarations d'applicabilité, les listes de cadres — est mise en correspondance, l'ancien identifiant étant conservé dans une note à côté ; une référence sans correspondance (ou dont le nouvel identifiant a déjà un dossier) est conservée et **signalée pour examen**, jamais supprimée, et la Revue de qualité la signale (QC-23). Les anciens libellés de marqueurs prennent les marqueurs normalisés. Un cas d'enseignement MediBec encore sur les vecteurs AV:N antérieurs de S2 et S8 les conserve — une migration ne change aucun chiffre — et la page Processus propose les vecteurs AV:L (journalisé ; voir 7.1), ou Réinitialiser les données → Recommencer prend tout le cas actuel ; la Revue de qualité (QC-26) signale un cas laissé sur AV:N. Des dossiers vides de filtrage des scénarios et de sommaire de gestion sont ajoutés (le cas d'enseignement reçoit son filtrage). |
-| 3 → 4 | Une seule étape formée de sous-étapes, une par nouveau type de dossier. Un dossier vide du **consultant virtuel** est ajouté (conversations enregistrées et mode de recherche, lexical) ; les autres dossiers de cette version s'ajoutent de la même façon. Hormis une référence de configuration sur les actifs, rien d'existant ne change. Identité, privilèges et configuration : des registres vides sont ajoutés; chaque configuration de référence nommée sur un actif informationnel devient une configuration de référence versionnée (une version *héritée*) et l'actif ne reçoit qu'une référence vers elle, son propre statut inchangé; un actif en dérive reçoit un écart à classer; un périmètre compté en direct à partir des actifs informationnels est ajouté; les cas d'enseignement MediBec et CanaRetail reçoivent leur exemple (preuves et propositions en attente seulement, rien d'accepté). Aucun chiffre de risque ne change. |
+| 3 → 4 | Une seule étape formée de sous-étapes, une par nouveau type de dossier. Un dossier vide du **consultant virtuel** est ajouté (conversations enregistrées et mode de recherche, lexical) ; les autres dossiers de cette version s'ajoutent de la même façon. Hormis une référence de configuration sur les actifs, rien d'existant ne change. Gestion des identités et des accès et gestion de la configuration : des registres vides sont ajoutés; chaque configuration de référence nommée sur un actif informationnel devient une configuration de référence versionnée de la gestion de la configuration (une version *héritée*) et l'actif ne reçoit qu'une référence vers elle, son propre statut inchangé; un actif en dérive reçoit un écart à classer; un périmètre compté en direct à partir des actifs informationnels est ajouté; les cas d'enseignement MediBec et CanaRetail reçoivent l'exemple de chaque module (preuves et propositions en attente seulement, rien d'accepté). Aucun chiffre de risque ne change. |
+| 4 → 5 | Un espace de travail qui contient un seul dossier **identité, privilèges et configuration** le voit séparé, sans perte, entre le dossier de la **gestion des identités et des accès** (comptes, rôles privilégiés, comptes d'urgence, revues des accès, séparation des tâches) et celui de la **gestion de la configuration** (configurations de référence, périmètres de configuration, écarts, changements de configuration). Chaque constat suit le module de son registre, identifiants inchangés; une trace d'importation suit le module dont elle a créé les lignes; une mesure corrective issue d'un constat nomme son module. Les scénarios, les paramètres et les modifications acceptées ne changent pas; la séparation est journalisée et la copie d'avant est conservée. |
 
 ---
 
@@ -1026,11 +1027,13 @@ raison.
 
 *Où :* Maturité et résilience → Maturité (CSF 2.0) · Résilience (θ) · Les deux lectures · Historique · Méthode
 
-**Identité, privilèges et configuration.** Lorsque ce module est activé, une puce de filtre de ce nom
-n'affiche que les catégories CSF 2.0 PR.AA et PR.PS et les questions de résilience pv1, pv3, ct2 et ct3 (la
-même puce filtre la déclaration d'applicabilité dans Gestion de la conformité → Cadres et listes de
-contrôle). La vue d'ensemble du module leur propose des valeurs tirées de ses registres; **Appliquer les
-éléments cochés** ne remplit que les réponses vides.
+**Gestion des identités et des accès et gestion de la configuration.** Lorsque l'un de ces modules est
+activé, une puce de filtre à son nom n'affiche que la catégorie CSF 2.0 qui le concerne — PR.AA pour la gestion
+des identités et des accès, avec les questions de résilience pv1, pv3, ct2 et ct3; PR.PS pour la gestion de la
+configuration, qui n'a pas de question de résilience (les mêmes puces filtrent la déclaration
+d'applicabilité dans Gestion de la conformité → Cadres et listes de contrôle). La vue d'ensemble de chaque
+module propose des valeurs pour ses propres clés à partir de ses registres; **Appliquer les éléments cochés**
+ne remplit que les réponses vides.
 
 ### 7.2.4 Ontologie · CRGO {#ontology}
 
@@ -1315,7 +1318,7 @@ Ce registre est celui de l'évaluation. Le **registre partagé des éléments pr
 (Gouvernance → Registres partagés → Preuves) consigne les preuves de conformité avec leur période et leur
 validité ; c'est un autre dossier.
 
-**Constats d'identité, de privilèges et de configuration.** Lorsque ce module est activé, **Consigner comme
+**Constats de gestion des identités et des accès et de gestion de la configuration.** Lorsque l'un de ces modules est activé, **Consigner comme
 preuve** sur un constat ajoute ici une ligne au numéro E suivant (documentée ou avis d'expert selon la
 provenance de la ligne; modérée et vérifiée lorsque la ligne est confirmée, sinon faible et hypothèse). Les
 scénarios liés au constat comptent comme citations de ce numéro E.
@@ -1388,19 +1391,21 @@ demandez à Claude d'actualiser le tableau de bord quand les chiffres changent. 
 tableau de bord Claude peut lire ses jeux de données : ne le partagez qu'avec les personnes autorisées à voir
 l'évaluation.
 
-**Identité, privilèges et configuration.** Lorsque ce module est activé (section 7.5.6), huit indicateurs
-s'ajoutent aux indicateurs calculés, regroupés sous son nom : CRG-17 couverture de la propriété des
-identités, CRG-18 couverture de l'AMF des accès privilégiés, CRG-19 proportion de privilèges permanents,
-CRG-20 achèvement des revues des accès, CRG-21 utilisations d'urgence examinées, CRG-22 couverture
-d'affectation des configurations de référence, CRG-23 couverture des données connues et CRG-24 exceptions
-expirées. La cellule de méthode montre la formule, le numérateur et le dénominateur, et les nombres
+**Gestion des identités et des accès et gestion de la configuration.** Lorsque la gestion des identités et
+des accès est activée (section 7.5.6), six indicateurs s'ajoutent aux indicateurs calculés, regroupés sous son
+nom : CRG-17 couverture de la propriété des identités, CRG-18 couverture de l'AMF des accès privilégiés,
+CRG-19 proportion de privilèges permanents, CRG-20 achèvement des revues des accès, CRG-21 utilisations
+d'urgence examinées et CRG-23 couverture des données d'identité connues. Lorsque la gestion de la
+configuration est activée (section 7.5.7), trois s'y ajoutent sous son propre nom : CRG-22 couverture
+d'affectation des configurations de référence, CRG-24 exceptions expirées et CRG-25 couverture des données de
+configuration connues. La cellule de méthode montre la formule, le numérateur et le dénominateur, et les nombres
 d'inconnus et de périmés. Un registre vide donne *aucune donnée*; des lignes avec un dénominateur nul (aucune
 utilisation, aucune campagne échue, rien dans le périmètre) donnent **non applicable**; des lignes dont toutes
 les valeurs du dénominateur sont inconnues donnent *aucune donnée*, avec le nombre d'inconnus et la mention
 « Lacune d’information — validation organisationnelle requise », jamais *non applicable*. Un indicateur n'est
 **jamais vert en excluant les inconnus** : une donnée inconnue ou périmée le plafonne à *dans la cible —
-données incomplètes* (sauf CRG-23 et CRG-24). Leurs seuils se modifient dans la vue d'ensemble du module.
-Lorsque le module est désactivé, ils sont masqués.
+données incomplètes* (sauf CRG-23, CRG-24 et CRG-25). Leurs seuils se modifient dans la vue d'ensemble de chaque
+module. Lorsqu'un module est désactivé, ses indicateurs sont masqués.
 
 ### 7.3.3 Mesures de protection existantes — ce qui vous protège déjà {#safeguards}
 
@@ -1520,9 +1525,9 @@ marquées TLP:RED ou TLP:AMBER+STRICT sont masquées à moins que vous ne cochie
 TLP:RED et TLP:AMBER+STRICT sur cet ordinateur*. Des boutons mènent à Couverture et lacunes du SIEM, à
 Alertes et tri, aux dossiers SOAR, aux Guides d'intervention et aux amorces dans Scénarios en lot.
 
-**Preuves d'identité, de privilèges et de configuration.** Lorsque ce module est activé, une carte en
-lecture seule liste les constats consignés qui citent le scénario, avec leurs numéros E, et toute
-modification acceptée. Une modification de Pb(ψ,A) ou de θ venant de ce module ne provient que d'**Accepter**
+**Preuves de la gestion des identités et des accès** et **Preuves de la gestion de la configuration.**
+Lorsqu'un module est activé, une carte en lecture seule liste ses constats consignés qui citent le scénario,
+avec leurs numéros E, et toute modification acceptée. Une modification de Pb(ψ,A) ou de θ venant de ces modules ne provient que d'**Accepter**
 sur une proposition dans Constats et propositions, journalisée dans les révisions du scénario et le journal
 des révisions.
 
@@ -2547,17 +2552,18 @@ consultez.
 Les enregistrements de preuves et les exceptions aux politiques saisis avant l'existence des registres
 partagés y ont été déplacés, inchangés, par la migration des données (section 5.1).
 
-### 7.5.6 Identité, privilèges et configuration {#ipc}
+### 7.5.6 Gestion des identités et des accès (GIA/GAP) {#iam}
 
 Un module optionnel, **désactivé par défaut** : activez-le dans **Paramètres → Modules** (groupe
-Gouvernance). C'est une évaluation stratégique de posture avec sept registres de gouvernance locaux tenus
-**au niveau des populations** — des décomptes par groupe de comptes, de rôles, de campagnes, de périmètres de
-configuration ou de types de changements — saisis à la main ou proposés à partir d'un rapport téléversé. Il
-n'a **aucun connecteur** (annuaire, fournisseur d'identité, coffre d'accès privilégiés, CMDB, API
-infonuagique), n'exécute aucun flux d'approvisionnement, de demande d'accès ou de juste-à-temps, ne lance
-aucune session et ne corrige rien. Il ne contient jamais de **nom, de nom d'utilisateur, d'adresse courriel,
-d'identifiant de compte ni de secret**. Lorsqu'il est désactivé, son écran le dit, ses indicateurs, constats
-et propositions sont masqués, et ses données restent dans l'espace de travail.
+Gouvernance). C'est une évaluation stratégique de la posture des identités et des accès avec cinq registres de
+gouvernance locaux tenus **au niveau des populations** — des décomptes par groupe de comptes, de rôles ou de
+campagnes — saisis à la main ou proposés à partir d'un rapport téléversé. Il n'a **aucun connecteur**
+(annuaire, fournisseur d'identité, coffre d'accès privilégiés, API infonuagique), n'exécute aucun flux
+d'approvisionnement, de demande d'accès ou de juste-à-temps, ne lance aucune session et ne corrige rien. Il ne
+contient jamais de **nom, de nom d'utilisateur, d'adresse courriel, d'identifiant de compte ni de secret**.
+Lorsqu'il est désactivé, son écran le dit, ses indicateurs, constats et propositions sont masqués, et ses
+données restent dans l'espace de travail. Son module compagnon, la **Gestion de la configuration** (section
+7.5.7), s'active ou se désactive de façon indépendante.
 
 Chaque ligne porte une source (au plus 200 caractères), une date, un **statut** (*inféré*, *confirmé*,
 *inconnu* ou *contradictoire*), une confiance, un numéro E de preuve facultatif, une étiquette de provenance
@@ -2570,37 +2576,35 @@ analytique — validation requise » jusqu'à ce que la ligne soit confirmée.
 Les formulaires vérifient pendant la saisie. **L'enregistrement est désactivé** lorsqu'une règle
 d'inclusion est enfreinte (AMF ≤ comptes, AMF résistante à l'hameçonnage ≤ AMF, dormants ≤ comptes, sans
 propriétaire ≤ comptes; permanents, juste-à-temps, partagés et AMF ≤ titulaires; utilisations examinées ≤
-utilisations; décisions prises ≤ décisions attendues; révocations vérifiées ≤ révocations demandées;
-vérifiés ≤ changements; conformes ≤ évalués ≤ affectés ≤ périmètre), lorsqu'une date de rapprochement, de
-revue, de test, d'utilisation, de référence ou de clôture est dans le futur, lorsqu'un écart compensé n'a
-pas d'exception, et lorsqu'un texte contient une **adresse courriel ou un UPN, un nom `DOMAINE\utilisateur`,
-un SID, plus de trois adresses IP, ou un secret** (clés d'accès, clés privées, jetons, `password=`). Un
-**avertissement** laisse enregistrer : permanents et juste-à-temps différents des titulaires, aucun
-propriétaire pour une population de service, d'agents d'IA, d'urgence ou de niveau 0, et un texte qui
-ressemble au nom d'une personne (« Les registres contiennent des groupes, pas des personnes : indiquez un
-rôle ou une équipe. »).
+utilisations; décisions prises ≤ décisions attendues; révocations vérifiées ≤ révocations demandées),
+lorsqu'une date de rapprochement, de revue, de test, d'utilisation ou de clôture est dans le futur, et
+lorsqu'un texte contient une **adresse courriel ou un UPN, un nom `DOMAINE\utilisateur`, un SID, plus de trois
+adresses IP, ou un secret** (clés d'accès, clés privées, jetons, `password=`). Un **avertissement** laisse
+enregistrer : permanents et juste-à-temps différents des titulaires, aucun propriétaire pour une population
+de service, d'agents d'IA, d'urgence ou de niveau 0, et un texte qui ressemble au nom d'une personne (« Les
+registres contiennent des groupes, pas des personnes : indiquez un rôle ou une équipe. »).
 
-#### Vue d'ensemble {#ipc-overview}
+#### Vue d'ensemble {#iam-overview}
 
-Les huit tuiles d'indicateurs (valeur, numérateur et dénominateur, nombres d'inconnus et de périmés,
-statut), la **complétude par registre**, les **données clés** (comptes dormants, révocations non vérifiées,
-écarts ouverts de gravité élevée avec leur âge, changements vérifiés, respect des configurations de
-référence = conformes ÷ évalués avec la part non évaluée), la date de référence et les fenêtres (fraîcheur,
-revue des privilèges, test d'urgence, dormance), la carte **Propositions de maturité** et le tableau **Seuils
-des indicateurs**.
+Les six tuiles d'indicateurs — CRG-17 couverture de la propriété des identités, CRG-18 couverture de l'AMF des
+accès privilégiés, CRG-19 proportion de privilèges permanents, CRG-20 achèvement des revues des accès,
+CRG-21 utilisations d'urgence examinées et CRG-23 couverture des données d'identité connues (valeur,
+numérateur et dénominateur, nombres d'inconnus et de périmés, statut) —, la **complétude par registre**, les
+**données clés** (comptes dormants, révocations non vérifiées), la date de référence et les fenêtres
+(fraîcheur, revue des privilèges, test d'urgence, dormance), la carte **Propositions de maturité** et le
+tableau **Seuils des indicateurs**.
 
 Les **propositions de maturité** remplissent des réponses existantes — il n'y a pas de nouveau
 questionnaire : questions de résilience *pv1* (AMF des accès privilégiés, selon CRG-18) et *pv3* (arrivées,
-mutations et départs, selon CRG-20 et les comptes dormants); catégories CSF 2.0 **PR.AA** et **PR.PS**
-(jamais au-dessus de 3); et lignes de la déclaration d'applicabilité ISO/IEC 27002:2022 5.15 à 5.18, 8.2,
-8.5, 8.9, 8.32, CSF 2.0 PR.AA-01, PR.AA-03, PR.AA-05, PR.PS-01 et CIS Controls v8.1 CIS 4, CIS 5, CIS 6
-(*mise en œuvre* lorsque chaque indicateur associé est dans la cible, *partielle* lorsqu'un indicateur a une
-valeur). **Appliquer les éléments cochés** ne remplit que les **cases vides**; une réponse existante
-différente est affichée à côté et jamais remplacée. *ct2* et *ct3* sont dans le filtre mais jamais proposées :
-aucun registre ne les appuie. Les seuils se modifient par indicateur; **Rétablir la valeur par défaut**
-ramène les valeurs du module.
+mutations et départs, selon CRG-20 et les comptes dormants); catégorie CSF 2.0 **PR.AA** (jamais au-dessus
+de 3); et lignes de la déclaration d'applicabilité ISO/IEC 27002:2022 5.15 à 5.18, 8.2, 8.5, CSF 2.0
+PR.AA-01, PR.AA-03, PR.AA-05 et CIS Controls v8.1 CIS 5, CIS 6 (*mise en œuvre* lorsque chaque indicateur
+associé est dans la cible, *partielle* lorsqu'un indicateur a une valeur). **Appliquer les éléments cochés**
+ne remplit que les **cases vides**; une réponse existante différente est affichée à côté et jamais
+remplacée. *ct2* et *ct3* sont dans le filtre mais jamais proposées : aucun registre ne les appuie. Les seuils
+se modifient par indicateur; **Rétablir la valeur par défaut** ramène les valeurs du module.
 
-#### Comptes {#ipc-accounts}
+#### Comptes {#iam-accounts}
 
 Populations de comptes par type — *employé*, *contractuel ou fournisseur*, *service ou charge de travail*,
 *agent d'IA*, *urgence* — avec le libellé du groupe, le périmètre, le propriétaire (un rôle ou une équipe), le
@@ -2608,21 +2612,21 @@ nombre de comptes, avec AMF, avec AMF résistante à l'hameçonnage, dormants, s
 rapprochement. Les décomptes d'AMF ne visent que les personnes et les comptes d'urgence; les identités de
 service et les agents d'IA n'en ont pas. Mesures 5.1, 5.3 et 6.2 des CIS Controls v8.1.
 
-#### Rôles privilégiés {#ipc-privileged}
+#### Rôles privilégiés {#iam-privileged}
 
 Groupes de rôles privilégiés par **niveau** : le niveau 0 est le plan de contrôle (identité, sécurité,
 locataire infonuagique, clés), le niveau 1 la production critique, le niveau 2 l'administration limitée.
 Titulaires, permanents et juste-à-temps, avec AMF et AMF résistante à l'hameçonnage, comptes d'administration
 partagés, dernière revue. Mesures 5.4, 6.5 et 6.8 des CIS Controls v8.1.
 
-#### Comptes d'urgence {#ipc-emergency}
+#### Comptes d'urgence {#iam-emergency}
 
 Ensembles de comptes de bris de glace : le nombre de comptes, cinq contrôles de protection (garde hors ligne
 des identifiants, authentification forte, alerte à chaque utilisation, indépendance du fournisseur
 d'identité, identifiants réinitialisés après utilisation — chacun *oui*, *non* ou *inconnu*), le dernier
 test, les utilisations dans la fenêtre de revue, les utilisations examinées et la dernière utilisation.
 
-#### Revues des accès {#ipc-reviews}
+#### Revues des accès {#iam-reviews}
 
 Campagnes de revue des accès en résumé : population (tous les comptes, rôles privilégiés, niveau 0
 seulement, fournisseurs et contractuels, comptes de service), périmètre, propriétaire, dates d'échéance et de
@@ -2630,65 +2634,33 @@ clôture, décisions attendues et prises, révocations demandées et vérifiées
 propres accès. **Une révocation non vérifiée ne compte jamais comme faite.** Mesures 5.3 et 6.1 des CIS
 Controls v8.1.
 
-#### Configurations de référence {#ipc-baselines}
-
-Configurations de référence (CIS Benchmark, DISA STIG, guide de renforcement du fournisseur ou norme
-interne) avec leurs **versions**. **Nouvelle version** copie la plus récente comme ébauche. **Approuver**
-exige l'approbateur; la date et le **SHA-256** du contenu de la version sont consignés, la version passe en
-lecture seule et la version approuvée précédente devient *remplacée*. Un référentiel sous licence n'est cité
-que par sa référence de licence, jamais par son texte. Les **périmètres de configuration** consignent, par
-périmètre, les unités dans le périmètre, affectées à une configuration de référence, évaluées et conformes;
-un périmètre peut être compté en direct à partir des actifs informationnels. **Actifs non liés à une
-configuration de référence** liste les serveurs, postes, équipements réseau, services infonuagiques et
-appareils connectés qui n'en ont pas : **Lier** inscrit le nom de la configuration de référence et sa
-référence sur l'actif, sans toucher au statut de conformité propre à l'actif (ce statut continue de piloter
-le facteur de dérive de l'actif et la vérification AC-7). Mesures 4.1 et 4.7 des CIS Controls v8.1.
-
-#### Écarts et exceptions {#ipc-deviations}
-
-Écarts par rapport à une version de configuration de référence, pour un périmètre ou un actif : le nombre
-d'éléments, la **classe de dérive** (*dégradation*, *fonctionnel*, *transitoire*, *compensé*,
-*renforcement*, *inconnu*, ou à classer), la gravité, une courte référence d'exigence (jamais un texte sous
-licence), les dates, le propriétaire et l'état. Un écart **compensé** exige une exception liée du registre
-partagé des exceptions; une exception expirée est affichée **Expirée — non comptée**. **Demander une
-exception** ouvre le formulaire partagé des exceptions avec l'écart déjà nommé. Un écart sur un actif montre
-son rayon d'impact. **Actifs en dérive sans écart** liste les actifs dont le statut de configuration est
-*dérive*; **Consigner un écart** en crée un.
-
-#### Séparation des tâches {#ipc-sod}
+#### Séparation des tâches {#iam-sod}
 
 Règles nommant les deux tâches à ne pas cumuler, le processus, le nombre de conflits, le propriétaire,
 l'atténuation et les éventuelles mesures de protection compensatoires tirées des mesures de protection
 existantes.
 
-#### Changements de configuration {#ipc-changes}
+#### Constats et propositions {#iam-findings}
 
-Changements par période (`AAAA-Tn` ou `AAAA-MM`; la saisie suit la forme `YYYY-Qn` ou `YYYY-MM`) et par
-type — *standard*, *normal*, *urgence*, *non autorisé (soupçonné)* — avec le nombre de changements et
-combien ont été vérifiés, et un billet. Une ligne est un changement ou un agrégat.
-
-#### Constats et propositions {#ipc-findings}
-
-Seize règles déterministes proposent des constats à partir des registres : comptes de service ou d'agents
+Des règles déterministes proposent des constats à partir des registres : comptes de service ou d'agents
 d'IA sans propriétaire (IR-01), accès de niveau 0 ou 1 sans AMF pour chaque titulaire (IR-02), privilège
 permanent de niveau 0 (IR-03), comptes dormants (IR-04), comptes d'administration partagés (IR-05), accès
 d'urgence non testé ou sans un contrôle (IR-06), utilisations d'urgence non examinées (IR-07), revues
 incomplètes ou révocations non vérifiées (IR-08), conflits des réviseurs (IR-09), conflits de séparation des
-tâches sans atténuation (IR-10), dégradation ouverte de gravité élevée (IR-11), compensation par une
-exception expirée (IR-12), changements non autorisés soupçonnés (IR-13), changements d'urgence non vérifiés
-(IR-14), configuration de référence seulement héritée ou en ébauche (IR-15) et lignes périmées ou
-contradictoires (IR-16). Chacun affiche un **sens indicatif** — Pb(ψ,A) ↑ ou θ ↓ — jamais une valeur.
-**Consigner** ou **Écarter** (avec un motif). Sur un constat consigné : **Consigner comme preuve** ajoute une
-ligne au registre des éléments probants au numéro E suivant; **Lier un scénario** cite un scénario sans le modifier;
-**Proposer une modification de paramètre** prend la valeur **que vous saisissez** pour Pb(ψ,A) ou θ, avec la
-confiance, une justification citant le constat et son numéro E, et le ratio actuel et après du moteur
-vérifié. **Enregistrer comme proposition** ne change rien. **Accepter**, un acte distinct dans le tableau des
-propositions, inscrit la valeur dans le scénario, ajoute le constat et le numéro E aux preuves du paramètre,
-et consigne la modification dans le fondement du scénario, ses révisions et le journal des révisions.
-**Écarter** exige un motif. Rien n'est jamais appliqué automatiquement — ni par une migration, une
-importation, l'IA, les cas d'enseignement, les indicateurs, ni par l'activation du module.
+tâches sans atténuation (IR-10) et lignes périmées ou contradictoires (IR-16). Chacun affiche un **sens
+indicatif** — Pb(ψ,A) ↑ ou θ ↓ — jamais une valeur. **Consigner** ou **Écarter** (avec un motif). Sur un
+constat consigné : **Consigner comme preuve** ajoute une ligne au registre des éléments probants au numéro E
+suivant; **Lier un scénario** cite un scénario sans le modifier; **Proposer une modification de paramètre**
+prend la valeur **que vous saisissez** pour Pb(ψ,A) ou θ, avec la confiance, une justification citant le
+constat et son numéro E, et le ratio actuel et après du moteur vérifié. **Enregistrer comme proposition** ne
+change rien. **Accepter**, un acte distinct dans le tableau des propositions, inscrit la valeur dans le
+scénario, ajoute le constat et le numéro E aux preuves du paramètre, et consigne la modification dans le
+fondement du scénario, ses révisions et le journal des révisions. **Écarter** exige un motif. Rien n'est
+jamais appliqué automatiquement — ni par une migration, une importation, l'IA, les cas d'enseignement, les
+indicateurs, ni par l'activation du module. Les identifiants de constats (IF-nn) forment une seule suite avec
+ceux de la gestion de la configuration : un identifiant désigne un seul constat dans l'espace de travail.
 
-#### Importer d'un rapport {#ipc-import}
+#### Importer d'un rapport {#iam-import}
 
 Choisissez un fichier CSV, XLSX, PDF, DOCX ou TXT. Il est lu **en mémoire seulement** — jamais dans les
 documents de contexte, les fichiers conservés ni le journal d'importation — et libéré après **Accepter les
@@ -2696,14 +2668,14 @@ documents de contexte, les fichiers conservés ni le journal d'importation — e
 hors ligne : associez les colonnes (type, actif, dernière connexion, AMF, méthode d'AMF, propriétaire, rôle
 ou niveau) et les décomptes par population et par niveau sont calculés sur cet ordinateur; dormant signifie
 une dernière connexion plus ancienne que la fenêtre de dormance. Pour un rapport rédigé, **Préparer la
-requête d'IA** ne demande que des décomptes agrégés et va au **modèle local par défaut**; l'aperçu montre la
-charge exacte, combien de formes de courriel, d'UPN, de `DOMAINE\utilisateur` ou de SID elle contient, et
-propose l'anonymiseur. L'envoi à un fournisseur distant exige de cocher « Ce rapport contient des
-renseignements personnels sur le personnel; je suis autorisé à l'envoyer à … », et un espace de travail
-confidentiel confirme chaque appel. La réponse ne garde que les décomptes et énumérations autorisés; le reste
-est écarté. **Accepter les éléments cochés** inscrit les décomptes comme nouvelles lignes avec leur
-provenance et rien d'autre; la trace d'importation garde le nom du fichier, son SHA-256, sa taille et le
-nombre de lignes.
+requête d'IA** ne demande que des décomptes agrégés de comptes, de rôles privilégiés, de comptes d'urgence et
+de revues des accès, et va au **modèle local par défaut**; l'aperçu montre la charge exacte, combien de formes
+de courriel, d'UPN, de `DOMAINE\utilisateur` ou de SID elle contient, et propose l'anonymiseur. L'envoi à un
+fournisseur distant exige de cocher « Ce rapport contient des renseignements personnels sur le personnel; je
+suis autorisé à l'envoyer à … », et un espace de travail confidentiel confirme chaque appel. La réponse ne
+garde que les décomptes et énumérations autorisés; le reste est écarté. **Accepter les éléments cochés**
+inscrit les décomptes comme nouvelles lignes avec leur provenance et rien d'autre; la trace d'importation
+garde le nom du fichier, son SHA-256, sa taille et le nombre de lignes.
 
 **Vie privée (Loi 25 du Québec, minimisation des données).** Les données de comptes et d'accès sur le
 personnel, les contractuels et les médecins remplaçants sont des renseignements personnels au sens de la
@@ -2720,11 +2692,96 @@ d'individus. **Aucune conformité légale n'est revendiquée**; l'applicabilité
 l'organisation.
 
 L'alignement ontologique de ces enregistrements (populations de comptes, populations de rôles privilégiés,
-ensembles de comptes d'urgence, campagnes, règles de séparation, configurations de référence et versions,
-dérive, constats, exceptions et les huit indicateurs) suit CRGO 0.11; tant que ses identifiants ne sont pas
-renseignés, la vue d'ensemble indique combien de concepts les attendent.
+ensembles de comptes d'urgence, campagnes, règles de séparation, constats d'identité et de privilèges et les
+indicateurs) suit CRGO 0.11; la vue d'ensemble indique combien de ses termes sont encore proposés.
 
-### 7.5.7 Revue de qualité {#qc}
+### 7.5.7 Gestion de la configuration {#cm}
+
+Un module optionnel, **désactivé par défaut** : activez-le dans **Paramètres → Modules** (groupe
+Gouvernance), seul ou avec la gestion des identités et des accès (section 7.5.6). Il consigne les
+**configurations de référence** de l'organisation et la mesure dans laquelle ses systèmes les respectent, dans
+quatre registres locaux — configurations de référence avec leurs versions et périmètres de configuration,
+écarts, et changements de configuration — tenus en décomptes par périmètre ou type de changement. Il n'a aucun
+connecteur (CMDB, analyseur de configuration, API infonuagique), n'analyse aucun fichier de référentiel et ne
+corrige rien; un référentiel sous licence est cité par sa référence, jamais par son texte. Lorsqu'il est
+désactivé, son écran le dit, ses indicateurs, constats et propositions sont masqués, et ses données restent
+dans l'espace de travail.
+
+Les lignes suivent les mêmes règles que les registres d'identité : source, date, statut, confiance, numéro E
+de preuve, provenance et note; un **décompte laissé vide est inconnu, pas nul**; un périmètre dont la date de
+référence est vide ou plus ancienne que la fenêtre de fraîcheur porte le badge **périmé** et abaisse CRG-25.
+**L'enregistrement est désactivé** lorsque conformes > évalués, évalués > affectés ou affectés > périmètre,
+lorsque vérifiés > changements, lorsqu'une période ne suit pas la forme `YYYY-Qn` ou `YYYY-MM`, lorsqu'une
+date de référence est dans le futur, lorsqu'un écart compensé n'a pas d'exception, et lorsqu'un texte contient
+des identifiants personnels ou un secret.
+
+#### Vue d'ensemble {#cm-overview}
+
+Les trois tuiles d'indicateurs — CRG-22 couverture d'affectation des configurations de référence, CRG-24
+exceptions expirées et CRG-25 couverture des données de configuration connues —, la **complétude par
+registre**, les **données clés** (écarts ouverts de gravité élevée avec leur âge, changements vérifiés,
+respect des configurations de référence = conformes ÷ évalués avec la part non évaluée), la date de référence
+et la fenêtre de fraîcheur, la carte **Propositions de maturité** et le tableau **Seuils des indicateurs**.
+**Propositions de maturité** : la catégorie CSF 2.0 **PR.PS** (jamais au-dessus de 3) et les lignes de la
+déclaration d'applicabilité ISO/IEC 27002:2022 8.9 et 8.32, CSF 2.0 PR.PS-01 et CIS Controls v8.1 CIS 4;
+**Appliquer les éléments cochés** ne remplit que les cases vides.
+
+#### Configurations de référence {#cm-baselines}
+
+Configurations de référence (CIS Benchmark, DISA STIG, guide de renforcement du fournisseur ou norme
+interne) avec leurs **versions**. **Nouvelle version** copie la plus récente comme ébauche. **Approuver**
+exige l'approbateur; la date et le **SHA-256** du contenu de la version sont consignés, la version passe en
+lecture seule et la version approuvée précédente devient *remplacée*. Un référentiel sous licence n'est cité
+que par sa référence de licence, jamais par son texte. Les **périmètres de configuration** consignent, par
+périmètre, les unités dans le périmètre, affectées à une configuration de référence, évaluées et conformes;
+un périmètre peut être compté en direct à partir des actifs informationnels. **Actifs non liés à une
+configuration de référence** liste les serveurs, postes, équipements réseau, services infonuagiques et
+appareils connectés qui n'en ont pas : **Lier** inscrit le nom de la configuration de référence et sa
+référence sur l'actif, sans toucher au statut de conformité propre à l'actif (ce statut continue de piloter
+le facteur de dérive de l'actif et la vérification AC-7). Mesures 4.1 et 4.7 des CIS Controls v8.1.
+
+#### Écarts et exceptions {#cm-deviations}
+
+Écarts par rapport à une version de configuration de référence, pour un périmètre ou un actif : le nombre
+d'éléments, la **classe de dérive** (*dégradation*, *fonctionnel*, *transitoire*, *compensé*,
+*renforcement*, *inconnu*, ou à classer), la gravité, une courte référence d'exigence (jamais un texte sous
+licence), les dates, le propriétaire et l'état. Un écart **compensé** exige une exception liée du registre
+partagé des exceptions; une exception expirée est affichée **Expirée — non comptée** et compte dans CRG-24. **Demander une
+exception** ouvre le formulaire partagé des exceptions avec l'écart déjà nommé. Un écart sur un actif montre
+son rayon d'impact. **Actifs en dérive sans écart** liste les actifs dont le statut de configuration est
+*dérive*; **Consigner un écart** en crée un.
+
+#### Changements de configuration {#cm-changes}
+
+Changements par période (`AAAA-Tn` ou `AAAA-MM`; la saisie suit la forme `YYYY-Qn` ou `YYYY-MM`) et par
+type — *standard*, *normal*, *urgence*, *non autorisé (soupçonné)* — avec le nombre de changements et
+combien ont été vérifiés, et un billet. Une ligne est un changement ou un agrégat.
+
+#### Constats et propositions {#cm-findings}
+
+Des règles déterministes proposent des constats à partir des registres de configuration : dégradation
+ouverte de gravité élevée (IR-11), compensation par une exception expirée (IR-12), changements non autorisés
+soupçonnés (IR-13), changements d'urgence non vérifiés (IR-14), configuration de référence seulement héritée
+ou en ébauche (IR-15) et lignes périmées ou contradictoires (IR-16). Consigner, écarter, consigner comme
+preuve, lier un scénario, proposer et accepter fonctionnent comme dans la gestion des identités et des accès
+(section 7.5.6) : la règle ne donne qu'un sens, la valeur est saisie par l'analyste, enregistrer une
+proposition ne change rien, et **Accepter** est un acte distinct et journalisé.
+
+#### Importer d'un rapport {#cm-import}
+
+Un rapport PDF, DOCX, TXT, CSV ou XLSX est lu **en mémoire seulement**, comme dans la gestion des identités et
+des accès. Il n'y a pas de règles de colonnes ici : **Préparer la requête d'IA** ne demande que des décomptes
+agrégés de périmètres de configuration (dans le périmètre, affectés, évalués, conformes) et de changements de
+configuration (par type, vérifiés), va au **modèle local par défaut**, montre la charge exacte et propose
+l'anonymiseur; un fournisseur distant exige la case à cocher et un espace de travail confidentiel confirme
+chaque appel. **Accepter les éléments cochés** inscrit les décomptes comme nouvelles lignes avec leur
+provenance; la trace d'importation garde le nom du fichier, son SHA-256, sa taille et le nombre de lignes.
+
+L'alignement ontologique de ces enregistrements (configurations de référence et versions, classes de dérive,
+constats de configuration, exceptions et les indicateurs, CRG-25 étant la couverture de la configuration
+connue de CRGO) suit CRGO 0.11.
+
+### 7.5.8 Revue de qualité {#qc}
 
 Dix-huit vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte l'analyste, chacune avec
 *réussi*, *à surveiller* ou *échec*, le détail, et un bouton menant à l'écran qui permet la correction.

@@ -45,7 +45,8 @@ import * as csm from './panels/csm.js';
 import * as audit from './panels/audit.js';
 import * as qc from './panels/qc.js';
 import * as shared from './panels/shared.js';
-import * as ipc from './panels/ipc.js';
+import * as iam from './panels/iam.js';
+import * as cm from './panels/cm.js';
 import * as siem from './panels/siem.js';
 import * as soar from './panels/soar.js';
 import * as evidence from './panels/evidence.js';
@@ -63,7 +64,7 @@ import { nextStep } from './process.js';
 import { leaveProfile } from './panels/org.js';
 import { hfetch } from './helper.js';
 
-const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, ipc, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
+const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, iam, cm, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
 export const ENGINE = { ok: false };
 
 /* ---------------- engine self-check (MediBec reference: 84,305 / 41,023 since 1.8.0, S2 and S8 at AV:L) ---------------- */

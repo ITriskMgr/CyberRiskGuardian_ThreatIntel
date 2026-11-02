@@ -16,7 +16,8 @@ import { today } from './util.js';
 export const KINDS = [['policy', 'Policy'], ['statement', 'Policy statement'], ['control', 'Control or safeguard'], ['obligation', 'Obligation'],
   ['finding', 'Audit finding'], ['observation', 'Audit observation'], ['issue', 'Policy non-compliance'], ['incident', 'Incident'], ['case', 'SOAR case'],
   ['rule', 'Detection rule'], ['playbook', 'Playbook'], ['scenario', 'Risk scenario'], ['determination', 'Compliance determination'], ['campaign', 'Compliance campaign'],
-  ['engagement', 'Audit engagement'], ['submission', 'Regulatory submission'], ['gap', 'Detection gap'], ['alert', 'SIEM alert'], ['indicator', 'Threat indicator'], ['lesson', 'Lesson learned'], ['other', 'Other']];
+  ['engagement', 'Audit engagement'], ['submission', 'Regulatory submission'], ['gap', 'Detection gap'], ['alert', 'SIEM alert'], ['indicator', 'Threat indicator'], ['lesson', 'Lesson learned'],
+  ['iam-finding', 'Identity or access finding'], ['cm-finding', 'Configuration finding'], ['other', 'Other']];
 export const kindLabel = k => (KINDS.find(x => x[0] === k) || [k, k])[1];
 
 /* ---------------- accessors ---------------- */

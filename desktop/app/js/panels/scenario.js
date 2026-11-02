@@ -14,7 +14,8 @@ import * as CRGO from '../crgo.js';
 import { tr } from '../i18n.js';
 import * as SEED from '../secops_seed.js';
 import { statusAt, TLP_RESTRICTED } from '../siem.js';
-import * as IPCP from './ipc.js';
+import * as IAMP from './iam.js';
+import * as CMP from './cm.js';
 import * as EQ from '../equiv.js';
 import * as users from '../users.js';
 import * as PAT from '../data/scenpatterns.js';
@@ -249,7 +250,7 @@ export function render(sec, arg) {
   P.links.append(secopsCard(s, sec));
 
   // threat basis
-  { const c = IPCP.scenarioCard(s); if (c) P.links.append(c); }   // identity, privilege & configuration evidence (read-only)
+  for (const X of [IAMP, CMP]) { const c = X.scenarioCard(s); if (c) P.links.append(c); }   // identity & access and configuration evidence (read-only)
   if (Array.isArray(s.threat_basis) && s.threat_basis.length) {
     P.links.append(card(el('h2', null, 'Threat-context basis (audit trail)'), ...s.threat_basis.map((b, i) => el('div', 'docrow',
       el('div', null, el('b', null, (b.cve || '') + ' · ' + (b.parameter || '') + ' · rung ' + (b.ladder_rung ?? '')), el('div', 'small', (b.evidence || []).join('; ')), el('div', 'small muted', 'Exposure: ' + (b.exposure || '—'))),

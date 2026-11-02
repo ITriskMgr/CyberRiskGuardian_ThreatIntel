@@ -14,8 +14,8 @@ const errs = []; page.on('pageerror', e => errs.push(String(e)));
 await page.reload();
 await page.waitForFunction(async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, polling: 300 });
 ok(/84,305 \/ 41,023/.test(await page.textContent('body')), 'offline: engine verified');
-await page.evaluate(async () => (await import('/js/modules.js')).set('ipc', true));
-for (const r of ['ontology/suggest', 'registry/browse', 'isp/policies', 'compliance/report', 'ipc/overview', 'ipc/baselines', 'ipc/findings', 'ipc/import']) { await page.evaluate(h => location.hash = '#/' + h, r); await page.waitForTimeout(700); }
+await page.evaluate(async () => { const M = await import('/js/modules.js'); M.set('iam', true); M.set('cm', true); });
+for (const r of ['ontology/suggest', 'registry/browse', 'isp/policies', 'compliance/report', 'iam/overview', 'iam/findings', 'iam/import', 'cm/overview', 'cm/baselines', 'cm/findings', 'cm/import']) { await page.evaluate(h => location.hash = '#/' + h, r); await page.waitForTimeout(700); }
 ok(!errs.length, 'offline: new screens render ' + errs.join('|').slice(0, 200));
 for (const p of ['help/user-guide.html', 'help/step-by-step.html', 'USER-GUIDE.fr.md', 'data/crgo-snapshot.json']) {
   const r = await page.evaluate(async u => (await fetch('/' + u)).status, p); ok(r === 200, 'offline: ' + p + ' ' + r);

@@ -51,11 +51,12 @@ answers from passages retrieved on this computer (the textbook, CRGO, the worksp
 optional licensed library) and replaces the AI assistant; **French that follows the French book** (*appétence pour le
 risque*, *joyaux de la couronne*, *registre des éléments probants*, *ratio de tolérance*) and **chapter-linked help**
 ("Read more: Chapter N — section") on every screen and step; a second bundled teaching example, **CanaRetail** (English
-and French, 27,526 / 16,049), and **MediBec in French**; an optional **Identity, privilege & configuration** module
-(population-level registers, eight KRIs, findings as evidence and proposals — nothing applied automatically); **SSVC**
+and French, 27,526 / 16,049), and **MediBec in French**; two optional modules, **Identity & access
+management (IAM/PAM)** and **Configuration management** (population-level registers, six and three KRIs, findings as
+evidence and proposals — nothing applied automatically); **SSVC**
 decisions beside EPSS and KEV (a response priority, never a likelihood); and **AI forecasting** — exploitation over 30
 days, a mitigation optimizer and the residual-risk path, every number from the verified engine. Workspaces move to data
-version 4 (journalled); the MediBec reference stays **84,305 / 41,023**. The browser suites, gates and a GitHub Actions
+version 5 (journalled); the MediBec reference stays **84,305 / 41,023**. The browser suites, gates and a GitHub Actions
 workflow are in `tests/` and `.github/workflows/desktop-ci.yml`. See `app/CHANGELOG.md`; upgrading: `app/INSTALL.md`,
 section 7.
 

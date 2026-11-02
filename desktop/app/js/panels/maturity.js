@@ -10,19 +10,29 @@ import { S, touch, scen } from '../state.js';
 import * as MT from '../maturity.js';
 import * as SG from '../safeguards.js';
 import { lineChart } from '../charts.js';
-import * as IPC from '../ipc.js';
+import * as IAM from '../iam.js';
+import * as CM from '../cm.js';
 
 let view = 'maturity';
 let fnFilter = 'all';
 let scope = 'all';
-let ipcOnly = false;   // the "Identity, privilege & configuration" filter chip (module on)
-/** The filter chip of the optional module: PR.AA, PR.PS and the questions pv1, pv3, ct2, ct3 only. */
-function ipcChip(sec) {
-  if (!IPC.on()) { ipcOnly = false; return null; }
-  const c = el('input', { type: 'checkbox', checked: ipcOnly, id: 'mt-ipc-chip', style: { width: 'auto', margin: 0 } });
-  c.addEventListener('change', () => { ipcOnly = c.checked; render(sec); });
-  return el('div', 'chips', { style: { margin: '6px 0' } }, el('label', { class: 'chip', style: { cursor: 'pointer', gap: '4px' } }, c, el('span', null, 'Identity, privilege & configuration')),
-    el('button', { class: 'btn xs ghost', onclick: () => go('ipc/overview') }, 'Maturity proposals'));
+/* The filter chips of the optional modules (each shown when its module is on): Identity & access management keeps
+   PR.AA and the questions pv1, pv3, ct2, ct3; Configuration management keeps PR.PS (it has no resilience question). */
+const CHIP_MODULES = [IAM, CM];
+const only = { iam: false, cm: false };
+const chipOn = () => CHIP_MODULES.filter(X => X.on() && only[X.ID]);
+/** Is a key kept by the ticked chips? (true when no chip is ticked) */
+const keep = (what, key) => { const on = chipOn().filter(X => X.CONTROLS[what].length); return !on.length || on.some(X => X.CONTROLS[what].includes(key)); };
+function moduleChips(sec, what) {
+  for (const X of CHIP_MODULES) if (!X.on()) only[X.ID] = false;
+  const shown = CHIP_MODULES.filter(X => X.on() && X.CONTROLS[what].length);
+  if (!shown.length) return null;
+  return el('div', 'chips', { style: { margin: '6px 0' } }, ...shown.flatMap(X => {
+    const c = el('input', { type: 'checkbox', checked: only[X.ID], id: 'mt-' + X.ID + '-chip', style: { width: 'auto', margin: 0 } });
+    c.addEventListener('change', () => { only[X.ID] = c.checked; render(sec); });
+    return [el('label', { class: 'chip', style: { cursor: 'pointer', gap: '4px' } }, c, el('span', null, X.LABEL)),
+      el('button', { class: 'btn xs ghost', onclick: () => go(X.ID + '/overview') }, 'Maturity proposals')];
+  }));
 }
 
 export function render(sec) {
@@ -60,7 +70,7 @@ function maturityView(body, sec) {
         touch(); toast(n ? `${n} categories filled from the inventory — review each one` : 'Every proposed category is already scored'); render(sec);
       } }, 'Fill the unscored ones from the inventory')))));
 
-  body.append(ipcChip(sec));
+  body.append(moduleChips(sec, 'categories'));
   const fnSel = select([['all', 'Every function'], ...MT.FUNCTIONS.map(([k, l]) => [k, k + ' · ' + l])], fnFilter);
   fnSel.addEventListener('change', () => { fnFilter = fnSel.value; render(sec); });
   body.append(card(el('div', 'row', { style: { alignItems: 'center' } }, fnSel,
@@ -93,7 +103,7 @@ function maturityView(body, sec) {
           const i = el('input', { type: 'text', value: c.evidence, placeholder: 'what someone could check' });
           i.addEventListener('input', () => { M.evidence[c.key] = i.value; touch(); });
           return i; } },
-    ], (fnFilter === 'all' ? m.cats : m.cats.filter(c => c.fn === fnFilter)).filter(c => !ipcOnly || IPC.CONTROLS.categories.includes(c.key)), { class: 'compact' })));
+    ], (fnFilter === 'all' ? m.cats : m.cats.filter(c => c.fn === fnFilter)).filter(c => keep('categories', c.key)), { class: 'compact' })));
 
   body.append(recordCard(sec));
 }
@@ -111,16 +121,16 @@ function resilienceView(body, sec) {
     el('b', null, 'Unknown'), ' is a real answer: it is recorded as an information gap and left out of the score, instead of being counted as a zero nobody verified.'),
     r.unknown ? el('div', 'chips', pill(MK.INFO_GAP, 'warn')) : null));
 
-  body.append(ipcChip(sec));
+  body.append(moduleChips(sec, 'questions'));
   for (const c of r.caps) {
-    if (ipcOnly && !c.qs.some(q => IPC.CONTROLS.questions.includes(q.id))) continue;
+    if (!c.qs.some(q => keep('questions', q.id))) continue;
     const invCov = SG.capabilityCoverage(ws).find(x => x.key === c.key);
     const cc = card(el('div', 'row', el('h2', { style: { flex: 1, margin: 0 } }, c.label),
       c.score === null ? pill('not answered', '') : pill(Math.round(c.score * 100) + '%', c.score >= 0.67 ? 'good' : c.score >= 0.34 ? 'warn' : 'bad'),
       invCov && invCov.best ? pill(`inventory: ${invCov.count} safeguard${invCov.count === 1 ? '' : 's'}`, 'good') : pill('inventory: nothing in force', 'warn')));
     cc.append(el('p', 'small muted', SG.CAPABILITY[c.key]?.hint));
     for (const q of c.qs) {
-      if (ipcOnly && !IPC.CONTROLS.questions.includes(q.id)) continue;
+      if (!keep('questions', q.id)) continue;
       const s = select([['', '—'], ...MT.ANSWERS.map(([v, l]) => [String(v), l])], q.a === null ? '' : String(q.a));
       s.addEventListener('change', () => { if (s.value === '') delete M.answers[q.id]; else M.answers[q.id] = +s.value; touch(); render(sec); });
       cc.append(el('div', 'row', { style: { alignItems: 'flex-start', margin: '6px 0' } },

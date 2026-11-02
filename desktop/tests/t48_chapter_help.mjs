@@ -46,11 +46,11 @@ const visit = async r => { await page.evaluate(h => { location.hash = '#/' + h; 
   await page.waitForFunction(() => { const s = [...document.querySelectorAll('section[id^="panel-"]')].find(x => !x.hidden); return !!s?.querySelector('h1 .helpq'); }, null, { timeout: 8000, polling: 150 }).catch(() => {}); };
 const sectionOf = r => { const [p, a] = r.split('/'); const id = (a && SCREENS[p + '/' + a]) || SCREENS[p]; return id === 'none' ? null : id; };
 
-// Every module on: a module that is off by default (identity, privilege & configuration) shows only its "switched off"
+// Every module on: a module that is off by default (identity & access management, configuration management) shows only its "switched off"
 // notice, which carries no chapter line; the screen itself is what is under test.
 await page.evaluate(async () => { const M = await import('/js/modules.js'); for (const m of M.MODULES) if (!M.enabled(m.id)) M.set(m.id, true); });
 const routes = [...panels.filter(p => p !== 'scenario'), 'org/profile', 'org/crown', 'screening/families', 'recs/shared', 'csm/incidents', 'isms/exceptions', 'settings/users', 'settings/general',
-  'ipc/privileged', 'ipc/baselines', 'vulns/ssvc', 'forecast/exploit', 'forecast/optimizer', 'ai/history', 'settings/kb'];
+  'iam/privileged', 'cm/baselines', 'vulns/ssvc', 'forecast/exploit', 'forecast/optimizer', 'ai/history', 'settings/kb'];
 for (const r of routes) {
   await visit(r);
   const L = await lineOf(), want = sectionOf(r);
