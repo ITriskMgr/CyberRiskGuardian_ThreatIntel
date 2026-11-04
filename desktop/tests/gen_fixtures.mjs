@@ -1,5 +1,6 @@
 // Generate workspaces as saved by earlier releases: each old build is served statically and its own code creates the data.
 import { chromium } from 'playwright';
+import { waitInPage } from './lib.mjs';
 import { spawn } from 'child_process';
 import fs from 'fs';
 // Maintenance tool, not a suite: the unpacked earlier builds are not in the repository. Give their folders as
@@ -16,7 +17,7 @@ for (const [v, dir] of Object.entries(builds)) {
   const ctx = await browser.newContext({ serviceWorkers: 'block' });
   const page = await ctx.newPage();
   await page.goto(`http://127.0.0.1:${port}/#/process`);
-  await page.waitForFunction(async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 30000, polling: 300 });
+  await waitInPage(page, async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 30000, every: 300 });
   const dump = await page.evaluate(async (v) => {
     const st = await import('/js/state.js'); const store = await import('/js/store.js');
     // a second, organization workspace with some analyst work, built with this release's own factory

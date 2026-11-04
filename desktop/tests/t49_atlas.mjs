@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { chromium } from 'playwright';
 import { execSync } from 'child_process';
-import { open, ok, done, goto, medibec, URL, PORT, APP, serveCmd } from './lib.mjs';
+import { open, ok, done, goto, medibec, URL, PORT, APP, serveCmd, waitInPage } from './lib.mjs';
 
 const FONTS = fs.readdirSync(path.join(APP, 'fonts')).filter(f => f.endsWith('.woff2'));
 
@@ -193,7 +193,7 @@ await browser.close();
   await p.waitForTimeout(2500); await p.reload().catch(() => {}); await p.waitForTimeout(2500);
   execSync(`fuser -k ${PORT}/tcp || pkill -f 'serve.py ${PORT}$' || true`); await p.waitForTimeout(800);
   await p.reload();
-  await p.waitForFunction(async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, polling: 300 });
+  await waitInPage(p, async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, every: 300 });
   const off = await p.evaluate(async () => { await document.fonts.ready; await document.fonts.load('600 20px Sora'); await document.fonts.load('400 14px "Atkinson Hyperlegible"');
     const st = await Promise.all(['sora-latin-600-normal.woff2', 'atkinson-hyperlegible-latin-400-normal.woff2'].map(async f => (await fetch('/fonts/' + f)).status));
     return { sora: document.fonts.check('600 20px Sora'), atk: document.fonts.check('400 14px "Atkinson Hyperlegible"'), st }; });

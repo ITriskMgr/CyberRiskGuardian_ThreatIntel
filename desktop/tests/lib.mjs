@@ -56,15 +56,9 @@ export async function apiHeaders(extra = {}) {
 
 // Readiness of the page: the workspace is open and the list is known. Evaluated again after a pause because the
 // first answer can come from a module instance that is about to be replaced (the first open of a fresh profile
-// migrates and reloads); an evaluation cut by that navigation is retried, not failed.
+// migrates and reloads); an evaluation cut by that navigation counts as "not yet" (waitInPage), not as a failure.
 const READY = async () => { const m = await import('/js/state.js'); return !!m.S.ws && m.S.list.length > 0; };
-async function waitReady(page, ms = 20000) {
-  const end = Date.now() + ms;
-  for (;;) {
-    try { await page.waitForFunction(READY, null, { timeout: Math.max(1000, end - Date.now()), polling: 300 }); return; }
-    catch (e) { if (Date.now() >= end || !/context was destroyed|navigation|Target closed|detached/i.test(String(e))) throw e; await page.waitForLoadState('load').catch(() => {}); }
-  }
-}
+const waitReady = (page, ms = 20000) => waitInPage(page, READY, null, { timeout: ms, every: 300 });
 
 /** Reload the page and wait as open() does: a workspace is open, and still open a second later (the start-up chain can
     close and reopen it, so a single check right after the reload races it). */
@@ -91,8 +85,8 @@ export async function open(hash = '#/process') {
   await page.waitForFunction(() => !![...document.querySelectorAll('main > section')].find(s => !s.hidden)?.querySelector('h1'),
     null, { timeout: 20000, polling: 200 }).catch(() => {});
   // A fresh profile seeds the MediBec teaching case just after the first workspace opens; most suites select it.
-  await page.waitForFunction(async () => { const m = await import('/js/state.js'); if (!m.S.list.some(w => w.kind === 'example')) await m.refreshList?.(); return m.S.list.some(w => w.kind === 'example'); },
-    null, { timeout: 20000, polling: 300 }).catch(() => {});
+  await waitInPage(page, async () => { const m = await import('/js/state.js'); if (!m.S.list.some(w => w.kind === 'example')) await m.refreshList?.(); return m.S.list.some(w => w.kind === 'example'); },
+    null, { timeout: 20000, every: 300 }).catch(() => {});
   return { browser, ctx, page, errors };
 }
 
@@ -105,11 +99,17 @@ export async function modulesOn(page, on = true, ids = ['iam', 'cm']) {
 export async function medibec(page) {
   return page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => w.kind === 'example' && /MediBec/.test(w.name)); if (ex && st.S.ws.id !== ex.id) await st.select(ex.id); return st.S.ws.name; });
 }
-/** Wait until an async predicate run in the page returns true; throws after `timeout` ms. Use this rather than
- *  page.waitForFunction(async …): Playwright treats the Promise an async predicate returns as truthy and resolves at once. */
+/** Wait until a predicate run in the page (async allowed) returns a truthy value, and return it; throws after `timeout`
+ *  ms. Use this rather than page.waitForFunction(async …): Playwright treats the Promise an async predicate returns as
+ *  truthy and resolves at once. An evaluation cut by a navigation (the app reloads itself after a migration or when its
+ *  service worker takes over) counts as "not yet", as it would for waitForFunction. */
+const NAVIGATED = /context was destroyed|navigation|navigated|Cannot find context/i;
 export async function waitInPage(page, fn, arg, { timeout = 10000, every = 100 } = {}) {
   const end = Date.now() + timeout;
-  while (!(await page.evaluate(fn, arg))) {
+  for (;;) {
+    let v = false;
+    try { v = await page.evaluate(fn, arg); } catch (e) { if (!NAVIGATED.test(String(e))) throw e; }
+    if (v) return v;
     if (Date.now() > end) throw new Error('waitInPage: condition not met within ' + timeout + ' ms: ' + String(fn).slice(0, 120));
     await page.waitForTimeout(every);
   }
