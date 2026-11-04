@@ -3,6 +3,18 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## 1.7.1 — 4 November 2026
+
+Documentation and guardrail wording only. No formula change: the MediBec regression stays at 84,305 / 41,023.
+
+### Changed
+- **Less repeated instruction text at session start.** `CLAUDE.md` keeps only the Claude Code specifics that AGENTS.md
+  and `settings.json` do not already state (component lists and environment defaults now come from the components
+  themselves). `.claude/rules/evidence-discipline.md` and `.claude/rules/threat-intel.md` keep only rules AGENTS.md does
+  not state. The SessionStart guardrail (`hooks/session-context.md`) is condensed but stays self-contained for plugin
+  installs outside this repository. No guardrail was removed.
+- AGENTS.md lists the `ssvc_decision` tool of the `crg-calculator` server; `methodology-maintenance.md` names CRGO tag v0.11.0.
+
 ## 1.7.0 — with Desktop 1.9.0 Beta — 2 November 2026
 
 Plugin minor release shipped with CyberRiskGuardian Desktop 1.9.0 Beta (`desktop/app/CHANGELOG.md`). No formula change:

@@ -16,5 +16,5 @@ paths:
 - Never hand-edit a total in examples, docs or tests: change the inputs (`examples/medibec/source/data.py`, `new_scen.py`), regenerate with `python3 data.py && python3 data30.py && python3 budget.py`, and rebuild the deliverables as `examples/medibec/README.md` describes.
 - Run the label check on any changed deliverable: `python3 plugins/cyberriskguardian-threatintel/hooks/check_labels.py <files>`.
 - Keep wording aligned with the book (v2.51): three markers, 19 steps, 25–40 candidates (never fewer than 20), 12 screening criteria, five generation strategies, risk indices vs KRIs, budget point targets 12% / 7.8% / 4%. CRG wins on method; the book gets an erratum.
-- With a CRGO checkout (tag v0.10.0) available, also run `python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crgo_contract.py --crgo <path>`: every check must pass, and it must leave no `.ttl` or result file in the repository.
+- With a CRGO checkout (tag v0.11.0) available, also run `python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crgo_contract.py --crgo <path>`: every check must pass, and it must leave no `.ttl` or result file in the repository.
 - Never change a CRG formula silently; record methodology decisions in `master-task-spec.md` ("Resolved methodology choices").
