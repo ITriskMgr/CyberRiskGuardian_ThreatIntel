@@ -1,10 +1,10 @@
-# CyberRiskGuardian Desktop 1.9.0 Beta (1.9.x) — Installation
+# CyberRiskGuardian Desktop 1.9.1 Beta (1.9.x) — Installation
 
 **English below · [Français plus bas](#français)**
 
-Version 1.9.0 (beta) — for teaching, exploration and method validation. Validate every result before it
+Version 1.9.1 (beta) — for teaching, exploration and method validation. Validate every result before it
 supports a real decision. © 2026 Marc-André Léger · proprietary licence, free for students and non-profit organisations. Who
-needs which licence: **Help → About → Licence** in the application, or `LICENSE` and the `licences` folder.
+needs which licence: **Help → About & versions → Licence** in the application, or `LICENSE` and the `licences` folder.
 
 ---
 
@@ -25,7 +25,7 @@ is never reachable from your network, even while it is running.
 
 ## 2. Unpack
 
-Unzip **`CyberRiskGuardian_Desktop_v1.9.0-beta.zip`** anywhere you can write — your Documents folder
+Unzip **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip`** anywhere you can write — your Documents folder
 is fine. Keep the folder intact: the application loads its own files by relative path.
 
 ## 3. Start it
@@ -47,7 +47,7 @@ fetches them. **Control-C** stops it.
 By hand, if you prefer:
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.9.0-beta
+cd CyberRiskGuardian_Desktop_v1.9.1-beta
 python3 serve.py 8099
 ```
 
@@ -62,7 +62,8 @@ another port.
 
 ## 4. Check the engine before trusting a number
 
-The bottom of the left sidebar must read:
+The bottom of the left menu must show `© Marc-André Léger · ✓ Engine verified`. Click it (or open
+**Help → About & versions**) to see the totals behind it:
 
 ```
 engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049
@@ -73,9 +74,9 @@ compares the totals with the reference implementation, then the French MediBec (
 CanaRetail case in English and French (27,526 / 16,049). When they match, the engine in your browser
 agrees with the reference.
 
-| The footer reads | What it means | What to do |
+| Help → About & versions reads (the footer shows) | What it means | What to do |
 |---|---|---|
-| `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` | Correct. | Carry on. |
+| `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` (✓ Engine verified) | Correct. | Carry on. |
 | `engine loading…`, and it stays | Opened as a file instead of being served. | Section 3. |
 | `engine missing` | `crg.js`, `cvss4.js` or `sample.js` did not load. | Unzip again and keep the folder intact. |
 | `engine DIVERGES` and a red banner | The engine disagrees with the reference. | **Do not rely on any number.** Restore a clean copy. |
@@ -198,7 +199,7 @@ application picks up the new files.
 (journalled in Backup & restore → Migration journal; no number changes). The offline copy of the ontology is rebuilt
 from CRGO 0.11.0 (tag v0.11.0: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
 and 42001, CCSPA). The page and the helper now share a token made at each
-start, so start 1.9.0 with its own launcher and close any tab still open on the previous version. API keys stored in the
+start, so start 1.9.1 with its own launcher and close any tab still open on the previous version. API keys stored in the
 feeds folder are moved once to the macOS keychain or `~/.cyberriskguardian` (Windows shows a warning). **Ontology · CRGO**
 is now under **Organization**; the AI assistant is now the **Virtual consultant** (Tools, and the **Consultant** button of the
 top bar). The two new modules, **Identity & access management (IAM/PAM)** and **Configuration management**, are off until you
@@ -207,7 +208,7 @@ published with the release. **From 1.8.0:** the
 ontology copy also carries the earlier changes (MediBec S2 and S8 scored AV:L in the scenario library, risk-index
 wording).
 
-If you switched it on, **Help → About → Versions → Check now** (or the check at start-up) tells you when a newer
+If you switched it on, **Help → About & versions → Check now** (or the check at start-up) tells you when a newer
 release exists and downloads its ZIP into your feeds folder; nothing is installed for you. The steps are the
 same either way:
 
@@ -215,13 +216,13 @@ same either way:
 1. **Export anything you would hate to lose first** — Backup & restore → *Make a backup* → *Download backup*,
    which writes one file holding every workspace. Your workspaces live in the browser, not in the folder,
    so unzipping a new version does not touch them; a backup is for the day something else does.
-2. Unzip 1.9.0 into a **new** folder beside the old one. Do not unzip over the old folder.
+2. Unzip 1.9.1 into a **new** folder beside the old one. Do not unzip over the old folder.
 3. **Stop the old server** if its terminal window is still open (Control-C). The launchers detect an
    earlier copy on the same port, stop it and say so, but an old window left running is the usual
    reason a browser keeps showing the previous version.
 4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
    8099 — and your workspaces are there.
-5. **Help → About → Versions** must read `1.9.0 beta`, and the footer `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`
+5. **Help → About & versions** must read `1.9.1 beta` and `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, and the footer ✓ Engine verified
    (1.7.x read 84,491 / 41,104: the MediBec reference changed because S2 and S8 now use AV:L, as the textbook does).
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
@@ -229,7 +230,7 @@ same either way:
    `~/.cyberriskguardian/crg-keys.json` — so they survive the change.
 
 7. At the first start, answer the question **Check for updates at start-up?** — *No* keeps the application
-   from asking GitHub anything; you can change it later in Help → About → Versions.
+   from asking GitHub anything; you can change it later in Help → About & versions.
 8. Open **Governance → Quality review**: QC-23 lists any control reference that could not be mapped to the
    current catalogues (see below), and QC-26 says whether your copy of the MediBec teaching case still carries
    the earlier S2 and S8 vectors (**Reset data → Start over** takes the current case).
@@ -257,7 +258,7 @@ read-only and never saved over.
 **8.1 `start.command` opens in a text editor instead of running (macOS).**
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.9.0-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.9.1-beta
 chmod +x start.command start.sh
 ```
 
@@ -299,10 +300,10 @@ To start a teaching case over, or to clear or delete a workspace, use **Organiza
 
 # Français
 
-Version 1.9.0 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
+Version 1.9.1 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
 Validez chaque résultat avant qu’il n’appuie une décision réelle. © 2026 Marc-André Léger ·
 licence propriétaire, gratuite pour les étudiants et les organismes sans but lucratif. Quelle licence
-s’applique : **Aide → À propos → Licence** dans l’application, ou `LICENSE` et le dossier `licences`.
+s’applique : **Aide → À propos et versions → Licence** dans l’application, ou `LICENSE` et le dossier `licences`.
 
 ## 1. Ce qu’il vous faut
 
@@ -320,7 +321,7 @@ fonctionne.
 
 ## 2. Décompresser
 
-Décompressez **`CyberRiskGuardian_Desktop_v1.9.0-beta.zip`** à un endroit où vous avez le droit
+Décompressez **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip`** à un endroit où vous avez le droit
 d’écrire ; votre dossier Documents convient. Gardez le dossier intact : l’application charge ses
 propres fichiers par chemin relatif.
 
@@ -344,7 +345,7 @@ téléchargez des sources de menace, l’assistant qui va les chercher. **Contr�
 À la main, si vous préférez :
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.9.0-beta
+cd CyberRiskGuardian_Desktop_v1.9.1-beta
 python3 serve.py 8099
 ```
 
@@ -360,7 +361,8 @@ puis ouvrez `http://localhost:8099/`. Le port est un argument positionnel :
 
 ## 4. Vérifier le moteur avant de vous fier à un chiffre
 
-Le bas de la barre latérale gauche doit afficher ceci (les nombres gardent le même format dans
+Le bas du menu de gauche doit afficher `© Marc-André Léger · ✓ Moteur vérifié`. Cliquez dessus (ou ouvrez
+**Aide → À propos et versions**) pour voir les totaux qu’il résume (les nombres gardent le même format dans
 toutes les langues) :
 
 ```
@@ -372,9 +374,9 @@ compare les totaux à ceux de l’implémentation de référence, puis le MediBe
 le cas CanaRetail en anglais et en français (27,526 / 16,049). S’ils concordent, le moteur de votre
 navigateur est d’accord avec la référence.
 
-| Le pied de page affiche | Ce que cela signifie | Quoi faire |
+| Aide → À propos et versions indique (le pied de page affiche) | Ce que cela signifie | Quoi faire |
 |---|---|---|
-| `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` | Tout est correct. | Continuez. |
+| `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` (✓ Moteur vérifié) | Tout est correct. | Continuez. |
 | `chargement du moteur…`, et cela persiste | Ouvert comme fichier au lieu d’être servi. | Section 3. |
 | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` n’a pas été chargé. | Décompressez de nouveau et gardez le dossier intact. |
 | `moteur DIVERGENT` et une bannière rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
@@ -500,13 +502,13 @@ Vous obtenez une application en fenêtre, avec sa propre icône, qui démarre sa
 fonctionne hors ligne. Après avoir remplacé le dossier par une version plus récente, servez-la une
 fois avec le lanceur pour que l’application installée reprenne les nouveaux fichiers.
 
-## 7. Passer de la 1.8.x, de la 1.7.x (ou d’une copie antérieure) à la 1.9.0
+## 7. Passer de la 1.8.x, de la 1.7.x (ou d’une copie antérieure) à la 1.9.1
 
 **Depuis la 1.8.x :** les étapes ci-dessous sont les mêmes. Au premier démarrage, chaque espace de travail passe une fois à
 la version de données 5 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). L’exemplaire hors ligne de l’ontologie est reconstruit à partir de
 CRGO 0.11.0 (étiquette v0.11.0 : modèles de scénarios, mesures de protection des CIS Controls v8.1 avec les libellés propres à CRGO,
 listes OWASP, ISO/IEC 27701 et 42001, Loi sur la protection des cybersystèmes essentiels). La page et l’assistant
-local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.0 avec son propre lanceur et fermez tout onglet
+local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.1 avec son propre lanceur et fermez tout onglet
 encore ouvert sur la version précédente. Les clés d’API rangées dans le dossier des flux sont déplacées une fois vers le
 trousseau macOS ou `~/.cyberriskguardian` (Windows affiche un avertissement). **Ontologie · CRGO** se trouve maintenant
 sous **Organisation**; l’assistant IA devient le **Consultant virtuel** (Outils, et le bouton **Consultant** de la barre
@@ -516,7 +518,7 @@ vérification des mises à jour est contrôlée à l’aide du fichier `.sha256`
 l’ontologie comprend aussi les changements antérieurs (MediBec S2 et S8 cotés AV:L dans la bibliothèque de scénarios,
 vocabulaire des indices de risque).
 
-Si vous l’avez activée, **Aide → À propos → Versions → Vérifier maintenant** (ou la vérification au démarrage)
+Si vous l’avez activée, **Aide → À propos et versions → Vérifier maintenant** (ou la vérification au démarrage)
 vous indique qu’une version plus récente existe et télécharge son ZIP dans votre dossier des flux ; rien n’est
 installé à votre place. Les étapes sont les mêmes dans les deux cas :
 
@@ -525,7 +527,7 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    sauvegarde* → *Télécharger la sauvegarde*, qui écrit un seul fichier contenant tous les espaces
    de travail. Vos espaces de travail résident dans le navigateur et non dans le dossier : décompresser
    une nouvelle version ne les touche pas. Une sauvegarde sert pour le jour où autre chose les touchera.
-2. Décompressez la 1.9.0 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
+2. Décompressez la 1.9.1 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
    par-dessus l’ancien dossier.
 3. **Arrêtez l’ancien serveur** si sa fenêtre de terminal est encore ouverte (Contrôle-C). Les
    lanceurs détectent une copie antérieure sur le même port, l’arrêtent et vous le disent, mais une
@@ -533,8 +535,8 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    d’afficher la version précédente.
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
-5. **Aide → À propos → Versions** doit afficher `1.9.0 beta`, et le pied de page
-   `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
+5. **Aide → À propos et versions** doit afficher `1.9.1 beta` et
+   `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, et le pied de page ✓ Moteur vérifié (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
    parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.
@@ -575,7 +577,7 @@ récente s’ouvre en lecture seule et n’est jamais écrasé.
 **8.1 `start.command` s’ouvre dans un éditeur de texte au lieu de s’exécuter (macOS).**
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.0-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.1-beta
 chmod +x start.command start.sh
 ```
 

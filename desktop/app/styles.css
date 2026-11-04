@@ -91,7 +91,11 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* ---------- the rail (side menu) ---------- */
 nav { background-color: var(--rail); background-image: var(--glow-rail); color: var(--rail-ink);
-  padding: 18px 12px 14px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; scrollbar-color: var(--rail-line) transparent; }
+  padding: 18px 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; scrollbar-color: var(--rail-line) transparent; }
+/* 1.9.1 — the name and logo stay at the top and the copyright and engine check at the bottom; only the menu scrolls */
+nav { height: 100vh; min-height: 0; box-sizing: border-box; }
+nav > .brand { flex: none; }
+nav > #navtree { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 -6px; padding: 0 6px; scrollbar-color: var(--rail-line) transparent; }
 .brand { display: flex; gap: 10px; align-items: center; margin: 2px 6px 16px; }
 .brand img { width: 32px; height: 32px; border-radius: 8px; }
 .brand b { flex: 1; font: 700 15.5px/1.15 var(--display); color: var(--rail-strong); letter-spacing: -.2px; }
@@ -102,9 +106,14 @@ nav .tab { all: unset; box-sizing: border-box; cursor: pointer; padding: 8px 12p
 nav .tab:hover { background: var(--rail-hover); color: var(--rail-strong); }
 nav .tab:focus-visible { outline: 3px solid var(--focus-dark); outline-offset: -1px; }
 nav .tab[aria-current="page"] { background: var(--coral-ink); color: #FFFFFF; }
-nav .spacer { flex: 1; min-height: 12px; }
-nav .foot { font-size: 12px; color: var(--rail-muted); padding: 12px 8px 0; border-top: 1px solid var(--rail-line); margin-top: 10px; line-height: 1.5; }
-nav .foot a { color: var(--peach); }
+nav .spacer { display: none; }
+nav .foot { flex: none; display: flex; align-items: center; gap: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 11.5px; color: var(--rail-muted); padding: 9px 6px 2px; border-top: 1px solid var(--rail-line); margin-top: 8px; line-height: 1.4; text-decoration: none; border-radius: 0; }
+nav .foot:hover .foot-engine, nav .foot:focus-visible .foot-engine { text-decoration: underline; }
+nav .foot .foot-copy { overflow: hidden; text-overflow: ellipsis; }
+nav .foot .foot-engine { color: var(--mint); flex: none; }
+nav .foot .foot-engine.bad { color: var(--peach); font-weight: 700; }
+nav .foot .foot-sep { flex: none; }
 #engine-state::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--mint); margin-right: 7px; vertical-align: 1px; }
 #navtree { display: flex; flex-direction: column; }
 nav .navsec { display: flex; flex-direction: column; gap: 2px; }
@@ -141,7 +150,18 @@ nav .tab[aria-current="page"] .badge { background: rgba(255, 255, 255, .22); col
 /* rail mode: only section icons; a section's screens open in a flyout */
 body.navrail { --nav-w: 64px; }
 body.navrail nav { padding: 14px 8px; overflow: visible; }
-body.navrail .brand b, body.navrail .brand img, body.navrail nav .foot { display: none; }
+body.navrail nav > #navtree { overflow-x: hidden; overflow-y: auto; }   /* the flyouts are position: fixed, so they still open beside the rail */
+body.navrail .brand b { display: none; }
+body.navrail .brand { flex-direction: column; gap: 8px; }
+body.navrail .brand img { display: block; width: 30px; height: 30px; }
+/* rail: the copyright and the engine check fold to © and ✓ (their full text in the link's title and for screen readers) */
+body.navrail nav .foot { justify-content: center; padding: 8px 0 2px; }
+body.navrail nav .foot .foot-copy { font-size: 0; }
+body.navrail nav .foot .foot-copy::before { content: "©"; font-size: 13px; }
+body.navrail nav .foot .foot-sep { display: none; }
+body.navrail nav .foot .foot-engine { font-size: 0; margin-left: 4px; }
+body.navrail nav .foot .foot-engine::before { content: "✓"; font-size: 13px; }
+body.navrail nav .foot .foot-engine.bad::before { content: "✗"; }
 body.navrail .brand { justify-content: center; margin: 0 0 12px; }
 body.navrail nav .navgroup { justify-content: center; padding: 10px 0; }
 body.navrail nav .navgroup .chev, body.navrail nav .navgroup-label, body.navrail nav .seccount { display: none; }
@@ -593,10 +613,17 @@ details.allsteps > summary, details.guidecard > summary { font: 600 17.5px var(-
   #nav-toggle { display: inline-flex; }
   #nav-rail { display: none; }
   nav { position: fixed; top: 0; bottom: 0; left: 0; width: min(300px, 86vw); z-index: 60; transform: translateX(-105%); transition: transform .18s ease;
-        box-shadow: var(--shadow-pop); overflow-y: auto; }
+        box-shadow: var(--shadow-pop); overflow: hidden; }
   body.navopen nav { transform: none; }
-  body.navrail nav { padding: 18px 12px; overflow-y: auto; }
-  body.navrail .brand b, body.navrail .brand img, body.navrail nav .foot, body.navrail nav .navgroup-label, body.navrail nav .navgroup .chev { display: revert; }
+  body.navrail nav { padding: 18px 12px; overflow: hidden; }
+  body.navrail nav > #navtree { overflow-y: auto; }
+  body.navrail .brand { flex-direction: row; }
+  body.navrail nav .foot { justify-content: flex-start; padding: 9px 8px 2px; }
+  body.navrail nav .foot .foot-copy, body.navrail nav .foot .foot-engine { font-size: inherit; margin-left: 0; }
+  body.navrail nav .foot .foot-copy::before, body.navrail nav .foot .foot-engine::before { content: none; }
+  body.navrail nav .foot .foot-sep { display: inline; }
+  body.navrail .brand b, body.navrail .brand img, body.navrail nav .navgroup-label, body.navrail nav .navgroup .chev { display: revert; }
+  body.navrail nav .foot { display: flex; }
   body.navrail nav .navsec:not(.fly) .navitems:not([hidden]) { display: flex !important; }
   .topbar { flex-wrap: wrap; padding: 10px 16px; }
   .wsbox { flex: 1 1 100%; } .wsbox select { min-width: 0; max-width: none; flex: 1; }
@@ -626,3 +653,47 @@ details.allsteps > summary, details.guidecard > summary { font: 600 17.5px var(-
   details:not([open]) > :not(summary) { display: block; }
   * { animation: none !important; }
 }
+
+/* 1.9.1 — level of detail (detail.js, html[data-detail]). Minimal: no introduction under the title and no explanatory
+   hint (a hint marked .keep changes what a value means and stays). Detailed: one line saying why the screen matters. */
+.why { display: none; margin: -8px 0 18px; max-width: 72ch; font-size: 14px; line-height: 1.5; color: var(--ink);
+  border-left: 3px solid var(--coral); padding: 4px 0 4px 12px; }
+html[data-detail="detailed"] .why { display: block; }
+.readmore-screen + .why, .lede + .why { margin-top: 8px; }
+html[data-detail="minimal"] main .lede, html[data-detail="minimal"] main .paneldesc { display: none; }
+html[data-detail="minimal"] .field .hint:not(.keep) { display: none; }
+.detail-switch { display: inline-flex; gap: 0; border: 2px solid var(--line-strong); border-radius: 999px; overflow: hidden; vertical-align: middle; }
+.detail-switch button { border: 0; background: transparent; padding: 4px 12px; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; }
+.detail-switch button[aria-pressed="true"] { background: var(--btn); color: var(--btn-ink); }
+.detail-switch button:focus-visible { outline: 2px solid var(--coral); outline-offset: -2px; }
+
+/* 1.9.1 — the next-step card's checklist: done ✓, the first thing to do →, the rest ◻; hints of unmet checks */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.next-step .next-checks { list-style: none; margin: 12px 0 0; padding: 0; max-width: 64ch; }
+.next-step .next-checks li { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-top: 1px solid rgba(255, 255, 255, .12); color: var(--rail-ink); font-size: 14.5px; }
+.next-step .next-checks li:first-child { border-top: 0; }
+.next-step .next-checks li .mark { flex: 0 0 18px; font-weight: 700; text-align: center; }
+.next-step .next-checks li.ok { opacity: .72; }
+.next-step .next-checks li.ok .mark { color: var(--mint); }
+.next-step .next-checks li.cur .mark, .next-step .next-checks li.cur b { color: var(--peach); }
+.next-step .next-checks .hint { color: var(--rail-ink); opacity: .85; font-size: 13px; margin-top: 2px; }
+.next-step .next-where { color: var(--rail-ink); align-self: center; }
+.next-step .next-more { margin-top: 12px; }
+.next-step .next-more details { margin-top: 6px; color: var(--rail-ink); }
+.next-step .next-more summary { cursor: pointer; font-weight: 700; color: #FFFFFF; }
+.next-step .next-owner { color: var(--peach); }
+.next-step .muted { color: var(--rail-muted); }
+
+/* 1.9.1 — the set-up questions */
+.wiz-invite { border-left: 4px solid var(--coral); }
+.wiz-q { border: 0; border-top: 1px solid var(--line); margin: 0; padding: 10px 0; }
+.wiz-q legend { padding: 0; font-size: 14.5px; }
+.wiz-opts { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 6px; }
+.wiz-opt { display: inline-flex; gap: 6px; align-items: center; color: var(--ink); font-size: 14px; }
+
+/* 1.9.1 — the one Help, in the top bar */
+.help-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 70; min-width: 230px; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm); box-shadow: var(--shadow-pop); padding: 6px; display: flex; flex-direction: column; }
+.help-menu[hidden] { display: none; }
+.help-menu [role=menuitem] { all: unset; box-sizing: border-box; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+.help-menu [role=menuitem]:hover, .help-menu [role=menuitem]:focus-visible { background: var(--surface-2); outline: 2px solid var(--coral); outline-offset: -2px; }

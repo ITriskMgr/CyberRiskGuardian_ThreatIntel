@@ -19,6 +19,7 @@
    go to the existing review flows), or let a passage it did not receive pass as a citation.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import * as DETAIL from './detail.js';
 import * as K from './kbindex.js';
 import * as LIB from './kblib.js';
 import * as AI from './ai.js';
@@ -336,9 +337,17 @@ function riskPicture(ws) {
   return body;
 }
 
+/* 1.9.1 — the length of the answer follows the level of detail of the interface (detail.js). The rules on sources,
+   markers and figures are the same at every level. */
+const LENGTH = {
+  minimal: '- Be brief: at most 3 short paragraphs or bullets, 120 words in all; no background the analyst did not ask for.',
+  standard: '- Short paragraphs, at most 300 words in all.',
+  detailed: '- Explain for someone doing a first assessment: short paragraphs, at most 500 words in all; say why each point matters and which screen to open next.',
+};
+export const answerLength = level => LENGTH[level] || LENGTH.standard;
 const ANSWER_RULES = `
 How to answer:
-- Short paragraphs, at most 300 words in all.
+{LENGTH}
 - End each paragraph that uses a passage with its marker, e.g. [P1].
 - Start each paragraph from your general knowledge with "GENERAL:".
 - Never state a risk figure that is not in the material above.
@@ -363,7 +372,8 @@ AI.TASKS.consultant = {
     body.push('', `SOURCES (${passages.length} passages retrieved on this computer):`);
     if (!passages.length) body.push('(none matched — answer from general knowledge and say so)');
     for (const p of passages) body.push(`[P${p.n}] (${p.cite})`, String(p.text).replace(/\s+/g, ' ').trim());
-    body.push('', 'Question: ' + question, ANSWER_RULES);
+    const level = DETAIL.level();
+    body.push('', 'Question: ' + question, `LEVEL OF DETAIL: ${level}`, ANSWER_RULES.replace('{LENGTH}', answerLength(level)));
     let prompt = body.join('\n');
     // the helper refuses more than 400 kB; drop the oldest history, then the longest passages, rather than fail
     while (new Blob([prompt]).size > 390000 && passages.length) { passages = passages.slice(0, -1); prompt = prompt.slice(0, 380000); }
@@ -445,7 +455,7 @@ export function parseAnswer(text, passages, allowed = new Set()) {
 /** Links an answer may hold: [[screen:x]], [[scenario:S3]], [[chapter:4]] — resolved, or null when unknown. */
 export function resolveLink(kind, val, ws = S.ws) {
   if (kind === 'scenario') return ws.assessment.SCEN.some(s => s.id === val) ? { href: '#/scenario/' + val, label: val } : null;
-  if (kind === 'screen') { const p = String(val).split('/')[0]; return PANELS_IN_MENU.includes(p) || p === 'scenario' ? { href: '#/' + val, label: labelOf(p, String(val).split('/')[1]) || labelOf(p) || val } : null; }
+  if (kind === 'screen') { const p = String(val).split('/')[0]; return PANELS_IN_MENU.includes(p) || p === 'scenario' || p === 'about' ? { href: '#/' + val, label: labelOf(p, String(val).split('/')[1]) || labelOf(p) || val } : null; }
   if (kind === 'chapter') { const n = Number(val); return n >= 1 && n <= 21 ? { chapter: n, label: 'Chapter ' + n } : null; }
   return null;
 }

@@ -1,5 +1,5 @@
 /* updateui.js — what the person sees of the update check (1.8.0): the question asked once at first start,
-   the banner when a newer release exists, and the card of Help → About → Versions. Rules in updates.js.
+   the banner when a newer release exists, and the card of Help → About & versions. Rules in updates.js.
    © 2026 Marc-André Léger. All rights reserved. */
 'use strict';
 import { el, banner, card, toast } from './util.js';
@@ -48,7 +48,7 @@ export async function startup() {
   if (!UP.asked()) {
     const box = el('div', { id: 'update-ask' });
     box.append(banner('warn', 'Check for updates at start-up?',
-      el('div', null, el('div', null, 'The local helper can ask GitHub, once at each start, whether a newer release of CyberRiskGuardian Desktop exists. Nothing about you or your workspaces is sent, and nothing is installed: you decide whether to download it. You can change this in Help → About → Versions.'),
+      el('div', null, el('div', null, 'The local helper can ask GitHub, once at each start, whether a newer release of CyberRiskGuardian Desktop exists. Nothing about you or your workspaces is sent, and nothing is installed: you decide whether to download it. You can change this in Help → About & versions.'),
         el('div', 'btnrow', { style: { marginTop: '6px' } },
           el('button', { class: 'btn sm', id: 'update-yes', onclick: async () => { UP.setEnabled(true); box.remove(); run(); } }, 'Yes, check at start-up'),
           el('button', { class: 'btn sm ghost', id: 'update-no', onclick: () => { UP.setEnabled(false); box.remove(); toast('No update check at start-up'); } }, 'No')))));
@@ -62,7 +62,7 @@ async function run() {
   if (r.status === 'ok' && r.newer) host()?.append(resultView(r, { compact: false }));
 }
 
-/** The card of Help → About → Versions. */
+/** The card of Help → About & versions. */
 export function versionsCard() {
   const res = el('div'); res.append(resultView(UP.last()));
   const cb = el('input', { type: 'checkbox', checked: UP.enabled(), id: 'update-setting', style: { width: 'auto' } });

@@ -6,7 +6,7 @@
 > every result as an initial analytical hypothesis and validate it before it supports a real decision.
 
 © 2026 Marc-André Léger · proprietary licence, free for students and non-profit organisations — who
-needs which licence: section 10 or **Help → About → Licence**.
+needs which licence: section 10 or **Help → About & versions → Licence**.
 
 This guide covers installing the application, starting it, verifying that it can be trusted before
 you rely on any number it produces, the method it follows in nineteen steps, and every screen of the
@@ -54,7 +54,7 @@ feed, calculate, forecast or export. The exceptions all start with a click of yo
 - The **Risk Registry** and **Publish & share** write packages to a shared folder only when you share,
   anonymized by default.
 - The **update check**, only if you switch it on (asked once at first start) or click **Check now** in
-  Help → About → Versions: the helper asks the GitHub releases of the application for the latest version,
+  Help → About & versions: the helper asks the GitHub releases of the application for the latest version,
   at one fixed address, sending nothing about you or your workspaces. A newer release is downloaded only
   when you click **Download**, and never installed by the application.
 
@@ -99,8 +99,8 @@ the old server if its terminal window is still open, and start the new one **on 
 workspaces are kept by the browser for the exact address you use, not in the folder, so the same port
 finds them. Your API keys are not in the folder either; they are in the macOS login keychain, or in
 `~/.cyberriskguardian/crg-keys.json` on Windows and Linux, and `feeds-dir.txt` carries the feeds path over. The launchers detect an earlier copy still serving
-the port, stop it and say so; reload the page once if **Help → About → Versions** does not read
-`1.9.0 beta`.
+the port, stop it and say so; reload the page once if **Help → About & versions** does not read
+`1.9.1 beta`.
 
 ### 3.2 Start it
 
@@ -189,11 +189,14 @@ application is CRGO 0.11.0.
 
 ## 4. First run: verify the engine before trusting a number
 
-The bottom of the left sidebar must read:
+The bottom of the left menu must show (1.9.1: one line, pinned below the menu, which scrolls on its own):
 
 ```
-engine verified · 84,305 / 41,023
+© Marc-André Léger · ✓ Engine verified
 ```
+
+Click it, or open **Help → About & versions**, to see the totals behind it:
+`engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
 
 On every start the app recomputes the bundled MediBec teaching case — 30 scenarios — and compares
 the totals with the figures `crg_calc.py` produces. When they match, the engine in your browser
@@ -201,17 +204,17 @@ agrees with the reference implementation.
 
 The other bundled teaching examples are checked in the same pass: the French MediBec must give exactly
 84,305 / 41,023 (only its text is translated), and CanaRetail, in English and in French, its own reference
-**27,526 / 16,049**. When all agree the footer reads `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`;
-a bundled example that does not reproduce its reference turns the footer to `engine DIVERGES` with a banner
-naming it.
+**27,526 / 16,049**. When all agree the footer shows **✓ Engine verified**; a bundled example that does not
+reproduce its reference turns it to **✗ Engine check failed**, with a banner naming it.
 
-| Footer reads | Meaning | What to do |
-|---|---|---|
-| `engine verified · 84,305 / 41,023` | Correct. | Proceed. |
-| `engine loading…` and it stays there | Opened as a file instead of served. | Section 3.2. |
-| `engine missing` | `crg.js`, `cvss4.js` or `sample.js` did not load. | Re-unzip; keep the folder intact. |
-| `engine DIVERGES` + red banner | The engine disagrees with the reference. | **Do not rely on any number.** Restore a clean copy. |
-| `engine error` | An exception during the self-check. | Open the console (section 13) and report it. |
+| The footer shows | Help → About & versions reads | Meaning | What to do |
+|---|---|---|---|
+| **✓ Engine verified** | `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` | Correct. | Proceed. |
+| *engine loading…* and it stays there | — | Opened as a file instead of served. | Section 3.2. |
+| **✗ Engine check failed** | `engine missing` | `crg.js`, `cvss4.js` or `sample.js` did not load. | Re-unzip; keep the folder intact. |
+| **✗ Engine check failed** + red banner | `engine DIVERGES` | The engine disagrees with the reference. | **Do not rely on any number.** Restore a clean copy. |
+| **✗ Engine check failed** | `engine error` | An exception during the self-check. | Open the console (section 13) and report it. |
+| **◻ Engine unverified** | `engine loaded, unverified` | `sample.js` is absent: calculations work, unchecked. | Re-unzip; keep the folder intact. |
 
 ---
 
@@ -606,9 +609,9 @@ A control is as good as the evidence that it works. Record tests by line of defe
 
 An audit finding states the criterion, the condition, the cause and the effect, with evidence. It closes only after an independent follow-up has verified the corrective action.
 
-*Where:* Audit management → Engagements; Programmes · SP 800-53A; Findings; SOC reports & evidence
+*Where:* Audit management → Engagements; Procedures · SP 800-53A; Findings; SOC reports & evidence
 
-1. Audit management → “Programmes · SP 800-53A”: look up the assessment objectives of a control, or “Plan an engagement with this programme” (the programmes are illustrative).
+1. Audit management → “Procedures · SP 800-53A”: look up the assessment objectives of a control, or “Plan an engagement with this programme” (the programmes are illustrative).
 2. “Procedures · SP 800-53A” and “Workpapers & sampling”: load or write the procedures, record their results, sample and deviations, and “Record an observation” where an exception was found; validate it as a finding in “Observations & findings”.
 3. “Findings”: complete criterion, condition, cause, effect and significance, the management response and the corrective action; close only with an independent follow-up.
 4. “SOC reports & evidence”: record the assurance reports of service organizations with their exceptions and CUECs, and the evidence register with validity dates.
@@ -665,9 +668,12 @@ Before a report or a write-back, check that nothing is called approved, complian
 
 ## 7. The screens, menu by menu
 
-The side menu has twelve sections, in this order: **Start · Organization · Risk assessment · Threats &
+The side menu has eleven sections, in this order: **Start · Organization · Risk assessment · Threats &
 vulnerabilities · Governance · Compliance management · Audit management · Security operations · Risk
-Registry · Tools · Settings · Help**. This chapter follows it screen by screen.
+Registry · Tools · Settings**. This chapter follows it screen by screen. **Help** is the button in the top bar
+(section 7.12). The application's name and logo stay at the top of the menu and the footer —
+**© Marc-André Léger · ✓ Engine verified**, which opens **Help → About & versions** — at its bottom; only the
+menu between them scrolls, in the full menu, the rail and the drawer.
 
 **Finding your way in the menu.**
 
@@ -687,6 +693,31 @@ Registry · Tools · Settings · Help**. This chapter follows it screen by scree
 **Help on every screen.** Under each screen title a one-line description says what the screen is for;
 the **?** beside the title opens a short help — the rules that apply to that screen — with **Open this
 section of the user guide**, which opens this guide at the matching section in its own window.
+**Help → Help on this screen** in the top bar opens the same help.
+
+**Level of detail {#detail}.** **Settings → Language & detail**, or the switch in the header of the Process
+page, sets how much the screens explain: **Minimal**, **Standard** (the default) or **Detailed**.
+
+| Level | What changes |
+|---|---|
+| **Minimal** | No description under the titles and no explanatory hint under the fields — for people who know the method. Hints that change what a value means stay: blank versus 0 (*Leave blank when unknown — 0 means none*), the FACT / INFERENCE / ASSUMPTION / EXTERNAL / UNKNOWN tags, units. The application opens on the scenario register. |
+| **Standard** | The screens as designed. The application opens on the Process page while a step remains. |
+| **Detailed** | Also one line under each title saying why the screen matters, and on the Process page the tips and the guidelines of the next step are open. Recommended for a first assessment. |
+
+The level belongs to the person: for this installation, or for each signed-in person in multi-user mode.
+No number, formula or workspace changes with it. The Virtual consultant follows it too: brief answers at
+Minimal, explanations for a first assessment at Detailed — with the same citations and markers.
+
+**Set-up questions {#setup}.** At first start the Process page invites you to **Set up the application for
+your practice**: a question about your experience (it sets the level of detail) and thirteen yes / no / not
+sure questions that switch the modules on or off (the table of the first-time setup guide). *Not sure* keeps
+a module as it is; nothing is deleted. **Skip — keep the defaults** dismisses the invitation;
+**Settings → Modules → Answer the set-up questions again** brings the questions back.
+
+**A workspace change reopens the application.** Creating, opening, deleting or restoring a workspace, and
+starting a teaching case over, save your work and reload the application on the workspace now open — on the
+Process page, or after a creation on the screen the creation chose (profile, crown jewels, documents or
+import, with the extraction you ticked). Every screen then starts from that workspace.
 
 **Read more in the book.** Below the description, a line in italics names the chapter and section of
 *Introduction to Cybersecurity Governance for Business Technology Management* (3rd ed., v2.51b) that
@@ -701,7 +732,10 @@ that no chapter covers (Settings, Backup, About…) shows none.
 Section 6. The nineteen steps are grouped as in the book — evidence, context and scope; appetite and materiality; scenarios; quantification; treatment; robustness, priorities and money; monitoring and reporting — and the badge in the menu shows the next step (for example *5/19*).
 
 The page opens on where the work stands. A ring beside the title counts the steps done. The **next step** sits in a dark
-band — what it is for, when it is done, and buttons that open its screens. **Seven groups** shows one tile per group with a
+band — what it is for and, check by check, what it still needs: ✓ done, → the first thing to do (with its hint), ◻ the
+rest. Its first button, **Next: …**, opens the screen of that first unmet check (for example *Next: At least one context
+document* opens Organization → Context documents); the second opens another screen of the step. In multi-user mode the
+band names who is Responsible and Accountable, and says so when the step is someone else's. **Seven groups** shows one tile per group with a
 progress arc and its state (*3 of 3 done*, *Step 9 in progress*, *To do*); the group in progress is opened below its tiles as
 one row per step, and clicking another tile opens that group instead. When the engine classifies included scenarios above
 tolerance, a tile lists them with **Open Risk calculator**. Lower down, **All nineteen steps** opens every step card with its
@@ -1418,7 +1452,7 @@ proposals, journalled in the scenario's revisions and the revision log.
   ATT&CK techniques that exploit it.
 - **Paste or import CSV.** One row per scenario; download the template for the column names.
 - **Blank rows.** Start from empty rows.
-- **From the ontology and the Risk Registry.** Ontology · CRGO → *Add ticked to Batch scenarios* (marked *[CRGO]*) and Risk Registry → *Use ticked cards in this workspace* (marked *[Registry]*) land here too.
+- **From the ontology and the Risk Registry.** Ontology · CRGO → *Add ticked to Batch scenarios* (marked *[CRGO]*) and Risk Registry → Browse & search → *Use ticked cards in this workspace* (marked *[Registry]*) land here too.
 - **Propose with AI.** Choose how many candidates (1–40) and, optionally, a direction (“focus
   on suppliers”, “OT in the plants”). The organization profile, the crown jewels and the information
   assets are sent — shown first in the usual preview. Each candidate comes back with a full causal
@@ -3525,22 +3559,34 @@ to clear the students' records too), or restore the starting point with Reset da
 
 ### 7.12 Help
 
+**Help** is the button in the top bar (1.9.1: the menu has no Help section any more). It opens five entries:
+
+| Entry | What it does |
+|---|---|
+| **Help on this screen** | The help of the screen you are on — the same as the **?** beside its title. |
+| **Step by step** | See 7.12.1. |
+| **User guide** | See 7.12.1. |
+| **Ask the help chatbot** | The help panel (7.12.3). |
+| **About & versions** | About, Licence and Versions (7.12.2). The footer of the menu opens it too. |
+
+The menu answers the keyboard: the down arrow opens it, the arrows move, Escape closes it.
+
 ### 7.12.1 Step by step and User guide
 
-The **Help** menu opens with two entries marked with an arrow that are not screens of the application:
+Two entries of **Help** open windows of their own rather than screens of the application:
 
 | Entry | What opens |
 |---|---|
-| **Step by step** ↗ | A window of its own with the nineteen steps, the report and the quality review — what each is for, what it needs, when it is done — and the guidelines in detail. Printable, works offline. Clicking a screen name opens that screen in the application window. |
-| **User guide** ↗ | This guide, in a window of its own, with a table of contents and a find box — in French when the interface is in French. Printable, works offline. |
+| **Step by step** | A window of its own with the nineteen steps, the report and the quality review — what each is for, what it needs, when it is done — and the guidelines in detail. Printable, works offline. Clicking a screen name opens that screen in the application window. |
+| **User guide** | This guide, in a window of its own, with a table of contents and a find box — in French when the interface is in French. Printable, works offline. |
 
 They are windows rather than tabs so a guide can sit beside the work, and both read what the application
 reads, so neither can describe a screen differently from the application. If your browser blocks
-pop-up windows, allow them for this application; otherwise the entries open as tabs.
+pop-up windows, allow them for this application; otherwise the application says so.
 
 ### 7.12.2 About {#about}
 
-**About** (Help group) has three pages. **About** names the creator, his e-mail
+**Help → About & versions** has three pages. **About** names the creator, his e-mail
 (marcandre@leger.ca), the project website (www.leger.ca), the product site (cyberriskguardian.ca,
 sales@cyberriskguardian.ca) and the GitHub repository (github.com/ITriskMgr/CyberRiskGuardian), and
 acknowledges the use of generative AI in building the application. **Licence** says who may use the
@@ -3554,7 +3600,7 @@ application, the verified engine, the local helper and the knowledge base, and h
 - When a newer release exists, a banner says **Version x.y.z is available**, with **Release notes** and
   **Download**, which saves the release ZIP in the feeds folder like a feed download. Nothing is unpacked or
   installed: back up (Backup & restore), unpack the ZIP into a new folder, exit, start the new version with its
-  launcher, and check the engine in the footer (section 12).
+  launcher, and check that the footer shows ✓ Engine verified (section 12).
 - Without the helper, without network, when no release is published or when GitHub limits the number of
   requests, the check says so and changes nothing.
 
@@ -3564,7 +3610,7 @@ with the launcher.
 
 ### 7.12.3 Help chatbot
 
-The **?** button at the bottom right opens the help panel on every screen. It starts with a tip for
+The **?** button at the bottom right — or **Help → Ask the help chatbot** — opens the help panel on every screen. It starts with a tip for
 the screen you are on; ask a question in English or French. Answers come from the built-in help —
 screen tips, the 13 process steps, frequent questions — and the user guide, searched on this
 computer; *Open this screen* takes you there.
@@ -3575,7 +3621,7 @@ history. The chatbot never changes data.
 
 ### 7.12.4 Language — English and French
 
-**EN / FR** in the top bar (or Settings → Language) switches every screen at once; the
+**EN / FR** in the top bar (or Settings → Language & detail) switches every screen at once; the
 choice is remembered. Only the interface is translated. Organization data, case documents,
 scenarios, catalogue content (ATT&CK, CWE, control titles), exported files and AI answers stay in
 their original language — a French case stays French in an English interface and vice versa.
@@ -3633,7 +3679,7 @@ sampling temperature is also sent; the Claude API is guided by the instruction a
 
 One page for every decision about what may leave this computer for an AI model.
 
-- **Master switches (this installation).** *Allow requests to the Claude API (remote)* — off, nothing
+- **Master switches (this installation).** *Allow requests to a provider off this machine* — off, nothing
   is ever sent off this machine and every feature must use a local model. *Allow web search for
   missing profile information* (Claude only).
 - **Route of each AI feature.** For each feature — vulnerability linking, profile and crown-jewel
@@ -3644,6 +3690,11 @@ One page for every decision about what may leave this computer for an AI model.
   what it sends, its sensitivity, and its route: *Workspace provider*, *Local model only*, *Remote
   provider* or *Off*. *Restore the recommended routes* puts the sensitive features back on the local
   model.
+- **Default providers (this installation)** (1.9.1). Where a *Local model only* feature goes — and where a
+  *Remote provider* feature goes while the workspace provider is local. *Automatic* takes the first provider
+  whose **Test this provider** passed (local: Ollama, then LM Studio, then the other local model; remote: the
+  Claude API first), then the first with a model set; or choose one. The card says which provider is used now
+  and why. The helper records each passed test; a page cannot change that record.
 - **This workspace.** AI on or off, the workspace provider, *Treat as confidential*, *Anonymize before
   sending*, and the **creativity** default.
 - **Virtual consultant — retrieval.** How the consultant finds its passages (section 8.5): the embedding
@@ -3870,7 +3921,7 @@ None of this is legal advice.
     **84,305 / 41,023** and your workspace, its policies and its requirements are present.
 34. **Help → Step by step** → a separate window with the nineteen steps, the report and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About → Versions** reads `1.9.0 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
+35. **Help → About & versions** reads `1.9.1 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
     the proprietary licence, the four licence files, cyberriskguardian.ca and sales@cyberriskguardian.ca;
     **Check now** under *Updates* answers (a newer release, the latest release, or why it could not tell).
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM
@@ -3879,7 +3930,7 @@ None of this is legal advice.
 
 **Menu, help and logs**
 
-37. The menu shows the twelve sections in order. Fold **Governance**: it shows how many screens it holds.
+37. The menu shows the eleven sections in order (Help is in the top bar). Fold **Governance**: it shows how many screens it holds.
     **«** folds the menu to a rail of icons; **»** restores it. Narrow the window: the menu becomes a drawer
     opened with **☰**.
 38. On any screen, the **?** beside the title opens the help; **Open this section of the user guide** opens this
@@ -3943,7 +3994,7 @@ If all fifty-five hold, the installation is sound.
 
 ## 12. Updating
 
-**Help → About → Versions → Check now** (or the start-up check, if you switched it on) says whether a newer
+**Help → About & versions → Check now** (or the start-up check, if you switched it on) says whether a newer
 release exists and downloads its ZIP into the feeds folder when you click **Download**. Then: back up
 (Backup & restore → Download backup), unpack the ZIP into a **new folder**, exit the running application, and
 start the new version with its own launcher on the same port; the launcher stops any earlier copy still

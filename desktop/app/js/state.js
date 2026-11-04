@@ -131,6 +131,29 @@ export function touch(what = 'change') {
   clearTimeout(saveT); saveT = setTimeout(() => { const w = S.ws; store.put('ws', w.id, w).then(() => LOG.saved(w)).catch(console.error); }, 300);
   emit(what);
 }
+/** 1.9.1 (B4) — after a workspace is created, switched, restored, started over or deleted from a screen, the
+ *  application saves and reloads itself, so every screen and module starts from the workspace now open and none
+ *  keeps the previous one in memory. `route` is where it reopens (the Process page unless the flow needs another
+ *  screen); `carry` is handed to that screen after the reload (a toast, the extraction to run after a creation). */
+const REOPEN = 'crg-reopen';
+export async function reopen(route = 'process', carry = null) {
+  await saveNow();
+  await LOG.flush();                                       // the debounced logs and the audit trail are written first
+  try { const U = await import('./users.js'); if (U.active()) await U.save(); } catch { /* single-user */ }
+  try { sessionStorage.setItem(REOPEN, JSON.stringify({ route, carry: carry || {}, at: Date.now() })); } catch { /* private window */ }
+  // replaceState, not location.hash: a hashchange would draw the target screen in the old page just before the reload
+  history.replaceState(null, '', '#/' + route);
+  location.reload();
+}
+/** What the previous page asked to hand over after a reopen (read once; stale after a minute). */
+export function reopened() {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(REOPEN) || 'null');
+    if (v && Date.now() - v.at < 60000) return v;
+  } catch { /* ignore */ }
+  return null;
+}
+export function reopenedDone() { try { sessionStorage.removeItem(REOPEN); } catch { /* ignore */ } }
 export async function saveNow() { if (S.ws && !isReadOnly()) await store.put('ws', S.ws.id, S.ws); }
 
 export async function loadAll() {

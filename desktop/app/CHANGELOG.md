@@ -2,7 +2,49 @@
 
 ## 1.9.1 Beta (unreleased)
 
+The next step always obvious, a level of detail for every reader, one Help, and four bugs found in author testing.
+No change to the engine, the formulas, the plugin edition or the workspace data version (5): MediBec 84,305 / 41,023
+and CanaRetail 27,526 / 16,049 are unchanged. Decisions taken during the build: `DECISIONS-1.9.1.md`.
+
+### Added
+- **Next-step card (Process).** The dark band lists the step's checks — ✓ done, → the first thing to do with its
+  hint, ◻ the rest — and its first button, **Next: …**, opens the screen of that first unmet check, with its route
+  argument (for example *Organization → Context documents*). In multi-user mode it names who is Responsible and
+  Accountable, and says when the step is someone else's.
+- **Opens on the Process page** while a step of the workspace remains (Minimal keeps the scenario register).
+- **Level of detail: Minimal / Standard / Detailed** — *Settings → Language & detail* (the tab was *Language*) and
+  the Process page header; per installation, or per signed-in person in multi-user mode. Minimal hides the
+  introductions and explanatory hints but never a hint that changes what a value means (blank versus 0, the
+  evidence tags, units); Detailed adds a "why this screen matters" line on every screen (English and French) and opens
+  the tips and guidelines of the next step. The Virtual consultant's answers follow the level (same citations and
+  markers at every level).
+- **Set-up questions at first start** — an invitation on the Process page (never a blocking dialog): experience
+  (sets the level) and thirteen module questions from the first-time setup guide; *Settings → Modules → Answer the
+  set-up questions again*.
+- **Settings → AI → Default providers**: where *Local model only* (and remote-only) features go.
+- **One Help, in the top bar**: *Help on this screen*, *Step by step*, *User guide*, *Ask the help chatbot*, *About &
+  versions*. The side menu has no Help section any more; the "?" beside each title stays.
+- **Pinned header and footer**: the logo and name stay at the top of the menu and *© Marc-André Léger · ✓ Engine
+  verified* at the bottom (it opens About & versions, which shows the totals); only the menu between them scrolls —
+  full menu, rail and drawer.
+- **First-time guides in the package**: `FIRST-INSTALL.md` (Document 1) and `FIRST-TIME-SETUP.md` (Document 2), EN/FR,
+  with their PDFs; file names only where the reader acts on the file; every screen with both routes.
+- **label_check** also checks that every menu path quoted in the first-time guides and the user guide exists in the
+  menu (or in the Help menu).
+
 ### Fixed
+- **B1 — "This workspace" AI settings did not save** (provider, *Treat as confidential*, *AI for this workspace*,
+  *Anonymize before sending*), on Settings → AI and on the Virtual consultant screen: the settings object was replaced
+  at every read. Security-relevant: a workspace could not be marked confidential.
+- **B2 — Start the import did nothing** when started from Import from documents with no profile or crown-jewel step:
+  the screen was not redrawn because the address did not change.
+- **B3 — Local-only features ignored the configured local provider** and went to *Other local model*: they now go to
+  the default chosen in Settings → AI, else to the first local provider whose connection test passed (Ollama, then
+  LM Studio, then the other local model). The helper records passed tests; a page cannot change that record.
+- **B4 — New workspaces showed the previous workspace's data until a restart.** Creating, opening, deleting or
+  restoring a workspace, and starting a teaching case over, now save and reopen the application on the workspace
+  then open (on the Process page, or after a creation on the screen the creation chose, with its extraction).
+- A context document without a stored type no longer breaks the Documents tab.
 - French interface: the Identity & access management tab "Segregation of duties" now reads « Séparation des tâches »;
   a deviation's state "Open" reads « Ouvert (non fermé) » instead of the verb « Ouvrir ».
 - Documentation: links to the ontology repository use its new name `ITriskMgr/CyberRiskGuardian-Ontology`.

@@ -25,11 +25,10 @@
   </div>
   <div id="navtree"></div>
 
-  <div class="spacer"></div>
-  <div class="foot">
-    <div id="engine-state">engine loading…</div>
-    <div style="margin-top:6px">v1.9.0 Beta (1.9.x)<br>© Marc-André Léger · licence: Help → About</div>
-  </div>
+  <a class="foot" id="nav-foot" href="#/about/versions" title="v1.9.1 Beta (1.9.x) · © 2026 Marc-André Léger — About &amp; versions, licence">
+    <span class="foot-copy">© Marc-André Léger</span><span class="foot-sep" aria-hidden="true"> · </span><span class="foot-engine" id="engine-short" aria-hidden="true">engine loading…</span>
+    <span class="sr-only" id="engine-state">engine loading…</span>
+  </a>
 </nav>
 
 <div class="mainwrap">
@@ -44,7 +43,7 @@
       <span id="lang-box"></span>
       <span id="user-box"></span>
       <button class="btn ghost sm" id="consult-toggle" title="Virtual consultant" aria-controls="consult-panel" aria-expanded="false">Consultant</button>
-      <button class="btn ghost sm" id="help-toggle" title="Help chatbot">Help</button>
+      <button class="btn ghost sm" id="help-toggle" title="Help">Help</button>
       <button class="btn ghost sm" id="theme-toggle" title="Switch light / dark">Theme</button>
       <button class="btn ghost sm danger" id="exit-btn" title="Save, stop the local helper and close the app">Exit</button>
     </div>

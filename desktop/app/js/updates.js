@@ -2,7 +2,7 @@
 
    Off by default. At first start the application asks once whether to check for updates at start-up;
    the answer is a preference of this installation (prefs: updateCheck, updateAsked). "Check now" under
-   Help → About → Versions works whatever the setting. The check is made by the local helper (serve.py,
+   Help → About & versions works whatever the setting. The check is made by the local helper (serve.py,
    GET /api/update/check) against one fixed address — the GitHub "latest release" API of the repository
    that publishes the desktop — and sends nothing: no workspace data, no identifier, no version in the
    request. When a newer release exists, a banner says "Version x.y.z is available" with a link to its

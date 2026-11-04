@@ -56,7 +56,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.9.0"
+VERSION = "1.9.1"
 # 1.9.0 — a random token made at each start. The page reads it from /api/session (same origin only) and sends it
 # with every /api/* call, next to X-CRG; the helper also checks Host and Origin. See Handler._guard.
 TOKEN = secrets.token_urlsafe(32)
@@ -372,6 +372,28 @@ def ai_check_policy(provider, cfg, body):
     if body.get("web_search") and provider != "claude":
         return f"Web search is available on the Claude API only; {p.get('label') or provider} cannot run it."
     return ""
+
+
+_CONFIG_LOCK = threading.Lock()
+
+
+def _record_test(provider, passed):
+    """1.9.1 (B3) — the helper's record of connection tests (crg-config.json ai.tested, a date per provider): a passed
+    test adds the provider, a failed one removes it, so an uninstalled server stops being the automatic default.
+    A failure to record never turns a working connection into a failed test."""
+    try:
+        with _CONFIG_LOCK:
+            fresh = crg_feeds.load_config(FEEDS)
+            tested = fresh.setdefault("ai", {}).setdefault("tested", {})
+            if passed:
+                tested[provider] = dt.date.today().isoformat()
+            elif provider in tested:
+                del tested[provider]
+            else:
+                return
+            crg_feeds.save_config(fresh, FEEDS)
+    except Exception as exc:                            # noqa: BLE001
+        sys.stderr.write(f"helper: the connection test of {provider} was not recorded: {exc}\n")
 
 
 def ai_test(provider, cfg):
@@ -1501,8 +1523,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"error": str(exc)})
         if path == "/api/config":
             try:
-                validate_config(body.get("config") or {}, crg_feeds.load_config(FEEDS))
-                cfg = crg_feeds.save_config(body.get("config") or {}, FEEDS)
+                old_cfg = crg_feeds.load_config(FEEDS)
+                validate_config(body.get("config") or {}, old_cfg)
+                new_cfg = body.get("config") or {}
+                # 1.9.1 (B3): ai.tested is written by the helper only (connection tests); a page never drops or forges it
+                if not isinstance(new_cfg.get("ai"), dict):
+                    new_cfg["ai"] = dict(old_cfg.get("ai") or {}) if "ai" not in new_cfg else {}
+                new_cfg["ai"]["tested"] = (old_cfg.get("ai") or {}).get("tested") or {}
+                with _CONFIG_LOCK:
+                    cfg = crg_feeds.save_config(new_cfg, FEEDS)
                 return self._json(200, {"config": cfg, "sources": crg_feeds.sources(cfg)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(400, {"error": str(exc)})
@@ -1542,10 +1571,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if provider not in provs:
                 return self._json(400, {"error": "unknown provider"})
             try:
-                return self._json(200, ai_test(provider, cfg))
+                out = ai_test(provider, cfg)
             except Exception as exc:                    # noqa: BLE001
+                _record_test(provider, False)
                 return self._json(200, {"ok": False, "provider": provider, "error": str(exc),
                                         "label": provs[provider]["label"]})
+            _record_test(provider, True)
+            return self._json(200, out)
         if path == "/api/keys":
             try:
                 name = str(body.get("name") or "")

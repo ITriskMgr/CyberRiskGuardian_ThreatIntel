@@ -18,6 +18,9 @@ import * as MT from '../maturity.js';
 import { GUIDELINES } from '../guidelines.js';
 import * as AVL from '../avl.js';
 import { toast } from '../util.js';
+import * as DETAIL from '../detail.js';
+import * as WIZ from '../setupwizard.js';
+import { detailSwitch } from './settings_more.js';
 export { GUIDELINES };
 
 const ST = { done: ['Done', 'good'], partial: ['In progress', 'warn'], todo: ['To do', ''] };
@@ -51,6 +54,54 @@ function openScreen(route, stepId) {
   go(route);
 }
 
+/* 1.9.1 — the next-step card. It lists the checks of the step (from process.js partsOf), each with its state and,
+   when unmet, its hint; its primary button opens the screen of the first unmet check (with the route argument the
+   check names, e.g. org/crown or screening/families), so the next action is always one click away. A step without
+   named checks opens its first screen, as before. At the Detailed level the step's tips and the guidelines that use
+   its screens are open beside it. In multi-user mode it shows who is Responsible and Accountable. */
+const firstUnmet = ps => (ps ? ps.find(x => !x.ok && !x.optional && x.fix) || ps.find(x => !x.ok && x.fix) || null : null);
+function nextBand(nx, total) {
+  const ws = S.ws, s = nx.s, ps = partsOf(s, ws), miss = firstUnmet(ps);
+  const target = miss ? miss.fix : s.screens[0];
+  const others = s.screens.filter(([r]) => r !== target[0]).slice(0, 1);
+  const list = ps ? el('ul', { class: 'next-checks', 'aria-label': tr('What this step needs') }, ...ps.map(x =>
+    el('li', { class: x.ok ? 'ok' : x === miss ? 'cur' : '' },
+      el('span', { class: 'mark', 'aria-hidden': 'true' }, x.ok ? '✓' : x === miss ? '→' : '◻'),
+      el('span', null, el('span', { class: 'sr-only' }, x.ok ? tr('Done:') + ' ' : tr('To do:') + ' '),
+        x.ok ? el('span', null, x.what) : el('b', null, x.what), x.optional ? el('span', 'muted', ' ' + tr('(optional)')) : null,
+        !x.ok && x.hint ? el('div', 'hint keep', x.hint) : null)))) : null;
+  let who = null;
+  if (users.active()) {
+    const R = users.holders(s.id, 'R').map(u => u.name), A = users.holders(s.id, 'A').map(u => u.name);
+    const mine = users.letter(s.id) === 'R';
+    who = el('p', 'small', el('b', null, 'Responsible: '), R.join(', ') || '—', ' · ', el('b', null, 'Accountable: '), A.join(', ') || '—',
+      !mine && R.length ? el('span', { class: 'next-owner', style: { display: 'block', marginTop: '4px' } }, tr('This step is for {0}; you can follow it here.').replace('{0}', R.join(', '))) : null);
+  }
+  let more = null;
+  if (DETAIL.is('detailed')) {
+    const tips = [...(s.tips || []), ...[IAM, CM].flatMap(X => X.on() ? X.STEP_TIPS[s.id] || [] : [])];
+    const routes = new Set(s.screens.map(([r]) => r.split('/')[0]));
+    const gl = GUIDELINES.filter(g => g.routes.some(([r]) => routes.has(r.split('/')[0]))).slice(0, 3);
+    more = el('div', { class: 'next-more' },
+      tips.length ? el('details', { open: true, class: 'next-tips' }, el('summary', null, 'Tips'), el('ul', 'small', ...tips.map(t => el('li', null, t)))) : null,
+      gl.length ? el('details', { open: true, class: 'next-guidelines' }, el('summary', null, 'Guidelines for this step'),
+        ...gl.map(g => el('div', { class: 'small', style: { marginTop: '6px' } }, el('b', null, g.h + '. '), g.t,
+          el('div', null, el('b', null, 'Where: '), g.where)))) : null);
+  }
+  return el('section', { class: 'next-step', 'aria-labelledby': 'next-step-title' },
+    el('div', null,
+      el('div', 'eyebrow', s.n === 'R' ? tr('Next step · the report') : tr('Next step · {0} of {1}').replace('{0}', s.n).replace('{1}', total)),
+      el('h2', { id: 'next-step-title' }, s.title),
+      el('p', null, s.purpose),
+      list || el('p', 'small', el('b', null, 'Done when: '), s.done),
+      who, more),
+    el('div', 'btnrow',
+      el('button', { class: 'btn primary', id: 'next-step-go', 'data-ro-ok': '', onclick: () => openScreen(target[0], s.id) },
+        miss ? tr('Next: {0}').replace('{0}', tr(miss.what)) : 'Open ' + target[1]),
+      miss ? el('span', { class: 'small next-where' }, tr('opens {0}').replace('{0}', tr(target[1]))) : null,
+      ...others.map(([r, l]) => el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => openScreen(r, s.id) }, 'Open ' + l))));
+}
+
 export function render(sec) {
   const ws = S.ws, list = statuses(ws), nx = nextStep(ws);
   const numbered = list.filter(x => x.s.n !== 'R'), doneN = numbered.filter(x => x.st === 'done').length;
@@ -62,9 +113,13 @@ export function render(sec) {
   ring.querySelector('.lab').textContent = tr('of {0} done').replace('{0}', numbered.length);
   sec.replaceChildren(el('div', 'atlas-head',
       el('div', null, el('h1', null, 'Process'),
-        el('p', 'lede', 'The workflow of a complete cybersecurity risk assessment: nineteen numbered steps in seven groups, then the management report and the quality review. Each step says what it is for, what it needs and when it is done, shows its status in this workspace, and opens the screens where it is completed.')),
+        el('p', 'lede', 'The workflow of a complete cybersecurity risk assessment: nineteen numbered steps in seven groups, then the management report and the quality review. Each step says what it is for, what it needs and when it is done, shows its status in this workspace, and opens the screens where it is completed.'),
+        el('div', { class: 'small', id: 'process-detail', style: { marginTop: '10px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' } },
+          el('span', 'muted', 'Level of detail:'), detailSwitch())),
       ring),
     banner('warn', `Beta ${SERIES}`, 'Use for teaching, exploration and method validation. Validate every result before it supports a real decision.'));
+  // 1.9.1 — first start: an invitation to the set-up questions (modules and level of detail); never a blocking dialog
+  { const inv = WIZ.invitation(() => render(sec)); if (inv) sec.append(inv); }
   // 1.8.2 — a teaching case still on the earlier MediBec vectors is offered the current ones, once; the choice is
   // journalled either way (avl.js). Real organizations never see this: a migration never changes their numbers.
   if (AVL.pending(ws)) {
@@ -84,14 +139,8 @@ export function render(sec) {
       el('button', { class: 'btn sm ghost', onclick: () => { const done = AVL.accept(ws); toast(tr('Vectors updated: {0}').replace('{0}', done.join(', '))); render(sec); } }, 'Reconsider: take the AV:L vectors')));
   }
 
-  // the next step: a dark band with the screens that complete it
-  if (nx) sec.append(el('section', { class: 'next-step', 'aria-labelledby': 'next-step-title' },
-    el('div', null,
-      el('div', 'eyebrow', nx.s.n === 'R' ? tr('Next step · the report') : tr('Next step · {0} of {1}').replace('{0}', nx.s.n).replace('{1}', numbered.length)),
-      el('h2', { id: 'next-step-title' }, nx.s.title),
-      el('p', null, nx.s.purpose),
-      el('p', 'small', el('b', null, 'Done when: '), nx.s.done)),
-    el('div', 'btnrow', ...nx.s.screens.slice(0, 2).map(([r, l], i) => el('button', { class: 'btn' + (i ? ' ghost' : ' primary'), 'data-ro-ok': '', onclick: () => openScreen(r, nx.s.id) }, 'Open ' + l)))));
+  // the next step: a dark band with what is still missing and one button to the first thing to do (1.9.1)
+  if (nx) sec.append(nextBand(nx, numbered.length));
   else sec.append(el('section', { class: 'next-step' }, el('div', null, el('div', 'eyebrow', 'All steps done'),
     el('h2', null, 'Every step of this assessment is done'), el('p', null, 'Review the management summary and the quality review before the results support a decision.')),
     el('div', 'btnrow', el('button', { class: 'btn primary', 'data-ro-ok': '', onclick: () => go('summary') }, 'Open Management summary'))));

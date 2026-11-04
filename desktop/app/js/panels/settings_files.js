@@ -5,7 +5,7 @@
    administrator-only. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, select, toast, table, banner, n0, today, kpi, go } from '../util.js';
-import { S, touch, docText, setDocText, delDoc, select as selectWs } from '../state.js';
+import { S, touch, docText, setDocText, delDoc, select as selectWs, reopen } from '../state.js';
 import * as store from '../store.js';
 import { extractText } from '../extract.js';
 import { DOC_CATS } from './org.js';
@@ -53,7 +53,7 @@ export async function render(body, sec, rerender) {
       { key: 'q', label: 'Text', render: r => pill(r.d.quality === 'good' ? 'text extracted' : r.d.type === 'note' ? 'note' : r.d.quality === 'poor' ? 'poor extraction' : 'no text', r.d.quality === 'good' ? 'good' : 'warn') },
       { key: 'x', label: '', sortable: false, render: r => el('div', 'btnrow',
         replaceBtn(r, draw),
-        el('button', { class: 'btn sm ghost', onclick: async () => { if (S.ws.id !== r.w.id) await selectWs(r.w.id); go('org/docs'); } }, 'Open text'),
+        el('button', { class: 'btn sm ghost', onclick: async () => { if (S.ws.id !== r.w.id) { await selectWs(r.w.id, false); await reopen('org/docs'); } else go('org/docs'); } }, 'Open text'),
         el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!window.confirm(tr('Delete') + ' “' + r.d.name + '” — ' + r.w.name + '? ' + tr('Its extracted text is removed; values already accepted from it stay, with their source.'))) return; await removeDoc(r); toast(tr('Document deleted')); rerender(); } }, 'Delete')) },
     ], list, { class: 'compact' })) : el('div', 'empty-state', el('b', null, 'No document'), 'Documents are added under Organization → Context documents, or when a workspace is created.'));
   }

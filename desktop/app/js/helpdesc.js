@@ -10,6 +10,7 @@
 import { tr } from './i18n.js';
 import * as i18n from './i18n.js';
 import * as CH from './chapterhelp.js';
+import { WHY } from './whyscreen.js';
 
 export const HELP = {
   process: { d: 'The nineteen steps of a complete risk assessment, then the report and the quality review: where you are, and what to do next.', g: 'process',
@@ -129,18 +130,34 @@ function readMore(sec, h1, panel, arg) {
   (next && (next.classList.contains('paneldesc') || next.classList.contains('lede')) ? next : h1).after(line);
 }
 
+/* 1.9.1 — the "why this screen matters" line, shown at the Detailed level only (the style sheet reads
+   html[data-detail]); placed after the description, the introduction or the chapter line, whichever comes last. */
+function whyLine(sec, h1, panel) {
+  const text = WHY[panel];
+  const box = h1.parentNode;
+  const cur = [...box.querySelectorAll(':scope > .why')];
+  if (!text) { cur.forEach(n => n.remove()); return; }
+  if (cur.length === 1 && cur[0].dataset.panel === panel) return;
+  cur.forEach(n => n.remove());
+  const p = document.createElement('p'); p.className = 'why'; p.dataset.panel = panel; p.textContent = tr(text);
+  let at = h1;
+  for (let n = h1.nextElementSibling; n && /\b(paneldesc|lede|readmore-screen)\b/.test(n.className); n = n.nextElementSibling) at = n;
+  at.after(p);
+}
+
 export function decorate(sec, panel, arg, mod) {
   sec._help = { panel, mod }; watch(sec);
   const e = entry(panel, arg, mod);
   const h1 = sec.querySelector('h1');
   if (!h1) return;
-  if (!e) { readMore(sec, h1, panel, arg); return; }
+  if (!e) { readMore(sec, h1, panel, arg); whyLine(sec, h1, panel); return; }
   sec.querySelectorAll(':scope > .paneldesc, :scope > .helppop').forEach(n => n.remove());
   const next = h1.nextElementSibling;
   if (e.d && !(next && next.classList.contains('lede'))) {
     const p = document.createElement('p'); p.className = 'paneldesc'; p.textContent = tr(e.d); h1.after(p);
   }
   readMore(sec, h1, panel, arg);
+  whyLine(sec, h1, panel);
   if (h1.querySelector('.helpq')) return;
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'helpq'; b.textContent = '?'; b.title = tr('Help on this screen'); b.setAttribute('aria-label', tr('Help on this screen')); b.setAttribute('aria-expanded', 'false');

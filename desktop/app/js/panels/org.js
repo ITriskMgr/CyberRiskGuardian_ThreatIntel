@@ -1,9 +1,9 @@
 /* Organization — workspaces, organization profile, crown jewels, risk appetite, context documents.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, $, n0, kpi, banner, card, field, select, chip, download, toast, uid, today, go, copyText, debounce, pill, modal, table } from '../util.js';
+import { el, $, n0, kpi, banner, card, field, select, chip, download, toast, uid, today, go, goOrRedraw, copyText, debounce, pill, modal, table } from '../util.js';
 import * as MIG from '../migrate.js';
-import { S, touch, newWorkspace, exampleWorkspace, exampleAvailable, EXAMPLES, create, remove, select as selectWs, migrate, docText, setDocText, delDoc, refreshList, saveNow, SCHEMA, emit } from '../state.js';
+import { S, touch, newWorkspace, exampleWorkspace, exampleAvailable, EXAMPLES, create, remove, select as selectWs, migrate, docText, setDocText, delDoc, refreshList, saveNow, SCHEMA, emit, reopen, reopened, reopenedDone } from '../state.js';
 import { extractText, hints } from '../extract.js';
 import * as X from '../extractor.js';
 import * as aiui from '../aiui.js';
@@ -18,6 +18,8 @@ export const DOC_CATS = ['Business case', 'Organization profile', 'Asset invento
   'Audit or assessment report', 'Incident history', 'Supplier list', 'Vulnerability scan export', 'Financial data', 'Other'];
 
 let auto = null, autoCrown = false, autoImport = false, scrollImport = false;   // extraction to open right after a workspace is created
+// 1.9.1 (B4) — a creation reloads the application; the extraction chosen at creation is handed over through the reload
+{ const r = reopened(); if (r?.carry?.org) { ({ auto = null, autoCrown = false, autoImport = false } = r.carry.org); if (r.carry.toast) setTimeout(() => toast(r.carry.toast, r.carry.kind || ''), 400); reopenedDone(); } }
 export function render(sec, arg) {
   if (arg === 'new') tab = 'workspaces';
   else if (['profile', 'crown', 'docs', 'import', 'workspaces', 'class', 'evidence'].includes(arg)) tab = arg;
@@ -227,14 +229,16 @@ function reviewProfile(sec, res, chain) {
    ends here, and the document scope it was given ends with it. */
 function toImport() {
   if (!autoImport) { X.setScope(null); return false; }
-  const proceed = () => { autoImport = false; if (autoRunNext) IU.armAutoRun(); autoRunNext = false; tab = 'import'; go('org/import'); };
+  // 1.9.1 (B2): when the chain was started from Import from documents the hash does not change, so the screen must be
+  // redrawn for the armed run to start — unless saving the profile already redraws it (touch('redraw')).
+  const proceed = (redraw = true) => { autoImport = false; if (autoRunNext) IU.armAutoRun(); autoRunNext = false; tab = 'import'; if (redraw) goOrRedraw('org/import'); else go('org/import'); };
   /* The profile values are in the form but not saved. Leaving the tab would ask the generic "leave
      without saving?" question in the middle of the run; ask the right question instead. */
   if (dirty) {
     const m = modal(tr('Save the profile before the import continues?'),
       el('p', null, 'The values you accepted are in the Profile & appetite form but are not saved yet. The import of the other targets continues on Import from documents.'),
       el('div', 'btnrow', { style: { marginTop: '12px' } },
-        el('button', { class: 'btn', onclick: () => { saveDraft(); m.close(); proceed(); } }, 'Save the profile and continue'),
+        el('button', { class: 'btn', onclick: () => { saveDraft(); m.close(); proceed(false); } }, 'Save the profile and continue'),
         el('button', { class: 'btn ghost', onclick: () => { m.close(); autoImport = false; autoRunNext = false; X.setScope(null); toast(tr('Import paused — save the profile, then open Import from documents')); } }, 'Stay on the profile'),
         el('button', { class: 'btn ghost danger', onclick: () => { dirty = false; D = null; m.close(); proceed(); } }, 'Discard the profile values and continue')));
     m.back.onclose = null;
@@ -412,7 +416,7 @@ function docs(body) {
       const cat = select(DOC_CATS, d.category); cat.addEventListener('change', () => { d.category = cat.value; touch(); });
       list.append(el('div', 'docrow',
         el('div', null, el('b', null, d.name), ' ', pill(d.quality === 'good' ? 'text extracted' : d.quality === 'poor' ? 'poor extraction' : d.type === 'note' ? 'note' : 'no text', d.quality === 'good' ? 'good' : 'warn'),
-          el('div', 'small muted', `${d.type.toUpperCase()} · ${n0(d.words)} words · added ${d.added}`),
+          el('div', 'small muted', `${String(d.type || "text").toUpperCase()} · ${n0(d.words)} words · added ${d.added}`),
           el('div', { style: { maxWidth: '320px', marginTop: '6px' } }, cat)),
         el('div', 'btnrow', el('button', { class: 'btn sm ghost', onclick: () => openDoc(d) }, 'View / edit text'),
           el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!confirmDel(d.name)) return; await delDoc(d.id); ws.docs.splice(ws.docs.indexOf(d), 1); touch(); viewer.replaceChildren(); draw(); } }, 'Remove'))));
@@ -554,24 +558,27 @@ function workspaces(body, arg, sec) {
        still assembling it, and a baseline taken now would be half a case. They set it themselves on
        Reset data → “Set the current state as the starting point”. */
     if ((fromFile || (isEx(from.value) && ws.kind === 'classroom')) && RESET.isTeaching(ws)) { try { await RESET.ensureBaseline(ws); } catch { /* a baseline is a convenience */ } }
+    const notes = [];
     if (pending.length) {
       const res = await addDocs(S.ws, pending.splice(0), msg);
       const bad = res.filter(r => r.state !== 'good').length;
       // 1.7.0 — policy facts for the Security Policy Writer: local rules, proposals only (reviewed in the Writer)
       if (exW.checked) {
-        try { const WR = await import('../writer.js'); const r = await WR.extractFacts(S.ws); WR.log(S.ws, `Facts proposed at workspace creation: ${r.facts} from ${r.docs} document(s)`, users.name() || ''); toast(tr('{0} policy facts proposed — review them in Security Policy Writer → Documents & facts').replace('{0}', r.facts)); }
-        catch (e) { toast(tr('Policy facts were not read: {0}').replace('{0}', tr(String(e.message || e))), 'bad'); }
+        try { const WR = await import('../writer.js'); const r = await WR.extractFacts(S.ws); WR.log(S.ws, `Facts proposed at workspace creation: ${r.facts} from ${r.docs} document(s)`, users.name() || ''); notes.push([tr('{0} policy facts proposed — review them in Security Policy Writer → Documents & facts').replace('{0}', r.facts), '']); }
+        catch (e) { notes.push([tr('Policy facts were not read: {0}').replace('{0}', tr(String(e.message || e))), 'bad']); }
       }
-      toast(`Workspace created with ${res.length - bad} document(s) read` + (bad ? `, ${bad} need attention` : ''), bad ? 'bad' : 'good');
+      notes.unshift([`Workspace created with ${res.length - bad} document(s) read` + (bad ? `, ${bad} need attention` : ''), bad ? 'bad' : 'good']);
       tab = 'docs';
       autoImport = exM.checked;
       if (exP.checked) { tab = 'profile'; auto = 'profile'; autoCrown = exC.checked; }
       else if (exC.checked) { tab = 'crown'; auto = 'crown'; }
       else if (exM.checked) { tab = 'import'; autoImport = false; }
-    } else { tab = 'profile'; toast('Workspace created'); }
+    } else { tab = 'profile'; notes.push(['Workspace created', 'good']); }
     users.audit('workspace created', ws.name, S.ws);
     D = null; dirty = false;
-    go('org/' + tab); window.dispatchEvent(new HashChangeEvent('hashchange'));
+    // 1.9.1 (B4): the messages of the creation are shown after the reload (a failure first)
+    const worst = notes.find(n => n[1] === 'bad');
+    await reopen('org/' + tab, { org: { auto, autoCrown, autoImport }, toast: notes.map(n => tr(n[0])).join(' · '), kind: worst ? 'bad' : 'good' });
   };
   fileIn.addEventListener('change', async () => {
     try { await doCreate(JSON.parse(await fileIn.files[0].text())); }
@@ -597,9 +604,9 @@ function workspaces(body, arg, sec) {
     tb.append(el('tr', cur ? 'sel' : null, el('td', null, el('b', null, w.name)), el('td', null, w.kind), el('td', null, w.org?.name || ''),
       el('td', 'num', n0(w.assessment?.SCEN?.length || 0)), el('td', 'mono small', (w.modified || '').slice(0, 16).replace('T', ' ')),
       el('td', null, el('div', 'btnrow',
-        cur ? pill('open', 'good') : el('button', { class: 'btn sm ghost', onclick: async () => { await selectWs(w.id); go('org'); } }, 'Open'),
+        cur ? pill('open', 'good') : el('button', { class: 'btn sm ghost', onclick: async () => { await selectWs(w.id, false); await reopen('process', { toast: tr('Switched to') + ' ' + S.ws.name }); } }, 'Open'),
         el('button', { class: 'btn sm ghost', onclick: () => exportWorkspace(w) }, 'Export'),
-        el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!window.confirm('Delete workspace "' + w.name + '" and all its documents, snapshot and history? Export it first if you may need it.')) return; await remove(w.id); toast('Deleted'); } }, 'Delete')))));
+        el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!window.confirm('Delete workspace "' + w.name + '" and all its documents, snapshot and history? Export it first if you may need it.')) return; await remove(w.id); await reopen('process', { toast: tr('Deleted') }); } }, 'Delete')))));
   }
   t.append(tb);
   // 1.5.7 — importing from the documents has a tab of its own, usable at any time

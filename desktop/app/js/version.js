@@ -6,7 +6,7 @@
 'use strict';
 
 /** Application version, without a leading "v" and without the channel. */
-export const VERSION = '1.9.0';
+export const VERSION = '1.9.1';
 /** Release channel. The 1.9.x line is a beta, not a certified product. */
 export const CHANNEL = 'beta';
 /** The release line shown to people: "1.6.x". */

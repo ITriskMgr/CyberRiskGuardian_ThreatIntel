@@ -161,10 +161,18 @@ export function table(cols, rows, opts = {}) {
   return t;
 }
 
-export function field(label, input, hint) {
+/* 1.9.1 — a hint that changes what a value means (blank versus 0, the evidence tags, units) is kept visible at the
+   Minimal level of detail (detail.js); the others are explanatory and Minimal hides them. */
+export const KEEP_HINT = /Leave blank when unknown|0 means none|\b(FACT|INFERENCE|ASSUMPTION|EXTERNAL|UNKNOWN)\b|between 0 and 1|from 0 to 1|\b0[–-]1\b|\b0 to 10\b|per ?cent|%|\$|\bCAD\b|\b(days?|hours?|months?|years?)\b|Laissez vide si inconnu|0 signifie aucun|entre 0 et 1|\b(jours?|heures?|mois|ans|années?)\b/i;
+export function field(label, input, hint, opts = {}) {
   const d = el('div', 'field');
   const l = el('label'); if (label instanceof Node) l.append(label); else l.append(safeMarkup(label));   // 1.9.0 — no innerHTML
-  d.append(l, input); if (hint) d.append(el('div', 'hint', hint));
+  d.append(l, input);
+  if (hint) {
+    const h = el('div', 'hint', hint);
+    if (opts.keep || KEEP_HINT.test(hint instanceof Node ? hint.textContent : String(hint))) h.classList.add('keep');
+    d.append(h);
+  }
   return d;
 }
 export function input(attrs) { return el('input', attrs); }
@@ -213,6 +221,12 @@ export function toCSV(rows) {
 export const val = x => (x && typeof x === 'object' ? x.v : x);
 export const debounce = (f, ms = 250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => f(...a), ms); }; };
 export const go = p => { location.hash = '#/' + p; };
+/** 1.9.1 (B2) — go to a screen, or redraw it in place when it is already the current one (a hash that does not
+ *  change fires no hashchange, so a plain go() to the screen already open silently did nothing). */
+export const goOrRedraw = p => {
+  if (location.hash === '#/' + p) window.dispatchEvent(new HashChangeEvent('hashchange'));
+  else location.hash = '#/' + p;
+};
 /** Re-render the active screen after a change made outside it. */
 export const redraw = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
 
