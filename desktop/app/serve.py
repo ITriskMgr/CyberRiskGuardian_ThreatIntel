@@ -374,6 +374,28 @@ def ai_check_policy(provider, cfg, body):
     return ""
 
 
+_CONFIG_LOCK = threading.Lock()
+
+
+def _record_test(provider, passed):
+    """1.9.1 (B3) — the helper's record of connection tests (crg-config.json ai.tested, a date per provider): a passed
+    test adds the provider, a failed one removes it, so an uninstalled server stops being the automatic default.
+    A failure to record never turns a working connection into a failed test."""
+    try:
+        with _CONFIG_LOCK:
+            fresh = crg_feeds.load_config(FEEDS)
+            tested = fresh.setdefault("ai", {}).setdefault("tested", {})
+            if passed:
+                tested[provider] = dt.date.today().isoformat()
+            elif provider in tested:
+                del tested[provider]
+            else:
+                return
+            crg_feeds.save_config(fresh, FEEDS)
+    except Exception as exc:                            # noqa: BLE001
+        sys.stderr.write(f"helper: the connection test of {provider} was not recorded: {exc}\n")
+
+
 def ai_test(provider, cfg):
     """A minimal round trip to check a provider: no workspace data, a few tokens."""
     t0 = time.time()
@@ -1505,9 +1527,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 validate_config(body.get("config") or {}, old_cfg)
                 new_cfg = body.get("config") or {}
                 # 1.9.1 (B3): ai.tested is written by the helper only (connection tests); a page never drops or forges it
-                if isinstance(new_cfg.get("ai"), dict):
-                    new_cfg["ai"]["tested"] = (old_cfg.get("ai") or {}).get("tested") or {}
-                cfg = crg_feeds.save_config(new_cfg, FEEDS)
+                if not isinstance(new_cfg.get("ai"), dict):
+                    new_cfg["ai"] = dict(old_cfg.get("ai") or {}) if "ai" not in new_cfg else {}
+                new_cfg["ai"]["tested"] = (old_cfg.get("ai") or {}).get("tested") or {}
+                with _CONFIG_LOCK:
+                    cfg = crg_feeds.save_config(new_cfg, FEEDS)
                 return self._json(200, {"config": cfg, "sources": crg_feeds.sources(cfg)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(400, {"error": str(exc)})
@@ -1548,15 +1572,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"error": "unknown provider"})
             try:
                 out = ai_test(provider, cfg)
-                # 1.9.1 (B3): remember which providers answered a connection test, so a feature restricted to
-                # this machine goes to the local provider that was actually set up (helper-owned: ai.tested).
-                fresh = crg_feeds.load_config(FEEDS)
-                fresh.setdefault("ai", {}).setdefault("tested", {})[provider] = dt.date.today().isoformat()
-                crg_feeds.save_config(fresh, FEEDS)
-                return self._json(200, out)
             except Exception as exc:                    # noqa: BLE001
+                _record_test(provider, False)
                 return self._json(200, {"ok": False, "provider": provider, "error": str(exc),
                                         "label": provs[provider]["label"]})
+            _record_test(provider, True)
+            return self._json(200, out)
         if path == "/api/keys":
             try:
                 name = str(body.get("name") or "")

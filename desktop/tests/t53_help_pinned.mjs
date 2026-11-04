@@ -60,6 +60,11 @@ await openAll(); await page.evaluate(() => { const t = document.getElementById('
 ok(await vis('nav .brand img') && await vis('nav .foot'), 'drawer: the logo and the footer stay visible after scrolling');
 await page.setViewportSize({ width: 1280, height: 800 });
 
+// the footer reads the state of the self-check: an unverified engine is never shown as verified
+const unv = await page.evaluate(() => { const st = document.getElementById('engine-state'), was = st.textContent; st.textContent = 'engine loaded, unverified';
+  window.dispatchEvent(new CustomEvent('crg-lang', { detail: 'en' })); const t = document.getElementById('engine-short').textContent; st.textContent = was; window.dispatchEvent(new CustomEvent('crg-lang', { detail: 'en' })); return t; });
+ok(/Engine unverified/.test(unv) && !/✓/.test(unv), 'an unverified engine shows ◻ Engine unverified, never ✓ ' + unv);
+
 /* ---------- French ---------- */
 await page.evaluate(async () => { const i = await import('/js/i18n.js'); await i.setLang('fr'); }); await page.waitForTimeout(400);
 ok(/Moteur vérifié/.test(await page.textContent('nav .foot')), 'French footer: « Moteur vérifié »');

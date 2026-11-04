@@ -138,8 +138,11 @@ export function touch(what = 'change') {
 const REOPEN = 'crg-reopen';
 export async function reopen(route = 'process', carry = null) {
   await saveNow();
+  await LOG.flush();                                       // the debounced logs and the audit trail are written first
+  try { const U = await import('./users.js'); if (U.active()) await U.save(); } catch { /* single-user */ }
   try { sessionStorage.setItem(REOPEN, JSON.stringify({ route, carry: carry || {}, at: Date.now() })); } catch { /* private window */ }
-  location.hash = '#/' + route;
+  // replaceState, not location.hash: a hashchange would draw the target screen in the old page just before the reload
+  history.replaceState(null, '', '#/' + route);
   location.reload();
 }
 /** What the previous page asked to hand over after a reopen (read once; stale after a minute). */

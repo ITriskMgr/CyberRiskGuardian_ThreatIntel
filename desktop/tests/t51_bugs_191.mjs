@@ -55,6 +55,14 @@ ok(route1.p === 'lmstudio' && route1.l === 'lmstudio', 'B3: a "Local model only"
 // a page save cannot drop or forge the helper's record
 const kept = await page.evaluate(async () => { const H = await import('/js/helper.js'); H.HS.config.ai = { ...H.HS.config.ai, tested: { local: '2020-01-01' } }; await H.saveConfig(); await H.loadConfig(); return H.HS.config.ai.tested; });
 ok(kept.lmstudio && !kept.local, 'B3: ai.tested is written by the helper only ' + JSON.stringify(kept));
+const kept2 = await page.evaluate(async () => { const H = await import('/js/helper.js');
+  for (const config of [{}, { ai: null }]) await fetch('/api/config', { method: 'POST', headers: await H.headers({ 'Content-Type': 'application/json' }), body: JSON.stringify({ config }) });
+  await H.loadConfig(); return H.HS.config.ai?.tested || {}; });
+ok(kept2.lmstudio, 'B3: a configuration posted without "ai" (or with a null one) keeps the record ' + JSON.stringify(kept2));
+const failed = await page.evaluate(async () => { const H = await import('/js/helper.js');
+  await fetch('/api/ai/test', { method: 'POST', headers: await H.headers({ 'Content-Type': 'application/json' }), body: JSON.stringify({ provider: 'nosuch' }) });
+  await H.loadConfig(); return Object.keys(H.HS.config.ai?.tested || {}); });
+ok(failed.includes('lmstudio'), 'B3: an unknown provider changes nothing in the record');
 // an explicit default wins
 await page.evaluate(() => { location.hash = '#/settings/ai'; }); await page.waitForTimeout(1500);
 ok(await page.isVisible('#panel-settings h2:has-text("Default providers")'), 'B3: Settings → AI shows the default providers');
@@ -120,6 +128,7 @@ await createVia('Real blank B4', 'blank');
 ok(await reloaded(), 'B4: creating a workspace reopens the application');
 ok(await page.evaluate(async () => (await import('/js/state.js')).S.ws.name) === 'Real blank B4', 'B4: on the new workspace');
 ok(/#\/org\/profile/.test(await page.evaluate(() => location.hash)), 'B4: a creation without documents reopens on its profile');
+ok(/Workspace created/.test(await page.evaluate(() => document.getElementById('toast')?.textContent || '')), 'B4: the creation message is shown after the reload');
 await noMediBec('blank real organization');
 await createVia('Real Cana B4', 'canaretail');
 ok(await reloaded(), 'B4: creating from CanaRetail reopens the application');

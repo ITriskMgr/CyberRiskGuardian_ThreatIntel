@@ -622,7 +622,8 @@ details.allsteps > summary, details.guidecard > summary { font: 600 17.5px var(-
   body.navrail nav .foot .foot-copy, body.navrail nav .foot .foot-engine { font-size: inherit; margin-left: 0; }
   body.navrail nav .foot .foot-copy::before, body.navrail nav .foot .foot-engine::before { content: none; }
   body.navrail nav .foot .foot-sep { display: inline; }
-  body.navrail .brand b, body.navrail .brand img, body.navrail nav .foot, body.navrail nav .navgroup-label, body.navrail nav .navgroup .chev { display: revert; }
+  body.navrail .brand b, body.navrail .brand img, body.navrail nav .navgroup-label, body.navrail nav .navgroup .chev { display: revert; }
+  body.navrail nav .foot { display: flex; }
   body.navrail nav .navsec:not(.fly) .navitems:not([hidden]) { display: flex !important; }
   .topbar { flex-wrap: wrap; padding: 10px 16px; }
   .wsbox { flex: 1 1 100%; } .wsbox select { min-width: 0; max-width: none; flex: 1; }

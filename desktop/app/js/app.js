@@ -62,6 +62,8 @@ import * as chat from './chat.js';
 import * as consultui from './consultui.js';
 import { nextStep } from './process.js';
 import * as DETAIL from './detail.js';
+import { VERSION as VERSION_NUM, SERIES as VERSION_SERIES } from './version.js';
+const VERSION_LABEL = `${VERSION_NUM} Beta (${VERSION_SERIES})`;
 import * as HELPMENU from './helpmenu.js';
 import { leaveProfile } from './panels/org.js';
 import { hfetch } from './helper.js';
@@ -132,7 +134,7 @@ let current = null;
 /* 1.9.1 — where the application opens: the Process page while any step of the workspace remains, so the next step
    is the first thing seen; at the Minimal level of detail, and once every step is done, the scenario register. */
 function landing() {
-  if (DETAIL.is('minimal')) return '#/register';
+  if (DETAIL.is('minimal') || users.hiddenPanels().includes('process')) return '#/register';
   try { return S.ws && nextStep(S.ws) ? '#/process' : '#/register'; } catch { return '#/register'; }
 }
 function parseHash() {
@@ -218,6 +220,7 @@ function drawChrome() {
 $('ws-select').addEventListener('change', async e => {
   const v = e.target.value;
   if (v === '__new') { e.target.value = S.ws.id; go('org/new'); return; }
+  if (!leaveProfile()) { e.target.value = S.ws.id; return; }   // 1.9.1 — unsaved profile changes ask before the switch
   await select(v, false);
   await reopen('process', { toast: i18n.tr('Switched to') + ' ' + S.ws.name });   // 1.9.1 (B4)
 });
@@ -288,16 +291,26 @@ on(what => {
 ENGINE.ok = selfCheck();
 /* 1.9.1 — the pinned footer shows the result in two words; the totals stay in #engine-state (for screen readers, the
    link's title and Help → About & versions, which reads them from there). */
-{ const full = $('engine-state').textContent, short = $('engine-short'), good = /verified/.test(full) && ENGINE.ok;
-  short.replaceChildren(el('span', { 'aria-hidden': 'true' }, good ? '✓ ' : /unverified/.test(full) ? '◻ ' : '✗ '),
-    el('span', null, good ? 'Engine verified' : /unverified/.test(full) ? 'Engine unverified' : 'Engine check failed'));
-  short.classList.toggle('bad', !good);
-  const foot = $('nav-foot'); foot.title = `${foot.title.split(' — ')[0]} — ${full}`; foot.setAttribute('aria-label', `© 2026 Marc-André Léger · ${full} · About & versions`); }
+/* The state is read from the self-check's own (English) text the first time, before the page translator can change it;
+   a later call (language switch) reuses it, unless the text was replaced with another English state (the suites do). */
+function drawFoot() {
+  const full = $('engine-state').textContent, short = $('engine-short');
+  if (/^engine /.test(full) || !ENGINE.state) ENGINE.state = /^engine verified\b/.test(full) && ENGINE.ok ? 'good' : /unverified/.test(full) ? 'unverified' : 'bad';
+  const state = ENGINE.state;
+  short.replaceChildren(el('span', { 'aria-hidden': 'true' }, { good: '✓ ', unverified: '◻ ', bad: '✗ ' }[state]),
+    el('span', null, i18n.tr({ good: 'Engine verified', unverified: 'Engine unverified', bad: 'Engine check failed' }[state])));
+  short.classList.toggle('bad', state === 'bad'); short.classList.toggle('unverified', state === 'unverified');
+  const foot = $('nav-foot'), shown = i18n.tr(full);
+  foot.title = `v${VERSION_LABEL} · © 2026 Marc-André Léger — ${shown}`;
+  foot.setAttribute('aria-label', i18n.tr('© 2026 Marc-André Léger · {0} · About & versions').replace('{0}', shown));
+}
+drawFoot();
+window.addEventListener('crg-lang', drawFoot);
 nav.init();
 TABKEYS.init();   // 1.9.0 Atlas: arrow keys and a roving tabindex on every screen's tab list
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); DETAIL.apply(); chat.mount(); consultui.mount(); drawChrome(); route(); { const r = reopened(); if (r?.carry?.toast) toast(r.carry.toast, r.carry.kind || ''); if (r && !r.carry?.org) reopenedDone(); } setTimeout(() => document.body.classList.remove('boot'), 1400); UPUI.startup().catch(console.warn); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { const again = !!reopened(); if (!again) LOG.access('application opened', location.host || 'local'); DETAIL.apply(); chat.mount(); consultui.mount(); drawChrome(); route(); { const r = reopened(); if (r?.carry?.toast) toast(r.carry.toast, r.carry.kind || ''); if (r && !r.carry?.org) reopenedDone(); } setTimeout(() => document.body.classList.remove('boot'), 1400); if (!again) UPUI.startup().catch(console.warn); drawFoot(); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

@@ -37,6 +37,11 @@ function persist() {
   clearTimeout(saveT);
   saveT = setTimeout(() => { trim(); store.put('meta', KEY, { access: L.access, data: L.data }).catch(() => {}); }, 500);
 }
+/** 1.9.1 — write now what the debounce would write in 500 ms (before the application reopens itself). */
+export async function flush() {
+  clearTimeout(saveT); trim();
+  try { await store.put('meta', KEY, { access: L.access, data: L.data }); } catch { /* storage unavailable */ }
+}
 const clean = v => String(v ?? '').replace(SECRET, '$1: [withheld]').slice(0, 300);
 
 function add(kind, action, target = '', detail = '', ws = '') {

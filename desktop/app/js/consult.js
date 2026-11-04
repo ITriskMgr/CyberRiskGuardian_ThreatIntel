@@ -455,7 +455,7 @@ export function parseAnswer(text, passages, allowed = new Set()) {
 /** Links an answer may hold: [[screen:x]], [[scenario:S3]], [[chapter:4]] — resolved, or null when unknown. */
 export function resolveLink(kind, val, ws = S.ws) {
   if (kind === 'scenario') return ws.assessment.SCEN.some(s => s.id === val) ? { href: '#/scenario/' + val, label: val } : null;
-  if (kind === 'screen') { const p = String(val).split('/')[0]; return PANELS_IN_MENU.includes(p) || p === 'scenario' ? { href: '#/' + val, label: labelOf(p, String(val).split('/')[1]) || labelOf(p) || val } : null; }
+  if (kind === 'screen') { const p = String(val).split('/')[0]; return PANELS_IN_MENU.includes(p) || p === 'scenario' || p === 'about' ? { href: '#/' + val, label: labelOf(p, String(val).split('/')[1]) || labelOf(p) || val } : null; }
   if (kind === 'chapter') { const n = Number(val); return n >= 1 && n <= 21 ? { chapter: n, label: 'Chapter ' + n } : null; }
   return null;
 }

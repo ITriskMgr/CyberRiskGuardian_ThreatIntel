@@ -11,6 +11,11 @@ import * as prefs from './prefs.js';
 import * as MOD from './modules.js';
 import * as DETAIL from './detail.js';
 import { tr } from './i18n.js';
+import * as users from './users.js';
+import * as LOG from './logs.js';
+
+/** Modules belong to the installation: in multi-user mode only an administrator answers the module questions. */
+const admin = () => !users.active() || !!users.me()?.admin;
 
 /** Each question switches the modules it names on (yes) or off (no); "not sure" leaves them as they are. */
 export const QUESTIONS = [
@@ -44,7 +49,11 @@ export async function applyAnswers(ans) {
   for (const q of QUESTIONS) {
     const a = ans[q.id];
     if (a !== 'yes' && a !== 'no') continue;
-    for (const m of q.mods) if (MOD.enabled(m) !== (a === 'yes')) { MOD.set(m, a === 'yes'); changed.push(m); }
+    if (!admin()) continue;
+    for (const m of q.mods) if (MOD.enabled(m) !== (a === 'yes')) {
+      MOD.set(m, a === 'yes'); changed.push(m);
+      users.audit('module ' + (a === 'yes' ? 'on' : 'off'), m); LOG.access('feature ' + (a === 'yes' ? 'switched on' : 'switched off'), m, 'set-up questions');
+    }
   }
   if (DETAIL.LEVELS.some(l => l[0] === ans.experience)) await DETAIL.set(ans.experience);
   prefs.set(KEY, { answered: new Date().toISOString().slice(0, 10), answers: ans });
@@ -80,7 +89,7 @@ export function open(onDone) {
 
 /** The invitation on the Process page at first start. */
 export function invitation(redraw) {
-  if (settled()) return null;
+  if (settled() || !admin()) return null;   // the modules are the administrator's; a person sets their own level in Settings
   return el('div', { class: 'card wiz-invite', id: 'setup-invite' },
     el('h2', { style: { marginTop: 0 } }, 'Set up the application for your practice'),
     el('p', null, 'Answer a few questions (about two minutes) and the menu keeps what you need, with the level of detail that suits you. You can change everything later in Settings.'),

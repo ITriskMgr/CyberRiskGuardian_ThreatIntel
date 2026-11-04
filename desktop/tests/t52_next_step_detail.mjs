@@ -122,6 +122,14 @@ await page.evaluate(() => { location.hash = '#/settings/modules'; }); await page
 ok(await page.isVisible('#setup-again button'), 'Settings → Modules re-opens the set-up questions');
 await page.evaluate(async () => { const M = await import('/js/modules.js'); M.set('iam', false); M.set('audit', true); const D = await import('/js/detail.js'); await D.set('standard'); });
 
+// multi-user: the module questions are the administrator's
+const mu = await page.evaluate(async () => { const u = await import('/js/users.js'); const p = await import('/js/prefs.js'); const W = await import('/js/setupwizard.js'); const M = await import('/js/modules.js');
+  p.set('setupWizard', null); await u.enable('Admin'); const asAdmin = !!W.invitation(() => {});
+  const s = u.newUser({ name: 'Student' }); u.U.users.push(s); u.U.current = s; const asStudent = !!W.invitation(() => {});
+  const before = M.enabled('audit'); await W.applyAnswers({ experience: 'standard', audit: before ? 'no' : 'yes' }); const after = M.enabled('audit');
+  u.U.current = u.U.users[0]; await u.disable(); p.set('setupWizard', { skipped: '2026-11-04' }); return { asAdmin, asStudent, unchanged: before === after }; });
+ok(mu.asAdmin && !mu.asStudent && mu.unchanged, 'multi-user: only an administrator is invited, and a non-admin cannot change the modules ' + JSON.stringify(mu));
+
 /* ---------- nothing else changes ---------- */
 const eng = await page.evaluate(() => document.getElementById('engine-state').textContent);
 ok(/84,305 \/ 41,023/.test(eng), 'the engine reference is unchanged: ' + eng);

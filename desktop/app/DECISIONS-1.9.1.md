@@ -80,3 +80,20 @@ Every 1.8.0 / 1.9.0 binding decision still holds (`DECISIONS-1.8.0.md`, `DECISIO
   here it would pin the build machine's local Playwright path; CI still installs the pinned Playwright 1.63.0.
 - The 1.9.1 suites: t51 (B1–B4), t52 (next step, level of detail, set-up questions, consultant), t53 (Help, pinned
   header and footer); t22 and t47 follow the new footer and Help.
+
+## Independent review (before the pull request)
+
+A separate review of the diff found no High issue; five Medium and six Low, all fixed:
+- M1 the footer showed ✓ for an *unverified* engine (`/verified/` matched "unverified") → state from the self-check,
+  kept through a language switch; ◻ Engine unverified.
+- M2 a configuration posted without `ai` dropped `ai.tested` → always re-imposed; a page that omits `ai` keeps the
+  stored AI settings; a failed test removes the provider from the record; written under a lock; a recording failure
+  never turns a working test into a failed one.
+- M3 the reload could cut the debounced logs and the RACI audit → `reopen()` awaits `LOG.flush()` and `users.save()`.
+- M4 the messages of a creation were lost in the reload → carried and shown after it (a failure first).
+- M5 the set-up invitation let a non-administrator change installation modules → shown to administrators only (single
+  user = administrator); module changes are audited and logged.
+- L1 switching workspace with unsaved profile edits → the selector asks first and stays put if cancelled.
+- L2 `reopen()` uses `history.replaceState` (no screen drawn in the old page). L3 landing skips a hidden Process page.
+- L4 a reopen is not a new start: no "application opened" log and no update check. L5 consultant links to About
+  still work. L6 the footer's accessible name follows the language; drawer layout of the footer fixed.

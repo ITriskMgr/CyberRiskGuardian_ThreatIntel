@@ -19,7 +19,7 @@ export const DOC_CATS = ['Business case', 'Organization profile', 'Asset invento
 
 let auto = null, autoCrown = false, autoImport = false, scrollImport = false;   // extraction to open right after a workspace is created
 // 1.9.1 (B4) — a creation reloads the application; the extraction chosen at creation is handed over through the reload
-{ const r = reopened(); if (r?.carry?.org) { ({ auto = null, autoCrown = false, autoImport = false } = r.carry.org); reopenedDone(); } }
+{ const r = reopened(); if (r?.carry?.org) { ({ auto = null, autoCrown = false, autoImport = false } = r.carry.org); if (r.carry.toast) setTimeout(() => toast(r.carry.toast, r.carry.kind || ''), 400); reopenedDone(); } }
 export function render(sec, arg) {
   if (arg === 'new') tab = 'workspaces';
   else if (['profile', 'crown', 'docs', 'import', 'workspaces', 'class', 'evidence'].includes(arg)) tab = arg;
@@ -558,24 +558,27 @@ function workspaces(body, arg, sec) {
        still assembling it, and a baseline taken now would be half a case. They set it themselves on
        Reset data → “Set the current state as the starting point”. */
     if ((fromFile || (isEx(from.value) && ws.kind === 'classroom')) && RESET.isTeaching(ws)) { try { await RESET.ensureBaseline(ws); } catch { /* a baseline is a convenience */ } }
+    const notes = [];
     if (pending.length) {
       const res = await addDocs(S.ws, pending.splice(0), msg);
       const bad = res.filter(r => r.state !== 'good').length;
       // 1.7.0 — policy facts for the Security Policy Writer: local rules, proposals only (reviewed in the Writer)
       if (exW.checked) {
-        try { const WR = await import('../writer.js'); const r = await WR.extractFacts(S.ws); WR.log(S.ws, `Facts proposed at workspace creation: ${r.facts} from ${r.docs} document(s)`, users.name() || ''); toast(tr('{0} policy facts proposed — review them in Security Policy Writer → Documents & facts').replace('{0}', r.facts)); }
-        catch (e) { toast(tr('Policy facts were not read: {0}').replace('{0}', tr(String(e.message || e))), 'bad'); }
+        try { const WR = await import('../writer.js'); const r = await WR.extractFacts(S.ws); WR.log(S.ws, `Facts proposed at workspace creation: ${r.facts} from ${r.docs} document(s)`, users.name() || ''); notes.push([tr('{0} policy facts proposed — review them in Security Policy Writer → Documents & facts').replace('{0}', r.facts), '']); }
+        catch (e) { notes.push([tr('Policy facts were not read: {0}').replace('{0}', tr(String(e.message || e))), 'bad']); }
       }
-      toast(`Workspace created with ${res.length - bad} document(s) read` + (bad ? `, ${bad} need attention` : ''), bad ? 'bad' : 'good');
+      notes.unshift([`Workspace created with ${res.length - bad} document(s) read` + (bad ? `, ${bad} need attention` : ''), bad ? 'bad' : 'good']);
       tab = 'docs';
       autoImport = exM.checked;
       if (exP.checked) { tab = 'profile'; auto = 'profile'; autoCrown = exC.checked; }
       else if (exC.checked) { tab = 'crown'; auto = 'crown'; }
       else if (exM.checked) { tab = 'import'; autoImport = false; }
-    } else { tab = 'profile'; toast('Workspace created'); }
+    } else { tab = 'profile'; notes.push(['Workspace created', 'good']); }
     users.audit('workspace created', ws.name, S.ws);
     D = null; dirty = false;
-    await reopen('org/' + tab, { org: { auto, autoCrown, autoImport } });   // 1.9.1 (B4)
+    // 1.9.1 (B4): the messages of the creation are shown after the reload (a failure first)
+    const worst = notes.find(n => n[1] === 'bad');
+    await reopen('org/' + tab, { org: { auto, autoCrown, autoImport }, toast: notes.map(n => tr(n[0])).join(' · '), kind: worst ? 'bad' : 'good' });
   };
   fileIn.addEventListener('change', async () => {
     try { await doCreate(JSON.parse(await fileIn.files[0].text())); }

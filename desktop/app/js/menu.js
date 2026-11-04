@@ -81,6 +81,7 @@ export const MENU = [
 export const PANELS_IN_MENU = [...new Set(MENU.flatMap(s => s.items.flatMap(i => i.panel ? [i.panel] : [])))];
 /** The label of a screen, or of one of its tabs. */
 export function labelOf(panel, arg) {
+  if (panel === 'about') return arg === 'versions' ? 'About & versions' : 'About';   // 1.9.1 — in the top-bar Help menu
   for (const s of MENU) for (const i of s.items) {
     if (i.panel !== panel) continue;
     if (arg && i.tabs) { const t = i.tabs.find(t => t.arg === arg); if (t) return t.label; }
