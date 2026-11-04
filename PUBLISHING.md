@@ -81,7 +81,10 @@ et sa propre version GitHub avec trois fichiers :
 
 Avant d’étiqueter : les contrôles de `desktop/app/tools` (`version_check`, `cache_check`, `label_check`, `history_check`,
 `anchor_check`, `csp_check`, `i18n_coverage fr`) et `desktop/tests/run_all.sh` doivent tous passer, et le pied de page doit
-afficher `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
+afficher `© Marc-André Léger · ✓ Engine verified` (1.9.1 et suivantes), avec, sous Aide → À propos et versions,
+`engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`. Depuis la 1.9.1, la version porte aussi
+`FIRST-INSTALL.pdf` et `FIRST-TIME-SETUP.pdf` (reconstruits par `build_install_pdf.py FIRST-INSTALL.md "First-time
+installation"` et `… FIRST-TIME-SETUP.md "First-time setup"`).
 
 ## Rappels propres à cette édition
 
