@@ -1,8 +1,8 @@
 // t14 — ISP management (ISPMS): versions, freeze hash, independence, diff, applicability, assignments,
 // acknowledgements tied to an exact version, training, exceptions in the shared register.
-import { open, ok, done } from './lib.mjs';
+import { open, ok, done, waitInPage } from './lib.mjs';
 const { browser, page, errors } = await open('#/process');
-await page.waitForFunction(async () => { const st = await import('/js/state.js'); return st.S.list.some(w => w.kind === 'example'); }, null, { timeout: 20000, polling: 300 });
+await waitInPage(page, async () => { const st = await import('/js/state.js'); return st.S.list.some(w => w.kind === 'example'); }, null, { timeout: 20000, every: 300 });
 await page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => w.kind === 'example'); await st.select(ex.id); location.hash = '#/isp/overview'; });
 await page.waitForSelector('#panel-isp h1:has-text("ISP management")');
 ok(await page.isVisible('#panel-isp .subtabs button:has-text("Applicability & assignments")'), 'seven tabs');

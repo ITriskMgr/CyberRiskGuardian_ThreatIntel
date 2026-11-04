@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import { execSync } from 'child_process';
-import { ok, done, URL, PORT, serveCmd } from './lib.mjs';
+import { ok, done, waitInPage, URL, PORT, serveCmd } from './lib.mjs';
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ serviceWorkers: 'allow' });
 const page = await ctx.newPage();
@@ -12,7 +12,7 @@ ok(await page.evaluate(() => !!navigator.serviceWorker.controller), 'service wor
 execSync(`fuser -k ${PORT}/tcp || pkill -f 'serve.py ${PORT}$' || true`); await page.waitForTimeout(800);
 const errs = []; page.on('pageerror', e => errs.push(String(e)));
 await page.reload();
-await page.waitForFunction(async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, polling: 300 });
+await waitInPage(page, async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, every: 300 });
 ok(/84,305 \/ 41,023/.test(await page.textContent('body')), 'offline: engine verified');
 await page.evaluate(async () => { const M = await import('/js/modules.js'); M.set('iam', true); M.set('cm', true); });
 for (const r of ['ontology/suggest', 'registry/browse', 'isp/policies', 'compliance/report', 'iam/overview', 'iam/findings', 'iam/import', 'cm/overview', 'cm/baselines', 'cm/findings', 'cm/import']) { await page.evaluate(h => location.hash = '#/' + h, r); await page.waitForTimeout(700); }
