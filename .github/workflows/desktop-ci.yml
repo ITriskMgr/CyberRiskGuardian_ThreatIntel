@@ -23,12 +23,14 @@ jobs:
       CRGO_REF: v0.11.0
       CRGO_RELEASE: "0.11.0"
       CRG_URL: http://127.0.0.1:8101/
-      # outside the checkout: the helper refuses an organisation-graph folder inside a git repository (t12, t21)
-      CRG_TMP: ${{ runner.temp }}/crg-ci
       CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.11.0
       CRG_MOCK_GITHUB_PORT: "8199"
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
+      # CRG_TMP lies outside the checkout: the helper refuses an organisation-graph folder inside a git repository
+      # (t12, t21). Set here, not in the job env, because the runner context is not available at job level.
+      - name: Temp folder outside the checkout
+        run: echo "CRG_TMP=$RUNNER_TEMP/crg-ci" >> "$GITHUB_ENV"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
