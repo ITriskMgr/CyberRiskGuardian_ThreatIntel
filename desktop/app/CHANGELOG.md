@@ -1,5 +1,32 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## Unreleased — backlog for the next release
+
+### Planned
+- **The next step is always obvious.** Decided 2026-11-04 after an analyst was stuck at step 3 ("Define the scope,
+  the horizon and the threat context") with no indication of which of its three checks was missing. No formula,
+  plugin or workspace data-version change; one field on the user record.
+  - **Next-step card** (Process page): shows the step's checklist (✓ / ◻, with the hint of each unmet check). The
+    primary button opens the screen of the *first unmet check* — landing on the exact control where the screen
+    takes a route argument (e.g. the "Add vulnerabilities" form), otherwise at the top of the screen. The other
+    screens of the step stay as secondary buttons.
+  - **Landing on launch**: while any step remains, the app opens on the Process page instead of the scenario
+    register. At the Minimal level it opens on the register, as today.
+  - **Detail level** — Minimal / Standard / Detailed; default Standard. Stored per installation, or per signed-in
+    user when multi-user mode is on. Changed in Settings and in a small selector in the Process page header.
+    - Process guidance (Next-step card, Process page, nav badge, help chatbot): Minimal shows the checklist and
+      the buttons; Standard adds the hint of each unmet check; Detailed adds purpose, inputs, tips and why the
+      step matters.
+    - Ordinary screens: Minimal hides the lede paragraph and the field hints; Standard is the screen as today;
+      Detailed adds one "why this screen matters" line linking to the screen's process step (mapping in
+      `process.js` PANEL_STEP), in English and French, for every screen that maps to a step.
+  - Judgement call: the Detailed line on about 60 screens is the largest piece of writing in the item. The
+    alternative not chosen — Standard and Detailed identical on ordinary screens — would halve the work without
+    changing the step-3 experience.
+
+### Not yet done (carried from 1.8.0)
+- Licence-key activation and the first-run licence dialog remain designed but not built.
+
 ## 1.8.1 Beta (Beta 1.8.x) — 23 October 2026
 
 Ontology update. `crg.js`, `cvss4.js`, `sample.js` and `threat.js` are unchanged; the self-check still requires
