@@ -229,14 +229,16 @@ function reviewProfile(sec, res, chain) {
    ends here, and the document scope it was given ends with it. */
 function toImport() {
   if (!autoImport) { X.setScope(null); return false; }
-  const proceed = () => { autoImport = false; if (autoRunNext) IU.armAutoRun(); autoRunNext = false; tab = 'import'; goOrRedraw('org/import'); };   // 1.9.1 (B2)
+  // 1.9.1 (B2): when the chain was started from Import from documents the hash does not change, so the screen must be
+  // redrawn for the armed run to start — unless saving the profile already redraws it (touch('redraw')).
+  const proceed = (redraw = true) => { autoImport = false; if (autoRunNext) IU.armAutoRun(); autoRunNext = false; tab = 'import'; if (redraw) goOrRedraw('org/import'); else go('org/import'); };
   /* The profile values are in the form but not saved. Leaving the tab would ask the generic "leave
      without saving?" question in the middle of the run; ask the right question instead. */
   if (dirty) {
     const m = modal(tr('Save the profile before the import continues?'),
       el('p', null, 'The values you accepted are in the Profile & appetite form but are not saved yet. The import of the other targets continues on Import from documents.'),
       el('div', 'btnrow', { style: { marginTop: '12px' } },
-        el('button', { class: 'btn', onclick: () => { saveDraft(); m.close(); proceed(); } }, 'Save the profile and continue'),
+        el('button', { class: 'btn', onclick: () => { saveDraft(); m.close(); proceed(false); } }, 'Save the profile and continue'),
         el('button', { class: 'btn ghost', onclick: () => { m.close(); autoImport = false; autoRunNext = false; X.setScope(null); toast(tr('Import paused — save the profile, then open Import from documents')); } }, 'Stay on the profile'),
         el('button', { class: 'btn ghost danger', onclick: () => { dirty = false; D = null; m.close(); proceed(); } }, 'Discard the profile values and continue')));
     m.back.onclose = null;

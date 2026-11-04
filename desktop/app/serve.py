@@ -56,7 +56,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.9.0"
+VERSION = "1.9.1"
 # 1.9.0 — a random token made at each start. The page reads it from /api/session (same origin only) and sends it
 # with every /api/* call, next to X-CRG; the helper also checks Host and Origin. See Handler._guard.
 TOKEN = secrets.token_urlsafe(32)

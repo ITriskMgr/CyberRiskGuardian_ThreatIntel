@@ -4,17 +4,35 @@ import { el, card, pill, select, toast, table, banner, field, download, toCSV, c
 import { S } from '../state.js';
 import * as prefs from '../prefs.js';
 import * as i18n from '../i18n.js';
+import * as DETAIL from '../detail.js';
+const tr = i18n.tr;
 import * as users from '../users.js';
 import * as AI from '../ai.js';
 import { STEPS } from '../process.js';
 
 /* ---------------- language (AI settings moved to settings_ai.js in 1.5.3) ---------------- */
+/** The Minimal / Standard / Detailed switch (Settings → Language & detail, and the Process page header). */
+export function detailSwitch() {
+  const box = el('div', { class: 'detail-switch', role: 'group', 'aria-label': tr('Level of detail') });
+  for (const [id] of DETAIL.LEVELS) {
+    const b = el('button', { type: 'button', 'data-level': id, 'aria-pressed': String(DETAIL.level() === id), 'data-ro-ok': '', 'data-noi18n': '' }, DETAIL.label(id));
+    b.addEventListener('click', () => DETAIL.set(id));
+    box.append(b);
+  }
+  return box;
+}
 export function general(body, sec, rerender) {
   const lang = select(i18n.LANGS.map(l => [l.code, l.name]), i18n.current(), { 'data-noi18n': '', 'data-ro-ok': '' });
   lang.addEventListener('change', async () => { await i18n.setLang(lang.value); rerender(); });
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Interface language'),
     field('Language of the screens', lang, 'Only the interface is translated. Organization data, case documents, scenarios and AI answers stay in their original language. The EN / FR buttons in the top bar do the same.'),
     el('p', 'note', 'More languages can be added: one catalogue file per language in js/i18n/, and one line in the language list (see README).')));
+  // 1.9.1 — the level of detail of the interface (for this installation, or for you when signed in)
+  body.append(card({ id: 'detail-card' }, el('h2', { style: { marginTop: 0 } }, 'Level of detail'),
+    el('p', null, users.active() ? 'Your own choice: each signed-in person has theirs.' : 'For this installation. In multi-user mode each signed-in person chooses their own.'),
+    detailSwitch(),
+    el('ul', 'small', ...DETAIL.LEVELS.map(([id, , what]) => el('li', null, el('b', { 'data-noi18n': '' }, DETAIL.label(id)), ' — ', what))),
+    el('p', 'note', 'Only what the screens explain changes: hints that change what a value means stay at every level, and no number, formula or workspace changes. The same switch is in the header of the Process page.')));
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'AI settings'),
     el('p', null, 'The help chatbot’s AI answers, AI for this workspace, and where each AI feature may send its requests are managed in one place: ',
       el('a', { href: '#/settings/ai' }, 'Settings → AI — local & remote'), '.')));

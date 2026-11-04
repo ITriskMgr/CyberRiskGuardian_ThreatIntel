@@ -13,6 +13,7 @@ import * as settingsLogs from './settings_logs.js';
 import * as settingsSim from './settings_sim.js';
 import * as LOG from '../logs.js';
 import * as MOD from '../modules.js';
+import * as WIZ from '../setupwizard.js';
 import * as users from '../users.js';
 import { HS, probe, loadConfig, saveConfig, setKey, apiJson, post, DEFAULT_LINKS, LINK_LABEL, LINK_EXAMPLE, LINK_YOURS, DEFAULT_CONFIG, driveId } from '../helper.js';
 
@@ -34,7 +35,7 @@ export async function render(sec, arg) {
   sec.append(HS.helper ? banner('good', 'Saved in the feeds folder', `crg-config.json in ${HS.feedsDir || HS.helper.feeds_dir} — the same file the scheduled task reads. A copy is kept in this browser.`)
     : banner('warn', 'Helper not running — settings saved in this browser only', 'Start the app with its launcher so the settings are written to the feeds folder, where the scheduled task reads them. API keys can be stored only through the helper.'));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'], ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'], ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']])
+  for (const [k, t] of [['general', 'Language & detail'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'], ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'], ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; history.replaceState(null, '', '#/settings/' + k); render(sec); } }, t));
   sec.append(st);
   const body = el('div'); sec.append(body);
@@ -482,4 +483,8 @@ function modulesView(body, rerender) {
       return el('label', { style: { display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '10px 0' } }, c,
         el('span', null, el('b', null, m.label), el('div', 'small muted', m.what)));
     }))))));
+  // 1.9.1 — the first-run set-up questions, re-opened here
+  if (admin) body.append(card({ id: 'setup-again' }, el('h2', { style: { marginTop: 0 } }, 'Set-up questions'),
+    el('p', null, 'The questions asked at first start: they set these switches from what your practice needs, and the level of detail from your experience.'),
+    el('div', 'btnrow', el('button', { class: 'btn ghost', onclick: () => WIZ.open(rerender) }, 'Answer the set-up questions again'))));
 }

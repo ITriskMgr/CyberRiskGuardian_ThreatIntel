@@ -71,7 +71,7 @@ const emb2 = await api(page, '/api/embed', { texts: ['hello'] });
 ok(emb2.status === 403 && /No local embedding model/.test(emb2.body.error), 'no embedding model configured: nothing is embedded');
 
 /* ---------- the help chatbot is help-only and hands over ---------- */
-await page.click('#help-toggle');
+await page.click('#help-toggle'); await page.click('#help-menu [data-help="ask"]');   // 1.9.1: Help is a menu; Ask opens the chatbot
 await page.fill('#chat-panel input', 'what is the baseline cost');
 await page.keyboard.press('Enter'); await page.waitForTimeout(400);
 ok(!(await page.isVisible('#chat-panel >> text=Ask AI')) && await page.isVisible('#chat-panel >> text=help only'), 'the help chatbot has no AI mode');

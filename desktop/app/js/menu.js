@@ -70,13 +70,11 @@ export const MENU = [
   { id: 'tools', label: 'Tools', items: [
     T('cvss', 'CVSS v4.0'), T('budget', 'Budget'), T('export', 'Export · Excel'), T('ai', 'Virtual consultant'), T('forecast', 'Forecasts'), T('backup', 'Backup & restore')] },
   { id: 'settings', label: 'Settings', items: [
-    sub('settings', 'Settings', [['general', 'Language'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'],
+    sub('settings', 'Settings', [['general', 'Language & detail'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'],
       ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'],
       ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']], { flat: true })] },
-  { id: 'help', label: 'Help', items: [
-    { out: 'help/step-by-step.html', target: 'crg-steps', label: 'Step by step' },
-    { out: 'help/user-guide.html', target: 'crg-guide', label: 'User guide' },
-    T('about', 'About')] },
+  // 1.9.1 — no Help section here any more: Help is the top-bar button (helpmenu.js), with Step by step, the User guide,
+  // Ask and About & versions.
 ];
 
 /** Every screen the menu can open (for the access matrix and the tests). */

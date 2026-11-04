@@ -7,7 +7,9 @@ await page.waitForTimeout(800);
 const top = await page.evaluate(() => document.querySelector('.topright').textContent);
 ok(!/Saved locally|proof of concept|Beta ·/i.test(top), 'top right shows no saved time and no beta pill');
 const V = await page.evaluate(async () => { const v = await import('/js/version.js'); return { version: v.VERSION, series: v.SERIES }; });
-ok((await page.textContent('nav .foot')).includes(`v${V.version} Beta (${V.series})`), `footer says v${V.version} Beta (${V.series})`);
+// 1.9.1 — one pinned footer line: © and the engine check; the version is in its title and in Help → About & versions
+ok((await page.getAttribute('nav .foot', 'title')).includes(`v${V.version} Beta (${V.series})`), `footer title says v${V.version} Beta (${V.series})`);
+ok(/© 2026 Marc-André Léger/.test(await page.textContent('nav .foot')) && /Engine verified/.test(await page.textContent('#engine-short')), 'footer: © and ✓ Engine verified on one line');
 ok(!/proof of concept/i.test(await page.evaluate(() => document.body.innerText)), 'no proof of concept on screen');
 
 // hierarchy from menu.js
