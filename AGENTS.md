@@ -137,7 +137,7 @@ Cost-effectiveness = (Estimated − Residual) ÷ cost × 1,000   (risk units rem
 | Recalculation and PDF rendering | LibreOffice (headless). |
 | Scripts | `plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/`: `crg_calc.py`, `test_crg_calc.py`, `build_workbook.py`, `budget_calibrator.py`, `threat_snapshot.py`, `crgo_contract.py` (CRGO bridge: graph, context, submit, compliance, secops) and `test_crgo_contract.py`; `plugins/cyberriskguardian-threatintel/hooks/check_labels.py` (label check). |
 | Ontology (optional) | CRGO 0.11.0 checkout (`$CRGO_HOME`, default `./CyberRiskGuardian-Ontology-0.11.0/`), with `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`. MCP server `crgo-ontology` over stdio. |
-| Local calculator server | `plugins/cyberriskguardian-threatintel/mcp/crg_server.py`, an MCP server over stdio. Tools: `crg_risk`, `cvss4_score`, `cost_effectiveness`, `combine_reductions`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`. Works with mcp 1.x and 2.x. |
+| Local calculator server | `plugins/cyberriskguardian-threatintel/mcp/crg_server.py`, an MCP server over stdio. Tools: `crg_risk`, `cvss4_score`, `cost_effectiveness`, `combine_reductions`, `budget_target`, `budget_check`, `sensitivity`, `threat_context`, `ssvc_decision`. Works with mcp 1.x and 2.x. |
 
 ## Execution guidelines
 - Read every supplied document before writing.
