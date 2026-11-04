@@ -105,6 +105,15 @@ export async function modulesOn(page, on = true, ids = ['iam', 'cm']) {
 export async function medibec(page) {
   return page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => w.kind === 'example' && /MediBec/.test(w.name)); if (ex && st.S.ws.id !== ex.id) await st.select(ex.id); return st.S.ws.name; });
 }
+/** Wait until an async predicate run in the page returns true; throws after `timeout` ms. Use this rather than
+ *  page.waitForFunction(async …): Playwright treats the Promise an async predicate returns as truthy and resolves at once. */
+export async function waitInPage(page, fn, arg, { timeout = 10000, every = 100 } = {}) {
+  const end = Date.now() + timeout;
+  while (!(await page.evaluate(fn, arg))) {
+    if (Date.now() > end) throw new Error('waitInPage: condition not met within ' + timeout + ' ms: ' + String(fn).slice(0, 120));
+    await page.waitForTimeout(every);
+  }
+}
 /** Go to a route inside the page (no reload) and let it render. */
 export async function goto(page, hash, ms = 600) { await page.evaluate(h => { location.hash = h; }, hash); await page.waitForTimeout(ms); }
 
