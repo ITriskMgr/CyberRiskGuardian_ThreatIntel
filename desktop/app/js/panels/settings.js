@@ -393,7 +393,7 @@ function providerCard(k, pv, info, sec) {
     res.replaceChildren(el('span', 'small muted', 'Sending a test request (no workspace data, a few tokens)…'));
     try {
       const out = await post('/api/ai/test', { provider: k });
-      if (out.ok) res.replaceChildren(banner('good', 'Works', `${out.model} answered “${out.reply || '…'}” in ${out.ms} ms through the helper.`));
+      if (out.ok) { res.replaceChildren(banner('good', 'Works', `${out.model} answered “${out.reply || '…'}” in ${out.ms} ms through the helper.`)); await loadConfig().catch(() => {}); }
       else res.replaceChildren(banner('bad', 'The test failed', out.error || 'No answer.'));
     } catch (err) { res.replaceChildren(banner('bad', 'The test failed', String(err.message || err))); }
     b.disabled = false; b.textContent = was;

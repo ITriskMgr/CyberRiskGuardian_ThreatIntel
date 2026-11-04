@@ -17,7 +17,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, banner, kpi, toast, go } from '../util.js';
-import { S, remove, refreshList, touch } from '../state.js';
+import { S, remove, refreshList, touch, reopen } from '../state.js';
 import * as RESET from '../reset.js';
 import * as users from '../users.js';
 import { HS, probe, loadConfig, setKey } from '../helper.js';
@@ -139,8 +139,7 @@ function start(body, sec) {
       advice: tr('If you want to keep a copy of your work, cancel and export the workspace first: Organization → Workspaces → Export.'),
     }, async () => {
       const r = await RESET.restoreTeaching(ws.id);
-      render(sec);
-      toast('The case is back to its starting point', 'good');
+      await reopen('process', { toast: tr('“{0}” is back to its starting point. You can begin the exercise again.').replace('{0}', r.name), kind: 'good' });   // 1.9.1 (B4)
       return tr('“{0}” is back to its starting point. You can begin the exercise again.').replace('{0}', r.name);
     });
   } }, 'Start this case over…');
@@ -344,8 +343,7 @@ function deleteNow(sec) {
     await remove(ws.id);
     await refreshList();
     users.audit('workspace deleted', name, S.ws);
-    render(sec);
-    toast('Workspace deleted: ' + name);
+    await reopen('process', { toast: tr('“{0}” was deleted. You are now in “{1}”.').replace('{0}', name).replace('{1}', S.ws?.name || '—') });   // 1.9.1 (B4)
     return tr('“{0}” was deleted. You are now in “{1}”.').replace('{0}', name).replace('{1}', S.ws?.name || '—');
   });
 }

@@ -213,6 +213,12 @@ export function toCSV(rows) {
 export const val = x => (x && typeof x === 'object' ? x.v : x);
 export const debounce = (f, ms = 250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => f(...a), ms); }; };
 export const go = p => { location.hash = '#/' + p; };
+/** 1.9.1 (B2) — go to a screen, or redraw it in place when it is already the current one (a hash that does not
+ *  change fires no hashchange, so a plain go() to the screen already open silently did nothing). */
+export const goOrRedraw = p => {
+  if (location.hash === '#/' + p) window.dispatchEvent(new HashChangeEvent('hashchange'));
+  else location.hash = '#/' + p;
+};
 /** Re-render the active screen after a change made outside it. */
 export const redraw = () => window.dispatchEvent(new HashChangeEvent('hashchange'));
 

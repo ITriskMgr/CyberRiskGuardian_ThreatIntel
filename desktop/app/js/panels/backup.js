@@ -4,7 +4,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, kpi, pill, banner, toast, table, download, field, input, n0, today } from '../util.js';
-import { S, loadAll, emit } from '../state.js';
+import { S, loadAll, emit, reopen } from '../state.js';
 import * as B from '../backup.js';
 import * as K from '../catalog.js';
 import * as MIG from '../migrate.js';
@@ -183,11 +183,10 @@ function preview(sec) {
         K.invalidate();
         await loadAll();
         loaded = planned = chosen = null;
-        emit('workspace');
-        toast(`Restored ${done.workspaces} workspace(s)` +
+        // 1.9.1 (B4): reopen on the Process page so no screen keeps a workspace from before the restore
+        await reopen('process', { toast: `Restored ${done.workspaces} workspace(s)` +
               (done.deleted ? `, deleted ${done.deleted}` : '') +
-              (done.frameworks ? `, ${done.frameworks} framework pack(s)` : ''));
-        render(sec);
+              (done.frameworks ? `, ${done.frameworks} framework pack(s)` : '') });
       } catch (err) {
         sec.append(banner('bad', 'The restore failed part-way', String(err.message || err) +
           ' Some data may already have been written; check the workspace list before continuing.'));

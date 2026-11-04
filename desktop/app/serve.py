@@ -1501,8 +1501,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"error": str(exc)})
         if path == "/api/config":
             try:
-                validate_config(body.get("config") or {}, crg_feeds.load_config(FEEDS))
-                cfg = crg_feeds.save_config(body.get("config") or {}, FEEDS)
+                old_cfg = crg_feeds.load_config(FEEDS)
+                validate_config(body.get("config") or {}, old_cfg)
+                new_cfg = body.get("config") or {}
+                # 1.9.1 (B3): ai.tested is written by the helper only (connection tests); a page never drops or forges it
+                if isinstance(new_cfg.get("ai"), dict):
+                    new_cfg["ai"]["tested"] = (old_cfg.get("ai") or {}).get("tested") or {}
+                cfg = crg_feeds.save_config(new_cfg, FEEDS)
                 return self._json(200, {"config": cfg, "sources": crg_feeds.sources(cfg)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(400, {"error": str(exc)})
@@ -1542,7 +1547,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if provider not in provs:
                 return self._json(400, {"error": "unknown provider"})
             try:
-                return self._json(200, ai_test(provider, cfg))
+                out = ai_test(provider, cfg)
+                # 1.9.1 (B3): remember which providers answered a connection test, so a feature restricted to
+                # this machine goes to the local provider that was actually set up (helper-owned: ai.tested).
+                fresh = crg_feeds.load_config(FEEDS)
+                fresh.setdefault("ai", {}).setdefault("tested", {})[provider] = dt.date.today().isoformat()
+                crg_feeds.save_config(fresh, FEEDS)
+                return self._json(200, out)
             except Exception as exc:                    # noqa: BLE001
                 return self._json(200, {"ok": False, "provider": provider, "error": str(exc),
                                         "label": provs[provider]["label"]})

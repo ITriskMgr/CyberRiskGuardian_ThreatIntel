@@ -67,6 +67,23 @@ export async function render(body, sec, rerender, providersSection) {
       await savePolicy({ ...P, tasks: { ...AI.DEFAULT_POLICY.tasks } }); toast(tr('Recommended routes restored')); rerender();
     } }, 'Restore the recommended routes'))));
 
+  // 1.9.1 (B3) — which provider a "Local model only" or "Remote provider only" route goes to
+  const sideSel = local => {
+    const list = AI.providers().filter(p => !!p.local === local);
+    const key = local ? 'default_local' : 'default_remote';
+    const s = select([['', tr('Automatic — the first provider whose connection test passed')], ...list.map(p => [p.id, p.label])], HS.config?.ai?.[key] || '');
+    s.addEventListener('change', async () => {
+      HS.config.ai = Object.assign({}, HS.config.ai, { [key]: s.value });
+      await saveConfig(); toast(tr('Default provider saved')); rerender();
+    });
+    const now = local ? AI.localDefault() : AI.remoteDefault();
+    return field(local ? 'Default local provider' : 'Default remote provider', s,
+      el('span', null, tr('Now:') + ' ', el('b', { 'data-noi18n': '' }, AI.provider_label(now)), ' — ', tr(AI.sideDefaultWhy(local)), '.'));
+  };
+  body.append(card(el('h2', { style: { marginTop: 0 } }, 'Default providers (this installation)'),
+    el('p', 'note', 'A feature routed to “Local model only” goes to the default local provider; one routed to a provider off this machine, while the workspace provider is local, goes to the default remote provider. Automatic picks the first provider whose connection test passed (local: Ollama, then LM Studio, then the other local model).'),
+    el('div', 'grid g2', sideSel(true), sideSel(false))));
+
   // this workspace
   const on = el('input', { type: 'checkbox', checked: !!a.enabled, style: { width: 'auto' } });
   on.addEventListener('change', () => { a.enabled = on.checked; touch(); rerender(); });

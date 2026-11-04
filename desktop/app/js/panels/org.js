@@ -1,9 +1,9 @@
 /* Organization — workspaces, organization profile, crown jewels, risk appetite, context documents.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, $, n0, kpi, banner, card, field, select, chip, download, toast, uid, today, go, copyText, debounce, pill, modal, table } from '../util.js';
+import { el, $, n0, kpi, banner, card, field, select, chip, download, toast, uid, today, go, goOrRedraw, copyText, debounce, pill, modal, table } from '../util.js';
 import * as MIG from '../migrate.js';
-import { S, touch, newWorkspace, exampleWorkspace, exampleAvailable, EXAMPLES, create, remove, select as selectWs, migrate, docText, setDocText, delDoc, refreshList, saveNow, SCHEMA, emit } from '../state.js';
+import { S, touch, newWorkspace, exampleWorkspace, exampleAvailable, EXAMPLES, create, remove, select as selectWs, migrate, docText, setDocText, delDoc, refreshList, saveNow, SCHEMA, emit, reopen, reopened, reopenedDone } from '../state.js';
 import { extractText, hints } from '../extract.js';
 import * as X from '../extractor.js';
 import * as aiui from '../aiui.js';
@@ -18,6 +18,8 @@ export const DOC_CATS = ['Business case', 'Organization profile', 'Asset invento
   'Audit or assessment report', 'Incident history', 'Supplier list', 'Vulnerability scan export', 'Financial data', 'Other'];
 
 let auto = null, autoCrown = false, autoImport = false, scrollImport = false;   // extraction to open right after a workspace is created
+// 1.9.1 (B4) — a creation reloads the application; the extraction chosen at creation is handed over through the reload
+{ const r = reopened(); if (r?.carry?.org) { ({ auto = null, autoCrown = false, autoImport = false } = r.carry.org); reopenedDone(); } }
 export function render(sec, arg) {
   if (arg === 'new') tab = 'workspaces';
   else if (['profile', 'crown', 'docs', 'import', 'workspaces', 'class', 'evidence'].includes(arg)) tab = arg;
@@ -227,7 +229,7 @@ function reviewProfile(sec, res, chain) {
    ends here, and the document scope it was given ends with it. */
 function toImport() {
   if (!autoImport) { X.setScope(null); return false; }
-  const proceed = () => { autoImport = false; if (autoRunNext) IU.armAutoRun(); autoRunNext = false; tab = 'import'; go('org/import'); };
+  const proceed = () => { autoImport = false; if (autoRunNext) IU.armAutoRun(); autoRunNext = false; tab = 'import'; goOrRedraw('org/import'); };   // 1.9.1 (B2)
   /* The profile values are in the form but not saved. Leaving the tab would ask the generic "leave
      without saving?" question in the middle of the run; ask the right question instead. */
   if (dirty) {
@@ -412,7 +414,7 @@ function docs(body) {
       const cat = select(DOC_CATS, d.category); cat.addEventListener('change', () => { d.category = cat.value; touch(); });
       list.append(el('div', 'docrow',
         el('div', null, el('b', null, d.name), ' ', pill(d.quality === 'good' ? 'text extracted' : d.quality === 'poor' ? 'poor extraction' : d.type === 'note' ? 'note' : 'no text', d.quality === 'good' ? 'good' : 'warn'),
-          el('div', 'small muted', `${d.type.toUpperCase()} · ${n0(d.words)} words · added ${d.added}`),
+          el('div', 'small muted', `${String(d.type || "text").toUpperCase()} · ${n0(d.words)} words · added ${d.added}`),
           el('div', { style: { maxWidth: '320px', marginTop: '6px' } }, cat)),
         el('div', 'btnrow', el('button', { class: 'btn sm ghost', onclick: () => openDoc(d) }, 'View / edit text'),
           el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!confirmDel(d.name)) return; await delDoc(d.id); ws.docs.splice(ws.docs.indexOf(d), 1); touch(); viewer.replaceChildren(); draw(); } }, 'Remove'))));
@@ -571,7 +573,7 @@ function workspaces(body, arg, sec) {
     } else { tab = 'profile'; toast('Workspace created'); }
     users.audit('workspace created', ws.name, S.ws);
     D = null; dirty = false;
-    go('org/' + tab); window.dispatchEvent(new HashChangeEvent('hashchange'));
+    await reopen('org/' + tab, { org: { auto, autoCrown, autoImport } });   // 1.9.1 (B4)
   };
   fileIn.addEventListener('change', async () => {
     try { await doCreate(JSON.parse(await fileIn.files[0].text())); }
@@ -597,9 +599,9 @@ function workspaces(body, arg, sec) {
     tb.append(el('tr', cur ? 'sel' : null, el('td', null, el('b', null, w.name)), el('td', null, w.kind), el('td', null, w.org?.name || ''),
       el('td', 'num', n0(w.assessment?.SCEN?.length || 0)), el('td', 'mono small', (w.modified || '').slice(0, 16).replace('T', ' ')),
       el('td', null, el('div', 'btnrow',
-        cur ? pill('open', 'good') : el('button', { class: 'btn sm ghost', onclick: async () => { await selectWs(w.id); go('org'); } }, 'Open'),
+        cur ? pill('open', 'good') : el('button', { class: 'btn sm ghost', onclick: async () => { await selectWs(w.id, false); await reopen('process', { toast: tr('Switched to') + ' ' + S.ws.name }); } }, 'Open'),
         el('button', { class: 'btn sm ghost', onclick: () => exportWorkspace(w) }, 'Export'),
-        el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!window.confirm('Delete workspace "' + w.name + '" and all its documents, snapshot and history? Export it first if you may need it.')) return; await remove(w.id); toast('Deleted'); } }, 'Delete')))));
+        el('button', { class: 'btn sm ghost danger', onclick: async () => { if (!window.confirm('Delete workspace "' + w.name + '" and all its documents, snapshot and history? Export it first if you may need it.')) return; await remove(w.id); await reopen('process', { toast: tr('Deleted') }); } }, 'Delete')))));
   }
   t.append(tb);
   // 1.5.7 — importing from the documents has a tab of its own, usable at any time

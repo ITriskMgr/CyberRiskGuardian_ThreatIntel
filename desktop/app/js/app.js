@@ -4,7 +4,7 @@
 'use strict';
 import { $, qsa, el, n0, banner, toast, go } from './util.js';
 import * as TABKEYS from './tabkeys.js';
-import { isReadOnly, S, on, loadAll, select, emit } from './state.js';
+import { isReadOnly, S, on, loadAll, select, emit, reopen, reopened, reopenedDone } from './state.js';
 import * as nav from './nav.js';
 import * as FW from './frameworks.js';
 import * as org from './panels/org.js';
@@ -210,7 +210,8 @@ function drawChrome() {
 $('ws-select').addEventListener('change', async e => {
   const v = e.target.value;
   if (v === '__new') { e.target.value = S.ws.id; go('org/new'); return; }
-  await select(v); toast('Switched to ' + S.ws.name);
+  await select(v, false);
+  await reopen('process', { toast: i18n.tr('Switched to') + ' ' + S.ws.name });   // 1.9.1 (B4)
 });
 $('theme-toggle').addEventListener('click', () => {
   const r = document.documentElement;
@@ -281,7 +282,7 @@ nav.init();
 TABKEYS.init();   // 1.9.0 Atlas: arrow keys and a roving tabindex on every screen's tab list
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); consultui.mount(); drawChrome(); route(); setTimeout(() => document.body.classList.remove('boot'), 1400); UPUI.startup().catch(console.warn); }).catch(e => {
+Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { LOG.access('application opened', location.host || 'local'); chat.mount(); consultui.mount(); drawChrome(); route(); { const r = reopened(); if (r?.carry?.toast) toast(r.carry.toast, r.carry.kind || ''); if (r && !r.carry?.org) reopenedDone(); } setTimeout(() => document.body.classList.remove('boot'), 1400); UPUI.startup().catch(console.warn); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

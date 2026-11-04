@@ -93,15 +93,42 @@ export function host(id) {
 /** Short, honest destination for a pill or a KPI: where the text actually goes. */
 export function where(id) { return isLocal(id) ? 'this computer' : (host(id) || provider(id).label); }
 export const kindOf = id => (isLocal(id) ? 'good' : 'warn');
-/** A provider the workspace can use now: its own choice if the helper still offers it. */
-export function remoteDefault() {
-  const list = providers().filter(p => !p.local);
-  return (list.find(p => p.id === WEB_SEARCH_PROVIDER) || list[0] || { id: WEB_SEARCH_PROVIDER }).id;
+/* 1.9.1 (B3) — which provider a feature restricted to one side goes to.
+   1. the default chosen in Settings → AI — local & remote (ai.default_local / ai.default_remote), if still offered;
+   2. otherwise the first provider of that side whose connection test passed (ai.tested, written by the helper),
+      local in the order Ollama, LM Studio, other local model, then providers added here;
+   3. otherwise the first one with a model set; otherwise the historical default (Claude API / Other local model). */
+const LOCAL_ORDER = ['ollama', 'lmstudio', 'local'];
+const REMOTE_ORDER = [WEB_SEARCH_PROVIDER, 'openai', 'gemini', 'azure', 'github'];
+function ordered(list, order) {
+  const rank = id => { const i = order.indexOf(id); return i < 0 ? order.length : i; };
+  return list.slice().sort((a, b) => rank(a.id) - rank(b.id));
 }
+function sideDefault(local) {
+  const list = ordered(providers().filter(p => !!p.local === local), local ? LOCAL_ORDER : REMOTE_ORDER);
+  const cfg = helper.HS.config?.ai || {};
+  const chosen = local ? cfg.default_local : cfg.default_remote;
+  if (chosen && list.some(p => p.id === chosen)) return chosen;
+  const tested = cfg.tested || {};
+  const t = list.find(p => tested[p.id]);
+  if (t) return t.id;
+  const models = helper.HS.ai?.models || {};
+  const m = list.find(p => models[p.id]);
+  if (m) return m.id;
+  const fallback = local ? 'local' : WEB_SEARCH_PROVIDER;
+  return (list.find(p => p.id === fallback) || list[0] || { id: fallback }).id;
+}
+/** The remote provider to use when a feature is restricted to a provider off this machine. */
+export function remoteDefault() { return sideDefault(false); }
 /** The local provider to use when a feature is restricted to this machine. */
-export function localDefault() {
-  const list = providers().filter(p => p.local);
-  return (list.find(p => p.id === 'local') || list[0] || { id: 'local' }).id;
+export function localDefault() { return sideDefault(true); }
+/** Why that provider was chosen, for Settings (EN; translated by the page). */
+export function sideDefaultWhy(local) {
+  const cfg = helper.HS.config?.ai || {}, id = sideDefault(local);
+  if ((local ? cfg.default_local : cfg.default_remote) === id) return 'chosen here';
+  if ((cfg.tested || {})[id]) return 'first provider whose connection test passed';
+  if ((helper.HS.ai?.models || {})[id]) return 'first provider with a model set';
+  return 'no provider tested yet';
 }
 export const provider_label = id => provider(id).label;
 
@@ -154,8 +181,11 @@ export const creativity = (ws = S.ws) => creativityLevel(settings(ws).creativity
  * where sending first and asking later would be the wrong default.
  */
 export function settings(ws = S.ws) {
-  ws.ai = Object.assign({ enabled: true, confidential: false, provider: 'claude', anon: false,
-                          acknowledged: '', log: [] }, ws.ai || {});
+  // 1.9.1 (B1): fill the defaults in place. Replacing ws.ai with a new object on every call left the
+  // controls of Settings → AI writing into a stale copy, so the workspace settings did not stick.
+  const defaults = { enabled: true, confidential: false, provider: 'claude', anon: false, acknowledged: '', log: [] };
+  ws.ai = ws.ai && typeof ws.ai === 'object' ? ws.ai : {};
+  for (const [k, v] of Object.entries(defaults)) if (!(k in ws.ai)) ws.ai[k] = Array.isArray(v) ? [] : v;
   // A workspace can name a provider this installation no longer offers (a custom one was removed, a
   // backup came from another machine). Fall back rather than fail every call with "unknown provider".
   if (helper.HS.ai?.providers && !helper.HS.ai.providers[ws.ai.provider]) ws.ai.provider = remoteDefault();
