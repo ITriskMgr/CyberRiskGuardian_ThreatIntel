@@ -1,6 +1,6 @@
 // Identity & access management and Configuration management — the teaching-case samples, one per module (MediBec, CanaRetail; English
 // and French), the same values as before the split, and the French screens of both modules.
-import { open, ok, done, modulesOn, goto } from './lib.mjs';
+import { open, ok, done, modulesOn, goto, waitInPage } from './lib.mjs';
 import fs from 'fs';
 const SRC = ['regcore.js', 'iam.js', 'cm.js', 'panels/regcore.js', 'panels/iam.js', 'panels/cm.js', 'panels/iam_regs.js', 'panels/cm_regs.js'].map(f => fs.readFileSync(new URL('../app/js/' + f, import.meta.url), 'utf8').replace(/\\'/g, "'")).join('\n');
 const { browser, page, errors } = await open('#/process');
@@ -46,7 +46,7 @@ ok(JSON.stringify(r['canaretail-fr'].pending) === JSON.stringify(c.pending), 'Ca
 // French screens of the module: every interface string translated
 await page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => /MediBec/.test(w.name)); await st.select(ex.id); const i = await import('/js/i18n.js'); await i.setLang('fr'); });
 await page.reload();
-await page.waitForFunction(async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, polling: 300 });
+await waitInPage(page, async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, every: 300 });
 await page.evaluate(async () => { const i = await import('/js/i18n.js'); window.__miss = i.collectMissing(); });
 for (const t of ['overview', 'accounts', 'privileged', 'emergency', 'reviews', 'sod', 'findings', 'import']) await goto(page, '#/iam/' + t, 600);
 for (const t of ['overview', 'baselines', 'deviations', 'changes', 'findings', 'import']) await goto(page, '#/cm/' + t, 600);

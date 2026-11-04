@@ -91,8 +91,8 @@ export async function open(hash = '#/process') {
   await page.waitForFunction(() => !![...document.querySelectorAll('main > section')].find(s => !s.hidden)?.querySelector('h1'),
     null, { timeout: 20000, polling: 200 }).catch(() => {});
   // A fresh profile seeds the MediBec teaching case just after the first workspace opens; most suites select it.
-  await page.waitForFunction(async () => { const m = await import('/js/state.js'); if (!m.S.list.some(w => w.kind === 'example')) await m.refreshList?.(); return m.S.list.some(w => w.kind === 'example'); },
-    null, { timeout: 20000, polling: 300 }).catch(() => {});
+  await waitInPage(page, async () => { const m = await import('/js/state.js'); if (!m.S.list.some(w => w.kind === 'example')) await m.refreshList?.(); return m.S.list.some(w => w.kind === 'example'); },
+    null, { timeout: 20000, every: 300 }).catch(() => {});
   return { browser, ctx, page, errors };
 }
 
@@ -106,7 +106,7 @@ export async function medibec(page) {
   return page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => w.kind === 'example' && /MediBec/.test(w.name)); if (ex && st.S.ws.id !== ex.id) await st.select(ex.id); return st.S.ws.name; });
 }
 /** Wait until an async predicate run in the page returns true; throws after `timeout` ms. Use this rather than
- *  page.waitForFunction(async …): Playwright treats the Promise an async predicate returns as truthy and resolves at once. */
+ *  page.waitForFunction with an async predicate: Playwright treats the Promise an async predicate returns as truthy and resolves at once. */
 export async function waitInPage(page, fn, arg, { timeout = 10000, every = 100 } = {}) {
   const end = Date.now() + timeout;
   while (!(await page.evaluate(fn, arg))) {

@@ -1,10 +1,10 @@
-import { open, ok, done, URL, tmp } from './lib.mjs';
+import { open, ok, done, waitInPage, URL, tmp } from './lib.mjs';
 import fs from 'fs';
 const { browser, ctx, page, errors } = await open('#/process');
 await page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => w.kind === 'example'); await st.select(ex.id);
   const i = await import('/js/i18n.js'); await i.setLang('fr'); });
 await page.reload();
-await page.waitForFunction(async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, polling: 300 });
+await waitInPage(page, async () => { const m = await import('/js/state.js'); return !!m.S.ws; }, null, { timeout: 20000, every: 300 });
 await page.evaluate(async () => { const i = await import('/js/i18n.js'); window.__miss = i.collectMissing(); });
 const routes = ['process', 'evidence', 'screening', 'screening/families', 'screening/weights', 'screening/coverage', 'screening/watch', 'screening/final', 'summary', 'cvss', 'about/versions', 'org/profile', 'org/crown', 'org/docs', 'org/import', 'reset', 'register', 'batch', 'riskreg', 'recs',
   'ontology/suggest', 'ontology/explore', 'ontology/connection', 'registry/browse', 'registry/contribute', 'registry/mine', 'registry/moderate', 'registry/settings',
