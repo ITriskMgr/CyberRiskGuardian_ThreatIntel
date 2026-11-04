@@ -7,7 +7,7 @@
 > validez-le avant qu'il n'appuie une décision réelle.
 
 © 2026 Marc-André Léger · licence propriétaire, gratuite pour les étudiants et les organismes sans but
-lucratif — quelle licence s'applique : section 10 ou **Aide → À propos → Licence**.
+lucratif — quelle licence s'applique : section 10 ou **Aide → À propos et versions → Licence**.
 
 Ce guide couvre l'installation de l'application, son démarrage, la vérification qu'elle est digne de
 confiance avant de vous fier à un chiffre qu'elle produit, la méthode qu'elle suit en dix-neuf étapes, et
@@ -59,7 +59,7 @@ exportez. Les exceptions commencent toutes par un clic de votre part :
 - Le **Registre partagé des risques** et **Publier et partager** écrivent des paquets dans un dossier
   partagé uniquement lorsque vous partagez, anonymisés par défaut.
 - La **vérification des mises à jour**, seulement si vous l'activez (la question est posée une fois au
-  premier démarrage) ou si vous cliquez sur **Vérifier maintenant** dans Aide → À propos → Versions :
+  premier démarrage) ou si vous cliquez sur **Vérifier maintenant** dans Aide → À propos et versions :
   l'assistant demande aux versions GitHub de l'application quelle est la dernière version, à une seule
   adresse fixe, sans rien envoyer sur vous ou vos espaces de travail. Une version plus récente n'est
   téléchargée que lorsque vous cliquez sur **Télécharger**, et l'application ne l'installe jamais.
@@ -108,8 +108,8 @@ nouveau **sur le même port** — vos espaces de travail sont conservés par le 
 exacte que vous utilisez, et non dans le dossier ; le même port les retrouve donc. Vos clés d'API ne
 sont pas non plus dans le dossier ; elles se trouvent dans le trousseau de session de macOS, ou dans
 `~/.cyberriskguardian/crg-keys.json` sous Windows et Linux, et `feeds-dir.txt` reporte le chemin des flux. Les lanceurs détectent une copie antérieure qui sert encore le port,
-l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos → Versions** n'affiche pas
-`1.9.0 beta`.
+l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos et versions** n'affiche pas
+`1.9.1 beta`.
 
 ### 3.2 Le démarrer
 
@@ -205,11 +205,14 @@ livré avec l'application est CRGO 0.11.0.
 
 ## 4. Première exécution : vérifier le moteur avant de vous fier à un chiffre
 
-Le bas de la barre latérale gauche doit afficher :
+Le bas du menu de gauche doit afficher (une ligne, fixée sous le menu, qui défile seul) :
 
 ```
-moteur vérifié · 84,305 / 41,023
+© Marc-André Léger · ✓ Moteur vérifié
 ```
+
+Cliquez dessus, ou ouvrez **Aide → À propos et versions**, pour voir les totaux qu'il résume :
+`moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
 
 À chaque démarrage, l'application recalcule le cas pédagogique MediBec fourni — 30 scénarios — et
 compare les totaux aux chiffres que produit `crg_calc.py`. Lorsqu'ils concordent, le moteur de votre
@@ -217,17 +220,18 @@ navigateur est en accord avec l'implémentation de référence.
 
 Les autres exemples pédagogiques fournis sont vérifiés au même moment : le MediBec en français doit donner
 exactement 84 305 / 41 023 (seul son texte est traduit), et CanaRetail, en anglais et en français, sa propre
-référence, **27 526 / 16 049**. Lorsque tout concorde, le pied de page affiche
-`moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`; un exemple fourni qui ne reproduit pas sa
-référence fait passer le pied de page à `moteur DIVERGENT`, avec un bandeau qui le nomme.
+référence, **27 526 / 16 049**. Lorsque tout concorde, le pied de page affiche **✓ Moteur vérifié**; un exemple fourni qui ne
+reproduit pas sa référence le fait passer à **✗ Échec de la vérification du moteur**, avec un bandeau qui
+le nomme.
 
-| Le pied de page affiche | Signification | Que faire |
-|---|---|---|
-| `moteur vérifié · 84,305 / 41,023` | Correct. | Poursuivez. |
-| `chargement du moteur…` et il y reste | Ouvert comme fichier au lieu d'être servi. | Section 3.2. |
-| `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` ne s'est pas chargé. | Décompressez de nouveau ; gardez le dossier intact. |
-| `moteur DIVERGENT` + bandeau rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
-| `erreur du moteur` | Une exception pendant l'autovérification. | Ouvrez la console (section 13) et signalez-la. |
+| Le pied de page affiche | Aide → À propos et versions indique | Signification | Que faire |
+|---|---|---|---|
+| **✓ Moteur vérifié** | `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` | Correct. | Poursuivez. |
+| *chargement du moteur…* et il y reste | — | Ouvert comme fichier au lieu d'être servi. | Section 3.2. |
+| **✗ Échec de la vérification du moteur** | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` ne s'est pas chargé. | Décompressez de nouveau ; gardez le dossier intact. |
+| **✗ Échec de la vérification du moteur** + bandeau rouge | `moteur DIVERGENT` | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
+| **✗ Échec de la vérification du moteur** | `erreur du moteur` | Une exception pendant l'autovérification. | Ouvrez la console (section 13) et signalez-la. |
+| **◻ Moteur non vérifié** | `moteur chargé, non vérifié` | `sample.js` est absent : les calculs fonctionnent, sans vérification. | Décompressez de nouveau ; gardez le dossier intact. |
 
 ---
 
@@ -629,9 +633,9 @@ Un contrôle ne vaut que par les éléments probants démontrant qu'il fonctionn
 
 Une constatation d'audit énonce le critère, le constat, la cause et l'effet, avec des éléments probants. Elle n'est fermée qu'après qu'un suivi indépendant a vérifié la mesure corrective.
 
-*Où :* Gestion de l'audit → Missions; Programmes · SP 800-53A; Constatations; Rapports SOC et éléments probants
+*Où :* Gestion de l'audit → Missions; Procédures · SP 800-53A; Constatations; Rapports SOC et éléments probants
 
-1. Gestion de l'audit → « Programmes · SP 800-53A » : consultez les objectifs d'évaluation d'un contrôle, ou « Planifier une mission avec ce programme » (les programmes sont illustratifs).
+1. Gestion de l'audit → « Procédures · SP 800-53A » : consultez les objectifs d'évaluation d'un contrôle, ou « Planifier une mission avec ce programme » (les programmes sont illustratifs).
 2. « Procédures · SP 800-53A » et « Feuilles de travail et échantillonnage » : chargez ou rédigez les procédures, consignez leurs résultats, l'échantillon et les écarts, puis « Consigner une observation » lorsqu'une exception a été relevée; validez-la comme constatation dans « Observations et constatations ».
 3. « Constatations » : remplissez le critère, le constat, la cause, l'effet et l'importance, la réponse de la direction et la mesure corrective; ne fermez qu'avec un suivi indépendant.
 4. « Rapports SOC et éléments probants » : consignez les rapports d'assurance des organisations de services avec leurs exceptions et leurs contrôles complémentaires attendus de l'entité utilisatrice (CUEC), ainsi que le registre des éléments probants avec les dates de validité.
@@ -688,10 +692,13 @@ Avant un rapport ou un renvoi des résultats, vérifiez que rien n'est qualifié
 
 ## 7. Les écrans, menu par menu
 
-Le menu latéral compte douze sections, dans cet ordre : **Démarrer · Organisation · Évaluation des
+Le menu latéral compte onze sections, dans cet ordre : **Démarrer · Organisation · Évaluation des
 risques · Menaces et vulnérabilités · Gouvernance · Gestion de la conformité · Gestion de l'audit ·
-Opérations de sécurité · Registre partagé des risques · Outils · Paramètres · Aide**. Ce chapitre le
-suit écran par écran.
+Opérations de sécurité · Registre partagé des risques · Outils · Paramètres**. Ce chapitre le suit écran
+par écran. **Aide** est le bouton de la barre supérieure (section 7.12). Le nom et le logo de
+l'application restent en haut du menu, et le pied de page — **© Marc-André Léger · ✓ Moteur vérifié**, qui
+ouvre **Aide → À propos et versions** — en bas; seul le menu entre les deux défile, dans le menu complet, le
+rail et le tiroir.
 
 **Vous orienter dans le menu.**
 
@@ -715,7 +722,35 @@ suit écran par écran.
 **De l'aide sur chaque écran.** Sous le titre de chaque écran, une description d'une ligne indique à
 quoi sert l'écran ; le **?** à côté du titre ouvre une courte aide — les règles qui s'appliquent à cet
 écran — avec **Ouvrir cette section du guide de l'utilisateur**, qui ouvre ce guide à la section
-correspondante, dans sa propre fenêtre.
+correspondante, dans sa propre fenêtre. **Aide → Aide sur cet écran**, dans la barre supérieure, ouvre la
+même aide.
+
+**Niveau de détail {#detail}.** **Paramètres → Langue et détail**, ou le sélecteur de l'en-tête de la page
+Processus, règle ce que les écrans expliquent : **Minimal**, **Standard** (par défaut) ou **Détaillé**.
+
+| Niveau | Ce qui change |
+|---|---|
+| **Minimal** | Ni description sous les titres ni indication explicative sous les champs — pour qui connaît la méthode. Les indications qui changent le sens d'une valeur restent : vide ou 0 (*Laissez vide si inconnu — 0 signifie aucun*), les étiquettes FACT / INFERENCE / ASSUMPTION / EXTERNAL / UNKNOWN, les unités. L'application s'ouvre sur le registre des scénarios. |
+| **Standard** | Les écrans tels que conçus. L'application s'ouvre sur la page Processus tant qu'il reste une étape. |
+| **Détaillé** | Aussi une ligne sous chaque titre qui dit pourquoi l'écran compte, et, sur la page Processus, les conseils et les lignes directrices de la prochaine étape ouverts. Recommandé pour une première analyse. |
+
+Le niveau appartient à la personne : pour cette installation, ou pour chaque personne connectée en mode
+multi-utilisateur. Aucun nombre, aucune formule ni aucun espace de travail ne change avec lui. Le consultant
+virtuel le suit aussi : des réponses brèves au niveau Minimal, des explications pour une première analyse au
+niveau Détaillé — avec les mêmes citations et les mêmes mentions.
+
+**Questions de configuration {#setup}.** Au premier démarrage, la page Processus vous invite à **Configurer
+l'application pour votre pratique** : une question sur votre expérience (elle règle le niveau de détail) et
+treize questions oui / non / je ne sais pas qui activent ou désactivent les modules (le tableau du guide de
+première configuration). *Je ne sais pas* garde un module tel quel; rien n'est supprimé. **Passer — garder
+les valeurs par défaut** retire l'invitation; **Paramètres → Modules → Répondre de nouveau aux questions de
+configuration** ramène les questions.
+
+**Un changement d'espace de travail rouvre l'application.** Créer, ouvrir, supprimer ou restaurer un espace
+de travail, et recommencer un cas pédagogique, enregistrent votre travail et rechargent l'application sur
+l'espace de travail maintenant ouvert — sur la page Processus, ou après une création sur l'écran que la
+création a choisi (profil, joyaux de la couronne, documents ou importation, avec l'extraction cochée). Chaque
+écran repart alors de cet espace de travail.
 
 **Pour en savoir plus dans le manuel.** Sous la description, une ligne en italique nomme le chapitre et
 la section d'*Introduction to Cybersecurity Governance for Business Technology Management* (3e éd.,
@@ -731,7 +766,11 @@ chapitre ne traite (Paramètres, Sauvegarde, À propos…) n'en affiche pas.
 Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétence et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*).
 
 La page s'ouvre sur l'état du travail. Un anneau à côté du titre compte les étapes terminées. La **prochaine étape** occupe
-un bandeau foncé — à quoi elle sert, quand elle est terminée, et les boutons qui ouvrent ses écrans. **Sept groupes** montre
+un bandeau foncé — à quoi elle sert et, vérification par vérification, ce dont elle a encore besoin : ✓ fait, → la
+première chose à faire (avec son indication), ◻ le reste. Son premier bouton, **Suivant : …**, ouvre l'écran de cette
+première vérification non remplie (par exemple *Suivant : Au moins un document de contexte* ouvre Organisation →
+Documents de contexte); le second ouvre un autre écran de l'étape. En mode multi-utilisateur, le bandeau nomme qui est
+Responsable et Imputable, et le dit lorsque l'étape revient à quelqu'un d'autre. **Sept groupes** montre
 une tuile par groupe avec un arc de progression et son état (*3 sur 3 terminées*, *Étape 9 en cours*, *À faire*) ; le groupe
 en cours est ouvert sous les tuiles, une ligne par étape, et un clic sur une autre tuile ouvre ce groupe à la place. Lorsque
 le moteur classe des scénarios inclus au-dessus de la tolérance, une tuile les énumère avec **Ouvrir Calculateur de risque**.
@@ -3977,24 +4016,36 @@ le point de départ avec Réinitialiser les données.
 
 ### 7.12 Aide
 
+**Aide** est le bouton de la barre supérieure (le menu latéral n'a plus de section Aide). Il ouvre cinq
+entrées :
+
+| Entrée | Ce qu'elle fait |
+|---|---|
+| **Aide sur cet écran** | L'aide de l'écran où vous êtes — la même que le **?** à côté de son titre. |
+| **Pas à pas** | Voir 7.12.1. |
+| **Guide de l'utilisateur** | Voir 7.12.1. |
+| **Demander à l'agent conversationnel d'aide** | Le panneau d'aide (7.12.3). |
+| **À propos et versions** | À propos, Licence et Versions (7.12.2). Le pied de page du menu l'ouvre aussi. |
+
+Le menu répond au clavier : la flèche vers le bas l'ouvre, les flèches s'y déplacent, Échap le ferme.
+
 ### 7.12.1 Pas à pas et Guide de l'utilisateur
 
-Le menu **Aide** commence par deux entrées marquées d'une flèche qui ne sont pas des écrans de
-l'application :
+Deux entrées d'**Aide** ouvrent des fenêtres distinctes plutôt que des écrans de l'application :
 
 | Entrée | Ce qui s'ouvre |
 |---|---|
-| **Pas à pas** ↗ | Une fenêtre distincte présentant les dix-neuf étapes, le rapport et la revue de qualité — à quoi chacune sert, ce dont elle a besoin, quand elle est terminée — et les lignes directrices en détail. Imprimable, fonctionne hors ligne. Cliquer sur le nom d'un écran ouvre cet écran dans la fenêtre de l'application. |
-| **Guide de l'utilisateur** ↗ | Ce guide, dans une fenêtre distincte, avec une table des matières et une boîte de recherche — en français lorsque l'interface est en français. Imprimable, fonctionne hors ligne. |
+| **Pas à pas** | Une fenêtre distincte présentant les dix-neuf étapes, le rapport et la revue de qualité — à quoi chacune sert, ce dont elle a besoin, quand elle est terminée — et les lignes directrices en détail. Imprimable, fonctionne hors ligne. Cliquer sur le nom d'un écran ouvre cet écran dans la fenêtre de l'application. |
+| **Guide de l'utilisateur** | Ce guide, dans une fenêtre distincte, avec une table des matières et une boîte de recherche — en français lorsque l'interface est en français. Imprimable, fonctionne hors ligne. |
 
 Ce sont des fenêtres plutôt que des onglets afin qu'un guide puisse rester à côté du travail, et les
 deux lisent ce que l'application lit, de sorte qu'aucun ne peut décrire un écran autrement que
 l'application. Si votre navigateur bloque les fenêtres contextuelles, autorisez-les pour cette
-application ; sinon, les entrées s'ouvrent dans des onglets.
+application ; sinon, l'application le signale.
 
 ### 7.12.2 À propos {#about}
 
-**À propos** (groupe Aide) comporte trois pages. **À propos** nomme le créateur, son courriel
+**Aide → À propos et versions** comporte trois pages. **À propos** nomme le créateur, son courriel
 (marcandre@leger.ca), le site Web du projet (www.leger.ca), le site du produit (cyberriskguardian.ca,
 sales@cyberriskguardian.ca) et le dépôt GitHub (github.com/ITriskMgr/CyberRiskGuardian), et reconnaît
 l'utilisation de l'IA générative dans la conception de l'application. **Licence** indique qui peut utiliser
@@ -4011,7 +4062,7 @@ l'application gratuitement et quelle licence s'applique aux autres — voir la s
   **Notes de version** et **Télécharger**, qui enregistre le ZIP de la version dans le dossier des flux comme
   un téléchargement de flux. Rien n'est décompressé ni installé : sauvegardez (Sauvegarde et restauration),
   décompressez le ZIP dans un nouveau dossier, quittez, démarrez la nouvelle version avec son lanceur et
-  vérifiez le moteur dans le pied de page (section 12).
+  vérifiez que le pied de page affiche ✓ Moteur vérifié (section 12).
 - Sans l'assistant, sans réseau, lorsqu'aucune version n'est publiée ou lorsque GitHub limite le nombre de
   requêtes, la vérification le dit et ne change rien.
 
@@ -4021,7 +4072,7 @@ de fermeture apparaît. Relancez l'application avec le lanceur.
 
 ### 7.12.3 Agent conversationnel d'aide
 
-Le bouton **?**, en bas à droite, ouvre le panneau d'aide sur chaque écran. Il commence par un conseil
+Le bouton **?**, en bas à droite — ou **Aide → Demander à l'agent conversationnel d'aide** — ouvre le panneau d'aide sur chaque écran. Il commence par un conseil
 pour l'écran où vous vous trouvez ; posez une question en anglais ou en français. Les réponses
 proviennent de l'aide intégrée — conseils d'écran, les 13 étapes du processus, questions fréquentes —
 et du guide de l'utilisateur, consultés sur cet ordinateur ; *Ouvrir cet écran* vous y mène.
@@ -4033,7 +4084,7 @@ conversationnel ne modifie jamais les données.
 
 ### 7.12.4 Langue — anglais et français
 
-**EN / FR**, dans la barre supérieure (ou Paramètres → Langue), change tous les écrans d'un coup ; le
+**EN / FR**, dans la barre supérieure (ou Paramètres → Langue et détail), change tous les écrans d'un coup ; le
 choix est mémorisé. Seule l'interface est traduite. Les données de l'organisation, les documents de
 cas, les scénarios, le contenu des catalogues (ATT&CK, CWE, titres des contrôles), les fichiers
 exportés et les réponses de l'IA restent dans leur langue d'origine — un cas en français reste en
@@ -4099,8 +4150,8 @@ Claude est guidée par la seule instruction.
 Une seule page pour toutes les décisions sur ce qui peut quitter cet ordinateur à destination d'un
 modèle d'IA.
 
-- **Interrupteurs généraux (cette installation).** *Autoriser les requêtes vers l'API Claude
-  (distante)* — désactivé, rien n'est jamais envoyé hors de cette machine et chaque fonction doit
+- **Interrupteurs généraux (cette installation).** *Autoriser les requêtes vers un fournisseur hors de
+  cette machine* — désactivé, rien n'est jamais envoyé hors de cette machine et chaque fonction doit
   utiliser un modèle local. *Autoriser la recherche Web pour les renseignements de profil manquants*
   (Claude seulement).
 - **Acheminement de chaque fonctionnalité d'IA.** Pour chaque fonction — liaison des vulnérabilités,
@@ -4112,6 +4163,12 @@ modèle d'IA.
   son acheminement : *Fournisseur de l'espace de travail*, *Modèle local seulement*, *Fournisseur
   distant* ou *Désactivé*. *Rétablir les acheminements recommandés* remet les fonctions sensibles sur
   le modèle local.
+- **Fournisseurs par défaut (cette installation).** Où va une fonction *Modèle local seulement* — et où va
+  une fonction *Fournisseur distant* lorsque le fournisseur de l'espace de travail est local. *Automatique*
+  prend le premier fournisseur dont **Tester ce fournisseur** a réussi (en local : Ollama, puis LM Studio,
+  puis l'autre modèle local; à distance : l'API Claude d'abord), puis le premier dont le modèle est défini;
+  ou choisissez-en un. La fiche indique le fournisseur utilisé maintenant et pourquoi. L'assistant local
+  consigne chaque test réussi; une page ne peut pas modifier ce relevé.
 - **Cet espace de travail.** IA activée ou désactivée, le fournisseur de l'espace de travail, *Traiter
   comme confidentiel*, *Anonymiser avant l'envoi* et la valeur par défaut de la **créativité**.
 - **Consultant virtuel — recherche.** La façon dont le consultant trouve ses passages (section 8.5) : le
@@ -4368,7 +4425,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 34. **Aide → Pas à pas** → une fenêtre distincte avec les dix-neuf étapes, le rapport et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos → Versions** indique `1.9.0 beta` et `moteur vérifié · 84,305 / 41,023` ;
+35. **Aide → À propos et versions** indique `1.9.1 beta` et `moteur vérifié · 84,305 / 41,023` ;
     **Licence** nomme la licence propriétaire, les quatre fichiers de licence, cyberriskguardian.ca et
     sales@cyberriskguardian.ca ; **Vérifier maintenant** sous *Mises à jour* répond (une version plus
     récente, la dernière version, ou pourquoi elle ne peut le dire).
@@ -4378,7 +4435,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 **Menu, aide et journaux**
 
-37. Le menu affiche les douze sections dans l'ordre. Repliez **Gouvernance** : elle indique combien
+37. Le menu affiche les onze sections dans l'ordre (Aide est dans la barre supérieure). Repliez **Gouvernance** : elle indique combien
     d'écrans elle contient. **« ** replie le menu en un rail d'icônes ; ** »** le rétablit. Rétrécissez la
     fenêtre : le menu devient un tiroir ouvert avec **☰**.
 38. Sur n'importe quel écran, le **?** à côté du titre ouvre l'aide ; **Ouvrir cette section du guide de
@@ -4455,7 +4512,7 @@ Si les cinquante-cinq vérifications réussissent, l'installation est saine.
 
 ## 12. Mise à jour
 
-**Aide → À propos → Versions → Vérifier maintenant** (ou la vérification au démarrage, si vous l'avez activée) indique si une version plus récente existe et télécharge son ZIP dans le dossier des flux lorsque vous cliquez sur **Télécharger**. Ensuite : sauvegardez (Sauvegarde et restauration → Télécharger la sauvegarde), décompressez le ZIP dans un **nouveau dossier**, quittez l'application en cours et démarrez la nouvelle version avec son propre lanceur sur le même port ;
+**Aide → À propos et versions → Vérifier maintenant** (ou la vérification au démarrage, si vous l'avez activée) indique si une version plus récente existe et télécharge son ZIP dans le dossier des flux lorsque vous cliquez sur **Télécharger**. Ensuite : sauvegardez (Sauvegarde et restauration → Télécharger la sauvegarde), décompressez le ZIP dans un **nouveau dossier**, quittez l'application en cours et démarrez la nouvelle version avec son propre lanceur sur le même port ;
 le lanceur arrête toute copie antérieure qui sert encore ce port. Les espaces de travail demeurent dans
 le navigateur : à son premier démarrage, la nouvelle version les migre sur une copie et conserve les
 originaux (section 5.1). Si vous modifiez vous-même l'application, incrémentez `CACHE` dans `sw.js` et,

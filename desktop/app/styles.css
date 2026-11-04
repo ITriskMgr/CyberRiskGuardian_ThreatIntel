@@ -108,7 +108,7 @@ nav .tab:focus-visible { outline: 3px solid var(--focus-dark); outline-offset: -
 nav .tab[aria-current="page"] { background: var(--coral-ink); color: #FFFFFF; }
 nav .spacer { display: none; }
 nav .foot { flex: none; display: flex; align-items: center; gap: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  font-size: 12px; color: var(--rail-muted); padding: 9px 8px 2px; border-top: 1px solid var(--rail-line); margin-top: 8px; line-height: 1.4; text-decoration: none; border-radius: 0; }
+  font-size: 11.5px; color: var(--rail-muted); padding: 9px 6px 2px; border-top: 1px solid var(--rail-line); margin-top: 8px; line-height: 1.4; text-decoration: none; border-radius: 0; }
 nav .foot:hover .foot-engine, nav .foot:focus-visible .foot-engine { text-decoration: underline; }
 nav .foot .foot-copy { overflow: hidden; text-overflow: ellipsis; }
 nav .foot .foot-engine { color: var(--mint); flex: none; }
@@ -658,6 +658,7 @@ details.allsteps > summary, details.guidecard > summary { font: 600 17.5px var(-
 .why { display: none; margin: -8px 0 18px; max-width: 72ch; font-size: 14px; line-height: 1.5; color: var(--ink);
   border-left: 3px solid var(--coral); padding: 4px 0 4px 12px; }
 html[data-detail="detailed"] .why { display: block; }
+.readmore-screen + .why, .lede + .why { margin-top: 8px; }
 html[data-detail="minimal"] main .lede, html[data-detail="minimal"] main .paneldesc { display: none; }
 html[data-detail="minimal"] .field .hint:not(.keep) { display: none; }
 .detail-switch { display: inline-flex; gap: 0; border: 2px solid var(--line-strong); border-radius: 999px; overflow: hidden; vertical-align: middle; }

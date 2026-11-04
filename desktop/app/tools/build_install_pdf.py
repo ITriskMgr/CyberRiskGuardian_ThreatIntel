@@ -6,6 +6,8 @@ Letter-size PDF with a footer naming the version. Needs Playwright (`pip install
 the application itself does not. The version comes from js/version.js, so the PDF can never name another one.
 
 Usage:  python3 tools/build_install_pdf.py            # writes INSTALL-Windows-macOS-EN-FR.pdf beside INSTALL.md
+        python3 tools/build_install_pdf.py FIRST-INSTALL.md "First-time installation"     # 1.9.1: FIRST-INSTALL.pdf
+        python3 tools/build_install_pdf.py FIRST-TIME-SETUP.md "First-time setup"         # 1.9.1: FIRST-TIME-SETUP.pdf
 © 2026 Marc-André Léger. CC BY-NC 4.0
 """
 import functools
@@ -17,10 +19,12 @@ import sys
 import threading
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "INSTALL-Windows-macOS-EN-FR.pdf"
+SRC = sys.argv[1] if len(sys.argv) > 1 else "INSTALL.md"
+TITLE = sys.argv[2] if len(sys.argv) > 2 else "Installation"
+OUT = ROOT / ("INSTALL-Windows-macOS-EN-FR.pdf" if SRC == "INSTALL.md" else pathlib.Path(SRC).stem + ".pdf")
 VERSION = re.search(r"export const VERSION = '([\d.]+)'", (ROOT / "js" / "version.js").read_text()).group(1)
 
-PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CyberRiskGuardian Desktop {v} Beta — Installation (Windows, macOS)</title>
+PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CyberRiskGuardian Desktop {v} Beta — {title}</title>
 <style>
 @page {{ size: Letter; margin: 16mm 16mm 18mm; }}
 body {{ font-family: "DejaVu Sans", "Segoe UI", Helvetica, Arial, sans-serif; font-size: 9.6pt; line-height: 1.45; color: #1f2a37; margin: 0; }}
@@ -45,7 +49,7 @@ h1#français, h1#francais {{ page-break-before: always; }}
 </style></head><body><main id="doc"></main>
 <script type="module">
 import {{ render }} from '/help/md.js';
-const text = await (await fetch('/INSTALL.md')).text();
+const text = await (await fetch('/{src}')).text();
 render(text, document.getElementById('doc'));
 document.body.dataset.ready = '1';
 </script></body></html>"""
@@ -54,7 +58,7 @@ document.body.dataset.ready = '1';
 def main():
     from playwright.sync_api import sync_playwright
     page_file = ROOT / "_install_print.html"
-    page_file.write_text(PAGE.format(v=VERSION), encoding="utf-8")
+    page_file.write_text(PAGE.format(v=VERSION, title=TITLE, src=SRC), encoding="utf-8")
     handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(ROOT))
     handler.log_message = lambda *a: None
     with socketserver.TCPServer(("127.0.0.1", 0), handler) as httpd:
@@ -67,7 +71,7 @@ def main():
                 pg.goto(f"http://127.0.0.1:{port}/_install_print.html")
                 pg.wait_for_selector("body[data-ready='1']")
                 footer = (f'<div style="font-size:7pt;color:#5f6b76;width:100%;padding:0 16mm;display:flex;justify-content:space-between;font-family:sans-serif">'
-                          f'<span>CyberRiskGuardian Desktop {VERSION} Beta — Installation · © 2026 Marc-André Léger · CC BY-NC 4.0</span>'
+                          f'<span>CyberRiskGuardian Desktop {VERSION} Beta — {TITLE} · © 2026 Marc-André Léger · CC BY-NC 4.0</span>'
                           f'<span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>')
                 pg.pdf(path=str(OUT), format="Letter", print_background=True, display_header_footer=True,
                        header_template="<div></div>", footer_template=footer, margin={"top": "16mm", "bottom": "18mm", "left": "16mm", "right": "16mm"})

@@ -40,7 +40,7 @@ extraction dialog. The SIEM and SOAR have **no live connector**: they read files
 automatically, on a schedule, or in the background, and no network call sits in the calculation path.
 
 © 2026 Marc-André Léger. Proprietary licence, free for students and non-profit organisations. Version 1.9.0 Beta (1.9.x) — see `CHANGELOG.md`.
-Who may use it without asking and whose situation needs a commercial licence: Help → About → Licence in the
+Who may use it without asking and whose situation needs a commercial licence: Help → About & versions → Licence in the
 application.
 Project: https://github.com/ITriskMgr/CyberRiskGuardian · https://www.leger.ca
 

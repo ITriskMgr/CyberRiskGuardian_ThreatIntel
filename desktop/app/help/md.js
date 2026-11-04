@@ -112,6 +112,8 @@ export function render(text, into) {
     if (bullet(l) || numbered(l)) {
       const ordered = !bullet(l);
       const list = el(ordered ? 'ol' : 'ul');
+      // 1.9.1 — a numbered list resumed after a table or a block keeps its numbering (3. after 1. and 2.)
+      if (ordered) { const n0 = parseInt(numbered(l)[1], 10); if (n0 > 1) list.setAttribute('start', String(n0)); }
       while (i < lines.length) {
         const m = ordered ? numbered(lines[i]) : bullet(lines[i]);
         if (!m) break;
