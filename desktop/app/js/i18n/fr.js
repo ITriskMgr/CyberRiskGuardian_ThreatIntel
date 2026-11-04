@@ -12591,4 +12591,7 @@ export default {
 "Allow pop-up windows for this address to open the help in its own window.": "Autorisez les fenêtres surgissantes pour cette adresse afin d’ouvrir l’aide dans sa propre fenêtre.",
 "v1.9.1 Beta (1.9.x) · © 2026 Marc-André Léger — About & versions, licence": "v1.9.1 bêta (1.9.x) · © 2026 Marc-André Léger — À propos et versions, licence",
 "© Marc-André Léger": "© Marc-André Léger",
+"{0} Beta ({1})": "{0} bêta ({1})",
+"set-up questions": "questions de configuration",
+"v{0} · © 2026 Marc-André Léger — {1}": "v{0} · © 2026 Marc-André Léger — {1}",
 };
