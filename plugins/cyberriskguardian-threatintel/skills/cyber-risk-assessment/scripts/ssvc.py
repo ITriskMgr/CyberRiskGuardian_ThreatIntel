@@ -10,8 +10,12 @@ https://github.com/CERTCC/SSVC commit bf3213bc0bd2bf3cf1329c9b48f72d7163a682b1:
   deployer       data/csv/cisa/cisa_coordinator_2_0_3.csv                    Track / Track* / Attend / Act
   deployer-cert  data/csv/ssvc/deployer_patch_application_priority_1_0_0.csv  Defer / Scheduled / Out-of-Cycle / Immediate
   supplier       data/csv/ssvc/supplier_patch_development_priority_1_0_0.csv  Defer / Scheduled / Out-of-Cycle / Immediate
-CHECK: Mission & Well-being for Mission Prevalence minimal + Public Well-Being material = medium comes from
-CISA's SSVC Guide (Nov 2022) table, not from a published CSV (author to verify).
+Mission & Well-being: the published CSVs carry the combined value only; the combination table (Mission Prevalence x
+Public Well-Being Impact) is CISA's, as shown in the CISA SSVC Guide (Nov 2022) and reproduced in CERT/CC's SSVC
+calculator ("Determining Mission & Well-being impact value", certcc.github.io/SSVC/ssvc-calc): Minimal row = Low /
+Medium / High, Support row = Medium / Medium / High, Essential row = High / High / High. The cell Minimal + Material =
+Medium, questioned in 1.7.1, matches both sources (verified 2026-11-08, NV-P14); CERT/CC's MWI:1.0.0 decision-point
+page states only the other eight cells.
 
 Rules: EPSS and KEV are evidence for the Exploitation decision point, never a likelihood; an SSVC outcome
 is a response priority and is never converted into Pb(A) or Pb(psi,A).
@@ -205,7 +209,7 @@ PUBLIC_SAFETY_ROWS = [
 ]
 MWB_ROWS = [
     ('minimal', 'minimal', 'low'),
-    ('minimal', 'material', 'medium'),       # CHECK - CISA SSVC Guide (Nov 2022) table
+    ('minimal', 'material', 'medium'),       # CISA SSVC Guide (Nov 2022) table; CERT/CC SSVC calculator (verified 2026-11-08)
     ('minimal', 'irreversible', 'high'),
     ('support', 'minimal', 'medium'),
     ('support', 'material', 'medium'),
@@ -294,7 +298,7 @@ def suggest_exploitation(cve, snap, poc_reports=0):
         value = "active"; basis.append(f"CISA KEV: listed {kev.get('added', '')}".strip())
     hi = bool(epss) and (epss[0] >= s_min or epss[1] >= p_min)
     if epss:
-        basis.append(f"EPSS {epss[0]:.5f} (percentile {epss[1]:.3f})"
+        basis.append(f"EPSS {epss[0]:.3f} (percentile {epss[1]:.0%})"      # one EPSS format across the edition (NV-P14)
                      + (" - high exploitation probability (EPSS); not evidence of public exploit code" if hi else ""))
     if poc_reports:
         basis.append(f"{poc_reports} report(s) of a public proof of concept")

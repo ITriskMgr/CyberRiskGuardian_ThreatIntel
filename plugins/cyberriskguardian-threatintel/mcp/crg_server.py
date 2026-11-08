@@ -18,7 +18,11 @@ Exposes deterministic tools so the agent never computes risk indices, CVSS score
                          LOCAL snapshot (KEV -> active, high EPSS / PoC -> public poc). A response priority, never a likelihood
 
 Every tool is offline and deterministic (threat-intel rule 1): no network I/O. Inputs are validated as in
-crg_calc.py (CRG 1.8.0 decision 4); an invalid input returns {"error": ..., "errors": [...]}.
+crg_calc.py (CRG 1.8.0 decision 4, unified engine rules of 1.9.2); an invalid input returns
+{"error": "Input validation failed", "errors": [...]} - never a bare exception. CVSS: Base metrics only (a vector with
+Threat or Environmental metrics is refused with the routing instruction); the vector wins over a stored score; a zero
+tolerated risk gives the verdict "Not applicable (tolerated risk 0)"; an omitted appetite is the default and is
+reported as an Analytical estimate.
 
 Requires: pip install "mcp>=1.2" cvss (works with mcp 1.x FastMCP and mcp 2.x MCPServer)
 """
@@ -40,6 +44,14 @@ def _err(e):
     return {"error": "Input validation failed", "errors": errs}
 
 
+def _appetite(appetite):
+    """Resolve an omitted appetite to the default, with the Analytical-estimate warning (NV-P10)."""
+    if appetite is None:
+        return C.DEFAULT_APPETITE, [f"appetite not given: defaulted to {C.DEFAULT_APPETITE:.2f} - "
+                                    "Analytical estimate — validation required"]
+    return appetite, []
+
+
 def _scenario(pba, pbx, de, dm, theta, mu, red_p, red_i, cvss_vector=None, cvss_score=None):
     s = {"id": "X", "params": {"PbA": {"v": pba}, "Pbx": {"v": pbx}, "De": {"v": de}, "Dm": {"v": dm},
                                "Th": {"v": theta}, "Mu": {"v": mu}}, "red_p": red_p, "red_i": red_i}
@@ -52,24 +64,31 @@ def _scenario(pba, pbx, de, dm, theta, mu, red_p, red_i, cvss_vector=None, cvss_
 
 @mcp.tool()
 def crg_risk(pba: float, pbx: float, de: float, dm: float, theta: float, mu: float,
-             red_p: float = 0.0, red_i: float = 0.0, appetite: float = C.DEFAULT_APPETITE,
+             red_p: float = 0.0, red_i: float = 0.0, appetite: float | None = None,
              factor: float = C.DEFAULT_FACTOR, cvss_vector: str = "", cvss_score: float | None = None,
              cost: float | None = None) -> dict:
     """CyberRiskGuardian risk indices for one scenario (Excel Guide v1.0c formulas, unmodified).
     pba=Pb(A) threat presence, pbx=Pb(psi,A) exploitation, de/dm expected/maximum damage (dm >= de),
     theta=resilience in (0,1], mu=mu(E) organizational criticality (expected utility), red_p/red_i =
     probability/impact reduction of the treatment package (0-1; combine several measures with
-    combine_reductions, never by adding them), appetite strictly in (0,1).
-    CVSS is required: give cvss_vector (CVSS:4.0/...) and/or cvss_score (0-10). With both, the score is
-    recomputed from the vector and a disagreeing stored score is flagged in `warnings`.
-    cost (optional) = package cost for cost-effectiveness (risk units removed per $1,000)."""
+    combine_reductions, never by adding them), appetite strictly in (0,1) - the approved or estimated appetite;
+    when omitted the default is used and reported as an Analytical estimate — validation required.
+    CVSS is required: give cvss_vector (CVSS:4.0/... Base metrics only - a vector with Threat (E) or Environmental
+    metrics is refused: route exploitation evidence to pbx) and/or cvss_score (0-10). With both, the score is
+    recomputed from the vector, the vector wins and a disagreeing stored score is flagged in `warnings`.
+    A zero tolerated risk (pba, pbx, mu or CVSS = 0) gives ratio null and the verdict
+    "Not applicable (tolerated risk 0)". cost (optional) = package cost for cost-effectiveness (risk units
+    removed per $1,000)."""
     s = _scenario(pba, pbx, de, dm, theta, mu, red_p, red_i, cvss_vector or None, cvss_score)
+    appetite, w0 = _appetite(appetite)
     try:
         r = C.calc(s, appetite, factor, cost=cost)
     except C.CRGInputError as e:
         return _err(e)
+    r["warnings"] = w0 + r["warnings"]
     cur, post = C.case_normalized(s)
-    r.update(classification=C.classify(r["ratio"]), normalized_current=cur, normalized_post=post,
+    r.update(appetite=appetite, classification=C.classify(r["ratio"]), pre_treatment_classification=C.classify(r["pre_ratio"]),
+             normalized_current=cur, normalized_post=post,
              design_thresholds=C.design_thresholds(de, dm, appetite),
              note=("Risk-to-tolerance ratio = ((de+dm)/2) x (1 - red_p x red_i) / appetite; probabilities, CVSS, "
                    "resilience and criticality scale magnitude only. Below tolerance (< 0.90) needs red_p x red_i > "
@@ -80,11 +99,15 @@ def crg_risk(pba: float, pbx: float, de: float, dm: float, theta: float, mu: flo
 
 @mcp.tool()
 def cvss4_score(vector: str) -> dict:
-    """CVSS v4.0 base score (CVSS-B) and severity for a vector such as CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N."""
+    """CVSS v4.0 base score (CVSS-B) and severity for a vector such as CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N.
+    Base metrics only: a vector carrying Threat (E), Environmental (CR, IR, AR, M*) or Supplemental metrics is refused -
+    CRG never presents CVSS-BT or CVSS-BE as the base score; exploitation evidence goes to Pb(psi,A)."""
     try:
         score, sev = C.cvss4(vector)
+    except C.CVSSBaseOnlyError as e:
+        return {"error": str(e), "errors": [str(e)], "vector": vector}
     except Exception as e:
-        return {"error": f"Invalid CVSS v4.0 vector: {e}", "vector": vector}
+        return {"error": f"Invalid CVSS v4.0 vector: {e}", "errors": [f"Invalid CVSS v4.0 vector: {e}"], "vector": vector}
     return {"vector": vector, "base_score": score, "severity": sev, "nomenclature": "CVSS-B"}
 
 
@@ -127,9 +150,12 @@ def budget_check(spend: list[float], it_budget: float, appetite: float | None = 
     """For each year of planned cybersecurity spend: share of IT budget, implied appetite and, with an appetite,
     the appetite-consistent target and the gap to it (point targets 12% / 7.8% / 4%, linear)."""
     if not C._num(it_budget) or it_budget <= 0:
-        return [_err(ValueError("IT budget must be a positive amount"))]
+        return [_err(ValueError(f"IT budget must be a positive amount (got {it_budget!r})"))]
     if appetite is not None and (not C._num(appetite) or not (0 < appetite < 1)):
-        return [_err(ValueError("appetite must be strictly between 0 and 1"))]
+        return [_err(ValueError(f"appetite must be strictly between 0 and 1 (got {appetite!r})"))]
+    bad = [x for x in spend if not C._num(x) or x < 0]
+    if bad:
+        return [_err(ValueError(f"each year's spend must be a non-negative amount (got {bad[0]!r})"))]
     out = []
     for i, s in enumerate(spend, 1):
         pct = s / it_budget
@@ -143,11 +169,15 @@ def budget_check(spend: list[float], it_budget: float, appetite: float | None = 
 
 @mcp.tool()
 def sensitivity(pba: float, pbx: float, de: float, dm: float, theta: float, mu: float, red_p: float, red_i: float,
-                delta: float = 0.10, appetite: float = C.DEFAULT_APPETITE, factor: float = C.DEFAULT_FACTOR,
+                delta: float = 0.10, appetite: float | None = None, factor: float = C.DEFAULT_FACTOR,
                 cvss_vector: str = "", cvss_score: float | None = None) -> dict:
     """Lower / central / higher case: Pb(A), Pb(psi,A), de, dm shifted by -/+ delta, theta and both reductions by
-    +/- delta (against or in favour of the organization), every value clamped to [0.05, 0.99]."""
+    +/- delta (against or in favour of the organization), every value clamped to [0.05, 0.99]. delta must lie
+    strictly between 0 and 0.5 (0.10 by convention)."""
+    if not C._num(delta) or not (0 < delta < 0.5):
+        return _err(ValueError(f"delta must be strictly between 0 and 0.5 (got {delta!r}); the convention is 0.10"))
     s = _scenario(pba, pbx, de, dm, theta, mu, red_p, red_i, cvss_vector or None, cvss_score)
+    appetite, w0 = _appetite(appetite)
     out = {}
     try:
         for lab, d in (("lower", -delta), ("central", 0.0), ("higher", delta)):
@@ -156,6 +186,9 @@ def sensitivity(pba: float, pbx: float, de: float, dm: float, theta: float, mu: 
     except C.CRGInputError as e:
         return _err(e)
     out["robust"] = out["lower"]["classification"] == out["higher"]["classification"]
+    out["appetite"] = appetite
+    if w0:
+        out["warnings"] = w0
     return out
 
 

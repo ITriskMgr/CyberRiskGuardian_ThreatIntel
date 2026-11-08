@@ -17,7 +17,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.comments import Comment
 from openpyxl.utils import get_column_letter as L
 from openpyxl.formatting.rule import CellIsRule
-from crg_calc import BAND_LOW, BAND_HIGH, cvss4, run as _crg_run, CRGInputError
+from crg_calc import BAND_LOW, BAND_HIGH, NOT_APPLICABLE, cvss4, run as _crg_run, CRGInputError
 
 _ap = argparse.ArgumentParser()
 _ap.add_argument("scenarios"); _ap.add_argument("output"); _ap.add_argument("--title", default="CyberRiskGuardian Risk Assessment Workbook")
@@ -94,6 +94,7 @@ lines = [
     "  Mitigated = Estimated x ProbabilityReduction x ImpactReduction ;  Residual = Estimated - Mitigated",
     "  Risk-to-tolerance ratio = Residual / Tolerated (< 0.90 below, 0.90-1.10 approximately at, > 1.10 above tolerance) ;  Cost-effectiveness = (Estimated - Residual) / Cost x 1000",
     "Residual uses the guard MAX(0, Estimated - Mitigated) (never ABS). Each reduction must stay within 0-1; several measures on the same lever combine as 1 - (1 - r1) x (1 - r2) x ... (product rule), never by adding them. The Validity column flags a reduction outside 0-1 or a missing CVSS score.",
+    "CVSS: v4.0 Base score only (CVSS-B); the score is recomputed from the vector and a disagreeing stored score is flagged when the workbook is built. Threat and Environmental metrics are not accepted: exploitation evidence belongs in Pb(psi,A). When tolerated risk is 0 (Pb(A), Pb(psi,A), mu(E) or CVSS = 0), the ratio cells show n/a and the classification reads 'Not applicable (tolerated risk 0)' - never a #DIV/0! and never 'Above tolerance'.",
     "",
     "How to use: change blue cells on Parameters / Inputs / Portfolio, then recalculate (Formulas > Calculate Now if manual).",
 ]
@@ -184,14 +185,14 @@ for idx, s in enumerate(SCEN):
     put(wa, r, 9, f"=Inputs!G{ir}", GRN, "0.00"); put(wa, r, 10, f"={APP}", GRN, "0.00"); put(wa, r, 11, f"={FAC}", GRN, "#,##0")
     put(wa, r, 12, f"=C{r}*D{r}*E{r}*((F{r}+G{r})/2)*H{r}/I{r}*K{r}", fmt="#,##0")
     put(wa, r, 13, f"=C{r}*D{r}*E{r}*J{r}*H{r}/I{r}*K{r}", fmt="#,##0")
-    put(wa, r, 14, f"=L{r}/M{r}", fmt="0.00")
+    put(wa, r, 14, f'=IF(M{r}=0,"n/a",L{r}/M{r})', fmt="0.00")
     col = L(11 + idx)
     put(wa, r, 15, f"=Portfolio!{col}{tr}", GRN, "$#,##0")
     put(wa, r, 16, f"=Inputs!K{ir}", GRN, "0.00"); put(wa, r, 17, f"=Inputs!L{ir}", GRN, "0.00")
     put(wa, r, 18, f"=L{r}*P{r}*Q{r}", fmt="#,##0")
     put(wa, r, 19, f"=MAX(0,L{r}-R{r})", fmt="#,##0")
-    put(wa, r, 20, f"=S{r}/M{r}", fmt="0.00")
-    put(wa, r, 21, f'=IF(T{r}<{BLO},"Below tolerance",IF(T{r}<={BHI},"Approximately at tolerance","Above tolerance"))')
+    put(wa, r, 20, f'=IF(M{r}=0,"n/a",S{r}/M{r})', fmt="0.00")
+    put(wa, r, 21, f'=IF(M{r}=0,"{NOT_APPLICABLE}",IF(T{r}<{BLO},"Below tolerance",IF(T{r}<={BHI},"Approximately at tolerance","Above tolerance")))')
     put(wa, r, 22, f"=IF(O{r}=0,0,(L{r}-S{r})/O{r}*1000)", fmt="0.00")
     put(wa, r, 23, f'=IF(ISBLANK(Inputs!J{ir}),"CVSS required",IF(AND(P{r}>=0,P{r}<=1,Q{r}>=0,Q{r}<=1),"OK","CHECK"))')
 AN = A0 + len(SCEN) - 1
@@ -200,8 +201,8 @@ put(wa, t, 2, "Portfolio totals", B)
 for c in (12, 13, 18, 19):
     put(wa, t, c, f"=SUM({L(c)}{A0}:{L(c)}{AN})", B, "#,##0")
 put(wa, t, 15, f"=SUM(O{A0}:O{AN})", B, "$#,##0")
-put(wa, t, 20, f"=S{t}/M{t}", B, "0.00")
-put(wa, t, 22, f"=(L{t}-S{t})/O{t}*1000", B, "0.00")
+put(wa, t, 20, f'=IF(M{t}=0,"n/a",S{t}/M{t})', B, "0.00")
+put(wa, t, 22, f'=IF(O{t}=0,"n/a",(L{t}-S{t})/O{t}*1000)', B, "0.00")
 red = PatternFill("solid", fgColor="F4CCCC"); amb = PatternFill("solid", fgColor="FFF2CC"); gr = PatternFill("solid", fgColor="D9EAD3")
 rng = f"T{A0}:T{AN}"
 wa.conditional_formatting.add(rng, CellIsRule(operator="greaterThan", formula=[BHI], fill=red))
@@ -231,8 +232,8 @@ for sid in SENS_IDS:
         put(wsn, r, 13, f"=D{r}*E{r}*J{r}*((F{r}+G{r})/2)*I{r}/H{r}*{FAC}", fmt="#,##0")
         put(wsn, r, 14, f"=D{r}*E{r}*J{r}*{APP}*I{r}/H{r}*{FAC}", fmt="#,##0")
         put(wsn, r, 15, f"=MAX(0,M{r}-M{r}*K{r}*L{r})", fmt="#,##0")
-        put(wsn, r, 16, f"=O{r}/N{r}", fmt="0.00")
-        put(wsn, r, 17, f'=IF(P{r}<{BLO},"Below tolerance",IF(P{r}<={BHI},"Approximately at tolerance","Above tolerance"))')
+        put(wsn, r, 16, f'=IF(N{r}=0,"n/a",O{r}/N{r})', fmt="0.00")
+        put(wsn, r, 17, f'=IF(N{r}=0,"{NOT_APPLICABLE}",IF(P{r}<{BLO},"Below tolerance",IF(P{r}<={BHI},"Approximately at tolerance","Above tolerance")))')
         r += 1
 wsn.conditional_formatting.add(f"P5:P{r-1}", CellIsRule(operator="greaterThan", formula=[BHI], fill=red))
 wsn.conditional_formatting.add(f"P5:P{r-1}", CellIsRule(operator="between", formula=[BLO, BHI], fill=amb))
@@ -244,7 +245,7 @@ for i, s in enumerate(SCEN):
     rr = r + 2 + i; ar = A0 + i
     put(wsn, rr, 1, s["id"])
     for j, a in enumerate((0.2, 0.3, 0.4)):
-        put(wsn, rr, 2 + j, f"=Analyse!S{ar}/(Analyse!M{ar}/Analyse!J{ar}*{a})", fmt="0.00")
+        put(wsn, rr, 2 + j, f'=IF(Analyse!M{ar}=0,"n/a",Analyse!S{ar}/(Analyse!M{ar}/Analyse!J{ar}*{a}))', fmt="0.00")
 
 # ------------------------------------------------------------------ Case view
 wc = wb.create_sheet("Case_View")

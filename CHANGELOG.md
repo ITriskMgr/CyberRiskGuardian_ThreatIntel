@@ -3,6 +3,53 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## 1.7.2 — with Desktop 1.9.2 Beta — 8 November 2026
+
+Plugin patch shipped with CyberRiskGuardian Desktop 1.9.2 Beta (test campaign of 8 November 2026, spec v6 §5). **No formula
+change: MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049 unchanged.** This engine is now the reference implementation
+of the unified engine rules (X-1, X-2) that the Core plugin 2.2.1, CRG Pro Quantitative 2.0.1 and the desktop engines follow.
+
+### Changed — engine rules (X-1, X-2; NV-P03, NV-P08, NV-P09, NV-P10)
+- **CVSS-B only (NV-P03).** `crg_calc.cvss4` and the `cvss4_score` / `crg_risk` tools refuse a vector carrying Threat
+  (`/E:…`), Environmental (`CR`, `IR`, `AR`, `M*`) or Supplemental metrics instead of reporting CVSS-BT / CVSS-BE as the base
+  score (`/E:U` gave 8.1 and Re 3,095.82 instead of 9.3 and 3,554.46). The message routes exploitation evidence (KEV, EPSS,
+  proof of concept) to Pb(ψ,A). The vector still wins over a stored score; a disagreeing score is flagged.
+- **Zero tolerated risk (NV-P08, as NV-016).** Pb(A), Pb(ψ,A), μ(E) or CVSS = 0 now gives ratio `None` and the verdict
+  **"Not applicable (tolerated risk 0)"** with a warning, never "Above tolerance" (the NaN ratio fell through the bands). The
+  workbook builder writes `IF(M=0,"n/a",…)` on every ratio cell and the matching classification, so no `#DIV/0!`.
+- **δe = δm = 0 (NV-P09).** `design_thresholds` returns `None` thresholds instead of a division error in `crg_risk`.
+- **Structured errors and defaults (NV-P10).** `crg_risk` and `sensitivity` take `appetite` as optional and report the
+  default as an *Analytical estimate — validation required* (also `run()` when `APPETITE` is missing); `sensitivity`
+  validates `delta` (strictly between 0 and 0.5); `budget_check` rejects negative spend; every refusal is
+  `{"error": "Input validation failed", "errors": [...]}`.
+- Typing rules stated and tested: missing or null reductions mean 0; numeric strings, booleans, NaN and infinity are rejected.
+
+### Changed — label check (NV-P11)
+- A negation **after** the match counts ("the 1.25 threshold is retired" is no longer outdated); "unknown external actor"
+  (threat attribution) no longer demands the Information-gap marker; two parameter-value pairs ("Pb(A) 0.70, Pb(ψ,A) 0.60")
+  now require the estimate marker; `.xlsx` files are read (shared strings, inline strings, comments, formula literals); the
+  skip list is anchored to the plugin, the project's `.claude/` and `plugins/` folders, so a client deliverable whose path
+  merely contains `/plugins/` or `/references/` is checked.
+
+### Changed — threat context (NV-P14)
+- The SSVC "CHECK" note is closed: Mission Prevalence *minimal* + Public Well-Being *material* = *medium* matches the CISA
+  SSVC Guide and CERT/CC's SSVC calculator (verified 2026-11-08). EPSS is printed in one format everywhere
+  (`EPSS 0.750 (percentile 92%)`). `scripts/ssvc_compare.py` cross-checks the Python trees against the desktop's
+  `js/ssvc.js` (492 leaves) as a release check.
+
+### Added
+- **Cross-engine conformance test** `scripts/test_cross_engine.py` (the same file ships in the Core and Pro repositories):
+  worked example, disagreeing stored score, `/E:U` and `/MAV:L`, zero-tolerance inputs, the invalid-input matrix and the
+  MediBec / CanaRetail regressions, against every `crg_calc.py` and MCP server it finds (`--engine`, `--mcp` for others).
+- CanaRetail regression fixture `scripts/fixtures/canaretail10.json` (27,526 / 16,049 at appetite 0.50).
+- **Evals (NV-P15).** `scripts/build_evals.py` writes seven cases under `plugins/cyberriskguardian-threatintel/evals/`
+  (worked example, CVSS Base-only, zero tolerance, MediBec regression, snapshot freshness, SSVC, label check);
+  `--replay` checks the regex graders offline; `claude plugin eval` is in the release checklist.
+- `NOTICE.md` inside the plugin folder (NV-P13); the LICENSE title names this edition; one contact everywhere:
+  cyberriskguardian.ca and sales@cyberriskguardian.ca (X-8).
+- References: the unified engine rules and the budget conventions (NV-094, NV-095) in `crg-formulas-and-workbook.md` and
+  `master-task-spec.md` (*Resolved methodology choices*).
+
 ## 1.7.1 — 4 November 2026
 
 Documentation and guardrail wording only. No formula change: the MediBec regression stays at 84,305 / 41,023.

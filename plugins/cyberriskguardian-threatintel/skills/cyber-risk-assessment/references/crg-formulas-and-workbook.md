@@ -31,6 +31,20 @@ These are **risk indices**: dimensionless, relative decision-support values, not
 
 Values are rounded to two decimals. When a scenario holds both a vector and a stored score, the calculator recomputes the score from the vector, uses it, and flags a stored score that disagrees.
 
+**Unified engine rules (CRG 1.9.2; the same rules in the Core plugin, CRG Pro and the desktop application — this engine is the reference).**
+
+| Rule | Behaviour |
+|---|---|
+| CVSS precedence | The vector wins. A stored score differing by more than 0.05 is flagged in the warnings and never used. |
+| CVSS scope | Base metrics only (CVSS-B). `/E:…` (Threat) is refused: *route exploitation evidence (KEV, EPSS, proof of concept) to Pb(ψ,A)*. Environmental (`CR`, `IR`, `AR`, `M*`) and Supplemental (`S`, `AU`, `R`, `V`, `RE`, `U`) metrics are refused; organizational context enters through μ(E), δe, δm and θ. The engine never reports CVSS-BT or CVSS-BE as the base score (book example: `/E:U` would give 8.1 and Re 3,095.82 instead of 9.3 and 3,554.46). |
+| Zero tolerated risk | Pb(A), Pb(ψ,A), μ(E) and CVSS equal to 0 are admissible inputs. Estimated = tolerated = 0, the ratios are undefined (`None`; `n/a` in workbooks) and the verdict is **"Not applicable (tolerated risk 0)"** — never "Above tolerance", never `#DIV/0!`. A warning asks the analyst to confirm the zero is deliberate. Design thresholds are undefined when δe = δm = 0. |
+| Missing reductions | A missing or null `red_p` / `red_i` means 0 (no treatment). |
+| Typing | Numeric strings (`"0.7"`), booleans, NaN and infinity are rejected ("must be a number"). |
+| Default appetite | A data model without `APPETITE` uses the configured default and is reported as an **Analytical estimate — validation required**. |
+| Errors | Structured: every validation error of the file at once (`Input validation failed: …`); MCP tools return `{"error": …, "errors": [...]}`, never a bare exception. |
+
+The conformance test `scripts/test_cross_engine.py` checks these rules against every engine and MCP server of a repository; the MediBec (84,305 / 41,023) and CanaRetail (27,526 / 16,049) totals are its regressions.
+
 **Worked example (guide s.16 parameters applied to MediBec ransomware, book v2.51 ch06 §Worked example).** Pb(A) 0.70, Pb(ψ,A) 0.60, CVSS-B 9.3 (`CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H` — the macro-enabled document is delivered by e-mail but opened locally, so AV:L per the FIRST user guide), δe 0.60, δm 0.80, θ 0.50, μ(E) 0.65, appetite 0.35, factor 1,000, rp 0.65, ri 0.70, cost $62,000 → common term 5,077.8; **Re 3,554.46; Rt 1,777.23; pre-treatment ratio 2.00; mitigated 1,617.28; residual 1,937.18; ratio 1.09 (approximately at tolerance); cost-effectiveness 26.09**. Design thresholds: rp × ri ≥ 0.50 for residual ≤ tolerated, > 0.55 for below tolerance. Sensitivity (±0.10, clamped [0.05, 0.99]): lower 0.69 (below), higher 1.53 (above). All values recomputed with `crg_calc.py` (`scripts/test_crg_calc.py`); every input is an **Analytical estimate — validation required**.
 
 **Reference regression.** `crg_calc.py examples/medibec/source/medibec30.json` must print total estimated **84,305** and total residual **41,023** (30 scenarios; S2 and S8 scored AV:L, CVSS-B 9.3 and 9.2).
@@ -62,6 +76,8 @@ Lower / central / higher cases: shift Pb(A), Pb(ψ,A), δe, δm by ∓/± 0.10, 
 
 ## Budget calibration (step 18)
 Best practice: the appetite-consistent cybersecurity budget is a **point target** of the total IT budget including salaries — **12%** at appetite 0.30 or below, **7.8%** at 0.50, **4%** at 0.70 or above — with linear interpolation in between (−4.2 points over 0.30–0.50, −3.8 points over 0.50–0.70). Existing spending plus the recommended portfolio is compared with that target; the gap and the implied appetite are reported (book example: IT budget $50M, appetite 0.35 → 10.95% = $5.48M; $3.0M current + $1.7M portfolio = 9.4%, $0.78M below target, implied appetite 0.42). Closing the gap or revising the appetite is a **Management decision required**. Use `budget_calibrator.py` or the MCP tools `budget_target` / `budget_check`.
+
+Conventions shared by every CyberRiskGuardian product (NV-094): the **gap is planned − target** (negative = below target, as an amount and in percentage points); the **implied appetite** is undefined ("outside the guideline, below 4%") when the planned share is under the 4% point target and is never clamped to 0.70; the **position** reads "Below the 4% point target (funding implies an appetite above 0.70, outside the guideline)", "Between the 4% and 12% point targets" or "Above the 12% point target (more than a risk-averse organization's best-practice target)"; the **status** against the appetite-consistent target reads "Below the appetite-consistent target" or "At or above the appetite-consistent target". A 2% spend therefore shows an undefined implied appetite, a negative gap and the "below the 4% point target" position.
 
 ## Parameter guidance (anchors used so far)
 | Parameter | Low (≈0.2–0.35) | Moderate (≈0.4–0.6) | High (≈0.65–0.85+) |
