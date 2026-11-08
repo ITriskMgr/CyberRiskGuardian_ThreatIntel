@@ -43,7 +43,15 @@ VERSION = "1.4.0"
 UA = f"CyberRiskGuardian-Desktop/{VERSION} (+https://github.com/ITriskMgr/CyberRiskGuardian)"
 DEFAULT_DIR = os.path.join(os.path.expanduser("~"), "Downloads", "CyberRiskGuardian-feeds")
 FREQ_HOURS = {"hourly": 1, "6h": 6, "12h": 12, "daily": 24, "weekly": 168, "manual": None}
-_BASE = os.environ.get("CRG_FEED_BASE")          # test-suite: point every source at a local mock server
+def _sources_base():
+    """Test-suite hook: point every source at a local mock server — loopback only (1.9.2, NV-091)."""
+    base = os.environ.get("CRG_SOURCES_BASE") or os.environ.get("CRG_FEED_BASE") or ""
+    u = urllib.parse.urlsplit(base) if base else None
+    host = (u.hostname or "").lower() if u else ""
+    return base.rstrip("/") if u and u.scheme == "http" and host in ("127.0.0.1", "localhost", "::1") else None
+
+
+_BASE = _sources_base()
 
 # ------------------------------------------------------------------ source catalogue
 # status: accepted (in your list) · proposed (suggested, not yet accepted) · rejected

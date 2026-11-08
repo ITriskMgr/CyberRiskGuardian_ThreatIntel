@@ -166,16 +166,20 @@ async function contribute(body, sec) {
   // build and preview
   const picked = scen.filter(s => contrib.picked.has(s.id));
   const cards = picked.map(s => RH.cardFromScenario(s, ws, { ...base, regulations: base.regulations || [] }, { evidence: contrib.evidence }));
+  contrib.anon.custom = ws.anonTerms || '';   // 1.9.2 — the same additional terms as Publish & share
   const { cards: anonCards, ctx } = contrib.anon.enabled ? RH.anonymize(cards, ws, contrib.anon, RH.H.settings.regionLevel) : { cards: cards.map(c => ({ ...c, anonymized: false })), ctx: null };
   const pkg = RH.pack(anonCards, { anonymized: contrib.anon.enabled });
   const text = JSON.stringify(pkg, null, 1);
-  const leaks = contrib.anon.enabled ? [ws.org.name, ws.name, ...(ws.assets || []).map(a => a.name)].filter(x => x && x.length >= 4 && text.toLowerCase().includes(x.toLowerCase())) : [];
+  // 1.9.2 (NV-005): the residual check reads the replacement table; name-like terms no replacement covers are listed too
+  const leaks = contrib.anon.enabled && ctx ? A.residual(text, ctx) : [];
+  const unknown = contrib.anon.enabled && ctx ? A.nameLike(text, ctx) : { pairs: [], acronyms: [] };
   const preview = el('textarea', { class: 'mono', readonly: true, style: { minHeight: '220px' } }); preview.value = text.slice(0, 15000);
   body.append(card(el('h2', { style: { marginTop: 0 } }, '3 · Anonymization'),
     el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start' } }, anonCb, el('span', null, el('b', null, 'Anonymize before sharing (on by default)'),
       el('div', 'small muted', `Organization, people and asset names, e-mail, IP addresses, internal hosts and amounts are replaced; the region is kept at ${RH.H.settings.regionLevel === 'country' ? 'country' : 'province or state'} level and the size as a band. Change the region level in Registry settings.`))),
     contrib.anon.enabled ? el('div', 'note', 'Replacements: ' + (ctx ? A.summary(ctx) : '—')) : banner('bad', 'Not anonymized', 'These cards identify your organization. Share them only with recipients authorized to see them.'),
-    leaks.length ? banner('warn', 'Check these before sharing', 'Still present in the cards: ' + leaks.join(', ') + '. Add them under Publish & share → Additional terms, or edit the scenario text.') : null,
+    leaks.length ? banner('bad', 'Identifying terms remain in the cards', 'Still present in the cards: ' + leaks.slice(0, 12).join(', ') + '. Add them under Publish & share → Additional terms to replace, or edit the scenario text.')
+      : unknown.pairs.length || unknown.acronyms.length ? banner('warn', 'Check these before sharing', 'Name-like terms and acronyms no replacement covers: ' + [...unknown.pairs, ...unknown.acronyms].slice(0, 12).map(p => p.term).join(', ') + '. Add them under Publish & share → Additional terms to replace if they identify a person, a supplier, a site or the organization.') : null,
     el('h4', null, `Preview — ${anonCards.length} card(s)`), preview));
   body.append(card(el('h2', { style: { marginTop: 0 } }, '4 · Share'),
     el('div', 'btnrow',

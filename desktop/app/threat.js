@@ -24,29 +24,56 @@ export const LADDER = [
              'Invoke incident response first.' },
 ];
 
-/** Days until expiry; negative when expired. */
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}/;
+/** A date of the snapshot, read strictly (YYYY-MM-DD, a time part allowed); anything else is null (1.9.2, NV-024). */
+const snapDate = v => { if (typeof v !== 'string' || !ISO_DAY.test(v)) return null; const d = new Date(v.slice(0, 10)); return isNaN(d) ? null : d; };
+
+/** Days until expiry; negative when expired. A snapshot without a readable expiry date is expired (1.9.2: and `invalid`);
+    `daysPastExpiry` is the positive count once expired, 0 before (NV-007). */
 export function snapshotAge(snap, today = new Date()) {
   const t = new Date(today.toISOString().slice(0, 10));
-  const retrieved = snap?.retrieved ? new Date(snap.retrieved) : null;
-  const expires = snap?.expires ? new Date(snap.expires) : null;
+  const retrieved = snapDate(snap?.retrieved);
+  const expires = snapDate(snap?.expires);
   const day = 86400000;
+  const daysLeft = expires ? Math.round((expires - t) / day) : null;
   return {
-    retrieved: snap?.retrieved ?? null,
-    expires: snap?.expires ?? null,
+    retrieved: retrieved ? snap.retrieved.slice(0, 10) : null,
+    expires: expires ? snap.expires.slice(0, 10) : null,
     ageDays: retrieved ? Math.round((t - retrieved) / day) : null,
-    daysLeft: expires ? Math.round((expires - t) / day) : null,
+    daysLeft,
     expired: expires ? expires < t : true,
+    daysPastExpiry: expires ? Math.max(0, -daysLeft) : null,
+    invalid: !retrieved || !expires,
   };
+}
+
+/** The problems that make a snapshot unusable (1.9.2, NV-024): checked before it is stored, and before a screen reads it.
+    An empty list means the shape is the one threat_snapshot.py and the generator produce (schema crg-threat-context/1). */
+export function validateSnapshot(snap) {
+  const out = [];
+  const isObj = x => x && typeof x === 'object' && !Array.isArray(x);
+  if (!isObj(snap)) return ['not a JSON object'];
+  if (snap.schema !== SCHEMA) out.push(`schema ${JSON.stringify(snap.schema ?? null)} (expected ${SCHEMA})`);
+  if (!snapDate(snap.retrieved)) out.push('retrieved: not a date (YYYY-MM-DD)');
+  if (!snapDate(snap.expires)) out.push('expires: not a date (YYYY-MM-DD)');
+  if (snap.kev !== undefined && (!isObj(snap.kev) || (snap.kev.cves !== undefined && !isObj(snap.kev.cves)))) out.push('kev.cves: not an object keyed by CVE');
+  if (snap.epss !== undefined && (!isObj(snap.epss) || (snap.epss.scores !== undefined && !isObj(snap.epss.scores)))) out.push('epss.scores: not an object keyed by CVE');
+  if (snap.sources !== undefined && (!Array.isArray(snap.sources) || snap.sources.some(x => !isObj(x)))) out.push('sources: not a list of objects');
+  if (snap.regions !== undefined && (!Array.isArray(snap.regions) || snap.regions.some(x => typeof x !== 'string'))) out.push('regions: not a list of strings');
+  if (snap.thresholds !== undefined && !isObj(snap.thresholds)) out.push('thresholds: not an object');
+  if (!snap.kev && !snap.epss) out.push('neither kev nor epss present');
+  return out;
 }
 
 /** Place one CVE on the ladder. Mirrors threat_snapshot.classify(). */
 export function classify(cve, snap, exposed) {
   const id = String(cve || '').trim().toUpperCase();
-  const kev = snap?.kev?.cves?.[id];
-  const sc = snap?.epss?.scores?.[id];
+  const kevMap = snap?.kev?.cves, scMap = snap?.epss?.scores;
+  const kev = kevMap && typeof kevMap === 'object' && !Array.isArray(kevMap) ? kevMap[id] : undefined;
+  const sc = scMap && typeof scMap === 'object' && !Array.isArray(scMap) && Array.isArray(scMap[id]) ? scMap[id] : null;
   const epss = sc ? sc[0] : null;
   const pct = sc ? sc[1] : null;
-  const th = snap?.thresholds ?? {};
+  const th = (snap?.thresholds && typeof snap.thresholds === 'object') ? snap.thresholds : {};
   const r4 = th.epss_rung4_min ?? EPSS_RUNG4_MIN;
   const r1 = th.epss_rung1_max ?? EPSS_RUNG1_MAX;
   const p4 = th.epss_percentile_rung4_min ?? EPSS_PCT_RUNG4_MIN;
@@ -58,8 +85,8 @@ export function classify(cve, snap, exposed) {
   let rung, why;
   if (kev) {
     rung = 4;
-    why = `in CISA KEV since ${kev.added ?? 'unknown date'}`;
-    if (kev.ransomware === 'Known') why += '; known ransomware campaign use';
+    why = `in CISA KEV since ${(kev && typeof kev === 'object' && kev.added) || 'unknown date'}`;
+    if (kev && kev.ransomware === 'Known') why += '; known ransomware campaign use';
   } else if (epss !== null && (epss >= r4 || (pct ?? 0) >= p4)) {
     rung = 4;
     why = `EPSS ${epss.toFixed(3)} (${((pct ?? 0) * 100).toFixed(1)}% pct)`;
@@ -109,19 +136,24 @@ export function parseExposure(text) {
   return [...seen];
 }
 
-/** Summary counts for the panel header. */
+/** Summary counts for the panel header. Defensive since 1.9.2 (NV-024): a malformed snapshot yields zeros, never a throw. */
 export function snapshotStats(snap) {
+  const isObj = x => x && typeof x === 'object' && !Array.isArray(x);
+  const kev = isObj(snap?.kev) ? snap.kev : {}, epss = isObj(snap?.epss) ? snap.epss : {};
+  const num = (v, alt) => (typeof v === 'number' && Number.isFinite(v)) ? v : alt;
+  const str = v => (typeof v === 'string' || typeof v === 'number') ? String(v) : null;
   return {
-    schema: snap?.schema ?? null,
+    schema: str(snap?.schema),
     schemaOk: snap?.schema === SCHEMA,
-    regions: snap?.regions ?? [],
-    kev: snap?.kev?.count ?? Object.keys(snap?.kev?.cves ?? {}).length,
-    epss: snap?.epss?.count ?? Object.keys(snap?.epss?.scores ?? {}).length,
-    pruned: snap?.epss?.pruned ?? null,
-    sources: (snap?.sources ?? []).map(s => ({
-      name: s.name, version: s.version ?? null, scoreDate: s.score_date ?? null,
-      entries: s.entries ?? null, region: s.region ?? null,
+    regions: Array.isArray(snap?.regions) ? snap.regions.filter(r => typeof r === 'string') : [],
+    kev: num(kev.count, isObj(kev.cves) ? Object.keys(kev.cves).length : 0),
+    epss: num(epss.count, isObj(epss.scores) ? Object.keys(epss.scores).length : 0),
+    pruned: isObj(epss.pruned) ? epss.pruned : null,
+    sources: (Array.isArray(snap?.sources) ? snap.sources : []).filter(isObj).map(s => ({
+      name: str(s.name) ?? '—', version: str(s.version), scoreDate: str(s.score_date),
+      entries: num(s.entries, null), region: str(s.region),
     })),
+    problems: validateSnapshot(snap),
   };
 }
 

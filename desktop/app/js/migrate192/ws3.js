@@ -19,4 +19,10 @@
    Import leaf modules only (e.g. util.js, markers.js, a module of your own that imports none of those four). © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 
-export default [];
+export default [
+  // NV-005 / NV-089 — the anonymizer's additional terms (people, suppliers, sites, project names the analyst adds) belong to
+  // the workspace, so that Publish & share and the Risk Registry contribution replace the same terms.
+  { field: 'anonTerms', blank: () => '', group: 'ORGANIZATION', title: 'Anonymization: additional terms to replace (shared by Publish & share and the Risk Registry)' },
+  // NV-007 — the justification recorded when a threat-context proposal is accepted from an expired snapshot
+  { field: 'threatJustifications', blank: () => [], group: 'ASSESSMENT', title: 'Threat context: justifications recorded for proposals accepted from an expired snapshot' },
+];

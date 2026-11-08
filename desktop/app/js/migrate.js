@@ -388,11 +388,13 @@ export const MIGRATIONS = [
     from: 5, to: 6, release: '1.9.2',
     get title() { return 'Data version 5 → 6: ' + (STEP6.length ? STEP6.map(s => s.title).join('; ') : 'no change to the workspace'); },
     up(w, note) {
+      let n = 0; const noted = s => { n++; note(s); };
       for (const s of STEP6) {
-        if (s.up) { s.up(w, note); continue; }
-        if (s.field && w[s.field] === undefined) { w[s.field] = s.blank(); note(`${s.title}: empty record added`); }
+        if (s.up) { s.up(w, noted); continue; }
+        if (s.field && w[s.field] === undefined) { w[s.field] = s.blank(); noted(`${s.title}: empty record added`); }
       }
-      if (!STEP6.length) note('no change to the workspace: the data version is recorded');
+      // a workspace that already holds every version-6 field (built by the 1.9.2 factory, data version left at 5) is journalled too
+      if (!n) note('no change to the workspace: the data version is recorded');
     },
   },
 ];

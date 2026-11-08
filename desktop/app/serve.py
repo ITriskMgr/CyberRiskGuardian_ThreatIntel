@@ -81,8 +81,21 @@ FEEDS = _feeds_dir()
 MANIFEST = os.path.join(FEEDS, "manifest.json")
 UA = f"CyberRiskGuardian-Desktop/{VERSION} (+https://github.com/ITriskMgr/CyberRiskGuardian)"
 
-# Fixed source list. CRG_FEED_BASE lets the test-suite point every source at a local mock server.
-_BASE = os.environ.get("CRG_FEED_BASE")
+# Fixed source list. CRG_SOURCES_BASE (alias CRG_FEED_BASE) lets the test-suite point every source at a local mock
+# server — loopback only (1.9.2, NV-091): any other host is ignored, so the variable can never redirect a real download.
+def _sources_base():
+    base = os.environ.get("CRG_SOURCES_BASE") or os.environ.get("CRG_FEED_BASE") or ""
+    if not base:
+        return None
+    u = urllib.parse.urlsplit(base)
+    host = (u.hostname or "").lower()
+    if u.scheme != "http" or host not in ("127.0.0.1", "localhost", "::1"):
+        sys.stderr.write(f"helper: CRG_SOURCES_BASE ignored — {base!r} is not plain http to this machine (loopback only)\n")
+        return None
+    return base.rstrip("/")
+
+
+_BASE = _sources_base()
 SOURCES = {
     "kev": [_BASE + "/kev.json"] if _BASE else [
         "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json",
@@ -967,27 +980,80 @@ def _safe_join(base, *parts):
     return p
 
 
+# The file names the application itself produces (Publish & share, Risk Registry, briefings). Nothing else is written
+# through /api/publish (1.9.2, NV-060): a configuration name or a project file can never be created or replaced here.
+PUBLISH_PREFIXES = {"registry": ("crg-registry-", "crg-registry2-"), "briefing": ("briefing-", "triage-profile.json")}
+PUBLISH_TARGETS = ("registry", "briefing")
+
+
+def _app_made(path):
+    """True when the existing file reads as one this application wrote: a JSON package with a crg-… schema or our generator,
+    a Markdown report of ours, or a CSV of ours. Anything else is somebody else's file and is never overwritten."""
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as fh:
+            head = fh.read(4000)
+    except OSError:
+        return False
+    if path.endswith(".json"):
+        return bool(re.search(r'"schema"\s*:\s*"crg-', head) or "CyberRiskGuardian" in head)
+    if path.endswith(".md"):
+        return head.lstrip().startswith(("# Risk registry", "# Registre des risques", "# Weekly threat briefing", "# Threat briefing", "# Briefing", "# Veille", "### Management summary", "### Sommaire", "# CyberRiskGuardian")) or "CyberRiskGuardian" in head
+    if path.endswith(".csv"):
+        return head.startswith(("id,", "\ufeffid,", "cve,", "scenario", "risk"))
+    return False
+
+
 def publish(name, content, target):
     """Write a registry package to the shared registry folder or the outbox, or a briefing to the
-    feeds folder. Registry packages are anonymized in the app before they get here."""
+    feeds folder. Registry packages are anonymized in the app before they get here.
+    1.9.2 (NV-060): only the application's own name prefixes, only the known targets, and never over a file the
+    application did not create."""
+    if target not in PUBLISH_TARGETS:
+        raise ValueError(f"unknown publish target {target!r} (registry or briefing)")
     if not SAFE.match(name or "") or not name.endswith((".json", ".md", ".csv")):
         raise ValueError("bad file name")
+    if not name.startswith(PUBLISH_PREFIXES[target]):
+        raise ValueError(f"the name {name!r} is not one this application publishes for {target} ({', '.join(PUBLISH_PREFIXES[target])}…)")
     cfg = crg_feeds.load_config(FEEDS)
     local = os.path.expanduser((cfg.get("links") or {}).get("registry_local_dir") or "")
     if target == "briefing":
         # Briefings are not registry packages: they stay in the feeds folder, where the scheduled task
         # can find them, and never in the outbox that gets uploaded to the shared registry.
         folder = os.path.join(FEEDS, "briefings")
-    elif target == "registry" and local:
+    elif local:
         folder = registry_folder("shared")
     else:
         folder = os.path.join(FEEDS, "registry-outbox")
     os.makedirs(folder, exist_ok=True)
     path = _safe_join(folder, name)
+    ours = _published_record()
+    replaced = os.path.lexists(path)
+    if replaced and (os.path.islink(path) or not os.path.isfile(path) or not (path in ours or _app_made(path))):
+        raise ValueError(f"{name} exists in {folder} and was not created by this application: choose another name or remove it yourself")
     with open(path + ".part", "w", encoding="utf-8") as fh:
         fh.write(content)
     os.replace(path + ".part", path)
-    return {"path": path, "folder": folder, "outbox": folder.endswith("registry-outbox")}
+    ours[path] = {"sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(), "written": _now(), "target": target}
+    _published_save(ours)
+    return {"path": path, "folder": folder, "outbox": folder.endswith("registry-outbox"), "replaced": replaced}
+
+
+def _published_record():
+    """The files this helper wrote through /api/publish (path → sha256, date, target): the record that lets it tell its own
+    files from somebody else's when a name is reused. Kept in the feeds folder; a missing or unreadable record is empty."""
+    try:
+        with open(os.path.join(FEEDS, "published.json"), encoding="utf-8") as fh:
+            d = json.load(fh)
+        return d.get("files", {}) if isinstance(d, dict) and isinstance(d.get("files"), dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _published_save(files):
+    try:
+        crg_feeds._write_json(os.path.join(FEEDS, "published.json"), {"schema": "crg-published/1", "files": files})
+    except OSError:
+        pass
 
 
 # ---------------- 1.5.8 — CRGO dss/v1: the organisation graph of a workspace ----------------
@@ -1281,7 +1347,7 @@ def list_files():
     out = []
     for f in sorted(os.listdir(FEEDS)):
         p = os.path.join(FEEDS, f)
-        if (f.startswith(".") or f.endswith((".part", ".tmp")) or f in ("manifest.json", "feeds-digest.json", "suggested-sources.json")
+        if (f.startswith(".") or f.endswith((".part", ".tmp")) or f in ("manifest.json", "feeds-digest.json", "suggested-sources.json", "published.json")
                 or f.startswith("crg-") or not os.path.isfile(p)):            # 1.4.0 settings and feed state are not catalogue files
             continue
         kind = "kev" if f.startswith("kev") or f.startswith("known_exploited") else "epss" if f.startswith("epss") else "nvd" if f.startswith("nvd") else "release" if f.lower().endswith(".zip") else "other"
@@ -1616,7 +1682,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             try:
                 return self._json(200, publish(body.get("name"), body.get("content") or "", body.get("target") or "registry"))
             except Exception as exc:                    # noqa: BLE001
-                return self._json(400, {"error": str(exc)})
+                return self._json(409 if "was not created by this application" in str(exc) else 400, {"error": str(exc)})
         m = re.match(r"^/api/jobs/([a-f0-9]+)/cancel$", path)
         if m:
             ev = cancel_flags.get(m.group(1))

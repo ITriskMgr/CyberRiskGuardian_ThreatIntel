@@ -429,7 +429,11 @@ export function exportAssessment(ws = S.ws, { includedOnly = false } = {}) {
   const a = JSON.parse(JSON.stringify(ws.assessment));
   if (includedOnly) a.SCEN = a.SCEN.filter(s => included(s.id, ws));
   a.ORGANIZATION = ws.org.name || ws.name;
-  if (ws.snapshot) a.threat_context = { snapshot: ws.snapshot.name, retrieved: ws.snapshot.retrieved, expires: ws.snapshot.expires };
+  if (ws.snapshot) {   // 1.9.2 (NV-007, ws3): the export says whether the snapshot was expired at export time
+    const exp = typeof ws.snapshot.expires === 'string' && /^\d{4}-\d{2}-\d{2}/.test(ws.snapshot.expires) ? new Date(ws.snapshot.expires.slice(0, 10)) : null;
+    const t = new Date(today()); const past = exp ? Math.round((t - exp) / 86400000) : null;
+    a.threat_context = { snapshot: ws.snapshot.name, retrieved: ws.snapshot.retrieved, expires: ws.snapshot.expires, expired: exp ? past > 0 : true, days_past_expiry: exp ? Math.max(0, past) : null };
+  }
   // The vector wins (X-1): a stored score that disagrees with its vector is flagged in the file too, so a reader that
   // uses the stored score sees the disagreement. Nothing is changed: both values are exported as entered.
   const warnings = [];

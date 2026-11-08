@@ -17,98 +17,124 @@ function item(src, o) {
     { cves: uniq([...(o.cves || []), ...cvesIn(text)]), attack: uniq([...(o.attack || []), ...attIn(text)]), key: src + ':' + (o.id || o.url || o.title) });
 }
 
+/* 1.9.2 (NV-062): one bad record never discards a file — every record is parsed in its own try, and the reasons are
+   returned beside the items (parse() → items.errors, a list) so Sources & downloads can show them per source. */
+let ERRORS = null;
+const note = (what, e) => { if (ERRORS && ERRORS.length < 20) ERRORS.push(`${what}: ${String(e?.message || e).slice(0, 120)}`); };
+/** Map a list record by record; a record that throws is skipped and noted. A non-list is an error, not a throw. */
+function each(list, fn, what = 'record') {
+  if (!Array.isArray(list)) { if (list !== undefined && list !== null) note(what + 's', 'not a list'); return []; }
+  const out = [];
+  list.forEach((d, n) => { try { if (d === null || typeof d !== 'object') throw new Error('not an object'); const it = fn(d, n); if (it) out.push(it); } catch (e) { note(`${what} ${n + 1}`, e); } });
+  return out;
+}
+const S = v => (v === null || v === undefined) ? '' : typeof v === 'string' ? v : typeof v === 'number' || typeof v === 'boolean' ? String(v) : '';
+const L = v => Array.isArray(v) ? v.filter(x => x !== null && x !== undefined).map(x => typeof x === 'object' ? x : String(x)) : [];
+const safeUrl = u => { const t = S(u).trim(); return /^https?:\/\//i.test(t) ? t : ''; };
+
 function rss(src, xml) {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
-  const out = [];
-  for (const n of [...doc.querySelectorAll('item, entry')]) {
+  const bad = doc.querySelector('parsererror');
+  if (bad) { note('XML', (bad.textContent || 'malformed XML').replace(/\s+/g, ' ').slice(0, 160)); return []; }
+  const nodes = [...doc.querySelectorAll('item, entry')];
+  if (!nodes.length && !doc.querySelector('rss, feed, channel')) note('XML', 'not an RSS or Atom document');
+  return each(nodes, n => {
     const g = s => n.querySelector(s)?.textContent || '';
     const link = n.querySelector('link')?.getAttribute('href') || g('link');
-    out.push(item(src, { type: 'news', title: strip(g('title')), text: strip(g('description') || g('summary') || g('content')).slice(0, 600), url: link.trim(),
-      date: iso(g('pubDate') || g('updated') || g('published') || g('date')), tags: [...n.querySelectorAll('category')].map(c => c.textContent || c.getAttribute('term')).filter(Boolean) }));
-  }
-  return out;
+    return item(src, { type: 'news', title: strip(g('title')), text: strip(g('description') || g('summary') || g('content')).slice(0, 600), url: safeUrl(link),
+      date: iso(g('pubDate') || g('updated') || g('published') || g('date')), tags: [...n.querySelectorAll('category')].map(c => c.textContent || c.getAttribute('term')).filter(Boolean) });
+  }, 'item');
 }
 
 const P = {
   otx(j) {
-    return (j.results || []).map(p => item('otx', { id: p.id, type: 'pulse', title: p.name, text: strip(p.description).slice(0, 800), url: 'https://otx.alienvault.com/pulse/' + p.id,
-      date: iso(p.modified || p.created), tags: p.tags || [], attack: (p.attack_ids || []).map(a => a.id || a), sectors: p.industries || [], countries: p.targeted_countries || [],
-      malware: (p.malware_families || []).map(m => m.display_name || m).join(', '), actor: p.adversary || '',
-      cves: (p.indicators || []).filter(i => i.type === 'CVE').map(i => i.indicator),
-      iocs: (p.indicators || []).filter(i => i.type !== 'CVE').slice(0, 200).map(i => ({ type: i.type, value: i.indicator })) }));
+    return each(j.results, p => item('otx', { id: S(p.id), type: 'pulse', title: S(p.name), text: strip(p.description).slice(0, 800), url: p.id ? 'https://otx.alienvault.com/pulse/' + encodeURIComponent(S(p.id)) : '',
+      date: iso(p.modified || p.created), tags: L(p.tags).map(S), attack: L(p.attack_ids).map(a => S(a.id || a)), sectors: L(p.industries).map(S), countries: L(p.targeted_countries).map(S),
+      malware: L(p.malware_families).map(m => S(m.display_name || m)).join(', '), actor: S(p.adversary),
+      cves: L(p.indicators).filter(i => i.type === 'CVE').map(i => S(i.indicator)),
+      iocs: L(p.indicators).filter(i => i.type !== 'CVE').slice(0, 200).map(i => ({ type: S(i.type), value: S(i.indicator) })) }), 'pulse');
   },
   threatfox(j) {
-    return (Array.isArray(j.data) ? j.data : []).map(d => item('threatfox', { id: d.id, type: 'ioc', title: `${d.malware_printable || d.malware} — ${d.ioc_type} ${d.ioc}`, text: d.threat_type_desc || d.threat_type || '',
-      url: 'https://threatfox.abuse.ch/ioc/' + d.id + '/', date: iso(d.first_seen), tags: d.tags || [], malware: d.malware_printable || d.malware || '',
-      iocs: [{ type: d.ioc_type, value: d.ioc, confidence: d.confidence_level, threat: d.threat_type }] }));
+    return each(j.data, d => item('threatfox', { id: S(d.id), type: 'ioc', title: `${S(d.malware_printable || d.malware)} — ${S(d.ioc_type)} ${S(d.ioc)}`, text: S(d.threat_type_desc || d.threat_type),
+      url: d.id ? 'https://threatfox.abuse.ch/ioc/' + encodeURIComponent(S(d.id)) + '/' : '', date: iso(d.first_seen), tags: L(d.tags).map(S), malware: S(d.malware_printable || d.malware),
+      iocs: [{ type: S(d.ioc_type), value: S(d.ioc), confidence: d.confidence_level, threat: S(d.threat_type) }] }), 'IOC');
   },
   malwarebazaar(j) {
-    return (Array.isArray(j.data) ? j.data : []).map(d => item('malwarebazaar', { id: d.sha256_hash, type: 'ioc', title: `${d.signature || 'Unknown family'} — ${d.file_name || d.sha256_hash.slice(0, 16)}`,
-      text: [d.file_type, d.delivery_method].filter(Boolean).join(' · '), url: 'https://bazaar.abuse.ch/sample/' + d.sha256_hash + '/', date: iso(d.first_seen), tags: d.tags || [], malware: d.signature || '',
-      iocs: [{ type: 'sha256', value: d.sha256_hash }] }));
+    return each(j.data, d => { const h = S(d.sha256_hash); if (!/^[0-9a-f]{64}$/i.test(h)) throw new Error('missing or malformed sha256_hash'); return item('malwarebazaar', { id: h, type: 'ioc', title: `${S(d.signature) || 'Unknown family'} — ${S(d.file_name) || h.slice(0, 16)}`,
+      text: [S(d.file_type), S(d.delivery_method)].filter(Boolean).join(' · '), url: 'https://bazaar.abuse.ch/sample/' + h + '/', date: iso(d.first_seen), tags: L(d.tags).map(S), malware: S(d.signature),
+      iocs: [{ type: 'sha256', value: h }] }); }, 'sample');
   },
   urlhaus(j) {
-    return (j.urls || []).map(d => item('urlhaus', { id: d.id, type: 'ioc', title: `${d.threat || 'malicious URL'} — ${d.host}`, text: `${d.url_status || ''} ${d.url}`, url: d.urlhaus_reference,
-      date: iso(d.date_added), tags: d.tags || [], malware: (d.tags || []).join(', '), iocs: [{ type: 'url', value: d.url }, { type: 'domain', value: d.host }] }));
+    return each(j.urls, d => item('urlhaus', { id: S(d.id), type: 'ioc', title: `${S(d.threat) || 'malicious URL'} — ${S(d.host)}`, text: `${S(d.url_status)} ${S(d.url)}`.trim(), url: safeUrl(d.urlhaus_reference),
+      date: iso(d.date_added), tags: L(d.tags).map(S), malware: L(d.tags).map(S).join(', '), iocs: [{ type: 'url', value: S(d.url) }, { type: 'domain', value: S(d.host) }].filter(x => x.value) }), 'URL');
   },
   feodo(j) {
-    return (Array.isArray(j) ? j : []).map(d => item('feodo', { id: d.ip_address + ':' + d.port, type: 'ioc', title: `${d.malware} C2 — ${d.ip_address}:${d.port}`, text: `${d.status || ''} · ${d.as_name || ''} · ${d.country || ''}`,
-      url: 'https://feodotracker.abuse.ch/browse/host/' + d.ip_address + '/', date: iso(d.last_online || d.first_seen), malware: d.malware || '', countries: d.country ? [d.country] : [],
-      iocs: [{ type: 'ip:port', value: d.ip_address + ':' + d.port }] }));
+    return each(j, d => { if (!d.ip_address) throw new Error('no ip_address'); return item('feodo', { id: S(d.ip_address) + ':' + S(d.port), type: 'ioc', title: `${S(d.malware)} C2 — ${S(d.ip_address)}:${S(d.port)}`, text: `${S(d.status)} · ${S(d.as_name)} · ${S(d.country)}`,
+      url: 'https://feodotracker.abuse.ch/browse/host/' + encodeURIComponent(S(d.ip_address)) + '/', date: iso(d.last_online || d.first_seen), malware: S(d.malware), countries: d.country ? [S(d.country)] : [],
+      iocs: [{ type: 'ip:port', value: S(d.ip_address) + ':' + S(d.port) }] }); }, 'host');
   },
-  'isc-infocon'(j) { return [item('isc-infocon', { id: 'infocon', type: 'stat', title: 'SANS ISC Infocon: ' + (j.status || '?'), text: 'Internet Storm Center threat level', url: 'https://isc.sans.edu/infocon.html', tags: [j.status] })]; },
+  'isc-infocon'(j) { return [item('isc-infocon', { id: 'infocon', type: 'stat', title: 'SANS ISC Infocon: ' + (S(j.status) || '?'), text: 'Internet Storm Center threat level', url: 'https://isc.sans.edu/infocon.html', tags: [S(j.status)].filter(Boolean) })]; },
   'isc-topports'(j) {
     const rows = Object.entries(j).filter(([k]) => /^\d+$/.test(k)).map(([, v]) => v);
-    return rows.map(v => item('isc-topports', { id: 'port-' + v.targetport, type: 'stat', title: `Port ${v.targetport} — rank ${v.rank}`, text: `${Number(v.records).toLocaleString()} reports · ${Number(v.targets).toLocaleString()} targets · ${Number(v.sources).toLocaleString()} sources (${j.date || ''})`,
-      url: 'https://isc.sans.edu/port.html?port=' + v.targetport, date: j.date || '', tags: ['port ' + v.targetport] }));
+    const n = v => { const x = Number(v); return Number.isFinite(x) ? x.toLocaleString() : '?'; };
+    return each(rows, v => { const port = Number(v.targetport); if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('targetport is not a port'); return item('isc-topports', { id: 'port-' + port, type: 'stat', title: `Port ${port} — rank ${n(v.rank)}`, text: `${n(v.records)} reports · ${n(v.targets)} targets · ${n(v.sources)} sources (${S(j.date)})`,
+      url: 'https://isc.sans.edu/port.html?port=' + port, date: S(j.date), tags: ['port ' + port] }); }, 'port');
   },
   'x-search'(j) {
-    return (j.data || []).map(t => item('x-search', { id: t.id, type: 'post', title: strip(t.text).slice(0, 140), text: strip(t.text), url: 'https://x.com/i/web/status/' + t.id, date: iso(t.created_at),
-      tags: (t.entities?.hashtags || []).map(h => h.tag) }));
+    return each(j.data, t => item('x-search', { id: S(t.id), type: 'post', title: strip(t.text).slice(0, 140), text: strip(t.text), url: t.id ? 'https://x.com/i/web/status/' + encodeURIComponent(S(t.id)) : '', date: iso(t.created_at),
+      tags: L(t.entities?.hashtags).map(h => S(h.tag)) }), 'post');
   },
   'mastodon-infosec'(j) {
-    return (Array.isArray(j) ? j : []).map(t => item('mastodon-infosec', { id: t.id, type: 'post', title: strip(t.content).slice(0, 140), text: strip(t.content), url: t.url, date: iso(t.created_at),
-      tags: (t.tags || []).map(x => x.name), actor: '' }));
+    return each(j, t => item('mastodon-infosec', { id: S(t.id), type: 'post', title: strip(t.content).slice(0, 140), text: strip(t.content), url: safeUrl(t.url), date: iso(t.created_at),
+      tags: L(t.tags).map(x => S(x.name)), actor: '' }), 'post');
   },
   'bluesky-search'(j) {
-    return (j.posts || []).map(p => { const id = p.uri.split('/').pop(); return item('bluesky-search', { id: p.uri, type: 'post', title: strip(p.record?.text).slice(0, 140), text: strip(p.record?.text),
-      url: `https://bsky.app/profile/${p.author?.handle}/post/${id}`, date: iso(p.record?.createdAt || p.indexedAt) }); });
+    return each(j.posts, p => { const uri = S(p.uri); if (!uri) throw new Error('no uri'); const id = uri.split('/').pop(); return item('bluesky-search', { id: uri, type: 'post', title: strip(p.record?.text).slice(0, 140), text: strip(p.record?.text),
+      url: p.author?.handle ? `https://bsky.app/profile/${encodeURIComponent(S(p.author.handle))}/post/${encodeURIComponent(id)}` : '', date: iso(p.record?.createdAt || p.indexedAt) }); }, 'post');
   },
   'reddit-netsec'(j) {
-    return (j.data?.children || []).map(c => c.data).map(d => item('reddit-netsec', { id: d.permalink, type: 'post', title: d.title, text: d.selftext ? strip(d.selftext).slice(0, 400) : d.url,
-      url: 'https://www.reddit.com' + d.permalink, date: iso(d.created_utc) }));
+    return each(j.data?.children, c => { const d = c.data; if (!d || typeof d !== 'object') throw new Error('no data'); return item('reddit-netsec', { id: S(d.permalink), type: 'post', title: S(d.title), text: d.selftext ? strip(d.selftext).slice(0, 400) : safeUrl(d.url),
+      url: d.permalink ? 'https://www.reddit.com' + S(d.permalink) : '', date: iso(d.created_utc) }); }, 'post');
   },
   'github-advisories'(j) {
-    return (Array.isArray(j) ? j : []).map(a => item('github-advisories', { id: a.ghsa_id, type: 'advisory', title: `${a.severity ? a.severity.toUpperCase() + ' · ' : ''}${a.summary}`,
-      text: (a.vulnerabilities || []).map(v => `${v.package?.ecosystem}:${v.package?.name}`).join(', '), url: a.html_url, date: iso(a.published_at),
-      cves: a.cve_id ? [a.cve_id] : [], tags: (a.cwes || []).map(c => c.cwe_id) }));
+    return each(j, a => item('github-advisories', { id: S(a.ghsa_id), type: 'advisory', title: `${a.severity ? S(a.severity).toUpperCase() + ' · ' : ''}${S(a.summary)}`,
+      text: L(a.vulnerabilities).map(v => `${S(v.package?.ecosystem)}:${S(v.package?.name)}`).join(', '), url: safeUrl(a.html_url), date: iso(a.published_at),
+      cves: a.cve_id ? [S(a.cve_id)] : [], tags: L(a.cwes).map(c => S(c.cwe_id)) }), 'advisory');
   },
   'ransomware-live'(j) {
-    return (Array.isArray(j) ? j : j.victims || []).map(v => item('ransomware-live', { id: (v.group_name || v.group) + ':' + (v.post_title || v.victim), type: 'victim',
-      title: `${v.group_name || v.group} claims ${v.post_title || v.victim}`, text: [v.activity, v.country, v.website || v.domain].filter(Boolean).join(' · '),
-      url: v.post_url || 'https://www.ransomware.live/', date: iso(v.discovered || v.attackdate), actor: v.group_name || v.group || '', sectors: v.activity ? [v.activity] : [], countries: v.country ? [v.country] : [] }));
+    return each(Array.isArray(j) ? j : j.victims, v => item('ransomware-live', { id: S(v.group_name || v.group) + ':' + S(v.post_title || v.victim), type: 'victim',
+      title: `${S(v.group_name || v.group)} claims ${S(v.post_title || v.victim)}`, text: [S(v.activity), S(v.country), S(v.website || v.domain)].filter(Boolean).join(' · '),
+      url: safeUrl(v.post_url) || 'https://www.ransomware.live/', date: iso(v.discovered || v.attackdate), actor: S(v.group_name || v.group), sectors: v.activity ? [S(v.activity)] : [], countries: v.country ? [S(v.country)] : [] }), 'victim');
   },
 };
 
-/** Parse one downloaded file. src = source id; cat = category from the catalogue; fmt = json | rss. */
+/** Parse one downloaded file. src = source id; cat = category from the catalogue; fmt = json | rss.
+    Returns the items; `items.errors` lists the records skipped and why (empty when every record was read). A file that cannot
+    be read at all (malformed JSON, malformed XML) throws, as before, with the reason. */
 export function parse(src, raw, { cat = '', fmt = '' } = {}) {
   const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw);
   const isXml = fmt === 'rss' || /^\s*<\?xml|^\s*<(rss|feed)\b/.test(text);
-  let items;
-  if (isXml) items = rss(src, text);
-  else {
-    const j = JSON.parse(text);
-    if (P[src]) items = P[src](j);
-    else items = guess(src, j);
-  }
+  ERRORS = [];
+  let items, errors;
+  try {
+    if (isXml) { items = rss(src, text); if (!items.length && ERRORS.some(e => /^XML/.test(e))) throw new Error(ERRORS[0]); }
+    else {
+      if (!text.trim()) throw new Error('empty file');
+      const j = JSON.parse(text);
+      if (j === null || typeof j !== 'object') throw new Error('JSON is not an object or a list');
+      if (P[src]) items = P[src](j);
+      else items = guess(src, j);
+    }
+  } finally { errors = ERRORS; ERRORS = null; }
   for (const i of items) i.cat = cat || i.cat;
+  items.errors = errors;
   return items;
 }
 /** Unknown JSON source (custom or accepted suggestion): best-effort title/url/date from common shapes. */
 function guess(src, j) {
   const arr = Array.isArray(j) ? j : j.data && Array.isArray(j.data) ? j.data : j.results || j.items || j.posts || [];
-  return arr.slice(0, 500).map((d, n) => item(src, { id: d.id || n, type: 'news', title: strip(d.title || d.name || d.summary || d.text || JSON.stringify(d).slice(0, 120)),
-    text: strip(d.description || d.summary || d.text || '').slice(0, 600), url: d.url || d.link || d.html_url || '', date: iso(d.date || d.published || d.created_at || d.created || '') }));
+  return each(Array.isArray(arr) ? arr.slice(0, 500) : [], (d, n) => item(src, { id: S(d.id) || n, type: 'news', title: strip(d.title || d.name || d.summary || d.text || JSON.stringify(d).slice(0, 120)),
+    text: strip(d.description || d.summary || d.text || '').slice(0, 600), url: safeUrl(d.url || d.link || d.html_url), date: iso(d.date || d.published || d.created_at || d.created || '') }));
 }
 
 /* ---------------- relevance ---------------- */
