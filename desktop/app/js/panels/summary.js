@@ -142,7 +142,13 @@ export function render(sec) {
     M.date ? el('p', 'small muted', tr('Last exported on {0}.').replace('{0}', M.date)) : null));
 }
 
-function exported(ws) { ws.mgmtSummary.date = today(); LOG.data('management summary exported', ws.name, '', ws.name); touch(); }
+function exported(ws) {
+  ws.mgmtSummary.date = today();
+  // 1.9.2 (NV-082, QC-30) — the engine's figures at export, so the quality review can tell when the memo no longer agrees
+  // with the workbook; and the budget shortfall the summary asked management to fund (QC-29).
+  try { const x = build(ws); ws.mgmtSummary.figures = { est: x.R.totals.est, tol: x.R.totals.tol, res: x.R.totals.res, n: x.R.inc.length, gap: x.target !== null ? Math.round(x.target * x.it - x.spend) : null }; } catch { /* the summary still exports */ }
+  LOG.data('management summary exported', ws.name, '', ws.name); touch();
+}
 
 function printable(ws) {
   const w = window.open('', '_blank'); if (!w) return;

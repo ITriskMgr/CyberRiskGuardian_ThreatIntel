@@ -136,7 +136,7 @@ function library(body, sec) {
           const ns = normalizeScenario({ id: nextScenarioId(), ref: s.id, name: s.name, statement: s.statement, stakeholders: s.stakeholders || '', threat_source: s.threat_source || '', threat_event: s.threat_event || '',
             vulns: s.vulnerabilities || [], assets: s.assets || '', processes: s.processes || '', controls: s.existing_controls || [], sequence: s.sequence || [], consequences: s.consequences || {},
             params: Object.fromEntries(Object.entries(s.params || {}).map(([k, p]) => [k, { v: Number(p.v), conf: 'Low', rat: 'Imported from a shared registry — re-estimate for this organization', ev: s._from }])),
-            cvss: s.cvss, red_p: Number(s.red_p) || 0.5, red_i: Number(s.red_i) || 0.5, attack: s.attack || [], cwe: s.cwe || [], cves: (s.cves || []).map(c => c.id || c), origin: 'library: ' + s._from, created: today() });
+            cvss: s.cvss, red_p: Number(s.red_p) || 0, red_i: Number(s.red_i) || 0, attack: s.attack || [], cwe: s.cwe || [], cves: (s.cves || []).map(c => c.id || c), origin: 'library: ' + s._from, created: today() });   // 1.9.2 (NV-001): a missing reduction is 0
           ws.assessment.SCEN.push(ns); ws.excluded = [...new Set([...(ws.excluded || []), ns.id])]; n++;
         }
         (ws.library ||= []).push({ date: today(), from: lib.src.join(', '), scenarios: n });

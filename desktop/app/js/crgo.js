@@ -298,7 +298,7 @@ export function toBatchRow(s, { usePriors = true } = {}) {
     assets: (s.asset_categories || []).map(a => a.label || a).join('; '), vulns: (s.weaknesses || []).map(w => w.id + (w.title ? ' ' + w.title : '')).join('; '),
     attack: tech, cwe: (s.weaknesses || []).map(w => w.id).filter(w => /^CWE-/.test(w)), cves: [],
     params, rat, conf, cvss: '', cvss_score: P?.cvss ?? null, cvss_note: P?.cvss != null ? `CVSS input ${P.cvss} from the ontology prior — replace with the vector of the actual weakness.` : 'Set the CVSS in the scenario editor.',
-    red_p: P?.red_p ?? 0.5, red_i: P?.red_i ?? 0.5, owner: '', pattern: 'crgo',
+    red_p: P?.red_p ?? 0, red_i: P?.red_i ?? 0, owner: '', pattern: 'crgo',   // 1.9.2 (NV-001): a missing reduction is 0
     crgo: { id: s.id, kind: s.kind, sector: s.sector, themes: (s.themes || []).map(t => t.key), asset_categories: (s.asset_categories || []).map(a => a.key || a.label || a),
       threat_source_types: (s.threat_source_types || []).map(t => t.key || t.label || t), controls: controlRefs(s),
       obligations: (s.obligations || []).map(o => o.id + ' — ' + o.title), basis: P?.basis || null, imported: new Date().toISOString().slice(0, 10) } };

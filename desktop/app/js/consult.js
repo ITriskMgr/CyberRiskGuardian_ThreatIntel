@@ -28,6 +28,7 @@ import * as helper from './helper.js';
 import * as store from './store.js';
 import * as MK from './markers.js';
 import { S, compute, touch, docText } from './state.js';
+import * as SCR from './screening.js';
 import { uid, today } from './util.js';
 import { PANELS_IN_MENU, labelOf } from './menu.js';
 import { TEMPLATES } from './isp.js';
@@ -544,19 +545,25 @@ export function citeAsEvidence(conv, ws = S.ws, nextId) {
   return id;
 }
 
-/** Candidate scenarios proposed by an answer → Batch scenarios, unreviewed (the existing review flow). */
+/** Candidate scenarios proposed by an answer → the screening's candidates (Scenario screening → Candidates & scores), unscored.
+ *  1.9.2 (decided item 7 / C3): array rows, as the screening and the workbook read them, with the proposal kept as the
+ *  candidate's draft (parameters, chain, techniques), so promotion carries it; the AI log entry stays `pending` until the
+ *  analyst scores or promotes a candidate — sending to review is not acceptance. */
 export function toCandidates(list, out, ws = S.ws) {
-  const a = ws.assessment;
-  a.CANDIDATES = a.CANDIDATES || [];
   let n = 0;
+  const ids = [];
   for (const s of list) {
-    a.CANDIDATES.push({ id: 'CAND-' + (a.CANDIDATES.length + 1), name: s.name || '(unnamed)', statement: s.statement || '', threat_source: s.threat_source || '',
-      initiating_event: s.initiating_event || '', vulnerability: s.vulnerability || '', asset: s.asset || '', process: s.process || '', consequence: s.consequence || '',
-      existing_controls: s.existing_controls || '', assumptions: s.assumptions || '', params: s.params || {}, attack: s.attack || [],
-      source: 'ai', model: out.model, generated: today(), reviewed: false, note: MARK + (s.seed ? ' Prompted by feed item ' + s.seed : '') });
+    const row = { name: s.name || '(unnamed)', statement: s.statement || '', threat_source: s.threat_source || '', assets: s.asset || '', vulns: s.vulnerability || '',
+      threat_event: s.initiating_event || '', process: s.process || '', consequence: s.consequence || '', existing_controls: s.existing_controls || '', assumptions: s.assumptions || '',
+      params: s.params || {}, attack: Array.isArray(s.attack) ? s.attack.filter(t => /^T\d{4}/.test(String(t))) : [], ai: true, model: out.model || '',
+      rat: Object.fromEntries(Object.entries(s.params || {}).filter(([, p]) => p && typeof p === 'object' && p.why).map(([k, p]) => [k, 'AI: ' + p.why])),
+      conf: Object.fromEntries(Object.entries(s.params || {}).filter(([, p]) => p && typeof p === 'object' && ['High', 'Medium', 'Low'].includes(p.conf)).map(([k, p]) => [k, p.conf])) };
+    if (SCR.hasDuplicate({ name: row.name, source: row.threat_source, assets: row.assets }, ws)) continue;
+    ids.push(SCR.addCandidate({ name: row.name, source: row.threat_source, vuln: row.vulns, assets: row.assets, consequence: row.statement || row.consequence, ref: 'consultant', status: 'Candidate',
+      note: MARK + (out.model ? ' Proposed by the Virtual consultant (' + out.model + ', ' + today() + ').' : '') + (s.seed ? ' Prompted by feed item ' + s.seed : ''), strategy: ['TD'], draft: SCR.draftFromRow(row) }, ws));
     n++;
   }
   touch();
-  if (out.entryId || out.logId) AI.decide(out.entryId || out.logId, 'accepted', `${n} candidate(s) sent to Batch scenarios`);
+  if (out.entryId || out.logId) AI.decide(out.entryId || out.logId, 'pending', `${n} candidate(s) sent to Scenario screening for review${ids.length ? ' (' + ids.join(', ') + ')' : ''}`);
   return n;
 }

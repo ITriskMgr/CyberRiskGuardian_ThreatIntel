@@ -23,7 +23,10 @@ export function lifecycle(p) {
         const who = window.prompt(tr(to === 'review' ? 'Your name (who submits this version for review)' : 'Name of the approver'), to === 'approved' ? (p.approver || '') : (p.owner || ''));
         if (who === null) return;
         by = who.trim() || (to === 'approved' ? p.approver || '' : '');
+        // 1.9.2 (NV-020, X-5): an approval needs a named approver (isp.js refuses it too)
+        if (to === 'approved' && !by) throw new Error(tr('Approval needs the name of the approver: no policy version is approved and frozen without a named person.'));
       }
+      if (to === 'approved' && !String(by || '').trim()) throw new Error(tr('Approval needs the name of the approver: no policy version is approved and frozen without a named person.'));
       const note = ['approved', 'retired', 'draft'].includes(to) ? (window.prompt(tr('Note for the history (optional)'), '') ?? null) : '';
       if (note === null) return;
       let e;

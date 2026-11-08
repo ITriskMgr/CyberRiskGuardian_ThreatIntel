@@ -236,6 +236,6 @@ export function toBatchRow(c) {
   }
   return { pick: true, hubRow: true, name: c.title + ' [Registry]', statement: c.statement, threat_source: c.chain?.threat_source || '', assets: c.chain?.assets || '', vulns: c.chain?.weakness || '',
     attack: (c.catalog?.attack || []).filter(t => /^T\d{4}/.test(t)), cwe: c.cwe || [], cves: [], params, rat, conf, cvss: c.cvss || '', cvss_score: null,
-    cvss_note: 'CVSS of the contributing organization — check it for yours.', red_p: Number(c.red_p) || 0.5, red_i: Number(c.red_i) || 0.5, owner: '', pattern: 'registry',
+    cvss_note: 'CVSS of the contributing organization — check it for yours.', red_p: Number(c.red_p) || 0, red_i: Number(c.red_i) || 0, owner: '', pattern: 'registry',   // 1.9.2 (NV-001): a missing reduction is 0, and a contributed 0 stays 0
     ...(c.crgo ? { crgo: { id: c.crgo, themes: c.catalog?.themes || [], asset_categories: c.catalog?.asset_categories || [], threat_source_types: c.catalog?.threat_source_types || [], controls: c.catalog?.controls || [], obligations: [], basis: null, imported: today() } } : {}) };
 }

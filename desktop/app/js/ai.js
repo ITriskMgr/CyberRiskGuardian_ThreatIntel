@@ -53,6 +53,8 @@ export const FEATURES = [
   // 1.9.0 — AI forecasting
   ['exploit_forecast', 'Exploitation forecast (Forecasts)', 'Registered CVE identifiers with products, exposure, EPSS history, KEV status and feed headlines', 'high', 'local'],
   ['mitigation_optimizer', 'Mitigation optimizer — cost and effect proposals (Forecasts)', 'Initiatives with costs and timing, the scenarios they treat with their reductions and tolerance ratios', 'high', 'local'],
+  // 1.9.2 (C5) — screening scores proposed for review (screenai.js)
+  ['screening_scores', 'Screening scores (Scenario screening)', 'Organization profile and the one-line causal chain of each candidate scenario', 'medium', 'workspace'],
 ];
 export const MODES = [['workspace', 'Workspace provider'], ['local', 'Local model only'], ['remote', 'Remote provider'], ['off', 'Off']];
 export const DEFAULT_POLICY = { remote_allowed: true, web_search: true, tasks: Object.fromEntries(FEATURES.map(f => [f[0], f[4]])) };

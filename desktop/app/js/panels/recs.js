@@ -111,6 +111,14 @@ function scenarios(body, sec) {
 function shared(body) {
   const R = compute();
   const inc = new Set(R.inc.map(r => r.id)), rowBy = Object.fromEntries(R.rows.map(r => [r.id, r]));
+  // 1.9.2 (NV-031) — step 13 lands here: when there is no initiative yet, the action is to create them from the measures
+  const pending = (S.ws.measures || []).filter(m => m.status !== 'rejected' && !m.initId && (m.scen || []).length);
+  if (!(S.ws.assessment.INITIATIVES || []).length || pending.length) body.append(banner(initiatives().length ? 'warn' : 'bad', 'Process step 13 — initiatives',
+    el('div', null, el('div', null, initiatives().length ? tr('{0} measure(s) have no initiative yet. An initiative is what Budget, Recommendations and the Excel export fund; a shared control is counted once across the scenarios it addresses.').replace('{0}', pending.length)
+        : tr('No initiative yet: this screen ranks initiatives shared across scenarios, so it has nothing to show. Create them from the measures of Risk mitigation — one initiative per measure, carrying its scenarios, owner and costs — or from a measure’s “→ Initiative”.')),
+      el('div', 'btnrow', { style: { marginTop: '8px' } },
+        pending.length ? el('button', { class: 'btn sm', id: 'shared-create-inits', onclick: () => { const ids = pending.map(m => K.toInitiative(m)); touch(); toast(tr('{0} initiative(s) created from the measures').replace('{0}', ids.length)); } }, tr('Create initiatives from the measures ({0})').replace('{0}', pending.length)) : null,
+        el('button', { class: 'btn sm ghost', onclick: () => go('mitigation') }, 'Open Risk mitigation')))));
   const its = initiatives().map(i => {
     const sc = i.scenarios.filter(x => inc.has(x));
     const gain = sc.reduce((s, id) => s + (rowBy[id]?.mit || 0) / Math.max(1, (rowBy[id]?.s.inits || []).length || 1), 0);
@@ -433,18 +441,25 @@ function detail(body, sec, r) {
   const missing = REC.incomplete(r, ws);
   if (missing.length && !frozen) c7.append(banner('warn', 'Not ready for approval',
     'Still needed: ' + missing.join('; ') + '.'));
-  const by = input({ placeholder: 'Your name', style: { maxWidth: '180px' }, value: users.name() });
+  const by = input({ placeholder: 'Your name (required to approve)', style: { maxWidth: '200px' }, value: users.name(), id: 'rec-by', 'aria-label': 'Your name' });
   const rn = el('input', { placeholder: 'Note for the record', style: { flex: 1 } });
   const bar = el('div', 'row', { style: { marginTop: '8px' } }, by, rn);
+  const refused = el('div');
   for (const to of REC.allowed(r.status)) {
     bar.append(el('button', { class: 'btn sm ' + (to === 'approved' ? '' : 'ghost'), onclick: () => {
-      try { REC.transition(r, to, { by: by.value, note: rn.value, ws }); redraw(); toast(`${r.code} → ${REC.STATUS_LABEL[to]}`); }
-      catch (err) { body.append(banner('bad', 'That change was refused', String(err.message || err))); }
+      // 1.9.2 (decided item 22, X-5): approval needs a named approver; recommend.js refuses it too
+      if (to === 'approved' && !by.value.trim()) { refused.replaceChildren(banner('bad', 'Name the approver', 'No recommendation is recorded as approved without a named person: type your name first.')); by.focus(); return; }
+      try { REC.transition(r, to, { by: by.value.trim(), note: rn.value, ws }); redraw(); toast(`${r.code} → ${REC.STATUS_LABEL[to]}`); }
+      catch (err) { refused.replaceChildren(banner('bad', 'That change was refused', String(err.message || err))); }
     } }, '→ ' + REC.STATUS_LABEL[to]));
   }
+  if (r.status === 'draft' || r.status === 'in-review') c7.append(el('p', 'small muted', 'Approval freezes the figures with the approver’s name and the date; the quality review (QC-02) checks that every approved recommendation names its approver.'));
   if (frozen) bar.append(el('button', { class: 'btn sm ghost', onclick: () => {
     REC.amend(r, { by: by.value, note: rn.value || 'edited' }); redraw(); toast(`${r.code} amended as v${r.version}`); } }, 'Record an amendment'));
-  c7.append(bar);
+  c7.append(bar, refused);
+  // 1.9.2 (decided item 23) — frozen figures recomputed by the 1.9.2 data migration keep the earlier ones beside them
+  if (r.approved?.recomputed) c7.append(banner('warn', 'Frozen figures recomputed (decided item 23)',
+    tr('The figures frozen at approval under the earlier rule showed a reduction of {0}; the decided rule — residual without this recommendation’s own measures minus residual with them, whatever their status — gives {1}. Recomputed on {2}; the earlier figures are kept in the history.').replace('{0}', n0(r.approved.recomputed.previous?.reduction || 0)).replace('{1}', n0(r.approved.reduction)).replace('{2}', r.approved.recomputed.at)));
 
   if (r.status === 'in-implementation' || r.status === 'completed') {
     const pc = el('input', { type: 'number', min: 0, max: 100, step: 5, value: r.tracking.percent });

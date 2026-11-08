@@ -72,7 +72,7 @@ function makeRow(p, asset, src) {
     pick: true, name: `${p.name} — ${asset}`,
     statement: `A ${srcLabel(src).toLowerCase()} ${p.attack.length ? 'uses ' + p.attack.slice(0, 3).map(t => techName(t).toLowerCase()).join(', ') : 'event'}, exploiting ${p.weak}, to affect ${asset}, resulting in ${consq}.`,
     threat_source: srcLabel(src), assets: asset, vulns: p.weak, attack: p.attack.slice(), cwe: p.cwe.slice(),
-    params: Object.fromEntries(PARAMS.map((k, i) => [k, p.p[i]])), cvss: p.cvss, cvss_score: p.cvss_score ?? null, cvss_note: p.note || '', red_p: 0.6, red_i: 0.6, owner: '', pattern: p.key,
+    params: Object.fromEntries(PARAMS.map((k, i) => [k, p.p[i]])), cvss: p.cvss, cvss_score: p.cvss_score ?? null, cvss_note: p.note || '', red_p: 0, red_i: 0, owner: '', pattern: p.key,
     cves: (p.cves || []).slice(), rat: p.rat || {}, ...(p.scenPattern ? { scenPattern: p.scenPattern } : {}),
   };
 }
@@ -178,6 +178,8 @@ function generator(top, drawGrid) {
         (c.sources > 1 ? ` and ${c.sources} threat sources` : '') +
         `; the most frequent pattern is ${Math.round(c.topPatternShare * 100)}% of the set.`) : null,
       k > 80 ? el('div', 'small muted', 'That is a lot: the methodology suggests about 25 to 40 candidates for a portfolio of ten, then the 10 most material — and more as the organization\u2019s maturity grows.') : null,
+      // 1.9.2 (NV-034) — fewer combinations than asked: say so, rather than generating silently fewer
+      n < sel.n ? el('div', 'small', { style: { color: 'var(--warn)' } }, tr('Only {0} combination(s) exist for {1} asked: tick more patterns, assets or threat sources to generate more. Clicking again adds nothing: a combination already in the grid is skipped.').replace('{0}', n).replace('{1}', sel.n)) : null,
       k > 0 && k < 20 ? el('div', 'small muted', 'Fewer than 20 candidates: the method asks for at least 20 (about 25 to 40 for a portfolio of ten).') : null);
   }
   count();
@@ -195,7 +197,13 @@ function generator(top, drawGrid) {
               g.measured ? `${g.n} (measured maturity)` : `${g.n} (to begin with)`); })()),
         spreadRow, info,
         el('div', 'btnrow', { style: { marginTop: '12px' } },
-          el('button', { class: 'btn', onclick: () => { const c = take(); for (const [p, a, s] of c) draft().push(makeRow(p, a, s)); touch(); drawGrid(); toast(c.length + ' candidates added to the grid'); } }, 'Generate candidates'),
+          el('button', { class: 'btn', onclick: () => {
+            // 1.9.2 (NV-034) — a combination already in the grid (same pattern, asset and source) is not added twice
+            const have = new Set(draft().map(r => `${r.pattern}|${r.assets}|${r.threat_source}`));
+            const c = take(), fresh = c.filter(([p, a, s]) => !have.has(`${p.key}|${a}|${srcLabel(s)}`));
+            for (const [p, a, s] of fresh) draft().push(makeRow(p, a, s));
+            touch(); drawGrid();
+            toast(fresh.length === c.length ? c.length + ' candidates added to the grid' : tr('{0} added to the grid; {1} already there (same pattern, asset and source) skipped').replace('{0}', fresh.length).replace('{1}', c.length - fresh.length), fresh.length ? 'good' : 'warn'); } }, 'Generate candidates'),
           el('button', { class: 'btn ghost', onclick: () => { ws.batchSeed = newSeed(); touch(); seedOut.textContent = String(ws.batchSeed); count(); toast('A different set of candidates — seed ' + ws.batchSeed); } }, 'Reshuffle'))))));
 }
 
@@ -241,21 +249,25 @@ function aiProposer(top, drawGrid) {
       let parsed;
       try { parsed = AI.parseJson(out.text); } catch (e) { toast(tr('The answer was not machine-readable: ') + e.message, 'bad'); return; }
       const list = parsed.scenarios || [];
-      const cl = v => Math.max(0.01, Math.min(1, Number(v) || 0.5));
+      // 1.9.2 (NV-065) — a proposed 0 stays 0; only a missing or non-numeric value falls back to the neutral 0.5, and the
+      // fallback is marked (confidence Low, rationale says so). AI rows enter the grid unticked: nothing is added by default.
+      const num = v => { const x = Number(v && typeof v === 'object' ? v.v : v); return Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : null; };
       for (const sc of list) {
         const P = sc.params || {};
-        draft().push({ pick: true, ai: true, name: (sc.name || 'AI candidate') + ' [AI]', statement: sc.statement || '', threat_source: sc.threat_source || '', assets: sc.asset || '',
+        const vals = Object.fromEntries(PARAMS.map(k => [k, num(P[k]?.v ?? P[k])]));
+        const defaulted = PARAMS.filter(k => vals[k] === null || (k === 'Th' && vals[k] === 0));
+        draft().push({ pick: false, ai: true, name: (sc.name || 'AI candidate') + ' [AI]', statement: sc.statement || '', threat_source: sc.threat_source || '', assets: sc.asset || '',
           vulns: sc.vulnerability || '', attack: Array.isArray(sc.attack) ? sc.attack.filter(t => /^T\d{4}/.test(t)) : [], cwe: [], cves: [],
-          params: Object.fromEntries(PARAMS.map(k => [k, cl(P[k]?.v)])), cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N', cvss_score: null,
-          cvss_note: 'Default vector for an AI-proposed candidate — set the vector in the scenario editor.', red_p: 0.6, red_i: 0.6, owner: '', pattern: 'ai',
+          params: Object.fromEntries(PARAMS.map(k => [k, defaulted.includes(k) ? 0.5 : vals[k]])), cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N', cvss_score: null,
+          cvss_note: 'Default vector for an AI-proposed candidate — set the vector in the scenario editor.', red_p: 0, red_i: 0, owner: '', pattern: 'ai',
           ...(PAT.valid(sc.pattern) ? { scenPattern: PAT.valid(sc.pattern) } : {}),   // 1.9.0 — a CRGO 0.11 scenario pattern, checked against the six
-          rat: Object.fromEntries(PARAMS.map(k => [k, (P[k]?.why ? 'AI: ' + P[k].why : 'AI-proposed') + ' — analytical estimate, validation required.'])),
-          conf: Object.fromEntries(PARAMS.map(k => [k, ['High', 'Medium', 'Low'].includes(P[k]?.conf) ? P[k].conf : 'Low'])) });
+          rat: Object.fromEntries(PARAMS.map(k => [k, defaulted.includes(k) ? 'AI-proposed — no usable value returned; neutral 0.5 put in its place — analytical estimate, validation required.' : (P[k]?.why ? 'AI: ' + P[k].why : 'AI-proposed') + ' — analytical estimate, validation required.'])),
+          conf: Object.fromEntries(PARAMS.map(k => [k, !defaulted.includes(k) && ['High', 'Medium', 'Low'].includes(P[k]?.conf) ? P[k].conf : 'Low'])) });
         const sd = seedMap.get(String(sc.seed || ''));
         if (sd) Object.assign(draft()[draft().length - 1], { seed: sd.id, seedKind: sd.kind, tlp: sd.tlp, secopsEv: sd.evidence.map(e => ({ kind: e.kind, id: e.id, date: e.date || '', tlp: e.tlp || '' })) });
       }
       AI.decide(out.entryId, 'pending', `${list.length} candidate(s) placed in the batch grid for review`);
-      touch(); drawGrid(); toast(list.length + ' ' + tr('AI candidates added to the grid — review them before adding to the register'));
+      touch(); drawGrid(); toast(list.length + ' ' + tr('AI candidates added to the grid, unticked — review and tick the ones to keep before adding them'));
     } }, 'Propose candidates'))));
 }
 
@@ -265,7 +277,7 @@ function csv(top, drawGrid) {
   const fileIn = el('input', { type: 'file', accept: '.csv,.tsv,.txt', style: { display: 'none' } });
   fileIn.addEventListener('change', async () => { ta.value = await fileIn.files[0].text(); });
   const msg = el('div');
-  top.append(card(el('p', 'note', 'First row = column names. Recognized columns: ' + CSV_COLS.join(', ') + '. Lists (attack, cwe, cves, vulns) use ";" separators. Missing parameters default to 0.5 and are flagged.'),
+  top.append(card(el('p', 'note', 'First row = column names. Recognized columns: ' + CSV_COLS.join(', ') + '. Lists (attack, cwe, cves, vulns) use ";" separators. Missing parameters default to 0.5 and are flagged; missing reductions are 0 (no treatment yet).'),
     ta, el('div', 'btnrow', { style: { marginTop: '10px' } },
       el('button', { class: 'btn', onclick: () => {
         const rows = parseCSV(ta.value); if (rows.length < 2) { msg.replaceChildren(banner('warn', 'Nothing to import', 'Paste a header row and at least one scenario row.')); return; }
@@ -279,7 +291,7 @@ function csv(top, drawGrid) {
           draft().push({ pick: true, name: g('name'), statement: g('statement'), threat_source: g('threat_source'), assets: g('assets'), vulns: list('vulns').join('; '),
             attack: list('attack'), cwe: list('cwe').map(x => /^\d+$/.test(x) ? 'CWE-' + x : x.toUpperCase()), cves: list('cves').map(x => x.toUpperCase()),
             params: Object.fromEntries(PARAMS.map(k => [k, num(k, 0.5)])), cvss: g('cvss'), cvss_score: /^CVSS/i.test(g('cvss')) ? null : (parseFloat(g('cvss')) || null),
-            red_p: num('red_p', 0.5), red_i: num('red_i', 0.5), owner: g('owner'), horizon: g('horizon'), pattern: 'csv' });
+            red_p: num('red_p', 0), red_i: num('red_i', 0), owner: g('owner'), horizon: g('horizon'), pattern: 'csv' });
           n++;
         }
         touch(); drawGrid(); msg.replaceChildren(banner('good', n + ' rows added to the grid', 'Review them below before adding to the register.'));
@@ -317,6 +329,10 @@ function renderGrid(box, redraw) {
   });
   t.append(tb);
   const picked = rows.filter(r => r.pick);
+  // 1.9.2 (C4) — where this grid stands in step 5: rows here count for nothing until they are screening candidates
+  const nC = SCR.distinctCount(S.ws);
+  box.append(banner(nC >= 20 ? 'good' : 'warn', tr('Process step 5 — {0} of 20 distinct candidates in the screening').replace('{0}', nC),
+    tr('The rows below are a draft. “Add the ticked rows as screening candidates” makes them candidates of Scenario screening — that is what step 5 counts (a row identical to an existing candidate is skipped). “Add … to the register” bypasses the screening: use it for scenarios already selected.')));
   box.append(card(el('h2', null, `Review grid — ${rows.length} candidates, ${picked.length} selected`),
     el('div', 'tablewrap', t),
     el('div', 'btnrow', { style: { marginTop: '12px' } },
@@ -332,13 +348,17 @@ function renderGrid(box, redraw) {
 const STRATEGY_OF = { gen: 'BU', ai: 'TD', attack: 'TH', cve: 'TH', cwe: 'BU', secops: 'BU', csv: 'GL', blank: '' };
 function toScreening(redraw) {
   const rows = draft(), keep = [], ids = [];
+  let dup = 0;
   for (const r of rows) {
     if (!r.pick) { keep.push(r); continue; }
-    ids.push(SCR.addCandidate({ name: r.name || '', source: r.threat_source || '', vuln: r.vulns || '', assets: r.assets || '', consequence: r.statement || '', ref: r.pattern || '', status: 'Candidate',
-      note: r.cvss_note || '', strategy: r.pattern ? [r.pattern.startsWith('custom-') ? 'TH' : 'BU'] : (STRATEGY_OF[mode] ? [STRATEGY_OF[mode]] : []) }));
+    const o = { name: r.name || '', source: r.threat_source || '', assets: r.assets || '' };
+    if (SCR.hasDuplicate(o, S.ws)) { dup++; continue; }   // 1.9.2 (NV-034) — the same candidate is not added twice
+    // 1.9.2 (decided item 20) — the row's parameters, vector, links and chain travel with the candidate as its draft
+    ids.push(SCR.addCandidate({ ...o, vuln: Array.isArray(r.vulns) ? r.vulns.join('; ') : (r.vulns || ''), consequence: r.statement || '', ref: r.pattern || '', status: 'Candidate',
+      note: r.cvss_note || '', strategy: r.pattern ? [r.pattern.startsWith('custom-') ? 'TH' : 'BU'] : (STRATEGY_OF[mode] ? [STRATEGY_OF[mode]] : []), draft: SCR.draftFromRow(r) }));
   }
   S.ws.batchDraft = keep; touch(); redraw();
-  toast(tr('{0} candidate(s) added to the screening').replace('{0}', ids.length));
+  toast(dup ? tr('{0} candidate(s) added to the screening; {1} identical to existing candidates skipped').replace('{0}', ids.length).replace('{1}', dup) : tr('{0} candidate(s) added to the screening').replace('{0}', ids.length), ids.length ? 'good' : 'warn');
   go('screening/candidates');
 }
 
@@ -355,7 +375,9 @@ function commit(redraw) {
     if (r.crgo) s.crgo = structuredClone(r.crgo);              // 1.5.7 — ontology keys, controls and obligations travel with it
     if (PAT.valid(r.scenPattern)) s.scenPattern = PAT.valid(r.scenPattern);   // 1.9.0 — CRGO 'has scenario pattern'
     for (const k of PARAMS) s.params[k] = { v: Number(r.params[k]), qual: '', rat: (r.rat && r.rat[k]) || 'Batch default — analytical estimate, validation required.', ev: (r.rat && r.rat[k + '_ev']) || '', conf: (r.conf && r.conf[k]) || 'Low' };
-    if (r.cvss) s.cvss = r.cvss; else if (r.cvss_score !== null && r.cvss_score !== undefined && r.cvss_score !== '') { s.cvss_score = Number(r.cvss_score); }
+    if (r.cvss) { s.cvss = r.cvss; s.vector_source = 'pattern'; s.vector_ref = r.cvss; }   // 1.9.2 (NV-002) — a pattern's vector, to confirm in the editor
+    else if (r.cvss_score !== null && r.cvss_score !== undefined && r.cvss_score !== '') { s.cvss_score = Number(r.cvss_score); s.vector_source = 'pattern'; s.vector_ref = s.cvss; }
+    if (s.red_p > 0 || s.red_i > 0) s.red_source = { kind: 'batch', date: today(), cause: 'set on the batch row' };   // 1.9.2 (NV-001) — an entry, not a default
     a.SCEN.push(s); added.push(s.id);
   }
   S.ws.batchDraft = keep; touch();
