@@ -161,6 +161,7 @@ export function smallLocalWarnings(ws = S.ws) {
     const r = route(id, ws);
     if (!r.provider || !isLocal(r.provider)) continue;
     const model = helper.HS.ai?.models?.[r.provider] || '';
+    if (!model) continue;                      // nothing configured yet: the route table already says the feature cannot run
     const size = modelSizeB(model);
     if (size !== null && size >= LOCAL_MIN_B) continue;
     out.push({ id, label, provider: r.provider, model, size, why: SMALL_MODEL_FEATURES[id] });

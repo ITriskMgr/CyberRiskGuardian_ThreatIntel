@@ -546,6 +546,14 @@ def ai_models(provider, cfg):
     """Ask the endpoint what it serves. Nothing is hardcoded, and a provider whose list endpoint is
     unavailable is not a dead end: Settings always lets the model be typed in."""
     p = ai_provider(provider, cfg)
+    mock = os.environ.get("CRG_AI_MOCK")
+    if mock:                                            # test suite only: "<mock>/models.json" is the endpoint's list
+        try:
+            with open(os.path.join(mock, "models.json"), encoding="utf-8") as fh:
+                items = json.load(fh)
+            return [{"id": m["id"], "name": m.get("name") or m["id"]} for m in items if isinstance(m, dict) and m.get("id")]
+        except (OSError, ValueError):
+            raise RuntimeError("The mock endpoint offers no model list.") from None
     key = _ai_key(cfg, provider)
     proto = p.get("protocol")
     if _ai_requires_key(p) and not key:
