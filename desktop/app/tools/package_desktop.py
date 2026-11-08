@@ -7,8 +7,10 @@ What it does
   1. copies desktop/app into a temporary folder (without tests, caches, hidden files and the packaged zips);
   2. writes the edition into js/edition.js of that copy (the source tree stays the community edition);
   3. for the commercial edition, strips the CIS Controls v8.1 titles and the CRGO paraphrased safeguard labels from
-     js/data/controls.js in that copy — the package then carries CIS identifiers only, until CIS approves the titles
-     in a paid product (the Community and Educational editions keep the titles with the CIS notice);
+     js/data/controls.js in that copy, and the 18 CIS control titles from tools/build_controls.py — the package then
+     carries CIS identifiers only (checked over every text file of the copy; data/crgo-snapshot.json holds CRGO's own
+     paraphrases, never CIS text), until CIS approves the titles in a paid product (the Community and Educational
+     editions keep the titles with the CIS notice);
   4. writes CyberRiskGuardian_Desktop_v<version>-<channel>[-<edition>].zip and its .sha256 next to it (PUBLISHING.md §4).
   The community zip keeps the historical name (no edition suffix), so the update check and its SHA-256 file are unchanged.
   As every release since 1.9.0, the zip unpacks into one folder named like the zip (the guides say
@@ -84,6 +86,29 @@ def strip_cis(dst):
     leaks = [r for r in check["controls"] if r[0] == fi and not (r[2].startswith("CIS ") or r[2].startswith("CIS v8.1 safeguard "))]
     if leaks:
         sys.exit(f"package_desktop: {len(leaks)} CIS rows still carry a title")
+    # 1.9.2 — the maintainer tool that rebuilds controls.js carries the 18 CIS control titles in its CIS81 constant:
+    # in the commercial copy they become identifiers too (the tool then rebuilds identifier-only rows).
+    tp = os.path.join(dst, "tools", "build_controls.py")
+    tsrc = open(tp, encoding="utf-8").read()
+    q = '"' * 3
+    m = re.search(r'^CIS81 = ' + q + r'(.*?)' + q, tsrc, re.S | re.M)
+    titles = [t.split(" ", 1) for t in m.group(1).split("|")]
+    tsrc = tsrc[:m.start()] + 'CIS81 = ' + q + "|".join(f"{i} CIS {i}" for i, _ in titles) + q + '   # commercial edition: identifiers only (D3)' + tsrc[m.end():]
+    open(tp, "w", encoding="utf-8").write(tsrc)
+    # no catalogue, module or tool of the copy may carry a CIS control title beside a CIS reference (the textbook in kb/
+    # cites CIS controls by name as a reference text; data/crgo-snapshot.json holds CRGO's own paraphrases, not CIS text)
+    found = []
+    pats = [(title, re.compile(r"CIS[^\n]{0,80}" + re.escape(title) + r"|" + re.escape(title) + r"[^\n]{0,40}CIS")) for _, title in titles]
+    for sub in ("js", "tools", "help", "engine", "crg_writer", "frameworks"):
+        for root, _, files in os.walk(os.path.join(dst, sub)):
+            for f in files:
+                if f.endswith((".js", ".json", ".py", ".md", ".html", ".txt")):
+                    text = open(os.path.join(root, f), encoding="utf-8", errors="ignore").read()
+                    for title, rx in pats:
+                        if rx.search(text):
+                            found.append((os.path.relpath(os.path.join(root, f), dst), title))
+    if found:
+        sys.exit("package_desktop: CIS control titles remain in the commercial copy: " + "; ".join(f"{f}: {t}" for f, t in found[:8]))
     return n
 
 
