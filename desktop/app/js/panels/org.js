@@ -133,6 +133,12 @@ function profile(body, arg, sec) {
     F('Incident history', B(o, 'incidents', { rows: 3 }), null, 'incidents'),
   )));
 
+  // 1.9.2 (NV-035, Process step 3) — what the assessment covers, what it leaves out, and the perspectives it takes
+  body.append(card(el('h2', null, 'Scope, exclusions and perspectives'), el('div', 'grid g3',
+    F('<b>Scope</b>', B(o, 'scope', { rows: 3, placeholder: 'What the assessment covers — sites, systems, processes, suppliers, the period' }), 'Process step 3. What is in.', 'scope'),
+    F('<b>Exclusions</b>', B(o, 'exclusions', { rows: 3, placeholder: 'What is deliberately left out, and why — or “none”' }), 'What is out, and why; write “none” when nothing is left out.', 'exclusions'),
+    F('<b>Risk perspectives</b>', B(o, 'perspectives', { rows: 3, placeholder: 'Operational, financial, regulatory, reputational, privacy, safety…' }), 'The kinds of consequence the scenarios are judged on.', 'perspectives'))));
+
   const regs = el('div', 'chips');
   const drawRegs = () => regs.replaceChildren(...o.regulations.map((r, i) => chip(r, { onRemove: () => { o.regulations.splice(i, 1); markDirty(); drawRegs(); } })));
   drawRegs();

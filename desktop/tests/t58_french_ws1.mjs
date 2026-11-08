@@ -28,19 +28,19 @@ ok(/Extraire des documents…/.test(pr.card) && /champs de contexte remplis sur 
 ok(/Joyaux de la couronne/.test(pr.card) && /Importer des documents/.test(pr.card), 'its links are in French');
 
 /* ---------------- step 5: the card and the Batch banner ---------------- */
-await page.evaluate(async () => { const st = await import('/js/state.js'); st.S.ws.org = Object.assign(st.S.ws.org, { context: 'c', mission: 'm', services: 's', processes: 'p', systems: 'sy', cloud: 'cl', suppliers: 'su', sensitive: 'se', regulations: ['Loi 25'] }); st.S.ws.assessment.CROWN = [['CJ1', 'TMS'], ['CJ2', 'WMS'], ['CJ3', 'ERP']]; st.S.ws.assessment.EVIDENCE = [['E1', 'x']]; st.S.ws.snapshot = { name: 'x' }; st.S.ws.vulns = [{ id: 'CVE-2024-3400', kind: 'CVE' }]; st.S.ws.appetite_rationale = 'r'; st.S.ws.budget.it_budget = 1000000; st.S.ws.org.materiality = 'm'; st.touch(); });
+await page.evaluate(async () => { const st = await import('/js/state.js'); st.S.ws.org = Object.assign(st.S.ws.org, { context: 'c', mission: 'm', services: 's', processes: 'p', systems: 'sy', cloud: 'cl', suppliers: 'su', sensitive: 'se', regulations: ['Loi 25'] }); st.S.ws.assessment.CROWN = [['CJ1', 'TMS', 'r', 'COO', 'High', 'High', 'High'], ['CJ2', 'WMS', 'r', 'COO', 'High', 'High', 'High'], ['CJ3', 'ERP', 'r', 'CFO', 'High', 'High', 'High']]; st.S.ws.org.scope = 's'; st.S.ws.org.exclusions = 'aucune'; st.S.ws.org.perspectives = 'p'; st.S.ws.assessment.EVIDENCE = [['E1', 'x']]; st.S.ws.snapshot = { name: 'x' }; st.S.ws.vulns = [{ id: 'CVE-2024-3400', kind: 'CVE' }]; st.S.ws.appetite_rationale = 'r'; st.S.ws.budget.it_budget = 1000000; st.S.ws.org.materiality = 'm'; st.touch(); });
 await goto(page, '#/batch', 600); await goto(page, '#/process', 1200);
 const s5 = await text('.next-step');
-ok(/Générer des scénarios candidats|Générer les scénarios candidats/.test(s5) && /1 candidats distincts sur 20/.test(s5) && /1 ligne\(s\) attendent dans la grille/.test(s5) && /Trois façons/.test(s5), 'the step-5 card counts distinct candidates and names the three ways, in French ' + s5.replace(/\s+/g, ' ').slice(0, 160));
-ok(!/Three ways|distinct candidates|Batch grid/.test(s5), 'no English left on the step-5 card');
+ok(/Générer des scénarios candidats|Générer les scénarios candidats/.test(s5) && /20 candidats dans Filtrage des scénarios/.test(s5) && /1 maintenant/.test(s5) && /1 ligne\(s\) attendent dans la grille/.test(s5) && /Ajouter des scénarios du registre comme candidats/.test(s5), 'the step-5 card counts the candidates and names the three ways, in French ' + s5.replace(/\s+/g, ' ').slice(0, 160));
+ok(!/candidates in Scenario|Batch grid|Generate or write/.test(s5), 'no English left on the step-5 card');
 await goto(page, '#/batch', 1000);
 const bb = await page.evaluate(() => [...document.querySelectorAll('#panel-batch .banner')].map(b => b.textContent).join(' | '));
-ok(/Étape 5 du processus — 1 candidats distincts sur 20 au filtrage/.test(bb) && /Les lignes ci-dessous sont une ébauche/.test(bb), 'the Batch banner reads in French: ' + bb.slice(0, 80));
+ok(/Ces lignes ne sont pas encore des candidats/.test(bb) && /1 sur 20 maintenant/.test(bb), 'the Batch banner reads in French: ' + bb.slice(0, 80));
 
 /* ---------------- Candidates & scores ---------------- */
 await goto(page, '#/screening/candidates', 1000);
 const sc = await page.$$eval('#panel-screening button', bs => bs.map(b => b.textContent));
-ok(sc.some(b => /^Ajouter les scénarios du registre comme candidats \(1\)$/.test(b)) && sc.some(b => /^Proposer des notes avec l’IA \(1 non notés\)$/.test(b)), 'C1 and C5 buttons in French ' + sc.filter(b => /registre|IA/.test(b)).join(' · '));
+ok(sc.some(b => /^Ajouter des scénarios du registre comme candidats \(1\)$/.test(b)) && sc.some(b => /^Estimer tous les non notés avec l’IA \(1\)$/.test(b)), 'C1 and C5 buttons in French ' + sc.filter(b => /registre|IA/.test(b)).join(' · '));
 ok(/distincts · trop peu/.test(await text('#panel-screening')), 'the candidate KPI says « distincts »');
 await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr button')][0].click(); }); await page.waitForTimeout(500);
 ok(await page.isVisible('#scr-remove') && (await text('#scr-remove')) === 'Retirer', 'the Remove button reads « Retirer »');
@@ -61,9 +61,9 @@ await page.evaluate(async () => {
 const recId = await page.evaluate(() => window.__rec);
 await goto(page, '#/recs/' + recId, 1000);
 ok((await page.getAttribute('#rec-by', 'placeholder')) === 'Votre nom (requis pour approuver)', 'the approver field placeholder reads in French');
-await page.fill('#rec-by', ''); await page.click('#panel-recs button:has-text("→ Approuvé")'); await page.waitForTimeout(400);
-const ban = await page.evaluate(() => document.querySelector('#panel-recs .banner.bad')?.textContent || '');
-ok(/Nommez l’approbateur/.test(ban) && /personne nommée/.test(ban), 'the refusal reads in French: ' + ban.slice(0, 60));
+await page.fill('#rec-by', ''); await page.waitForTimeout(200);
+const ban = await page.evaluate(() => { const b = [...document.querySelectorAll('#panel-recs button')].find(x => /→ Approuvé/.test(x.textContent)); return { disabled: b?.disabled, title: b?.title || '' }; });
+ok(ban.disabled && /approbateur nommé/.test(ban.title), 'the disabled Approve button explains itself in French: ' + ban.title.slice(0, 60));
 
 /* ---------------- Quality review: new rows ---------------- */
 await goto(page, '#/qc', 1200);
@@ -71,7 +71,7 @@ const qc = await page.evaluate(() => [...document.querySelectorAll('#panel-qc tb
 ok(qc.length === 4 && qc.every(t => /[éèà]/.test(t)) && /paramètres provisoires ou non estimés/.test(qc[0]) && /chaîne causale complète/.test(qc[1]), 'QC-27 to QC-30 titles in French ' + qc.join(' · ').slice(0, 120));
 
 const miss = await page.evaluate(async () => (await import('/js/i18n.js')).missingNow());
-const mine = miss.filter(s => /distinct candidates|Three ways|Propose scores|register’s scenarios|Mark as reviewed|Prerequisites|Extract from the documents|approver|placeholder|Draft carried/.test(s));
+const mine = miss.filter(s => /candidates in Scenario|Estimate all|Estimate with AI|scenarios from the register|Mark as reviewed|Prerequisites|Extract from the documents|approver|placeholder|Draft carried|Scope, exclusions|Confirm the vector/.test(s));
 ok(mine.length === 0, 'none of the new strings shown untranslated: ' + mine.join(' | ').slice(0, 300));
 ok(errors.length === 0, 'no console error: ' + errors.join(' | ').slice(0, 400));
 await browser.close(); done('t58 French of the ws1 items');

@@ -331,8 +331,8 @@ function renderGrid(box, redraw) {
   const picked = rows.filter(r => r.pick);
   // 1.9.2 (C4) — where this grid stands in step 5: rows here count for nothing until they are screening candidates
   const nC = SCR.distinctCount(S.ws);
-  box.append(banner(nC >= 20 ? 'good' : 'warn', tr('Process step 5 — {0} of 20 distinct candidates in the screening').replace('{0}', nC),
-    tr('The rows below are a draft. “Add the ticked rows as screening candidates” makes them candidates of Scenario screening — that is what step 5 counts (a row identical to an existing candidate is skipped). “Add … to the register” bypasses the screening: use it for scenarios already selected.')));
+  box.append(banner(nC >= 20 ? 'good' : 'warn', tr('These rows are not candidates yet — tick them and click Add the ticked rows as screening candidates'),
+    tr('Process step 5 counts the candidates of Scenario screening: {0} of 20 now. The rows below are a draft; “Add the ticked rows as screening candidates” makes them candidates (a row identical to an existing candidate is skipped). “Add … to the register” bypasses the screening: use it for scenarios already selected.').replace('{0}', nC)));
   box.append(card(el('h2', null, `Review grid — ${rows.length} candidates, ${picked.length} selected`),
     el('div', 'tablewrap', t),
     el('div', 'btnrow', { style: { marginTop: '12px' } },
@@ -358,7 +358,8 @@ function toScreening(redraw) {
       note: r.cvss_note || '', strategy: r.pattern ? [r.pattern.startsWith('custom-') ? 'TH' : 'BU'] : (STRATEGY_OF[mode] ? [STRATEGY_OF[mode]] : []), draft: SCR.draftFromRow(r) }));
   }
   S.ws.batchDraft = keep; touch(); redraw();
-  toast(dup ? tr('{0} candidate(s) added to the screening; {1} identical to existing candidates skipped').replace('{0}', ids.length).replace('{1}', dup) : tr('{0} candidate(s) added to the screening').replace('{0}', ids.length), ids.length ? 'good' : 'warn');
+  const now = SCR.distinctCount(S.ws);
+  toast((dup ? tr('{0} candidate(s) added to the screening; {1} identical to existing candidates skipped').replace('{0}', ids.length).replace('{1}', dup) : tr('{0} candidate(s) added to the screening').replace('{0}', ids.length)) + ' — ' + tr('{0} of 20 for Process step 5').replace('{0}', now), ids.length ? 'good' : 'warn');
   go('screening/candidates');
 }
 

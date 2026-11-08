@@ -448,20 +448,24 @@ function detail(body, sec, r) {
   const rn = el('input', { placeholder: 'Note for the record', style: { flex: 1 } });
   const bar = el('div', 'row', { style: { marginTop: '8px' } }, by, rn);
   const refused = el('div');
+  let approveBtn = null;
   for (const to of REC.allowed(r.status)) {
-    bar.append(el('button', { class: 'btn sm ' + (to === 'approved' ? '' : 'ghost'), onclick: () => {
+    const b = el('button', { class: 'btn sm ' + (to === 'approved' ? '' : 'ghost'), onclick: () => {
       // 1.9.2 (decided item 22, X-5): approval needs a named approver; recommend.js refuses it too
       if (to === 'approved' && !by.value.trim()) { refused.replaceChildren(banner('bad', 'Name the approver', 'No recommendation is recorded as approved without a named person: type your name first.')); by.focus(); return; }
       try { REC.transition(r, to, { by: by.value.trim(), note: rn.value, ws }); redraw(); toast(`${r.code} → ${REC.STATUS_LABEL[to]}`); }
       catch (err) { refused.replaceChildren(banner('bad', 'That change was refused', String(err.message || err))); }
-    } }, '→ ' + tr(REC.STATUS_LABEL[to])));   // 1.9.2 — translated here: the arrow prefix defeats the catalogue lookup
+    } }, '→ ' + tr(REC.STATUS_LABEL[to]));   // 1.9.2 — translated here: the arrow prefix defeats the catalogue lookup
+    if (to === 'approved') { approveBtn = b; b.disabled = !by.value.trim(); b.title = tr('Type your name first: approval needs a named approver'); }   // decided item 22: disabled until a name is typed
+    bar.append(b);
   }
+  if (approveBtn) by.addEventListener('input', () => { approveBtn.disabled = !by.value.trim(); });
   if (r.status === 'draft' || r.status === 'in-review') c7.append(el('p', 'small muted', 'Approval freezes the figures with the approver’s name and the date; the quality review (QC-02) checks that every approved recommendation names its approver.'));
   if (frozen) bar.append(el('button', { class: 'btn sm ghost', onclick: () => {
     REC.amend(r, { by: by.value, note: rn.value || 'edited' }); redraw(); toast(`${r.code} amended as v${r.version}`); } }, 'Record an amendment'));
   c7.append(bar, refused);
   // 1.9.2 (decided item 23) — frozen figures recomputed by the 1.9.2 data migration keep the earlier ones beside them
-  if (r.approved?.recomputed) c7.append(banner('warn', 'Frozen figures recomputed (decided item 23)',
+  if (r.approved?.recomputed) c7.append(banner('warn', tr('Frozen figures recomputed (decided item 23)') + ' — ' + tr('recomputed in 1.9.2 from current measures'),
     tr('The figures frozen at approval under the earlier rule showed a reduction of {0}; the decided rule — residual without this recommendation’s own measures minus residual with them, whatever their status — gives {1}. Recomputed on {2}; the earlier figures are kept in the history.').replace('{0}', n0(r.approved.recomputed.previous?.reduction || 0)).replace('{1}', n0(r.approved.reduction)).replace('{2}', r.approved.recomputed.at)));
 
   if (r.status === 'in-implementation' || r.status === 'completed') {

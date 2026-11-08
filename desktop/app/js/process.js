@@ -5,7 +5,7 @@
    step it belongs to. Status is computed from the workspace by transparent rules.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { S, compute, vectorState } from './state.js';
+import { S, compute, vectorState, initiatives, commitments } from './state.js';
 import { tr } from './i18n.js';
 import * as SCR from './screening.js';
 import * as EQ from './equiv.js';
@@ -47,18 +47,24 @@ export const STEPS = [
     inputs: 'Context documents, management statements, inventories.',
     done: 'At least 8 of the 12 context fields are filled, and there are at least 3 crown jewels or 5 information assets.',
     screens: [['org/profile', 'Profile & appetite'], ['org/crown', 'Crown jewels'], ['assets', 'Information assets'], ['safeguards', 'Existing safeguards'], ['maturity', 'Maturity & resilience']],
-    parts: ws => { const n = CTX.filter(k => filled(ws.org[k])).length, c = (ws.assessment.CROWN || []).length, a = (ws.assets || []).length;
+    parts: ws => { const n = CTX.filter(k => filled(ws.org[k])).length, C = ws.assessment.CROWN || [], c = C.length, a = (ws.assets || []).length, inc = C.filter(r => !crownComplete(r));
       return [{ what: 'At least 8 of the 12 context fields', ok: n >= 8, fix: ['org/profile', 'Profile & appetite'], hint: `${n} of 12.` },
-        { what: 'At least 3 crown jewels or 5 information assets', ok: c >= 3 || a >= 5, fix: ['org/crown', 'Crown jewels'] }]; },
+        { what: 'At least 3 crown jewels or 5 information assets', ok: c >= 3 || a >= 5, fix: ['org/crown', 'Crown jewels'] },
+        // 1.9.2 (NV-035) — the book's crown jewel names its owner and its confidentiality, integrity and availability requirements
+        { what: 'Every crown jewel names its owner and its C/I/A requirements', ok: c > 0 && !inc.length, fix: ['org/crown', 'Crown jewels'], hint: inc.length ? tr('{0} without an owner or a C/I/A rating: {1}.').replace('{0}', inc.length).replace('{1}', inc.map(r => r[0]).slice(0, 6).join(', ')) : c ? '' : tr('No crown jewel yet.') }]; },
     tips: ['Use “Extract from documents” to propose every field, then accept or edit each one and Save.', 'Where a topic has no evidence, write “Information gap — organizational validation required” rather than filling it in.', 'Existing safeguards records the controls already in force — the context the assessment needs for θ and for the budget baseline. It is not the treatment plan.'],
-    status(ws) { const n = CTX.filter(k => filled(ws.org[k])).length, c = (ws.assessment.CROWN || []).length, a = (ws.assets || []).length;
-      const k = [n >= 8, c >= 3 || a >= 5]; return k.every(Boolean) ? 'done' : (n >= 2 || c + a > 0) ? 'partial' : 'todo'; } },
+    status(ws) { const n = CTX.filter(k => filled(ws.org[k])).length, C = ws.assessment.CROWN || [], c = C.length, a = (ws.assets || []).length;
+      const k = [n >= 8, c >= 3 || a >= 5, c > 0 && C.every(crownComplete)]; return k.every(Boolean) ? 'done' : (n >= 2 || c + a > 0) ? 'partial' : 'todo'; } },
   { id: 'scope', n: 3, g: 'context', title: 'Define the scope, the horizon and the threat context',
     purpose: 'What is covered and excluded, the risk perspectives, one 12-month horizon for every estimate, and the dated threat context (ATT&CK, CVE/CWE, KEV/EPSS) the estimates may use.',
     inputs: 'The context, threat feeds, a KEV/EPSS snapshot, scanner exports.',
-    done: 'The assessment period is stated, a threat-context snapshot is loaded and the vulnerability register holds at least one entry.',
+    done: 'The scope, the exclusions and the risk perspectives are written, the assessment period is stated, a threat-context snapshot is loaded and the vulnerability register holds at least one entry.',
     screens: [['org/profile', 'Profile & appetite'], ['threat', 'Threat context'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['threats', 'Threats · ATT&CK'], ['feeds', 'Threat feeds & social']],
     parts: ws => [
+      // 1.9.2 (NV-035) — the book's step 3: what is covered, what is left out, and the perspectives (operational, financial, regulatory…)
+      { what: 'The scope is written (what the assessment covers)', ok: filled(ws.org.scope), fix: ['org/profile', 'Profile & appetite'], hint: 'Profile & appetite → Scope, exclusions and perspectives.' },
+      { what: 'The exclusions are written (or “none”)', ok: filled(ws.org.exclusions), fix: ['org/profile', 'Profile & appetite'], hint: 'What is deliberately left out, and why; write “none” when nothing is.' },
+      { what: 'The risk perspectives are named', ok: filled(ws.org.perspectives), fix: ['org/profile', 'Profile & appetite'], hint: 'Operational, financial, regulatory, reputational, privacy, safety…' },
       { what: 'The assessment period (horizon) is stated', ok: filled(ws.assessment.PERIOD), fix: ['org/profile', 'Profile & appetite'], hint: 'Normally the next 12 months.' },
       { what: 'A threat-context snapshot is loaded', ok: !!ws.snapshot, fix: ['threat', 'Threat context'],
         hint: 'The bundled example works offline; your own snapshot or a KEV + EPSS download is better when you can get one.' },
@@ -68,7 +74,7 @@ export const STEPS = [
     tips: ['Threat context → “Load the bundled example” needs no network at all: it carries the CISA KEV catalogue of its build date and an EPSS table pruned at the ladder’s rung-1 ceiling.',
       'With network: Vulnerabilities → Online sources downloads KEV and EPSS through the helper, then Threat context builds a snapshot from them.',
       'Feed items never change a score: they inform the analyst.'],
-    status(ws) { const k = [filled(ws.assessment.PERIOD), !!ws.snapshot, (ws.vulns || []).length > 0]; return k.every(Boolean) ? 'done' : k.some(Boolean) ? 'partial' : 'todo'; } },
+    status(ws) { const k = [filled(ws.org.scope), filled(ws.org.exclusions), filled(ws.org.perspectives), filled(ws.assessment.PERIOD), !!ws.snapshot, (ws.vulns || []).length > 0]; return k.every(Boolean) ? 'done' : k.some(Boolean) ? 'partial' : 'todo'; } },
   { id: 'appetite', n: 4, g: 'appetite', title: 'Set the risk appetite and the materiality criteria',
     purpose: 'The approved appetite, or an estimate on the CyberRiskGuardian anchors labelled as such, and the materiality criteria it implies for scenario selection.',
     inputs: 'Management statements, regulation, the IT budget.',
@@ -82,14 +88,16 @@ export const STEPS = [
     status(ws) { const ap = Number(ws.assessment.APPETITE); const k = [ap > 0 && ap < 1 && filled(ws.appetite_rationale), Number(ws.budget?.it_budget) > 0, filled(ws.org.materiality)];
       return k.every(Boolean) ? 'done' : k.some(Boolean) ? 'partial' : 'todo'; } },
   { id: 'generate', n: 5, g: 'scenarios', title: 'Generate candidate scenarios',
-    purpose: 'A broad population of one-sentence causal chains — the candidates of the screening — from at least three of the five strategies: top-down, bottom-up, threat-driven, dependency-driven and localized generic. Three ways to add them: generate rows in Batch scenarios and add the ticked rows as candidates; add a candidate by hand in Scenario screening; add the scenarios already in the register as candidates.',
+    purpose: 'Build a list of at least 20 candidate scenarios in Scenario screening. Write them there, or generate them in Batch scenarios and send the ticked rows. Scenarios already in the register count only once you add them as candidates. One-sentence causal chains from at least three of the five strategies: top-down, bottom-up, threat-driven, dependency-driven and localized generic.',
     inputs: 'Steps 1–4, threat intelligence, scenario libraries, the ontology, the register.',
-    done: 'At least 20 distinct candidates in Scenario screening → Candidates & scores (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). Rows in the Batch grid do not count until they are added as candidates.',
+    done: 'At least 20 candidate scenarios in Scenario screening (distinct; about 25 to 40 for a portfolio of ten; 20 is the quick lab version). Rows in the Batch grid and scenarios in the register count only once they are candidates.',
     screens: [['batch', 'Batch scenarios'], ['screening', 'Scenario screening'], ['ontology', 'Ontology · CRGO']],
     parts: ws => { const n = SCR.distinctCount(ws), all = cands(ws).length, grid = (ws.batchDraft || []).length;
-      return [{ what: 'At least 20 distinct candidates', ok: n >= 20, fix: n ? ['screening', 'Scenario screening'] : ['batch', 'Batch scenarios'],
-        hint: tr('{0} of 20 distinct candidates').replace('{0}', n) + (all > n ? ' ' + tr('({0} rows, {1} duplicates not counted)').replace('{0}', all).replace('{1}', all - n) : '') + (grid ? ' · ' + tr('{0} row(s) wait in the Batch grid: tick them and “Add the ticked rows as screening candidates”.').replace('{0}', grid) : '') + ' ' + tr('Three ways: Batch scenarios → Add the ticked rows as screening candidates · Scenario screening → Add a candidate · Scenario screening → Add the register’s scenarios as candidates.') }]; },
-    tips: ['Batch scenarios builds the rows (threat patterns × assets, AI, ATT&CK, CVE, CWE, SIEM & SOAR, CSV); “Add the ticked rows as screening candidates” makes them candidates — the grid itself counts for nothing.', 'The count is of distinct candidates: a row identical to an existing candidate (same name, source and assets) is skipped when added, and duplicates in the list are counted once.', 'Variants of one exposure are expected: they are consolidated into families in step 7, not suppressed now.'],
+      return [{ what: '20 candidates in Scenario screening', ok: n >= 20, fix: n ? ['screening', 'Scenario screening'] : ['batch', 'Batch scenarios'],
+        hint: tr('{0} now').replace('{0}', n) + (all > n ? ' ' + tr('({0} rows, {1} duplicates not counted)').replace('{0}', all).replace('{1}', all - n) : '') + (grid ? ' · ' + tr('{0} row(s) wait in the Batch grid: tick them and “Add the ticked rows as screening candidates”.').replace('{0}', grid) : '') + '.',
+        // 1.9.2 (C4) — the three ways, in order, each with its screen (the Process page draws them as buttons)
+        ways: [['batch', 'Batch scenarios', tr('Generate or write rows, then “Add the ticked rows as screening candidates”')], ['screening', 'Scenario screening', tr('“Add a candidate”, then its chain and scores on the card')], ['screening', 'Add scenarios from the register as candidates', tr('Scenario screening → “Add scenarios from the register as candidates”')]] }]; },
+    tips: ['Top-down: start from the mission and the crown jewels — what would hurt the organization most?', 'Bottom-up: start from the inventory — which asset, system or process could fail or be attacked?', 'Threat-driven: start from the threat landscape — which actors and techniques target this sector (ATT&CK, KEV, feeds)?', 'Dependency-driven: start from the suppliers, platforms and single points of failure the organization relies on.', 'Localized generic: start from a generic library (patterns, CRGO, the register of another case) and localize each item to this organization.', 'Batch scenarios builds the rows (threat patterns × assets, AI, ATT&CK, CVE, CWE, SIEM & SOAR, CSV); “Add the ticked rows as screening candidates” makes them candidates — the grid itself counts for nothing.', 'The count is of distinct candidates: a row identical to an existing candidate (same name, source and assets) is skipped when added, and duplicates in the list are counted once.', 'Variants of one exposure are expected: they are consolidated into families in step 7, not suppressed now.'],
     status(ws) { const n = SCR.distinctCount(ws); return n >= 20 ? 'done' : n > 0 || (ws.batchDraft || []).length ? 'partial' : 'todo'; } },
   { id: 'screen', n: 6, g: 'scenarios', title: 'Screen the candidates',
     purpose: 'Every candidate scored 1 to 5 on twelve criteria with a rationale (total out of 60, a screening aid), mandatory escalation flags, a selection confidence and a disposition.',
@@ -97,7 +105,7 @@ export const STEPS = [
     done: 'Every candidate has its twelve scores and a disposition.',
     screens: [['screening', 'Scenario screening']],
     parts: ws => { const n = cands(ws).length, sc = SCR.scoredCount(ws); return [{ what: 'Every candidate is scored and has a disposition', ok: n > 0 && sc === n, fix: ['screening', 'Scenario screening'], hint: `${sc} of ${n}. ` + tr('Candidates & scores → Score opens the card: twelve scores, a rationale, the flags and a disposition. “Propose scores with AI” drafts them for review; a duplicate gets the disposition Consolidate.') }]; },
-    tips: ['Escalation flags protect severe but improbable scenarios: excluding a flagged scenario is a management decision.', 'Do not rank on CVSS.'],
+    tips: ['Candidates & scores → Score: twelve criteria 1 (very low) to 5 (very high), a one-line rationale, the escalation flags, the selection confidence and a disposition — Select, Consolidate (a variant of another candidate), Consider (explicit review) or Defer.', '“Estimate with AI” drafts the scores of one candidate, “Estimate all unscored” the whole list; proposals count only once you accept them, and evidence strength above 2 needs a cited evidence ID.', 'Escalation flags protect severe but improbable scenarios: excluding a flagged scenario is a management decision.', 'Do not rank on CVSS.'],
     status(ws) { const n = cands(ws).length, sc = SCR.scoredCount(ws); return n && sc === n ? 'done' : sc > 0 ? 'partial' : 'todo'; } },
   { id: 'select', n: 7, g: 'scenarios', title: 'Select the most material scenarios',
     purpose: 'Variants consolidated into families, the selection tested under four weighting schemes, a coverage matrix, a watch list with promotion triggers — and the final portfolio, normally ten.',
@@ -108,18 +116,21 @@ export const STEPS = [
       return [{ what: 'Families are selected for the portfolio', ok: a.selected.length > 0, fix: ['screening/families', 'Families'], hint: `${a.selected.length} selected (normally ten). ` + tr('Families → Add a family, then assign its members from each candidate’s score card (Family); a candidate selected on its own needs no family.') },
         { what: 'Every selection by judgment has a rationale', ok: a.judgmentMissing.length === 0, fix: ['screening/weights', 'Weighting schemes'] },
         { what: 'Every flagged candidate left out is reviewed', ok: a.flaggedUnreviewed.length === 0, fix: ['screening/watch', 'Watch list & plan'] }]; },
-    tips: ['The final ten are chosen for materiality, coverage and decision usefulness — not as the ten highest totals.'],
+    tips: ['Families → Add a family, then assign members from each candidate’s card (Family); Weighting schemes shows the rank of each family under four schemes and marks selections by judgment; Coverage matrix tests for blind spots; Watch list keeps the strongest candidates left out.', 'The final ten are chosen for materiality, coverage and decision usefulness — not as the ten highest totals.'],
     status(ws) { const a = SCR.analysis(ws); if (!a.selected.length) return a.scored ? 'partial' : 'todo'; return a.judgmentMissing.length || a.flaggedUnreviewed.length ? 'partial' : 'done'; } },
   { id: 'scenarios', n: 8, g: 'scenarios', title: 'Develop each selected scenario as a causal chain',
     purpose: 'Threat source → vulnerability → asset or process → event → consequence, with stakeholders, existing controls, the event sequence and the major assumptions.',
     inputs: 'Steps 5–7.',
-    done: 'At least 10 scenarios in the register, and every included scenario names its threat source, vulnerabilities and affected assets.',
+    done: 'At least 10 scenarios in the register, and every included scenario is a complete causal chain: statement, threat source, initiating event, vulnerabilities, affected assets and consequences — with its stakeholders, existing controls and event sequence.',
     screens: [['register', 'Scenario register'], ['scenario', 'Scenario editor'], ['vulns/links', 'Suggest vulnerability links']],
-    parts: ws => { const n = ws.assessment.SCEN.length, inc = scenInc(ws), ch = inc.filter(chainOk).length;
+    parts: ws => { const n = ws.assessment.SCEN.length, inc = scenInc(ws), ch = inc.filter(chainOk).length, full = inc.filter(chainFull), miss = inc.filter(s => !chainFull(s));
       return [{ what: 'At least 10 scenarios in the register', ok: n >= 10, fix: ['register', 'Scenario register'] },
-        { what: 'Every included scenario is a complete causal chain', ok: inc.length > 0 && ch === inc.length, fix: ['scenario', 'Scenario editor'], hint: `${ch} of ${inc.length}.` }]; },
+        { what: 'Every included scenario is a complete causal chain', ok: inc.length > 0 && ch === inc.length, fix: ['scenario', 'Scenario editor'], hint: `${ch} of ${inc.length}.` },
+        // 1.9.2 (NV-035) — the book's chain: initiating event and consequences too, then stakeholders, existing controls and the sequence
+        { what: 'Every included scenario names its initiating event and its consequences', ok: inc.length > 0 && full.length === inc.length, fix: ['scenario', 'Scenario editor'], hint: miss.length ? miss.slice(0, 6).map(s => s.id + ' (' + chainMissing(s).join(', ') + ')').join('; ') : '' },
+        { what: 'Stakeholders, existing controls and the event sequence are recorded', ok: inc.length > 0 && inc.every(chainRich), fix: ['scenario', 'Scenario editor'], optional: true, hint: inc.filter(s => !chainRich(s)).slice(0, 6).map(s => s.id).join(', ') }]; },
     tips: ['A scenario names a causal chain, not just “ransomware”.', 'Vulnerabilities → Suggest links: run the rules (no AI), optionally ask AI, then accept the links that hold.'],
-    status(ws) { const n = ws.assessment.SCEN.length, inc = scenInc(ws), ch = inc.filter(chainOk).length; return n >= 10 && inc.length && ch === inc.length ? 'done' : n > 0 ? 'partial' : 'todo'; } },
+    status(ws) { const n = ws.assessment.SCEN.length, inc = scenInc(ws), ch = inc.filter(chainOk).length; return n >= 10 && inc.length && ch === inc.length && inc.every(chainFull) ? 'done' : n > 0 ? 'partial' : 'todo'; } },
   { id: 'quantify', n: 9, g: 'quant', title: 'Estimate the six parameters',
     purpose: 'Pb(A), Pb(ψ,A), δe, δm, θ and μ(E), each with a rationale, the evidence and a confidence level (High, Medium, Low).',
     inputs: 'Evidence register, threat context, the organization’s controls.',
@@ -140,11 +151,11 @@ export const STEPS = [
       return [{ what: 'Every included scenario has a CVSS score', ok: inc.length > 0 && !bad.length, fix: ['scenario', 'Scenario editor'], hint: bad.length ? bad.map(s => s.id).join(', ') : '' },
         { what: 'Every vector was entered by the analyst, not left at the default', ok: inc.length > 0 && !def.length, fix: ['scenario', 'Scenario editor'],
           hint: def.length ? def.map(s => s.id).join(', ') + ' — ' + tr('still the default vector of a new scenario: score the representative weakness (vector or equivalency) in the editor’s CVSS tab.') : '' },
-        { what: 'Vectors that came with a pattern or a candidate are confirmed', ok: !pat.length, fix: ['scenario', 'Scenario editor'], optional: true,
-          hint: pat.length ? pat.map(s => s.id).join(', ') + ' — ' + tr('the vector of the pattern or candidate the scenario came from: confirm or change it in the editor’s CVSS tab (a changed vector counts as confirmed).') : '' },
+        { what: 'Vectors that came with a pattern or a candidate are confirmed', ok: !pat.length, fix: ['scenario', 'Scenario editor'],
+          hint: pat.length ? pat.map(s => s.id).join(', ') + ' — ' + tr('the vector of the pattern or candidate the scenario came from: confirm it here (one click, recorded) or change it in the editor’s CVSS tab (a changed vector counts as entered).') : '', confirm: pat.map(s => s.id) },
         { what: 'Every score by equivalency is justified metric by metric', ok: !eq.length, fix: ['cvss', 'CVSS v4.0'], hint: eq.map(s => s.id).join(', ') }]; },
     tips: ['CVSS is Base-only; exploitation evidence belongs in Pb(ψ,A).', 'CVSS is a multiplier, never a selection criterion.', 'A new scenario carries a default vector (9.3) so that it computes; it is not a score of anything until you replace it.'],
-    status(ws) { const inc = scenInc(ws); if (!inc.length) return 'todo'; const bad = inc.filter(s => { try { CRG.cvssOf(s); return false; } catch { return true; } }).length, eq = inc.filter(s => EQ.isEquiv(s) && EQ.gaps(s).length).length, def = inc.filter(s => vectorState(s) === 'default').length;
+    status(ws) { const inc = scenInc(ws); if (!inc.length) return 'todo'; const bad = inc.filter(s => { try { CRG.cvssOf(s); return false; } catch { return true; } }).length, eq = inc.filter(s => EQ.isEquiv(s) && EQ.gaps(s).length).length, def = inc.filter(s => vectorState(s) !== 'entered').length;
       return !bad && !eq && !def ? 'done' : 'partial'; } },
   { id: 'evaluate', n: 11, g: 'quant', title: 'Calculate estimated and tolerated risk',
     purpose: 'Estimated and tolerated risk for every scenario with the verified engine; the pre-treatment ratio against tolerance.',
@@ -211,10 +222,18 @@ export const STEPS = [
   { id: 'budget', n: 18, g: 'money', title: 'Calibrate the cybersecurity budget',
     purpose: 'Funding options against the appetite-consistent budget target (best practice: 12% / 7.8% / 4% of IT at appetite 0.30 / 0.50 / 0.70).',
     inputs: 'IT budget, current spend, baseline (run) cost, initiatives.',
-    done: 'The budget year is filled and the initiatives are allocated.',
+    done: 'The budget year is filled (IT budget, baseline) and every initiative is allocated to the budget years with a cost.',
     screens: [['budget', 'Budget']],
-    tips: ['Baseline = what keeps existing security running; new treatment is added to it.', 'A gap to the target is escalated, not reconciled silently.'],
-    status(ws) { const b = ws.budget || {}; const k = [Number(b.it_budget) > 0, Number(b.baseline) > 0, (ws.assessment.INITIATIVES || []).length > 0]; return k.every(Boolean) ? 'done' : k.some(Boolean) ? 'partial' : 'todo'; } },
+    parts: ws => { const b = ws.budget || {}, I = initiatives(ws), un = I.filter(i => !(Number(i.initial) > 0 || Number(i.recurring) > 0));
+      let per = {}; try { per = commitments(ws).per; } catch { /* no budget years yet */ }
+      const years = Object.values(per).filter(v => v > 0).length;
+      return [{ what: 'The total IT budget and the baseline cost are entered', ok: Number(b.it_budget) > 0 && Number(b.baseline) > 0, fix: ['budget', 'Budget'] },
+        { what: 'At least one initiative', ok: I.length > 0, fix: ['budget', 'Budget'], hint: I.length ? '' : tr('Risk mitigation → “→ Initiative”, or Shared controls → “Create initiatives from the measures”.') },
+        // 1.9.2 (NV-035) — allocation: every initiative carries a cost, and the commitments land in at least one budget year
+        { what: 'Every initiative is allocated: a cost, committed to the budget years', ok: I.length > 0 && !un.length && years > 0, fix: ['budget', 'Budget'], hint: un.length ? tr('{0} initiative(s) without a cost: {1}.').replace('{0}', un.length).replace('{1}', un.slice(0, 6).map(i => i.id).join(', ')) : I.length && !years ? tr('No amount committed to a budget year yet (Budget → Initiatives allocated over the years).') : '' }]; },
+    tips: ['Baseline = what keeps existing security running; new treatment is added to it.', 'A gap to the target is escalated, not reconciled silently.', 'Budget → “Initiatives allocated over the years” spreads each initiative over up to three years (automatic, by percentage or by amount).'],
+    status(ws) { const b = ws.budget || {}, I = initiatives(ws); let years = 0; try { years = Object.values(commitments(ws).per).filter(v => v > 0).length; } catch { /* none */ }
+      const k = [Number(b.it_budget) > 0, Number(b.baseline) > 0, I.length > 0, I.length > 0 && I.every(i => Number(i.initial) > 0 || Number(i.recurring) > 0) && years > 0]; return k.every(Boolean) ? 'done' : k.some(Boolean) ? 'partial' : 'todo'; } },
   { id: 'monitor', n: 19, g: 'close', title: 'Define key risk indicators',
     purpose: 'Measured indicators with an owner, a data source, a frequency, a target and warning and critical thresholds, recorded over time — not the computed risk indices.',
     inputs: 'Operational measurements.',
@@ -239,6 +258,13 @@ export const STEPS = [
 ];
 export const CTX = ['context', 'mission', 'services', 'processes', 'systems', 'cloud', 'suppliers', 'sensitive', 'availability', 'maturity', 'incidents', 'regulations'];
 export const chainOk = s => filled(s.statement) && filled(s.threat_source) && filled(s.vulns) && filled(s.assets);
+/** 1.9.2 (NV-035, step 8) — the book's chain adds the initiating event and the consequences; stakeholders, controls and the sequence complete it. */
+const consequencesOk = s => (s.consequences && typeof s.consequences === 'object' && Object.values(s.consequences).some(v => filled(v))) || filled(s.consequence);
+export const chainMissing = s => [[!filled(s.statement), 'statement'], [!filled(s.threat_source), 'threat source'], [!filled(s.threat_event), 'initiating event'], [!filled(s.vulns), 'vulnerabilities'], [!filled(s.assets), 'assets'], [!consequencesOk(s), 'consequences']].filter(x => x[0]).map(x => tr(x[1]));
+export const chainFull = s => chainOk(s) && filled(s.threat_event) && consequencesOk(s);
+export const chainRich = s => filled(s.stakeholders) && filled(s.controls) && filled(s.sequence);
+/** 1.9.2 (NV-035, step 2) — a crown jewel row [id, name, role, owner, C, I, A, …] names its owner and its three ratings. */
+export const crownComplete = r => Array.isArray(r) && filled(r[3]) && filled(r[4]) && filled(r[5]) && filled(r[6]);
 /** 1.9.2 (NV-002, NV-035) — step 9: a parameter counts as estimated when its rationale is written and is not the placeholder
  *  the application wrote at creation, its evidence is named and its confidence is one of the three levels. */
 export const paramEstimated = p => !!p && !MK.isPlaceholder(p.rat) && filled(p.ev) && ['High', 'Medium', 'Low'].includes(p.conf);

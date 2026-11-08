@@ -284,15 +284,15 @@ happens. In multi-user mode each step also shows who is Responsible and Accounta
 | # | Step | Done when | Screens |
 |---|---|---|---|
 | 1 | Build the evidence register | The workspace has an organization name, at least one context document and at least one entry in the evidence register. | Evidence register, Context documents, Import from documents, Workspaces |
-| 2 | Describe the context and identify the crown jewels | At least 8 of the 12 context fields are filled, and there are at least 3 crown jewels or 5 information assets. | Profile & appetite, Crown jewels, Information assets, Existing safeguards, Maturity & resilience |
-| 3 | Define the scope, the horizon and the threat context | The assessment period is stated, a threat-context snapshot is loaded and the vulnerability register holds at least one entry. | Profile & appetite, Threat context, Vulnerabilities · CVE/CWE, Threats · ATT&CK, Threat feeds & social |
+| 2 | Describe the context and identify the crown jewels — every crown jewel with its owner and its C/I/A requirements | At least 8 of the 12 context fields are filled, and there are at least 3 crown jewels or 5 information assets. | Profile & appetite, Crown jewels, Information assets, Existing safeguards, Maturity & resilience |
+| 3 | Define the scope, the horizon and the threat context | The scope, the exclusions and the risk perspectives are written (Profile & appetite), the assessment period is stated, a threat-context snapshot is loaded and the vulnerability register holds at least one entry. | Profile & appetite, Threat context, Vulnerabilities · CVE/CWE, Threats · ATT&CK, Threat feeds & social |
 | 4 | Set the risk appetite and the materiality criteria | The appetite is strictly between 0 and 1 with a rationale, the IT budget is entered and the materiality criteria are written. | Profile & appetite, Budget |
-| 5 | Generate candidate scenarios | At least 20 **distinct** candidates in Scenario screening → Candidates & scores (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). Rows in the Batch grid do not count until they are added as candidates; three ways to add them: Batch scenarios → *Add the ticked rows as screening candidates*, *Add a candidate*, *Add the register’s scenarios as candidates*. | Batch scenarios, Scenario screening, Ontology · CRGO |
+| 5 | Generate candidate scenarios | Build a list of at least 20 candidate scenarios in Scenario screening. Write them there, or generate them in Batch scenarios and send the ticked rows. Scenarios already in the register count only once you add them as candidates. The next-step card reads *20 candidates in Scenario screening — n now* and lists the three ways in order, each with its button: (1) Batch scenarios → generate or write rows → *Add the ticked rows as screening candidates*; (2) Scenario screening → *Add a candidate*; (3) *Add scenarios from the register as candidates*. Distinct candidates are counted (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). | Batch scenarios, Scenario screening, Ontology · CRGO |
 | 6 | Screen the candidates | Every candidate has its twelve scores and a disposition. | Scenario screening |
 | 7 | Select the most material scenarios | At least one family is selected, every judgment-based selection has its rationale, and every flagged exclusion is reviewed. | Families, Weighting schemes, Coverage matrix, Final portfolio |
-| 8 | Develop each selected scenario as a causal chain | At least 10 scenarios in the register, and every included scenario names its threat source, vulnerabilities and affected assets. | Scenario register, Scenario editor, Suggest vulnerability links |
+| 8 | Develop each selected scenario as a causal chain | At least 10 scenarios in the register, and every included scenario is a complete causal chain — statement, threat source, initiating event, vulnerabilities, affected assets and consequences (stakeholders, existing controls and the event sequence listed as optional). | Scenario register, Scenario editor, Suggest vulnerability links |
 | 9 | Estimate the six parameters | 80% of the parameters of the included scenarios are estimated: a rationale that is not the placeholder written at creation, the evidence it rests on (E1, E2…) and a confidence level. | Scenario editor, Forecasts |
-| 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score entered by the analyst (a vector, or a score by equivalency) — not the default vector a new scenario starts with — and every score by equivalency has all its justifications. A vector that came with a batch pattern or a candidate is listed for confirmation (optional). | CVSS v4.0, Scenario editor |
+| 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score entered by the analyst (a vector, or a score by equivalency) — not the default vector a new scenario starts with — and every score by equivalency has all its justifications. A vector that came with a batch pattern or a candidate blocks the step until the analyst confirms it (one click on the Process card, recorded in the scenario's revisions) or changes it. | CVSS v4.0, Scenario editor |
 | 11 | Calculate estimated and tolerated risk | The included scenarios compute without error. | Risk calculator, Scenario register |
 | 12 | Design mitigation measures | Every scenario above tolerance is covered by at least one measure. | Risk mitigation |
 | 13 | Identify shared controls | At least one initiative funds the measures (Shared controls → *Create initiatives from the measures (n)*, or *→ Initiative* on a measure), and every initiative addresses at least one scenario, so its cost is allocated without double-counting. | Shared controls, Risk mitigation |
@@ -300,7 +300,7 @@ happens. In multi-user mode each step also shows who is Responsible and Accounta
 | 15 | Run the sensitivity analysis | At least one scenario’s sensitivity is recorded as reviewed. | Risk calculator, Forecasts |
 | 16 | Prioritize scenarios and treatments | Every included scenario has a management decision recorded (Recommendations → By scenario). | Recommendations — By scenario, Risk register |
 | 17 | Assemble the investment portfolio | At least one recommendation is approved. | Recommendations, Risk register |
-| 18 | Calibrate the cybersecurity budget | The budget year is filled and the initiatives are allocated. | Budget |
+| 18 | Calibrate the cybersecurity budget | The budget year is filled (IT budget, baseline) and every initiative is allocated: a cost, committed to the budget years (Budget → Initiatives allocated over the years). | Budget |
 | 19 | Define key risk indicators | At least one KRI is fully defined — the scenarios it addresses, its measurement method, data source, owner, frequency, target and thresholds — and at least one measurement is recorded. | KRI dashboard, Forecasts |
 | Report | Management report, quality review and sharing | The management summary has been exported and the quality review shows no failed check. | Management summary, Quality review, Export · Excel, Compliance management, ISP management, Risk Registry, Publish & share |
 
@@ -814,7 +814,10 @@ Import from documents.
 
 **Profile & appetite.** Context, mission, products and services, critical processes and systems,
 cloud, suppliers, sensitive information, availability requirements, controls and maturity, incident
-history and the legal and regulatory obligations. Below them: the **risk appetite** with its rationale,
+history and the legal and regulatory obligations; then **Scope, exclusions and perspectives** — what the
+assessment covers, what it deliberately leaves out (write *none* when nothing is) and the kinds of consequence
+the scenarios are judged on (operational, financial, regulatory, reputational, privacy, safety) — which Process
+step 3 requires. Below them: the **risk appetite** with its rationale,
 the multiplication factor and currency, and the **IT budget**, current cybersecurity spend and baseline
 run cost used by the Budget screen. When management has not approved an appetite, the *appetite
 estimator* suggests one from ticked factors — labelled an analytical estimate, to be validated. **Save**
@@ -1555,20 +1558,26 @@ duplicates the list holds). A good population uses at least three of the five **
 top-down, bottom-up, threat-driven, dependency-driven and localized generic — recorded per candidate.
 
 **Three ways to add candidates** (Process step 5): Batch scenarios → **Add the ticked rows as screening
-candidates**; **Add a candidate** (by hand, then its chain and scores on the card); **Add the register's
-scenarios as candidates (n)**, which turns every scenario of the Scenario register not yet linked to a
-candidate or a family into a candidate row linked to it (the register itself is untouched), so an existing
-portfolio can be screened. **Remove**, on a candidate's card, takes it out with its scores, flags, watch
-entry and family membership after a confirmation, and writes the data log; a member of a family selected for
-the portfolio cannot be removed until it is taken out of the family.
+candidates**; **Add a candidate** (by hand, then its chain and scores on the card); **Add scenarios from the
+register as candidates (n)**, which opens a tick list of the Scenario register's scenarios not yet linked to a
+candidate or a family — the ticked ones become candidate rows linked to their scenario, origin noted,
+duplicates skipped (the register itself is untouched), so an existing portfolio can be screened. **Remove** (× on the row, **Remove** on the card) takes a candidate out with its scores, flags, watch
+entry and family membership after a confirmation naming it, and writes the data log (who, when, id, name); a
+member of a family selected for the portfolio cannot be removed until it is taken out of the family.
 
-**Propose scores with AI (n unscored)** sends the organization context, the twelve criteria and each
-candidate's one-line chain (never a risk parameter) and shows the answer in a review table before anything is
-written: candidates you already scored are unticked, **evidence strength is capped at 3** (4 and 5 mean
-direct organizational evidence the AI has not seen), escalation flags are **only added**, never removed, and
-every card applied is marked *scores proposed by AI* with the model and the date, its rationale starting with
-"AI:" and carrying *Analytical estimate — validation required*. The AI log entry stays pending until you apply
-or dismiss.
+**Estimate all unscored with AI (n)** on the list, and **Estimate with AI** on a candidate's card, send each
+candidate's statement and one-line chain, the organization profile, the crown jewels, the evidence register
+(IDs and titles) and a summary of the dated threat-context snapshot (never a risk parameter), with the usual
+payload preview; *Treat as confidential* and *Anonymize before sending* apply. The answer is a set of
+**proposals** in a review panel: accept a candidate whole or edit criterion by criterion first; **only accepted
+scores count**; your own scores are **never overwritten** — re-estimating a scored candidate keeps the new
+proposal beside its card, where you can read or dismiss it; **evidence strength above 2 needs an evidence ID
+cited in the rationale** (otherwise EV is capped at 2); escalation flags are **only added**, never removed; the
+disposition stays yours. Acceptance is recorded with the name of the person accepting: the card reads
+*AI-proposed, accepted by ‹name› on ‹date›*, its rationale starts with "AI:" and carries *Analytical estimate
+— validation required*, the call is in the AI log, and the screening CSV export carries the mark. The feature
+is routed as *Screening score estimates* (Settings → AI — local & remote); switched off, the buttons disappear.
+No formula, criterion or weighting changes.
 
 **Candidates & scores.** **Score** opens a candidate's card: the twelve criteria scored 1 (very low) to 5
 (very high) — business criticality, asset criticality, threat relevance, exposure or vulnerability,

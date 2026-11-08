@@ -1,5 +1,5 @@
 {"scores":[
- {"id":"C01","scores":[5,5,5,4,5,4,4,3,5,4,4,5],"flags":["PV","ES"],"rationale":"Mock answer: phishing against clinic administrators is the most frequent initial-access path; evidence strength proposed above the cap on purpose.","confidence":"Medium"},
- {"id":"C37","scores":[2,2,3,3,2,1,2,1,2,2,3,2],"flags":[],"rationale":"Mock answer: cryptomining has a low consequence for the mission.","confidence":"Low"},
+ {"id":"C01","scores":[5,5,5,4,5,4,4,3,5,4,4,5],"flags":["PV","ES"],"rationale":"Mock answer: phishing against clinic administrators is the most frequent initial-access path; lures and an approved MFA push are in the injects (E4, E6).","confidence":"Medium"},
+ {"id":"C37","scores":[2,2,3,3,2,1,2,1,4,2,3,2],"flags":[],"rationale":"Mock answer: cryptomining has a low consequence for the mission; evidence strength proposed above the cap with no evidence cited on purpose.","confidence":"Low"},
  {"id":"C99","scores":[3,3,3,3,3,3,3,3,3,3,3,3],"flags":["S"],"rationale":"Mock answer: unknown candidate, must be ignored.","confidence":"Low"}
 ]}

@@ -40,9 +40,11 @@ export function checks(ws = S.ws) {
     wb.length ? tr('{0} proposed, {1} refused (each refusal shown as CRGO returned it).').replace('{0}', wb.filter(w => w.status === 'proposed').length).replace('{1}', wb.filter(w => w.status === 'refused').length) : tr('No write-back yet. Every write-back is built by this application with its version, its inputs and the SHA-256 of the input, and status "proposed".'), 'ontology/link');
   const badDec = (ws.csm?.decisions || []).filter(d => d.outcome !== 'draft' && delegationOk(ws, d));
   // 1.9.2 (decided item 22): the approver is rec.approved.by, written by recommend.js transition(); an empty name fails
-  const recs = (ws.recommendations || []).filter(r => ['approved', 'in-implementation', 'completed'].includes(r.status) && !String(r.approved?.by || '').trim());
+  // A formal recommendation names its approver in approved.by, or in a history entry of the approval (to 'approved', with a by)
+  const namedApprover = r => String(r.approved?.by || '').trim() || (r.history || []).some(h => h.to === 'approved' && String(h.by || '').trim());
+  const recs = (ws.recommendations || []).filter(r => ['approved', 'in-implementation', 'completed'].includes(r.status) && !namedApprover(r));
   add('QC-02', 'No result is called approved unless a person approved it', badDec.length || recs.length ? 'fail' : 'pass',
-    badDec.length || recs.length ? [...badDec.map(d => d.id), ...recs.map(r => (r.code || r.id) + ' (' + tr('approved without a named approver') + ')')].join(', ') : tr('Every decision recorded as made names its decision maker, every approved recommendation its approver; risk acceptances rest on a delegation valid on the decision date.'), recs.length && !badDec.length ? 'recs' : 'csm/decisions');
+    badDec.length || recs.length ? [...badDec.map(d => d.id), ...recs.map(r => (r.code || r.id) + ' (' + tr('approved without a named approver') + ')')].join(', ') : tr('Every decision recorded as made names its decision maker, every approved recommendation its approver; risk acceptances rest on a delegation valid on the decision date.'), recs.length && !badDec.length ? 'recs/' + recs[0].id : 'csm/decisions');   // the fix link opens the recommendation
   const satNoEv = (ws.grc?.determinations || []).filter(d => d.state === 'satisfied' && !(d.evidence || []).length);
   const reqCompliantNoEv = (ws.compliance?.requirements || []).filter(r => r.status === 'compliant' && !String(r.evidence || '').trim());
   add('QC-03', '"Supported by a control" is not called "compliant"', satNoEv.length ? 'fail' : reqCompliantNoEv.length ? 'warn' : 'pass',

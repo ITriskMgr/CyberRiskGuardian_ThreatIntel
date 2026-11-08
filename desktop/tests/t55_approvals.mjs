@@ -58,6 +58,16 @@ ok(r.qcBefore === 'pass' && r.qcAfter === 'pass' && r.by === 'Marc-André Léger
 ok(r.fixed.join() === 'REC-90' && r.again.length === 0, 'a legacy recommendation frozen at 0 is recomputed once at load (idempotent) ' + JSON.stringify([r.fixed, r.again]));
 ok(r.legacy.reduction > 0 && r.legacy.prev === 0 && r.legacy.hist === 'recomputed' && /residual without/.test(r.legacy.rule), 'the earlier figure (0) is kept beside the recomputed one, labelled and in the history ' + JSON.stringify(r.legacy));
 ok(/^fail/.test(r.qcBlank) && /REC-91/.test(r.qcBlank) && /without a named approver/.test(r.qcBlank), 'QC-02 fails an approved recommendation without a named approver: ' + r.qcBlank);
+const q2 = await page.evaluate(async () => {
+  const st = await import('/js/state.js'); const REC = await import('/js/recommend.js'); const QC = await import('/js/panels/qc.js'); const ws = st.S.ws;
+  const h = REC.fromMeasures(['MS-T2'], ws, REC.blank({ code: 'REC-92' }));
+  Object.assign(h, { title: 'History only', objective: 'o', rationale: 'r', success: 's', owner: 'x', status: 'in-implementation', version: 1, approved: { at: '2026-11-07', by: '', reduction: 5, cost: { y1: 1 } }, history: [{ at: '2026-11-07T10:00:00Z', action: 'status', from: 'in-review', to: 'approved', by: 'Alice (CISO)' }] });
+  REC.list(ws).push(h);
+  const c = QC.checks(ws).find(x => x.id === 'QC-02');
+  h.history[0].by = ''; const c2 = QC.checks(ws).find(x => x.id === 'QC-02');
+  REC.list(ws).pop(); return { pass: c.state, failFix: c2.fix, failDetail: c2.detail.slice(0, 40) };
+});
+ok(q2.pass === 'pass' && /^recs\/rec-/.test(q2.failFix) && /REC-92/.test(q2.failDetail), 'QC-02 accepts an approver named in the approval history entry, checks every formal status, and its fix link opens the recommendation ' + JSON.stringify(q2));
 
 /* ---------------- the UI: the approve button needs the name ---------------- */
 await page.evaluate(async () => {
@@ -67,10 +77,10 @@ await page.evaluate(async () => {
 const recId = await page.evaluate(() => window.__recId);
 await goto(page, '#/recs/' + recId, 1000);
 ok(await page.isVisible('#rec-by'), 'the recommendation screen shows the approver field');
-await page.fill('#rec-by', '');
-await page.click('#panel-recs button:has-text("→ Approved")'); await page.waitForTimeout(500);
-const ui = await page.evaluate(async id => { const st = await import('/js/state.js'); const r = st.S.ws.recommendations.find(x => x.id === id); return { status: r.status, banner: document.querySelector('#panel-recs .banner.bad')?.textContent || '' }; }, recId);
-ok(ui.status !== 'approved' && /Name the approver/.test(ui.banner), 'the UI refuses the approval and says to name the approver: ' + ui.banner.slice(0, 60));
+await page.fill('#rec-by', ''); await page.waitForTimeout(200);
+// decided item 22: the Approve button stays disabled until a name is typed
+const ui = await page.evaluate(async id => { const st = await import('/js/state.js'); const r = st.S.ws.recommendations.find(x => x.id === id); const b = [...document.querySelectorAll('#panel-recs button')].find(x => /→ Approved/.test(x.textContent)); return { status: r.status, disabled: b?.disabled, title: b?.title || '' }; }, recId);
+ok(ui.status !== 'approved' && ui.disabled && /named approver/.test(ui.title), 'the Approve button is disabled until the approver is named: ' + ui.title.slice(0, 60));
 await page.fill('#rec-by', 'Marc-André Léger'); await page.click('#panel-recs button:has-text("→ Approved")'); await page.waitForTimeout(600);
 const ui2 = await page.evaluate(async id => { const st = await import('/js/state.js'); const QC = await import('/js/panels/qc.js'); const r = st.S.ws.recommendations.find(x => x.id === id); return { status: r.status, by: r.approved?.by, qc: QC.checks(st.S.ws).find(c => c.id === 'QC-02').state, banner: document.querySelector('#panel-recs .banner.good')?.textContent || '' }; }, recId);
 ok(ui2.status === 'approved' && ui2.by === 'Marc-André Léger' && ui2.qc === 'pass' && /approved .* by Marc-André Léger/.test(ui2.banner), 'approved with the name: approver frozen on the record, QC-02 passes ' + JSON.stringify([ui2.status, ui2.by, ui2.qc]));

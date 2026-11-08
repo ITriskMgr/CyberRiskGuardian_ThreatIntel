@@ -23,7 +23,9 @@ export function emit(what = 'change') { for (const f of listeners) { try { f(wha
 export function blankOrg() {
   return { name: '', context: '', sector: '', size: '', employees: '', region: '', mission: '', services: '', processes: '',
     systems: '', cloud: '', suppliers: '', regulations: [], sensitive: '', availability: '', maturity: '',
-    incidents: '', controls: '', notes: '', materiality: '' };
+    incidents: '', controls: '', notes: '', materiality: '',
+    // 1.9.2 (NV-035, step 3): what the assessment covers and leaves out, and the risk perspectives it takes (book ch. 5)
+    scope: '', exclusions: '', perspectives: '' };
 }
 export function newWorkspace({ name = 'New organization', kind = 'organization', assessment = null, org = null } = {}) {
   const now = new Date().toISOString(), id = uid('ws');
@@ -356,10 +358,20 @@ export const DEFAULT_VECTOR = 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/
  *  'default' is the blank scenario's vector; 'pattern' a batch pattern's or a candidate's starting vector. A vector that
  *  differs from the one recorded at creation (vector_ref) counts as entered. A score by equivalency is an analyst entry. */
 export function vectorState(s) {
-  if (!s || !s.vector_source) return 'entered';
+  if (!s || !s.vector_source || s.vector_source === 'confirmed') return 'entered';
   if (s.cvss !== (s.vector_ref || DEFAULT_VECTOR)) return 'entered';
   if (s.cvss_mode === 'equivalency') return 'entered';
   return s.vector_source;
+}
+
+/** 1.9.2 (NV-002, step 10) — the analyst confirms a vector that came with a pattern or a candidate: one click, recorded in
+ *  the scenario's revisions. The vector itself does not change. */
+export function confirmVector(s, by = '') {
+  if (!s || vectorState(s) === 'entered') return false;
+  const from = s.vector_source;
+  s.vector_source = 'confirmed'; s.vector_confirmed = { date: today(), by: String(by || '').trim(), from };
+  (s.revisions ||= []).push({ date: today(), what: `CVSS vector ${s.cvss} confirmed by the analyst${by ? ' (' + by + ')' : ''} — it came with a ${from === 'pattern' ? 'batch pattern or candidate' : 'new scenario'} (Process step 10)` });
+  return true;
 }
 
 export function blankScenario(id) {

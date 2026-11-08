@@ -89,7 +89,7 @@ export function repairFrozenZeros(ws, { today = new Date().toISOString().slice(0
     try { e = effect(rec, ws, { CRG }); } catch { continue; }
     if (!(e.totals.reduction >= 0.5)) continue;
     const prev = { reduction: rec.approved.reduction, aftRes: rec.approved.aftRes, aftRatio: rec.approved.aftRatio, brought: rec.approved.brought, curRes: rec.approved.curRes, curRatio: rec.approved.curRatio };
-    rec.approved.recomputed = { at: today, previous: prev, by: 'Desktop 1.9.2, data version 6',
+    rec.approved.recomputed = { at: today, previous: prev, by: 'Desktop 1.9.2, data version 6', label: 'recomputed in 1.9.2 from current measures',
       rule: 'reduction = residual without this recommendation’s own measures − residual with them, whatever their status (decided item 23, R-2)' };
     Object.assign(rec.approved, { curRes: e.totals.curRes, aftRes: e.totals.aftRes, curRatio: e.totals.curRatio, aftRatio: e.totals.aftRatio,
       reduction: e.totals.reduction, brought: e.totals.brought });

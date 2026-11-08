@@ -8,7 +8,7 @@ import * as IAM from '../iam.js';
 import * as CM from '../cm.js';
 import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go } from '../util.js';
-import { S, compute, touch } from '../state.js';
+import { S, compute, touch, confirmVector } from '../state.js';
 import * as SCENP from './scenario.js';
 import { STEPS, GROUPS, statuses, nextStep, partsOf, CTX } from '../process.js';
 import * as aiui from '../aiui.js';
@@ -63,7 +63,7 @@ function openScreen(route, stepId) {
    named checks opens its first screen, as before. At the Detailed level the step's tips and the guidelines that use
    its screens are open beside it. In multi-user mode it shows who is Responsible and Accountable. */
 const firstUnmet = ps => (ps ? ps.find(x => !x.ok && !x.optional && x.fix) || ps.find(x => !x.ok && x.fix) || null : null);
-function nextBand(nx, total) {
+function nextBand(nx, total, sec) {
   const ws = S.ws, s = nx.s, ps = partsOf(s, ws), miss = firstUnmet(ps);
   const target = miss ? miss.fix : s.screens[0];
   const others = s.screens.filter(([r]) => r !== target[0]).slice(0, 1);
@@ -72,7 +72,14 @@ function nextBand(nx, total) {
       el('span', { class: 'mark', 'aria-hidden': 'true' }, x.ok ? '✓' : x === miss ? '→' : '◻'),
       el('span', null, el('span', { class: 'sr-only' }, x.ok ? tr('Done:') + ' ' : tr('To do:') + ' '),
         x.ok ? el('span', null, x.what) : el('b', null, x.what), x.optional ? el('span', 'muted', ' ' + tr('(optional)')) : null,
-        !x.ok && x.hint ? el('div', 'hint keep', x.hint) : null)))) : null;
+        !x.ok && x.hint ? el('div', 'hint keep', x.hint) : null,
+        // 1.9.2 (C4) — the three ways of step 5, in order, each with its button
+        !x.ok && x.ways ? el('ol', { class: 'small next-ways', style: { margin: '6px 0 0', paddingLeft: '18px' } }, ...x.ways.map(([r, l, how]) =>
+          el('li', { style: { margin: '2px 0' } }, el('span', null, how), ' ', el('button', { class: 'btn xs ghost', 'data-ro-ok': '', onclick: () => openScreen(r, s.id) }, l)))) : null,
+        // 1.9.2 (NV-002, step 10) — a vector that came with a pattern or a candidate is confirmed here: one click, recorded
+        !x.ok && x.confirm?.length ? el('div', { class: 'small next-confirm', style: { marginTop: '6px' } }, ...x.confirm.map(id => {
+          const sc = ws.assessment.SCEN.find(z => z.id === id);
+          return el('button', { class: 'btn xs ghost', 'data-ro-ok': '', title: sc?.cvss || '', 'data-confirm': id, onclick: () => { if (confirmVector(sc, users.name())) { touch('revision'); toast(tr('Vector of {0} confirmed').replace('{0}', id)); render(sec); } } }, tr('Confirm the vector of {0}').replace('{0}', id)); })) : null)))) : null;
   let who = null;
   if (users.active()) {
     const R = users.holders(s.id, 'R').map(u => u.name), A = users.holders(s.id, 'A').map(u => u.name);
@@ -185,7 +192,7 @@ export function render(sec) {
 
   { const rr = reductionReviewBanner(ws, sec); if (rr) sec.append(rr); }   // 1.9.2 (D2)
   // the next step: a dark band with what is still missing and one button to the first thing to do (1.9.1)
-  if (nx) sec.append(nextBand(nx, numbered.length));
+  if (nx) sec.append(nextBand(nx, numbered.length, sec));
   else sec.append(el('section', { class: 'next-step' }, el('div', null, el('div', 'eyebrow', 'All steps done'),
     el('h2', null, 'Every step of this assessment is done'), el('p', null, 'Review the management summary and the quality review before the results support a decision.')),
     el('div', 'btnrow', el('button', { class: 'btn primary', 'data-ro-ok': '', onclick: () => go('summary') }, 'Open Management summary'))));

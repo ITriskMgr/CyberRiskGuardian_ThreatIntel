@@ -25,7 +25,14 @@ const c1 = await page.evaluate(async () => {
 ok(c1.offered === 8 && c1.offered2 === 7, 'the register scenarios not yet linked to a candidate or a family are offered (8; 7 once a row names ' + c1.first + ' as its ref)');
 ok(c1.ids.length === 2 && c1.row.ref === c1.want && c1.row.status === 'In the register' && c1.link === c1.want && c1.row.name.length > 5 && c1.after === 5 && c1.n === 47, 'two register scenarios became candidates, linked to their scenario; the register itself is untouched ' + JSON.stringify(c1.row));
 await candidates();
-ok(await page.isVisible('#scr-from-register') && /\(5\)/.test(await page.textContent('#scr-from-register')), 'Candidates & scores has the button “Add the register’s scenarios as candidates (5)”');
+ok(await page.isVisible('#scr-from-register') && /\(5\)/.test(await page.textContent('#scr-from-register')), 'Candidates & scores has the button “Add scenarios from the register as candidates (5)”');
+// the tick list: untick one, add the rest
+await page.click('#scr-from-register'); await page.waitForSelector('#reg-add');
+const nPicks = await page.$$eval('.modal .reg-pick', cbs => cbs.length);
+await page.evaluate(() => { const cb = document.querySelector('.modal .reg-pick'); cb.checked = false; cb.dispatchEvent(new Event('change')); });
+await page.click('#reg-add'); await page.waitForTimeout(500);
+const c1b = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const LOG = await import('/js/logs.js'); return { left: SC.registerNotCandidates(st.S.ws).length, n: st.S.ws.assessment.CANDIDATES.length, logged: JSON.stringify(LOG.entries('data')).includes('candidates added from the register') }; });
+ok(nPicks === 5 && c1b.left === 1 && c1b.n === 51 && c1b.logged, 'the tick list adds the ticked scenarios (4 of 5) with an audit entry ' + JSON.stringify(c1b));
 
 /* ---------------- C2: remove a candidate ---------------- */
 const c2 = await page.evaluate(async () => {
@@ -44,13 +51,15 @@ ok(c2.rm2 === true && c2.gone && c2.n === c2.nBefore - 1, 'another candidate is 
 // through the screen: confirmation and audit entry
 const newId = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const id = SC.addCandidate({ name: 'UI removal', source: 'x', assets: 'y' }, st.S.ws); st.touch(); return id; });
 await candidates();
-await page.evaluate(id => { const row = [...document.querySelectorAll('#panel-screening tbody tr')].find(tr => tr.textContent.startsWith(id)); row.querySelector('button').click(); }, newId);
-await page.waitForSelector('#scr-remove');
 let confirmText = '';
 page.once('dialog', d => { confirmText = d.message(); d.accept(); });
-await page.click('#scr-remove'); await page.waitForTimeout(600);
+// the row's own × button (Candidates & scores), with its confirmation
+await page.evaluate(id => { const row = [...document.querySelectorAll('#panel-screening tbody tr')].find(tr => tr.textContent.startsWith(id)); row.querySelector('button.danger').click(); }, newId);
+await page.waitForTimeout(600);
 const c2b = await page.evaluate(async id => { const st = await import('/js/state.js'); const LOG = await import('/js/logs.js'); const entries = LOG.entries('data'); return { gone: !st.S.ws.assessment.CANDIDATES.some(r => r[0] === id), logged: JSON.stringify(entries).includes('candidate removed') }; }, newId);
-ok(/Remove candidate C\d+ — UI removal\?/.test(confirmText) && c2b.gone && c2b.logged, 'the Remove button asks for confirmation, removes the candidate and writes the data log: ' + confirmText.slice(0, 60));
+ok(/Remove candidate C\d+ — UI removal\?/.test(confirmText) && c2b.gone && c2b.logged, 'the row’s Remove asks for confirmation naming the candidate, removes it and writes the data log (who, when, id, name): ' + confirmText.slice(0, 60));
+const c2c = await page.evaluate(async () => { const LOG = await import('/js/logs.js'); const e = LOG.entries('data').find(x => x.action === 'candidate removed'); return e && /UI removal — by /.test(e.detail || '') && !!e.t; });
+ok(c2c, 'the audit entry carries who and when');
 
 /* ---------------- C3 / item 7: consultant proposals → screening rows with their draft ---------------- */
 const c3 = await page.evaluate(async () => {
@@ -91,45 +100,67 @@ const fam = await page.evaluate(async () => {
   SC.state(ws).families.push(f);
   const best = SC.bestMember(f, ws);
   const s = SC.scenarioFromCandidate(best, ws, { family: f });
-  return { best: best.id === b, name: s.name, statement: s.statement, pba: s.params.PbA.v, rat: s.params.PbA.rat, conf: s.params.PbA.conf, ev: s.params.PbA.ev, pbx: s.params.Pbx.rat, cvss: s.cvss, vs: s.vector_source, attack: s.attack, cwe: s.cwe, vulns: s.vulns, ref: s.ref };
+  return { best: best.id === b, name: s.name, statement: s.statement, assets: s.assets, pba: s.params.PbA.v, rat: s.params.PbA.rat, conf: s.params.PbA.conf, ev: s.params.PbA.ev, pbx: s.params.Pbx.rat, cvss: s.cvss, vs: s.vector_source, attack: s.attack, cwe: s.cwe, vulns: s.vulns, ref: s.ref };
 });
 ok(fam.best && fam.name === 'Phishing family' && fam.statement === 'Consolidated statement' && /^P\d\d \(C\d+, C\d+\)$/.test(fam.ref), 'a family’s scenario takes the consolidated statement and starts from its best-scored member');
 ok(fam.pba === 0.9 && fam.rat === 'Lures observed (E6).' && fam.conf === 'High' && fam.ev === 'E6' && /to estimate \(Process step 9\)/.test(fam.pbx), 'the member’s estimated parameter travels with its rationale, evidence and confidence; the others keep the placeholder');
-ok(/AV:L/.test(fam.cvss) && fam.vs === 'pattern' && fam.attack.join() === 'T1566.001' && fam.cwe.join() === 'CWE-269' && fam.vulns.join() === 'macros', 'vector (marked pattern), techniques, weaknesses and vulnerabilities travel too');
+ok(/AV:L/.test(fam.cvss) && fam.vs === 'pattern' && fam.attack.sort().join() === 'T1566.001,T1566.002' && fam.cwe.join() === 'CWE-269' && fam.vulns.join() === 'macros' && /EHR and billing; EHR|EHR; EHR and billing/.test(fam.assets || ''), 'vector (marked pattern) from the best member; techniques, weaknesses and assets combined across the members ' + JSON.stringify([fam.attack, fam.assets]));
 
 /* ---------------- C5: scores proposed by AI, for review ---------------- */
 await page.evaluate(async () => { const AI = await import('/js/ai.js'); const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const a = AI.settings(st.S.ws); a.acknowledged = new Date().toISOString(); a.confidential = false;
-  const r = SC.rec('C01', st.S.ws); r.flags = ['S']; r.scores = Array(12).fill(null); r.rat = ''; st.touch(); });
+  const r = SC.rec('C01', st.S.ws); r.flags = ['S']; r.scores = Array(12).fill(null); r.rat = ''; delete r.ai; st.touch(); });
 await candidates();
-ok(/Propose scores with AI \(\d+ unscored\)/.test(await page.textContent('#scr-ai')), 'Candidates & scores has “Propose scores with AI (n unscored)”');
+ok(/Estimate all unscored with AI \(\d+\)/.test(await page.textContent('#scr-ai')), 'Candidates & scores has “Estimate all unscored with AI (n)”');
 await page.click('#scr-ai');
 await page.waitForSelector('.modal textarea', { timeout: 15000 });
 const payload = await page.$eval('.modal textarea >> nth=1', t => t.value);
-ok(/TASK: screening_scores/.test(payload) && /EV \(evidence strength\) is at most 3/.test(payload) && /C01 \| Phishing-led compromise/.test(payload) && !/PbA=/.test(payload), 'the payload names the task, the EV cap and the candidate chains, and carries no risk parameter');
+ok(/TASK: screening_scores/.test(payload) && /Evidence register \(cite these IDs/.test(payload) && /E6 — /.test(payload) && /Crown jewels:/.test(payload) && /Threat-context snapshot|No threat-context snapshot/.test(payload) && /C01 \| Phishing-led compromise/.test(payload) && !/PbA=/.test(payload), 'the payload carries the chains, the profile, the crown jewels, the evidence register and the snapshot summary, and no risk parameter');
+ok(!/C37 \|/.test(payload), 'only the unscored candidates are sent (C37, already scored, is not)');
 await page.click('.modal .btnrow .btn:not(.ghost)');
 await page.waitForSelector('#sai-apply', { timeout: 15000 });
-const review = await page.evaluate(() => ({ rows: document.querySelectorAll('.modal tbody tr').length, capped: !!document.querySelector('.modal .pill.warn[title*="capped at 3"]'), banner: document.querySelector('.modal .banner')?.textContent.slice(0, 80) }));
-ok(review.rows === 2 && review.capped, 'the review table shows the two known candidates (C99 dropped) and marks the capped EV score');
-await page.click('#sai-apply'); await page.waitForTimeout(800);
+const review = await page.evaluate(() => ({ rows: document.querySelectorAll('.modal tbody tr').length, selects: document.querySelectorAll('.modal .sai-score').length, cited: [...document.querySelectorAll('.modal tbody tr')].map(tr => tr.textContent).some(t => /E4, E6/.test(t)) }));
+ok(review.rows === 1 && review.selects === 12 && review.cited, 'the review panel shows the one known unscored candidate (C99 dropped), editable criterion by criterion, with the evidence it cites');
+// edit one criterion before accepting; acceptance needs a name
+await page.evaluate(() => { const s = [...document.querySelectorAll('.modal .sai-score')][0]; s.value = '4'; s.dispatchEvent(new Event('change')); });
+await page.fill('#sai-by', ''); await page.click('#sai-apply'); await page.waitForTimeout(300);
+ok(await page.isVisible('.modal >> text=Name required'), 'acceptance without a name is refused');
+await page.fill('#sai-by', 'Reviewer T56'); await page.click('#sai-apply'); await page.waitForTimeout(800);
 const c5 = await page.evaluate(async () => {
   const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const AI = await import('/js/ai.js');
-  const ws = st.S.ws, r1 = SC.rec('C01', ws), r37 = SC.rec('C37', ws);
-  return { s1: r1.scores, ev: r1.scores[8], flags: r1.flags, rat: r1.rat.slice(0, 20), ai: r1.ai && { model: r1.ai.model, capped: r1.ai.capped }, total: SC.total(r1), c37: SC.total(r37), c37flags: r37.flags, log: AI.log(ws)[0].task + ':' + AI.log(ws)[0].decision };
+  const ws = st.S.ws, r1 = SC.rec('C01', ws);
+  return { s1: r1.scores, ev: r1.scores[8], flags: r1.flags, rat: r1.rat.slice(0, 20), ai: r1.ai && { model: r1.ai.model, by: r1.ai.by, cited: r1.ai.cited }, total: SC.total(r1), log: AI.log(ws)[0].task + ':' + AI.log(ws)[0].decision, csv: SC.csvRows(ws).find(row => row[0] === 'C01').at(-1) };
 });
-ok(c5.ev === 3 && c5.total === 51 && c5.ai?.capped, 'EV is capped at 3 whatever the AI said (5 → 3), total 51 ' + JSON.stringify(c5.s1));
-ok(c5.flags.includes('S') && c5.flags.includes('PV') && c5.flags.includes('ES'), 'flags are only added: the analyst’s S stays, PV and ES join ' + c5.flags.join(' '));
-ok(/^AI: Mock answer/.test(c5.rat) && c5.ai.model === 'mock-model' && c5.c37 === 18 && c5.log === 'screening_scores:accepted', 'applied cards are marked (rationale “AI:”, model); C37, already scored, was unticked and keeps 18; the AI log entry accepted ' + JSON.stringify([c5.rat, c5.ai, c5.c37, c5.log]));
-await page.evaluate(() => { [...document.querySelectorAll('#panel-screening button')].find(b => b.textContent === 'Score').click(); }); await page.waitForTimeout(400);
-ok(await page.isVisible('#scr-editor >> text=scores proposed by AI'), 'the score card shows the “scores proposed by AI” mark');
-// an already-scored candidate is unticked by default in the review
+ok(c5.s1[0] === 4 && c5.ev === 5 && c5.total === 52 && c5.ai?.cited?.join() === 'E4,E6', 'the edited criterion is kept (BC 4); EV 5 stands because the rationale cites E4 and E6; total 52 ' + JSON.stringify(c5.s1));
+ok(c5.flags.includes('S') && c5.flags.includes('PV') && c5.flags.includes('ES'), 'flags are only added: the analyst\u2019s S stays, PV and ES join ' + c5.flags.join(' '));
+ok(/^AI: Mock answer/.test(c5.rat) && c5.ai.model === 'mock-model' && c5.ai.by === 'Reviewer T56' && c5.log === 'screening_scores:accepted' && /^AI-proposed, accepted by Reviewer T56 on \d{4}-\d\d-\d\d/.test(c5.csv), 'the accepted card is marked “AI-proposed, accepted by ‹name› on ‹date›”, in the CSV too; the AI log entry accepted ' + c5.csv);
+await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr')].find(tr => tr.textContent.startsWith('C01')).querySelector('button').click(); }); await page.waitForTimeout(400);
+ok(await page.isVisible('#scr-editor >> text=AI-proposed, accepted by Reviewer T56'), 'the score card shows the acceptance mark');
+ok(await page.isVisible('#scr-ai-one'), 'the score card has “Estimate with AI”');
+// a candidate the analyst scored: the proposal goes beside the card, never over the scores; EV capped at 2 without a cited ID
+await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr')].find(tr => tr.textContent.startsWith('C37')).querySelector('button').click(); }); await page.waitForTimeout(400);
+await page.click('#scr-ai-one'); await page.waitForSelector('.modal textarea', { timeout: 15000 }); await page.click('.modal .btnrow .btn:not(.ghost)'); await page.waitForSelector('#sai-apply', { timeout: 15000 });
+const kept = await page.evaluate(() => [...document.querySelectorAll('.modal tbody tr')].map(tr => tr.textContent).join(' '));
+ok(/your scores kept \(18\)/.test(kept) && /EV capped at 2/.test(kept), 'the review says the analyst\u2019s scores are kept and that EV is capped at 2 without a cited evidence ID');
+await page.fill('#sai-by', 'Reviewer T56'); await page.click('#sai-apply'); await page.waitForTimeout(600);
+const c37 = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const r = SC.rec('C37', st.S.ws); return { total: SC.total(r), ai: !!r.ai, prop: r.aiProposal && { ev: r.aiProposal.scores[8], capped: r.aiProposal.capped }, csv: SC.csvRows(st.S.ws).find(row => row[0] === 'C37').at(-1) }; });
+ok(c37.total === 18 && !c37.ai && c37.prop?.ev === 2 && c37.prop.capped && /beside the analyst/.test(c37.csv), 'C37 keeps its 18; the proposal sits beside it with EV capped at 2 ' + JSON.stringify(c37));
+await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr')].find(tr => tr.textContent.startsWith('C37')).querySelector('button').click(); }); await page.waitForTimeout(400);
+ok(await page.isVisible('#scr-editor >> text=AI proposal beside your scores'), 'the card shows the proposal beside the analyst\u2019s scores');
+// dismissing a proposal in the review rejects the log entry; feature off hides the buttons
+await page.evaluate(async () => { const SC = await import('/js/screening.js'); const st = await import('/js/state.js'); const r = SC.rec('C01', st.S.ws); r.scores = Array(12).fill(null); delete r.ai; st.touch(); });
+await candidates();
 await page.click('#scr-ai'); await page.waitForSelector('.modal textarea', { timeout: 15000 }); await page.click('.modal .btnrow .btn:not(.ghost)'); await page.waitForSelector('#sai-apply', { timeout: 15000 });
-const picks = await page.$$eval('.modal .sai-pick', cbs => cbs.map(c => c.checked));
-ok(picks.every(p => p === false), 'candidates already scored are unticked in the review ' + picks.join(','));
 await page.click('.modal button:has-text("Dismiss")'); await page.waitForTimeout(300);
 const dismissed = await page.evaluate(async () => (await import('/js/ai.js')).log()[0].decision);
 ok(dismissed === 'rejected', 'dismissing the proposals records the log entry as rejected');
-const feat = await page.evaluate(async () => { const AI = await import('/js/ai.js'); return AI.FEATURES.some(f => f[0] === 'screening_scores') && AI.DEFAULT_POLICY.tasks.screening_scores === 'workspace'; });
-ok(feat, 'screening_scores is a routed feature (FEATURES, default: workspace provider)');
+const feat = await page.evaluate(async () => { const AI = await import('/js/ai.js'); return AI.FEATURES.some(f => f[0] === 'screening_scores' && f[1] === 'Screening score estimates' && f[3] === 'medium') && AI.DEFAULT_POLICY.tasks.screening_scores === 'workspace'; });
+ok(feat, 'screening_scores is a routed feature “Screening score estimates” (medium, workspace provider)');
+await page.evaluate(async () => { const H = await import('/js/helper.js'); H.HS.config ||= {}; H.HS.config.ai ||= {}; H.HS.config.ai.policy = { ...(H.HS.config.ai.policy || {}), tasks: { ...((H.HS.config.ai.policy || {}).tasks || {}), screening_scores: 'off' } }; });
+await candidates();
+const hidden = await page.evaluate(() => !document.getElementById('scr-ai'));
+await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr')][0].querySelector('button').click(); }); await page.waitForTimeout(300);
+ok(hidden && !(await page.isVisible('#scr-ai-one')), 'feature off → both buttons hidden');
+await page.evaluate(async () => { const H = await import('/js/helper.js'); delete H.HS.config.ai.policy.tasks.screening_scores; });
 
 ok(errors.length === 0, 'no console error: ' + errors.join(' | ').slice(0, 400));
 await browser.close(); done('t56 candidates (C1, C2, C3/#7, C5, #20 families)');

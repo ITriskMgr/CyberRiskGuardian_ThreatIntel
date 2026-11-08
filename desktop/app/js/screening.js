@@ -16,6 +16,7 @@
 import { S, blankScenario, nextScenarioId, PARAMS } from './state.js';
 import { today } from './util.js';
 import * as MK from './markers.js';
+import { tr } from './i18n.js';
 
 export const CRITERIA = [
   ['BC', 'Business criticality', 'Does the scenario threaten an important objective or critical process?'],
@@ -239,17 +240,31 @@ export function bestMember(f, ws = S.ws) {
 export function scenarioFromCandidate(c, ws = S.ws, { family = null } = {}) {
   const s = blankScenario(nextScenarioId(ws));
   const d = (c && rec(c.id, ws).draft) || {};
+  const list = candidates(ws), C = state(ws).cands;
+  // a family: its members' rows and drafts, for the links and the assets combined across them (decided item 20)
+  const members = family ? (family.members || []).map(id => list.find(x => x.id === id)).filter(Boolean) : (c ? [c] : []);
+  const drafts = members.map(m => C[m.id]?.draft || {});
+  const union = k => [...new Set(drafts.flatMap(x => x[k] || []))];
   s.name = family ? (family.name || family.id) : (c?.name || c?.id || '');
   s.statement = family?.statement || d.statement || c?.consequence || '';
   s.ref = family ? family.id + ' (' + (family.members || []).join(', ') + ')' : (c ? c.id : '');
-  s.threat_source = d.threat_source || c?.source || '';
-  s.vulns = d.vulns?.length ? d.vulns.slice() : String(c?.vuln || '').split(/;\s*/).filter(Boolean);
-  s.assets = d.assets || c?.assets || '';
+  s.threat_source = d.threat_source || c?.source || [...new Set(members.map(m => m.source).filter(Boolean))].join('; ');
+  s.vulns = d.vulns?.length ? d.vulns.slice() : [...new Set(members.flatMap(m => String(m.vuln || '').split(/;\s*/)).filter(Boolean))];
+  const assets = [...new Set([d.assets || c?.assets, ...members.map(m => C[m.id]?.draft?.assets || m.assets)].filter(Boolean))];
+  s.assets = assets.join('; ');
   if (d.processes) s.processes = d.processes;
   if (d.initiating_event) s.threat_event = d.initiating_event;
   if (d.existing_controls) s.controls = Array.isArray(d.existing_controls) ? d.existing_controls.slice() : String(d.existing_controls).split(/;\s*/).filter(Boolean);
   if (d.assumptions) s.assumptions = d.assumptions;
-  for (const k of ['attack', 'cwe', 'cves']) if (d[k]?.length) s[k] = d[k].slice();
+  for (const k of ['attack', 'cwe', 'cves']) { const u = union(k); if (u.length) s[k] = u; }
+  // consequences, from the candidate rows; background (why / rationale) from the family and the score cards; origin
+  const cons = [...new Set(members.map(m => C[m.id]?.draft?.consequence || (m.consequence !== s.statement ? m.consequence : '')).filter(Boolean))];
+  if (cons.length) s.consequences = Object.assign({}, s.consequences, { Operations: cons.join('; ') });
+  const why = [];
+  if (family?.rationale) why.push(`${family.id}: ${family.rationale}`);
+  if (family?.judgment) why.push(`${tr('Selected by judgment')}: ${family.judgment}`);
+  for (const m of members) { const r = C[m.id]; if (r?.rat) why.push(`${m.id}: ${r.rat}`); if (r?.basis) why.push(`${m.id} — ${tr('evidence basis')}: ${r.basis}`); if (m.note && !/to estimate/.test(m.note)) why.push(`${m.id}: ${m.note}`); }
+  if (why.length) s.background = why.join('\n');
   const from = c ? `From candidate ${c.id}` : `From family ${family?.id || ''}`;
   for (const k of PARAMS) {
     const p = d.params?.[k];
@@ -272,8 +287,10 @@ export function scenarioFromCandidate(c, ws = S.ws, { family = null } = {}) {
 /** The screening as CSV rows (header first). */
 export function csvRows(ws = S.ws) {
   const a = analysis(ws), C = state(ws).cands;
-  const head = ['ID', 'Candidate', ...CRITERIA.map(c => c[0]), 'Total (/60)', ...SCHEMES.map(s => 'Weighted - ' + s[1]), 'Escalation flags', 'Confidence', 'Disposition', 'Family / target', 'Strategies', 'Rationale', 'Exclusion review'];
+  const head = ['ID', 'Candidate', ...CRITERIA.map(c => c[0]), 'Total (/60)', ...SCHEMES.map(s => 'Weighted - ' + s[1]), 'Escalation flags', 'Confidence', 'Disposition', 'Family / target', 'Strategies', 'Rationale', 'Exclusion review', 'AI scores'];
+  // 1.9.2 (C5) — the last column marks cards whose scores were proposed by AI and accepted (name, date, model)
+  const aiMark = r => r?.ai ? `AI-proposed, accepted by ${r.ai.by || '—'} on ${r.ai.date || ''}${r.ai.model ? ' (' + r.ai.model + ')' : ''}` : r?.aiProposal ? 'AI proposal beside the analyst\u2019s scores (not accepted)' : '';
   return [head, ...a.list.map(c => { const r = C[c.id] || {}; const sc = r.scores || [];
     return [c.id, c.name, ...CRITERIA.map((_, i) => sc[i] ?? ''), total(r) ?? '', ...SCHEMES.map(([, , w]) => weighted(r, w) ?? ''), (r.flags || []).join(' '), r.conf || '', r.disp || '',
-      familyOf(c.id, ws)?.id || r.target || '', (r.strategy || []).join(' '), r.rat || '', r.exclReview || '']; })];
+      familyOf(c.id, ws)?.id || r.target || '', (r.strategy || []).join(' '), r.rat || '', r.exclReview || '', aiMark(r)]; })];
 }

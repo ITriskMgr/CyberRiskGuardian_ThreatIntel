@@ -45,9 +45,14 @@ const r1 = await page.evaluate(async () => {
   const stepBefore = P.STEP.generate.status(ws);
   return { stepBefore, grid: ws.batchDraft.length, part: P.partsOf(P.STEP.generate, ws)[0].hint };
 });
-ok(r1.stepBefore === 'partial' && /3 row\(s\) wait in the Batch grid/.test(r1.part) && /Three ways/.test(r1.part), 'step 5 is partial with rows waiting in the grid, and says the three ways ' + r1.part.slice(0, 90));
+ok(r1.stepBefore === 'partial' && /3 row\(s\) wait in the Batch grid/.test(r1.part), 'step 5 is partial with rows waiting in the grid ' + r1.part.slice(0, 90));
+const ways = await page.evaluate(async () => { const st = await import('/js/state.js'); const P = await import('/js/process.js'); const ws = st.S.ws; ws.batchDraft = []; const p = P.partsOf(P.STEP.generate, ws)[0]; const fix0 = p.fix[0]; ws.assessment.CANDIDATES.push(['C99', 'x', '', '', '', '', '', 'Candidate', '']); const fix1 = P.partsOf(P.STEP.generate, ws)[0].fix[0]; ws.assessment.CANDIDATES.pop(); ws.batchDraft = window.__draft || ws.batchDraft; return { what: p.what, hint: p.hint, ways: p.ways.map(w => w[1]), fix0, fix1 }; });
+ok(ways.what === '20 candidates in Scenario screening' && /^0 now/.test(ways.hint) && ways.ways.join('|') === 'Batch scenarios|Scenario screening|Add scenarios from the register as candidates', 'the step-5 check reads “20 candidates in Scenario screening — n now” and lists the three ways in order (C4) ' + JSON.stringify(ways));
+ok(ways.fix0 === 'batch' && ways.fix1 === 'screening', 'its primary button opens Batch scenarios when there is no candidate, Scenario screening otherwise');
+await page.evaluate(async () => { const st = await import('/js/state.js'); const row = (name, asset) => ({ pick: true, name: name + ' — ' + asset, statement: 'A cybercriminal uses phishing, exploiting push-based MFA, to affect ' + asset + ', resulting in data theft.', threat_source: 'Cybercriminal', assets: asset, vulns: 'push-based MFA without phishing resistance', attack: ['T1566.002', 'T1621'], cwe: ['CWE-308'], params: { PbA: 0.8, Pbx: 0.5, De: 0.5, Dm: 0.8, Th: 0.45, Mu: 0.8 }, cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:A/VC:H/VI:H/VA:N/SC:H/SI:L/SA:L', cvss_score: null, cvss_note: '', red_p: 0, red_i: 0, owner: '', pattern: 'phish', cves: [], rat: {} });
+  st.S.ws.batchDraft = [row('Credential phishing and MFA bypass', 'TMS'), row('Credential phishing and MFA bypass', 'TMS'), row('Credential phishing and MFA bypass', 'WMS')]; st.touch(); });
 await goto(page, '#/batch', 900);
-ok(await page.isVisible('#panel-batch >> text=Process step 5 — 0 of 20 distinct candidates in the screening'), 'the Batch grid shows where step 5 stands (C4 banner)');
+ok(await page.isVisible('#panel-batch >> text=These rows are not candidates yet — tick them and click Add the ticked rows as screening candidates'), 'the Batch grid says its rows are not candidates yet (C4 banner)');
 await page.click('#batch-to-screening'); await page.waitForTimeout(900);
 const r2 = await page.evaluate(async () => {
   const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const P = await import('/js/process.js');
@@ -58,7 +63,7 @@ const r2 = await page.evaluate(async () => {
 });
 ok(r2.n === 2 && r2.distinct === 2 && r2.dup && /screening/.test(r2.hash), 'the ticked rows became candidates; the exact duplicate was skipped (2 of 3) ' + JSON.stringify([r2.n, r2.distinct]));
 ok(r2.draft && r2.draft.params === 6 && r2.draft.pba === 0.8 && /AV:N\/AC:L\/AT:N\/PR:N\/UI:A/.test(r2.draft.cvss) && r2.draft.attack.includes('T1566.002') && r2.draft.cwe.includes('CWE-308'), 'each candidate keeps a draft: six parameters, the vector, ATT&CK and CWE links (#20) ' + JSON.stringify(r2.draft));
-ok(/2 of 20 distinct candidates/.test(r2.hint), 'step 5 counts distinct candidates: ' + r2.hint.slice(0, 60));
+ok(/^2 now/.test(r2.hint), 'step 5 counts distinct candidates: ' + r2.hint.slice(0, 60));
 // stand-alone promotion from the score card (disposition Select, no family)
 await page.waitForTimeout(400);
 const score = async i => { await page.evaluate(i => { [...document.querySelectorAll('#panel-screening button')].filter(b => b.textContent === 'Score')[i].click(); }, i); await page.waitForSelector('#scr-editor'); };
@@ -79,7 +84,10 @@ ok(/#\/scenario\/S1/.test(r3.hash) && r3.n === 1 && r3.linked === 'S1', 'Create 
 ok(r3.pba === 0.8 && r3.th === 0.45 && r3.ts === 'Cybercriminal' && r3.vulns[0] === 'push-based MFA without phishing resistance' && r3.assets === 'TMS' && r3.attack.includes('T1566.002') && r3.cwe.includes('CWE-308') && /UI:A/.test(r3.cvss), 'S1 carries the candidate’s parameters, chain, vector and links (#20 fixed) ' + JSON.stringify([r3.pba, r3.th, r3.ts, r3.assets]));
 ok(r3.rp === 0 && r3.ri === 0, 'S1 starts untreated: rp = ri = 0 ' + r3.rp + '/' + r3.ri);
 ok(/From candidate C01/.test(r3.rat) && /starting value, not estimated/.test(r3.rat), 'the parameter rationale says it is a starting value, not an estimate: ' + r3.rat.slice(0, 80));
-ok(r3.vs === 'pattern' && r3.vstate === 'pattern' && r3.s10 === 'done' && r3.parts10.some(p => /Vectors that came with/.test(p[0]) && !p[1] && p[2]), 'the pattern vector is marked; step 10 asks (optional, not blocking) to confirm it ' + JSON.stringify(r3.parts10));
+ok(r3.vs === 'pattern' && r3.vstate === 'pattern' && r3.s10 === 'partial' && r3.parts10.some(p => /Vectors that came with/.test(p[0]) && !p[1] && !p[2]), 'the pattern vector is marked and step 10 blocks until it is confirmed ' + JSON.stringify(r3.parts10));
+// one click confirms it, recorded in the scenario's revisions
+const cf = await page.evaluate(async () => { const st = await import('/js/state.js'); const P = await import('/js/process.js'); const s = st.S.ws.assessment.SCEN[0]; const r = st.confirmVector(s, 'Analyst T54'); return { r, vs: s.vector_source, by: s.vector_confirmed?.by, rev: s.revisions?.at(-1)?.what || '', state: st.vectorState(s), again: st.confirmVector(s), s10: P.STEP.cvss.status(st.S.ws) }; });
+ok(cf.r && cf.vs === 'confirmed' && cf.by === 'Analyst T54' && /confirmed by the analyst \(Analyst T54\)/.test(cf.rev) && cf.state === 'entered' && cf.again === false && cf.s10 === 'done', 'confirming the vector is one click, recorded, and step 10 is done ' + JSON.stringify(cf));
 ok(r3.q.ok === 0 && r3.q.all === 6 && r3.s9 === 'todo', 'step 9 counts nothing estimated yet (starting values are not estimates) ' + JSON.stringify(r3.q));
 // a scenario left at the default vector blocks step 10; a vector typed unblocks it; estimated parameters count for step 9
 const r4 = await page.evaluate(async () => {
@@ -131,6 +139,30 @@ ok(/#\/org\/profile/.test(ex.hash) && /Extract the profile from the documents/.t
 await page.click('.modal button:has-text("Cancel")').catch(() => {}); await page.waitForTimeout(300);
 await goto(page, '#/org/workspaces', 900);
 ok(await page.isVisible('#new-ws-extract >> text=Extract from the documents (each asks AI or Rules only first)') && await page.isVisible('#new-ws-extract >> text=Then extract more from the documents (Import from documents)'), 'the new-workspace form groups the four extraction options under one heading (item 11 / NV-097)');
+
+/* ---------------- NV-035: steps 2, 3, 8 and 18 ask what the book asks ---------------- */
+const nv35 = await page.evaluate(async () => {
+  const st = await import('/js/state.js'); const P = await import('/js/process.js');
+  const w = st.newWorkspace({ name: 'NV-035' }); w.org.name = 'X';
+  w.assessment.CROWN = [['CJ1', 'EHR', 'care', 'CMO', 'Very high', 'Very high', 'High', '', ''], ['CJ2', 'Billing', 'revenue', '', 'High', '', '', '', '']];
+  const p2 = P.partsOf(P.STEP.context, w).find(p => /owner and its C\/I\/A/.test(p.what));
+  const p3 = P.partsOf(P.STEP.scope, w).map(p => [p.what.slice(0, 20), p.ok]);
+  w.org.scope = 'Ten clinics'; w.org.exclusions = 'none'; w.org.perspectives = 'operational, regulatory';
+  const p3b = P.partsOf(P.STEP.scope, w).slice(0, 3).every(p => p.ok);
+  const s = st.blankScenario('S1'); Object.assign(s, { statement: 'A → B', threat_source: 'Cybercriminal', vulns: ['weak MFA'], assets: 'EHR' }); w.assessment.SCEN = [s];
+  const p8 = P.partsOf(P.STEP.scenarios, w).find(p => /initiating event/.test(p.what));
+  s.threat_event = 'phishing'; s.consequences = { Operations: 'clinics halted' };
+  const p8b = P.partsOf(P.STEP.scenarios, w).find(p => /initiating event/.test(p.what)).ok, full = P.chainFull(s), rich = P.chainRich(s);
+  w.budget.it_budget = 1000000; w.budget.baseline = 50000; w.assessment.INITIATIVES = [['I01', 'MFA', '', ['S1'], 'IT', 'Immediate', 0, 0, '', '', '', '', '']];
+  const p18 = P.partsOf(P.STEP.budget, w).find(p => /allocated/.test(p.what));
+  w.assessment.INITIATIVES[0][6] = 60000;
+  const p18b = P.partsOf(P.STEP.budget, w).find(p => /allocated/.test(p.what)).ok, s18 = P.STEP.budget.status(w);
+  return { p2: [p2.ok, p2.hint], p3, p3b, p8: [p8.ok, p8.hint], p8b, full, rich, p18: [p18.ok, p18.hint], p18b, s18 };
+});
+ok(nv35.p2[0] === false && /CJ2/.test(nv35.p2[1]), 'step 2: a crown jewel without owner or C/I/A is named ' + nv35.p2[1]);
+ok(nv35.p3.slice(0, 3).every(p => !p[1]) && nv35.p3b, 'step 3: scope, exclusions and perspectives are required and pass once written');
+ok(nv35.p8[0] === false && /S1 \(initiating event, consequences\)/.test(nv35.p8[1]) && nv35.p8b && nv35.full && !nv35.rich, 'step 8: initiating event and consequences required (stakeholders, controls, sequence optional) ' + nv35.p8[1]);
+ok(nv35.p18[0] === false && /I01/.test(nv35.p18[1]) && nv35.p18b && nv35.s18 === 'done', 'step 18: an initiative without a cost is not allocated; with a cost committed to a year the step is done');
 
 /* ---------------- NV-034: the generator warns when fewer combinations exist and never adds a combination twice ---------------- */
 await page.evaluate(async () => { const st = await import('/js/state.js'); st.S.ws.batchDraft = []; st.touch(); });
