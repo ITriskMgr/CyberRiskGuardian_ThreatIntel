@@ -133,6 +133,7 @@ try {
   ok(H === 'up', 'helper restarted with the source hook');
   const jobs = await page.evaluate(async () => {
     const h = await import('/js/helper.js');
+    for (const j of (await h.apiJson('/api/jobs')).jobs) if (j.status !== 'running') await h.post(`/api/jobs/${j.id}/forget`, {});   // jobs of earlier suites (their files may be gone)
     await h.post('/api/download', { source: 'kev', params: {} }); await h.post('/api/download', { source: 'epss', params: {} });
     for (let i = 0; i < 60; i++) { const { jobs } = await h.apiJson('/api/jobs'); if (jobs.filter(j => ['kev', 'epss'].includes(j.source)).every(j => j.status !== 'running') && jobs.filter(j => ['kev', 'epss'].includes(j.source)).length === 2) return jobs; await new Promise(r => setTimeout(r, 500)); }
     return (await h.apiJson('/api/jobs')).jobs;
@@ -143,8 +144,10 @@ try {
   // Online screen: load both files, build and use the snapshot
   await goto(page, '#/vulns/online', 1500);
   await page.locator('#panel-vulns table button:has-text("Load")').first().waitFor({ timeout: 10000 });
-  const nBtn = await page.locator('#panel-vulns table button:has-text("Load")').count();
-  for (let i = 0; i < nBtn; i++) { await page.locator('#panel-vulns table button:has-text("Load")').nth(i).click(); await page.waitForTimeout(1200); }
+  const rowSel = '#panel-vulns table tr:has(td.mono:text-matches("^(kev-|epss_scores-)")) button:has-text("Load")';   // the files table, our two files only
+  const nBtn = await page.locator(rowSel).count();
+  ok(nBtn === 2, 'the two downloaded files are listed with a Load button: ' + nBtn);
+  for (let i = 0; i < nBtn; i++) { await page.locator(rowSel).nth(i).click(); await page.waitForTimeout(1200); }
   await page.locator('button:has-text("Build and use snapshot")').waitFor({ timeout: 10000 });
   ok(!(await page.locator('button:has-text("Build and use snapshot")').isDisabled()), 'both files staged: the snapshot can be built');
   await page.click('button:has-text("Build and use snapshot")'); await page.waitForTimeout(1200);
