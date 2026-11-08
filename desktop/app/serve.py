@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: CC-BY-NC-4.0
 # Copyright (c) 2026 Marc-André Léger
-"""CyberRiskGuardian Desktop — local server and download helper (version 1.4.0).
+"""CyberRiskGuardian Desktop — local server and download helper (the version is VERSION below, checked by tools/version_check.py).
 
 Serves the app folder on 127.0.0.1 (loopback only) exactly like `python3 -m http.server`, and adds a
 small helper API used by Vulnerabilities → Online sources:
@@ -285,7 +285,6 @@ def ai_provider(pid, cfg):
         raise RuntimeError(f"Unknown AI provider '{pid}'. Choose one in Settings → AI.")
     return p
 
-AI_DEFAULT_MODEL = {"claude": "claude-sonnet-5", "local": ""}
 MAX_AI_BYTES = 400_000          # a workspace excerpt, not a database dump
 
 # 1.5.3 — routing policy, mirror of DEFAULT_POLICY in js/ai.js. The browser decides where a request should

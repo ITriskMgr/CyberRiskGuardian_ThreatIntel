@@ -8,8 +8,9 @@
 import { open, ok, done, FEEDS } from './lib.mjs';
 import fs from 'fs';
 import path from 'path';
-// a clean record of connection tests for this run (the helper owns ai.tested in crg-config.json)
-try { const f = path.join(FEEDS, 'crg-config.json'); const c = JSON.parse(fs.readFileSync(f, 'utf8')); if (c.ai) { delete c.ai.tested; delete c.ai.default_local; delete c.ai.default_remote; } fs.writeFileSync(f, JSON.stringify(c)); } catch { /* no configuration yet */ }
+// 1.9.2 (NV-069) — the suite sets its own AI configuration: whatever a previous run or a person left in crg-config.json
+// (a model name, a default provider, connection tests) is cleared, so the routing checks below start from a known state.
+try { const f = path.join(FEEDS, 'crg-config.json'); const c = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {}; c.ai = {}; fs.mkdirSync(FEEDS, { recursive: true }); fs.writeFileSync(f, JSON.stringify(c)); } catch { /* no configuration yet */ }
 
 const { browser, page, errors } = await open('#/process');
 const ready = async (ms = 20000) => {
