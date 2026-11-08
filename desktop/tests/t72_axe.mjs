@@ -3,7 +3,7 @@
 // accessible name — field() in util.js gives the label an htmlFor; a11y.js names the filter selects, title-only
 // tick boxes and search inputs), no "label-title-only", no colour-contrast failure on the menu badge, no empty table
 // header, the ATT&CK matrix reachable from the keyboard, the chip "×" at least 24 px, the skip link and the focus moved
-// to the screen's title after a menu navigation. Other rules are reported, not gated (heading order is reviewed by hand).
+// to the screen's title after a menu navigation. Heading order is gated too (NV-064, 1.9.2 integration: recommendation cards, ATT&CK matrix columns, compliance import and ontology sub-headings). Other rules are reported, not gated.
 import fs from 'fs';
 import path from 'path';
 import { open, ok, done, goto, medibec, modulesOn, TESTS } from './lib.mjs';
@@ -12,7 +12,7 @@ const AXE = fs.readFileSync(path.join(TESTS, 'vendor', 'axe.min.js'), 'utf8');
 const ROUTES = ['process', 'org', 'org/crown', 'org/docs', 'org/workspaces', 'assets', 'assets/compliance', 'maturity', 'evidence', 'dashboard', 'safeguards', 'batch', 'screening/candidates',
   'register', 'scenario/S1', 'scenario/S1/links', 'calc', 'riskreg', 'mitigation', 'recs', 'summary', 'threats', 'vulns', 'feeds', 'threat', 'budget', 'export', 'backup', 'qc', 'cvss',
   'iam/overview', 'iam/accounts', 'cm/overview', 'cm/changes', 'compliance', 'compliance/requirements', 'ontology', 'settings', 'settings/ai', 'settings/modules', 'about', 'about/versions'];
-const GATED = new Set(['label', 'select-name', 'label-title-only', 'empty-table-header', 'scrollable-region-focusable']);
+const GATED = new Set(['label', 'select-name', 'label-title-only', 'empty-table-header', 'scrollable-region-focusable', 'heading-order']);   // heading-order gated since the 1.9.2 integration (NV-064)
 
 const { browser, page, errors } = await open('#/process');
 await medibec(page); await modulesOn(page, true);
@@ -40,7 +40,7 @@ for (const [lang, theme] of [['en', 'light'], ['fr', 'light'], ['en', 'dark']]) 
   }
 }
 for (const [id, s] of Object.entries(summary).sort((a, b) => b[1].n - a[1].n)) console.log(`  [${s.impact}] ${id}: ${s.n} node(s) on ${s.routes.size} screen(s) — e.g. ${s.ex[0]}`);
-ok(gated.length === 0, `no gated violation (label, select-name, label-title-only, empty-table-header, scrollable region) ${gated.slice(0, 6).join(' | ')}`);
+ok(gated.length === 0, `no gated violation (label, select-name, label-title-only, empty-table-header, scrollable region, heading-order) ${gated.slice(0, 6).join(' | ')}`);
 ok(!summary['color-contrast'] || ![...summary['color-contrast'].routes].length, 'no colour-contrast violation reported by axe ' + (summary['color-contrast'] ? summary['color-contrast'].ex[0] : ''));
 ok(!summary['axe-error'], 'axe ran on every screen');
 

@@ -64,9 +64,9 @@ function scenarios(body, sec) {
   for (const r of rows) {
     const s = r.s, sg = suggest(r), dec = S.ws.decisions[r.id] || {};
     const d = el('details', 'card'); if (focus === r.id || (!focus && rows.indexOf(r) < 2)) d.open = true;
-    d.append(el('summary', null, el('span', 'mono', r.id), ' ', s.name || '', ' ', pill(r.cls, pillFor(r.cls)), ' ', el('span', 'small muted', `untreated ${n2(r.est / r.tol)} → treated ${n2(r.ratio)} · suggested: ${sg.primary}${sg.also.length ? ' + ' + sg.also.join(', ') : ''}`), dec.option ? el('span', null, ' ', pill('Decided: ' + dec.option, 'good')) : ''));
+    d.append(el('summary', null, el('h2', 'sumh', el('span', 'mono', r.id), ' ', s.name || ''), ' ', pill(r.cls, pillFor(r.cls)), ' ', el('span', 'small muted', `untreated ${n2(r.est / r.tol)} → treated ${n2(r.ratio)} · suggested: ${sg.primary}${sg.also.length ? ' + ' + sg.also.join(', ') : ''}`), dec.option ? el('span', null, ' ', pill('Decided: ' + dec.option, 'good')) : ''));
     const optCards = el('div', 'grid g4', ...OPTIONS.map(o => el('div', 'opt' + (o === sg.primary ? ' rec' : ''),
-      el('h4', null, o, o === sg.primary ? ' — suggested' : sg.also.includes(o) ? ' — also consider' : ''),
+      el('h3', null, o, o === sg.primary ? ' — suggested' : sg.also.includes(o) ? ' — also consider' : ''),   // 1.9.2 (NV-064): h2 (card) → h3
       el('div', 'small muted', { Mitigate: 'Reduce probability or impact with controls; residual shown is with the treatment package.', Transfer: 'Shift the financial consequence — insurance, contract, outsourcing with liability. Harm to people and operations remains.',
         Avoid: 'Stop, retire or redesign the activity or service that creates the exposure.', Accept: 'Retain the risk knowingly, within tolerance, with an accountable owner and a KRI.' }[o]))));
     const linked = (s.inits || []).map(id => inits[id]).filter(Boolean);

@@ -69,7 +69,7 @@ function draft() { return (S.ws.batchDraft ||= []); }
 function makeRow(p, asset, src) {
   const consq = CONSEQUENCES[p.cons] || CONSEQUENCES[0];
   return {
-    pick: true, name: `${p.name} — ${asset}`,
+    pick: true, name: `${tr(p.name)} — ${asset}`,   // 1.9.2 (NV-041): the pattern name follows the interface language; the asset is the user's text
     statement: `A ${srcLabel(src).toLowerCase()} ${p.attack.length ? 'uses ' + p.attack.slice(0, 3).map(t => techName(t).toLowerCase()).join(', ') : 'event'}, exploiting ${p.weak}, to affect ${asset}, resulting in ${consq}.`,
     threat_source: srcLabel(src), assets: asset, vulns: p.weak, attack: p.attack.slice(), cwe: p.cwe.slice(),
     params: Object.fromEntries(PARAMS.map((k, i) => [k, p.p[i]])), cvss: p.cvss, cvss_score: p.cvss_score ?? null, cvss_note: p.note || '', red_p: 0, red_i: 0, owner: '', pattern: p.key,

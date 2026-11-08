@@ -78,11 +78,11 @@ function requirements(body, sec) {
   const csv = el('textarea', { rows: 3, placeholder: 'set;reference;requirement;category;controls (comma-separated)' });
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Import requirements'),
     el('div', 'grid g3',
-      el('div', null, el('h4', null, 'From the ontology'), el('p', 'small muted', 'Quebec Law 25 (P-39.1) and the Quebec health-information act (R-22.1) obligations that the CyberRiskGuardian Ontology links to risk scenarios.'),
+      el('div', null, el('h3', 'sub', 'From the ontology'), el('p', 'small muted', 'Quebec Law 25 (P-39.1) and the Quebec health-information act (R-22.1) obligations that the CyberRiskGuardian Ontology links to risk scenarios.'),
         el('button', { class: 'btn sm', onclick: async e => { e.target.disabled = true; try { const n = await fromOntology(ws); toast(`${n} ${tr('requirement(s) added')}`); redraw(); } catch (err) { toast(String(err.message || err), 'bad'); e.target.disabled = false; } } }, 'Add the Law 25 and R-22.1 obligations')),
-      el('div', null, el('h4', null, 'From the security policies'), el('p', 'small muted', 'Each statement of a published policy becomes an internal requirement, with its controls.'),
+      el('div', null, el('h3', 'sub', 'From the security policies'), el('p', 'small muted', 'Each statement of a published policy becomes an internal requirement, with its controls.'),
         el('button', { class: 'btn sm', onclick: () => { const n = fromPolicies(ws); toast(`${n} ${tr('requirement(s) added')}`); redraw(); } }, 'Add the published policy statements')),
-      el('div', null, el('h4', null, 'From a list'), el('p', 'small muted', 'One requirement per line, fields separated by semicolons.'), csv,
+      el('div', null, el('h3', 'sub', 'From a list'), el('p', 'small muted', 'One requirement per line, fields separated by semicolons.'), csv,
         el('button', { class: 'btn sm', style: { marginTop: '6px' }, onclick: () => {
           let n = 0; for (const line of csv.value.split('\n')) { const [set, ref, text, category, refs] = line.split(';').map(x => (x || '').trim()); if (!text) continue; addReq({ set: set || 'Imported requirements', ref, text, category, source: 'other', refs: (refs || '').split(',').map(x => x.trim()).filter(Boolean) }, ws); n++; }
           touch('compliance'); toast(`${n} ${tr('requirement(s) added')}`); redraw();

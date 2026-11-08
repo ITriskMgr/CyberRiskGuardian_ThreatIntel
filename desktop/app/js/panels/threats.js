@@ -41,7 +41,7 @@ function matrix(body) {
       if (onlyLinked) ids = ids.filter(id => map[id]);
       if (q) ids = ids.filter(id => (id + ' ' + KB.tech[id].n + ' ' + subtechniques(id).map(s => KB.tech[s].n).join(' ')).toLowerCase().includes(q.toLowerCase()));
       ids.sort((x, y) => (map[y]?.scen.size || 0) - (map[x]?.scen.size || 0) || KB.tech[x].n.localeCompare(KB.tech[y].n));
-      const col = el('div', 'col', el('h3', null, t.name, el('small', null, `${t.id} · ${ids.length}`)));
+      const col = el('div', 'col', el('h2', null, t.name, el('small', null, `${t.id} · ${ids.length}`)));   // 1.9.2 (NV-064): heading order h1 → h2
       for (const id of ids) {
         const n = map[id]?.scen.size || 0;
         col.append(el('div', { class: 'cell' + (n >= 4 ? ' h3' : n >= 2 ? ' h2' : n ? ' h1' : ''), title: `${id} ${KB.tech[id].n}${n ? ` — ${n} scenario(s)` : ''}`, onclick: () => go('threats/' + id) },

@@ -5,7 +5,6 @@ import { el, n0, n1, n2, pct, decMax, kpi, banner, card, pill, pillFor, chip, ta
 import { tr } from '../i18n.js';
 import { S, touch, compute, setIncluded, exportAssessment, normalizeScenario, blankScenario, nextScenarioId, emit } from '../state.js';
 import { techName, cwe } from '../ontology.js';
-import { tr } from '../i18n.js';
 
 let filter = { q: '', status: 'all' };
 
