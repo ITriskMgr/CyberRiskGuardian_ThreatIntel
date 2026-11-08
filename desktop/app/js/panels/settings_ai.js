@@ -48,6 +48,25 @@ export async function render(body, sec, rerender, providersSection) {
     row(rem, 'Allow requests to a provider off this machine', 'Off: nothing is ever sent beyond this computer, whatever a workspace or a route says; every feature must use a local model. Applies to all workspaces and is enforced by the helper, not only by this page.'),
     row(web, 'Allow web search for missing profile information', 'Claude API only. Values found this way are tagged EXTERNAL with the page cited.')));
 
+  // 1.9.2 (NV-047, D5) — which model for which feature: the guidance, and a warning when a small local model serves a
+  // feature the tests showed unreliable, with a one-click route of that feature to the default remote provider (opt-in;
+  // the payload preview still applies to every request)
+  const warns = AI.smallLocalWarnings(ws);
+  body.append(card(el('h2', { style: { marginTop: 0 } }, 'Which AI model for which feature'),
+    el('p', null, el('b', null, 'AI is optional.'), ' ', 'Every feature works without it (Rules only), and nothing the AI proposes is kept until you accept it.'),
+    el('p', null, el('b', null, 'Small local models (8B to 14B) are not reliable'), ' ', 'for the Virtual consultant, the exploitation forecast and vulnerability linking. In the release tests they gave wrong answers, empty answers, or made-up CVE identifiers with high confidence, and they followed instructions hidden in a document.'),
+    el('p', null, 'For those features, use either ', el('b', null, tr('a local model of about {0}B parameters or more').replace('{0}', AI.LOCAL_MIN_B)), ', which needs a computer with ', el('b', null, tr('{0} GB of memory or more').replace('{0}', AI.LOCAL_MIN_GB)), ', or ', el('b', null, 'a remote provider'), ' (Claude API or OpenAI) that you switch on for that feature only. The local-only defaults are kept: nothing leaves this computer unless you change a route below.'),
+    el('p', 'small muted', 'Provisional: models of about 30B and more are still to be tested on a larger computer. Never accept AI proposals from documents you did not write without reading them: a local model can be steered by text planted in a document. Version 1.9.2 wraps such text as untrusted data and checks that every FACT quotes it, but your review remains the safeguard. The full table is in the user guide, section “Which AI model for which feature”.'),
+    warns.length ? banner('warn', tr('Quality warning: a local model below about {0}B serves {1} feature(s) the tests found unreliable').replace('{0}', AI.LOCAL_MIN_B).replace('{1}', warns.length),
+      el('div', null, ...warns.map(w => el('div', { class: 'row', style: { alignItems: 'center', gap: '8px', margin: '4px 0' } },
+        el('span', { style: { flex: 1 } }, el('b', null, tr(w.label)), ' — ', tr('{0} on {1}').replace('{0}', w.model ? `${w.model}${w.size !== null ? ` (${w.size}B)` : ` (${tr('size not stated in the name')})`}` : tr('no model set')).replace('{1}', AI.provider_label(w.provider)), '. ', tr('Seen in tests:'), ' ', tr(w.why), '.'),
+        P.remote_allowed ? el('button', { class: 'btn sm', onclick: async () => {
+          if (!window.confirm(tr('Route “{0}” to {1}? Its requests will leave this computer; you see each payload before it is sent.').replace('{0}', tr(w.label)).replace('{1}', AI.provider_label(AI.remoteDefault())))) return;
+          P.tasks[w.id] = 'remote'; await savePolicy(P); toast(tr('Route saved')); rerender();
+        } }, tr('Route to {0}').replace('{0}', AI.provider_label(AI.remoteDefault()))) : el('span', 'small muted', 'Remote AI is off: allow it above to route this feature to a remote provider, or switch the feature off.'),
+        el('button', { class: 'btn sm ghost', onclick: async () => { P.tasks[w.id] = 'off'; await savePolicy(P); toast(tr('Route saved')); rerender(); } }, 'Switch off')))))
+      : el('p', 'small', pill(tr('no quality warning'), 'good'), ' ', tr('No feature the tests found unreliable is served by a local model below about {0}B.').replace('{0}', AI.LOCAL_MIN_B))));
+
   // per-feature routing
   const feats = AI.FEATURES.map(([id, label, sends, sens, def]) => ({ id, label, sends, sens, def }));
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Route of each AI feature'),

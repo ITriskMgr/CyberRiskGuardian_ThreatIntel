@@ -25,7 +25,12 @@ export function resultView(r, { compact = false } = {}) {
         // 1.9.0 — the helper compares the ZIP with the "<zip>.sha256" file published with the release
         if (end?.status === 'done') msg.append(el('div', { id: 'update-verify', class: end.verified ? 'small' : 'small warn' }, end.verified
           ? tr('Verified: its SHA-256 checksum matches the one published with the release.')
-          : tr('Unverified: the release publishes no SHA-256 checksum for this file. Compare it with the release page before you use it.'), end.sha256 ? el('div', { class: 'mono small', 'data-noi18n': '' }, 'SHA-256 ' + end.sha256) : null));
+          : tr('Unverified: the release publishes no SHA-256 checksum for this file. Compare it with the release page before you use it.'), end.sha256 ? el('div', { class: 'mono small', 'data-noi18n': '' }, 'SHA-256 ' + end.sha256) : null,
+          // 1.9.2 (NV-086) — the minisign signature: verified against the key pinned in the helper, or why it could not be
+          el('div', { id: 'update-signature', class: end.signature === 'verified' ? 'small' : 'small warn' }, end.signature === 'verified'
+            ? tr('Signed: the minisign signature of the release verifies against the key pinned in this build.')
+            : end.signature === 'no-signature' ? tr('Not signed: the release carries no minisign signature; the SHA-256 check above is the only verification.')
+            : tr('Signature not checked: this build pins no release-signing key yet (SHA-256 only).'))));
         if (end?.status !== 'done') dl.disabled = false;
       } catch (e) { msg.textContent = String(e.message || e); dl.disabled = false; }
     });
