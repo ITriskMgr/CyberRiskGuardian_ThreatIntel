@@ -23,6 +23,10 @@ of the unified engine rules (X-1, X-2) that the Core plugin 2.2.1, CRG Pro Quant
   validates `delta` (strictly between 0 and 0.5); `budget_check` rejects negative spend; every refusal is
   `{"error": "Input validation failed", "errors": [...]}`.
 - Typing rules stated and tested: missing or null reductions mean 0; numeric strings, booleans, NaN and infinity are rejected.
+- **Sensitivity (NV-045, as the desktop engine).** `shift(s, 0)` returns the unshifted scenario (the central case is never
+  clamped); a shifted value is clamped to [0.05, 0.99] in the direction of the shift only, so a case is never milder than
+  the central one (Pb(A) 1.00 stays 1.00, a reduction of 0 stays 0 in the higher case). The workbook's Central rows link to
+  Inputs and the shifted rows use the directional `MAX`/`MIN` formulas; δm ≥ δe kept. The ch06 example (0.69 / 1.53) is unchanged.
 
 ### Changed — label check (NV-P11)
 - A negation **after** the match counts ("the 1.25 threshold is retired" is no longer outdated); "unknown external actor"

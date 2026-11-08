@@ -214,7 +214,7 @@ wa.cell(row=t + 2, column=2, value="Interpretation: the risk-to-tolerance ratio 
 # ------------------------------------------------------------------ Sensitivity
 wsn = wb.create_sheet("Sensitivity")
 wsn["A1"] = "Sensitivity - lower / central / higher cases"; wsn["A1"].font = TTL
-wsn["A2"] = "Lower case: Pb(A), Pb(psi,A), de, dm -delta; theta +delta; reductions +delta. Higher case: the reverse. Values clamped to [0.05, 0.99]."; wsn["A2"].font = BLK
+wsn["A2"] = "Lower case: Pb(A), Pb(psi,A), de, dm -delta; theta +delta; reductions +delta. Higher case: the reverse. The central row links to Inputs (never shifted, never clamped); a shifted value is clamped to [0.05, 0.99] in the direction of the shift only, so a case is never milder than the central one."; wsn["A2"].font = BLK
 sc = ["ID", "Case", "Shift", "Pb(A)", "Pb(psi,A)", "de", "dm", "theta", "mu", "CVSS", "P red", "I red", "Estimated", "Tolerated", "Residual", "Ratio", "Classification"]
 header(wsn, 4, sc, [6, 10, 7, 7, 8, 7, 7, 7, 7, 7, 7, 7, 11, 11, 11, 8, 26])
 r = 5
@@ -223,12 +223,17 @@ for sid in SENS_IDS:
     for lab, sign in (("Lower", -1), ("Central", 0), ("Higher", 1)):
         put(wsn, r, 1, sid); put(wsn, r, 2, lab)
         put(wsn, r, 3, f"={sign}*{DELTA}", fmt="0.00")
-        cl = lambda e: f"=MAX(0.05,MIN(0.99,{e}))"
-        put(wsn, r, 4, cl(f"Inputs!C{ir}+C{r}"), fmt="0.00"); put(wsn, r, 5, cl(f"Inputs!D{ir}+C{r}"), fmt="0.00")
-        put(wsn, r, 6, cl(f"Inputs!E{ir}+C{r}"), fmt="0.00"); put(wsn, r, 7, cl(f"Inputs!F{ir}+C{r}"), fmt="0.00")
-        put(wsn, r, 8, cl(f"Inputs!G{ir}-C{r}"), fmt="0.00"); put(wsn, r, 9, f"=Inputs!H{ir}", GRN, "0.00")
+        # NV-045: the central row links to Inputs (never shifted, never clamped); a shifted value is clamped in the
+        # direction of the shift only (an upward shift never falls below the input, a downward one never rises above it)
+        up = lambda cell: f"={cell}" if sign == 0 else (f"=MAX({cell},MIN(0.99,{cell}+C{r}))" if sign > 0 else f"=MIN({cell},MAX(0.05,{cell}+C{r}))")
+        down = lambda cell: f"={cell}" if sign == 0 else (f"=MIN({cell},MAX(0.05,{cell}-C{r}))" if sign > 0 else f"=MAX({cell},MIN(0.99,{cell}-C{r}))")
+        sty = GRN if sign == 0 else BLK
+        put(wsn, r, 4, up(f"Inputs!C{ir}"), sty, "0.00"); put(wsn, r, 5, up(f"Inputs!D{ir}"), sty, "0.00")
+        put(wsn, r, 6, up(f"Inputs!E{ir}"), sty, "0.00")
+        put(wsn, r, 7, f"=Inputs!F{ir}" if sign == 0 else f"=MAX(F{r},{up(f'Inputs!F{ir}')[1:]})", sty, "0.00")   # dm >= de kept
+        put(wsn, r, 8, down(f"Inputs!G{ir}"), sty, "0.00"); put(wsn, r, 9, f"=Inputs!H{ir}", GRN, "0.00")
         put(wsn, r, 10, f"=Inputs!J{ir}", GRN, "0.0")
-        put(wsn, r, 11, cl(f"Inputs!K{ir}-C{r}"), fmt="0.00"); put(wsn, r, 12, cl(f"Inputs!L{ir}-C{r}"), fmt="0.00")
+        put(wsn, r, 11, down(f"Inputs!K{ir}"), sty, "0.00"); put(wsn, r, 12, down(f"Inputs!L{ir}"), sty, "0.00")
         put(wsn, r, 13, f"=D{r}*E{r}*J{r}*((F{r}+G{r})/2)*I{r}/H{r}*{FAC}", fmt="#,##0")
         put(wsn, r, 14, f"=D{r}*E{r}*J{r}*{APP}*I{r}/H{r}*{FAC}", fmt="#,##0")
         put(wsn, r, 15, f"=MAX(0,M{r}-M{r}*K{r}*L{r})", fmt="#,##0")

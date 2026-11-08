@@ -172,8 +172,9 @@ def sensitivity(pba: float, pbx: float, de: float, dm: float, theta: float, mu: 
                 delta: float = 0.10, appetite: float | None = None, factor: float = C.DEFAULT_FACTOR,
                 cvss_vector: str = "", cvss_score: float | None = None) -> dict:
     """Lower / central / higher case: Pb(A), Pb(psi,A), de, dm shifted by -/+ delta, theta and both reductions by
-    +/- delta (against or in favour of the organization), every value clamped to [0.05, 0.99]. delta must lie
-    strictly between 0 and 0.5 (0.10 by convention)."""
+    +/- delta (against or in favour of the organization). The central case is the unshifted scenario (never clamped);
+    a shifted value is clamped to [0.05, 0.99] in the direction of the shift only, so no case is milder than the central
+    one (NV-045). delta must lie strictly between 0 and 0.5 (0.10 by convention)."""
     if not C._num(delta) or not (0 < delta < 0.5):
         return _err(ValueError(f"delta must be strictly between 0 and 0.5 (got {delta!r}); the convention is 0.10"))
     s = _scenario(pba, pbx, de, dm, theta, mu, red_p, red_i, cvss_vector or None, cvss_score)

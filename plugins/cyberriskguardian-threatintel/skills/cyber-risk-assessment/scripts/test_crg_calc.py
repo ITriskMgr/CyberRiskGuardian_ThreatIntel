@@ -150,6 +150,19 @@ def main():
         t = C.run(json.load(open(cr, encoding="utf-8")))["totals"]
         check("CanaRetail regression: estimated 27,526 / residual 16,049", round(t["est"]) == 27526 and round(t["res"]) == 16049, f"{t['est']:,.0f} / {t['res']:,.0f}")
 
+    # 4c. sensitivity (NV-045): central case never shifted or clamped; directional clamp only
+    edge = mut(PbA=1.0, Pbx=0.02, Th=0.03, red_p=0.0, red_i=1.0)
+    c0 = C.shift(edge, 0)
+    check("sensitivity central case is the unshifted scenario (Pb(A) 1.00, Pb(psi,A) 0.02, theta 0.03, red_p 0 kept)",
+          (c0["params"]["PbA"]["v"], c0["params"]["Pbx"]["v"], c0["params"]["Th"]["v"], c0["red_p"], c0["red_i"]) == (1.0, 0.02, 0.03, 0.0, 1.0))
+    hi = C.shift(edge, 0.10)
+    check("higher case never milder than central: Pb(A) stays 1.00, red_p stays 0, theta 0.03 stays, red_i 0.90",
+          hi["params"]["PbA"]["v"] == 1.0 and hi["red_p"] == 0.0 and hi["params"]["Th"]["v"] == 0.03 and round(hi["red_i"], 2) == 0.90, str((hi["params"]["PbA"]["v"], hi["red_p"], hi["params"]["Th"]["v"], hi["red_i"])))
+    lo = C.shift(edge, -0.10)
+    check("lower case: Pb(psi,A) 0.02 stays (never rises to 0.05), Pb(A) 0.90, red_i stays 1.00, theta 0.13",
+          lo["params"]["Pbx"]["v"] == 0.02 and round(lo["params"]["PbA"]["v"], 2) == 0.90 and lo["red_i"] == 1.0 and round(lo["params"]["Th"]["v"], 2) == 0.13, str((lo["params"]["Pbx"]["v"], lo["params"]["PbA"]["v"], lo["red_i"], lo["params"]["Th"]["v"])))
+    check("sensitivity: central ratio equals the plain calculation", C.calc(C.shift(EX, 0), 0.35)["ratio"] == C.calc(EX, 0.35)["ratio"])
+
     # 5. product rule
     check("product rule: 0.5 and 0.5 combine to 0.75", abs(C.combine_reductions([0.5, 0.5]) - 0.75) < 1e-12)
     check("product rule never exceeds 1 (twenty measures of 0.06)", C.combine_reductions([0.06] * 20) < 1)

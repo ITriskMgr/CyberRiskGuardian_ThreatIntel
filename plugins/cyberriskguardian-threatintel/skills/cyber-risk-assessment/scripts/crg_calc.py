@@ -288,20 +288,33 @@ def case_normalized(s):
     return cur, cur * (1 - (s.get("red_p") or 0) * (s.get("red_i") or 0))
 
 
+def _move(x, m):
+    """Shift x by m, clamped to [0.05, 0.99] in the direction of the shift only, so a shifted case is never milder
+    than the central one because of the clamp (NV-045): Pb(A) 1.00 stays 1.00 upward, a reduction of 0 stays 0 downward."""
+    if m > 0:
+        return max(x, min(0.99, x + m))
+    if m < 0:
+        return min(x, max(0.05, x + m))
+    return x
+
+
 def shift(s, d):
     """Sensitivity case: raise threat, exploitation and damages by d; lower resilience and reductions by d.
-    Every shifted value is clamped to [0.05, 0.99]; mu(E) and CVSS are not shifted."""
+    The central case (d = 0) is never shifted and never clamped; a shifted value is clamped in the direction of the
+    shift only (NV-045, same rule as the desktop engine); mu(E) and CVSS are not shifted; dm >= de is kept."""
     t = copy.deepcopy(s)
-    clamp = lambda x: max(0.05, min(0.99, x))
     for k in ("PbA", "Pbx", "De", "Dm", "Th"):
         if not isinstance(t["params"][k], dict):
             t["params"][k] = {"v": t["params"][k]}
+    if not d:
+        t["red_p"], t["red_i"] = (t.get("red_p") or 0), (t.get("red_i") or 0)
+        return t
     for k in ("PbA", "Pbx", "De", "Dm"):
-        t["params"][k]["v"] = clamp(t["params"][k]["v"] + d)
-    t["params"]["Th"]["v"] = clamp(t["params"]["Th"]["v"] - d)
-    t["red_p"] = clamp((t.get("red_p") or 0) - d)
-    t["red_i"] = clamp((t.get("red_i") or 0) - d)
-    if t["params"]["Dm"]["v"] < t["params"]["De"]["v"]:      # clamping can only tie them; keep dm >= de
+        t["params"][k]["v"] = _move(t["params"][k]["v"], d)
+    t["params"]["Th"]["v"] = _move(t["params"]["Th"]["v"], -d)
+    t["red_p"] = _move((t.get("red_p") or 0), -d)
+    t["red_i"] = _move((t.get("red_i") or 0), -d)
+    if t["params"]["Dm"]["v"] < t["params"]["De"]["v"]:      # keep dm >= de
         t["params"]["Dm"]["v"] = t["params"]["De"]["v"]
     return t
 
