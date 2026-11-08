@@ -65,10 +65,10 @@ export function suspectAssets(w) {
   return out;
 }
 function assetReview(w, note) {
-  if (!w.assetReview || typeof w.assetReview !== 'object') w.assetReview = blankAssetReview();
+  if (!w.assetReview || typeof w.assetReview !== 'object') { w.assetReview = blankAssetReview(); note('One-time review of assets created from the profile: empty record added'); }
   if (w.assetReview.reviewed || w.assetReview.created) return;          // the review was made once, or already listed
   const items = suspectAssets(w);
-  if (!items.length) { w.assetReview.created = new Date().toISOString().slice(0, 10); return; }
+  if (!items.length) { w.assetReview.created = new Date().toISOString().slice(0, 10); note('One-time review of assets created from the profile: nothing to review'); return; }
   w.assetReview.pending = items; w.assetReview.created = new Date().toISOString().slice(0, 10);
   note(`${items.length} asset(s) created from the profile before 1.9.2 listed for review on Information assets (nothing changed)`);
 }

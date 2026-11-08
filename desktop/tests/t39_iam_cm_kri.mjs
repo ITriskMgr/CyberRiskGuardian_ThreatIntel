@@ -78,7 +78,7 @@ ok(r.c24 === 1, 'CRG-24 counts an expired exception cited by an open deviation')
 await page.evaluate(async () => { const st = await import('/js/state.js'); const ex = st.S.list.find(w => /MediBec/.test(w.name)); await st.select(ex.id); });
 await goto(page, '#/iam/overview', 900);
 ok(await page.locator('#iam-kris [data-kri]').count() === 6, 'six tiles on the IAM overview');
-ok(/1479 \/ 1505/.test(await page.textContent('#iam-kris [data-kri="CRG-17"]')), 'tile shows num / den');
+ok(/1,479 \/ 1,505/.test(await page.textContent('#iam-kris [data-kri="CRG-17"]')), 'tile shows num / den (counts in the interface locale, 1.9.2 X-6)');
 await goto(page, '#/cm/overview', 900);
 const cmTiles = await page.$$eval('#cm-kris [data-kri]', t => t.map(x => x.dataset.kri));
 ok(JSON.stringify(cmTiles) === '["CRG-22","CRG-24","CRG-25"]', 'three tiles on the CM overview ' + cmTiles);

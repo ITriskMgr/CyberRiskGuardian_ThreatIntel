@@ -176,7 +176,7 @@ ok(still.name === 'none', 'prefers-reduced-motion: no reveal animation ' + JSON.
 await page.evaluate(async () => (await import('/js/i18n.js')).setLang('fr')); await page.waitForTimeout(500);
 await goto(page, '#/scenario/S2', 800);
 const frTabs = await page.evaluate(() => [...document.querySelectorAll('#panel-scenario [role="tab"]')].map(t => t.textContent.trim()).join('|'));
-ok(frTabs === 'Chaîne causale|Quantification|CVSS v4.0|Traitement|Liens et preuves|Ontologie · CRGO', 'French tabs: ' + frTabs);
+ok(frTabs === 'Chaîne causale|Quantification|CVSS v4.0|Traitement|Liens et éléments probants|Ontologie · CRGO', 'French tabs (FR-3, 1.9.2): ' + frTabs);
 await goto(page, '#/process', 800);
 ok(/Sept groupes/.test(await page.textContent('#panel-process')) && /étapes sur 19 terminées/.test(await page.evaluate(() => document.querySelector('svg.ring').getAttribute('aria-label'))), 'French Process page');
 await page.evaluate(async () => (await import('/js/i18n.js')).setLang('en')); await page.waitForTimeout(300);

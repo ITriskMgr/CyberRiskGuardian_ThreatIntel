@@ -12704,4 +12704,13 @@ export default {
 "# stale value": "# valeur périmée",
 "# stale values": "# valeurs périmées",
 "typed \"application\" by default": "typé « application » par défaut",
+"A bundled teaching case is recognised whatever its id. For each one choose Replace (the copy here is overwritten by the file's), Keep both (the file's copy is added beside it) or Skip (nothing is written — the default). Duplicates created by earlier releases are deleted by hand on Organization → Workspaces.": "Un cas d’enseignement fourni avec l’application est reconnu quel que soit son identifiant. Pour chacun, choisissez Remplacer (la copie présente ici est écrasée par celle du fichier), Conserver les deux (la copie du fichier est ajoutée à côté) ou Ignorer (rien n’est écrit — par défaut). Les doublons créés par les versions antérieures se suppriment à la main dans Organisation → Espaces de travail.",
+"These assets were created from the organization profile by an earlier release, or without C/I/A levels: fragments of a longer phrase, a default type, C/I/A left at 3/3/3 or a duplicate name. Open each one to merge, retype, rescore or delete it, then mark the list reviewed. Nothing was changed by the update.": "Ces actifs ont été créés à partir du profil de l’organisation par une version antérieure, ou sans niveaux C/I/D : fragments d’une phrase plus longue, type par défaut, C/I/D laissés à 3/3/3 ou nom en double. Ouvrez chacun pour le fusionner, le retyper, le recoter ou le supprimer, puis marquez la liste comme revue. La mise à jour n’a rien changé.",
+"typed \"application\" by default": "typé « application » par défaut",
+"One-time review of assets created from the profile": "Révision ponctuelle des actifs créés à partir du profil",
+"Teaching case recorded on bundled examples (restore and import recognise them)": "Cas d’enseignement consigné sur les exemples fournis (la restauration et l’importation les reconnaissent)",
+"teaching case recorded: {0} (restore and import now recognise this copy; its id is unchanged)": "cas d’enseignement consigné : {0} (la restauration et l’importation reconnaissent maintenant cette copie ; son identifiant est inchangé)",
+"{0} asset(s) created from the profile before 1.9.2 listed for review on Information assets (nothing changed)": "{0} actif(s) créé(s) à partir du profil avant 1.9.2 listé(s) pour révision dans Actifs informationnels (rien n’a changé)",
+"typed \"application\" by default": "typé « application » par défaut",
+"One-time review of assets created from the profile: nothing to review": "Révision ponctuelle des actifs créés à partir du profil : rien à réviser",
 };
