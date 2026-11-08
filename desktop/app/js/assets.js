@@ -21,7 +21,9 @@ const CLASS_W = { Public: 0, Internal: 4, Confidential: 10, Restricted: 15 };
 export function nextAssetId(ws = S.ws) { let n = 0; for (const a of ws.assets || []) { const m = /^A-(\d+)$/.exec(a.id); if (m) n = Math.max(n, +m[1]); } return 'A-' + String(n + 1).padStart(3, '0'); }
 /* 1.9.2 (item 19, NV-038) — the assets the organization profile and the crown jewels suggest, for review. Splits the
    systems text on ";" and line breaks, and on "," only outside parentheses; keeps whole phrases; drops fragments. */
-const CJ_LEVEL = { low: 2, medium: 3, high: 4, 'very high': 5, faible: 2, moyen: 3, moyenne: 3, 'élevé': 4, 'élevée': 4, 'très élevé': 5, 'très élevée': 5 };
+// crown-jewel C/I/A levels (EN and FR labels, accents and spaces folded) → 1–5
+const CJ_LEVEL = { low: 2, medium: 3, high: 4, 'very-high': 5, faible: 2, moyen: 3, moyenne: 3, eleve: 4, elevee: 4, 'tres-eleve': 5, 'tres-elevee': 5 };
+const fold = x => String(x || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-');
 export function splitSystems(text) {
   const out = []; let cur = '', depth = 0;
   for (const ch of String(text || '')) {
@@ -55,7 +57,7 @@ export function proposeFromProfile(ws) {
   for (const c of (ws.assessment?.CROWN || [])) {
     const r = Array.isArray(c) ? c : [c.id, c.name || c.asset || '', c.role || '', c.owner || '', c.c || '', c.i || '', c.a || ''];
     const nm = String(r[1] || '').trim(); if (nm.length < 2) continue;
-    const lv = x => CJ_LEVEL[String(x || '').trim().toLowerCase()];
+    const lv = x => CJ_LEVEL[fold(x)];
     const cia = lv(r[4]) && lv(r[5]) && lv(r[6]) ? { c: lv(r[4]), i: lv(r[5]), a: lv(r[6]) } : null;
     add({ name: nm, type: inferType(nm), owner: String(r[3] || ''), desc: String(r[2] || ''), cia, classification: cls(nm), sensitivity: sens(nm), source: 'crown' });
   }

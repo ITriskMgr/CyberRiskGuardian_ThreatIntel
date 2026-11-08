@@ -28,9 +28,9 @@ suite :
 |---|---|
 | **Organisation** | Des espaces de travail pour des organisations réelles et des cas pour la classe ; des documents de contexte lus sur votre ordinateur ; le profil, l'appétence pour le risque et les joyaux de la couronne extraits des documents, avec une étiquette de provenance sur chaque valeur ; des documents ajoutés et extraits à tout moment ; les actifs informationnels ; la maturité et la résilience ; la réinitialisation ; et l'**Ontologie CyberRiskGuardian** (CRGO) — une bibliothèque de scénarios de risque liés à des techniques, des faiblesses, des contrôles et des obligations de la Loi 25 du Québec, ainsi que les contextes de l'organisation, de la conformité et des opérations de sécurité (Organisation → Ontologie · CRGO). |
 | **Évaluation des risques** | Le registre des éléments probants ; des ICR avec historique ; les mesures de protection existantes ; un générateur de scénarios en lot (y compris des modèles infonuagiques et des amorces issues des opérations de sécurité) et le **filtrage des scénarios** sur les douze critères de la méthode ; un registre et un éditeur de scénarios avec le CVSS v4.0 par équivalence pour les faiblesses non techniques ; le calculateur de risque vérifié ; le registre des risques ; des mesures d'atténuation tirées d'ISO/IEC 27002:2022, de NIST SP 800-53 et CSF 2.0 et de CIS Controls v8.1 ; des recommandations avec un processus d'approbation ; le **sommaire de gestion**. |
-| **Menaces et vulnérabilités** | MITRE ATT&CK, CAPEC et CWE hors ligne ; le registre des CVE avec CISA KEV et FIRST EPSS ; les instantanés de contexte de menace et l'Échelle des preuves de menace ; des flux de menaces triés dans un bulletin hebdomadaire. |
-| **Gouvernance** | La gestion de la sécurité de l'information ; la **gestion des PSI** (bibliothèque de politiques, éditeur structuré, versions figées à l'approbation, applicabilité, prises de connaissance, non-conformités) ; la gestion de la cybersécurité (essais des contrôles, gouvernance, décisions, incidents) ; les cadres et normes ; des **registres partagés** de preuves, de mesures correctives, d'exceptions et de correspondances ; et une **revue de qualité**. |
-| **Gestion de la conformité** | Sources et obligations, applicabilité juridique, programmes et référentiels, correspondances qualifiées, déclarations d'applicabilité et exigences, campagnes et déterminations appuyées par des preuves, calendrier réglementaire, soumissions, changement réglementaire, évaluation assistée par l'IA et production de rapports. |
+| **Menaces et vulnérabilités** | MITRE ATT&CK, CAPEC et CWE hors ligne ; le registre des CVE avec CISA KEV et FIRST EPSS ; les instantanés de contexte de menace et l'Échelle des éléments probants de menace ; des flux de menaces triés dans un bulletin hebdomadaire. |
+| **Gouvernance** | La gestion de la sécurité de l'information ; la **gestion des PSI** (bibliothèque de politiques, éditeur structuré, versions figées à l'approbation, applicabilité, prises de connaissance, non-conformités) ; la gestion de la cybersécurité (essais des contrôles, gouvernance, décisions, incidents) ; les cadres et normes ; des **registres partagés** d’éléments probants, de mesures correctives, d'exceptions et de correspondances ; et une **revue de qualité**. |
+| **Gestion de la conformité** | Sources et obligations, applicabilité juridique, programmes et référentiels, correspondances qualifiées, déclarations d'applicabilité et exigences, campagnes et déterminations appuyées par des éléments probants, calendrier réglementaire, soumissions, changement réglementaire, évaluation assistée par l'IA et production de rapports. |
 | **Gestion de l'audit** | Charte et méthodologie, univers d'audit, plan pondéré selon le risque, missions, procédures SP 800-53A, feuilles de travail et échantillonnage, observations et constatations, réponses et suivi indépendant, rapports, qualité et indépendance, rapports SOC et éléments probants, traçabilité. |
 | **Opérations de sécurité** | Un **SIEM** local (sources de télémétrie, règles de détection, couverture validée par des essais, alertes et tri, indicateurs avec TLP) et un **SOAR** local (dossiers, incidents, guides d'intervention, points d'approbation, actions consignées, simulations à blanc, leçons apprises) — alimentés par des fichiers que vous importez, jamais par un connecteur en direct. |
 | **Registre partagé des risques** | Un catalogue de risques partagé entre organisations, consultable par secteur, région, taille, réglementation, thème, catégorie d'actifs et technique, avec des contributions anonymisées et une modération. |
@@ -287,10 +287,10 @@ travail :
 
 | Étape | Ce qu'elle fait |
 |---|---|
-| 0 → 1 | Les champs qui n'étaient créés que lorsqu'un écran les utilisait pour la première fois sont présents dès le départ ; les incidents importés à partir de documents passent au registre des incidents (Gestion de la cybersécurité → Incidents) et demeurent affichés sous Organisation → Preuves ; les exceptions aux politiques reçoivent un périmètre, un approbateur et des contrôles compensatoires ; les enregistrements de gouvernance, d'audit, de gestion de la cybersécurité, du SGSI et du lien avec l'ontologie sont ajoutés, vides. |
-| 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **preuves** passent, inchangés, au registre partagé des éléments probants (Gouvernance → Registres partagés → Preuves) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
+| 0 → 1 | Les champs qui n'étaient créés que lorsqu'un écran les utilisait pour la première fois sont présents dès le départ ; les incidents importés à partir de documents passent au registre des incidents (Gestion de la cybersécurité → Incidents) et demeurent affichés sous Organisation → Éléments probants ; les exceptions aux politiques reçoivent un périmètre, un approbateur et des contrôles compensatoires ; les enregistrements de gouvernance, d'audit, de gestion de la cybersécurité, du SGSI et du lien avec l'ontologie sont ajoutés, vides. |
+| 1 → 2 | Les **registres partagés** sont créés. Les enregistrements de **éléments probants** passent, inchangés, au registre partagé des éléments probants (Gouvernance → Registres partagés → Éléments probants) ; les **exceptions aux politiques** passent, inchangées, au registre partagé des exceptions, chacune liée à sa politique. Les énoncés de politique reçoivent un identifiant stable, leur modalité restant à préciser. Des enregistrements vides de gestion de la conformité, de gestion de l'audit, de SIEM et de SOAR sont ajoutés. |
 | 2 → 3 | Seuls les catalogues de contrôles actuels demeurent (ISO/IEC 27002:2022, NIST CSF 2.0, CIS Controls v8.1) : chaque référence à ISO/IEC 27002:2013, NIST CSF 1.1 ou CIS v7.1 — dans les mesures, les déclarations d'applicabilité, les listes de cadres — est mise en correspondance, l'ancien identifiant étant conservé dans une note à côté ; une référence sans correspondance (ou dont le nouvel identifiant a déjà un dossier) est conservée et **signalée pour examen**, jamais supprimée, et la Revue de qualité la signale (QC-23). Les anciens libellés de marqueurs prennent les marqueurs normalisés. Un cas d'enseignement MediBec encore sur les vecteurs AV:N antérieurs de S2 et S8 les conserve — une migration ne change aucun chiffre — et la page Processus propose les vecteurs AV:L (journalisé ; voir 7.1), ou Réinitialiser les données → Recommencer prend tout le cas actuel ; la Revue de qualité (QC-26) signale un cas laissé sur AV:N. Des dossiers vides de filtrage des scénarios et de sommaire de gestion sont ajoutés (le cas d'enseignement reçoit son filtrage). |
-| 3 → 4 | Une seule étape formée de sous-étapes, une par nouveau type de dossier. Un dossier vide du **consultant virtuel** est ajouté (conversations enregistrées et mode de recherche, lexical) ; les autres dossiers de cette version s'ajoutent de la même façon. Hormis une référence de configuration sur les actifs, rien d'existant ne change. Gestion des identités et des accès et gestion de la configuration : des registres vides sont ajoutés; chaque configuration de référence nommée sur un actif informationnel devient une configuration de référence versionnée de la gestion de la configuration (une version *héritée*) et l'actif ne reçoit qu'une référence vers elle, son propre statut inchangé; un actif en dérive reçoit un écart à classer; un périmètre compté en direct à partir des actifs informationnels est ajouté; les cas d'enseignement MediBec et CanaRetail reçoivent l'exemple de chaque module (preuves et propositions en attente seulement, rien d'accepté). Aucun chiffre de risque ne change. |
+| 3 → 4 | Une seule étape formée de sous-étapes, une par nouveau type de dossier. Un dossier vide du **consultant virtuel** est ajouté (conversations enregistrées et mode de recherche, lexical) ; les autres dossiers de cette version s'ajoutent de la même façon. Hormis une référence de configuration sur les actifs, rien d'existant ne change. Gestion des identités et des accès et gestion de la configuration : des registres vides sont ajoutés; chaque configuration de référence nommée sur un actif informationnel devient une configuration de référence versionnée de la gestion de la configuration (une version *héritée*) et l'actif ne reçoit qu'une référence vers elle, son propre statut inchangé; un actif en dérive reçoit un écart à classer; un périmètre compté en direct à partir des actifs informationnels est ajouté; les cas d'enseignement MediBec et CanaRetail reçoivent l'exemple de chaque module (éléments probants et propositions en attente seulement, rien d'accepté). Aucun chiffre de risque ne change. |
 | 4 → 5 | Un espace de travail qui contient un seul dossier **identité, privilèges et configuration** le voit séparé, sans perte, entre le dossier de la **gestion des identités et des accès** (comptes, rôles privilégiés, comptes d'urgence, revues des accès, séparation des tâches) et celui de la **gestion de la configuration** (configurations de référence, périmètres de configuration, écarts, changements de configuration). Chaque constat suit le module de son registre, identifiants inchangés; une trace d'importation suit le module dont elle a créé les lignes; une mesure corrective issue d'un constat nomme son module. Les scénarios, les paramètres et les modifications acceptées ne changent pas; la séparation est journalisée et la copie d'avant est conservée. |
 
 ---
@@ -334,7 +334,7 @@ Les étapes conservent leurs identifiants dans la matrice RACI du mode multiutil
 
 1. **Partir des documents.** Créez l'espace de travail avec tous les documents du cas et laissez « Extraire des documents » proposer le profil et les joyaux de la couronne. Acceptez, modifiez ou rejetez chaque valeur, puis enregistrez.
 2. **Résolvez d'abord les valeurs UNKNOWN.** Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
-3. **Numéroter chaque source dans le registre des éléments probants.** Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est une preuve indicative à valider, jamais un incident confirmé.
+3. **Numéroter chaque source dans le registre des éléments probants.** Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est un élément probant indicatif à valider, jamais un incident confirmé.
 4. **Filtrer sur douze critères, puis regrouper.** Notez chaque candidat de 1 à 5 sur les douze critères avec une justification d’une ligne. Le total sur 60 est une aide au filtrage ; les indicateurs d’escalade gardent en vue les scénarios graves mais improbables, et les familles empêchent une seule technique de dominer.
 5. **Générer 25 à 40, filtrer, en garder 10.** Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20 ; 20 correspond à la version rapide des laboratoires), filtrez-les dans Filtrage des scénarios et gardez les 10 plus importants dans le registre. Dix est un point de départ ; le nombre augmente avec la maturité de l’organisation.
 6. **Consulter l'ontologie avant d'écrire à partir de zéro.** L'ontologie CyberRiskGuardian contient des scénarios déjà reliés à ATT&CK, à des faiblesses, à des contrôles et à des obligations de la Loi 25 du Québec. Demandez-lui les scénarios qui conviennent à l'organisation, gardez ceux qui sont pertinents et écrivez les autres vous-même.
@@ -349,8 +349,8 @@ Les étapes conservent leurs identifiants dans la matrice RACI du mode multiutil
 15. **Anonymiser ce qui sort.** Le registre partagé des risques et Publier et partager anonymisent par défaut; un cas de classe est étiqueté fictif automatiquement.
 16. **Apprendre d'organisations comme la vôtre, et redonner.** Le registre partagé des risques rassemble des fiches de risque contribuées par d'autres organisations, classées par secteur, région, taille, réglementation, thème, catégorie d'actif et technique. Consultez-le avant de finaliser vos scénarios; contribuez les vôtres, anonymisés.
 17. **Garder les politiques vivantes.** Une politique qui n'est jamais revue cesse de décrire ce que fait l'organisation. Rédigez les politiques à partir des gabarits, faites-les approuver, publiez-les, revoyez-les selon le calendrier et consignez chaque dérogation.
-18. **Évaluer la conformité avec des preuves.** Un statut de conformité est une affirmation; ce sont les preuves qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des preuves, acceptez ce que vous pouvez défendre et produisez le rapport.
-19. **Savoir quelles lois s'appliquent — et dire ce qui n'est pas connu.** Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée; « inconnu » signifie qu'un fait manque — une lacune de preuve, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
+18. **Évaluer la conformité avec des éléments probants.** Un statut de conformité est une affirmation; ce sont les éléments probants qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des éléments probants, acceptez ce que vous pouvez défendre et produisez le rapport.
+19. **Savoir quelles lois s'appliquent — et dire ce qui n'est pas connu.** Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée; « inconnu » signifie qu'un fait manque — une lacune d’éléments probants, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
 20. **Tester les contrôles de façon indépendante et garder les conflits en vue.** Un contrôle ne vaut que par les éléments probants démontrant qu'il fonctionne. Consignez les essais par ligne de défense et par aspect; lorsqu'un résultat indépendant contredit l'autoévaluation de la direction, les deux restent visibles jusqu'à ce qu'une personne tranche.
 21. **Auditer en fonction de critères et assurer un suivi indépendant.** Une constatation d'audit énonce le critère, le constat, la cause et l'effet, avec des éléments probants. Elle n'est fermée qu'après qu'un suivi indépendant a vérifié la mesure corrective.
 22. **Décider en vertu des pouvoirs délégués, et garder les exceptions honnêtes.** Accepter un risque, financer un traitement ou accorder une exception à une politique est une décision de la direction, prise par une personne nommée en vertu d'une délégation valide à cette date. L'application rédige; les personnes décident. Une exception ne déroge jamais à une loi et cesse d'atténuer le risque à son expiration.
@@ -375,7 +375,7 @@ Créez l'espace de travail avec tous les documents du cas et laissez « Extrair
 5. Dans la revue, modifiez toute valeur, cochez celles à conserver et cliquez sur “Mettre les valeurs cochées dans le formulaire”; vérifiez les champs et cliquez sur “Enregistrer”.
 6. Examinez les joyaux de la couronne et cliquez sur “Ajouter les joyaux de la couronne cochés”.
 7. Dans l'aperçu, modifiez au besoin le contenu envoyé — retirez ce qui ne doit pas sortir, ajoutez du contexte — et choisissez la créativité de la réponse : « Stricte » s'en tient aux faits documentés, « Créative » propose aussi ce qu'une organisation comme celle-ci possède habituellement, étiqueté ASSUMPTION pour que vous le vérifiiez.
-8. Ouvrez ensuite Organisation → « Importer des documents » (étape 1 du processus) : cochez les cibles (actifs informationnels, BIA, tiers, contrôles existants, conformité, incidents, faiblesses, scénarios candidats, preuves des paramètres, risques, budget, KRI, personnes et rôles, classe), cliquez sur « Démarrer l'importation » et, pour chaque cible, cochez puis cliquez sur « Ajouter les cochés ».
+8. Ouvrez ensuite Organisation → « Importer des documents » (étape 1 du processus) : cochez les cibles (actifs informationnels, BIA, tiers, contrôles existants, conformité, incidents, faiblesses, scénarios candidats, éléments probants des paramètres, risques, budget, KRI, personnes et rôles, classe), cliquez sur « Démarrer l'importation » et, pour chaque cible, cochez puis cliquez sur « Ajouter les cochés ».
 9. De nouveaux documents plus tard : déposez-les sur « Importer des documents ». Ils sont sélectionnés seuls, de sorte que seuls eux sont lus; cochez ce qu'il faut extraire et cliquez sur « Démarrer l'importation ». Les valeurs existantes sont conservées, sauf si vous cochez la proposition qui les remplace.
 
 *Terminé quand :* Les étapes 1, 2 et 4 du processus indiquent Terminé : un nom, au moins un document et le registre des éléments probants ; au moins 8 des 12 champs de contexte et les joyaux de la couronne ; l’appétence et sa justification, le budget TI et les critères d’importance.
@@ -395,13 +395,13 @@ Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou
 
 #### 3. Numéroter chaque source dans le registre des éléments probants
 
-Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est une preuve indicative à valider, jamais un incident confirmé.
+Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est un élément probant indicatif à valider, jamais un incident confirmé.
 
 *Où :* Évaluation des risques → Registre des éléments probants
 
-1. Registre des éléments probants → « Ajouter une preuve » : le titre, le type (documentée, exercice ou simulation, apport d’expert, externe), ce qu’elle appuie et sa force.
+1. Registre des éléments probants → « Ajouter un élément probant » : le titre, le type (documentée, exercice ou simulation, apport d’expert, externe), ce qu’elle appuie et sa force.
 2. « Ajouter les documents de contexte » propose une entrée par document de l’espace de travail ; modifiez chacune avant de la conserver.
-3. Citez les numéros E dans la colonne Preuves de chaque paramètre de l’Éditeur de scénarios ; le registre indique où chaque entrée est citée.
+3. Citez les numéros E dans la colonne Éléments probants de chaque paramètre de l’Éditeur de scénarios ; le registre indique où chaque entrée est citée.
 
 *Terminé quand :* L’étape 1 du processus indique Terminé, et chaque justification de paramètre cite un numéro E ou est qualifiée d’hypothèse.
 
@@ -413,7 +413,7 @@ Notez chaque candidat de 1 à 5 sur les douze critères avec une justification d
 
 1. « Candidats et notes » : pour chaque candidat, donnez les douze notes, la justification, les indicateurs d’escalade, la confiance de sélection et une décision (Retenir, Regrouper, Examiner, Reporter).
 2. « Familles » : groupez les variantes d’une même exposition, nommez chaque famille avec son énoncé causal plus fort et cochez les familles retenues pour le portefeuille.
-3. « Schémas de pondération » : lisez les rangs selon les pondérations égale, axée sur l’impact, axée sur la preuve et axée sur la décision ; écrivez pourquoi chaque famille « retenue par jugement » est conservée, et examinez chaque candidat signalé pour « examen explicite ».
+3. « Schémas de pondération » : lisez les rangs selon les pondérations égale, axée sur l’impact, axée sur l’élément probant et axée sur la décision ; écrivez pourquoi chaque famille « retenue par jugement » est conservée, et examinez chaque candidat signalé pour « examen explicite ».
 4. « Matrice de couverture » et « Liste de surveillance et plan » : cherchez les angles morts, donnez à chaque candidat surveillé son déclencheur de promotion et planifiez comment chaque scénario retenu sera validé, par qui et pour quand.
 5. « Portefeuille final » : répondez aux six questions « pourquoi ce scénario ? », puis « Créer le scénario » dans le registre pour chaque famille retenue pas encore liée.
 
@@ -443,7 +443,7 @@ L'ontologie CyberRiskGuardian contient des scénarios déjà reliés à ATT&CK, 
 2. Lisez « Thèmes sans scénario » : les thèmes sans scénario dans l'ontologie sont ceux à écrire vous-même.
 3. Cochez les suggestions qui conviennent, gardez « Utiliser les valeurs a priori de l'ontologie comme valeurs de départ » si vous voulez un point de départ étalonné, et cliquez sur « Ajouter les cochés aux scénarios en lot »; revoyez-les et conservez-les dans la grille comme tout autre candidat.
 4. Pour un scénario que vous avez écrit vous-même : Éditeur de scénarios → « Trouver des scénarios semblables dans l'ontologie » pour le relier, et « Contrôles pour ses techniques » pour une liste de départ de contrôles.
-5. Les valeurs a priori de l'ontologie ne sont pas des preuves organisationnelles : réestimez chaque paramètre avec l'organisation. L'onglet Connexion indique si la réponse vient du serveur de l'ontologie ou de l'instantané fourni avec l'application.
+5. Les valeurs a priori de l'ontologie ne sont pas des éléments probants organisationnels : réestimez chaque paramètre avec l'organisation. L'onglet Connexion indique si la réponse vient du serveur de l'ontologie ou de l'instantané fourni avec l'application.
 
 *Terminé quand :* Le registre couvre les thèmes pertinents de l'ontologie, et les scénarios qui en sont tirés sont réestimés pour cette organisation.
 
@@ -469,7 +469,7 @@ Une analyse sans relevé des contrôles existants doit deviner θ. Inventoriez c
 
 1. Mesures de protection existantes → « Ajouter une mesure de protection » : nommez-la, fixez l'état, nommez un responsable imputable, et énoncez la portée ainsi que ce qu'elle ne couvre pas.
 2. Sous « Contribution à la résilience », notez la mesure pour chaque capacité. Une mesure marquée « Planifiée » ne compte pour rien avant d'être en fonction.
-3. Consignez la date du dernier test et son résultat ; une absence de preuve depuis douze mois est signalée comme périmée.
+3. Consignez la date du dernier test et son résultat ; une absence d’élément probant depuis douze mois est signalée comme périmée.
 4. Si vos contrôles existants sont encore dans le plan d'atténuation, « Récupérer des contrôles » les énumère et « Verser les éléments cochés à l'inventaire » déplace ceux que vous cochez.
 5. Mesures de protection existantes → « Couverture de la résilience » montre d'où vient la résilience et propose un θ. Rien ne change avant que vous l'appliquiez à un scénario.
 6. Maturité et résilience → « Maturité (CSF 2.0) » : notez les catégories qui comptent, par rapport à une cible. Laissez une catégorie vide plutôt que de la deviner. « Remplir les non notées d'après l'inventaire » propose un niveau là où des mesures pointent vers une catégorie du CSF.
@@ -511,7 +511,7 @@ Utilisez Atténuation des risques → Propositions sur les scénarios au-dessus 
 
 1. Recommandations → “Besoin de traitement” : le verdict par rapport à la tolérance et un objectif de traitement par scénario.
 2. Atténuation des risques → “Propositions” : cochez les scénarios au-dessus de la tolérance et cliquez sur “Ajouter les propositions cochées au plan” (ou choisissez des contrôles dans “Catalogue de contrôles”). Les contrôles existants importés des documents y figurent déjà comme mis en œuvre, avec des réductions nulles tant que vous ne les définissez pas.
-3. “Plan d'atténuation” : définissez le coût et les réductions de vraisemblance / d'impact; cochez les mesures à mettre en œuvre et cliquez sur “→ Nouvelle ébauche de recommandation”.
+3. “Plan d'atténuation” : définissez le coût et les réductions de probabilité / d'impact; cochez les mesures à mettre en œuvre et cliquez sur “→ Nouvelle ébauche de recommandation”.
 4. Une mesure couvrant plusieurs scénarios n'est comptée qu'une fois — voir Recommandations → “Contrôles partagés”.
 
 *Terminé quand :* L’étape 12 du processus indique Terminé : chaque scénario au-dessus de la tolérance a au moins une mesure.
@@ -592,30 +592,30 @@ Une politique qui n'est jamais revue cesse de décrire ce que fait l'organisatio
 
 *Terminé quand :* Chaque politique en vigueur est publiée, dans son délai de revue, et chaque dérogation ouverte a un responsable et une date.
 
-#### 18. Évaluer la conformité avec des preuves
+#### 18. Évaluer la conformité avec des éléments probants
 
-Un statut de conformité est une affirmation; ce sont les preuves qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des preuves, acceptez ce que vous pouvez défendre et produisez le rapport.
+Un statut de conformité est une affirmation; ce sont les éléments probants qui la rendent vraie. Inscrivez les exigences applicables, laissez les règles ou l'IA proposer un statut à partir des éléments probants, acceptez ce que vous pouvez défendre et produisez le rapport.
 
 *Où :* Conformité → Exigences; Évaluation assistée par l'IA; Rapports
 
 1. Conformité → « Cadres et listes de contrôle » : choisissez les cadres suivis et remplissez la déclaration d'applicabilité.
 2. « Exigences » : ajoutez les vôtres — lois, contrats, normes — ou « Ajouter les obligations de la Loi 25 et du R-22.1 » de l'ontologie et « Ajouter les énoncés des politiques publiées ».
-3. « Évaluation assistée par l'IA » : choisissez la portée, la méthode — Règles (hors ligne) ou IA (aperçu d'abord) — et cliquez sur « Proposer »; modifiez les preuves et cliquez sur « Appliquer les propositions cochées ».
+3. « Évaluation assistée par l'IA » : choisissez la portée, la méthode — Règles (hors ligne) ou IA (aperçu d'abord) — et cliquez sur « Proposer »; modifiez les éléments probants et cliquez sur « Appliquer les propositions cochées ».
 4. « Rapports » : « Enregistrer un instantané » à chaque revue, puis « Rapport de conformité complet (.md) » ou « Rapport imprimable ».
 
-*Terminé quand :* Chaque exigence applicable a un statut et les preuves qui le soutiennent, et le rapport est classé.
+*Terminé quand :* Chaque exigence applicable a un statut et les éléments probants qui le soutiennent, et le rapport est classé.
 
 #### 19. Savoir quelles lois s'appliquent — et dire ce qui n'est pas connu
 
-Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée; « inconnu » signifie qu'un fait manque — une lacune de preuve, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
+Décrivez l'organisation dans les termes de l'ontologie et laissez l'évaluateur de CRGO indiquer quels instruments s'appliquent. « Potentiellement applicable » exige une personne qualifiée; « inconnu » signifie qu'un fait manque — une lacune d’éléments probants, jamais « non applicable ». Rien de ceci ne constitue un avis juridique.
 
 *Où :* Conformité → Applicabilité juridique; Déterminations
 
 1. Conformité → « Applicabilité juridique » : cochez le type d'organisation, les lieux où elle est établie, offre des services ou surveille des comportements, ajoutez ses activités de traitement avec leurs catégories de données, et cochez ce que le profil énumère de façon complète.
 2. « Évaluer dans le navigateur » (ou « Évaluer avec CRGO (assistant local) ») : lisez les conditions non résolues de chaque instrument inconnu et recueillez les faits manquants.
-3. « Déterminations » : consignez la conformité à chaque disposition avec ses éléments probants, ou la lacune de preuve. Un contrôle qui appuie une obligation ne constitue pas la conformité.
+3. « Déterminations » : consignez la conformité à chaque disposition avec ses éléments probants, ou la lacune d’éléments probants. Un contrôle qui appuie une obligation ne constitue pas la conformité.
 
-*Terminé quand :* Chaque instrument est applicable, non applicable, ou signalé pour une revue par une personne qualifiée ou comme lacune de preuve, et chaque disposition touchée par les scénarios a une détermination.
+*Terminé quand :* Chaque instrument est applicable, non applicable, ou signalé pour une revue par une personne qualifiée ou comme lacune d’éléments probants, et chaque disposition touchée par les scénarios a une détermination.
 
 #### 20. Tester les contrôles de façon indépendante et garder les conflits en vue
 
@@ -763,7 +763,7 @@ chapitre ne traite (Paramètres, Sauvegarde, À propos…) n'en affiche pas.
 
 ### 7.1 Démarrer — Processus {#process}
 
-Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — preuves, contexte et portée ; appétence et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*).
+Section 6. Les dix-neuf étapes sont groupées comme dans le manuel — éléments probants, contexte et portée ; appétence et importance ; scénarios ; quantification ; traitement ; robustesse, priorités et argent ; surveillance et rapport — et le badge du menu indique la prochaine étape (par exemple *5/19*).
 
 La page s'ouvre sur l'état du travail. Un anneau à côté du titre compte les étapes terminées. La **prochaine étape** occupe
 un bandeau foncé — à quoi elle sert et, vérification par vérification, ce dont elle a encore besoin : ✓ fait, → la
@@ -802,7 +802,7 @@ documents et Importer des documents), les actifs informationnels, la maturité e
 ### 7.2.1 Profil de l'organisation {#org}
 
 L'écran **Profil de l'organisation** comporte six onglets : *Profil et appétence*, *Joyaux de la couronne*,
-*Documents de contexte*, *Importer des documents*, *Preuves* et *Espaces de travail* (plus *Classe* pour
+*Documents de contexte*, *Importer des documents*, *Éléments probants* et *Espaces de travail* (plus *Classe* pour
 un cas de classe).
 
 **Espaces de travail — évaluer une organisation nouvelle ou différente.** Donnez un nom à l'espace de
@@ -881,7 +881,7 @@ La revue énumère chaque champ avec sa valeur actuelle, la valeur proposée (mo
 | FACT | Énoncé explicitement dans les documents (la source nomme le document). |
 | INFERENCE | Déduit de faits contenus dans les documents. |
 | ASSUMPTION | Une valeur plausible faute d'information — validation requise. Avec une réponse créative, la source commence par *Proposed —*. |
-| EXTERNAL | Tiré d'une preuve externe, comme une page Web (citée). |
+| EXTERNAL | Tiré d'un élément probant externe, comme une page Web (citée). |
 | UNKNOWN | Non trouvé — information encore à recueillir. |
 
 Les propositions pour les champs vides sont cochées ; une proposition qui remplacerait une valeur que
@@ -937,18 +937,18 @@ et l'acheminement de ses requêtes d'IA :
 | Profil et appétence | les 18 champs du profil, sous forme de brouillon que vous enregistrez | oui | les propositions pour les champs remplis restent non cochées |
 | Joyaux de la couronne | Organisation → Joyaux de la couronne | oui | les noms existants sont ignorés |
 | Actifs informationnels | Actifs informationnels (responsable, type, classification, C/I/A, hébergement, fournisseur/produit, dépendances) | oui | alimente l'étape 2 des scénarios en lot, la liaison des vulnérabilités et le rayon d'impact |
-| Impact sur les affaires (BIA) | le BIA de l'actif : RTO, RPO, durée maximale d'interruption tolérable, impact 0–5, processus | oui (RTO/RPO) | preuves pour μ(E), δe, δm |
+| Impact sur les affaires (BIA) | le BIA de l'actif : RTO, RPO, durée maximale d'interruption tolérable, impact 0–5, processus | oui (RTO/RPO) | éléments probants pour μ(E), δe, δm |
 | Tiers | Actifs informationnels de type *Fournisseur / tiers* | oui | scénarios et mesures liés aux fournisseurs |
 | Contrôles existants | Mesures de protection existantes, avec les références aux cadres | oui | ajoutés avec **zéro réduction** : définissez vous-même leur effet |
 | Conformité | la déclaration d'applicabilité (statut, maturité, constats comme écarts) | IA | seulement les contrôles que les catalogues connaissent |
-| Incidents | Organisation → Preuves | oui | preuves pour Pb(A), Pb(ψ,A) |
+| Incidents | Organisation → Éléments probants | oui | éléments probants pour Pb(A), Pb(ψ,A) |
 | Vulnérabilités (faiblesses nommées) | le registre des vulnérabilités sous forme de faiblesses *W-…* avec une CWE | oui | utilisées par Suggérer des liens |
 | Scénarios candidats | la grille Scénarios en lot, marqués *[Docs]* | IA | paramètres par défaut, confiance faible |
-| Preuves des paramètres | Preuves et justification des paramètres du scénario | IA | **jamais** un nombre |
+| Éléments probants des paramètres | Éléments probants et justification des paramètres du scénario | IA | **jamais** un nombre |
 | Registre des risques existant | Registre des risques (responsable, cotes, traitement, acceptation à confirmer) | IA | |
 | Budget | initiatives, et la répartition des dépenses personnel / outils / services | oui (projets) | |
 | ICR | Tableau de bord des ICR : l'indicateur et sa première mesure | oui | |
-| Personnes et rôles | Organisation → Preuves ; *Créer l'utilisateur* en mode multiutilisateur | oui | responsables proposés, RACI de départ |
+| Personnes et rôles | Organisation → Éléments probants ; *Créer l'utilisateur* en mode multiutilisateur | oui | responsables proposés, RACI de départ |
 | Contexte de classe | l'onglet Classe | oui | |
 
 Les cibles cochées ici constituent le **plan d'importation**, présenté comme parties facultatives de
@@ -974,11 +974,11 @@ BIA, contrôles existants, incidents, faiblesses — forment la fonction *Import
 et BIA, contrôles existants, incidents, faiblesses*, acheminée vers le **modèle local par défaut** ; les
 autres suivent le fournisseur de l'espace de travail (section 8.3).
 
-**Preuves.** Organisation → *Preuves* conserve les personnes et les rôles, la ventilation des dépenses,
+**Éléments probants.** Organisation → *Éléments probants* conserve les personnes et les rôles, la ventilation des dépenses,
 les incidents lus dans les documents (ils figurent aussi au registre des incidents) et le **journal
 d'importation** (ce qui a été proposé et ajouté, par quelle méthode et par qui). Les *enregistrements*
-de preuves — ce qu'un document ou un essai démontre, pour quelle période et jusqu'à quand — sont
-conservés une seule fois dans **Gouvernance → Registres partagés → Preuves**.
+d’éléments probants — ce qu'un document ou un essai démontre, pour quelle période et jusqu'à quand — sont
+conservés une seule fois dans **Gouvernance → Registres partagés → Éléments probants**.
 
 ### 7.2.2 Actifs informationnels {#assets}
 
@@ -1036,7 +1036,7 @@ fournisseurs et installations de l'organisation, chacun lié aux scénarios et a
 
 La **maturité** est cotée par rapport au NIST CSF 2.0 : six fonctions et les 22 catégories qui en
 découlent, lues à partir du contenu de l'éditeur fourni avec l'application plutôt que saisies de
-mémoire. Cotez de 0 à 5 par rapport à une cible, avec des preuves. Une catégorie non cotée est
+mémoire. Cotez de 0 à 5 par rapport à une cible, avec des éléments probants. Une catégorie non cotée est
 **exclue de la moyenne, jamais comptée comme zéro**, de sorte qu'une évaluation partielle reste
 honnête. Lorsque vos mesures de protection renvoient à une catégorie du CSF, un niveau peut être
 proposé, et une proposition ne dépasse jamais 3 — un inventaire peut montrer que quelque chose est
@@ -1052,7 +1052,7 @@ est écrit comme étant en vigueur. Les deux proposent un θ, et l'écran nomme 
 concordent*, *le questionnaire est plus optimiste* (quelqu'un croit en une capacité que rien n'appuie)
 ou *l'inventaire est plus optimiste* (des contrôles sont consignés auxquels les personnes qui répondent
 n'accordent pas de crédit). Elles ne sont pas moyennées : faire la moyenne cache le constat. La lecture
-la plus basse est proposée par défaut, car une résilience revendiquée sans preuve est l'erreur la plus
+la plus basse est proposée par défaut, car une résilience revendiquée sans élément probant est l'erreur la plus
 coûteuse.
 
 **Historique.** Consignez une évaluation : elle est datée, sa tendance est établie par rapport à la
@@ -1083,7 +1083,7 @@ bibliothèque d'environ 1 900 scénarios de risque. Chaque scénario est lié �
 obligations de la Loi 25 du Québec qu'il peut déclencher, et à des estimations d'étalonnage. Chaque lien
 comporte un niveau de confiance (élevé, moyen, faible) et un statut d'approbation.
 
-> **Valeurs a priori d'étalonnage, pas des preuves.** Les valeurs de l'ontologie sont des
+> **Valeurs a priori d'étalonnage, pas des éléments probants.** Les valeurs de l'ontologie sont des
 > estimations de l'IA établies en 2023 pour une organisation de santé fictive, ou des valeurs
 > d'enseignant pour des cas pédagogiques. Ce sont des points de départ pour une discussion avec
 > l'organisation : tout ce qui est tiré de l'ontologie porte la mention *Estimation analytique —
@@ -1136,7 +1136,7 @@ valeurs a priori d'étalonnage.
 Cochez ce qui convient et cliquez sur **Ajouter les cochés aux scénarios en lot**. Avec **Utiliser les
 valeurs a priori de l'ontologie comme valeurs de départ**, chaque paramètre part de la valeur étalonnée
 selon le cas dans l'ontologie (ou de la valeur de la bibliothèque 2023) avec la justification *Valeur a
-priori de l'ontologie CyberRiskGuardian — pas une preuve organisationnelle* à un niveau de confiance Faible ;
+priori de l'ontologie CyberRiskGuardian — pas un élément probant organisationnel* à un niveau de confiance Faible ;
 décochez cette option pour faire partir chaque paramètre à 0,5. Dans la grille, ils sont marqués
 *[CRGO]* et examinés comme tout candidat ; une fois au registre, ils conservent leur identifiant
 d'ontologie, leurs thèmes, leurs contrôles et leurs obligations, qu'utilisent le Registre partagé des
@@ -1189,14 +1189,14 @@ l'organisation exige CRGO v0.9.1 ou une version ultérieure ; sa cinquième par
    un dépôt git ; l'assistant local refuse un tel dossier.
 3. **Contexte d'un scénario.** *Lire le contexte* renvoie, à une date donnée : les obligations
    candidates avec leur applicabilité (*applicable*, *non applicable*, *potentiellement applicable* →
-   revue par une personne qualifiée, *inconnu* → lacune de preuve), l'état de conformité et la lacune de
-   preuve ; chaque contrôle avec son dernier résultat par ligne d'évaluation et ses constatations
+   revue par une personne qualifiée, *inconnu* → lacune d’éléments probants), l'état de conformité et la lacune de
+   élément probant ; chaque contrôle avec son dernier résultat par ligne d'évaluation et ses constatations
    ouvertes — une autoévaluation que contredit une ligne indépendante est présentée comme un
    **conflit** ; les estimations avec leur niveau de confiance, leurs hypothèses et la qualité de leurs
    éléments probants (faible ou très faible → *Estimation analytique — validation requise*). Il ne
    contient aucune cote de risque.
 4. **Renvoyer les résultats sous forme de propositions.** Cochez des scénarios et des grandeurs —
-   risque estimé, toléré, atténué et résiduel, le ratio de tolérance, la cible budgétaire — puis
+   risque estimé, toléré, atténué et résiduel, le ratio risque résiduel / risque toléré, la cible budgétaire — puis
    *Envoyer les résultats cochés sous forme de propositions*. Un document par grandeur, calculé par le
    moteur de cette application, avec la version du modèle de l'application, les intrants utilisés et le
    SHA-256 de l'évaluation exacte envoyée ; statut **proposé** et rien d'autre. CRGO le stocke dans le
@@ -1206,11 +1206,11 @@ l'organisation exige CRGO v0.9.1 ou une version ultérieure ; sa cinquième par
 5. **Contextes de conformité et d'opérations de sécurité** (CRGO v0.10.0, lecture seule). Choisissez une
    date de référence et **Lire les deux contextes**. Le graphe de l'organisation porte désormais aussi
    les enregistrements des modules de gestion dans les termes de CRGO — versions et énoncés des
-   politiques, obligations et déterminations avec leurs preuves, exceptions, constatations et mesures,
+   politiques, obligations et déterminations avec leurs éléments probants, exceptions, constatations et mesures,
    règles de détection, télémétrie, alertes, dossiers, approbations et exécutions.
    - **Contexte de conformité** (`crgo_compliance_context`, contrat compliance/v1) : chaque obligation
      avec son applicabilité, son état de conformité **selon la plus récente détermination consignée**
-     (jamais inféré), l'état et la validité des preuves, les énoncés à l'appui (*correspondances — pas la
+     (jamais inféré), l'état et la validité des éléments probants, les énoncés à l'appui (*correspondances — pas la
      conformité*) et les constatations ouvertes ; les dispositions légales sans exemption réglementaire
      (une exception interne ne déroge jamais à une loi) ; les constatations et les non-conformités avec
      leurs causes profondes et les mesures en retard ; les versions des politiques, des normes et des
@@ -1233,11 +1233,11 @@ et rien n'est retenté avec des données modifiées. Corrigez la cause — habit
 le graphe après avoir ajouté ou renommé des scénarios — puis envoyez de nouveau.
 
 Dans l'**Éditeur de scénarios**, l'onglet *Ontologie · CRGO* ajoute : les obligations que le scénario
-peut déclencher, selon la notation de CRGO (`P-39.1 s. 10`) ; *Autres régimes, D3FEND et preuves
+peut déclencher, selon la notation de CRGO (`P-39.1 s. 10`) ; *Autres régimes, D3FEND et éléments probants
 d'exploitation* — les obligations découlant de A-2.1, de la LPRPDE, de la ligne directrice B-13 du BSIF
 et du RGPD, les contre-mesures MITRE D3FEND, ainsi que les données KEV/EPSS par technique et par
 faiblesse, **présentées comme des éléments probants que l'exploitation se produit dans la nature,
-jamais comme une vraisemblance** (l'EPSS n'est ni Pb(A) ni Pb(ψ,A), et le KEV ne dit rien des systèmes
+jamais comme une probabilité** (l'EPSS n'est ni Pb(A) ni Pb(ψ,A), et le KEV ne dit rien des systèmes
 propres à l'organisation) ; et *Contexte de l'organisation et éléments probants des contrôles* — le
 contexte ci-dessus ou, sans le graphe, les éléments probants des contrôles consignés dans l'espace de
 travail. Les incidents qui éclairent le scénario et les exceptions aux politiques sur lesquelles il
@@ -1324,7 +1324,7 @@ profond.
 
 ### 7.3 Évaluation des risques
 
-L'évaluation proprement dite : les preuves, les indicateurs, ce qui protège déjà l'organisation, les
+L'évaluation proprement dite : les éléments probants, les indicateurs, ce qui protège déjà l'organisation, les
 candidats et leur filtrage, les scénarios, le calcul, les risques, le traitement, les recommandations et le
 sommaire de gestion.
 
@@ -1334,31 +1334,31 @@ Les sources sur lesquelles repose l'évaluation — l'étape 1 du Processus. Cha
 (**E1**, **E2**…), la source, son **type** — *documentée* (politiques, schémas d'architecture, rapports
 d'audit, contrats), *exercice ou simulation* (injects de table ronde, journaux d'exemple), *apport d'expert*
 ou *externe* (rapports de menace, statistiques sectorielles) —, ce qu'elle appuie, sa **force** (forte,
-modérée, faible), sa **classification** (preuve organisationnelle vérifiée, preuve externe ou sectorielle,
+modérée, faible), sa **classification** (élément probant organisationnel vérifié, élément probant externe ou sectoriel,
 jugement d'expert, hypothèse, inconnu — validation requise), une date et un gardien.
 
-- **Ajouter une preuve** ouvre l'éditeur ; **Modifier** sur une ligne la change. Un identifiant s'écrit E1,
+- **Ajouter un élément probant** ouvre l'éditeur ; **Modifier** sur une ligne la change. Un identifiant s'écrit E1,
   E2… ; une source exige un titre.
 - **Ajouter les documents de contexte** propose une entrée par document de l'espace de travail, marquée
   *Lacune d'information — validation organisationnelle requise* tant que vous n'avez pas indiqué ce que le
   document appuie.
-- **Cité dans** montre où chaque entrée est citée : les preuves et justifications des six paramètres dans
+- **Cité dans** montre où chaque entrée est citée : les éléments probants et justifications des six paramètres dans
   l'Éditeur de scénarios, la justification CVSS et les justifications du filtrage. Un numéro E cité mais
   absent du registre est signalé en haut.
 - **Exporter (.csv)** écrit le registre avec ses citations.
 
-Deux règles s'appliquent partout. Le matériel d'exercice ou de simulation est une **preuve indicative à
+Deux règles s'appliquent partout. Le matériel d'exercice ou de simulation est une **élément probant indicatif à
 valider, jamais un incident confirmé**. Les valeurs d'un formateur, d'un gabarit ou d'un étalonnage sont des
-aides à la calibration, pas des preuves organisationnelles. Le registre alimente le critère de filtrage
-*force de la preuve* et la confiance de chaque paramètre ; l'exportation Excel l'écrit dans la feuille
+aides à la calibration, pas des éléments probants organisationnels. Le registre alimente le critère de filtrage
+*force de l’élément probant* et la confiance de chaque paramètre ; l'exportation Excel l'écrit dans la feuille
 *Evidence*.
 
 Ce registre est celui de l'évaluation. Le **registre partagé des éléments probants** des modules de gestion
-(Gouvernance → Registres partagés → Preuves) consigne les preuves de conformité avec leur période et leur
+(Gouvernance → Registres partagés → Éléments probants) consigne les éléments probants de conformité avec leur période et leur
 validité ; c'est un autre dossier.
 
 **Constats de gestion des identités et des accès et de gestion de la configuration.** Lorsque l'un de ces modules est activé, **Consigner comme
-preuve** sur un constat ajoute ici une ligne au numéro E suivant (documentée ou avis d'expert selon la
+élément probant** sur un constat ajoute ici une ligne au numéro E suivant (documentée ou avis d'expert selon la
 provenance de la ligne; modérée et vérifiée lorsque la ligne est confirmée, sinon faible et hypothèse). Les
 scénarios liés au constat comptent comme citations de ce numéro E.
 
@@ -1463,7 +1463,7 @@ place*, *partiellement en place*, *planifiée* (ce qui ne compte pour rien : un
 lorsqu'il fonctionne, et non lorsqu'il est décidé) ou *retirée*. La portée **et ce qu'elle ne couvre
 pas**, car c'est là que le risque se cache. Les actifs et les scénarios couverts, les contrôles des
 cadres de référence mis en œuvre, le coût annuel de son fonctionnement, ce dont elle dépend, et la date
-de son dernier essai, audit ou examen avec le résultat. Sans preuve depuis douze mois, elle est signalée
+de son dernier essai, audit ou examen avec le résultat. Sans élément probant depuis douze mois, elle est signalée
 comme périmée ; jamais mise à l'essai, elle est signalée comme une hypothèse, ce qu'elle est
 effectivement.
 
@@ -1493,8 +1493,8 @@ les scénarios ou les ajoute à la suite (les ID en conflit sont renumérotés)�
 
 Tout ce qui concerne un scénario sur un seul écran. Le sélecteur de scénario est en haut (avec *‹ Précédent*,
 *Suivant ›*, **Inclure dans les totaux**, *Dupliquer* et *Supprimer*) ; chaque section a son onglet — **Chaîne causale**,
-**Quantification**, **CVSS v4.0**, **Traitement**, **Liens et preuves** et **Ontologie · CRGO** — et la fiche **Indices de risque en direct** reste à droite
-quel que soit l'onglet : le ratio de tolérance en grands caractères avec sa classification, puis le CVSS-B, les risques
+**Quantification**, **CVSS v4.0**, **Traitement**, **Liens et éléments probants** et **Ontologie · CRGO** — et la fiche **Indices de risque en direct** reste à droite
+quel que soit l'onglet : le ratio risque résiduel / risque toléré en grands caractères avec sa classification, puis le CVSS-B, les risques
 estimé, toléré, atténué et résiduel et le ratio avant traitement, et le coût du traitement de l'année 1 avec son
 rapport coût-efficacité. Le moteur vérifié recalcule la fiche à chaque modification ; elle signale aussi une atténuation
 supérieure au risque estimé ou un score CVSS enregistré qui ne concorde pas avec son vecteur, et ouvre le scénario dans
@@ -1504,14 +1504,14 @@ enregistrer un vecteur depuis le calculateur CVSS revient à l'onglet *CVSS v4.0
 
 - **Chaîne causale** — l'identification, l'énoncé et la chaîne causale — source de menace → événement déclencheur →
   vulnérabilités → actifs et processus touchés → séquence d'événements → conséquences — et les conséquences par catégorie.
-- **Liens et preuves — Menaces — MITRE ATT&CK.** Recherchez par nom ou par ID et liez des techniques ; la ligne de
+- **Liens et éléments probants — Menaces — MITRE ATT&CK.** Recherchez par nom ou par ID et liez des techniques ; la ligne de
   couverture des tactiques montre la chaîne d'attaque qu'elles décrivent.
-- **Liens et preuves — Vulnérabilités — CWE et CVE.** Liez des types de faiblesses et des CVE précises. Lorsqu'un
+- **Liens et éléments probants — Vulnérabilités — CWE et CVE.** Liez des types de faiblesses et des CVE précises. Lorsqu'un
   instantané est chargé, chaque CVE affiche son échelon sur l'échelle ; *à surveiller* signifie que son
   exposition n'est pas confirmée. Le même onglet regroupe les actifs, mesures, risques et notes de renseignement, les
-  preuves des opérations de sécurité, les preuves sur l'identité, les privilèges et la configuration et le fondement du
+  éléments probants des opérations de sécurité, les éléments probants sur l'identité, les privilèges et la configuration et le fondement du
   contexte de menace.
-- **Quantification.** Les six paramètres avec leur valeur, leur justification, leurs preuves et leur
+- **Quantification.** Les six paramètres avec leur valeur, leur justification, leurs éléments probants et leur
   niveau de confiance.
 - **CVSS v4.0 (base seulement)** — modifiez le vecteur ici ou dans le calculateur CVSS, puis
   enregistrez-le dans le scénario. *Origine du score* indique s'il s'agit du score d'une vulnérabilité
@@ -1550,21 +1550,21 @@ technique, les contrôles que l'ontologie lui associe le plus souvent : une lis
 Atténuation des risques, et non une évaluation de l'organisation. **Patron de scénario (CRGO 0.11.0)**
 affiche le patron que suit le scénario, ses thèmes et les liens du patron, et permet de choisir l'un des six ou
 *Aucun patron de scénario* ; le graphe de l'organisation l'enregistre comme *a pour patron de scénario*
-(CRGO_0001478). Un patron est une classification, jamais une preuve ni un paramètre.
+(CRGO_0001478). Un patron est une classification, jamais un élément probant ni un paramètre.
 
-**Fiche des preuves des opérations de sécurité.** En lecture seule, elle rassemble ce que les
+**Fiche des éléments probants des opérations de sécurité.** En lecture seule, elle rassemble ce que les
 enregistrements du SIEM et du SOAR disent du scénario — par ses techniques ATT&CK, ses actifs et des
 liens explicites : la couverture de détection par technique (*validée*, *non vérifiée*, *dégradée*,
 *absente*, avec les règles et la raison), les lacunes de détection ouvertes, les alertes récentes (sans
 les alertes bénignes ni les faux positifs — **ce ne sont pas des incidents**), les dossiers SOAR, les
 incidents (*confirmé* ou *non confirmé — non compté comme incident*), les guides d'intervention avec
-l'état de leur simulation, et les liens de preuve consignés dans le scénario. **Elle ne modifie aucun
+l'état de leur simulation, et les liens d’éléments probants consignés dans le scénario. **Elle ne modifie aucun
 paramètre** : citez-la vous-même dans la justification de Pb(A), de Pb(ψ,A) ou de θ. Les alertes
 marquées TLP:RED ou TLP:AMBER+STRICT sont masquées à moins que vous ne cochiez *Afficher les éléments
 TLP:RED et TLP:AMBER+STRICT sur cet ordinateur*. Des boutons mènent à Couverture et lacunes du SIEM, à
 Alertes et tri, aux dossiers SOAR, aux Guides d'intervention et aux amorces dans Scénarios en lot.
 
-**Preuves de la gestion des identités et des accès** et **Preuves de la gestion de la configuration.**
+**Éléments probants de la gestion des identités et des accès** et **Éléments probants de la gestion de la configuration.**
 Lorsqu'un module est activé, une carte en lecture seule liste ses constats consignés qui citent le scénario,
 avec leurs numéros E, et toute modification acceptée. Une modification de Pb(ψ,A) ou de θ venant de ces modules ne provient que d'**Accepter**
 sur une proposition dans Constats et propositions, journalisée dans les révisions du scénario et le journal
@@ -1589,12 +1589,12 @@ des révisions.
 - **À partir de MITRE ATT&CK.** Recherchez des techniques par nom ou par ID, ou filtrez par tactique, et
   cochez-en une ou plusieurs. Chaque technique devient un scénario qui lie la technique et ses
   faiblesses CWE (par l'intermédiaire de CAPEC). Pb(A) part de la prévalence de la technique dans
-  ATT&CK — étiquetée comme une valeur a priori, et non comme une preuve.
+  ATT&CK — étiquetée comme une valeur a priori, et non comme un élément probant.
 - **À partir de CVE.** Choisissez des CVE dans le registre des vulnérabilités — celles qui sont exposées
   et inscrites au KEV viennent en premier, avec un filtre pour chacune de ces catégories. Chaque CVE
   devient un scénario qui lie la CVE, sa CWE et les techniques ATT&CK qui exploitent cette faiblesse,
   sur l'actif propre à la CVE lorsque le registre en consigne un. Lorsqu'un instantané est chargé et que
-  l'exposition est confirmée, Pb(ψ,A) part du plancher de la bande de l'Échelle des preuves de menace
+  l'exposition est confirmée, Pb(ψ,A) part du plancher de la bande de l'Échelle des éléments probants de menace
   de la CVE, et la justification le mentionne ; le vecteur CVSS v4.0 de la NVD est utilisé lorsqu'il est
   connu.
 - **À partir de CWE.** Choisissez des faiblesses dans le Top 25 de 2024 ou au moyen d'une recherche ;
@@ -1616,14 +1616,14 @@ des révisions.
   couverture non validée par un essai, télémétrie dégradée, grappes d'alertes par technique et par
   actif, incidents confirmés, dossiers ouverts (qui ne sont pas des incidents), actions d'intervention
   sans approbation valide, guides d'intervention non simulés et leçons apprises. Chaque amorce affiche
-  une chaîne causale suggérée, les techniques ATT&CK, les scénarios qu'elle touche, ses preuves (type,
+  une chaîne causale suggérée, les techniques ATT&CK, les scénarios qu'elle touche, ses éléments probants (type,
   identifiant, date, TLP — et une confiance de la source *telle qu'énoncée, et non une probabilité*) et
   les paramètres qu'elle **peut éclairer** — jamais une valeur. Une amorce dont les techniques et
-  le joyau de la couronne (ou l'actif) correspondent à un scénario existant est marquée *Preuve pour un
-  scénario existant* : **Consigner la preuve dans S…** la rattache à ce scénario sans modifier aucun
+  le joyau de la couronne (ou l'actif) correspondent à un scénario existant est marquée *Élément probant pour un
+  scénario existant* : **Consigner l’élément probant dans S…** la rattache à ce scénario sans modifier aucun
   paramètre. Choisissez la date *En date du* (la couverture, l'état de la télémétrie et les alertes
   sont lus à cette date) et le *Type*, cochez des amorces et **Créer … candidat(s) provisoire(s)** : ils
-  arrivent dans la grille comme ébauches avec des paramètres neutres, avec leurs liens de preuve, pour
+  arrivent dans la grille comme ébauches avec des paramètres neutres, avec leurs liens d’éléments probants, pour
   que vous les estimiez. Les alertes bénignes et les faux positifs sont écartés et comptés ; les
   incidents non confirmés par une personne ne sont pas comptés comme incidents ; les amorces TLP:RED et
   TLP:AMBER+STRICT restent masquées à moins que vous ne cochiez *Afficher les éléments TLP:RED et
@@ -1634,10 +1634,10 @@ correspond à la version rapide des laboratoires). **Ajouter les lignes cochées
 envoie les lignes cochées au Filtrage des scénarios (section 7.3.7) avec la stratégie qui les a produites ;
 **Ajouter … sélectionnés au registre** les ajoute directement comme scénarios.
 
-Dans **Proposer avec l'IA**, cocher **Inclure les preuves des opérations de sécurité** ajoute à la
+Dans **Proposer avec l'IA**, cocher **Inclure les éléments probants des opérations de sécurité** ajoute à la
 requête un résumé de ces amorces — affiché dans l'aperçu comme tout le reste. Il est filtré : les
 éléments TLP:RED et TLP:AMBER+STRICT ne sont jamais envoyés, pas plus que les niveaux de confiance des
-sources. Une amorce qui constitue une preuve pour un scénario existant est décrite comme telle, de
+sources. Une amorce qui constitue un élément probant pour un scénario existant est décrite comme telle, de
 sorte que le modèle ne la propose pas de nouveau.
 
 **Actifs.** L'étape 2 énumère les joyaux de la couronne **et** les actifs informationnels de l'inventaire,
@@ -1646,7 +1646,7 @@ rapidement.
 
 **Nombre de candidats.** Les modèles de menace × actifs × sources peuvent produire des centaines de
 combinaisons. Réglez *Nombre de candidats* (10 par défaut ; boutons rapides 10, 20, 30, 50 ; jusqu'à
-500) : les combinaisons les plus pertinentes sont générées en premier — vraisemblance du modèle ×
+500) : les combinaisons les plus pertinentes sont générées en premier — probabilité du modèle ×
 criticité de l'actif × adéquation de la source de menace.
 
 Chaque candidat arrive dans la **grille d'examen**, où le nom, l'énoncé, la source, l'actif, les six
@@ -1657,12 +1657,12 @@ validation requise ». Les consignes de la méthode s'appliquent : au moins 20
 importants pour une analyse détaillée.
 
 **Candidats variés et germe.** Le classement seul tirerait vingt candidats de deux ou trois modèles —
-une même menace appliquée à un actif après l'autre — parce que la vraisemblance du modèle est identique
+une même menace appliquée à un actif après l'autre — parce que la probabilité du modèle est identique
 pour chaque actif. Les candidats sont donc **répartis** entre les modèles, les actifs et les sources de
 menace que vous avez cochés, en privilégiant toujours les combinaisons les plus vraisemblables : chaque
 choix rend son propre modèle et son propre actif moins attrayants pour le suivant. Dans le cas MediBec,
 la même sélection donne **18 modèles distincts sur 20 candidats au lieu de 3**, les nombres suivant les
-vraisemblances plutôt que de constituer un quota égal.
+probabilités plutôt que de constituer un quota égal.
 
 La répartition repose sur un **germe** ; le germe est affiché et conservé avec l'espace de travail, et
 *Rebrasser* en tire un nouveau. Le même germe reproduit les mêmes candidats, de sorte qu'un ensemble
@@ -1686,10 +1686,10 @@ axée sur la menace, axée sur les dépendances et générique localisée —, c
 **Candidats et notes.** **Score** ouvre la fiche d'un candidat : les douze critères notés de 1 (très
 faible) à 5 (très élevé) — criticité d'affaires, criticité de l'actif, pertinence de la menace, exposition ou
 vulnérabilité, impact potentiel, réglementaire et juridique, résilience opérationnelle, dépendance et
-concentration, force de la preuve (5 = preuve organisationnelle directe, 1 = hypothèse seulement), vélocité
+concentration, force de l’élément probant (5 = élément probant organisationnel direct, 1 = hypothèse seulement), vélocité
 du risque, incertitude sur les contrôles et utilité pour la décision —, avec une justification d'une ligne,
 les **indicateurs d'escalade**, la **confiance de sélection** (élevée, moyenne, faible), le fondement de
-preuve dominant et une **décision** : *Retenir*, *Regrouper* (dans une famille), *Examiner* (examen
+élément probant dominant et une **décision** : *Retenir*, *Regrouper* (dans une famille), *Examiner* (examen
 explicite) ou *Reporter*. Le total sur 60 est une **aide au filtrage, pas une règle mécanique**. Ne classez
 pas selon le CVSS. **Exporter le filtrage (.csv)** écrit chaque note, chaque total et chaque note pondérée.
 
@@ -1709,7 +1709,7 @@ pour le portefeuille** pour les familles du portefeuille final.
 
 **Schémas de pondération.** Chaque famille prend la note pondérée la plus élevée de ses membres, de sorte que
 les variantes ne s'additionnent pas. Les rangs selon les schémas **égal**, **axé sur l'impact**, **axé sur la
-preuve** et **axé sur la décision** sont présentés côte à côte. Une famille retenue qui n'est pas parmi les
+élément probant** et **axé sur la décision** sont présentés côte à côte. Une famille retenue qui n'est pas parmi les
 dix premières dans chaque schéma est **retenue par jugement** : écrivez pourquoi. Un candidat non retenu qui
 se classe parmi les dix premiers dans un schéma exige un **examen explicite**.
 
@@ -1720,7 +1720,7 @@ d'affaires, résilience, IA et sécurité des personnes. Une lacune est une ques
 remplir.
 
 **Liste de surveillance et plan.** Les candidats écartés mais encore importants, chacun avec son déclencheur
-de promotion et son responsable, et le **plan de collecte des preuves** : comment chaque scénario retenu sera
+de promotion et son responsable, et le **plan de collecte des éléments probants** : comment chaque scénario retenu sera
 validé, par qui et pour quand.
 
 **Portefeuille final.** Pour chaque famille retenue, les six questions **« pourquoi ce scénario ? »** et
@@ -1773,9 +1773,9 @@ tant que vous ne le modifiez pas.
 
 Les risques sont ce dont la direction est responsable ; les scénarios sont la façon de les quantifier.
 *Créer à partir des scénarios* crée un risque par scénario avec ses techniques, ses CWE/CVE, ses actifs
-et ses mesures, et des cotes sur une échelle de 1 à 5 vraisemblance × impact : **actuelle** d'après les
+et ses mesures, et des cotes sur une échelle de 1 à 5 probabilité × impact : **actuelle** d'après les
 paramètres du scénario, **cible** après les réductions combinées de ses mesures ; **inhérente** part
-d'une valeur égale à l'actuelle, que vous ajustez. Chaque risque affiche le ratio de tolérance de
+d'une valeur égale à l'actuelle, que vous ajustez. Chaque risque affiche le ratio risque résiduel / risque toléré de
 ses scénarios. Consignez le responsable, la catégorie, le traitement, le statut, le prochain examen et
 une **acceptation formelle** (par, date, valide jusqu'au, justification) ; chaque modification est
 journalisée dans l'historique du risque. La carte de chaleur (inhérente, actuelle ou cible) et la liste
@@ -1792,7 +1792,7 @@ met à jour les cotes actuelle et cible après une modification des paramètres.
   existante.
 - **Mesures.** Nom, fonction, responsable, statut (proposée, approuvée, en cours, mise en œuvre,
   rejetée), coût ponctuel et récurrent, mois avant l'obtention du bénéfice, effort, confiance,
-  réduction de vraisemblance par défaut **rp** et réduction d'impact **ri**, modifiables par scénario
+  réduction de probabilité par défaut **rp** et réduction d'impact **ri**, modifiables par scénario
   avec une justification, et les contrôles du catalogue mis en œuvre. Une mesure consigne aussi **ce
   qu'elle change** — l'une des neuf catégories d'effet (gouvernance, prévention, détection,
   intervention, rétablissement, résilience, sensibilisation, assurance, tiers) — le **verbe d'action**
@@ -1808,7 +1808,7 @@ met à jour les cotes actuelle et cible après une modification des paramètres.
   estimé × red_p × red_i. Le tableau affiche le ratio actuel et le ratio avec les mesures. **Appliquer**
   écrit les valeurs combinées dans le scénario avec une entrée de révision ; **Annuler les
   modifications** rétablit les valeurs précédentes. Comme la convention multiplie les deux réductions,
-  un ensemble qui ne réduit que la vraisemblance (ou que l'impact) n'atténue rien — l'écran vous
+  un ensemble qui ne réduit que la probabilité (ou que l'impact) n'atténue rien — l'écran vous
   avertit lorsque cela se produit.
 - **Coûts.** Chaque mesure constitue un seul investissement ; son coût de l'année 1 est réparti entre
   ses scénarios, de sorte que les contrôles partagés ne sont jamais comptés deux fois. **→ Initiative**
@@ -1925,8 +1925,8 @@ transferts sans approbateur) et celles que vous ajoutez, une par ligne. Chacune 
 Ensuite : combien de scénarios sont **au-dessus, environ à et sous la tolérance avant et après
 traitement**, avec les totaux estimé, toléré et résiduel ; le **portefeuille et le budget** — coût de la
 première année du portefeuille recommandé, cible cohérente avec l'appétence, dépense actuelle et écart ; les
-**principaux risques** avec leur ratio de tolérance et leur décision ; les **marqueurs** — valeurs de
-paramètres présentées comme estimations, valeurs sans référence de preuve, scores CVSS d'applicabilité
+**principaux risques** avec leur ratio risque résiduel / risque toléré et leur décision ; les **marqueurs** — valeurs de
+paramètres présentées comme estimations, valeurs sans référence d’élément probant, scores CVSS d'applicabilité
 limitée et chaque **Lacune d'information — validation organisationnelle requise** ; les **limites** et les
 **prochaines étapes**.
 
@@ -1948,7 +1948,7 @@ et 44 mesures d'atténuation — liée aux modèles d'attaque **CAPEC v3.9** et 
 - **Matrice** : les techniques par tactique, colorées selon le nombre de scénarios qui les utilisent ;
   filtrez, ou affichez seulement celles qui sont liées.
 - **Détail de la technique** : description, tactiques, plateformes, nombre d'ensembles d'intrusion
-  suivis qui l'utilisent (prévalence, et non vraisemblance pour cette organisation), sous-techniques,
+  suivis qui l'utilisent (prévalence, et non probabilité pour cette organisation), sous-techniques,
   mesures d'atténuation ATT&CK, faiblesses CWE liées par l'entremise de CAPEC, scénarios qui
   l'utilisent, et boutons pour la lier à un scénario ou démarrer un nouveau scénario à partir de
   celle-ci.
@@ -1961,7 +1961,7 @@ et 44 mesures d'atténuation — liée aux modèles d'attaque **CAPEC v3.9** et 
 
 - **Sources en ligne** — mise à jour à partir d'Internet, voir ci-dessous.
 - **Registre des CVE** — les CVE que l'organisation exploite. La case *Exposé* est le filtre
-  d'exposition (contrainte C4) : cochez-la seulement si vous disposez de preuves tirées de
+  d'exposition (contrainte C4) : cochez-la seulement si vous disposez d’éléments probants tirées de
   l'inventaire, de la CMDB ou d'un balayeur. Lorsqu'un instantané est chargé, chaque CVE affiche son
   inscription au KEV (et son utilisation connue par des rançongiciels), son score EPSS et son échelon.
   Liez des CVE à des scénarios à partir d'ici, récupérez celles qui sont déjà liées dans les scénarios,
@@ -2031,7 +2031,7 @@ registre est proposée pour un scénario lorsque :
 Un scénario qui a des techniques ATT&CK mais aucune faiblesse reçoit jusqu'à deux propositions de CWE.
 Les **propositions d'exposition** énumèrent les CVE du registre non encore confirmées qu'un actif
 d'inventaire mentionne (Élevée) ou dont il exécute le produit (Moyenne) ; *Marquer les éléments cochés
-comme exposés* les confirme et inscrit la preuve dans l'entrée du registre.
+comme exposés* les confirme et inscrit l’élément probant dans l'entrée du registre.
 
 **Étape 2 — Demander à l'IA d'autres liens.** Les chaînes causales des scénarios, le registre et les
 liens déjà proposés par les règles sont envoyés — vous voyez d'abord le contenu exact à envoyer — et le
@@ -2045,7 +2045,7 @@ vulnérabilités de l'organisation ; voir la section 8.3 pour modifier ce régl
 si son exposition est confirmée), le motif, la méthode (règles, IA ou les deux) et le niveau de
 confiance. Les lignes de confiance élevée sont cochées par défaut. *Accepter les éléments cochés*
 ajoute les liens aux scénarios ; *Rejeter les éléments cochés* supprime les propositions définitivement
-— elles ne sont plus proposées. *Écarts* énumère les scénarios sans preuve de vulnérabilité (ils peuvent
+— elles ne sont plus proposées. *Écarts* énumère les scénarios sans élément probant de vulnérabilité (ils peuvent
 tout de même être valides : un initié, une panne) et les CVE du registre qu'aucun scénario n'utilise
 (elles peuvent justifier un nouveau scénario — Scénarios en lot → À partir de CVE). *Décisions
 récentes* conserve qui a lié ou rejeté quoi, et par quelle méthode.
@@ -2058,7 +2058,7 @@ propositions de l'échelle que vous acceptez dans Contexte de menace (section 7.
 *Vulnérabilités → Décisions SSVC* (1.9.0) ajoute une décision **SSVC** (*Stakeholder-Specific
 Vulnerability Categorization*) à chaque entrée du registre. SSVC répond à une question que le moteur de
 risque ne traite pas : *dans quel délai répondre à cette vulnérabilité ?* C'est une **priorité de
-réponse, jamais une vraisemblance** : aucun résultat SSVC ne modifie Pb(A), Pb(ψ,A) ni aucun autre
+réponse, jamais une probabilité** : aucun résultat SSVC ne modifie Pb(A), Pb(ψ,A) ni aucun autre
 paramètre, et les totaux de risque sont les mêmes avant et après toute décision.
 
 **L'arbre** se choisit une fois par espace de travail :
@@ -2073,19 +2073,19 @@ Les tables sont celles qui sont publiées, ligne pour ligne (dépôt SSVC du CER
 l'arbre de la CISA) ; la source est indiquée à l'écran. Changer d'arbre conserve les décisions
 antérieures et les marque *autre arbre — à revoir*.
 
-**L'exploitation à partir des preuves.** L'EPSS et le CISA KEV de l'instantané chargé, ainsi que les
+**L'exploitation à partir des éléments probants.** L'EPSS et le CISA KEV de l'instantané chargé, ainsi que les
 éléments chargés sous Flux de menaces, suggèrent la valeur d'Exploitation : inscrite au KEV → *Active* ;
 code d'exploitation public (PoC) signalé dans les flux → *PoC publique* ; sinon *Aucune*. Un EPSS au seuil
-élevé de l'instantané ou au-dessus (score 0,50 ou centile 0,90) figure dans les preuves comme une
-**probabilité d'exploitation élevée (EPSS)** : ce n'est pas une preuve que du code d'exploitation est public,
+élevé de l'instantané ou au-dessus (score 0,50 ou centile 0,90) figure dans les éléments probants comme une
+**probabilité d'exploitation élevée (EPSS)** : ce n'est pas un élément probant que du code d'exploitation est public,
 et à lui seul il ne suggère jamais *PoC publique*. Vous pouvez choisir une autre valeur ;
 la fiche exige alors une justification et conserve les deux valeurs.
 
 **La fiche de décision** — une par vulnérabilité : les points de décision et leurs valeurs, les points
-dérivés, le résultat, les preuves (date d'inscription au KEV, score et centile EPSS, mentions de PoC,
+dérivés, le résultat, les éléments probants (date d'inscription au KEV, score et centile EPSS, mentions de PoC,
 date de l'instantané), qui a décidé, quand, la justification et l'historique des décisions antérieures.
 *Décidée par* est obligatoire. Le registre affiche le résultat dans sa colonne **SSVC** et la fiche de la
-CVE le reprend ; *À revoir* apparaît lorsque l'arbre a changé ou que les preuves indiquent maintenant une
+CVE le reprend ; *À revoir* apparaît lorsque l'arbre a changé ou que les éléments probants indiquent maintenant une
 valeur d'Exploitation plus forte. *Exporter les décisions (CSV)* donne l'ensemble.
 
 ### 7.4.3 Flux de menaces et réseaux sociaux {#feeds}
@@ -2117,7 +2117,7 @@ qui constitue le tri de référence.
 aucune IA** : la période, le nombre d'éléments et d'histoires, le nombre de doublons fusionnés, chaque
 histoire avec ses sources et la raison de sa présence, et une section finale indiquant ce que la
 synthèse n'a *pas* fait — aucun score de risque n'a été modifié ; `Pb(A)` et `Pb(ψ,A)` ne changent que
-sur exposition confirmée, au moyen de l'Échelle des preuves de menace, chaque changement étant accepté
+sur exposition confirmée, au moyen de l'Échelle des éléments probants de menace, chaque changement étant accepté
 par vous ; le CVSS reste limité au score de base. Enregistrez-la dans le dossier des flux à côté du
 condensé, ou copiez-la.
 
@@ -2177,7 +2177,7 @@ dans Contexte de menace.
 **Charger l'exemple fourni**. `examples/threat-context/threat-context-example.json` est livré avec
 l'application — environ 1,5 Mo — et le bouton à côté du sélecteur de fichier le charge en un clic. Il
 contient le **catalogue CISA KEV complet à sa date de construction (1 766 entrées), 40 134 scores EPSS,
-l'Échelle des preuves de menace, les seuils et les contraintes**. C'est suffisant pour placer des CVE
+l'Échelle des éléments probants de menace, les seuils et les contraintes**. C'est suffisant pour placer des CVE
 sur l'échelle, exécuter la jointure d'exposition et terminer l'étape 3 du Processus sur une machine sans
 aucun accès à Internet.
 
@@ -2214,7 +2214,7 @@ dans l'application, deux boutons apparaissent :
 - **Télécharger threat-context-YYYY-MM-DD.json** enregistre le même instantané sous forme de fichier
   dans le dossier de téléchargement de votre navigateur (habituellement *Téléchargements*). Conservez ce
   fichier pour le charger dans un autre espace de travail ou sur un autre ordinateur au moyen du champ
-  *Instantané* de cet écran, pour le remettre à un collègue, ou pour archiver les preuves qui ont appuyé
+  *Instantané* de cet écran, pour le remettre à un collègue, ou pour archiver les éléments probants qui ont appuyé
   une décision.
 
 **Télécharger**, en haut, fait de même pour l'instantané déjà utilisé, et **Effacer** le retire de cet
@@ -2233,15 +2233,15 @@ espace de travail seulement. Les instantanés ne sont pas compris dans une sauve
 Dans les deux cas, les catalogues sont téléchargés en entier et joints localement (contrainte C5).
 
 **Jointure d'exposition.** Collez les CVE dont l'exploitation par l'organisation est confirmée, ou
-cliquez sur *Utiliser le registre*. Chacune est placée sur l'**Échelle des preuves de menace** :
+cliquez sur *Utiliser le registre*. Chacune est placée sur l'**Échelle des éléments probants de menace** :
 
 | Échelon | Fourchette | Libellé | Critère |
 |---|---|---|---|
-| 1 | 0.10–0.20 | Menace théorique | Techniquement possible, peu de preuves d'exploitation actuelle. |
+| 1 | 0.10–0.20 | Menace théorique | Techniquement possible, peu d’éléments probants d'exploitation actuelle. |
 | 2 | 0.30–0.40 | Activité de menace connue | Maliciels, techniques ou activités d'adversaires apparentés observés quelque part. |
 | 3 | 0.50–0.60 | Campagnes actives pertinentes | Des organisations utilisant des technologies semblables sont ciblées. |
 | 4 | 0.70–0.80 | Exploitation confirmée d'une technologie pertinente | Inscription au KEV, ou EPSS élevé, pour une technologie dont l'exploitation par l'organisation est confirmée. |
-| 5 | 0.90–1.00 | Preuve organisationnelle directe | Activité malveillante correspondante dans la télémétrie propre de l'organisation. |
+| 5 | 0.90–1.00 | Élément probant organisationnel direct | Activité malveillante correspondante dans la télémétrie propre de l'organisation. |
 
 **L'échelon 5 signifie un incident, et non un risque prospectif.** Déclenchez d'abord la réponse aux
 incidents.
@@ -2249,7 +2249,7 @@ incidents.
 **Changements proposés de Pb(ψ,A).** Pour chaque scénario lié à une CVE exposée et dont la valeur
 Pb(ψ,A) se situe sous la fourchette de la CVE, l'application propose de la relever au **plancher** de
 la fourchette et affiche le ratio avant et après. Rien ne change tant que vous n'acceptez pas :
-l'acceptation inscrit une entrée `threat_basis` dans le scénario (preuve, date de l'instantané,
+l'acceptation inscrit une entrée `threat_basis` dans le scénario (élément probant, date de l'instantané,
 exposition, confiance) et une ligne dans le **journal des révisions** — quel scénario a changé, de
 combien, et si son classement par rapport à la tolérance a changé en raison du paysage des menaces
 plutôt que de l'organisation.
@@ -2292,7 +2292,7 @@ Les politiques de sécurité de l'information, de la rédaction à l'approbation
 prise de connaissance, à la revue et au retrait. Chaque politique a des **versions** : l'approbation
 fige une version avec une empreinte SHA-256 de son contenu, et toute modification ouvre une nouvelle
 version en brouillon. **Une prise de connaissance, une correspondance ou un énoncé de politique n'est
-jamais la conformité** : seule une détermination de conformité datée et appuyée par des preuves établit
+jamais la conformité** : seule une détermination de conformité datée et appuyée par des éléments probants établit
 un état de conformité (section 7.6). Sept onglets :
 
 #### Vue d'ensemble {#isp-overview}
@@ -2428,7 +2428,7 @@ immédiatement, sans IA.
 Les lois, règlements, contrats et référentiels qui peuvent s'appliquer. Pour les instruments que CRGO connaît
 (P-39.1, A-2.1, R-22.1, LPRPDE, BSIF B-13, RGPD, C-1.1 et — nouveaux dans CRGO 0.11.0 — la Loi sur la protection des cybersystèmes essentiels, ISO/IEC 27701 et
 42001 et les listes OWASP Top 10:2025, LLM et agentiques), l'évaluation du profil de l'organisation par
-l'ontologie est présentée comme preuve; **Évaluer le profil maintenant** l'exécute, et **Les ajouter au
+l'ontologie est présentée comme élément probant; **Évaluer le profil maintenant** l'exécute, et **Les ajouter au
 profil CRGO** ajoute les valeurs que votre entrevue implique (sans jamais marquer une liste comme complète —
 l'inconnu reste inconnu). Les autres candidats (règles sectorielles, contrats, référentiels) sont ceux du
 rédacteur. Pour chaque candidat, choisissez une **Décision** — *S'applique*, *Ne s'applique pas*, *Révision
@@ -2516,7 +2516,7 @@ ce qui s'est passé.
   en cause, un incident confirmé exige une **évaluation de l'obligation de déclaration** en vertu de la
   Loi 25, art. 3.5 et, s'il y a lieu, du RGPD, art. 33 — une évaluation destinée à des personnes
   qualifiées, et non un avis juridique ; la Gestion de la conformité calcule les délais de notification
-  à partir de la date de confirmation. Un incident éclaire la vraisemblance d'un scénario ; il ne la
+  à partir de la date de confirmation. Un incident éclaire la probabilité d'un scénario ; il ne la
   prouve pas : citez-le dans la justification de Pb(A) et de Pb(ψ,A).
 
 ### 7.5.4 Cadres et normes {#frameworks}
@@ -2582,12 +2582,12 @@ consultez.
 
 | Onglet | Ce qu'il contient | La règle |
 |---|---|---|
-| **Preuves** | Les métadonnées des preuves : ce qu'elles démontrent, pour quelle période, combien de temps elles restent valides, le dépositaire, l'endroit où elles sont conservées (chemin ou lien), un SHA-256 facultatif, et si elles ont été jugées suffisantes. | Une preuve expirée, ou jugée insuffisante, est une **lacune de preuve** — jamais un appui à un état de conformité. Le fichier reste là où il est conservé ; seuls sa description et son empreinte sont consignés. |
+| **Éléments probants** | Les métadonnées des éléments probants : ce qu'elles démontrent, pour quelle période, combien de temps elles restent valides, le dépositaire, l'endroit où elles sont conservées (chemin ou lien), un SHA-256 facultatif, et si elles ont été jugées suffisantes. | Un élément probant expiré, ou jugé insuffisant, est une **lacune d’éléments probants** — jamais un appui à un état de conformité. Le fichier reste là où il est conservé ; seuls sa description et son empreinte sont consignés. |
 | **Mesures correctives** | Les mesures correctives et de remédiation issues des constatations, des non-conformités, des incidents et des leçons apprises : responsable, échéance, statut. | Une mesure n'est fermée que lorsque **quelqu'un d'autre que son responsable l'a vérifiée**. Les mesures en retard témoignent d'un fonctionnement faible des contrôles. |
 | **Exceptions** | Les dérogations approuvées et limitées dans le temps aux exigences internes : périmètre, approbateur, contrôles compensatoires, expiration, scénarios qui comptent sur elles. | **Une exception ne déroge jamais à une loi** : un écart par rapport à une obligation légale est une non-conformité. Seule une autorité accorde une exemption réglementaire (Gestion de la conformité). |
-| **Correspondances** | Des assertions de correspondance qualifiées entre un énoncé de politique ou un contrôle et une obligation ou une exigence d'un cadre : *exacte*, *complète*, *partielle*, *plus large*, *plus étroite*, *connexe* ou *contradictoire*, par rapport à quelle édition, pourquoi, avec quelle confiance et qui l'a revue. | **Une correspondance n'est jamais la conformité** : seule une détermination datée et appuyée par des preuves établit un état de conformité. Une correspondance revue nomme la personne qui l'a revue. |
+| **Correspondances** | Des assertions de correspondance qualifiées entre un énoncé de politique ou un contrôle et une obligation ou une exigence d'un cadre : *exacte*, *complète*, *partielle*, *plus large*, *plus étroite*, *connexe* ou *contradictoire*, par rapport à quelle édition, pourquoi, avec quelle confiance et qui l'a revue. | **Une correspondance n'est jamais la conformité** : seule une détermination datée et appuyée par des éléments probants établit un état de conformité. Une correspondance revue nomme la personne qui l'a revue. |
 
-Les enregistrements de preuves et les exceptions aux politiques saisis avant l'existence des registres
+Les enregistrements d’éléments probants et les exceptions aux politiques saisis avant l'existence des registres
 partagés y ont été déplacés, inchangés, par la migration des données (section 5.1).
 
 ### 7.5.6 Gestion des identités et des accès (GIA/GAP) {#iam}
@@ -2604,7 +2604,7 @@ données restent dans l'espace de travail. Son module compagnon, la **Gestion de
 7.5.7), s'active ou se désactive de façon indépendante.
 
 Chaque ligne porte une source (au plus 200 caractères), une date, un **statut** (*inféré*, *confirmé*,
-*inconnu* ou *contradictoire*), une confiance, un numéro E de preuve facultatif, une étiquette de provenance
+*inconnu* ou *contradictoire*), une confiance, un numéro E d’élément probant facultatif, une étiquette de provenance
 et une note. Un **décompte laissé vide est inconnu, pas nul** (« Laissez vide si inconnu — 0 signifie
 aucun ») et reste inconnu dans tous les calculs. Une ligne dont la date est vide ou plus ancienne que sa
 fenêtre porte le badge **périmé** : elle compte encore et abaisse CRG-23. Un registre vide affiche « Lacune
@@ -2687,12 +2687,12 @@ d'urgence non testé ou sans un contrôle (IR-06), utilisations d'urgence non ex
 incomplètes ou révocations non vérifiées (IR-08), conflits des réviseurs (IR-09), conflits de séparation des
 tâches sans atténuation (IR-10) et lignes périmées ou contradictoires (IR-16). Chacun affiche un **sens
 indicatif** — Pb(ψ,A) ↑ ou θ ↓ — jamais une valeur. **Consigner** ou **Écarter** (avec un motif). Sur un
-constat consigné : **Consigner comme preuve** ajoute une ligne au registre des éléments probants au numéro E
+constat consigné : **Consigner comme élément probant** ajoute une ligne au registre des éléments probants au numéro E
 suivant; **Lier un scénario** cite un scénario sans le modifier; **Proposer une modification de paramètre**
 prend la valeur **que vous saisissez** pour Pb(ψ,A) ou θ, avec la confiance, une justification citant le
 constat et son numéro E, et le ratio actuel et après du moteur vérifié. **Enregistrer comme proposition** ne
 change rien. **Accepter**, un acte distinct dans le tableau des propositions, inscrit la valeur dans le
-scénario, ajoute le constat et le numéro E aux preuves du paramètre, et consigne la modification dans le
+scénario, ajoute le constat et le numéro E aux éléments probants du paramètre, et consigne la modification dans le
 fondement du scénario, ses révisions et le journal des révisions. **Écarter** exige un motif. Rien n'est
 jamais appliqué automatiquement — ni par une migration, une importation, l'IA, les cas d'enseignement, les
 indicateurs, ni par l'activation du module. Les identifiants de constats (IF-nn) forment une seule suite avec
@@ -2724,7 +2724,7 @@ recueillis; aucun identifiant n'est conservé, si bien qu'un espace de travail p
 personne et que le contenu des registres ne suscite aucune demande d'accès ou de rectification; les rapports
 sources sont traités de façon transitoire sur l'ordinateur de l'analyste, l'IA va par défaut au modèle local
 avec chaque charge affichée, et seule une trace d'importation (SHA-256, nombre de lignes) est conservée comme
-preuve. Un traitement par personne exigerait d'abord une évaluation des facteurs relatifs à la vie privée et
+élément probant. Un traitement par personne exigerait d'abord une évaluation des facteurs relatifs à la vie privée et
 la personne responsable de la protection des renseignements personnels. Les libellés ne nomment jamais
 d'individus. **Aucune conformité légale n'est revendiquée**; l'applicabilité dépend du contexte juridique de
 l'organisation.
@@ -2747,7 +2747,7 @@ désactivé, son écran le dit, ses indicateurs, constats et propositions sont m
 dans l'espace de travail.
 
 Les lignes suivent les mêmes règles que les registres d'identité : source, date, statut, confiance, numéro E
-de preuve, provenance et note; un **décompte laissé vide est inconnu, pas nul**; un périmètre dont la date de
+d’élément probant, provenance et note; un **décompte laissé vide est inconnu, pas nul**; un périmètre dont la date de
 référence est vide ou plus ancienne que la fenêtre de fraîcheur porte le badge **périmé** et abaisse CRG-25.
 **L'enregistrement est désactivé** lorsque conformes > évalués, évalués > affectés ou affectés > périmètre,
 lorsque vérifiés > changements, lorsqu'une période ne suit pas la forme `YYYY-Qn` ou `YYYY-MM`, lorsqu'une
@@ -2802,7 +2802,7 @@ Des règles déterministes proposent des constats à partir des registres de con
 ouverte de gravité élevée (IR-11), compensation par une exception expirée (IR-12), changements non autorisés
 soupçonnés (IR-13), changements d'urgence non vérifiés (IR-14), configuration de référence seulement héritée
 ou en ébauche (IR-15) et lignes périmées ou contradictoires (IR-16). Consigner, écarter, consigner comme
-preuve, lier un scénario, proposer et accepter fonctionnent comme dans la gestion des identités et des accès
+élément probant, lier un scénario, proposer et accepter fonctionnent comme dans la gestion des identités et des accès
 (section 7.5.6) : la règle ne donne qu'un sens, la valeur est saisie par l'analyste, enregistrer une
 proposition ne change rien, et **Accepter** est un acte distinct et journalisé.
 
@@ -2830,21 +2830,21 @@ Dix-huit vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte 
 | QC-01 | Les renvois vers l'ontologie sont des propositions accompagnées d'une version du modèle et des intrants. |
 | QC-02 | Rien n'est dit approuvé à moins qu'une personne ne l'ait approuvé, en vertu d'une délégation de pouvoirs valide. |
 | QC-03 | « Appuyé par un contrôle » n'est pas présenté comme « conforme ». |
-| QC-04 | L'EPSS n'est pas utilisé comme vraisemblance (une vraisemblance égale au score EPSS de la CVE du scénario, ou une justification indiquant qu'elle a été fixée à partir de l'EPSS, échoue). |
-| QC-05 | Une applicabilité inconnue est une lacune de preuve ; une applicabilité potentielle exige une revue par une personne qualifiée. |
+| QC-04 | L'EPSS n'est pas utilisé comme probabilité (une probabilité égale au score EPSS de la CVE du scénario, ou une justification indiquant qu'elle a été fixée à partir de l'EPSS, échoue). |
+| QC-05 | Une applicabilité inconnue est une lacune d’éléments probants ; une applicabilité potentielle exige une revue par une personne qualifiée. |
 | QC-06 | Les conflits entre lignes de défense sont résolus par une personne. |
 | QC-07 | Les exceptions expirées ne sont pas comptées comme mesures d'atténuation. |
 | QC-08 | Aucune exception ne déroge à une loi. |
 | QC-09 | La base de l'organisation appartient à l'organisation. |
 | QC-10 | Les cas fictifs et les valeurs a priori de l'ontologie ne sont pas des éléments probants d'étalonnage. |
-| QC-11 | Les preuves sont à jour. |
+| QC-11 | Les éléments probants sont à jour. |
 | QC-12 | Le moteur reproduit la base de référence MediBec (84,305 / 41,023). |
 | QC-13 | Les normes sous licence sont citées par identifiant seulement. |
-| QC-14 | Aucune obligation n'est déclarée conforme sur la foi d'une correspondance, d'une prise de connaissance ou d'une attestation : chaque détermination *satisfaite* repose sur une preuve à jour du registre partagé. |
+| QC-14 | Aucune obligation n'est déclarée conforme sur la foi d'une correspondance, d'une prise de connaissance ou d'une attestation : chaque détermination *satisfaite* repose sur un élément probant à jour du registre partagé. |
 | QC-15 | Aucun incident n'est inféré d'une alerte : chaque incident est confirmé par une personne nommée, à une date. |
 | QC-16 | Aucune action d'intervention n'est présentée comme autorisée sans approbation valide (les actions de confinement ou destructrices qui n'en ont pas sont énumérées comme signaux d'audit). |
 | QC-17 | Les éléments TLP:RED et TLP:AMBER+STRICT restent hors des rapports, des recommandations, des justifications de scénarios, des communications et des exportations. |
-| QC-18 | La confiance d'une source n'est jamais utilisée comme probabilité (une justification de vraisemblance qui s'appuie sur la confiance d'un objet STIX, d'un flux ou d'un indicateur échoue). |
+| QC-18 | La confiance d'une source n'est jamais utilisée comme probabilité (une justification de probabilité qui s'appuie sur la confiance d'un objet STIX, d'un flux ou d'un indicateur échoue). |
 
 Une réussite signifie que la règle n'a pas été visiblement enfreinte dans les données consignées ici ;
 les vérifications appuient un réviseur, elles ne le remplacent pas.
@@ -2853,15 +2853,15 @@ les vérifications appuient un réviseur, elles ne le remplacent pas.
 
 Un seul écran dont les onglets sont énumérés directement dans le menu. Les obligations et leurs
 sources, l'applicabilité, les programmes, les correspondances, les évaluations, les déterminations avec
-preuves, les échéances, les soumissions et le changement réglementaire. Deux règles traversent
-l'ensemble : **seule une détermination de conformité datée et appuyée par des preuves établit un état
+éléments probants, les échéances, les soumissions et le changement réglementaire. Deux règles traversent
+l'ensemble : **seule une détermination de conformité datée et appuyée par des éléments probants établit un état
 de conformité** — jamais une correspondance, une prise de connaissance d'une politique ni une
 attestation ; et il s'agit d'une **aide à la décision, et non d'un avis juridique** — l'applicabilité et
 les interprétations exigent une revue par une personne qualifiée.
 
 #### Tableau de bord {#compliance-dashboard}
 
-Où en est la conformité : obligations applicables, déterminations et preuves, échéances, soumissions et
+Où en est la conformité : obligations applicables, déterminations et éléments probants, échéances, soumissions et
 exposition juridique — chaque chiffre avec son dénominateur. *Non évalué* et *indéterminé* ne sont
 jamais comptés comme conformes. Une exception qui concerne une disposition légale constitue une
 exposition en matière de conformité, à moins qu'une autorité n'ait accordé une exemption.
@@ -2914,19 +2914,19 @@ correspondent. Ce n'est jamais la conformité.
 
 **Cadres et listes de contrôle.** Cochez les cadres que suit l'organisation. Pour chacun, la
 **déclaration d'applicabilité** énumère les contrôles avec leur applicabilité, leur statut, leur
-maturité de 0 à 5 et la cible, le responsable et les preuves, ainsi que les mesures et scénarios liés
+maturité de 0 à 5 et la cible, le responsable et les éléments probants, ainsi que les mesures et scénarios liés
 au moyen d'Atténuation des risques. *Marquer … comme mis en œuvre par des mesures* règle les contrôles
 des mesures mises en œuvre. Les **écarts** (applicables, non ou partiellement mis en œuvre) sont classés
 selon le risque résiduel des scénarios auxquels ils se rapportent ; *Créer une mesure* en amorce une.
 Les listes de contrôle de la **Loi 25** et de la **LPRPDE** résument les obligations aux fins de la
-gestion des risques, avec statut, responsable, preuves, échéance et contrôles connexes.
+gestion des risques, avec statut, responsable, éléments probants, échéance et contrôles connexes.
 
 #### Exigences
 
 **Exigences.** Les exigences de conformité propres à l'organisation, à côté des catalogues — lois,
 règlements, contrats, normes et politiques internes. Chacune comporte un ensemble, une référence,
 l'exigence, une catégorie, une source, un responsable, une échéance, son applicabilité, un statut, les
-preuves et les **contrôles qui la satisfont** ; le tableau présente aussi les politiques de sécurité
+éléments probants et les **contrôles qui la satisfont** ; le tableau présente aussi les politiques de sécurité
 publiées qui couvrent ces contrôles. Ajoutez-les une par une, ou importez :
 
 - **Ajouter les obligations de la Loi 25 et de la R-22.1** — les obligations de la loi québécoise sur
@@ -2941,17 +2941,17 @@ Les exigences peuvent aussi être importées à partir d'un fichier CSV (**Impor
 #### Campagnes {#compliance-campaigns}
 
 Des campagnes d'évaluation portant sur un ensemble d'obligations, pour une portée et une période ; elles
-produisent les déterminations de conformité (**Évaluer**). Chaque détermination exige une preuve du
-registre partagé des éléments probants ou une lacune de preuve explicite. **L'évaluateur ne peut pas être le
+produisent les déterminations de conformité (**Évaluer**). Chaque détermination exige un élément probant du
+registre partagé des éléments probants ou une lacune d’éléments probants explicite. **L'évaluateur ne peut pas être le
 responsable de l'obligation, et le réviseur qui approuve ne peut pas être l'évaluateur.** **Approuver et
 figer** fige la campagne et ses déterminations.
 
 #### Déterminations {#compliance-determinations}
 
 La conformité à une disposition ou à une obligation à une date : l'état (*satisfaite*, *partiellement
-satisfaite*, *non satisfaite*, *non évaluée*, *indéterminée*), qui a évalué, les preuves et la
-**lacune de preuve**. *Satisfaite* exige une preuve à jour ; partiellement satisfaite, non satisfaite et
-indéterminée exigent que la lacune soit précisée ; une preuve expirée ou insuffisante est une lacune, et
+satisfaite*, *non satisfaite*, *non évaluée*, *indéterminée*), qui a évalué, les éléments probants et la
+**lacune d’éléments probants**. *Satisfaite* exige un élément probant à jour ; partiellement satisfaite, non satisfaite et
+indéterminée exigent que la lacune soit précisée ; un élément probant expiré ou insuffisant est une lacune, et
 non un appui. Les déterminations faites dans une campagne approuvée sont figées. *Obligations touchées
 par les scénarios* énumère, pour chaque scénario, les dispositions auxquelles il est lié et les
 contrôles qui les **appuient** — un lien, et non une conclusion.
@@ -2984,17 +2984,17 @@ méthode :
 
 - **Règles — hors ligne.** Pour chaque élément ayant des contrôles connexes, le statut découle de ce que
   l'espace de travail consigne : la déclaration d'applicabilité, les mesures de protection en place,
-  les mesures mises en œuvre et les politiques publiées. Les preuves les nomment ; l'écart indique ce qui
+  les mesures mises en œuvre et les politiques publiées. Les éléments probants les nomment ; l'écart indique ce qui
   manque.
-- **IA — aperçu avant l'envoi.** Les mêmes preuves (et, si la case est cochée, des extraits des
-  documents) sont transmises au modèle, qui doit répondre **unknown** (inconnu) lorsque les preuves ne
-  permettent pas de conclure, citer les preuves sur lesquelles il s'est appuyé, énoncer l'écart, un
+- **IA — aperçu avant l'envoi.** Les mêmes éléments probants (et, si la case est cochée, des extraits des
+  documents) sont transmises au modèle, qui doit répondre **unknown** (inconnu) lorsque les éléments probants ne
+  permettent pas de conclure, citer les éléments probants sur lesquels il s'est appuyé, énoncer l'écart, un
   niveau de confiance et une étiquette de provenance. Contenu à envoyer modifiable, niveau de créativité
   sélectionnable.
 
 Cliquez sur **Proposer**. La revue présente côte à côte le statut actuel et le statut proposé de chaque
-élément, les preuves (modifiables) et l'écart. Les éléments déjà évalués sont laissés décochés.
-**Appliquer les propositions cochées** écrit le statut et les preuves avec *la façon dont l'évaluation
+élément, les éléments probants (modifiables) et l'écart. Les éléments déjà évalués sont laissés décochés.
+**Appliquer les propositions cochées** écrit le statut et les éléments probants avec *la façon dont l'évaluation
 a été faite* — *règles acceptées* ou *IA acceptée*, par qui, quand. Les évaluations appliquées sont
 énumérées.
 
@@ -3013,7 +3013,7 @@ exporte le registre. L'exportation Excel inclut la déclaration d'applicabilité
 Compliance_SoA.
 
 La **posture de conformité** énumère chaque obligation avec son applicabilité, sa plus récente
-détermination, l'état de ses preuves, les exceptions sans exemption et la prochaine échéance ; elle
+détermination, l'état de ses éléments probants, les exceptions sans exemption et la prochaine échéance ; elle
 n'établit jamais la conformité à partir d'une correspondance. Le rapport de conformité complet ajoute le
 tableau d'applicabilité juridique (état, conditions non résolues, revue par une personne qualifiée
 requise) et les déterminations, et cite la version de CRGO.
@@ -3097,10 +3097,10 @@ a été relevée.
 #### Observations et constatations {#audit-findings}
 
 Une **observation** est préliminaire : ce n'est pas une constatation, et elle n'est pas comptée comme
-telle. **Valider comme constatation** en fonction des critères et des preuves : critère, constat,
+telle. **Valider comme constatation** en fonction des critères et des éléments probants : critère, constat,
 cause, effet, importance, le contrôle et les scénarios concernés, et la recommandation. Une
-constatation n'est **émise** qu'avec un critère, un constat, un effet et des preuves (ou une limite de
-preuve énoncée) ; sa conclusion ne peut ensuite plus être modifiée. Une constatation ouverte sur un
+constatation n'est **émise** qu'avec un critère, un constat, un effet et des éléments probants (ou une limite de
+élément probant énoncée) ; sa conclusion ne peut ensuite plus être modifiée. Une constatation ouverte sur un
 contrôle réduit la confiance envers celui-ci, partout où le contrôle est utilisé.
 
 #### Réponses et suivi {#audit-followup}
@@ -3240,7 +3240,7 @@ jamais une alerte d'origine ; un doublon est compté et écarté.
 
 Les dossiers, les incidents, les guides d'intervention versionnés, les points d'approbation, les
 actions consignées à la main et les simulations à blanc. Les intervenants consignent ce qu'ils ont fait,
-quand, avec quel identifiant de tentative et quelles preuves, et chaque action est vérifiée par rapport
+quand, avec quel identifiant de tentative et quels éléments probants, et chaque action est vérifiée par rapport
 aux approbations consignées.
 
 #### Vue d'ensemble {#soar-dashboard}
@@ -3271,7 +3271,7 @@ soumission réglementaire dans la Gestion de la conformité.
 #### Guides d'intervention {#soar-playbooks}
 
 Les guides d'intervention versionnés : étapes, actions, **classes de risque**, points d'approbation et
-preuves attendues. Modifiez la version en brouillon (**Ajouter une étape**) ; **Publier et figer cette
+éléments probants attendus. Modifiez la version en brouillon (**Ajouter une étape**) ; **Publier et figer cette
 version** la fige avec un SHA-256 (**Vérifier l'empreinte**) ; les versions publiées ne sont jamais
 modifiées — **Nouvelle version brouillon à partir de la version en vigueur**. Une étape de confinement
 ou destructrice doit exiger un point d'approbation.
@@ -3286,7 +3286,7 @@ toujours bornée par une portée et une date d'expiration.
 #### Actions {#soar-actions}
 
 Les actions d'intervention consignées à la main : qui a fait quoi, quand, l'identifiant de tentative,
-les preuves et l'approbation invoquée. Chaque exécution est vérifiée par rapport aux approbations —
+les éléments probants et l'approbation invoquée. Chaque exécution est vérifiée par rapport aux approbations —
 *absente*, *expirée*, *révoquée*, *pas encore valide*, *autorité inappropriée*, *non correspondante* ou
 *non accordée*. Il s'agit d'un signal d'audit, jamais d'une autorisation donnée par l'application.
 
@@ -3294,7 +3294,7 @@ les preuves et l'approbation invoquée. Chaque exécution est vérifiée par rap
 
 **Effectuer une simulation à blanc** d'une version de guide d'intervention sur un dossier ou un
 scénario (**Parcourir les étapes (simulation à blanc)**) : rien n'est exécuté. La simulation signale les
-étapes qui exigent une approbation et celles qui n'ont pas de preuve attendue, puis **Consigner le
+étapes qui exigent une approbation et celles qui n'ont pas d’élément probant attendu, puis **Consigner le
 résultat** — réussie ou échouée, avec une date. Un guide d'intervention est considéré comme mis à l'essai
 lorsqu'une simulation réussie existe pour sa version courante.
 
@@ -3338,8 +3338,8 @@ de tolérance sous forme de tranche, et un **catalogue** :
 | Techniques ATT&CK | Comment cela se produit — la langue commune du renseignement sur les menaces. |
 | Contrôles | Références ISO/IEC 27002, NIST CSF 2.0 et SP 800-53 de ce qui traite le risque. |
 | Tranche de maturité | La maturité CSF globale du contributeur, sous forme de tranche — contexte pour les valeurs. |
-| Tranche de gravité | Tirée du ratio de tolérance du contributeur — jamais les chiffres bruts. |
-| Niveau de preuve | Incident observé, évalué, hypothétique ou renseignement sur les menaces. |
+| Tranche de gravité | Tirée du ratio risque résiduel / risque toléré du contributeur — jamais les chiffres bruts. |
+| Niveau des éléments probants | Incident observé, évalué, hypothétique ou renseignement sur les menaces. |
 | Valide jusqu'au | Les risques vieillissent ; une fiche dont la date est dépassée est affichée comme périmée. |
 
 Les vocabulaires de l'ontologie permettent d'aligner les fiches de différentes organisations sans que
@@ -3352,7 +3352,7 @@ fiche.
 **Lire le dossier partagé** lit tous les paquets du dossier partagé et de la boîte d'envoi (l'assistant
 local doit être en marche) ; **Lire des fichiers de paquet…** lit les paquets que vous avez reçus
 autrement. Les filtres : mots de recherche, secteur d'activité, région, taille, thème, catégorie
-d'actif, réglementation, source de menace, technique ATT&CK, gravité et preuve, avec **Fiches modérées
+d'actif, réglementation, source de menace, technique ATT&CK, gravité et élément probant, avec **Fiches modérées
 seulement** et **Masquer les fiches périmées**. **Organisations comme la mienne** règle les filtres à
 partir de votre profil. **Détails** affiche une fiche au complet. Cochez des fiches et cliquez sur
 **Utiliser les fiches cochées dans cet espace de travail** : elles vont dans Scénarios en lot, marquées
@@ -3368,7 +3368,7 @@ l'étape Rapport. Les autres peuvent parcourir.
 
 1. **Les risques à partager** — cochez des scénarios de l'espace de travail.
 2. **Leur classement au catalogue** — rempli à partir du profil (secteur, sous-secteur, région, taille,
-   réglementations, tranche de maturité) ; ajustez-les, choisissez le **niveau de preuve** et la
+   réglementations, tranche de maturité) ; ajustez-les, choisissez le **niveau des éléments probants** et la
    validité en mois.
 3. **Anonymisation** — **activée par défaut**. Les noms de l'organisation, des personnes et des actifs,
    les adresses de courriel, les adresses IP, les hôtes internes et les montants sont remplacés ; la
@@ -3608,9 +3608,9 @@ prédiction d'événements.
 
 ### 7.10.5.1 Prévision d'exploitation (30 jours) {#forecast-exploit}
 
-*Prévisions → Exploitation (30 jours)* (1.9.0) donne, pour chaque CVE du registre, la vraisemblance
-d'une **activité d'exploitation active au cours des 30 prochains jours** — une preuve sur
-l'environnement de menace, **jamais** la vraisemblance d'un scénario. Elle est calculée par une règle
+*Prévisions → Exploitation (30 jours)* (1.9.0) donne, pour chaque CVE du registre, la probabilité
+d'une **activité d'exploitation active au cours des 30 prochains jours** — un élément probant sur
+l'environnement de menace, **jamais** la probabilité d'un scénario. Elle est calculée par une règle
 publiée, affichée sous *La règle* :
 
 1. le dernier score EPSS (lui-même une probabilité d'activité d'exploitation sur 30 jours), plus sa
@@ -3626,7 +3626,7 @@ Bandes : élevée ≥ 50 %, modérée ≥ 10 %, faible en deçà. Chaque ligne i
 l'**exposition est confirmée** et que la CVE figure au KEV, que la bande est élevée ou que la tendance
 monte de 5 points ou plus par 30 jours, la CVE est signalée ; *Soulever des éléments à revoir pour les CVE
 signalées* crée des **éléments à revoir** — rien d'autre. Un élément à revoir demande à une personne de
-réexaminer la décision SSVC et, exposition confirmée, l'Échelle des preuves de menace ; *Terminé* et
+réexaminer la décision SSVC et, exposition confirmée, l'Échelle des éléments probants de menace ; *Terminé* et
 *Écarter* (avec une raison) le ferment. Une CVE non confirmée reste en veille (filtre d'exposition).
 
 *Demander à l'IA (aperçu d'abord)* envoie le tableau — identifiants des CVE, produits, exposition,
@@ -3820,7 +3820,7 @@ premier administrateur (un NIP facultatif est stocké sous forme de hachage sal�
   plus permissif s'applique. Les approbations exigent toujours un **A** dans la matrice RACI ;
   Paramètres et Sauvegarde restent réservés aux administrateurs ; les administrateurs ne sont jamais
   restreints. *Exporter l'accès aux menus (CSV)* conserve une trace. Un rôle importé des documents peut
-  devenir un utilisateur au moyen de **Créer l'utilisateur** dans Organisation → Preuves.
+  devenir un utilisateur au moyen de **Créer l'utilisateur** dans Organisation → Éléments probants.
 - **Activité** énumère les ouvertures de session, les modifications d'utilisateurs et de RACI, les
   approbations et les modifications ; l'activité et la matrice s'exportent en CSV.
 
@@ -3899,7 +3899,7 @@ attendus. Une trousse est importée dans l'**espace de travail courant** au moye
 que tout fichier SIEM ou SOAR local. Chaque enregistrement est marqué comme simulation et peut être
 retiré plus tard. Une trousse ne modifie jamais une cote de risque ni un paramètre de scénario, et
 **aucune alerte ne devient un incident** : la confirmation d'un incident est laissée aux étudiants. Les
-données de simulation ne sont jamais des preuves concernant une organisation réelle.
+données de simulation ne sont jamais des éléments probants concernant une organisation réelle.
 
 Le haut de l'écran affiche l'espace de travail courant, son type, ses scénarios et ses actifs
 essentiels, et le nombre d'enregistrements de simulation qu'il contient. Les données de simulation sont
@@ -4000,8 +4000,8 @@ le délai de notification de la Loi 25 dans Gestion de la conformité → Calend
 **Boucler la boucle avec l'évaluation des risques.** Scénarios en lot → *Des opérations de sécurité
 (SIEM et SOAR)*, en date du 9 octobre : les amorces montrent les lacunes de détection, la télémétrie
 dégradée, les lacunes d'approbation et les guides d'intervention non simulés que le déroulement a
-produits ; la plupart sont des *preuves pour un scénario existant* (S2, S3, S4). **Consigner la preuve
-dans S2**, puis ouvrez S2 dans l'Éditeur de scénarios : la fiche *Preuves des opérations de sécurité*
+produits ; la plupart sont des *éléments probants pour un scénario existant* (S2, S3, S4). **Consigner l’élément probant
+dans S2**, puis ouvrez S2 dans l'Éditeur de scénarios : la fiche *Éléments probants des opérations de sécurité*
 l'affiche — et aucun paramètre n'a changé. Toute modification de Pb(A), de Pb(ψ,A) ou de θ est la
 décision des étudiants, consignée dans la justification. Terminez par Gouvernance → Revue de qualité :
 QC-15 à QC-18 doivent réussir.
@@ -4192,13 +4192,13 @@ trouve pas sur cette machine, y compris un fournisseur que vous ajoutez.
 | Tâche | Ce qu'elle fait | Ce qu'elle ne peut pas faire |
 |---|---|---|
 | **Conversation** | Répond à une question avec l'écran et l'objet sélectionné, le résumé de l'organisation et le portrait du risque (les chiffres propres du moteur), et les passages repérés sur cet ordinateur — les documents et enregistrements seulement sous forme de passages, jamais en entier. | Recalculer, ou citer un passage qui ne lui a pas été envoyé. Un chiffre de risque que le moteur n'a pas calculé est retiré de la réponse. |
-| **Critique des paramètres** | Examine vos Pb(A), Pb(ψ,A), δe, δm, θ et μ(E) au regard du texte du scénario et des preuves consignées, et indique où elle est en désaccord et pourquoi. | Appliquer quoi que ce soit. Elle suggère ; vous décidez, paramètre par paramètre. |
+| **Critique des paramètres** | Examine vos Pb(A), Pb(ψ,A), δe, δm, θ et μ(E) au regard du texte du scénario et des éléments probants consignés, et indique où elle est en désaccord et pourquoi. | Appliquer quoi que ce soit. Elle suggère ; vous décidez, paramètre par paramètre. |
 | **Génération de scénarios** | Rédige des scénarios sous forme de chaînes causales complètes, éventuellement amorcées à partir d'éléments de flux triés. | Atteindre le registre. Ils aboutissent dans Scénarios en lot, marqués générés par l'IA, non examinés. |
 | **Narration de la synthèse** | Réécrit le tri de la semaine pour un public de gestionnaires. | Énoncer un chiffre de risque. |
 
 **Tout est journalisé** : la tâche, le fournisseur, le modèle, la date, les octets envoyés, si le
 contenu a été anonymisé ou modifié, le niveau de créativité, l'utilisation de jetons et **votre
-verdict** — accepté, partiellement utile, rejeté. Ce journal est la preuve que l'IA a été utilisée de
+verdict** — accepté, partiellement utile, rejeté. Ce journal est l’élément probant que l'IA a été utilisée de
 façon responsable dans l'évaluation. Si une réponse atteint le plafond de sortie du modèle, l'écran
 indique *tronquée* et conserve les constats arrivés complets.
 
@@ -4450,8 +4450,8 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 40. **Sauvegarde et restauration → Versions des données et migrations** : version des données 5 ;
     importez une exportation d'espace de travail plus ancienne qui contenait des enregistrements de
-    preuves et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 5, les
-    preuves se trouvent dans **Registres partagés → Preuves**, les exceptions dans **Registres partagés
+    éléments probants et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 5, les
+    éléments probants se trouvent dans **Registres partagés → Éléments probants**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
 41. **Ontologie · CRGO → Connexion** nomme CRGO v0.11.0 et indique qu'il s'agit d'une version approuvée ; *Lien avec l'organisation* → *Construire le
     graphe de l'organisation* sur MediBec affiche **mêmes totaux que cette application** ; *Lire le
@@ -4462,7 +4462,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
     résultat d'audit interne *inefficace* sur le même contrôle affichent **conflit — à résoudre** ; la
     **Revue de qualité** échoue au QC-06.
 43. **Gestion de la conformité → Applicabilité juridique** avec un profil vide : chaque instrument est
-    une lacune de preuve, aucun n'est « non applicable ». **Déterminations** : *satisfaite* sans preuve
+    une lacune d’éléments probants, aucun n'est « non applicable ». **Déterminations** : *satisfaite* sans élément probant
     à jour est refusée, ou échoue au QC-14.
 44. **Registres partagés → Exceptions** : une exception qui nomme une obligation légale ne peut pas
     être acceptée. **Gestion de l'audit → Réponses et suivi** : la fermeture d'une constatation sans
@@ -4483,14 +4483,14 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 48. **SOAR → Actions** énumère les exécutions sans approbation valide avec leurs raisons ; **Dossiers** →
     CASE-MB-03 → **Confirmer comme incident** exige un nom et une date, et l'incident apparaît dans
     SOAR → Incidents et dans Gestion de la cybersécurité → Incidents.
-49. **Scénarios en lot → Des opérations de sécurité (SIEM et SOAR)** : des amorces avec leurs preuves et
-    *Peut éclairer*, sans aucune valeur ; **Consigner la preuve dans S2** → la fiche *Preuves des
+49. **Scénarios en lot → Des opérations de sécurité (SIEM et SOAR)** : des amorces avec leurs éléments probants et
+    *Peut éclairer*, sans aucune valeur ; **Consigner l’élément probant dans S2** → la fiche *Éléments probants des
     opérations de sécurité* de l'Éditeur de scénarios l'énumère, et les paramètres de S2 sont inchangés.
 50. **Revue de qualité** : QC-14 à QC-18 sont énumérés et réussissent sur la trousse importée.
     **Paramètres → Données de simulation → Retirer les données de simulation** : les registres SIEM et
     SOAR sont de nouveau vides.
 
-**Preuves, filtrage et sommaire**
+**Éléments probants, filtrage et sommaire**
 
 51. **Registre des éléments probants** sur MediBec énumère E1 à E12 avec leur type ; **Cité dans** montre
     les paramètres qui citent chacune.
@@ -4547,7 +4547,7 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | Une source de flux indique *Refusé par le mandataire réseau* ou *non résolu* | Le domaine est bloqué par votre réseau ou par la liste d'autorisation de sortie de Claude (tâche planifiée). | Paramètres → Liste d'autorisation réseau → copiez la liste pour le propriétaire de l'organisation (Admin settings → Capabilities). |
 | Les paramètres indiquent *enregistrés dans ce navigateur seulement* | L'assistant local ne fonctionne pas. | Démarrez l'application avec son lanceur ; les paramètres sont alors écrits dans le dossier des flux pour la tâche planifiée. |
 | *Publier dans le registre partagé* écrit dans la boîte d'envoi | Aucun dossier de registre synchronisé n'est défini. | Définissez *Dossier local synchronisé avec le registre* dans Paramètres, ou laissez la tâche planifiée téléverser la boîte d'envoi. |
-| Le ratio d'un scénario n'a pas changé après l'ajout de mesures | Les mesures ne sont pas encore appliquées, ou elles ne réduisent que la vraisemblance ou que l'impact. | Atténuation des risques → Appliquer ; ajoutez une mesure pour l'autre dimension. |
+| Le ratio d'un scénario n'a pas changé après l'ajout de mesures | Les mesures ne sont pas encore appliquées, ou elles ne réduisent que la probabilité ou que l'impact. | Atténuation des risques → Appliquer ; ajoutez une mesure pour l'autre dimension. |
 | Une section de navigation semble avoir perdu ses écrans | La section est repliée. | Cliquez sur son titre ; le nombre à côté indique combien d'écrans elle contient. L'état est mémorisé. |
 | Le consultant virtuel indique qu'aucun fournisseur n'est configuré | Aucune clé stockée, ou aucun point de terminaison local défini. | Paramètres → IA — locale et distante → Fournisseurs. Pour un modèle local, indiquez l'URL de base incluant `/v1`. |
 | Une réponse de l'IA indique *tronquée* | La réponse a atteint le plafond de sortie du modèle. | Demandez moins de scénarios ou de constats à la fois ; ce qui est arrivé complet est affiché et utilisable. |
@@ -4601,7 +4601,7 @@ doit être validée auprès des parties prenantes internes, à l'aide des donné
 d'audit, des résultats d'essais, de l'historique des incidents et du renseignement sur les menaces.
 
 Les résultats quantitatifs sont des **indicateurs relatifs de comparaison et de priorisation**, et non
-des prédictions de pertes financières. Un instantané du contexte de menace est une preuve datée de
+des prédictions de pertes financières. Un instantané du contexte de menace est un élément probant daté de
 l'environnement externe, et non une mesure de votre organisation. Les indices de contexte sont un
 balayage par mots clés, et non une analyse. Le générateur de scénarios en lot produit des candidats, et
 non une évaluation.
@@ -4609,7 +4609,7 @@ non une évaluation.
 Tout ce que produit le **consultant virtuel** est une hypothèse qui a moins de poids que le reste, et non
 davantage : une critique est l'opinion d'un lecteur sur vos estimations, un scénario généré est une
 ébauche qui n'a pas rencontré votre organisation, et une synthèse narrée est une note d'accompagnement.
-Rien de cela ne constitue une preuve, rien de cela ne modifie par soi-même une valeur enregistrée, et le
+Rien de cela ne constitue un élément probant, rien de cela ne modifie par soi-même une valeur enregistrée, et le
 journal des décisions existe pour qu'un auditeur puisse voir quelles suggestions vous avez retenues et
 lesquelles vous avez refusées.
 
@@ -4629,8 +4629,8 @@ cas d'enseignement. Une fiche du **Registre partagé des risques** décrit une a
 autre moment, telle que cette organisation la percevait ; ses paramètres sont un point de référence, et
 non une estimation pour la vôtre, et l'anonymisation réduit — sans l'éliminer — le risque qu'une fiche
 soit rattachée à son contributeur. Un **gabarit de politique** est un point de départ, et non un avis
-juridique ; un **statut de conformité** proposé par les règles ou par l'IA est une lecture des preuves
-consignées, et n'est complet que dans la mesure où ces preuves le sont.
+juridique ; un **statut de conformité** proposé par les règles ou par l'IA est une lecture des éléments probants
+consignées, et n'est complet que dans la mesure où ces éléments probants le sont.
 
 - **Il ne fournit pas d'avis juridique.** L'applicabilité juridique est l'évaluation, par CRGO, d'un
   profil ; les instruments potentiellement applicables exigent une personne qualifiée, et les
@@ -4647,10 +4647,10 @@ consignées, et n'est complet que dans la mesure où ces preuves le sont.
   couverture n'est validée que par un essai de détection concluant, et la confiance d'une source n'est
   pas une probabilité.
 - **Une correspondance, une prise de connaissance ou une attestation n'est pas la conformité.** Seule
-  une détermination datée et appuyée par une preuve à jour établit un état de conformité. Les normes
+  une détermination datée et appuyée par un élément probant à jour établit un état de conformité. Les normes
   sous licence n'apparaissent que sous forme d'identifiants.
 - **Les données de simulation sont fictives.** Elles servent à enseigner ; elles ne sont jamais des
-  preuves concernant une organisation réelle.
+  éléments probants concernant une organisation réelle.
 
 La décision d'accepter, de transférer, d'éviter ou d'atténuer un risque demeure la responsabilité de la
 direction.

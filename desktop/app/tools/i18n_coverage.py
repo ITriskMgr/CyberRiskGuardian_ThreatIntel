@@ -104,6 +104,9 @@ def ui_like(s):
     s = s.strip()
     if len(s) < 2 or not re.search(r'[A-Za-zÀ-ÿ]{2}', s): return False
     if CODEY.match(s) or re.fullmatch(r'&#?\w+;', s): return False
+    # 1.9.2 — a CSS selector with a functional pseudo-class or an attribute selector (":not(…)", "[type=…]"), or a
+    # comma-separated list of such selectors, is code, not interface text
+    if re.search(r':(?:not|is|where|has|nth-[\w-]+)\(|\[[\w-]+[~|^$*]?=', s) and not re.search(r'[A-Za-z]{3,} [a-z]{3,} [a-z]{3,}', s): return False
     if re.match(r'^[a-z]+(?:[A-Z][a-z0-9]+)+$', s): return False            # camelCase
     if re.match(r'^(?:var|calc|rgba?|hsla?|url)\(', s): return False
     if re.match(r'^[\d.\s]+(px|em|rem|%|vh|vw|fr|s|ms)\b', s): return False
@@ -116,6 +119,7 @@ def ui_like(s):
     parts = s.split()
     if len(parts) <= 4 and any(re.search(r'[.#\[:]', x) for x in parts) \
        and all(x in '>~+' or TOKEN.fullmatch(x) for x in parts): return False
+    if re.fullmatch(r'(?:(?:td|th|tr|thead|tbody|table|input|select|textarea|button|label|option|ul|li|a|b|p|h[1-6]|div|span|section|nav|main)\s*,\s*)+(?:td|th|tr|thead|tbody|table|input|select|textarea|button|label|option|ul|li|a|b|p|h[1-6]|div|span|section|nav|main)', s): return False   # 1.9.2: "td, th"
     if re.fullmatch(r'\.{0,2}/?[\w.-]+(?:/[\w.-]+)*\.[a-z]{2,4}', s): return False    # a file path
     if re.match(r'^(application|text|image)/', s): return False
     if re.match(r'^(SELECT|INSERT|function|return|const|let)\b', s): return False
@@ -143,6 +147,8 @@ def collect():
                 continue
             src = open(os.path.join(d, f), encoding='utf-8').read()
             src = re.sub(r"'\s*\+\s*'", '', src); src = re.sub(r'"\s*\+\s*"', '', src)   # 'a ' + 'b' → 'a b'
+            # 1.9.2 — console messages are for the developer console, never for the screen
+            src = re.sub(r"console\.(?:warn|error|log|info|debug)\((?:[^()\n]|\([^()\n]*\))*\)", "console.x()", src)
             rel = os.path.relpath(os.path.join(d, f), ROOT)
             def walk(code, depth=0):
                 for kind, v in tokens(code):

@@ -338,8 +338,8 @@ identités et des accès et la Gestion de la configuration.
 | Gouvernance | Gestion des politiques de sécurité de l’information (PSI) | Bibliothèque de politiques, éditeur, versions approuvées, accusés de lecture, non-conformités | vous tenez à jour les politiques de sécurité de l’organisation | les politiques sont gérées ailleurs |
 | Gouvernance | Rédacteur de politiques de sécurité | Rédige politiques, normes et procédures (FR/EN) à partir d’une entrevue et de documents; export Word | vous rédigez ou réécrivez des politiques — **fonctionne mieux avec l’IA** | vous ne rédigez pas de politiques |
 | Gouvernance | Gestion de la cybersécurité | Essais des contrôles par ligne de défense, instances, délégations, registres de décisions, registre des incidents | vous devez consigner les décisions sous une autorité nommée | — gardez-le : les décisions de risque l’utilisent |
-| Gouvernance | **Gestion des identités et des accès (GIA/GAP)** — *désactivé par défaut* | Registres au niveau des populations : comptes, rôles privilégiés, comptes d’urgence, revues d’accès, séparation des tâches; six ICR; les constats deviennent des preuves et des propositions de scénarios | les identités, les privilèges ou la séparation des tâches font partie du périmètre, ou un audit récent a soulevé des constats d’accès | les accès sont hors périmètre |
-| Gouvernance | **Gestion de la configuration** — *désactivé par défaut* | Configurations de référence versionnées, écarts et leurs exceptions, changements de configuration; trois ICR; les constats deviennent des preuves et des propositions de scénarios | le durcissement, la dérive ou le contrôle des changements comptent pour les scénarios évalués | la configuration est hors périmètre |
+| Gouvernance | **Gestion des identités et des accès (GIA/GAP)** — *désactivé par défaut* | Registres au niveau des populations : comptes, rôles privilégiés, comptes d’urgence, revues d’accès, séparation des tâches; six ICR; les constats deviennent des éléments probants et des propositions de scénarios | les identités, les privilèges ou la séparation des tâches font partie du périmètre, ou un audit récent a soulevé des constats d’accès | les accès sont hors périmètre |
+| Gouvernance | **Gestion de la configuration** — *désactivé par défaut* | Configurations de référence versionnées, écarts et leurs exceptions, changements de configuration; trois ICR; les constats deviennent des éléments probants et des propositions de scénarios | le durcissement, la dérive ou le contrôle des changements comptent pour les scénarios évalués | la configuration est hors périmètre |
 | Gouvernance | Registres partagés | Éléments probants, mesures correctives, exceptions et correspondances tenus une seule fois pour tous les modules | — | **gardez-le** |
 | Gouvernance | Revue de qualité | Les vérifications à faire avant qu’un rapport ne sorte | — | **gardez-le** |
 | Conformité et audit | Gestion de la conformité | Obligations, applicabilité juridique, correspondances de référentiels, campagnes, déterminations, calendrier réglementaire | vous devez démontrer la conformité (Loi 25, ISO/IEC 27001, NIST CSF 2.0, PCI DSS…) | la conformité est gérée ailleurs |
@@ -364,7 +364,7 @@ pouvez changer cela en tout temps.
 de chaque écran, une ligne qui dit pourquoi l’écran compte, et ouvre les conseils et les lignes
 directrices de la prochaine étape sur la page Processus : choisissez-le pour une première analyse.
 *Minimal* retire les introductions et les indications explicatives pour qui connaît la méthode; les
-indications qui changent le sens d’une valeur (vide ou 0, les étiquettes de preuve, les unités) restent à
+indications qui changent le sens d’une valeur (vide ou 0, les étiquettes d’élément probant, les unités) restent à
 tous les niveaux. Aucun nombre ni aucun espace de travail ne change avec le niveau. En mode
 multi-utilisateur, chaque personne connectée a le sien.
 

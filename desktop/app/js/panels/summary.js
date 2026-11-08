@@ -60,7 +60,7 @@ export function build(ws = S.ws) {
   if (R.errors.length) gaps.push(tr('{0} scenario(s) cannot be calculated.').replace('{0}', R.errors.length));
   return { ws, R, before, after, it, spend, appetite, target, y1, top, auto, decisions: (ws.mgmtSummary?.decisions || []).filter(x => String(x).trim()),
     estimates, noEvidence, equiv, gaps, limitations: ws.mgmtSummary?.limitations || '', nextSteps: ws.mgmtSummary?.nextSteps || '', preparedBy: ws.mgmtSummary?.preparedBy || '',
-    period: a.PERIOD || '', screening: { candidates: A.list.length, selected: A.selected.length } };
+    period: tr(a.PERIOD || ''), screening: { candidates: A.list.length, selected: A.selected.length } };
 }
 
 const STANDARD_LIMITS = 'The risk indices are relative decision-support values, not predictions of loss and not key risk indicators. Values marked “Analytical estimate — validation required” must be validated with the organization before they support a decision. Decisions to accept, transfer, avoid or mitigate a risk remain with management.';

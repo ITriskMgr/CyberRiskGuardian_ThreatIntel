@@ -133,7 +133,7 @@ function fromDocs(sec) {
   for (const d of ws.docs || []) {
     const name = d.name || d.title || '';
     if (!name || have.has(name.toLowerCase())) continue;
-    R.push([nextId(ws), name, 'Documented', MK.INFO_GAP + ' — ' + tr('state what this document supports'), '', 'verified', d.added || today(), '']);
+    R.push([nextId(ws), name, 'Documented', tr(MK.INFO_GAP) + ' — ' + tr('state what this document supports'), '', 'verified', d.added || today(), '']);
     n++;
   }
   if (n) { LOG.data('evidence added', `${n} document(s)`, '', ws.name); touch(); }

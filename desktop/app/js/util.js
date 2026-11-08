@@ -210,7 +210,7 @@ export function field(label, input, hint, opts = {}) {
   d.append(l, input);
   let ctl = null;
   if (input && input.nodeType === 1) {
-    ctl = FORM_TAGS.has(input.tagName) ? input : (input.querySelector ? input.querySelector('input:not([type="hidden"]), select, textarea') : null);
+    ctl = FORM_TAGS.has(input.tagName) ? input : (input.querySelector ? input.querySelector(['input:not([type="hidden"])', 'select', 'textarea'].join(', ')) : null);
     if (ctl && FORM_TAGS.has(ctl.tagName) && !(ctl.type === 'checkbox' && input !== ctl)) l.htmlFor = ensureId(ctl);
     else if (!ctl) { ensureId(l, 'fl'); input.setAttribute('aria-labelledby', l.id); ctl = null; }
     else ctl = null;

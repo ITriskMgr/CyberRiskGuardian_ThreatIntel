@@ -12,7 +12,7 @@
 'use strict';
 import { tr } from './i18n.js';
 
-const CONTROLS = 'select, textarea, input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"])';
+const CONTROLS = ['select', 'textarea', 'input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"])'].join(', ');
 
 /** Does this control already have an accessible name? */
 function named(c) {
@@ -35,8 +35,8 @@ function guessName(c) {
   if (td) {
     const tr_ = td.closest('tr'), table = td.closest('table');
     const idx = tr_ ? [...tr_.children].indexOf(td) : -1;
-    const th = table && idx >= 0 ? table.querySelector('thead tr')?.children[idx] : null;
-    const col = clean(th?.textContent), row = clean(tr_?.querySelector('td:not(.cb) b, td:not(.cb) a, td:not(.cb)')?.textContent);
+    const th = table && idx >= 0 ? table.querySelector('thead > tr:first-child')?.children[idx] : null;
+    const col = clean(th?.textContent), row = clean(tr_?.querySelector(['td:not(.cb) b', 'td:not(.cb) a', 'td:not(.cb)'].join(', '))?.textContent);
     const parts = [col, row].filter(Boolean);
     if (parts.length) return parts.join(' — ');
   }

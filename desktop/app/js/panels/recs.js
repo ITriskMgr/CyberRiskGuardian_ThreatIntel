@@ -341,7 +341,7 @@ function detail(body, sec, r) {
     kpi('Year-1 cost', money(c.y1), `${money(c.initial)} one-time + ${money(c.recurring)}/yr`),
     kpi('Brought within tolerance', String(e.totals.brought), `of ${e.rows.filter(x => x.curNeed?.act).length} above tolerance`)));
 
-  if (frozen && r.approved) body.append(banner('good', `Formal recommendation, approved ${r.approved.at}${r.approved.by ? ' by ' + r.approved.by : ''}`,
+  if (frozen && r.approved) body.append(banner('good', tr('Formal recommendation, approved {0}').replace('{0}', r.approved.at) + (r.approved.by ? ' ' + tr('by {0}').replace('{0}', r.approved.by) : ''),
     `Frozen at approval: reduction ${n0(r.approved.reduction)}, ratio ${n2(r.approved.curRatio)} → ${n2(r.approved.aftRatio)}, ` +
     `Year-1 cost ${money(r.approved.cost.y1)}. Those figures do not move when the workspace changes; the panel above is live. ` +
     'Editing a formal recommendation creates a new version.'));

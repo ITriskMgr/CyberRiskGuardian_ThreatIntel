@@ -127,7 +127,7 @@ function editor(r, sec, R) {
   for (const s of ws.assessment.SCEN) scBox.append(el('label', { class: 'chip', style: { cursor: 'pointer' }, title: s.name }, el('input', { type: 'checkbox', checked: r.scenarios.includes(s.id), style: { width: 'auto', margin: 0 },
     onchange: e => { if (e.target.checked) r.scenarios.push(s.id); else r.scenarios = r.scenarios.filter(x => x !== s.id); G.log(r, (e.target.checked ? 'Linked ' : 'Unlinked ') + s.id); touch(); render(sec); } }), ' ', s.id));
   // 1.9.2 (item 10) — a link to a scenario that was deleted stays visible, flagged, with Unlink
-  for (const id of G.missingScenarios(r, ws)) scBox.append(el('span', { class: 'chip k', title: tr('This scenario no longer exists in the workspace') }, el('span', null, `${id} — ${tr('deleted scenario')}`),
+  for (const id of G.missingScenarios(r, ws)) scBox.append(el('span', { class: ['chip', 'k'].join(' '), title: tr('This scenario no longer exists in the workspace') }, el('span', null, `${id} — ${tr('deleted scenario')}`),
     el('button', { class: 'btn sm ghost', type: 'button', 'aria-label': tr('Unlink {0}').replace('{0}', id), onclick: () => { r.scenarios = r.scenarios.filter(x => x !== id); G.log(r, 'Unlinked deleted scenario ' + id); touch(); render(sec); } }, 'Unlink')));
   const asBox = el('div', 'chips');
   for (const a of ws.assets || []) asBox.append(el('label', { class: 'chip', style: { cursor: 'pointer' }, title: a.type }, el('input', { type: 'checkbox', checked: r.assets.includes(a.id), style: { width: 'auto', margin: 0 },

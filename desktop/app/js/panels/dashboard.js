@@ -209,7 +209,9 @@ function defsEditor(sec) {
       el('span', 'small muted', 'Suggested:'),
       ...[['% privileged accounts protected by phishing-resistant MFA', '100%', '< 95%', '< 85%'], ['% critical vulnerabilities remediated within SLA', '≥ 95%', '< 90%', '< 75%'], ['Backup restoration test success rate', '100%', '< 95%', '< 80%'],
         ['EDR coverage of critical assets', '100%', '< 98%', '< 90%'], ['% critical suppliers assessed', '100%', '< 80%', '< 60%'], ['Phishing simulation failure rate', '< 5%', '> 8%', '> 15%'], ['Mean time to contain (hours)', '< 4', '> 8', '> 24']]
-        .map(([n, tg, w, c]) => el('button', { class: 'btn sm ghost', onclick: () => { K.push(['KRI-' + String(K.length + 1).padStart(2, '0'), n, '', '', '', '', 'Monthly', tg, w, c]); touch(); render(sec); } }, n.length > 34 ? n.slice(0, 32) + '…' : n))));
+                /* 1.9.2 (NV-041) — the full name is the button's title and the stored KRI name is in the workspace's interface
+           language (tr), so a French workspace does not collect English KRI names from a truncated button. */
+        .map(([n, tg, w, c]) => el('button', { class: 'btn sm ghost', title: n, onclick: () => { K.push(['KRI-' + String(K.length + 1).padStart(2, '0'), tr(n), '', '', '', '', tr('Monthly'), tg, w, c]); touch(); render(sec); } }, n.length > 34 ? n.slice(0, 32) + '…' : n))));
   return d;
 }
 
