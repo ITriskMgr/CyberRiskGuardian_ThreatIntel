@@ -8,7 +8,7 @@ import * as IAM from '../iam.js';
 import * as CM from '../cm.js';
 import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go } from '../util.js';
-import { S, compute, touch, confirmVector } from '../state.js';
+import { S, compute, touch, confirmVector, vectorState } from '../state.js';
 import * as SCENP from './scenario.js';
 import { STEPS, GROUPS, statuses, nextStep, partsOf, CTX } from '../process.js';
 import * as aiui from '../aiui.js';
@@ -79,7 +79,8 @@ function nextBand(nx, total, sec) {
         // 1.9.2 (NV-002, step 10) — a vector that came with a pattern or a candidate is confirmed here: one click, recorded
         !x.ok && x.confirm?.length ? el('div', { class: 'small next-confirm', style: { marginTop: '6px' } }, ...x.confirm.map(id => {
           const sc = ws.assessment.SCEN.find(z => z.id === id);
-          return el('button', { class: 'btn xs ghost', 'data-ro-ok': '', title: sc?.cvss || '', 'data-confirm': id, onclick: () => { if (confirmVector(sc, users.name())) { touch('revision'); toast(tr('Vector of {0} confirmed').replace('{0}', id)); render(sec); } } }, tr('Confirm the vector of {0}').replace('{0}', id)); })) : null)))) : null;
+          const isScore = vectorState(sc) === 'score';   // 1.9.2 review (H2): a stored score with no vector is confirmed the same way
+          return el('button', { class: 'btn xs ghost', 'data-ro-ok': '', title: isScore ? tr('Stored score {0} (no vector)').replace('{0}', String(sc?.cvss_score)) : (sc?.cvss || ''), 'data-confirm': id, onclick: () => { if (confirmVector(sc, users.name())) { touch('revision'); toast(tr(isScore ? 'Score of {0} confirmed' : 'Vector of {0} confirmed').replace('{0}', id)); render(sec); } } }, tr(isScore ? 'Confirm the score of {0}' : 'Confirm the vector of {0}').replace('{0}', id)); })) : null)))) : null;
   let who = null;
   if (users.active()) {
     const R = users.holders(s.id, 'R').map(u => u.name), A = users.holders(s.id, 'A').map(u => u.name);

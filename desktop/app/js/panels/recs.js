@@ -79,14 +79,18 @@ function scenarios(body, sec) {
     // 1.8.0 — a transfer records the share of loss covered (informational: never a reduction of the risk index) and its approver
     const share = el('input', { type: 'number', min: 0, max: 1, step: 0.05, value: dec.share ?? '', placeholder: '0–1', class: 'dec-share' });
     const appr = el('input', { value: dec.approver || '', placeholder: 'Name and role of the approver', class: 'dec-approver' });
+    // 1.9.2 review (M3, X-5): no decision is recorded without a named decision-maker (pre-filled with the signed-in name)
+    const by = el('input', { value: dec.by ?? users.name() ?? '', placeholder: 'Name of the decision-maker (required)', class: 'dec-by' });
     const trBox = el('div', { class: 'grid g2', hidden: decSel.value !== 'Transfer' }, field('Share of loss covered (0–1, informational)', share, 'What the insurance or contract would cover. It is never a reduction: the risk index and the harm to people and operations stay as they are.'), field('<b>Approver</b> of the transfer', appr));
     const save = () => {
       const sv = share.value === '' ? null : Number(share.value);
       if (sv !== null && !(sv >= 0 && sv <= 1)) { toast(tr('The share of loss covered must be within 0–1'), 'bad'); return false; }
-      S.ws.decisions[r.id] = { option: decSel.value, owner: own.value, horizon: hor.value, note: note.value, date: today(), ratio: r.ratio, cls: r.cls,
+      if (decSel.value && !by.value.trim()) { toast(tr('Name the decision-maker before the decision on {0} is recorded — Management decision required.').replace('{0}', r.id), 'bad'); by.focus(); return false; }
+      if (decSel.value === 'Transfer' && !appr.value.trim()) { toast(tr('Name the approver of the transfer of {0} before it is recorded.').replace('{0}', r.id), 'bad'); appr.focus(); return false; }
+      S.ws.decisions[r.id] = { option: decSel.value, owner: own.value, horizon: hor.value, note: note.value, date: today(), ratio: r.ratio, cls: r.cls, by: by.value.trim(),
         ...(decSel.value === 'Transfer' ? { share: sv, approver: appr.value.trim() } : {}) };
       touch(); return true; };
-    for (const x of [decSel, own, hor, note, share, appr]) x.addEventListener('change', () => { trBox.hidden = decSel.value !== 'Transfer'; if (save()) toast('Decision recorded for ' + r.id); });
+    for (const x of [decSel, own, hor, note, share, appr, by]) x.addEventListener('change', () => { trBox.hidden = decSel.value !== 'Transfer'; if (save()) toast('Decision recorded for ' + r.id); });
     d.append(el('ul', 'small', ...sg.why.map(w => el('li', null, w))), optCards,
       el('div', 'cols2', { style: { marginTop: '14px' } },
         el('div', null,
@@ -102,7 +106,8 @@ function scenarios(body, sec) {
           meas.length ? el('div', { style: { marginTop: '10px' } }, el('div', 'small muted', 'CRG measures implementing them:'), el('div', 'chips', ...meas.map(m => chip(m.name + ' · ' + m.fn)))) : null,
           sg.also.includes('Transfer') ? el('div', 'chips', { style: { marginTop: '6px' } }, chip('Cyber insurance (risk transfer) · Transfer')) : null)),
       el('h2', null, 'Management decision'),
-      el('div', 'grid g4', field('<b>Option chosen</b>', decSel), field('Owner', own), field('Horizon', hor), field('Rationale', note)), trBox,
+      el('div', 'grid g4', field('<b>Option chosen</b>', decSel), field('<b>Decided by</b>', by), field('Owner', own), field('Horizon', hor)), field('Rationale', note), trBox,
+      dec.option && !dec.by ? banner('warn', tr('Decision without a named decision-maker'), tr('This decision was recorded before 1.9.2 without the name of the person who made it. Enter the name in “Decided by” and the decision is recorded again — Management decision required.')) : null,
       el('p', 'note', `Suggestion basis: appetite ${R.appetite}, tolerance band ${CRG.BAND_LOW}–${CRG.BAND_HIGH}. Quantitative results are relative indicators, not loss predictions.`));
     body.append(d);
   }
@@ -464,6 +469,9 @@ function detail(body, sec, r) {
   if (frozen) bar.append(el('button', { class: 'btn sm ghost', onclick: () => {
     REC.amend(r, { by: by.value, note: rn.value || 'edited' }); redraw(); toast(`${r.code} amended as v${r.version}`); } }, 'Record an amendment'));
   c7.append(bar, refused);
+  // 1.9.2 review (M1) — a frozen zero the earlier rule did not cause is kept as approved and shown for review
+  if (r.approved?.zeroReview) c7.append(banner('warn', tr('Frozen reduction kept — review'),
+    tr('This recommendation was approved with a reduction of {0} while its own measures were not in force, so the earlier rule did not cause the zero and nothing was recomputed. Today’s measures would give {1}: amend the recommendation (a new version) if that is what was meant.').replace('{0}', n0(r.approved.reduction || 0)).replace('{1}', n0(r.approved.zeroReview.currentEffect || 0))));
   // 1.9.2 (decided item 23) — frozen figures recomputed by the 1.9.2 data migration keep the earlier ones beside them
   if (r.approved?.recomputed) c7.append(banner('warn', tr('Frozen figures recomputed (decided item 23)') + ' — ' + tr('recomputed in 1.9.2 from current measures'),
     tr('The figures frozen at approval under the earlier rule showed a reduction of {0}; the decided rule — residual without this recommendation’s own measures minus residual with them, whatever their status — gives {1}. Recomputed on {2}; the earlier figures are kept in the history.').replace('{0}', n0(r.approved.recomputed.previous?.reduction || 0)).replace('{1}', n0(r.approved.reduction)).replace('{2}', r.approved.recomputed.at)));

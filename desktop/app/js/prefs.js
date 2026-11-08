@@ -12,7 +12,13 @@ const subs = new Set();
 
 export const get = k => P[k];
 export const all = () => ({ ...P });
+/* 1.9.2 review (M5) — a window another window took over stops writing its preferences too (store.js drops the IndexedDB
+   writes; this drops the localStorage mirror), so a late handler cannot overwrite the holder's. */
+let frozen = false;
+export const freeze = () => { frozen = true; };
+export const unfreeze = () => { frozen = false; };
 export function set(k, v) {
+  if (frozen) return;
   P[k] = v;
   try { localStorage.setItem(KEY, JSON.stringify(P)); } catch { /* private window */ }
   store.put('meta', 'prefs', P).catch(() => {});

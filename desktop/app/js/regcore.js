@@ -398,7 +398,7 @@ export function tokenCount(text) {
   return (t.match(new RegExp(EMAIL.source, 'g')) || []).length + (t.match(new RegExp(DOMAIN_USER.source, 'g')) || []).length + (t.match(new RegExp(SID.source, 'gi')) || []).length;
 }
 /** Accept reviewed counts: new rows with provenance; nothing else is written. Returns the rows created. */
-export function acceptImport(ws, M, items, { file, sha256, bytes, rows, method, by = '' }) {
+export function acceptImport(ws, M, items, { file, sha256, bytes, rows, method, by = '', proposed = null }) {
   const R = reg(ws, M), made = [];
   for (const it of items) {
     const register = it.register; if (!M.AI_KEYS[register]) continue;
@@ -408,11 +408,11 @@ export function acceptImport(ws, M, items, { file, sha256, bytes, rows, method, 
     if (register === 'privileged') { row.tier = it.tier; row.label = (TIERS.find(t => t[0] === it.tier)?.[1] || 'Tier ' + it.tier) + ' (imported)'; }
     if (register === 'changes') row.type = it.type || 'normal';
     row.source = String(file + (it.page ? ', p. ' + it.page : '')).slice(0, 200);
-    row.prov = { tag: TAGS.includes(it.tag) ? it.tag : 'UNKNOWN', method, file, date: today() };
+    row.prov = { tag: TAGS.includes(it.tag) ? it.tag : 'UNKNOWN', method, file, date: today(), ...(it.tagNote ? { note: it.tagNote } : {}) };   // 1.9.2 review (H4): a downgraded FACT keeps the reason
     row.status = 'inferred';
     R[register].push(row); made.push(row);
   }
-  R.imports.push({ at: new Date().toISOString(), file, sha256, bytes, rows, method, proposed: items.length, accepted: made.length, by });
+  R.imports.push({ at: new Date().toISOString(), file, sha256, bytes, rows, method, proposed: proposed ?? items.length, accepted: made.length, by });   // 1.9.2 review: proposed = every proposal, accepted = the ticked ones
   return made;
 }
 /** Tabular text (CSV or the tab-separated text of an XLSX) to rows. */

@@ -59,7 +59,8 @@ feed, calculate, forecast or export. The exceptions all start with a click of yo
   when you click **Download**, and never installed by the application. The download is kept only when its
   SHA-256 matches the checksum published with the release and, once the author publishes a release-signing key,
   when its **minisign signature** verifies against the key pinned in the build; the banner says *Signed*, *Not
-  signed* or *Signature not checked* in plain words. An invalid signature refuses the file.
+  signed* or *Signature not checked* in plain words. An invalid signature refuses the file; once a key is pinned,
+  a release that carries no signature is refused too (the check never falls back to the SHA-256 alone).
 
 The **ontology** is read on your computer: through its own MCP server, started by the helper, or
 through the snapshot shipped with the application. Neither sends anything anywhere.
@@ -263,7 +264,10 @@ Organization → Workspaces (export one first if it holds work you want to keep)
 last one to save would win. The application therefore takes a lock when it opens. A second window shows
 *CyberRiskGuardian is already open in another window* with two choices: **Use it here** — the other window
 saves what it holds, then shows a locked screen with its own **Use it here**; this window loads the data — or
-**Close this window**. From the locked window, **Use it here** takes the work back. The
+**Close this window**. From the locked window, **Use it here** takes the work back. The taking-over window
+waits for the other window's confirmation that it saved before it loads anything (*Waiting for the other
+window to save…*); if no confirmation comes within 15 seconds (a hung window), it says so and offers **Keep
+waiting** or **Take over anyway** — never a silent takeover. The
 lock is released by the browser itself when a window closes or crashes: a crash never leaves the
 application locked.
 
@@ -321,13 +325,13 @@ happens. In multi-user mode each step also shows who is Responsible and Accounta
 | 7 | Select the most material scenarios | At least one family is selected, every judgment-based selection has its rationale, and every flagged exclusion is reviewed. | Families, Weighting schemes, Coverage matrix, Final portfolio |
 | 8 | Develop each selected scenario as a causal chain | At least 10 scenarios in the register, and every included scenario is a complete causal chain — statement, threat source, initiating event, vulnerabilities, affected assets and consequences (stakeholders, existing controls and the event sequence listed as optional). | Scenario register, Scenario editor, Suggest vulnerability links |
 | 9 | Estimate the six parameters | 80% of the parameters of the included scenarios are estimated: a rationale that is not the placeholder written at creation, the evidence it rests on (E1, E2…) and a confidence level. | Scenario editor, Forecasts |
-| 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score entered by the analyst (a vector, or a score by equivalency) — not the default vector a new scenario starts with — and every score by equivalency has all its justifications. A vector that came with a batch pattern or a candidate blocks the step until the analyst confirms it (one click on the Process card, recorded in the scenario's revisions) or changes it. | CVSS v4.0, Scenario editor |
+| 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score entered by the analyst (a vector, or a score by equivalency) — not the default vector a new scenario starts with — and every score by equivalency has all its justifications. A vector that came with a batch pattern or a candidate blocks the step until the analyst confirms it (one click on the Process card, recorded in the scenario's revisions) or changes it. A scenario created from a row that carried a score and no vector (CVE register with a non-v4 score, ontology prior, Risk Registry or CSV row) computes on that stored score and blocks the step the same way until the analyst confirms the score or enters the v4.0 Base vector of the actual weakness. | CVSS v4.0, Scenario editor |
 | 11 | Calculate estimated and tolerated risk | The included scenarios compute without error. | Risk calculator, Scenario register |
 | 12 | Design mitigation measures | Every scenario above tolerance is covered by at least one measure. | Risk mitigation |
 | 13 | Identify shared controls | At least one initiative funds the measures (Shared controls → *Create initiatives from the measures (n)*, or *→ Initiative* on a measure), and every initiative addresses at least one scenario, so its cost is allocated without double-counting. | Shared controls, Risk mitigation |
 | 14 | Recalculate mitigated and residual risk | Every included scenario above tolerance before treatment carries probability and impact reductions that come from its measures (Risk mitigation → *Apply to all covered scenarios*) or from an explicit analyst entry — never the 0 / 0 a new scenario starts with. | Risk mitigation, Risk calculator, Scenario register |
 | 15 | Run the sensitivity analysis | At least one scenario’s sensitivity is recorded as reviewed. | Risk calculator, Forecasts |
-| 16 | Prioritize scenarios and treatments | Every included scenario has a management decision recorded (Recommendations → By scenario). | Recommendations — By scenario, Risk register |
+| 16 | Prioritize scenarios and treatments | Every included scenario has a management decision recorded by a named person (Recommendations → By scenario; a transfer also names its approver). | Recommendations — By scenario, Risk register |
 | 17 | Assemble the investment portfolio | At least one recommendation is approved. | Recommendations, Risk register |
 | 18 | Calibrate the cybersecurity budget | The budget year is filled (IT budget, baseline) and every initiative is allocated: a cost, committed to the budget years (Budget → Initiatives allocated over the years). | Budget |
 | 19 | Define key risk indicators | At least one KRI is fully defined — the scenarios it addresses, its measurement method, data source, owner, frequency, target and thresholds — and at least one measurement is recorded. | KRI dashboard, Forecasts |
@@ -1810,11 +1814,14 @@ transfer, avoid, accept** — with the suggested one highlighted and the reasons
 
 Below the options: the initiatives linked to the scenario with cost and cost-effectiveness, the
 ATT&CK mitigations for its techniques and the CRG measures that implement them, and the
-**management decision** — option chosen, owner, horizon and rationale, saved in the decision
-register. A decision that departs from the suggestion is legitimate; record why. A **Transfer** also records
-the **share of loss covered** (0–1) — what the insurance or the contract would cover, for information only:
-it never reduces the risk index, and the harm to people and operations stays — and the **approver** of the
-transfer; the Quality review flags a transfer without an approver (QC-25).
+**management decision** — option chosen, **decided by** (the name of the person who made it, pre-filled with
+the signed-in name and required: no decision is recorded without it), owner, horizon and rationale, saved in
+the decision register. A decision that departs from the suggestion is legitimate; record why. A **Transfer**
+also records the **share of loss covered** (0–1) — what the insurance or the contract would cover, for
+information only: it never reduces the risk index, and the harm to people and operations stays — and the
+**approver** of the transfer, required before the transfer is recorded; the Quality review flags a transfer
+without an approver (QC-25) and any decision without a named decision-maker (QC-02). Decisions recorded before
+1.9.2 without a name show a warning until the name is entered, and do not count for step 16.
 
 **Shared controls** ranks initiatives by the number of scenarios they serve and the risk reduction
 attributed to them, and ATT&CK mitigations by the residual risk they cover. **Roadmap** places
@@ -2186,9 +2193,12 @@ Three rules apply to the proposals:
 
 - **Exposure evidence comes from the vulnerability register**, not from the pasted list. A CVE marked
   *Exposed* in the register, with its product or asset and source, is cited as the exposure evidence.
-  A CVE pasted here but absent from the register is **not** confirmed exposure: its proposal is left
-  unticked and labelled **Information gap — organizational validation required**; if you accept it
-  anyway, the marker is stored in the `threat_basis` entry so that a reviewer sees the gap.
+  A CVE pasted here but absent from the register is **not** confirmed exposure: its proposal **cannot be
+  accepted** (the checkbox is disabled and labelled **Information gap — organizational validation
+  required**). Use *Add to the watch list* instead: the intelligence is recorded in the workspace's
+  **Watch list** (CVE, scenario, rung, proposed band, snapshot date) without changing any estimate. When
+  the register confirms the exposure, re-run the join and accept the proposal there. The Quality review
+  fails QC-32 for any `threat_basis` entry that lacks exposure evidence (one accepted before 1.9.2).
 - **Choose a confidence for each proposal.** Nothing is preselected; *Accept selected* stays disabled
   until every ticked proposal has one.
 - **An expired snapshot blocks the proposals** until you write a justification. The screen says, where
@@ -2623,8 +2633,11 @@ aggregate counts of accounts, privileged roles, emergency accounts and access re
 shapes it contains, and offers the anonymizer. Sending it to a remote provider needs the tick "This report
 contains personal information about staff; I am authorized to send it to …", and a confidential workspace
 confirms every call. The answer keeps only whitelisted counts and enumerations; anything else is dropped.
-**Accept ticked** writes the counts as new rows with their provenance and nothing else; the import trace keeps
-the file name, its SHA-256, size and row count.
+Counts read by the AI are proposals: the report text goes to the model inside the untrusted-text wrapper, a
+FACT the model proposes is shown as INFERENCE (the report was not quoted), nothing is pre-ticked, and lines of
+the report that look like instructions to an AI are listed with the proposals. Counts computed offline by the
+rules stay pre-ticked. **Accept ticked** writes the ticked counts as new rows with their provenance and nothing
+else; the import trace keeps the file name, its SHA-256, size, row count, and the proposed and accepted counts.
 
 **Privacy (Québec Law 25, data minimisation).** Account and access data about staff, contractors and locum
 physicians is personal information under the Québec *Act respecting the protection of personal information
@@ -2722,7 +2735,7 @@ exceptions and the indicators, CRG-25 as CRGO's known configuration coverage) fo
 
 The checks to run before a report or a write-back leaves the analyst, each with *pass*, *attention* or
 *fail*, the detail, and a button to the screen that fixes it. The first eighteen are listed one by one below;
-QC-19 to QC-26 (book v2.51 alignment) are summarised in one row, followed by QC-27 to QC-31; every check appears
+QC-19 to QC-26 (book v2.51 alignment) are summarised in one row, followed by QC-27 to QC-32; every check appears
 on the screen with its rule.
 
 | Check | What it verifies |
@@ -2751,6 +2764,7 @@ on the screen with its rule.
 | QC-29 | A budget shortfall to the appetite-consistent target is escalated — asked of management in the exported summary or written as a decision — not reconciled silently. |
 | QC-30 | The management summary agrees with the workbook to the unit: the figures recorded at export (estimated, tolerated, residual, scenarios included) are the engine's figures today; a change since the export fails and names what moved. |
 | QC-31 | The threat-context snapshot behind the calibrated likelihoods is current: when `threat_basis` entries exist, a missing snapshot or one past its 90-day lifetime fails, with a button to Threat context (refresh the snapshot, re-run the exposure join). |
+| QC-32 | Every likelihood calibrated from the threat context rests on exposure evidence: a `threat_basis` entry whose CVE is not confirmed *Exposed* in the vulnerability register (or an older entry with no exposure text) fails. Record the exposure in the register and re-run the join, or revert the parameter and keep the intelligence on the watch list. |
 
 A pass means the rule was not visibly broken in the data recorded here; the checks support a reviewer,
 they do not replace one.

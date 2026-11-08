@@ -46,6 +46,39 @@ def escape_untrusted(text: str) -> str:
     return re.sub(r"<(/?)untrusted_document(\b[^>]*)>", r"&lt;\1untrusted_document\2&gt;", text or "", flags=re.I)
 
 
+def injected_lines(text: str) -> set[int]:
+    """1-based numbers of the lines that look like an instruction to an AI — read line by line AND by paragraph (a block
+    of consecutive non-empty lines) joined with a space, so an instruction split across two lines ("IMPORTANT SYSTEM
+    NOTICE" / "TO THE AI: …") is caught with the whole block it sits in (0.1.1, review L3)."""
+    lines = re.split(r"\r?\n", text or "")
+    bad: set[int] = set()
+    block: list[int] = []
+
+    def close():
+        if not block:
+            return
+        hit = [i for i in block if i in bad]
+        if not hit:
+            # no line matches on its own: adjacent pairs, then the whole block (an instruction split over several lines)
+            for a, b in zip(block, block[1:]):
+                if looks_injected(flat(lines[a - 1]) + " " + flat(lines[b - 1])):
+                    bad.update((a, b))
+            if not any(i in bad for i in block) and looks_injected(" ".join(flat(lines[i - 1]) for i in block)):
+                bad.update(block)
+        block.clear()
+
+    for i, line in enumerate(lines, 1):
+        t = flat(line)
+        if not t:
+            close()
+            continue
+        if looks_injected(t):
+            bad.add(i)
+        block.append(i)
+    close()
+    return bad
+
+
 def ai_text(docs: list[dict], max_chars: int = 20000) -> dict:
     """The text of the documents that may be sent to a model: every paragraph that looks like an instruction to an
     AI is left out, decided here and now on the text given (not on the flags of an earlier run), and wrapper tags
@@ -54,11 +87,13 @@ def ai_text(docs: list[dict], max_chars: int = 20000) -> dict:
     for d in docs or []:
         name = d.get("name") or d.get("id") or "document"
         kept = []
-        for i, line in enumerate(re.split(r"\r?\n", d.get("text") or ""), 1):
+        text = d.get("text") or ""
+        bad = injected_lines(text)
+        for i, line in enumerate(re.split(r"\r?\n", text), 1):
             t = flat(line)
             if not t:
                 continue
-            if looks_injected(t):
+            if i in bad:
                 flagged.append({"doc": d.get("id"), "name": name, "locator": f"{name}, ¶ {i}", "excerpt": t[:240]})
                 continue
             kept.append(t)
@@ -76,7 +111,8 @@ def segments(text: str, name: str) -> list[dict]:
     aside: they are listed in "flagged", never read for facts and never sent to a model."""
     paras: list[tuple[str, str, bool]] = []
     page = None
-    for line in re.split(r"\r?\n", text or ""):
+    bad = injected_lines(text or "")   # review L3: by line and by paragraph block
+    for n, line in enumerate(re.split(r"\r?\n", text or ""), 1):
         t = flat(line)
         if not t:
             continue
@@ -84,7 +120,7 @@ def segments(text: str, name: str) -> list[dict]:
         if m:
             page = m.group(1)
             continue
-        paras.append((page or "", t, looks_injected(t)))
+        paras.append((page or "", t, n in bad))
     out, buf, start, size = [], [], 1, 0
 
     def flush(end):

@@ -1069,7 +1069,8 @@ def run_update(job, params, ev):
     if sig_url:
         _update(job, message="Checking the minisign signature published with the release…", progress=0.95)
     signature = crg_signing.check(data, sig_text, _update_pubkey())
-    if signature["status"] in ("invalid", "malformed"):
+    # 1.9.2 review (M6): with a pinned key, "no-signature" is a refusal too (an unsigned release never downgrades to SHA-256 only)
+    if signature["status"] in ("invalid", "malformed", "no-signature"):
         raise RuntimeError(signature["detail"])
     path = _write(job, name, data)
     return name, {"records": len(data), "path": path, "version": _update_cache.get("latest"), "sha256": digest, "verified": verified,
@@ -1103,9 +1104,16 @@ def _app_made(path):
     except OSError:
         return False
     if path.endswith(".json"):
-        return bool(re.search(r'"schema"\s*:\s*"crg-', head) or "CyberRiskGuardian" in head)
+        # 1.9.2 review (L4): a JSON file is ours only when it parses and its top-level "schema" is one of ours ("crg-…");
+        # a mention of the product's name in somebody else's file is not a claim on it
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as fh:
+                doc = json.load(fh)
+        except (OSError, ValueError):
+            return False
+        return isinstance(doc, dict) and isinstance(doc.get("schema"), str) and doc["schema"].startswith("crg-")
     if path.endswith(".md"):
-        return head.lstrip().startswith(("# Risk registry", "# Registre des risques", "# Weekly threat briefing", "# Threat briefing", "# Briefing", "# Veille", "### Management summary", "### Sommaire", "# CyberRiskGuardian")) or "CyberRiskGuardian" in head
+        return head.lstrip().startswith(("# Risk registry", "# Registre des risques", "# Weekly threat briefing", "# Threat briefing", "# Briefing", "# Veille", "### Management summary", "### Sommaire", "# CyberRiskGuardian"))
     if path.endswith(".csv"):
         return head.startswith(("id,", "\ufeffid,", "cve,", "scenario", "risk"))
     return False

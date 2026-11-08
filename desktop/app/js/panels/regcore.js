@@ -258,7 +258,7 @@ function proposeDialog(X, ws, f, redraw) {
 /* ---------------- Import from a report ---------------- */
 /* The file is held in a module's import state, in memory, for the time of the review only: never in ws.docs, blobs or importLog. */
 export function importState() {
-  const IMP = { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0, release() { Object.assign(IMP, { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0 }); } };
+  const IMP = { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0, injected: [], release() { Object.assign(IMP, { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0, injected: [] }); } };
   return IMP;
 }
 
@@ -272,7 +272,8 @@ export function registerTask(X, label) {
   AI.TASKS['extract_s_' + X.ID] = {
     label,
     build(ws, { text = '' } = {}) {
-      return { system: SYSTEM, prompt: [X.AI_PROMPT, '', 'DOCUMENTS:', text].join('\n'), max_tokens: 3000, json: true, keepLanguage: true };
+      // 1.9.2 review (H4, NV-008): the report is untrusted text — wrapped, so prepare() adds the system line (data, never instructions)
+      return { system: SYSTEM, prompt: [X.AI_PROMPT, '', 'DOCUMENTS:', AI.untrusted(text, 'report')].join('\n'), max_tokens: 3000, json: true, keepLanguage: true };
     },
   };
 }
@@ -328,7 +329,14 @@ function aiBox(X, IMP, body, redraw, ws) {
   const go2 = el('button', { class: 'btn', id: id + '-ai', disabled: !route.provider || remote, onclick: async () => {
     const out = await aiui.request(task, { text: IMP.text }, { title: tr('Import from a report — what will be sent'), ws });
     if (!out) return;
-    try { const r = X.parseAIItems(AI.parseJson(out.text)); IMP.items = r.items; IMP.dropped = r.dropped; IMP.method = 'ai'; redraw(); }
+    try {
+      const r = X.parseAIItems(AI.parseJson(out.text));
+      /* 1.9.2 review (H4) — the AI's provenance tag is not taken as given: the prompt forbids quotations, so no FACT can be
+         grounded in the report; a FACT becomes INFERENCE at most. Lines of the report that look like instructions to an AI
+         are listed with the proposals, and nothing is pre-ticked. */
+      for (const it of r.items) if (it.tag === 'FACT') { it.tag = 'INFERENCE'; it.tagNote = 'proposed FACT by the model — downgraded: counts read by an AI are inferences until a person checks them against the report'; }
+      IMP.items = r.items; IMP.dropped = r.dropped; IMP.method = 'ai'; IMP.injected = AI.injectionLines(IMP.text); redraw();
+    }
     catch (e) { toast(tr(e.message), 'bad'); }
   } }, 'Prepare the AI request');
   tick.addEventListener('change', () => { go2.disabled = !tick.checked; });
@@ -344,17 +352,22 @@ function aiBox(X, IMP, body, redraw, ws) {
 }
 
 function review(X, IMP, body, redraw, ws) {
-  const items = IMP.items, ticks = items.map(() => el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } }));
-  const keys = it => Object.entries(it).filter(([k, v]) => !['register', 'type', 'tier', 'tag', 'page'].includes(k) && v !== null && v !== undefined).map(([k, v]) => `${k} ${v}`).join(' · ');
+  // 1.9.2 review (H4): counts the AI read are never pre-ticked; the offline rules' counts (computed here from the table) are
+  const items = IMP.items, ticks = items.map(() => el('input', { type: 'checkbox', checked: IMP.method === 'rules', style: { width: 'auto' } }));
+  const keys = it => Object.entries(it).filter(([k, v]) => !['register', 'type', 'tier', 'tag', 'page', 'tagNote'].includes(k) && v !== null && v !== undefined).map(([k, v]) => `${k} ${v}`).join(' · ');
   body.append(card({ id: X.ID + '-review' }, el('h2', { style: { marginTop: 0 } }, tr('Review: {0} proposed counts').replace('{0}', items.length)),
     IMP.dropped ? el('p', 'note', tr('{0} item(s) dropped: not a count, or failing the personal-data or secret guard.').replace('{0}', IMP.dropped)) : null,
+    IMP.method === 'ai' ? el('p', 'note', 'Counts read by an AI are proposals: check each one against the report before ticking it. A FACT proposed by the model is shown as INFERENCE — the report was not quoted.') : null,
+    IMP.injected?.length ? banner('warn', tr('{0} line(s) of the report look like instructions to an AI').replace('{0}', IMP.injected.length),
+      el('div', null, el('div', 'small', 'The model may have followed them. Compare every proposed count with the report itself before accepting any.'),
+        el('ul', 'small mono', { 'data-noi18n': '' }, ...IMP.injected.slice(0, 5).map(l => el('li', null, `${l.n}: ${l.text.slice(0, 160)}`))))) : null,
     items.length ? table([{ key: 't', label: '', sortable: false, render: (it, i) => ticks[i] }, { key: 'r', label: 'Register', render: it => regLabel(it.register) },
       { key: 'g', label: 'Population', render: it => it.register === 'accounts' ? tr(C.TYPES.find(t => t[0] === it.type)?.[1] || it.type) : it.register === 'privileged' ? tr(C.TIERS.find(t => t[0] === it.tier)?.[1] || '') : (it.type ? tr(C.CH_TYPES.find(t => t[0] === it.type)?.[1] || it.type) : '—') },
-      { key: 'c', label: 'Counts', render: it => el('span', 'mono small', keys(it)) }, { key: 'tag', label: 'Provenance', render: it => pill(it.tag, it.tag === 'FACT' ? 'good' : 'warn') },
+      { key: 'c', label: 'Counts', render: it => el('span', 'mono small', keys(it)) }, { key: 'tag', label: 'Provenance', render: it => el('span', { title: it.tagNote ? tr(it.tagNote) : '' }, pill(it.tag, it.tag === 'FACT' ? 'good' : 'warn'), it.tagNote ? el('span', 'small muted', ' ' + tr('(FACT downgraded)')) : null) },
       { key: 'p', label: 'Page', render: it => it.page || '—' }], items, { class: 'compact' }) : el('div', 'empty-state', tr('Nothing was proposed.')),
     el('div', 'btnrow', { style: { marginTop: '8px' } },
       el('button', { class: 'btn', id: X.ID + '-accept', onclick: () => {
-        const made = X.acceptImport(ws, items.filter((_, i) => ticks[i].checked), { file: IMP.file, sha256: IMP.sha, bytes: IMP.bytes, rows: IMP.rows ? IMP.rows.length - 1 : 0, method: IMP.method, by: who() });
+        const made = X.acceptImport(ws, items.filter((_, i) => ticks[i].checked), { file: IMP.file, sha256: IMP.sha, bytes: IMP.bytes, rows: IMP.rows ? IMP.rows.length - 1 : 0, method: IMP.method, by: who(), proposed: items.length });
         LOG.data('counts imported', `${made.length}`, X.LABEL, ws.name);
         IMP.release(); touch(); toast(tr('{0} rows added with their provenance').replace('{0}', made.length)); redraw();
       } }, 'Accept ticked'),

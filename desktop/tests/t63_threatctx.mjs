@@ -56,9 +56,11 @@ const confVals = await prop.locator('tbody select').evaluateAll(els => els.map(e
 ok(confVals.every(v => v === ''), 'confidence starts empty, nothing preselected: ' + JSON.stringify(confVals));
 const ticked = await prop.locator('tbody input[type=checkbox]').evaluateAll(els => els.map(e => e.checked));
 ok(ticked.length === 2 && ticked.includes(false) && ticked.includes(true), 'the proposal without register evidence is unticked, the one with evidence ticked: ' + JSON.stringify(ticked));
+// 1.9.2 review (H3): the row without register evidence cannot be ticked at all (its checkbox is disabled, no confidence to choose); it goes to the watch list
+ok(await prop.locator('tbody input[type=checkbox]:disabled').count() === 1 && await prop.locator('tbody select').count() === 1, 'the proposal without exposure evidence is disabled (exposure gate), one confidence select for the gated row');
 const acceptBtn = page.locator('#join-out button:has-text("Accept selected")');
 ok(await acceptBtn.isDisabled(), 'Accept is disabled while a confidence is missing');
-await prop.locator('tbody select').nth(0).selectOption('High'); await prop.locator('tbody select').nth(1).selectOption('Medium'); await page.waitForTimeout(200);
+await prop.locator('tbody select').nth(0).selectOption('Medium'); await page.waitForTimeout(200);
 ok(await acceptBtn.isDisabled() && /expired: write a justification/.test(await page.locator('#join-out').innerText()), 'with the confidence chosen, Accept still waits for the justification (expired snapshot)');
 await page.locator('#join-out textarea.code').first().fill('No newer snapshot can be retrieved on this network; the KEV listing is permanent.'); await page.waitForTimeout(200);
 ok(!(await acceptBtn.isDisabled()), 'Accept is enabled once the justification is written');

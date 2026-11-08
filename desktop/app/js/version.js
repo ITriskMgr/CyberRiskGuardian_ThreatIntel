@@ -19,6 +19,6 @@ export const WRITER_VERSION = '0.1.1';
 /** 1.9.2 (NV-W01): the content hash of crg_writer/ (tools/writer_tree_hash.py). The desktop copy is canonical (D1):
     version_check.py fails when the tree and this hash differ, and the stand-alone repository's sync script compares it
     before overwriting. Update it with `python3 tools/writer_tree_hash.py --write` after a deliberate change. */
-export const WRITER_TREE_HASH = '56e7a9ec1cf0d830bae44fb1e071ad384d7b6b34fd4e57d2dcc1fc3977e4f388';
+export const WRITER_TREE_HASH = '6d465d96d3e4f50634ca14112195b059dbe7a78edd268695b1dfe27ecf839beb';
 /** What a generated file should name as its generator. */
 export const GENERATOR = `CyberRiskGuardian Desktop ${VERSION} (${CHANNEL})`;

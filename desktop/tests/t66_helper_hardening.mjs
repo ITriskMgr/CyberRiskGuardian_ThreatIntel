@@ -119,7 +119,7 @@ try {
   ok(/Signed: the minisign signature of the release verifies/.test(t) && fs.existsSync(path.join(FEEDS, ZIP)), 'NV-086: a valid minisign signature is verified against the pinned key and said so');
   ok(/Verified: its SHA-256 checksum matches/.test(t), 'the SHA-256 check still runs beside the signature');
   await browser.close();
-  for (const [p, key, re, kept] of [['/badsig', PUB, /does NOT verify against the pinned public key/, false], ['/signed', '', /Signature not checked: this build pins no release-signing key/, true], ['/verified', PUB, /Not signed: the release carries no minisign signature/, true]]) {
+  for (const [p, key, re, kept] of [['/badsig', PUB, /does NOT verify against the pinned public key/, false], ['/signed', '', /Signature not checked: this build pins no release-signing key/, true], ['/verified', PUB, /unsigned release is refused/, false]]) {   // 1.9.2 review (M6): a pinned key refuses an unsigned release
     fs.rmSync(path.join(FEEDS, ZIP), { force: true });
     execSync(serveCmd(`CRG_UPDATE_URL=http://127.0.0.1:${MP}${p} CRG_UPDATE_PUBKEY=${key}`));
     const o = await open('#/about/versions'); await o.page.waitForTimeout(900);

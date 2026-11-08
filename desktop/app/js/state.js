@@ -361,8 +361,12 @@ export const DEFAULT_VECTOR = 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/
  *  differs from the one recorded at creation (vector_ref) counts as entered. A score by equivalency is an analyst entry. */
 export function vectorState(s) {
   if (!s || !s.vector_source || s.vector_source === 'confirmed') return 'entered';
-  if (s.cvss !== (s.vector_ref || DEFAULT_VECTOR)) return 'entered';
   if (s.cvss_mode === 'equivalency') return 'entered';
+  /* 1.9.2 review (H2) — 'score': the scenario came with a score and no vector (CVE register with a non-v4 score, CRGO
+     prior, Risk Registry row, batch or screening row): it computes on that stored score until the analyst confirms it
+     or enters a v4.0 vector. A vector typed since counts as entered. */
+  if (s.vector_source === 'score') return (s.cvss === '' || s.cvss == null) && s.cvss_score !== undefined && s.cvss_score !== null && s.cvss_score !== '' ? 'score' : 'entered';
+  if (s.cvss !== (s.vector_ref || DEFAULT_VECTOR)) return 'entered';
   return s.vector_source;
 }
 
@@ -372,7 +376,9 @@ export function confirmVector(s, by = '') {
   if (!s || vectorState(s) === 'entered') return false;
   const from = s.vector_source;
   s.vector_source = 'confirmed'; s.vector_confirmed = { date: today(), by: String(by || '').trim(), from };
-  (s.revisions ||= []).push({ date: today(), what: `CVSS vector ${s.cvss} confirmed by the analyst${by ? ' (' + by + ')' : ''} — it came with a ${from === 'pattern' ? 'batch pattern or candidate' : 'new scenario'} (Process step 10)` });
+  (s.revisions ||= []).push({ date: today(), what: from === 'score'
+    ? `CVSS score ${s.cvss_score} (stored, no vector) confirmed by the analyst${by ? ' (' + by + ')' : ''} — it came with the row the scenario was created from (Process step 10)`
+    : `CVSS vector ${s.cvss} confirmed by the analyst${by ? ' (' + by + ')' : ''} — it came with a ${from === 'pattern' ? 'batch pattern or candidate' : 'new scenario'} (Process step 10)` });
   return true;
 }
 

@@ -61,6 +61,14 @@ class PublishRules(unittest.TestCase):
             serve.publish("crg-registry-foreign.json", '{"schema":"crg-registry/1"}', "registry")
         with open(foreign, encoding="utf-8") as fh:
             self.assertIn("curl evil", fh.read())
+        # 1.9.2 review (L4): a user's own JSON that merely mentions the product is not ours
+        mention = os.path.join(self.shared, "crg-registry-notes.json")
+        with open(mention, "w", encoding="utf-8") as fh:
+            fh.write('{"notes": "exported from CyberRiskGuardian by hand", "scripts": {"x": "rm -rf"}}')
+        with self.assertRaises(ValueError):
+            serve.publish("crg-registry-notes.json", '{"schema":"crg-registry/1"}', "registry")
+        with open(mention, encoding="utf-8") as fh:
+            self.assertIn("rm -rf", fh.read())
         link = os.path.join(self.shared, "crg-registry-link.md")
         os.symlink(foreign, link)
         with self.assertRaises(ValueError):

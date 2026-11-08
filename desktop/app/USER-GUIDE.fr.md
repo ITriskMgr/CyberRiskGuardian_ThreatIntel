@@ -66,7 +66,8 @@ exportez. Les exceptions commencent toutes par un clic de votre part :
   téléchargement n'est conservé que si son empreinte SHA-256 correspond à celle publiée avec la version et, dès
   que l'auteur publiera une clé de signature des versions, si sa **signature minisign** est valide pour la clé
   épinglée dans l'application ; la bannière indique en clair *Signée*, *Non signée* ou *Signature non vérifiée*.
-  Une signature non valide refuse le fichier.
+  Une signature non valide refuse le fichier ; dès qu'une clé est épinglée, une version sans signature est refusée
+  aussi (la vérification ne se rabat jamais sur la seule empreinte SHA-256).
 
 L'**ontologie** est lue sur votre ordinateur : au moyen de son propre serveur MCP, démarré par
 l'assistant local, ou au moyen de l'instantané livré avec l'application. Ni l'un ni l'autre n'envoie
@@ -290,8 +291,11 @@ travail, et la dernière à enregistrer l’emporterait. L’application prend d
 deuxième fenêtre affiche *CyberRiskGuardian est déjà ouvert dans une autre fenêtre* avec deux choix :
 **Utiliser ici** — l’autre fenêtre enregistre ce qu’elle tient, puis affiche un écran verrouillé avec son propre
 **Utiliser ici** ; cette fenêtre charge les données — ou **Fermer cette fenêtre**. Depuis la fenêtre verrouillée,
-**Utiliser ici** reprend la main. Le verrou est libéré par le navigateur
-lui-même quand une fenêtre se ferme ou plante : un plantage ne laisse jamais l’application verrouillée.
+**Utiliser ici** reprend la main. La fenêtre qui prend le relais attend la confirmation de l’autre fenêtre
+qu’elle a enregistré avant de charger quoi que ce soit (*En attente de l’enregistrement par l’autre fenêtre…*) ;
+sans confirmation après 15 secondes (fenêtre bloquée), elle le dit et offre **Continuer d’attendre** ou
+**Prendre le relais quand même** — jamais de prise de relais silencieuse. Le verrou est libéré par le navigateur
+lui-même quand une fenêtre se ferme ou plante : un plantage ne laisse jamais l’application verrouillée.
 
 ### 5.1 Versions des données : ce que vous saisissez survit aux mises à niveau
 
@@ -349,13 +353,13 @@ multiutilisateur, chaque étape indique aussi qui est Responsable (R) et Approba
 | 7 | Sélectionner les scénarios les plus importants | Au moins une famille est retenue, chaque sélection fondée sur le jugement a sa justification et chaque exclusion signalée est examinée. | Familles, Schémas de pondération, Matrice de couverture, Portefeuille final |
 | 8 | Développer chaque scénario retenu en chaîne causale | Au moins 10 scénarios dans le registre, et chaque scénario inclus est une chaîne causale complète — énoncé, source de menace, événement déclencheur, vulnérabilités, actifs touchés et conséquences (parties prenantes, contrôles existants et séquence d'événements listés comme facultatifs). | Registre des scénarios, Éditeur de scénarios, Suggérer des liens de vulnérabilité |
 | 9 | Estimer les six paramètres | 80 % des paramètres des scénarios inclus sont estimés : une justification qui n'est pas le texte provisoire écrit à la création, les éléments probants sur lesquels elle repose (E1, E2…) et un niveau de confiance. | Éditeur de scénarios, Prévisions |
-| 10 | Noter la faiblesse représentative avec le CVSS v4.0 | Chaque scénario inclus a un score CVSS valide saisi par l'analyste (un vecteur, ou un score par équivalence) — pas le vecteur par défaut d'un nouveau scénario — et chaque score par équivalence a toutes ses justifications. Un vecteur venu d'un modèle de lot ou d'un candidat bloque l'étape jusqu'à ce que l'analyste le confirme (un clic sur la carte Processus, consigné dans les révisions du scénario) ou le change. | CVSS v4.0, Éditeur de scénarios |
+| 10 | Noter la faiblesse représentative avec le CVSS v4.0 | Chaque scénario inclus a un score CVSS valide saisi par l'analyste (un vecteur, ou un score par équivalence) — pas le vecteur par défaut d'un nouveau scénario — et chaque score par équivalence a toutes ses justifications. Un vecteur venu d'un modèle de lot ou d'un candidat bloque l'étape jusqu'à ce que l'analyste le confirme (un clic sur la carte Processus, consigné dans les révisions du scénario) ou le change. Un scénario créé à partir d'une ligne qui portait un score sans vecteur (registre des CVE avec un score non v4, a priori de l'ontologie, ligne du Registre des risques ou d'un CSV) calcule sur ce score stocké et bloque l'étape de la même façon jusqu'à ce que l'analyste confirme le score ou saisisse le vecteur de base v4.0 de la faiblesse réelle. | CVSS v4.0, Éditeur de scénarios |
 | 11 | Calculer le risque estimé et le risque toléré | Les scénarios inclus se calculent sans erreur. | Calculateur de risque, Registre des scénarios |
 | 12 | Concevoir les mesures d’atténuation | Chaque scénario au-dessus de la tolérance est couvert par au moins une mesure. | Atténuation des risques |
 | 13 | Identifier les contrôles partagés | Au moins une initiative finance les mesures (Contrôles partagés → *Créer les initiatives à partir des mesures (n)*, ou *→ Initiative* sur une mesure), et chaque initiative touche au moins un scénario, de sorte que son coût est réparti sans double comptage. | Contrôles partagés, Atténuation des risques |
 | 14 | Recalculer le risque atténué et le risque résiduel | Chaque scénario inclus au-dessus de la tolérance avant traitement porte des réductions de probabilité et d’impact issues de ses mesures (Atténuation des risques → *Appliquer à tous les scénarios couverts*) ou d'une saisie explicite de l'analyste — jamais le 0 / 0 de départ d'un nouveau scénario. | Atténuation des risques, Calculateur de risque, Registre des scénarios |
 | 15 | Effectuer l’analyse de sensibilité | La sensibilité d’au moins un scénario est consignée comme examinée. | Calculateur de risque, Prévisions |
-| 16 | Prioriser les scénarios et les traitements | Chaque scénario inclus a une décision de la direction consignée (Recommandations → Par scénario). | Recommandations — Par scénario, Registre des risques |
+| 16 | Prioriser les scénarios et les traitements | Chaque scénario inclus a une décision de la direction consignée par une personne nommée (Recommandations → Par scénario ; un transfert nomme aussi son approbateur). | Recommandations — Par scénario, Registre des risques |
 | 17 | Constituer le portefeuille d’investissement | Au moins une recommandation est approuvée. | Recommandations, Registre des risques |
 | 18 | Calibrer le budget de cybersécurité | L'année budgétaire est remplie (budget TI, coût de base) et chaque initiative est répartie : un coût, engagé sur les années budgétaires (Budget → Initiatives réparties sur les années). | Budget |
 | 19 | Définir les indicateurs clés de risque | Au moins un ICR est entièrement défini — les scénarios visés, la méthode de mesure, la source de données, le responsable, la fréquence, la cible et les seuils — et au moins une mesure est consignée. | Tableau de bord des ICR, Prévisions |
@@ -2013,12 +2017,15 @@ dans cet onglet que cela est dit clairement. Parcourez-le avant les tableaux d'o
 
 Sous les options : les initiatives liées au scénario avec leur coût et leur rapport coût-efficacité,
 les mesures d'atténuation ATT&CK pour ses techniques et les mesures CRG qui les mettent en œuvre, ainsi
-que la **décision de la direction** — option retenue, responsable, horizon et justification,
-enregistrée dans le registre des décisions. Une décision qui s'écarte de la suggestion est légitime ;
-consignez-en la raison. Un **transfert** consigne aussi la **part des pertes couverte** (0–1) — ce que
-l'assurance ou le contrat couvrirait, à titre informatif seulement : elle ne réduit jamais l'indice de
-risque, et le préjudice aux personnes et aux opérations demeure — et l'**approbateur** du transfert ; la
-Revue de qualité signale un transfert sans approbateur (QC-25).
+que la **décision de la direction** — option retenue, **décidée par** (le nom de la personne qui l'a prise,
+prérempli avec le nom de la session et obligatoire : aucune décision n'est consignée sans lui), responsable,
+horizon et justification, enregistrée dans le registre des décisions. Une décision qui s'écarte de la
+suggestion est légitime ; consignez-en la raison. Un **transfert** consigne aussi la **part des pertes
+couverte** (0–1) — ce que l'assurance ou le contrat couvrirait, à titre informatif seulement : elle ne réduit
+jamais l'indice de risque, et le préjudice aux personnes et aux opérations demeure — et l'**approbateur** du
+transfert, obligatoire avant que le transfert soit consigné ; la Revue de qualité signale un transfert sans
+approbateur (QC-25) et toute décision sans décideur nommé (QC-02). Les décisions consignées avant 1.9.2 sans
+nom affichent un avertissement jusqu'à ce que le nom soit saisi, et ne comptent pas pour l'étape 16.
 
 **Contrôles partagés** classe les initiatives selon le nombre de scénarios qu'elles servent et la
 réduction du risque qui leur est attribuée, et les mesures d'atténuation ATT&CK selon le risque
@@ -2436,9 +2443,12 @@ Trois règles s'appliquent aux propositions :
 - **L’élément probant d'exposition vient du registre des vulnérabilités**, pas de la liste collée. Une CVE
   marquée *Exposée* dans le registre, avec son produit ou son actif et sa source, est citée comme élément probant
   d'exposition. Une CVE collée ici mais absente du registre n'est **pas** une exposition confirmée : sa
-  proposition reste décochée et porte le marqueur **Lacune d'information — validation organisationnelle
-  requise** ; si vous l'acceptez malgré tout, le marqueur est conservé dans l'entrée `threat_basis` pour
-  qu'un réviseur voie la lacune.
+  proposition **ne peut pas être acceptée** (la case est désactivée et porte le marqueur **Lacune
+  d'information — validation organisationnelle requise**). Utilisez plutôt *Ajouter à la liste de veille* :
+  le renseignement est consigné dans la **Liste de veille** de l'espace de travail (CVE, scénario, échelon,
+  bande proposée, date de l'instantané) sans changer aucune estimation. Lorsque le registre confirme
+  l'exposition, relancez la jointure et acceptez la proposition à cet endroit. La revue de qualité échoue au
+  contrôle QC-32 pour toute entrée `threat_basis` sans élément probant d'exposition (acceptée avant 1.9.2).
 - **Choisissez une confiance pour chaque proposition.** Rien n'est présélectionné ; *Accepter la
   sélection* reste désactivé tant que chaque proposition cochée n'en a pas une.
 - **Un instantané périmé bloque les propositions** jusqu'à ce que vous écriviez une justification.
@@ -2928,9 +2938,13 @@ de revues des accès, et va au **modèle local par défaut**; l'aperçu montre l
 de courriel, d'UPN, de `DOMAINE\utilisateur` ou de SID elle contient, et propose l'anonymiseur. L'envoi à un
 fournisseur distant exige de cocher « Ce rapport contient des renseignements personnels sur le personnel; je
 suis autorisé à l'envoyer à … », et un espace de travail confidentiel confirme chaque appel. La réponse ne
-garde que les décomptes et énumérations autorisés; le reste est écarté. **Accepter les éléments cochés**
-inscrit les décomptes comme nouvelles lignes avec leur provenance et rien d'autre; la trace d'importation
-garde le nom du fichier, son SHA-256, sa taille et le nombre de lignes.
+garde que les décomptes et énumérations autorisés; le reste est écarté. Les décomptes lus par l'IA sont des
+propositions : le texte du rapport part vers le modèle dans l'enveloppe de texte non fiable, un FAIT proposé par
+le modèle est affiché comme INFÉRENCE (le rapport n'a pas été cité), rien n'est coché d'avance, et les lignes du
+rapport qui ressemblent à des instructions destinées à une IA sont listées avec les propositions. Les décomptes
+calculés hors ligne par les règles restent cochés d'avance. **Accepter les éléments cochés** inscrit les
+décomptes cochés comme nouvelles lignes avec leur provenance et rien d'autre; la trace d'importation garde le
+nom du fichier, son SHA-256, sa taille, le nombre de lignes, et les nombres proposés et acceptés.
 
 **Vie privée (Loi 25 du Québec, minimisation des données).** Les données de comptes et d'accès sur le
 personnel, les contractuels et les médecins remplaçants sont des renseignements personnels au sens de la
@@ -3042,7 +3056,7 @@ connue de CRGO) suit CRGO 0.11.
 Les vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte l'analyste, chacune avec
 *réussi*, *à surveiller* ou *échec*, le détail, et un bouton menant à l'écran qui permet la correction. Les dix-huit
 premières sont énumérées une à une ci-dessous ; QC-19 à QC-26 (alignement sur le livre v2.51) sont résumées en une
-ligne, suivies de QC-27 à QC-31 ; chaque vérification apparaît à l'écran avec sa règle.
+ligne, suivies de QC-27 à QC-32 ; chaque vérification apparaît à l'écran avec sa règle.
 
 | Vérification | Ce qu'elle vérifie |
 |---|---|
@@ -3070,6 +3084,7 @@ ligne, suivies de QC-27 à QC-31 ; chaque vérification apparaît à l'écran a
 | QC-29 | Un manque budgétaire par rapport à la cible cohérente avec l'appétence est signalé à la direction — demandé dans le sommaire exporté ou inscrit comme décision — et non résorbé en silence. |
 | QC-30 | Le sommaire de gestion concorde avec le classeur à l'unité : les chiffres consignés à l'exportation (estimé, toléré, résiduel, scénarios inclus) sont ceux du moteur aujourd'hui ; un changement depuis l'exportation échoue et nomme ce qui a bougé. |
 | QC-31 | L'instantané du contexte de menace derrière les probabilités calibrées est à jour : lorsque des entrées `threat_basis` existent, un instantané absent ou au-delà de sa durée de vie de 90 jours échoue, avec un bouton vers Contexte de menace (rafraîchir l'instantané, relancer la jointure d'exposition). |
+| QC-32 | Chaque probabilité calibrée à partir du contexte de menace repose sur un élément probant d'exposition : une entrée `threat_basis` dont la CVE n'est pas confirmée *Exposée* dans le registre des vulnérabilités (ou une entrée ancienne sans texte d'exposition) échoue. Consignez l'exposition dans le registre et relancez la jointure, ou rétablissez le paramètre et gardez le renseignement sur la liste de veille. |
 
 Une réussite signifie que la règle n'a pas été visiblement enfreinte dans les données consignées ici ;
 les vérifications appuient un réviseur, elles ne le remplacent pas.

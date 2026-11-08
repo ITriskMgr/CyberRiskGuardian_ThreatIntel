@@ -23,7 +23,7 @@ Status words returned by `check()`:
   verified        the signature is valid for this public key and this file
   invalid         a signature was given and it does not verify (the file must not be kept)
   no-key          no public key is pinned: the signature could not be checked (SHA-256 only)
-  no-signature    the release carries no .minisig beside the asset
+  no-signature    the release carries no .minisig beside the asset while a key is pinned: refused (1.9.2 review, M6)
   malformed       the signature or key text is not in minisign format
 """
 from __future__ import annotations
@@ -182,8 +182,13 @@ def parse_signature(text: str) -> dict:
     if len(raw) != 74 or raw[:2] not in (b"Ed", b"ED"):
         raise ValueError("not a minisign signature")
     out = {"alg": raw[:2].decode(), "key_id": raw[2:10], "sig": raw[10:], "trusted_comment": "", "global_sig": b""}
-    if len(lines) >= 4 and lines[2].lower().startswith("trusted comment:"):
-        out["trusted_comment"] = lines[2].split(":", 1)[1].strip()
+    # 1.9.2 review (M6): the trusted comment is taken exactly as written after "trusted comment: " (minisign signs it byte for
+    # byte: a comment with leading or trailing spaces would otherwise fail as "invalid"); the lines themselves are only
+    # right-stripped of the line break.
+    raw_lines = [ln.rstrip("\r\n") for ln in str(text or "").splitlines() if ln.strip()]
+    if len(raw_lines) >= 4 and raw_lines[2].lower().startswith("trusted comment:"):
+        comment = raw_lines[2][len("trusted comment:"):]
+        out["trusted_comment"] = comment[1:] if comment.startswith(" ") else comment
         out["global_sig"] = base64.b64decode(lines[3], validate=True)
     return out
 
@@ -208,7 +213,9 @@ def check(data: bytes, signature_text: str | None, public_key_text: str | None) 
     if not (public_key_text or "").strip():
         return {"status": "no-key", "detail": "No release-signing public key is pinned in this build: the signature could not be checked. SHA-256 only."}
     if not (signature_text or "").strip():
-        return {"status": "no-signature", "detail": "The release carries no .minisig signature beside the asset."}
+        # 1.9.2 review (M6): once a key is pinned, a release without its signature is refused — otherwise stripping the
+        # .minisig would downgrade the check to the SHA-256 the same party publishes
+        return {"status": "no-signature", "detail": "The release carries no .minisig signature beside the asset, and this build pins a release-signing key: an unsigned release is refused; the file was not kept."}
     try:
         ok = verify_minisign(data, signature_text, public_key_text)
     except (ValueError, TypeError) as exc:
