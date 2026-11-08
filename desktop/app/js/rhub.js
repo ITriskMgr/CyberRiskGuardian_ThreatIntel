@@ -122,7 +122,8 @@ export async function catalogDefaults(ws = S.ws) {
 }
 
 /** One card from one scenario (and the risk-register entry that owns it, if any). */
-export function cardFromScenario(s, ws, base, { evidence = 'assessed' } = {}) {
+export function cardFromScenario(s, ws, base0, { evidence = 'assessed' } = {}) {
+  const { _ws, ...base } = base0 || {};   // 1.9.2: the workspace id is a cache marker of the screen, never part of a shared card
   const R = compute(ws);
   const row = R.rows.find(x => x.id === s.id);
   const risk = (ws.risks || []).find(r => (r.scenarios || []).includes(s.id));
