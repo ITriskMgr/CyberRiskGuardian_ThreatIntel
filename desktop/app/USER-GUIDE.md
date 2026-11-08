@@ -2050,7 +2050,7 @@ Three rules apply to the proposals:
 
 **A snapshot of the wrong shape is refused.** Opening a file that is not a `crg-threat-context/1`
 snapshot (dates, KEV and EPSS tables, sources) stores nothing and lists the problems. A malformed
-snapshot stored by an earlier release leaves the screen usable: it says so and offers **Clear**.
+snapshot already stored in the workspace leaves the screen usable: it says so and offers **Clear**.
 
 The limits that cannot be configured away: intelligence calibrates Pb(A) and Pb(ψ,A) only, to a
 band, never δe, δm, θ or μ(E); without confirmed exposure it is watch-list context; CVSS stays

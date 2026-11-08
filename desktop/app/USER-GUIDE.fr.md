@@ -2284,7 +2284,7 @@ Trois règles s'appliquent aux propositions :
 
 **Un instantané de la mauvaise forme est refusé.** Ouvrir un fichier qui n'est pas un instantané
 `crg-threat-context/1` (dates, tables KEV et EPSS, sources) ne stocke rien et énumère les problèmes. Un
-instantané malformé stocké par une version antérieure laisse l'écran utilisable : il le dit et offre
+instantané malformé déjà stocké dans l'espace de travail laisse l'écran utilisable : il le dit et offre
 **Effacer**.
 
 Les limites qu'aucun paramétrage ne peut lever : le renseignement étalonne seulement Pb(A) et Pb(ψ,A),
