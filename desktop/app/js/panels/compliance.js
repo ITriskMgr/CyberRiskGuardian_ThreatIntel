@@ -5,7 +5,7 @@
    Decision support, not legal advice. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { GENERATOR } from '../version.js';
-import { el, n0, n1, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, field, today, debounce, go } from '../util.js';
+import { el, n0, n1, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, field, today, debounce, go, pct } from '../util.js';
 import * as CP from './compliance_plus.js';
 import * as CMS from './cms.js';
 import { S, touch, compute, scen } from '../state.js';
@@ -131,9 +131,9 @@ function renderSoa(sec) {
   const ov = C.frameworks.map(id => ({ id, f: K.frameworkList().find(x => x.id === id), s: fwStats(ws, id) })).filter(x => x.f);
   const clist = Object.entries(CHECKLISTS).map(([id, c]) => { const st = C.checklists[id] || {}; const it = c.items.filter(i => st[i[0]]?.status !== 'na'); const ok = it.filter(i => st[i[0]]?.status === 'compliant').length, pt = it.filter(i => st[i[0]]?.status === 'partial').length; return { id, c, pct: it.length ? (ok + pt / 2) / it.length : 0, assessed: c.items.filter(i => st[i[0]]?.status).length }; });
   sec.append(el('div', 'grid g4', ...ov.map(x => el('div', { class: 'kpi' + (fwSel === x.id ? ' sel' : ''), style: { cursor: 'pointer', outline: fwSel === x.id ? '2px solid var(--accent)' : '' }, onclick: () => { fwSel = x.id; page = 0; render(sec); } },
-      el('div', 'k', x.f.short), el('div', 'v', Math.round(x.s.pct * 100) + '%'), el('div', 's', `${x.s.assessed}/${x.s.applicable} assessed · maturity ${x.s.maturity === null ? '—' : n1(x.s.maturity)}${x.s.target ? ' / ' + n1(x.s.target) : ''} · ${x.s.gaps} gaps`))),
+      el('div', 'k', x.f.short), el('div', 'v', pct(x.s.pct, 0)), el('div', 's', `${x.s.assessed}/${x.s.applicable} assessed · maturity ${x.s.maturity === null ? '—' : n1(x.s.maturity)}${x.s.target ? ' / ' + n1(x.s.target) : ''} · ${x.s.gaps} gaps`))),
     ...clist.map(x => el('div', { class: 'kpi', style: { cursor: 'pointer', outline: fwSel === x.id ? '2px solid var(--accent)' : '' }, onclick: () => { fwSel = x.id; render(sec); } },
-      el('div', 'k', x.c.short + ' checklist'), el('div', 'v', Math.round(x.pct * 100) + '%'), el('div', 's', `${x.assessed}/${x.c.items.length} assessed`)))));
+      el('div', 'k', x.c.short + ' checklist'), el('div', 'v', pct(x.pct, 0)), el('div', 's', `${x.assessed}/${x.c.items.length} assessed`)))));
   const body = el('div'); sec.append(body);
   if (CHECKLISTS[fwSel]) checklist(body, sec, fwSel); else if (fwSel) soa(body, sec, fwSel);
   sec.append(reports(ws));

@@ -9,7 +9,7 @@
    decisions themselves belong to management.
    © 2026 Marc-André Léger. All rights reserved. */
 'use strict';
-import { el, card, banner, kpi, pill, pillFor, field, toast, table, download, today, n0, n2, money, esc } from '../util.js';
+import { el, card, banner, kpi, pill, pillFor, field, toast, table, download, today, n0, n2, pct, money, esc } from '../util.js';
 import { S, touch, compute, initiatives, included } from '../state.js';
 import { tr } from '../i18n.js';
 import * as MK from '../markers.js';
@@ -60,7 +60,7 @@ export function build(ws = S.ws) {
   if (R.errors.length) gaps.push(tr('{0} scenario(s) cannot be calculated.').replace('{0}', R.errors.length));
   return { ws, R, before, after, it, spend, appetite, target, y1, top, auto, decisions: (ws.mgmtSummary?.decisions || []).filter(x => String(x).trim()),
     estimates, noEvidence, equiv, gaps, limitations: ws.mgmtSummary?.limitations || '', nextSteps: ws.mgmtSummary?.nextSteps || '', preparedBy: ws.mgmtSummary?.preparedBy || '',
-    period: a.PERIOD || '', screening: { candidates: A.list.length, selected: A.selected.length } };
+    period: tr(a.PERIOD || ''), screening: { candidates: A.list.length, selected: A.selected.length } };
 }
 
 const STANDARD_LIMITS = 'The risk indices are relative decision-support values, not predictions of loss and not key risk indicators. Values marked “Analytical estimate — validation required” must be validated with the organization before they support a decision. Decisions to accept, transfer, avoid or mitigate a risk remain with management.';
@@ -78,8 +78,8 @@ export function markdown(ws = S.ws) {
     `| ${tr('Before treatment')} | ${CLS.map(c => x.before[c]).join(' | ')} |`, `| ${tr('After treatment')} | ${CLS.map(c => x.after[c]).join(' | ')} |`, '',
     `${tr('Total estimated')} ${n0(x.R.totals.est)} · ${tr('total tolerated')} ${n0(x.R.totals.tol)} · ${tr('total residual')} ${n0(x.R.totals.res)} (${tr('risk units, not dollars')}).`, '');
   L.push(`## ${tr('Portfolio and budget')}`, '', `- ${tr('Recommended portfolio, year 1')}: ${money(Math.round(x.y1))}`,
-    `- ${tr('Total IT budget')}: ${x.it ? money(x.it) : '—'} · ${tr('current cybersecurity spend')}: ${x.it ? money(x.spend) + ' (' + (x.spend / x.it * 100).toFixed(1) + '%)' : '—'}`,
-    `- ${tr('Appetite-consistent target (best practice)')}: ${x.target !== null ? (x.target * 100).toFixed(1) + '% = ' + money(Math.round(x.target * x.it)) : '—'}`, '');
+    `- ${tr('Total IT budget')}: ${x.it ? money(x.it) : '—'} · ${tr('current cybersecurity spend')}: ${x.it ? money(x.spend) + ' (' + pct(x.spend / x.it, 1) + ')' : '—'}`,
+    `- ${tr('Appetite-consistent target (best practice)')}: ${x.target !== null ? pct(x.target, 1) + ' = ' + money(Math.round(x.target * x.it)) : '—'}`, '');
   L.push(`## ${tr('Top risks')}`, '', `| ID | ${tr('Scenario')} | ${tr('Residual')} | ${tr('Risk-to-tolerance ratio')} | ${tr('Classification')} | ${tr('Decision')} |`, '|---|---|---|---|---|---|');
   for (const r of x.top) L.push(`| ${r.id} | ${String(r.name).replace(/\|/g, '/')} | ${n0(r.res)} | ${n2(r.ratio)} | ${tr(r.cls)} | ${tr(ws.decisions?.[r.id]?.option || '—')} |`);
   L.push('', `## ${tr('Markers')}`, '', `- ${tr(MK.ESTIMATE)}: ${tr('{0} parameter value(s) labelled as estimates; {1} without an evidence reference.').replace('{0}', x.estimates).replace('{1}', x.noEvidence)}`);
@@ -107,17 +107,17 @@ export function render(sec) {
 
   // residual vs tolerance
   const grid = el('table', 'compact');
-  grid.append(el('thead', null, el('tr', null, el('th', null, ''), ...CLS.map(c => el('th', 'num', tr(c))))),
+  grid.append(el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Row')), ...CLS.map(c => el('th', 'num', tr(c))))),
     el('tbody', null, el('tr', null, el('td', null, tr('Before treatment')), ...CLS.map(c => el('td', 'num', String(x.before[c])))),
       el('tr', null, el('td', null, tr('After treatment')), ...CLS.map(c => el('td', 'num', String(x.after[c]))))));
   sec.append(el('div', 'cols2',
     card(el('h2', null, 'Residual risk against tolerance'), grid,
-      el('div', 'grid g3', { style: { marginTop: '10px' } }, kpi('Estimated', n0(x.R.totals.est)), kpi('Tolerated', n0(x.R.totals.tol)), kpi('Residual', n0(x.R.totals.res))),
+      el('div', 'grid g3', { style: { marginTop: '10px' } }, kpi('Estimated', x.R.rows.length ? n0(x.R.totals.est) : '—'), kpi('Tolerated', x.R.rows.length ? n0(x.R.totals.tol) : '—'), kpi('Residual', x.R.rows.length ? n0(x.R.totals.res) : '—')),   // 1.9.2 (NV-054): "—" on a blank workspace
       el('p', 'note', 'Risk units are relative decision-support indicators, not dollars.')),
     card(el('h2', null, 'Portfolio and budget'), el('div', 'grid g2',
       kpi('Recommended portfolio, year 1', money(Math.round(x.y1))),
-      kpi('Appetite-consistent target', x.target !== null ? (x.target * 100).toFixed(1) + '%' : '—', x.target !== null ? money(Math.round(x.target * x.it)) : tr('IT budget required')),
-      kpi('Current spend', x.it ? (x.spend / x.it * 100).toFixed(2) + '%' : '—', money(x.spend)),
+      kpi('Appetite-consistent target', x.target !== null ? pct(x.target, 1) : '—', x.target !== null ? money(Math.round(x.target * x.it)) : tr('IT budget required')),
+      kpi('Current spend', x.it ? pct(x.spend / x.it, 2) : '—', money(x.spend)),
       kpi('Gap to target', x.target !== null ? money(Math.round(x.target * x.it - x.spend)) : '—', '', x.target !== null && x.spend < x.target * x.it ? 'warn' : 'good')))));
 
   sec.append(card(el('h2', null, 'Top risks'), el('div', 'tablewrap', table([

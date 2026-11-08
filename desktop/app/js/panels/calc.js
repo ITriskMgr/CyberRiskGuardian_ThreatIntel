@@ -1,7 +1,7 @@
 /* Risk calculator — portfolio table (include/exclude each scenario) and the full single-scenario calculation.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, go, val, select, money, today } from '../util.js';
+import { el, n0, n1, n2, pct, kpi, banner, card, pill, pillFor, field, toast, go, val, select, money, today } from '../util.js';
 import { techName } from '../ontology.js';
 import { S, touch, compute, setIncluded, scen, blankScenario, nextScenarioId, PARAMS } from '../state.js';
 import { tr } from '../i18n.js';
@@ -40,8 +40,9 @@ function portfolio(box, sec) {
   box.replaceChildren();
   if (whatIf.appetite !== null || whatIf.factor !== null) box.append(banner('warn', 'What-if values in use', `Appetite ${R.appetite}, factor ${n0(R.factor)} — not saved.`));
   const k = el('div', 'grid g5');
-  k.append(kpi('Included', `${R.inc.length} / ${R.rows.length}`, 'scenarios in totals'), kpi('Estimated', n0(R.totals.est)), kpi('Tolerated', n0(R.totals.tol)),
-    kpi('Residual', n0(R.totals.res), R.totals.est ? `−${Math.round(100 - R.totals.res / R.totals.est * 100)}% after treatment` : ''),
+  const N = x => R.rows.length ? n0(x) : '—';   // 1.9.2 (NV-054): "—" on a blank workspace
+  k.append(kpi('Included', R.rows.length ? `${n0(R.inc.length)} / ${n0(R.rows.length)}` : '—', 'scenarios in totals'), kpi('Estimated', N(R.totals.est)), kpi('Tolerated', N(R.totals.tol)),
+    kpi('Residual', N(R.totals.res), R.totals.est ? `−${pct(1 - R.totals.res / R.totals.est, 0)} after treatment` : ''),
     kpi('Portfolio Res/Tol', R.totals.tol ? n2(R.totals.res / R.totals.tol) : '—', R.totals.tol ? CRG.classify(R.totals.res / R.totals.tol) : '', R.totals.tol ? pillFor(CRG.classify(R.totals.res / R.totals.tol)) : ''));
   box.append(k);
   if (R.errors.length) box.append(banner('bad', 'Not calculable', R.errors.map(e => e.id + ': ' + e.error).join(' · ')));
@@ -81,7 +82,7 @@ function portfolio(box, sec) {
       c.addEventListener('change', () => { setIncluded(r.id, c.checked); portfolio(box, sec); });
       const tr = el('tr', (r.inc ? '' : 'off ') + (loaded === r.id ? 'sel ' : '') + 'click',
         el('td', 'cb', c), el('td', 'mono', r.id), el('td', null, el('a', { href: '#/scenario/' + r.id }, (r.name || '').slice(0, 70)), el('div', 'small muted', srcOf(r))),
-        el('td', 'num', n2(val(r.s.params.PbA))), el('td', 'num', n2(val(r.s.params.Pbx))), el('td', 'num', r.cvss.toFixed(1), CRG.cvssCheck(r.s).agree === false ? el('span', { class: 'pill warn', title: r.warnings.join('; '), style: { marginLeft: '4px' } }, 'stored score ≠ vector') : null),
+        el('td', 'num', n2(val(r.s.params.PbA))), el('td', 'num', n2(val(r.s.params.Pbx))), el('td', 'num', n1(r.cvss), CRG.cvssCheck(r.s).agree === false ? el('span', { class: 'pill warn', title: r.warnings.join('; '), style: { marginLeft: '4px' } }, 'stored score ≠ vector') : null),
         el('td', 'num', n0(r.est)), el('td', 'num', n0(r.tol)), el('td', 'num', n0(r.mit)), el('td', 'num', n0(r.res)), el('td', 'num', n2(r.ratio)),
         el('td', null, pill(r.cls, pillFor(r.cls))), el('td', 'num', r.cost ? money(r.cost) : '—'));
       tr.addEventListener('click', e => { if (e.target.closest('input,a')) return; loaded = r.id; singleCalc(document.getElementById('single-calc')); drawTable(); document.getElementById('single-calc').scrollIntoView({ behavior: 'smooth' }); });
@@ -195,7 +196,7 @@ Tolerated = ${g('PbA')} × ${g('Pbx')} × ${n2(r.cvss)} × ${g('app')} × ${g('M
 Mitigated = ${n2(r.est)} × ${g('redp')} × ${g('redi')} = ${n2(r.mit)}
 Residual  = ${n2(r.est)} − ${n2(r.mit)} = ${n2(r.res)}
 Ratio     = ${n2(r.res)} ÷ ${n2(r.tol)} = ${n2(r.ratio)}` +
-    (cost > 0 ? `\nCost-effectiveness = ((${n2(r.est)} − ${n2(r.res)}) ÷ ${n0(cost)}) × 1000 = ${n2((r.est - r.res) / cost * 1000)} risk units removed per $1,000` : '');
+    (cost > 0 ? '\n' + tr('Cost-effectiveness = (({0} − {1}) ÷ {2}) × 1000 = {3} risk units removed per $1,000').replace('{0}', n2(r.est)).replace('{1}', n2(r.res)).replace('{2}', n0(cost)).replace('{3}', n2((r.est - r.res) / cost * 1000)) : '');   // 1.9.2 (NV-046): translated as a line of its own
   c.append(pre);
   if (r.mit > r.est) c.append(banner('bad', 'Mitigation exceeds estimated risk', 'The reduction estimates are wrong. Revise them rather than reporting a negative or absolute-valued residual.'));
   c.append(el('div', 'note', 'Risk units are not dollars. They are relative decision-support indicators.'));

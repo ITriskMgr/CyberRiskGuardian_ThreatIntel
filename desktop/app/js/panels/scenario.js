@@ -92,7 +92,11 @@ export function render(sec, arg) {
     el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: 0, marginRight: 'auto', color: 'var(--ink)', fontSize: '13.5px' } }, inc, 'Include in totals'),
     el('button', { class: 'btn ghost sm', onclick: () => { const c = JSON.parse(JSON.stringify(s)); c.id = nextScenarioId(); c.name = (c.name || '') + ' (copy)'; a.SCEN.splice(idx + 1, 0, c); touch(); go('scenario/' + c.id); } }, 'Duplicate'),
     el('button', { class: 'btn ghost sm danger', onclick: () => {
-      if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?`)) return;
+      // 1.9.2 (item 10, NV-037): the risks of the Risk register that link this scenario are named before it goes
+      const linked = (S.ws.risks || []).filter(r => (r.scenarios || []).includes(s.id));
+      const warn = linked.length ? '\n\n' + tr('{0} risk(s) link this scenario: {1}. They will show the link as deleted until you unlink them or link another scenario.').replace('{0}', linked.length).replace('{1}', linked.map(r => r.id).join(', ')) : '';
+      if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?` + warn)) return;
+      for (const r of linked) (r.history ||= []).push({ date: today(), what: `Linked scenario ${s.id} deleted — link flagged until Unlink` });   // item 10: logged in each risk's history
       a.SCEN.splice(idx, 1); for (const i of a.INITIATIVES) if (Array.isArray(i[3])) i[3] = i[3].filter(x => x !== s.id);
       S.ws.excluded = S.ws.excluded.filter(x => x !== s.id); delete S.ws.decisions[s.id]; touch(); toast('Deleted ' + s.id); go('register');
     } }, 'Delete'))));

@@ -95,7 +95,7 @@ function scenarios(body, sec) {
             { key: 'id', label: 'ID', cls: 'mono' }, { key: 'name', label: 'Initiative' }, { key: 'owner', label: 'Owner' },
             { key: 'y1', label: 'Y1 total', num: true, render: i => money(i.y1) }, { key: 'n', label: 'Shared by', num: true, render: i => i.scenarios.length + ' scen.' },
           ], linked, { class: 'compact' }) : el('p', 'note', 'No initiative linked — add or link one in the Initiative portfolio tab or the scenario editor.'),
-          el('div', 'small muted', { style: { marginTop: '8px' } }, `Allocated Year-1 cost: ${money(r.cost)} · cost-effectiveness ${r.ce != null ? n2(r.ce) + ' risk units removed per $1,000' : '—'} · treatment: ${s.treatment || '—'}`)),
+          el('div', 'small muted', { style: { marginTop: '8px' } }, tr('Allocated Year-1 cost: {0} · cost-effectiveness {1} · treatment: {2}').replace('{0}', money(r.cost)).replace('{1}', r.ce != null ? n2(r.ce) + ' ' + tr('risk units removed per $1,000') : '—').replace('{2}', s.treatment || '—'))),
         el('div', null,
           el('h2', null, `ATT&CK mitigations for the linked techniques (${mits.length})`),
           mits.length ? el('div', 'chips', ...mits.map(m => chip(m.id + ' ' + m.name, { title: m.desc, href: m.url }))) : el('p', 'note', 'Link ATT&CK techniques to the scenario to see the relevant mitigations.'),
@@ -352,7 +352,7 @@ function detail(body, sec, r) {
     kpi('Year-1 cost', money(c.y1), `${money(c.initial)} one-time + ${money(c.recurring)}/yr`),
     kpi('Brought within tolerance', String(e.totals.brought), `of ${e.rows.filter(x => x.curNeed?.act).length} above tolerance`)));
 
-  if (frozen && r.approved) body.append(banner('good', `Formal recommendation, approved ${r.approved.at}${r.approved.by ? ' by ' + r.approved.by : ''}`,
+  if (frozen && r.approved) body.append(banner('good', tr('Formal recommendation, approved {0}').replace('{0}', r.approved.at) + (r.approved.by ? ' ' + tr('by {0}').replace('{0}', r.approved.by) : ''),
     `Frozen at approval: reduction ${n0(r.approved.reduction)}, ratio ${n2(r.approved.curRatio)} → ${n2(r.approved.aftRatio)}, ` +
     `Year-1 cost ${money(r.approved.cost.y1)}. Those figures do not move when the workspace changes; the panel above is live. ` +
     'Editing a formal recommendation creates a new version.'));

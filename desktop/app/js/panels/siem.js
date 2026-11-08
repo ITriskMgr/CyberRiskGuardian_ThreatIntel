@@ -69,7 +69,7 @@ export function asOfBar(c, note = 'States recorded after this date are ignored.'
     c.asOf !== today() ? el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => c.setAsOf(today()) }, 'Today') : null, el('span', 'small muted', note));
 }
 export const noIncident = () => banner('warn', 'An alert is never an incident', 'Alerts and indicator matches are signals to triage. Escalation opens a SOAR case; only an incident confirmation, by a named person on a date, makes an incident. Nothing here attributes an attack to an actor or changes a risk score.');
-export const healthPill = h => pill(tr(M.HEALTH.find(x => x[0] === h.state)?.[1] || h.state) + (h.stale ? ' · ' + tr('stale') : ''), M.HEALTH_KIND[h.state]);
+export const healthPill = h => pill(tr(M.HEALTH.find(x => x[0] === h.state)?.[1] || h.state) + (h.stale ? ' · ' + tr('stale collection') : ''), M.HEALTH_KIND[h.state]);
 export const statusPill = s => pill(tr(M.RULE_STATUS.find(x => x[0] === s)?.[1] || s), M.RULE_KIND[s]);
 export const coveragePill = s => pill(tr(M.COVERAGE.find(x => x[0] === s)?.[1] || s), M.COVERAGE_KIND[s]);
 export const data = (t, cls) => el('span', { 'data-noi18n': '', class: cls || null }, t ?? '—');

@@ -61,7 +61,7 @@ export function importTab(body, sec, org) {
       el('td', null, (d.extracted || []).length ? el('div', 'chips', ...(d.extracted || []).map(x => chip(tr(x.into) + ' · ' + x.date))) : el('span', 'small muted', 'not extracted yet')));
   });
   const docTable = ws.docs.length
-    ? el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, ''), el('th', null, 'Document'), el('th', null, 'Already extracted into'))), el('tbody', null, ...docRows)))
+    ? el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Select')), el('th', null, 'Document'), el('th', null, 'Already extracted into'))), el('tbody', null, ...docRows)))
     : el('div', 'empty-state', el('b', null, 'No context documents yet'), 'Add the business case or company documents above.');
   body.append(card(el('h2', { style: { marginTop: 0 } }, '1. Documents to read'),
     el('p', 'note', 'Add documents whenever new information arrives — after the workspace was created, after the assessment started. Tick the ones to read: by default the documents you just added, so a new document can be extracted on its own without re-reading the others.'),
@@ -98,7 +98,7 @@ export function importTab(body, sec, org) {
   } }, 'Start the import');
   body.append(card({ id: 'import-card' }, el('h2', { style: { marginTop: 0 } }, '2. What to extract'),
     el('p', 'note', 'Proposals, each tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN with its source, that you review, edit and accept. Nothing is written before you add it, existing values are never replaced without your choice, and extraction never sets a risk parameter. The targets ticked below are the import plan of Process step 1.'),
-    el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, ''), el('th', null, 'Target'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...first, ...rows))),
+    el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Select')), el('th', null, 'Target'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...first, ...rows))),
     el('div', 'grid g2', { style: { marginTop: '10px' } }, el('label', null, el('span', null, 'Method'), meth),
       el('div', 'small muted', { style: { alignSelf: 'end' } }, 'The creativity of AI answers is chosen in each preview, and its default in Settings → AI — local & remote.')),
     el('div', 'btnrow', { style: { marginTop: '10px' } },
@@ -141,7 +141,7 @@ export function importCard(body, sec, org) {
       el('td', null, s.rules ? pill('rules + AI', 'good') : pill('AI only', '')),
       el('td', null, pill(!route.provider ? tr('blocked') : AI.isLocal(route.provider) ? tr('local model') : AI.provider(route.provider).label, !route.provider ? '' : AI.kindOf(route.provider))));
   });
-  const t = el('table', 'compact', el('thead', null, el('tr', null, el('th', null, ''), el('th', null, 'What can be prefilled'), el('th', null, 'Value'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...rows));
+  const t = el('table', 'compact', el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Select')), el('th', null, 'What can be prefilled'), el('th', null, 'Value'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...rows));
   const status = el('div');
   body.append(card({ id: 'import-card' }, el('h2', { style: { marginTop: 0 } }, 'Import from the documents'),
     el('p', 'note', 'Pre-fill the assessment from the documents of this workspace with the same approach as the profile: proposals, each tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN with its source, that you review, edit and accept. Nothing is written before you add it. Extraction never sets a risk parameter value.'),

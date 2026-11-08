@@ -7,6 +7,7 @@ import * as store from './store.js';
 import { uid, today, val } from './util.js';
 import * as MIG from './migrate.js';
 import { VERSION } from './version.js';
+import { FIXED_ID } from './teaching.js';
 
 export const SCHEMA = 'crg-workspace/1';
 const listeners = new Set();
@@ -108,11 +109,12 @@ export const exampleAvailable = id => !!exampleOf(id)?.data();
 export function exampleWorkspace(id = 'medibec') {
   const ex = exampleOf(id);
   if (!ex) throw new Error(`Unknown bundled example: ${id}`);
-  if (id === 'medibec') { const ws = medibecWorkspace(); ws.teaching = { case: 'medibec' }; return ws; }
+  if (id === 'medibec') { const ws = medibecWorkspace(); ws.teaching = { case: 'medibec' }; ws.id = FIXED_ID('medibec'); ws.crgo = MIG.blankCrgo(ws.id); return ws; }   // 1.9.2 (item 4): a fixed id per bundled case
   const src = ex.data();
   if (!src) throw new Error(`The bundled example ${id} is not installed with this build.`);
   const d = JSON.parse(JSON.stringify(src));
   const ws = newWorkspace({ name: d.NAME, kind: 'example', assessment: d.ASSESSMENT, org: d.ORG });
+  ws.id = FIXED_ID(id); ws.crgo = MIG.blankCrgo(ws.id);   // 1.9.2 (item 4): a fixed id per bundled case
   ws.appetite_rationale = d.APPETITE_RATIONALE || '';
   if (Array.isArray(d.BUDGET_YEARS)) { ws.budgetYears = d.BUDGET_YEARS; ws.budgetYear = d.BUDGET_YEAR ?? null; }
   else { ws.budget = Object.assign({ it_budget: 0, spend: 0, baseline: 0 }, d.BUDGET || {}); ws.budgetYears = null; }
@@ -170,7 +172,7 @@ export async function loadAll() {
   for (let i = 0; i < S.list.length; i++) { S.list[i] = await upgrade(S.list[i]); if (S.migration.status !== 'current') S.migrations.push(S.migration); }
   S.migration = null;
   if (!S.list.length) {
-    const ex = medibecWorkspace();
+    const ex = exampleWorkspace('medibec');   // 1.9.2 (item 4): the seeded case carries its fixed id
     await store.put('ws', ex.id, ex); S.list = [ex];
   }
   const cur = await store.get('meta', 'current');
@@ -203,7 +205,7 @@ export async function remove(id) {
   await store.del('blob', 'premig:' + id);    // 1.5.8 — the copy kept from before a migration
   await store.del('ws', id);
   S.list = S.list.filter(x => x.id !== id);
-  if (!S.list.length) { const ex = medibecWorkspace(); await store.put('ws', ex.id, ex); S.list = [ex]; }
+  if (!S.list.length) { const ex = exampleWorkspace('medibec'); await store.put('ws', ex.id, ex); S.list = [ex]; }
   if (S.ws?.id === id) { S.ws = null; await select(S.list[0].id); }
   else emit('workspace');
 }

@@ -42,9 +42,16 @@ async function tx(store, mode, fn) {
 }
 
 export const persistent = async () => !!(await open());
+/* 1.9.2 (item 2, NV-012) — a window that another window took over is frozen: every write is dropped (and logged
+   once), so a debounced save or a late handler can never overwrite the work of the window now in charge. */
+let frozen = false, warned = false;
+export const freeze = () => { frozen = true; };
+export const unfreeze = () => { frozen = false; };
+export const isFrozen = () => frozen;
+const dropped = () => { if (!warned) { warned = true; console.warn('store: this window is frozen (open in another window); the write was dropped'); } return Promise.resolve(undefined); };
 export const get = (store, key) => tx(store, 'readonly', (os, mem) => mem ? os.get(key) : os.get(key));
-export const put = (store, key, value) => tx(store, 'readwrite', (os, mem) => mem ? os.put(value, key) : os.put(value, key));
-export const del = (store, key) => tx(store, 'readwrite', os => os.delete(key));
+export const put = (store, key, value) => frozen ? dropped() : tx(store, 'readwrite', (os, mem) => mem ? os.put(value, key) : os.put(value, key));
+export const del = (store, key) => frozen ? dropped() : tx(store, 'readwrite', os => os.delete(key));
 export const keys = (store) => tx(store, 'readonly', (os, mem) => mem ? os.keys() : os.getAllKeys());
 export async function all(store) {
   const ks = await keys(store);

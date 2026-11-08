@@ -21,12 +21,13 @@
 'use strict';
 import { VERSION } from './version.js';
 import * as store from './store.js';
-import { S, loadAll } from './state.js';
+import { S, loadAll, exampleWorkspace } from './state.js';
 import * as FW from './frameworks.js';
 import { today } from './util.js';
 import * as RESET from './reset.js';
 import * as MIG from './migrate.js';
 import { migrate as fillShape } from './state.js';
+import * as TEACH from './teaching.js';
 
 export const SCHEMA = 'crg-backup/1';
 export const APP = VERSION;
@@ -177,11 +178,34 @@ export async function verify(obj) {
  * What restoring this file would do, workspace by workspace. "newer-here" is the dangerous case —
  * the copy in the browser has been modified since the backup — and it is never included by default.
  */
+/** A copy that nobody changed since it was created. For a bundled teaching case the assessment, risks, measures,
+ *  recommendations, documents and KRI history are compared with a fresh copy of the case; for any other workspace,
+ *  no save after the creation minutes and no document or recommendation. */
+export function unchangedSinceCreation(w) {
+  if (!w) return false;
+  const c = TEACH.inferCase(w);
+  if (c) {
+    try {
+      const fresh = fillShape(exampleWorkspace(c));   // the same shape repair a stored copy went through (assetIds, …)
+      const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+      return same(w.assessment, fresh.assessment) && same(w.risks || [], fresh.risks || []) && same(w.measures || [], fresh.measures || []) && !(w.docs || []).length
+        && !(w.recommendations || []).length && !(w.kriHistory || []).length && same(w.org, fresh.org);
+    } catch { /* case not installed: fall through */ }
+  }
+  if (!w.created || !w.modified) return false;
+  const cr = Date.parse(w.created), m = Date.parse(w.modified);
+  return Number.isFinite(cr) && Number.isFinite(m) && m - cr < 5 * 60 * 1000 && !(w.docs || []).length && !(w.recommendations || []).length;
+}
 export async function plan(obj) {
-  const here = new Map((await store.all('ws')).filter(Boolean).map(w => [w.id, w]));
+  const all = (await store.all('ws')).filter(Boolean);
+  const here = new Map(all.map(w => [w.id, w]));
   const rows = (obj.payload.workspaces || []).map(w => {
     const cur = here.get(w.id);
-    let state = 'new', note = 'Not present here; it would be added.';
+    let state = 'new', note = 'Not present here; it would be added.', twin = null;
+    /* 1.9.2 (item 4, NV-036) — a bundled teaching case is recognised whatever its id: the same case already here under
+       another id is a twin, and the person chooses Replace / Keep both / Skip (Skip by default). */
+    let suggest = null;
+    if (!cur) { twin = all.find(x => TEACH.sameCase(x, w)) || null; if (twin) { state = 'teaching-twin'; suggest = unchangedSinceCreation(twin) ? 'replace' : 'skip'; note = `The teaching case ${TEACH.CASE_LABEL[TEACH.inferCase(w)] || w.name} is already here as “${twin.name}” (another id). Choose Replace the copy here${suggest === 'replace' ? ' (it has not been changed since it was created)' : ''}, Keep both, or Skip.`; } }
     if (cur) {
       const a = w.modified || '', b = cur.modified || '';
       if (a === b) { state = 'identical'; note = 'Same modification time; restoring changes nothing.'; }
@@ -191,12 +215,13 @@ export async function plan(obj) {
     // 1.5.8 — a workspace written by a newer release is not restored: this build cannot read it faithfully.
     if (MIG.isNewer(w)) { state = 'newer-format'; note = `Written by a newer release (data version ${MIG.versionOf(w)}; this one reads up to ${MIG.DATA_VERSION}). Update the application to restore it.`; }
     else if (MIG.versionOf(w) < MIG.DATA_VERSION) note += ` It will be brought from data version ${MIG.versionOf(w)} to ${MIG.DATA_VERSION} as it is restored.`;
-    return { id: w.id, name: w.name || w.id, kind: w.kind, state, note, dataVersion: MIG.versionOf(w),
-             modified: w.modified, here: cur?.modified || null,
+    return { id: w.id, name: w.name || w.id, kind: w.kind, state, note, dataVersion: MIG.versionOf(w), twin: twin ? { id: twin.id, name: twin.name } : null, suggest,
+             teaching: TEACH.inferCase(w), modified: w.modified, here: cur?.modified || twin?.modified || null,
              scenarios: w.assessment?.SCEN?.length || 0,
              recommendations: (w.recommendations || []).length };
   });
-  const orphan = [...here.keys()].filter(id => !(obj.payload.workspaces || []).some(w => w.id === id))
+  const twinIds = new Set(rows.map(r => r.twin?.id).filter(Boolean));
+  const orphan = [...here.keys()].filter(id => !(obj.payload.workspaces || []).some(w => w.id === id) && !twinIds.has(id))
     .map(id => ({ id, name: here.get(id).name || id }));
   return { rows, orphan,
            counts: rows.reduce((c, r) => (c[r.state] = (c[r.state] || 0) + 1, c), {}) };
@@ -210,9 +235,28 @@ export async function plan(obj) {
  *   mode "replace" — the installation ends up holding exactly what the backup holds; workspaces not
  *                    in the file are deleted, which the caller must have shown and confirmed.
  */
-export async function restore(obj, { ids = null, mode = 'merge', frameworks = true, settings = true } = {}) {
-  const wss = (obj.payload.workspaces || []).filter(w => !ids || ids.includes(w.id));
-  const done = { workspaces: 0, blobs: 0, deleted: 0, frameworks: 0, settings: false };
+export async function restore(obj, { ids = null, mode = 'merge', frameworks = true, settings = true, twins = {} } = {}) {
+  let wss = (obj.payload.workspaces || []).filter(w => !ids || ids.includes(w.id)).map(w => JSON.parse(JSON.stringify(w)));
+  const done = { workspaces: 0, blobs: 0, deleted: 0, frameworks: 0, settings: false, replaced: 0, kept: 0, skipped_twins: 0 };
+  /* 1.9.2 (item 4) — teaching twins: twins[fileId] = 'replace' (the file's copy takes the twin's id and overwrites it),
+     'keep' (both stay, the file's copy under a new id) or 'skip' (the default: the file's copy is not written); or
+     { choice, twin } to name the twin the plan showed when several copies of the case are here. */
+  const remap = {};   // old blob key id → new id
+  if (Object.keys(twins).length) {
+    const all = (await store.all('ws')).filter(Boolean);
+    wss = wss.filter(w => {
+      const t = twins[w.id]; if (!t) return true;
+      const choice = typeof t === 'string' ? t : t.choice;
+      const twin = (t.twin && all.find(x => x.id === t.twin)) || all.find(x => x.id !== w.id && TEACH.sameCase(x, w));
+      if (choice === 'skip' || !twin && choice !== 'keep') { done.skipped_twins++; return false; }
+      const oldId = w.id;
+      if (choice === 'replace') { remap[oldId] = twin.id; w.id = twin.id; done.replaced++; }
+      else if (choice === 'keep') { const nid = 'ws-' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4); remap[oldId] = nid; w.id = nid; done.kept++; }
+      // the CRGO organisation base is derived from the id: a default base follows the new id, a base the person set is kept
+      if (w.id !== oldId && (!w.crgo?.base || w.crgo.base === MIG.blankCrgo(oldId).base)) w.crgo = Object.assign(MIG.blankCrgo(w.id), { label: w.crgo?.label || '' });
+      return true;
+    });
+  }
 
   // 1.5.8 — every restored workspace goes through the data migrations first; a newer one is skipped, and
   // one that fails to migrate is skipped with its reason, never written half-converted.
@@ -226,7 +270,9 @@ export async function restore(obj, { ids = null, mode = 'merge', frameworks = tr
   for (const w of wss) { await store.put('ws', w.id, w); done.workspaces++; }
 
   const keep = new Set(wss.map(w => w.id));
-  for (const [k, v] of Object.entries(obj.payload.blob || {})) {
+  const rekey = k => { const m = /^(snap|base):(.+)$/.exec(k); return m && remap[m[2]] ? `${m[1]}:${remap[m[2]]}` : k; };
+  for (const [k0, v] of Object.entries(obj.payload.blob || {})) {
+    const k = rekey(k0);
     if (k.startsWith('snap:') && !keep.has(k.slice(5))) continue;
     if (k.startsWith('base:') && !keep.has(k.slice(5))) continue;
     if (k.startsWith('kblib:') || k.startsWith('kbvec:')) continue;   // never written from a file: the library is added on this computer, with its attestation

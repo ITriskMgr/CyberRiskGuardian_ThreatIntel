@@ -103,6 +103,13 @@ Both are licensed under the **SIL Open Font License, Version 1.1**; the full lic
 `licences/Sora-OFL-1.1.txt` and `licences/AtkinsonHyperlegible-OFL-1.1.txt`. The fonts are not sold on their own and
 keep their names; no Reserved Font Name is used for a modified version (none is modified).
 
+### axe-core (test suites only, `desktop/tests/vendor/axe.min.js`)
+
+The accessibility suite (`desktop/tests/t72_axe.mjs`, 1.9.2) runs **axe-core 4.14.0** — Copyright (c) 2015–2026 Deque
+Systems, Inc., licensed under the **Mozilla Public License 2.0** (`desktop/tests/vendor/axe-core-LICENSE.txt`) — against
+the application's screens. It is a development dependency: it is not part of the application, is never served to the
+browser by the helper and is not in the offline cache.
+
 ### Textbook bundled with the Virtual consultant
 
 `kb/book/` holds the text of *Introduction to Cybersecurity Governance for Business Technology Management*,

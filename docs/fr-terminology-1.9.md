@@ -52,3 +52,20 @@ French translations updated with them (*point de 12 % (appétence 0,30)…*, *Le
 2. *joyau de la couronne* in long sentences can read heavy (*candidats de joyaux de la couronne*, *Cocher les joyaux de la couronne + les 5 plus critiques*).
 3. *Estimateur d'appétence … en propose une* / *en suggère une* — pronoun now feminine.
 4. Chapter-help section titles in French (`desktop/app/js/data/chapters.js`) are translations of the English headings of book v2.51b; replace them with the French edition's headings where they differ.
+
+## 1.9.2 — decisions FR-1 … FR-3 (author, 8 November 2026)
+
+Applied by `desktop/app/tools/fr_terms_check.py` (CI gate) and the browser suite `desktop/tests/t71_fr_terms.mjs`;
+the replacement script is kept in the build notes (`ws5_fr_terms.py`). Only French values of `fr.js`, `USER-GUIDE.fr.md`
+and the French half of `FIRST-TIME-SETUP.md` were rewritten; case data (`medibec-fr.js`, `canaretail.js`) and the
+CRGO snapshot are content and were not touched.
+
+| Decision | Before (1.9.0–1.9.1) | After (1.9.2) | Grammar notes applied |
+|---|---|---|---|
+| FR-1 ratio | *ratio de tolérance* (16 entries) | ***ratio risque résiduel / risque toléré***; short ***Ratio rés./tol.*** in tight table headers (*Res/Tol*, *Portfolio Res/Tol* → *Ratio rés./tol. du portefeuille*) | the parenthesis *(résiduel ÷ toléré)* is dropped where the new label already says it |
+| FR-2 probabilité | *vraisemblance* (37 entries, incl. the 1–5 register scale *Vraisemblance × impact*) | ***probabilité*** everywhere | same gender, no agreement change; *vraisemblable* untouched |
+| FR-3 éléments probants | *preuve(s)* for *evidence* (312 entries: *Preuves*, *lacune de preuve*, *échelle des preuves de menace*, *collecte des preuves*…) | ***élément(s) probant(s)***: *Éléments probants* (menu, register, tabs), *lacune d’éléments probants*, *Échelle des éléments probants de menace*, *collecte des éléments probants*, *niveau des éléments probants* | masculine agreement of articles, determiners and adjectives (*un élément probant expiré*, *éléments probants organisationnels vérifiés*, *cet élément probant*, *le dernier élément probant*, *Nouvel élément probant*); elision *d’éléments probants*, *l’élément probant*; pronouns *ils* / *lesquels*. Not evidence, left as is: *preuve de concept*, *faire la preuve de*, *preuves à l’appui*, *Preuve de destruction* (a document kind) |
+
+Not changed on purpose: the Security Policy Writer's French policy text (*preuve ou soupçon de compromission* — the legal
+sense, Writer 0.1.1 is a separate workstream) and the CRGO snapshot's FR labels (*preuve d'essai*: a CRGO 0.11.1
+content item, NV-C05).

@@ -12,6 +12,35 @@ import * as users from '../users.js';
 import { tr } from '../i18n.js';
 import * as IU from './importui.js';
 import * as RESET from '../reset.js';
+import * as TEACH from '../teaching.js';
+import * as store from '../store.js';
+
+/* 1.9.2 (items 4–5, NV-036) — a workspace that is already here (same id, or the same bundled teaching case under another
+   id) is never added twice without asking: Replace the copy here · Keep both · Skip. Resolves null when the dialog
+   is closed without a choice (treated as Skip). */
+function duplicateChoice(existing, incomingName, { teaching = false, importing = false } = {}) {
+  return new Promise(resolve => {
+    let answered = false; const pick = v => { answered = true; m.close(); resolve(v); };
+    const m = modal(tr(teaching ? 'This teaching case is already here' : 'This workspace is already here'),
+      el('p', 'note', tr(teaching ? 'A copy of the teaching case {0} is already on this computer: “{1}”. Choose what to do with the one you are adding.'
+        : 'A workspace with the same identity is already on this computer: “{1}”. Choose what to do with the one you are adding.').replace('{0}', TEACH.CASE_LABEL[TEACH.inferCase(existing)] || existing.name).replace('{1}', existing.name)),
+      el('ul', 'small', el('li', null, el('b', null, importing ? 'Update the one here' : 'Replace'), ' — ', tr('the copy here is overwritten by the one you are adding (its documents, snapshot and history are replaced).')),
+        el('li', null, el('b', null, 'Keep both'), ' — ', tr(importing ? 'the one you are adding is created beside it, named “… copy”, under its own id.' : 'the one you are adding is created beside it, under its own id.')),
+        el('li', null, el('b', null, 'Skip'), ' — ', tr('nothing is added; the copy here stays as it is.'))),
+      el('div', 'btnrow', { style: { marginTop: '12px' } },
+        el('button', { class: 'btn danger', onclick: () => pick('replace') }, importing ? 'Update the one here' : 'Replace the copy here'),
+        el('button', { class: 'btn', onclick: () => pick('keep') }, 'Keep both'),
+        el('button', { class: 'btn ghost', onclick: () => pick('skip') }, 'Skip')));
+    m.back.onclose = () => { if (!answered) resolve(null); };
+  });
+}
+/** Replace an existing workspace by the incoming one: same id, old document text and blobs removed first. */
+async function replaceWorkspace(existing, ws) {
+  for (const d of (existing.docs || [])) { if (!(ws.docs || []).some(x => x.id === d.id)) await delDoc(d.id); }
+  for (const k of ['snap:', 'base:']) await store.del('blob', k + existing.id).catch(() => {});
+  const oldId = ws.id; ws.id = existing.id;
+  if (!ws.crgo?.base || ws.crgo.base === MIG.blankCrgo(oldId).base) ws.crgo = MIG.blankCrgo(ws.id);
+}
 
 let tab = 'profile';
 export const DOC_CATS = ['Business case', 'Organization profile', 'Asset inventory / CMDB extract', 'Network or architecture notes', 'Policy or standard',
@@ -322,7 +351,8 @@ export async function extractCrown(sec) {
         }
         if (meta.entryId) AI.decide(meta.entryId, n ? 'accepted' : 'rejected', `${n} crown jewel(s) added`);
         if (n) X.markExtracted(ws, 'Crown jewels');
-        touch(); m.close(); toast(n + ' ' + tr('crown jewel(s) added')); if (!toImport()) { tab = 'crown'; go('org/crown'); }
+        touch(); m.close(); toast(n + ' ' + tr('crown jewel(s) added'));
+        if (!toImport()) { tab = 'crown'; goOrRedraw('org/crown'); }   // 1.9.2 (NV-039, T2): the tab is redrawn at once, also when it is already open
       } }, 'Add ticked crown jewels'),
       el('button', { class: 'btn ghost', onclick: () => { m.close(); if (meta.entryId) AI.decide(meta.entryId, 'rejected', 'cancelled'); toImport(); } }, 'Cancel')));
 }
@@ -356,7 +386,7 @@ function crown(body, arg, sec) {
   const LV = ['', 'Low', 'Medium', 'High', 'Very high'];
   const t = el('table', 'grid compact');
   const draw = () => {
-    t.replaceChildren(el('thead', null, el('tr', null, ...CJ_COLS.map(c => el('th', null, c)), el('th', null, 'Provenance'), el('th'))));
+    t.replaceChildren(el('thead', null, el('tr', null, ...CJ_COLS.map(c => el('th', null, c)), el('th', null, 'Provenance'), el('th', null, el('span', 'sr-only', 'Actions')))));
     const tb = el('tbody');
     a.CROWN.forEach((r, i) => {
       const tr = el('tr');
@@ -555,8 +585,20 @@ function workspaces(body, arg, sec) {
   const doCreate = async (data) => {
     const fromFile = !!data && !isEx(from.value) && from.value !== 'current';
     const nm = name.value.trim() || (kind.value === 'classroom' ? 'Classroom case' : 'New organization');
-    let ws;
-    if (isEx(from.value)) { ws = exampleWorkspace(from.value); ws.id = uid('ws'); ws.crgo = MIG.blankCrgo(ws.id); if (name.value.trim()) ws.name = nm; ws.kind = kind.value; }
+    let ws, replacing = null;
+    if (isEx(from.value)) {
+      ws = exampleWorkspace(from.value); ws.kind = kind.value; if (name.value.trim()) ws.name = nm;
+      // 1.9.2 (item 4): a bundled case gets its fixed id when free; a copy already here is recognised and asked about
+      const fixed = TEACH.FIXED_ID(from.value);
+      const twin = S.list.find(x => x.id === fixed) || S.list.find(x => TEACH.sameCase(x, ws));
+      if (twin && kind.value === 'example') {
+        const ch = await duplicateChoice(twin, ws.name, { teaching: true });
+        if (!ch || ch === 'skip') { msg.replaceChildren(banner('warn', 'Nothing added', tr('The teaching case already here was kept.'))); return; }
+        if (ch === 'replace') replacing = twin;
+      }
+      ws.id = replacing ? replacing.id : (S.list.some(x => x.id === fixed) || kind.value !== 'example') ? uid('ws') : fixed;
+      ws.crgo = MIG.blankCrgo(ws.id);
+    }
     else if (from.value === 'current') {
       ws = JSON.parse(JSON.stringify(S.ws)); ws.id = uid('ws'); ws.name = nm; ws.kind = kind.value; ws.snapshot = null;
       for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, await docText(d.id)); d.id = nid; }
@@ -569,7 +611,14 @@ function workspaces(body, arg, sec) {
         const r = MIG.migrateWorkspace(data, { fill: migrate });
         if (r.status === 'newer') throw new Error(tr('This file was written by a newer release of the application (data version {0}; this one reads up to {1}). Update the application to open it.').replace('{0}', r.from).replace('{1}', MIG.DATA_VERSION));
         if (r.status === 'failed') throw new Error(tr('The file could not be brought to this release: {0}').replace('{0}', r.error));
-        ws = r.ws; ws.id = uid('ws'); ws.snapshot = null; if (name.value.trim()) ws.name = nm;
+        ws = r.ws; ws.snapshot = null; if (name.value.trim()) ws.name = nm;
+        // 1.9.2 (item 5): the same workspace (same id) or the same teaching case already here → Replace / Keep both / Skip
+        const existing = S.list.find(x => x.id === ws.id) || S.list.find(x => TEACH.sameCase(x, ws));
+        if (existing) {
+          const ch = await duplicateChoice(existing, ws.name, { teaching: !!TEACH.inferCase(ws), importing: true });
+          if (!ch || ch === 'skip') { msg.replaceChildren(banner('warn', 'Nothing imported', tr('The copy already here was kept.'))); return; }
+          if (ch === 'replace') replacing = existing; else { ws.id = uid('ws'); ws.name = (name.value.trim() ? nm : ws.name) + ' ' + tr('copy'); }   // item 5: Keep both → “… copy”
+        } else if (!TEACH.inferCase(ws) || !TEACH.isFixedId(ws.id)) ws.id = uid('ws');   // a new identity on this computer; a bundled case keeps its fixed id
         ws.crgo = MIG.blankCrgo(ws.id);
         for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, texts[d.id] || ''); d.id = nid; }
       }
@@ -579,7 +628,8 @@ function workspaces(body, arg, sec) {
     if (edu.checked) ws.kind = 'classroom';
     if (ws.kind === 'classroom' && !ws.classroom) ws.classroom = { course: '', case_title: '', team: '', members: '', instructor: '', due: '', notes: '' };
     if (edu.checked) { ws.classroom.educational = true; ws.educational = true; }
-    if (S.list.some(w => w.name === ws.name)) ws.name += ' (imported ' + today() + ')';
+    if (replacing) { await replaceWorkspace(replacing, ws); S.list = S.list.filter(x => x.id !== replacing.id); }
+    else if (S.list.some(w => w.name === ws.name)) ws.name += ' (imported ' + today() + ')';
     migrate(ws);
     await create(ws);
     /* 1.5.6 — a teaching case that came out of a file is a case being handed out, so the state in the
@@ -629,7 +679,7 @@ function workspaces(body, arg, sec) {
     el('div', 'btnrow', { style: { marginTop: '12px' } }, el('button', { class: 'btn', onclick: () => from.value === 'import' ? fileIn.click() : doCreate().catch(e => msg.replaceChildren(banner('bad', 'Could not create', String(e.message || e)))) }, 'Create workspace'), fileIn), msg));
 
   const t = el('table');
-  t.append(el('thead', null, el('tr', null, ...['Workspace', 'Type', 'Organization', 'Scenarios', 'Modified', ''].map(h => el('th', null, h)))));
+  t.append(el('thead', null, el('tr', null, ...['Workspace', 'Type', 'Organization', 'Scenarios', 'Modified'].map(h => el('th', null, h)), el('th', null, el('span', 'sr-only', 'Actions')))));
   const tb = el('tbody');
   for (const w of S.list) {
     const cur = w.id === S.ws.id;

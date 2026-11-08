@@ -14,7 +14,7 @@
    Decision support, not legal advice. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { GENERATOR, SERIES } from '../version.js';
-import { el, card, pill, chip, toast, banner, table, kpi, n0, go, field, select, download, today, toCSV, modal } from '../util.js';
+import { el, card, pill, chip, toast, banner, table, kpi, n0, go, field, select, download, today, toCSV, modal, pct as pctFmt } from '../util.js';
 import { S, touch } from '../state.js';
 import * as K from '../catalog.js';
 import * as AI from '../ai.js';
@@ -60,7 +60,7 @@ function requirements(body, sec) {
   const sets = [...new Set(R.map(r => r.set))];
   const redraw = () => renderTab(sec, 'requirements', sec.querySelector('.subtabs'));
   body.append(el('div', 'grid g4', kpi('Requirements', n0(R.length), `${sets.length} set(s)`),
-    ...sets.slice(0, 3).map(s => { const l = R.filter(r => r.set === s); const p = pct(l); return kpi(s, p === null ? '—' : Math.round(p * 100) + '%', `${l.filter(r => r.status).length}/${l.length} assessed`, p === null ? '' : p >= 0.8 ? 'good' : p >= 0.5 ? 'warn' : 'bad'); })));
+    ...sets.slice(0, 3).map(s => { const l = R.filter(r => r.set === s); const p = pct(l); return kpi(s, p === null ? '—' : pctFmt(p, 0), `${l.filter(r => r.status).length}/${l.length} assessed`, p === null ? '' : p >= 0.8 ? 'good' : p >= 0.5 ? 'warn' : 'bad'); })));
   // add
   const f = { set: setFlt || 'Internal requirements', ref: '', text: '', category: '', source: 'contract', owner: '', due: '', refs: '' };
   const t = (k, attrs = {}) => { const x = el(attrs.rows ? 'textarea' : 'input', { value: f[k], ...attrs }); x.addEventListener('input', () => { f[k] = x.value; }); return x; };
@@ -248,7 +248,7 @@ export function fullReport(ws = S.ws, legal = '') {
   const o = overview(ws);
   const L = [soaReport(ws), '', ...(legal ? [legal, ''] : []), postureMarkdown(ws), '', '## Compliance requirements', ''];
   for (const s of o.sets) {
-    L.push(`### ${s.name}`, '', `${s.assessed} of ${s.of} assessed · compliance ${s.pct === null ? '—' : Math.round(s.pct * 100) + '%'}`, '', '| ID | Reference | Requirement | Status | Owner | Evidence | How assessed |', '|---|---|---|---|---|---|---|');
+    L.push(`### ${s.name}`, '', `${s.assessed} of ${s.of} assessed · compliance ${s.pct === null ? '—' : pctFmt(s.pct, 0)}`, '', '| ID | Reference | Requirement | Status | Owner | Evidence | How assessed |', '|---|---|---|---|---|---|---|');
     for (const r of reqs(ws).filter(x => x.set === s.name)) L.push(`| ${r.id} | ${r.ref || ''} | ${String(r.text).replace(/\|/g, '/')} | ${stLabel(r.status)} | ${r.owner || ''} | ${String(r.evidence || '').replace(/\|/g, '/')} | ${r.assessed ? r.assessed.method + ' ' + r.assessed.date : ''} |`);
     L.push('');
   }
@@ -264,7 +264,7 @@ export function fullReport(ws = S.ws, legal = '') {
 function report(body, sec) {
   const ws = S.ws, o = overview(ws);
   const redraw = () => renderTab(sec, 'report', sec.querySelector('.subtabs'));
-  const pc = p => p === null ? '—' : Math.round(p * 100) + '%';
+  const pc = p => p === null ? '—' : pctFmt(p, 0);   // 1.9.2 (X-6): locale
   body.append(el('div', 'grid g4',
     ...o.fw.map(x => kpi(x.f.short, pc(x.s.pct), `${x.s.assessed}/${x.s.applicable} assessed · ${x.s.gaps} gaps`, x.s.pct >= 0.8 ? 'good' : x.s.pct >= 0.5 ? 'warn' : 'bad')),
     ...o.chk.map(x => kpi(x.name + ' checklist', pc(x.pct), `${x.assessed}/${x.of} assessed`, x.pct === null ? '' : x.pct >= 0.8 ? 'good' : x.pct >= 0.5 ? 'warn' : 'bad')),

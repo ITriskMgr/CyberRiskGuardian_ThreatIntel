@@ -77,6 +77,11 @@ def main():
 
     check("service worker cache", "sw.js", r'const CACHE = "crg-desktop-([\d.]+)"')
     check("helper", "serve.py", r'VERSION = "([\d.]+)"')
+    # 1.9.2 (NV-068) — the helper's module docstring once said "version 1.4.0" for five releases: it may not carry a
+    # version literal at all (VERSION below is the one place).
+    doc = re.search(r'"""([\s\S]*?)"""', read("serve.py"))
+    if doc and re.search(r"\b[Vv]ersion\s+\d+\.\d+\.\d+\b", doc.group(1)):   # "(version 1.4.0)" — release notes such as "1.9.0: keychain" are fine
+        bad.append("  helper docstring            serve.py: the module docstring carries a version literal; name VERSION instead")
     check("sidebar footer", "index.html", r'v([\d.]+) Beta')
     # The Security Policy Writer has a version of its own: the module (js/version.js) and its engine in the
     # helper (crg_writer/__init__.py) must agree.

@@ -5,7 +5,7 @@
    value: θ is proposed and the analyst accepts it per scenario. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as MK from '../markers.js';
-import { el, card, pill, select, toast, table, banner, field, kpi, n1, n2, today, go } from '../util.js';
+import { el, card, pill, select, toast, table, banner, field, kpi, n1, n2, today, go, pct, n0 } from '../util.js';
 import { S, touch, scen } from '../state.js';
 import * as MT from '../maturity.js';
 import * as SG from '../safeguards.js';
@@ -113,7 +113,7 @@ function resilienceView(body, sec) {
   const ws = S.ws, M = MT.state(ws), r = MT.resilience(ws), qt = MT.questionnaireTheta(ws);
   body.append(el('div', 'grid g4',
     kpi('Questions answered', `${r.answered} / ${r.of}`, r.unknown ? `${r.unknown} recorded as unknown` : 'none unknown', r.answered === r.of ? 'good' : 'warn'),
-    kpi('Resilience score', r.overall === null ? '—' : Math.round(r.overall * 100) + '%', 'mean of the capabilities answered'),
+    kpi('Resilience score', r.overall === null ? '—' : pct(r.overall, 0), 'mean of the capabilities answered'),
     kpi('θ this suggests', qt.theta === null ? '—' : String(qt.theta), 'from the questionnaire alone'),
     kpi('Weakest', qt.weak && qt.weak.length ? qt.weak[0] : '—', qt.weak && qt.weak.length > 1 ? `and ${qt.weak.length - 1} more` : 'nothing scored low')));
 
@@ -126,7 +126,7 @@ function resilienceView(body, sec) {
     if (!c.qs.some(q => keep('questions', q.id))) continue;
     const invCov = SG.capabilityCoverage(ws).find(x => x.key === c.key);
     const cc = card(el('div', 'row', el('h2', { style: { flex: 1, margin: 0 } }, c.label),
-      c.score === null ? pill('not answered', '') : pill(Math.round(c.score * 100) + '%', c.score >= 0.67 ? 'good' : c.score >= 0.34 ? 'warn' : 'bad'),
+      c.score === null ? pill('not answered', '') : pill(pct(c.score, 0), c.score >= 0.67 ? 'good' : c.score >= 0.34 ? 'warn' : 'bad'),
       invCov && invCov.best ? pill(`inventory: ${invCov.count} safeguard${invCov.count === 1 ? '' : 's'}`, 'good') : pill('inventory: nothing in force', 'warn')));
     cc.append(el('p', 'small muted', SG.CAPABILITY[c.key]?.hint));
     for (const q of c.qs) {
@@ -183,7 +183,7 @@ function thetaView(body, sec) {
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Capability by capability'),
     table([
       { key: 'label', label: 'Capability' },
-      { key: 'q', label: 'Questionnaire', render: row => row.q === null ? pill('not answered', '') : pill(Math.round(row.q * 100) + '%', row.q >= 0.67 ? 'good' : row.q >= 0.34 ? 'warn' : 'bad') },
+      { key: 'q', label: 'Questionnaire', render: row => row.q === null ? pill('not answered', '') : pill(pct(row.q, 0), row.q >= 0.67 ? 'good' : row.q >= 0.34 ? 'warn' : 'bad') },
       { key: 'inv', label: 'Inventory', render: row => row.inv ? pill(`${row.inv} / ${SG.MAX_STRENGTH}`, row.inv >= 2 ? 'good' : 'warn') : pill('nothing in force', 'bad') },
       { key: 'verdict', label: 'Reading', sortable: false, render: row =>
           row.q === null ? el('span', 'small muted', 'answer the questions for a second reading')
@@ -212,7 +212,7 @@ function historyView(body, sec) {
     kpi('Maturity', last.maturity === null ? '—' : n2(last.maturity), prev && prev.maturity !== null && last.maturity !== null
       ? (last.maturity > prev.maturity ? `up ${n2(last.maturity - prev.maturity)} since ${prev.date}` : last.maturity < prev.maturity ? `down ${n2(prev.maturity - last.maturity)} since ${prev.date}` : 'unchanged') : 'no earlier record',
       prev && last.maturity !== null && prev.maturity !== null ? (last.maturity >= prev.maturity ? 'good' : 'bad') : ''),
-    kpi('Resilience', last.resilience === null ? '—' : Math.round(last.resilience * 100) + '%', `${last.answered} questions answered`),
+    kpi('Resilience', last.resilience === null ? '—' : pct(last.resilience, 0), `${n0(last.answered)} questions answered`),
     kpi('θ recommended', last.thetaRecommended === null ? '—' : String(last.thetaRecommended), `questionnaire ${last.thetaQuestionnaire ?? '—'} · inventory ${last.thetaInventory ?? '—'}`)));
 
   if (h.length >= 2) {
@@ -234,7 +234,7 @@ function historyView(body, sec) {
       { key: 'date', label: 'Date' },
       { key: 'maturity', label: 'Maturity', num: true, render: r => r.maturity === null ? '—' : n2(r.maturity) },
       { key: 'categoriesScored', label: 'Categories', num: true, render: r => `${r.categoriesScored} / ${r.categoriesOf}` },
-      { key: 'resilience', label: 'Resilience', num: true, render: r => r.resilience === null ? '—' : Math.round(r.resilience * 100) + '%' },
+      { key: 'resilience', label: 'Resilience', num: true, render: r => r.resilience === null ? '—' : pct(r.resilience, 0) },
       { key: 'answered', label: 'Questions', num: true, render: r => `${r.answered}${r.unknown ? ` (${r.unknown} unknown)` : ''}` },
       { key: 'thetaRecommended', label: 'θ', num: true, render: r => r.thetaRecommended === null ? '—' : String(r.thetaRecommended) },
       { key: 'note', label: 'Note', render: r => el('span', { 'data-noi18n': '' }, r.note || '') },
