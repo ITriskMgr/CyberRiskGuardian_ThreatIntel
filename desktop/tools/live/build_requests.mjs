@@ -6,9 +6,9 @@
 //
 //   cd desktop/tests && CRG_URL=http://127.0.0.1:8099/ node ../tools/live/build_requests.mjs ../tools/live/live-requests.json
 //
-// Runs from desktop/tests so that Playwright resolves from its node_modules. Nothing is sent to a model here.
-import { chromium } from 'playwright';
+// Playwright is taken from desktop/tests/node_modules (the suites' install). Nothing is sent to a model here.
 import fs from 'fs';
+const { chromium } = await import(new globalThis.URL('../../tests/node_modules/playwright/index.mjs', import.meta.url));
 const URL = process.env.CRG_URL || 'http://127.0.0.1:8099/';
 const OUT = process.argv[2] || new globalThis.URL('./live-requests.json', import.meta.url).pathname;
 const b = await chromium.launch(); const p = await b.newPage();
