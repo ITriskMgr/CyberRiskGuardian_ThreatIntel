@@ -65,8 +65,9 @@ ok(await page.isVisible('#panel-ai .consult-cited >> text=From your sources') &&
 ok(await page.isVisible('#panel-ai .consult-answer a[href="#/scenario/S1"]'), 'a link in the answer opens the scenario');
 const before = await page.evaluate(async () => { const st = await import('/js/state.js'); return { scen: st.S.ws.assessment.SCEN.length, cand: (st.S.ws.assessment.CANDIDATES || []).length }; });
 await page.click('#panel-ai >> text=/Send 1 proposed scenario/');
-const after = await page.evaluate(async () => { const st = await import('/js/state.js'); const c = st.S.ws.assessment.CANDIDATES; return { scen: st.S.ws.assessment.SCEN.length, cand: c.length, last: c[c.length - 1] }; });
-ok(after.scen === before.scen && after.cand === before.cand + 1 && after.last.reviewed === false && after.last.source === 'ai', 'a proposal goes to Batch scenarios for review; the register is unchanged');
+// 1.9.2 (decided item 7 / C3): the proposal is a screening row (array) with its draft kept on the screening record, logged pending
+const after = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const c = st.S.ws.assessment.CANDIDATES; const last = c[c.length - 1]; return { scen: st.S.ws.assessment.SCEN.length, cand: c.length, isRow: Array.isArray(last), ref: last[6], origin: SC.rec(last[0]).draft?.origin, seen: SC.candidates().at(-1).name === last[1] }; });
+ok(after.scen === before.scen && after.cand === before.cand + 1 && after.isRow && after.ref === 'consultant' && after.origin === 'ai' && after.seen, 'a proposal goes to Scenario screening as a candidate row with its draft; the register is unchanged ' + JSON.stringify(after));
 await page.click('#panel-ai .consult-meta >> text=Useful');
 const H = await page.evaluate(async () => { const st = await import('/js/state.js'); const AI = await import('/js/ai.js'); await st.saveNow();
   const c = st.S.ws.consultant.conversations[0]; const m = c.messages[1];

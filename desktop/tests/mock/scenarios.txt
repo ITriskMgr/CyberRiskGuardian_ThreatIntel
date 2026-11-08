@@ -1,0 +1,8 @@
+{"scenarios":[
+ {"name":"Mock zero-reduction candidate","statement":"A cybercriminal exploits an unpatched portal to extract records.","threat_source":"Cybercriminal","asset":"Patient portal","vulnerability":"unpatched web framework",
+  "params":{"PbA":{"v":0,"why":"Mock: a proposed zero must stay zero","conf":"High"},"Pbx":{"v":0.4,"why":"Mock","conf":"Medium"},"De":{"v":0.5,"why":"Mock","conf":"Low"},"Dm":{"v":0.8,"why":"Mock","conf":"Low"},"Th":{"v":0.45,"why":"Mock","conf":"Low"}},
+  "attack":["T1190"]},
+ {"name":"Mock second candidate","statement":"An insider exports billing records.","threat_source":"Insider","asset":"Billing","vulnerability":"broad roles",
+  "params":{"PbA":{"v":0.6,"why":"Mock","conf":"Medium"},"Pbx":{"v":0.5,"why":"Mock","conf":"Medium"},"De":{"v":0.4,"why":"Mock","conf":"Low"},"Dm":{"v":0.7,"why":"Mock","conf":"Low"},"Th":{"v":0.5,"why":"Mock","conf":"Low"},"Mu":{"v":0.7,"why":"Mock","conf":"Low"}},
+  "attack":[]}
+]}

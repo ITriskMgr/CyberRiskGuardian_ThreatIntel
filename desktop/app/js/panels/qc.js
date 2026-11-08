@@ -15,7 +15,7 @@
    1.8.0 (book v2.51): standard markers · valid inputs and a CVSS for every scenario · stored scores agree with
      their vectors · equivalency justified · no reference left on a superseded catalogue · screening flags reviewed ·
      transfers approved.
-   1.9.2 (QC-27, ws3): likelihoods calibrated from the threat context rest on a current (≤ 90 days) snapshot.
+   1.9.2 (QC-31, ws3): likelihoods calibrated from the threat context rest on a current (≤ 90 days) snapshot.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, table, kpi, n0, go, today } from '../util.js';
@@ -30,6 +30,7 @@ import * as EQ from '../equiv.js';
 import * as SCR from '../screening.js';
 import * as AVL from '../avl.js';
 import * as LIB from '../kblib.js';
+import * as PROC from '../process.js';
 
 /** Every check: { id, title, state: 'pass'|'warn'|'fail', detail, fix (route) }. */
 export function checks(ws = S.ws) {
@@ -39,9 +40,12 @@ export function checks(ws = S.ws) {
   add('QC-01', 'Write-backs are proposals with a model version and inputs', wb.every(w => w.status !== 'proposed' || w.stored) ? 'pass' : 'fail',
     wb.length ? tr('{0} proposed, {1} refused (each refusal shown as CRGO returned it).').replace('{0}', wb.filter(w => w.status === 'proposed').length).replace('{1}', wb.filter(w => w.status === 'refused').length) : tr('No write-back yet. Every write-back is built by this application with its version, its inputs and the SHA-256 of the input, and status "proposed".'), 'ontology/link');
   const badDec = (ws.csm?.decisions || []).filter(d => d.outcome !== 'draft' && delegationOk(ws, d));
-  const recs = (ws.recommendations || []).filter(r => r.status === 'approved' && !(r.approvedBy || r.approver || (r.history || []).some(h => /approv/i.test(h.what || h.status || '') && (h.by || h.who))));
+  // 1.9.2 (decided item 22): the approver is rec.approved.by, written by recommend.js transition(); an empty name fails
+  // A formal recommendation names its approver in approved.by, or in a history entry of the approval (to 'approved', with a by)
+  const namedApprover = r => String(r.approved?.by || '').trim() || (r.history || []).some(h => h.to === 'approved' && String(h.by || '').trim());
+  const recs = (ws.recommendations || []).filter(r => ['approved', 'in-implementation', 'completed'].includes(r.status) && !namedApprover(r));
   add('QC-02', 'No result is called approved unless a person approved it', badDec.length || recs.length ? 'fail' : 'pass',
-    badDec.length || recs.length ? [...badDec.map(d => d.id), ...recs.map(r => r.id)].join(', ') : tr('Every decision recorded as made names its decision maker; risk acceptances rest on a delegation valid on the decision date.'), 'csm/decisions');
+    badDec.length || recs.length ? [...badDec.map(d => d.id), ...recs.map(r => (r.code || r.id) + ' (' + tr('approved without a named approver') + ')')].join(', ') : tr('Every decision recorded as made names its decision maker, every approved recommendation its approver; risk acceptances rest on a delegation valid on the decision date.'), recs.length && !badDec.length ? 'recs/' + recs[0].id : 'csm/decisions');   // the fix link opens the recommendation
   const satNoEv = (ws.grc?.determinations || []).filter(d => d.state === 'satisfied' && !(d.evidence || []).length);
   const reqCompliantNoEv = (ws.compliance?.requirements || []).filter(r => r.status === 'compliant' && !String(r.evidence || '').trim());
   add('QC-03', '"Supported by a control" is not called "compliant"', satNoEv.length ? 'fail' : reqCompliantNoEv.length ? 'warn' : 'pass',
@@ -136,12 +140,54 @@ export function checks(ws = S.ws) {
     !oldCase ? tr('Not a teaching case on the earlier vectors.')
       : declined ? tr('S2 and S8 still use AV:N: the AV:L vectors were declined on {0}. The Process page lets you reconsider and take them (journalled), or Reset data → Start over takes the current case.').replace('{0}', AVL.lastEntry(ws)?.date || '—')
       : tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.'), 'process');
-  // 1.9.2 (NV-099, ws3) — the project rule: an assessment that calibrates Pb(ψ,A) from the threat context needs a current snapshot
+  // 1.9.2 (NV-082) — the book's review questions the checks did not ask: placeholder rationales, chain completeness,
+  // the budget gap escalated, the memo agreeing with the workbook.
+  const ph = inc.map(s => ({ s, n: ['PbA', 'Pbx', 'De', 'Dm', 'Th', 'Mu'].filter(k => !PROC.paramEstimated(s.params?.[k])).length })).filter(x => x.n);
+  const phAll = ph.filter(x => x.n === 6);
+  add('QC-27', 'No included scenario rests on placeholder or unestimated parameters', phAll.length ? 'fail' : ph.length ? 'warn' : inc.length ? 'pass' : 'warn',
+    phAll.length ? tr('{0} scenario(s) with none of the six parameters estimated (placeholder rationale, no evidence or no confidence): {1}').replace('{0}', phAll.length).replace('{1}', phAll.map(x => x.s.id).join(', '))
+      : ph.length ? tr('{0} scenario(s) with parameters not yet estimated: {1}').replace('{0}', ph.length).replace('{1}', ph.map(x => `${x.s.id} (${x.n})`).join(', '))
+      : inc.length ? tr('Every parameter of every included scenario has a rationale that is not the placeholder, its evidence and a confidence level.') : tr('No scenario is included yet.'), 'scenario');
+  const chainBad = inc.filter(s => !PROC.chainOk(s));
+  add('QC-28', 'Every included scenario is a complete causal chain', chainBad.length ? 'fail' : inc.length ? 'pass' : 'warn',
+    chainBad.length ? tr('Statement, threat source, vulnerabilities or affected assets missing: {0}').replace('{0}', chainBad.map(s => s.id).join(', ')) : inc.length ? tr('Every included scenario names its statement, threat source, vulnerabilities and affected assets.') : tr('No scenario is included yet.'), 'scenario');
+  const bg = budgetGap(ws);
+  add('QC-29', 'A budget gap to the appetite-consistent target is escalated, not reconciled silently', bg.gap > 0 && !bg.escalated ? 'warn' : 'pass',
+    !bg.it ? tr('No IT budget entered: the target cannot be computed (Process step 4).') : bg.gap > 0 ? (bg.escalated ? tr('Shortfall of {0} to the target is recorded as a decision requested in the management summary.').replace('{0}', n0(bg.gap)) : tr('Shortfall of {0} to the {1}% target with no decision requested in the management summary: write it as a decision — Management decision required.').replace('{0}', n0(bg.gap)).replace('{1}', (bg.target * 100).toFixed(1))) : tr('Spend is at or above the appetite-consistent target.'), bg.gap > 0 && !bg.escalated ? 'summary' : 'budget');
+  const mm = memoMismatch(ws);
+  add('QC-30', 'The management summary agrees with the workbook to the unit', mm === null || mm === 'unknown' ? 'warn' : mm.length ? 'fail' : 'pass',
+    mm === null ? tr('The management summary has not been exported yet; export it after the last change.')
+      : mm === 'unknown' ? tr('Exported on {0} without the figures of the day (an export of this release records them): export the summary again to compare.').replace('{0}', ws.mgmtSummary.date)
+      : mm.length ? tr('Exported on {0}; since then: {1}. Export the summary again.').replace('{0}', ws.mgmtSummary.date).replace('{1}', mm.join(', ')) : tr('The figures exported with the summary on {0} are the engine’s figures today.').replace('{0}', ws.mgmtSummary.date), 'summary');
+  // 1.9.2 (NV-099, ws3; numbered QC-31 at integration, QC-27..30 are NV-082) — the project rule: an assessment that calibrates Pb(ψ,A) from the threat context needs a current snapshot
   const fresh = snapshotFreshness(ws);
-  add('QC-27', 'The threat-context snapshot behind the calibrated likelihoods is current', fresh.state,
+  add('QC-31', 'The threat-context snapshot behind the calibrated likelihoods is current', fresh.state,
     fresh.state === 'pass' ? (fresh.n ? tr('{0} threat_basis entry(ies) rest on the snapshot of {1}, valid until {2}.').replace('{0}', fresh.n).replace('{1}', fresh.retrieved || '—').replace('{2}', fresh.expires || '—') : tr('No likelihood is calibrated from the threat context; the 90-day rule applies once one is.'))
       : fresh.missing ? tr('{0} threat_basis entry(ies) calibrate Pb(ψ,A), but no snapshot is loaded in this workspace: load the one they cite, or a refreshed one, and re-run the exposure join.').replace('{0}', fresh.n)
       : tr('{0} threat_basis entry(ies) rest on a snapshot that expired on {1} ({2} days ago): refresh the snapshot and re-run the exposure join. Snapshots expire after 90 days.').replace('{0}', fresh.n).replace('{1}', fresh.expires || '—').replace('{2}', fresh.daysPast ?? '—'), 'threat');
+  return out;
+}
+PROC.registerQc(checks);   // 1.9.2 (NV-018) — the report step requires no failed check
+
+/* ---------------- 1.9.2 checks (NV-082) ---------------- */
+/** The shortfall of the cybersecurity spend to the appetite-consistent target, and whether the summary asks a decision about it. */
+export function budgetGap(ws = S.ws) {
+  const b = ws.budget || {}, it = Number(b.it_budget) || 0, spend = Number(b.spend) || 0;
+  const app = Number(ws.assessment?.APPETITE), target = it && Number.isFinite(app) && self.CRG?.budgetTarget ? self.CRG.budgetTarget(app) : 0;
+  const gap = it ? Math.round(target * it - spend) : 0;
+  // escalated: the analyst wrote the decision, or the exported summary asked management to fund the gap (its automatic line)
+  const escalated = (ws.mgmtSummary?.decisions || []).some(d => /budget|shortfall|gap|fund|financ|écart|manque/i.test(String(typeof d === 'string' ? d : d?.text || d?.what || JSON.stringify(d))))
+    || (ws.mgmtSummary?.date && Number(ws.mgmtSummary?.figures?.gap) > 0);
+  return { it, spend, target, gap, escalated };
+}
+/** What changed since the management summary was exported (the figures recorded with it): an array of differences, 'unknown' when the export recorded no figures, or null when never exported. */
+export function memoMismatch(ws = S.ws) {
+  const f = ws.mgmtSummary?.figures;
+  if (!ws.mgmtSummary?.date) return null;
+  if (!f) return 'unknown';
+  const R = compute(ws), out = [];
+  for (const [k, l] of [['est', 'estimated'], ['tol', 'tolerated'], ['res', 'residual']]) if (Math.round(R.totals[k]) !== Math.round(f[k])) out.push(`${tr(l)} ${n0(f[k])} → ${n0(R.totals[k])}`);
+  if ((f.n ?? R.inc.length) !== R.inc.length) out.push(tr('{0} → {1} scenarios included').replace('{0}', f.n).replace('{1}', R.inc.length));
   return out;
 }
 

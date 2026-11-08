@@ -18,7 +18,7 @@ export const GUIDELINES = [
     where: 'Organization → Workspaces → New workspace; Organization → Import from documents', routes: [['org/workspaces', 'Workspaces'], ['org/profile', 'Profile & appetite'], ['org/crown', 'Crown jewels'], ['org/import', 'Import from documents']],
     steps: ['Type the workspace name; choose “Real organization” or “Classroom business case”; for teaching tick “Educational case used for training purposes”.',
       'Drop all the case documents (Word, PDF, Excel, PowerPoint, text) on the document zone.',
-      'Tick “Extract the profile & appetite from these documents after creation”, “Then extract the crown jewels” and, to go further, “Then import more from the documents”; click “Create workspace”.',
+      'Tick “Extract the profile & appetite from these documents after creation”, “Then extract the crown jewels” and, to go further, “Then extract more from the documents (Import from documents)”; click “Create workspace”.',
       'Choose “Use AI (preview before sending)” — you see the exact text before anything is sent — or “Rules only (no AI, offline)”.',
       'In the review, edit any value, tick those to keep and click “Put ticked values in the form”; check the fields and click “Save”.',
       'Review the crown jewels and click “Add ticked crown jewels”.',

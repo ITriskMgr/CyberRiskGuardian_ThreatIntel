@@ -300,7 +300,8 @@ export const renumber = p => { if ((p.versions || []).length) { const keep = new
 
 /** Independence: why `by` may not approve this version (author or submitter), or null. */
 export function independenceError(p, by) {
-  if (!by) return null;
+  // 1.9.2 (NV-020, X-5): no approval without a named person — a blank approver is an error, not an exemption
+  if (!String(by || '').trim()) return 'Approval needs the name of the approver: no policy version is approved and frozen without a named person.';
   if (same(by, p.author)) return 'The approver cannot be the author of this version: approval must be independent.';
   if (same(by, p.submittedBy)) return 'The approver cannot be the person who submitted this version for review: approval must be independent.';
   return null;

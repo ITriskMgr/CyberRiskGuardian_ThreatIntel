@@ -3,18 +3,22 @@
    The arithmetic is in js/screening.js; this screen only shows and records it.
    © 2026 Marc-André Léger. All rights reserved. */
 'use strict';
-import { el, card, banner, kpi, pill, field, select, toast, table, download, toCSV, today, n0, n1, go, chip } from '../util.js';
-import { S, touch, blankScenario, nextScenarioId } from '../state.js';
+import { el, card, banner, kpi, pill, field, select, toast, table, download, toCSV, today, n0, n1, go, chip, modal } from '../util.js';
+import { S, touch } from '../state.js';
+import * as users from '../users.js';
+import * as AI from '../ai.js';
 import { tr } from '../i18n.js';
 import * as SC from '../screening.js';
 import * as MK from '../markers.js';
 import * as LOG from '../logs.js';
+import * as SAI from '../screenai.js';
 
 export const HELP = {
   '': { d: 'Screen the candidates on twelve criteria, consolidate variants into families and select the portfolio — normally ten scenarios.', g: 'screening',
     h: ['Each candidate is scored 1 (very low) to 5 (very high) on twelve criteria with a one-line rationale. The total out of 60 is a screening aid, not a mechanical rule.',
       'Mandatory escalation flags stop a severe but improbable scenario from dropping out for low probability alone: leaving a flagged candidate out needs an explicit review, and is a Management decision required.',
-      'Generate about 25 to 40 candidates for a portfolio of ten, never fewer than 20 (20 is the quick lab version). Do not rank on CVSS.'] },
+      'Generate about 25 to 40 candidates for a portfolio of ten, never fewer than 20 (20 is the quick lab version). Do not rank on CVSS.',
+      'Three ways to add candidates (Process step 5): Batch scenarios → Add the ticked rows as screening candidates; Add a candidate (by hand); Add the register’s scenarios as candidates. “Propose scores with AI” drafts the twelve scores for review: the AI never scores evidence strength above 3, and only adds escalation flags.'] },
   families: { d: 'Variants of the same exposure consolidated into families, each represented by a stronger causal scenario.', g: 'screening',
     h: ['Two candidates stay separate when their assets, threat actors, consequences, controls, owners or treatment decisions differ materially. Consolidation prevents double-counting and stops one technique from dominating the portfolio.'] },
   weights: { d: 'The selection tested under four weighting schemes: equal, impact-led, evidence-led and decision-led.', g: 'screening',
@@ -38,7 +42,7 @@ export function render(sec, arg) {
   const ws = S.ws, A = SC.analysis(ws);
   sec.replaceChildren(el('h1', null, 'Scenario screening'));
   sec.append(el('div', 'grid g5',
-    kpi('Candidates', n0(A.list.length), tr(A.guidance.kind === 'good' ? 'enough for ten' : A.guidance.kind === 'warn' ? 'quick lab version' : 'too few'), A.guidance.kind),
+    kpi('Candidates', `${n0(A.distinct)} / 20`, tr(A.guidance.kind === 'good' ? 'distinct · enough for ten' : A.guidance.kind === 'warn' ? 'distinct · quick lab version' : 'distinct · too few') + (A.list.length > A.distinct ? ' · ' + tr('{0} duplicate(s)').replace('{0}', A.list.length - A.distinct) : ''), A.guidance.kind),
     kpi('Scored', `${A.scored} / ${A.list.length}`, tr('twelve criteria and a disposition'), A.list.length && A.scored === A.list.length ? 'good' : 'warn'),
     kpi('Strategies used', n0(A.strategies.length), A.strategies.map(stratLabel).map(tr).join(', ') || tr('none recorded'), A.strategies.length >= 3 ? 'good' : 'warn'),
     kpi('Families selected', n0(A.selected.length), tr('normally ten'), A.selected.length === 10 ? 'good' : A.selected.length ? 'warn' : ''),
@@ -68,17 +72,58 @@ function candidates(body, sec, A, ws) {
       { key: 'flags', label: 'Flags', render: c => (C[c.id]?.flags || []).length ? el('span', { class: 'pill bad', title: C[c.id].flags.map(flagLabel).map(tr).join(', ') }, C[c.id].flags.join(' ')) : '' },
       { key: 'disp', label: 'Disposition', render: c => C[c.id]?.disp ? pill(tr(C[c.id].disp), C[c.id].disp === 'Select' ? 'good' : C[c.id].disp === 'Defer' ? '' : 'warn') : el('span', 'muted', '—') },
       { key: 'fam', label: 'Family', render: c => SC.familyOf(c.id, ws)?.id || '' },
-      { key: 'act', label: '', sortable: false, render: c => el('button', { class: 'btn xs ghost', onclick: () => { open = c.id; render(sec); } }, 'Score') },
+      { key: 'act', label: '', sortable: false, render: c => el('span', 'btnrow', el('button', { class: 'btn xs ghost', onclick: () => { open = c.id; render(sec); } }, 'Score'),
+        el('button', { class: 'btn xs ghost danger', 'aria-label': tr('Remove {0}').replace('{0}', c.id), title: tr('Remove this candidate'), onclick: () => removeCandidate(c, ws, sec) }, '×')) },
     ], list, { class: 'compact' }));
   };
   draw();
+  const fromReg = SC.registerNotCandidates(ws);
+  const unscored = A.list.filter(c => !SC.complete(C[c.id])).length;
   body.append(card(el('div', 'filterbar', el('div', 'grow', q)), holder,
     el('div', 'btnrow', { style: { marginTop: '10px' } },
       el('button', { class: 'btn', id: 'scr-add', onclick: () => { const id = SC.addCandidate({ name: tr('New candidate'), status: 'Candidate' }, ws); changed(); open = id; render(sec); } }, 'Add a candidate'),
       el('button', { class: 'btn ghost', onclick: () => go('batch') }, 'Generate candidates in Batch scenarios'),
+      // 1.9.2 (C1) — the register's scenarios as candidates (tick list), so an existing portfolio can be screened
+      el('button', { class: 'btn ghost', id: 'scr-from-register', disabled: !fromReg.length, title: fromReg.length ? fromReg.map(s => s.id).join(', ') : tr('Every register scenario is already a candidate'),
+        onclick: () => fromRegister(fromReg, ws, sec) }, tr('Add scenarios from the register as candidates ({0})').replace('{0}', fromReg.length)),
+      // 1.9.2 (C5) — AI drafts the twelve scores for review; hidden when the feature is switched off
+      SAI.enabled() ? el('button', { class: 'btn ghost', id: 'scr-ai', disabled: !unscored, onclick: () => SAI.propose(ws, { filter: filt, unscoredOnly: true }).then(n => { if (n) { changed(); render(sec); } }) },
+        tr('Estimate all unscored with AI ({0})').replace('{0}', unscored)) : null,
       el('button', { class: 'btn ghost', onclick: () => download(`scenario-screening-${today()}.csv`, toCSV(SC.csvRows(ws)), 'text/csv') }, 'Export the screening (.csv)')),
-    el('p', 'note', 'Scores 1 (very low) to 5 (very high). For evidence strength, 5 means direct organizational evidence and 1 means assumption only. Do not rank on CVSS.')));
+    el('p', 'note', 'Scores 1 (very low) to 5 (very high). For evidence strength, 5 means direct organizational evidence and 1 means assumption only. Do not rank on CVSS.'),
+    el('p', 'note', 'A candidate selected on its own (disposition Select, no family) is created in the register from its score card; a family from Final portfolio. Either way the scenario takes the candidate’s parameters, vector, links and chain.')));
   if (open && A.list.some(c => c.id === open)) body.append(scorer(sec, A.list.find(c => c.id === open), ws));
+}
+
+/* 1.9.2 (C2) — remove a candidate: confirmation naming it, its scores, flags, watch entry and family membership removed with it,
+   an audit entry (who, when, id, name); refused for a member of a family selected for the portfolio. */
+function removeCandidate(c, ws, sec) {
+  const why = SC.removeBlock(c.id, ws); if (why) { toast(tr(why), 'bad'); return; }
+  if (!window.confirm(tr('Remove candidate {0} — {1}? Its scores, flags and draft are removed with it (the register is not touched).').replace('{0}', c.id).replace('{1}', c.name))) return;
+  SC.removeCandidate(c.id, ws);
+  LOG.data('candidate removed', c.id, `${c.name} — ${tr('by')} ${users.name() || tr('single-user mode')}`, ws.name);
+  if (users.active()) users.audit('candidate removed', `${c.id} ${c.name}`, ws);
+  changed(); if (open === c.id) open = null; toast(tr('Removed {0}').replace('{0}', c.id)); render(sec);
+}
+/* 1.9.2 (C1) — the register's scenarios not yet candidates, as a tick list: the ticked ones become candidate rows linked to
+   their scenario, origin noted; duplicates (already linked, or the same name, source and assets) are skipped. */
+function fromRegister(list, ws, sec) {
+  const picks = new Map(list.map(s => [s.id, true]));
+  const rows = table([
+    { key: 'pick', label: '', sortable: false, render: s => { const cb = el('input', { type: 'checkbox', checked: true, class: 'reg-pick', 'aria-label': s.id }); cb.addEventListener('change', () => picks.set(s.id, cb.checked)); return cb; } },
+    { key: 'id', label: 'ID', render: s => el('b', null, s.id) }, { key: 'name', label: 'Scenario', render: s => el('span', { class: 'small', 'data-noi18n': '' }, s.name || '') },
+    { key: 'src', label: 'Threat source', render: s => el('span', { class: 'small', 'data-noi18n': '' }, s.threat_source || '') },
+    { key: 'dup', label: '', render: s => SC.hasDuplicate({ name: s.name, source: s.threat_source, assets: s.assets }, ws) ? pill(tr('duplicate — skipped'), 'warn') : '' },
+  ], list, { class: 'compact' });
+  const m = modal(tr('Add scenarios from the register as candidates'),
+    el('p', 'note', 'Each ticked scenario becomes a candidate row linked to it (origin: the Scenario register); the register itself is not changed. A scenario already linked to a candidate or a family, or identical to an existing candidate, is skipped.'),
+    el('div', 'tablewrap', rows),
+    el('div', 'btnrow', { style: { marginTop: '12px' } },
+      el('button', { class: 'btn', id: 'reg-add', onclick: () => {
+        const ids = SC.addFromRegister(ws, list.filter(s => picks.get(s.id) && !SC.hasDuplicate({ name: s.name, source: s.threat_source, assets: s.assets }, ws)).map(s => s.id));
+        LOG.data('candidates added from the register', ids.join(', '), `${ids.length} — ${tr('by')} ${users.name() || tr('single-user mode')}`, ws.name);
+        changed(); m.close(); toast(tr('{0} candidate(s) added from the register').replace('{0}', ids.length), ids.length ? 'good' : 'warn'); render(sec); } }, 'Add ticked'),
+      el('button', { class: 'btn ghost', onclick: () => m.close() }, 'Cancel')));
 }
 
 function scorer(sec, c, ws) {
@@ -105,8 +150,27 @@ function scorer(sec, c, ws) {
   famSel.addEventListener('change', () => { for (const f of fams) f.members = (f.members || []).filter(m => m !== c.id); const f = fams.find(x => x.id === famSel.value); if (f) f.members.push(c.id); changed(); });
   const basis = el('input', { value: r.basis || '', placeholder: 'e.g. Verified org evidence (E6) + sector' }); basis.addEventListener('input', () => { r.basis = basis.value; changed(); });
   const excl = el('textarea', { rows: 2, placeholder: 'Who reviewed the exclusion of this flagged candidate, when, and why' }); excl.value = r.exclReview || ''; excl.addEventListener('input', () => { r.exclReview = excl.value; changed(); });
+  const fam = SC.familyOf(c.id, ws), linked = r.scenario && ws.assessment.SCEN.find(s => s.id === r.scenario);
+  const d = r.draft;
+  const draftLine = d ? el('div', 'small muted', tr('Draft carried from the candidate: {0}').replace('{0}', [
+      d.params && Object.keys(d.params).length ? tr('{0} parameter(s)').replace('{0}', Object.keys(d.params).length) : '', d.cvss || d.cvss_score != null ? tr('a CVSS vector or score') : '',
+      (d.attack || []).length + (d.cwe || []).length + (d.cves || []).length ? tr('{0} ATT&CK / CWE / CVE link(s)').replace('{0}', (d.attack || []).length + (d.cwe || []).length + (d.cves || []).length) : '',
+      d.origin ? tr('origin {0}').replace('{0}', d.origin) : ''].filter(Boolean).join(' · ')), ' — ', tr('they go to the scenario when it is created (Process step 9 then asks for the rationale and evidence).')) : null;
+  const aiLine = r.ai ? el('div', 'small', pill(tr('AI-proposed, accepted by {0} on {1}').replace('{0}', r.ai.by || '—').replace('{1}', r.ai.date || ''), 'warn'), ' ', el('span', 'muted', { 'data-noi18n': '' }, r.ai.model || ''), ' ', el('span', 'muted', MK.ESTIMATE)) : null;
+  // a proposal kept beside the analyst's scores (never written over them)
+  const prop = r.aiProposal ? el('div', 'small', el('b', null, tr('AI proposal beside your scores')), ' ', el('span', { 'data-noi18n': '' }, r.aiProposal.scores.map(v => v ?? '·').join(' ') + (r.aiProposal.flags.length ? ' · ' + r.aiProposal.flags.join(' ') : '')), ' — ', el('span', 'muted', { 'data-noi18n': '' }, r.aiProposal.rationale || ''), ' ', el('span', 'muted', `(${r.aiProposal.model || ''}, ${r.aiProposal.date || ''})`), ' ',
+    el('button', { class: 'btn xs ghost', onclick: () => { delete r.aiProposal; changed(); render(sec); } }, 'Dismiss')) : null;
+  const create = linked ? el('span', 'small', tr('In the register'), ': ', el('a', { href: '#/scenario/' + linked.id }, linked.id))
+    : !fam && r.disp === 'Select' ? el('button', { class: 'btn sm', id: 'scr-create', onclick: () => promoteCandidate(c, ws) }, 'Create the scenario')
+    : fam ? el('span', 'small muted', tr('Member of {0}: created from Final portfolio').replace('{0}', fam.id)) : null;
   return card({ class: 'card', id: 'scr-editor' }, el('div', 'row', { style: { alignItems: 'center' } }, el('h2', { style: { flex: 1, margin: 0 } }, c.id), el('span', null, tr('Total'), ' ', tot, ' / 60'),
+      create,
+      // 1.9.2 (C5) — AI drafts this candidate's twelve scores; a proposal beside the analyst's scores, never over them
+      SAI.enabled() ? el('button', { class: 'btn sm ghost', id: 'scr-ai-one', onclick: () => SAI.propose(ws, { ids: [c.id] }).then(n => { if (n) { changed(); render(sec); } }) }, 'Estimate with AI') : null,
+      // 1.9.2 (C2) — a candidate can be removed, with a confirmation and an audit entry; never a member of a selected family
+      el('button', { class: 'btn sm ghost danger', id: 'scr-remove', onclick: () => removeCandidate(c, ws, sec) }, 'Remove'),
       el('button', { class: 'btn sm ghost', onclick: () => { open = null; render(sec); } }, 'Close')),
+    draftLine, aiLine, prop,
     field('<b>Candidate</b>', name), field('Causal chain (from the candidate row)', chain), grid, field('Rationale', rat),
     el('label', null, el('b', null, 'Escalation flags')), flags,
     el('label', { style: { marginTop: '8px' } }, el('b', null, 'Generation strategies')), strat,
@@ -208,8 +272,17 @@ function watch(body, sec, A, ws) {
 /* ---------------- final portfolio ---------------- */
 function final(body, sec, A, ws) {
   const st = SC.state(ws), sel = st.families.filter(f => f.selected);
-  if (!sel.length) { body.append(banner('warn', 'No family selected yet', 'Select the families of the portfolio first (Families).')); return; }
-  if (sel.length !== 10) body.append(el('p', 'note', tr('{0} families selected. Ten is the default; another number needs the evidence to justify it.').replace('{0}', sel.length)));
+  // 1.9.2 (decided item 20) — candidates selected on their own, outside a family, are part of the portfolio too
+  const lone = A.units.filter(u => u.kind === 'cand' && u.selected).map(u => A.list.find(c => c.id === u.id)).filter(Boolean);
+  if (!sel.length && !lone.length) { body.append(banner('warn', 'No family selected yet', 'Select the families of the portfolio first (Families), or give a candidate the disposition Select on its score card.')); return; }
+  if (sel.length + lone.length !== 10) body.append(el('p', 'note', tr('{0} families and {1} stand-alone candidates selected. Ten is the default; another number needs the evidence to justify it.').replace('{0}', sel.length).replace('{1}', lone.length)));
+  if (lone.length) body.append(card(el('h2', null, 'Selected candidates not consolidated into a family'),
+    el('div', 'tablewrap', table([
+      { key: 'id', label: 'ID', render: c => el('b', null, c.id) }, { key: 'name', label: 'Candidate', render: c => el('span', 'small', c.name) },
+      { key: 'tot', label: '/60', num: true, render: c => SC.total(SC.rec(c.id, ws)) ?? '—' },
+      { key: 'reg', label: 'Register', sortable: false, render: c => { const r = SC.rec(c.id, ws), s = r.scenario && ws.assessment.SCEN.find(x => x.id === r.scenario);
+        return s ? el('a', { href: '#/scenario/' + s.id }, s.id) : el('button', { class: 'btn sm scr-create-lone', onclick: () => promoteCandidate(c, ws) }, 'Create the scenario'); } },
+    ], lone, { class: 'compact' }))));
   for (const f of sel) {
     f.why ||= [];
     const u = A.units.find(x => x.kind === 'family' && x.id === f.id);
@@ -223,12 +296,21 @@ function final(body, sec, A, ws) {
         ...SC.WHY.map((q, i) => { const t = el('textarea', { rows: 1 }); t.value = f.why[i] || ''; t.addEventListener('input', () => { f.why[i] = t.value; changed(); }); return field(tr(q), t); }))));
   }
 }
+/* 1.9.2 (decided item 20) — the scenario takes everything its candidate carries (screening.js scenarioFromCandidate): the
+   chain, the six parameters with their rationales and confidence, the vector, the ATT&CK / CWE / CVE links, owner and
+   horizon. A family starts from its best-scored member. */
 function promote(f, ws) {
-  const s = blankScenario(nextScenarioId(ws));
-  s.name = f.name || f.id; s.statement = f.statement || ''; s.ref = f.id + ' (' + (f.members || []).join(', ') + ')';
-  s.origin = 'From the scenario screening, family ' + f.id + ' ' + today();
-  for (const p of Object.values(s.params)) p.rat = MK.ESTIMATE + ' — ' + tr('to estimate (Process step 9)');
+  const best = SC.bestMember(f, ws);
+  const s = SC.scenarioFromCandidate(best, ws, { family: f });
   ws.assessment.SCEN.push(s); (f.scenarios ||= []).push(s.id);
-  LOG.data('scenario created from screening', s.id, f.id, ws.name);
-  touch(); toast(tr('Created {0}').replace('{0}', s.id)); go('scenario/' + s.id);
+  if (best) SC.rec(best.id, ws).scenario = s.id;
+  LOG.data('scenario created from screening', s.id, f.id + (best ? ' (draft of ' + best.id + ')' : ''), ws.name);
+  touch(); toast(tr('Created {0} from {1}').replace('{0}', s.id).replace('{1}', f.id + (best ? ' · ' + best.id : ''))); go('scenario/' + s.id);
+}
+function promoteCandidate(c, ws) {
+  const s = SC.scenarioFromCandidate(c, ws);
+  ws.assessment.SCEN.push(s); SC.rec(c.id, ws).scenario = s.id;
+  if (SC.rec(c.id, ws).ai?.entryId) { import('../ai.js').then(AI => AI.decide(SC.rec(c.id, ws).ai.entryId, 'accepted', `${c.id} created as ${s.id}`)); }
+  LOG.data('scenario created from screening', s.id, c.id, ws.name);
+  touch(); toast(tr('Created {0} from {1}').replace('{0}', s.id).replace('{1}', c.id)); go('scenario/' + s.id);
 }

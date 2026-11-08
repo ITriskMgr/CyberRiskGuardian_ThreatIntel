@@ -324,7 +324,9 @@ AI_DEFAULT_POLICY = {
               "causal_chain": "local", "isp_draft": "workspace", "compliance_assess": "workspace",
               "consultant": "local",
               # 1.9.0 - AI forecasting: both carry the CVE register or the treatment portfolio -> local by default
-              "exploit_forecast": "local", "mitigation_optimizer": "local"},
+              "exploit_forecast": "local", "mitigation_optimizer": "local",
+              # 1.9.2 (C5) - screening scores proposed for review (js/screenai.js)
+              "screening_scores": "workspace"},
 }
 # 1.9.0 — the tasks the application sends. The policy is decided on the task, so the task is checked rather
 # than trusted: it must be one of these, and the TASK line of the prompt must name the same one.

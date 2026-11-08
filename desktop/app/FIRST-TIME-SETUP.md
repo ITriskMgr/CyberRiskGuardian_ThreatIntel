@@ -195,8 +195,22 @@ the thread, available in English and French.
    start from **Blank assessment**, and drop the context documents you are allowed to use (section 4) —
    business description, organization chart, audit reports, incident history. They are read on this
    computer.
-   *With AI off*, leave the extraction options unticked and fill **Profile & appetite** and **Crown jewels**
-   yourself; with AI on, the extraction proposes values for you to review.
+   Under **Extract from the documents** the form offers **four extraction options**: *Extract the profile &
+   appetite from these documents after creation*, *Then extract the crown jewels*, *Then extract more from
+   the documents (Import from documents)* and *Also extract policy facts for the Security Policy Writer*.
+   All four are extractions. *With AI off*, leave all four unticked and fill **Profile & appetite** and
+   **Crown jewels** yourself. Even a ticked option sends nothing by itself: each extraction first asks you to
+   choose **AI** (with a preview of what is sent) or **Rules only** (offline, no AI).
+   **Starting an extraction later.** If the options were left unticked at creation, or you switch AI on
+   afterwards, you start each extraction yourself from **Organization → Organization profile**. First check
+   that your documents appear under the **Context documents** tab and, for AI, that your provider passes
+   **Test this provider** (**Settings → AI — local & remote**). Then: **Profile & appetite → Extract from
+   documents… → Use AI** (or **Rules only**) → check the preview → **Send**. You get a proposal for each
+   field to accept or edit, and nothing is saved until you click **Save**. The **Crown jewels** tab has the
+   same button, and the **Import from documents** tab covers everything else (assets, controls, incidents,
+   candidate scenarios…) through **Start the import**. The **Process** page shows the same route: while the
+   context is incomplete and documents exist, the step-2 card carries **Extract from documents…** and says
+   what it needs (documents, a tested AI provider or Rules only).
 2. Apply section 4 to this workspace now (confidential, anonymize, backup).
 3. Follow **Process** step by step. The dark **Next step** card says what the step still needs, check by
    check, and its first button opens the screen where the next thing is done. **Help → Step by step** opens
@@ -436,8 +450,25 @@ des paiements comme fil conducteur, en français et en anglais.
    choisissez **Organisation réelle**, partez d’une **Évaluation vierge** et déposez les documents de
    contexte que vous avez le droit d’utiliser (section 4) — description des activités, organigramme,
    rapports d’audit, historique des incidents. Ils sont lus sur cet ordinateur.
-   *Sans IA*, laissez les options d’extraction décochées et remplissez vous-même **Profil et appétence**
-   et **Joyaux de la couronne**; avec l’IA, l’extraction propose des valeurs que vous révisez.
+   Sous **Extraire des documents**, le formulaire offre **quatre options d’extraction** : *Extraire le profil
+   et l’appétence de ces documents après la création*, *Puis extraire les joyaux de la couronne*, *Puis
+   extraire davantage des documents (Importer des documents)* et *Extraire aussi les faits utiles aux politiques pour le
+   rédacteur de politiques de sécurité*. Les quatre sont des extractions. *Sans IA*, laissez les quatre
+   décochées et remplissez vous-même **Profil et appétence** et **Joyaux de la couronne**. Même cochée, une
+   option n’envoie rien d’elle-même : chaque extraction vous demande d’abord de choisir **IA** (avec un aperçu
+   de ce qui est envoyé) ou **Règles seulement** (hors ligne, sans IA).
+   **Lancer une extraction plus tard.** Si les options sont restées décochées à la création, ou si vous
+   activez l’IA ensuite, vous lancez chaque extraction vous-même depuis **Organisation → Profil de
+   l’organisation**. Vérifiez d’abord que vos documents figurent sous l’onglet **Documents de contexte** et,
+   pour l’IA, que votre fournisseur réussit **Tester ce fournisseur** (**Paramètres → IA — locale et
+   distante**). Puis : **Profil et appétence → Extraire des documents… → Utiliser l’IA (aperçu avant l’envoi)** (ou **Règles
+   seulement**) → vérifiez l’aperçu → **Envoyer**. Vous obtenez une proposition pour chaque champ, à accepter
+   ou à modifier, et rien n’est enregistré avant que vous cliquiez sur **Enregistrer**. L’onglet **Joyaux de
+   la couronne** a le même bouton, et l’onglet **Importer des documents** couvre tout le reste (actifs,
+   contrôles, incidents, scénarios candidats…) par **Démarrer l’importation**. La page **Processus** montre le
+   même chemin : tant que le contexte est incomplet et que des documents existent, la carte de l’étape 2 porte
+   **Extraire des documents…** et dit ce qu’il faut (des documents, un fournisseur d’IA testé ou Règles
+   seulement).
 2. Appliquez maintenant la section 4 à cet espace de travail (confidentiel, anonymisation, sauvegarde).
 3. Suivez le **Processus** étape par étape. La carte sombre **Prochaine étape** dit ce dont l’étape a
    encore besoin, vérification par vérification, et son premier bouton ouvre l’écran où se fait la chose

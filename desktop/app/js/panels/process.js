@@ -8,9 +8,12 @@ import * as IAM from '../iam.js';
 import * as CM from '../cm.js';
 import { VERSION, SERIES } from '../version.js';
 import { el, card, pill, banner, go } from '../util.js';
-import { S, compute } from '../state.js';
+import { S, compute, touch, confirmVector } from '../state.js';
 import * as SCENP from './scenario.js';
-import { STEPS, GROUPS, statuses, nextStep, partsOf } from '../process.js';
+import { STEPS, GROUPS, statuses, nextStep, partsOf, CTX } from '../process.js';
+import * as aiui from '../aiui.js';
+import * as AI from '../ai.js';
+import * as LOG from '../logs.js';
 import * as CH from '../chapterhelp.js';
 import { tr } from '../i18n.js';
 import * as users from '../users.js';
@@ -60,7 +63,7 @@ function openScreen(route, stepId) {
    named checks opens its first screen, as before. At the Detailed level the step's tips and the guidelines that use
    its screens are open beside it. In multi-user mode it shows who is Responsible and Accountable. */
 const firstUnmet = ps => (ps ? ps.find(x => !x.ok && !x.optional && x.fix) || ps.find(x => !x.ok && x.fix) || null : null);
-function nextBand(nx, total) {
+function nextBand(nx, total, sec) {
   const ws = S.ws, s = nx.s, ps = partsOf(s, ws), miss = firstUnmet(ps);
   const target = miss ? miss.fix : s.screens[0];
   const others = s.screens.filter(([r]) => r !== target[0]).slice(0, 1);
@@ -69,7 +72,14 @@ function nextBand(nx, total) {
       el('span', { class: 'mark', 'aria-hidden': 'true' }, x.ok ? '✓' : x === miss ? '→' : '◻'),
       el('span', null, el('span', { class: 'sr-only' }, x.ok ? tr('Done:') + ' ' : tr('To do:') + ' '),
         x.ok ? el('span', null, x.what) : el('b', null, x.what), x.optional ? el('span', 'muted', ' ' + tr('(optional)')) : null,
-        !x.ok && x.hint ? el('div', 'hint keep', x.hint) : null)))) : null;
+        !x.ok && x.hint ? el('div', 'hint keep', x.hint) : null,
+        // 1.9.2 (C4) — the three ways of step 5, in order, each with its button
+        !x.ok && x.ways ? el('ol', { class: 'small next-ways', style: { margin: '6px 0 0', paddingLeft: '18px' } }, ...x.ways.map(([r, l, how]) =>
+          el('li', { style: { margin: '2px 0' } }, el('span', null, how), ' ', el('button', { class: 'btn xs ghost', 'data-ro-ok': '', onclick: () => openScreen(r, s.id) }, l)))) : null,
+        // 1.9.2 (NV-002, step 10) — a vector that came with a pattern or a candidate is confirmed here: one click, recorded
+        !x.ok && x.confirm?.length ? el('div', { class: 'small next-confirm', style: { marginTop: '6px' } }, ...x.confirm.map(id => {
+          const sc = ws.assessment.SCEN.find(z => z.id === id);
+          return el('button', { class: 'btn xs ghost', 'data-ro-ok': '', title: sc?.cvss || '', 'data-confirm': id, onclick: () => { if (confirmVector(sc, users.name())) { touch('revision'); toast(tr('Vector of {0} confirmed').replace('{0}', id)); render(sec); } } }, tr('Confirm the vector of {0}').replace('{0}', id)); })) : null)))) : null;
   let who = null;
   if (users.active()) {
     const R = users.holders(s.id, 'R').map(u => u.name), A = users.holders(s.id, 'A').map(u => u.name);
@@ -88,18 +98,59 @@ function nextBand(nx, total) {
         ...gl.map(g => el('div', { class: 'small', style: { marginTop: '6px' } }, el('b', null, g.h + '. '), g.t,
           el('div', null, el('b', null, 'Where: '), g.where)))) : null);
   }
+  const extra = s.id === 'context' ? step2Extraction(ws) : null;   // 1.9.2 (NV-097)
   return el('section', { class: 'next-step', 'aria-labelledby': 'next-step-title' },
     el('div', null,
       el('div', 'eyebrow', s.n === 'R' ? tr('Next step · the report') : tr('Next step · {0} of {1}').replace('{0}', s.n).replace('{1}', total)),
       el('h2', { id: 'next-step-title' }, s.title),
       el('p', null, s.purpose),
       list || el('p', 'small', el('b', null, 'Done when: '), s.done),
-      who, more),
+      extra, who, more),
     el('div', 'btnrow',
-      el('button', { class: 'btn primary', id: 'next-step-go', 'data-ro-ok': '', onclick: () => openScreen(target[0], s.id) },
+      extra ? el('button', { class: 'btn primary', id: 'next-step-extract', 'data-ro-ok': '', onclick: () => import('./org.js').then(O => O.openProfileExtraction()) }, 'Extract from documents…') : null,
+      el('button', { class: extra ? 'btn ghost' : 'btn primary', id: 'next-step-go', 'data-ro-ok': '', onclick: () => openScreen(target[0], s.id) },
         miss ? tr('Next: {0}').replace('{0}', tr(miss.what)) : 'Open ' + target[1]),
       miss ? el('span', { class: 'small next-where' }, tr('opens {0}').replace('{0}', tr(target[1]))) : null,
       ...others.map(([r, l]) => el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => openScreen(r, s.id) }, 'Open ' + l))));
+}
+
+/* 1.9.2 (NV-097) — step 2 when context fields are missing and documents exist: the extraction is the way to fill them, so the
+   card says what it needs (documents, a tested AI provider or Rules only), offers it as the primary action, and links to
+   Crown jewels and Import from documents. The guide text itself is item 11 (FIRST-TIME-SETUP §7.2). Returns null when
+   the step has no documents to extract from or the context is already filled. */
+function step2Extraction(ws) {
+  const n = CTX.filter(k => { const v = ws.org[k]; return Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && String(v).trim() !== ''; }).length;
+  const docs = (ws.docs || []).length;
+  if (n >= 8 || !docs) return null;
+  const pre = el('div', { class: 'small', id: 'step2-prereq' }, tr('Prerequisites: {0} context document(s) ·').replace('{0}', docs), ' ', tr('checking the AI provider…'));
+  aiui.status(ws, 'extract_profile').then(x => {
+    const ai = x.ok ? tr('AI provider ready ({0})').replace('{0}', AI.isLocal(x.provider) ? tr('local model') : AI.provider(x.provider).label) : tr('no AI provider tested — Rules only (offline) is available');
+    pre.replaceChildren(tr('Prerequisites: {0} context document(s) ·').replace('{0}', docs), ' ', ai, '. ', tr('Each extraction first asks: AI (with a preview of what is sent) or Rules only. Every proposed value is reviewed before it is saved.'));
+  }).catch(() => { pre.replaceChildren(tr('Prerequisites: {0} context document(s) ·').replace('{0}', docs), ' ', tr('no AI provider tested — Rules only (offline) is available')); });
+  return el('div', { class: 'next-extract', style: { marginTop: '8px' } },
+    el('div', 'small', el('b', null, tr('{0} of 12 context fields filled.').replace('{0}', n)), ' ', tr('“Extract from documents…” proposes every field of Profile & appetite from the context documents; the same button sits on Profile & appetite. Then: Crown jewels → Extract from documents, and Import from documents for the other targets.')),
+    pre,
+    el('div', 'btnrow', { style: { marginTop: '6px' } },
+      el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go('org/crown') }, 'Crown jewels'),
+      el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go('org/import') }, 'Import from documents'),
+      el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go('org/docs') }, 'Context documents')));
+}
+
+/* 1.9.2 (NV-001, decision D2) — the one-time review of scenarios still on the untouched default reductions 0.5 / 0.5: listed by
+   the data migration, never changed automatically. The analyst reviews them (Risk mitigation applies the measures' reductions,
+   or the editor records an explicit value) and closes the item with a name. */
+function reductionReviewBanner(ws, sec) {
+  const rv = ws.reductionReview;
+  if (!rv || rv.reviewed || !(rv.scenarios || []).length) return null;
+  const still = rv.scenarios.filter(id => { const s = ws.assessment.SCEN.find(x => x.id === id); return s && Number(s.red_p) === 0.5 && Number(s.red_i) === 0.5 && !s.red_source; });
+  const by = el('input', { placeholder: 'Reviewed by (name)', style: { maxWidth: '220px' }, id: 'redrev-by' });
+  return el('div', { id: 'reduction-review' }, banner('warn', 'Review item — reductions still at the earlier default (0.5 / 0.5)',
+    el('div', null,
+      el('div', null, tr('{0} scenario(s) still carry the probability and impact reductions of 0.5 that every new scenario used to receive: {1}. A new scenario now starts at 0 (the book’s pre-treatment value) and every reduction comes from its measures or from you. Nothing was changed: review each one — Risk mitigation → “Apply to all covered scenarios” writes the measures’ reductions; the Scenario editor records an explicit value — then close this item.').replace('{0}', still.length).replace('{1}', still.join(', ') || tr('none left'))),
+      el('div', 'row', { style: { marginTop: '8px', alignItems: 'center', gap: '8px' } }, by,
+        el('button', { class: 'btn sm', id: 'redrev-done', onclick: () => { if (!by.value.trim()) { toast(tr('Name the reviewer first.'), 'bad'); return; } rv.reviewed = new Date().toISOString().slice(0, 10); rv.by = by.value.trim(); rv.remaining = still.slice();
+          LOG.data('default reductions reviewed (D2)', still.join(', ') || 'none left', rv.by, ws.name); (ws.revisionLog ||= []).push({ date: rv.reviewed, scenario: still.join(', ') || '—', parameter: 'red_p / red_i', from: '0.5 / 0.5', to: '0.5 / 0.5', what: `D2 review of the default reductions closed by ${rv.by}: ${still.length} scenario(s) deliberately left at 0.5 / 0.5`, by: rv.by }); touch(); toast(tr('Review item closed')); render(sec); } }, 'Mark as reviewed'),
+        el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => go('mitigation') }, 'Open Risk mitigation')))));
 }
 
 export function render(sec) {
@@ -139,8 +190,9 @@ export function render(sec) {
       el('button', { class: 'btn sm ghost', onclick: () => { const done = AVL.accept(ws); toast(tr('Vectors updated: {0}').replace('{0}', done.join(', '))); render(sec); } }, 'Reconsider: take the AV:L vectors')));
   }
 
+  { const rr = reductionReviewBanner(ws, sec); if (rr) sec.append(rr); }   // 1.9.2 (D2)
   // the next step: a dark band with what is still missing and one button to the first thing to do (1.9.1)
-  if (nx) sec.append(nextBand(nx, numbered.length));
+  if (nx) sec.append(nextBand(nx, numbered.length, sec));
   else sec.append(el('section', { class: 'next-step' }, el('div', null, el('div', 'eyebrow', 'All steps done'),
     el('h2', null, 'Every step of this assessment is done'), el('p', null, 'Review the management summary and the quality review before the results support a decision.')),
     el('div', 'btnrow', el('button', { class: 'btn primary', 'data-ro-ok': '', onclick: () => go('summary') }, 'Open Management summary'))));

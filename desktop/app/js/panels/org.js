@@ -58,8 +58,20 @@ export function leaveProfile() {
 export const isDirty = () => dirty;
 window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
+/** 1.9.2 (NV-017) — the appetite must be strictly between 0 and 1 (the engine refuses anything else); outside the book's
+ *  anchors 0.1–0.9 it is saved with a warning. Returns { ok, message, kind }. */
+export function appetiteCheck(v) {
+  const a = Number(v);
+  if (v === '' || v === null || v === undefined || !Number.isFinite(a)) return { ok: false, kind: 'bad', message: tr('The risk appetite is missing: enter a value strictly between 0 and 1 (0.1–0.9 on the book’s anchors).') };
+  if (a <= 0 || a >= 1) return { ok: false, kind: 'bad', message: tr('The risk appetite must be strictly between 0 and 1: {0} is refused. Use the book’s anchors (0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high).').replace('{0}', a) };
+  if (a < 0.1 || a > 0.9) return { ok: true, kind: 'warn', message: tr('Appetite {0} is outside the book’s anchors (0.1–0.9): justify it in the rationale — Management decision required.').replace('{0}', a) };
+  return { ok: true, kind: 'good', message: '' };
+}
 function saveDraft() {
   const ws = S.ws; if (!D || D.wsId !== ws.id) return;
+  const ac = appetiteCheck(D.assessment.APPETITE);
+  if (!ac.ok) { toast(ac.message, 'bad'); document.getElementById('org-appetite')?.focus(); return; }
+  if (ac.kind === 'warn') toast(ac.message, 'warn');
   ws.name = D.name; ws.org = D.org; ws.appetite_rationale = D.appetite_rationale;
   Object.assign(ws.assessment, D.assessment);
   Object.assign(ws.budget, D.budget);
@@ -121,6 +133,12 @@ function profile(body, arg, sec) {
     F('Incident history', B(o, 'incidents', { rows: 3 }), null, 'incidents'),
   )));
 
+  // 1.9.2 (NV-035, Process step 3) — what the assessment covers, what it leaves out, and the perspectives it takes
+  body.append(card(el('h2', null, 'Scope, exclusions and perspectives'), el('div', 'grid g3',
+    F('<b>Scope</b>', B(o, 'scope', { rows: 3, placeholder: 'What the assessment covers — sites, systems, processes, suppliers, the period' }), 'Process step 3. What is in.', 'scope'),
+    F('<b>Exclusions</b>', B(o, 'exclusions', { rows: 3, placeholder: 'What is deliberately left out, and why — or “none”' }), 'What is out, and why; write “none” when nothing is left out.', 'exclusions'),
+    F('<b>Risk perspectives</b>', B(o, 'perspectives', { rows: 3, placeholder: 'Operational, financial, regulatory, reputational, privacy, safety…' }), 'The kinds of consequence the scenarios are judged on.', 'perspectives'))));
+
   const regs = el('div', 'chips');
   const drawRegs = () => regs.replaceChildren(...o.regulations.map((r, i) => chip(r, { onRemove: () => { o.regulations.splice(i, 1); markDirty(); drawRegs(); } })));
   drawRegs();
@@ -131,10 +149,13 @@ function profile(body, arg, sec) {
     el('datalist', { id: 'reg-list' }, ...['Quebec Law 25', 'PIPEDA', 'PHIPA (Ontario)', 'GDPR', 'HIPAA', 'PCI DSS', 'SOX', 'NIS2', 'DORA', 'OSFI B-13', 'ISO/IEC 27001', 'NIST CSF 2.0', 'SOC 2'].map(x => el('option', { value: x })))));
 
   // appetite + budget
-  const appIn = B(a, 'APPETITE', { type: 'number', step: 0.05, min: 0.1, max: 0.9 });
+  const appIn = B(a, 'APPETITE', { type: 'number', step: 0.05, min: 0.1, max: 0.9, id: 'org-appetite', 'aria-describedby': 'org-appetite-check' });
+  const appMsg = el('div', { class: 'small', id: 'org-appetite-check', role: 'status' });
+  const appCheck = () => { const c = appetiteCheck(appIn.value); appMsg.textContent = c.message || ''; appMsg.style.color = c.kind === 'bad' ? 'var(--bad)' : c.kind === 'warn' ? 'var(--warn)' : ''; appMsg.style.fontWeight = c.kind === 'bad' ? '700' : ''; appIn.setAttribute('aria-invalid', String(!c.ok)); };
+  appIn.addEventListener('input', appCheck);
   const factorIn = B(a, 'FACTOR', { type: 'number', step: 100, min: 1 });
   body.append(card(el('h2', null, 'Risk appetite and budget'), el('div', 'grid g4',
-    F('<b>Risk appetite</b> (0.1–0.9)', appIn, '0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high', 'appetite'),
+    F('<b>Risk appetite</b> (0.1–0.9)', el('div', null, appIn, appMsg), '0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high. Strictly between 0 and 1; outside 0.1–0.9 needs a rationale.', 'appetite'),
     F('Multiplication factor', factorIn, 'Constant across scenarios (default 1,000)'),
     F('Currency', B(a, 'CURRENCY'), null, 'currency'),
     F('<b>Total IT budget</b> (incl. salaries)', B(b, 'it_budget', { type: 'number', step: 100000 }), null, 'it_budget'),
@@ -145,6 +166,10 @@ function profile(body, arg, sec) {
   appetiteHelper(a, appIn, markDirty)));
   if (auto === 'profile') { auto = null; const c = autoCrown; autoCrown = false; setTimeout(() => extractProfile(sec, { chain: c }), 50); }
 }
+
+/** 1.9.2 (NV-097) — start the profile extraction from elsewhere (the Process page's step-2 card): opens Profile & appetite
+ *  and runs the same dialog as its “Extract from documents…” button. */
+export function openProfileExtraction({ crown = false } = {}) { auto = 'profile'; autoCrown = crown; tab = 'profile'; goOrRedraw('org/profile'); }
 
 /* ---------------- extraction dialogs ---------------- */
 async function chooseMethod(title, intro, task) {
@@ -593,10 +618,13 @@ function workspaces(body, arg, sec) {
     el('div', 'grid g3', field('<b>Name</b>', name), field('Type', kind), field('Start from', from)),
     opt(edu, el('b', null, 'Educational case used for training purposes'), 'Sets the classroom type; deliverables are labelled fictional.'),
     el('div', { style: { marginTop: '12px' } }, docDrop),
-    el('div', { style: { marginTop: '8px' } },
+    // 1.9.2 (NV-097, item 11) — the four options are all extractions, named as such and grouped under one heading
+    el('div', { style: { marginTop: '8px' }, id: 'new-ws-extract' },
+      el('div', 'small', { style: { margin: '6px 0 4px' } }, el('b', null, 'Extract from the documents (each asks AI or Rules only first)'),
+        el('div', 'muted', 'All four are extraction options. With AI off, leave all four unticked and fill Profile & appetite and Crown jewels yourself; you can start any extraction later from Organization → Organization profile (Profile & appetite → Extract from documents…, Crown jewels, Import from documents). Even a ticked option sends nothing before you choose AI (with a preview) or Rules only (offline).')),
       opt(exP, el('b', null, 'Extract the profile & appetite from these documents after creation'), 'AI (with a preview of what is sent) or rules only; you review every value before saving.'),
       opt(exC, el('b', null, 'Then extract the crown jewels'), 'Proposes crown jewels from the same documents; you choose which to add.'),
-      opt(exM, el('b', null, 'Then import more from the documents'), 'Information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, risks, budget, KRIs, roles, classroom — you choose the targets and review each proposal.'),
+      opt(exM, el('b', null, 'Then extract more from the documents (Import from documents)'), 'Information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, risks, budget, KRIs, roles, classroom — you choose the targets and review each proposal.'),
       opt(exW, el('b', null, 'Also extract policy facts for the Security Policy Writer'), 'Classification levels, MFA scope, review cycles, approvers, backup, vulnerability and log rules stated in the documents — each with its quote, proposed in Security Policy Writer → Documents & facts. Read on this computer, without AI.')),
     el('div', 'btnrow', { style: { marginTop: '12px' } }, el('button', { class: 'btn', onclick: () => from.value === 'import' ? fileIn.click() : doCreate().catch(e => msg.replaceChildren(banner('bad', 'Could not create', String(e.message || e)))) }, 'Create workspace'), fileIn), msg));
 

@@ -31,7 +31,7 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "fonts/sora-latin-500-normal.woff2", "fonts/sora-latin-600-normal.woff2", "fonts/sora-latin-700-normal.woff2",
   "fonts/atkinson-hyperlegible-latin-400-normal.woff2", "fonts/atkinson-hyperlegible-latin-400-italic.woff2", "fonts/atkinson-hyperlegible-latin-700-normal.woff2", "js/tabkeys.js",
   // 1.9.2 — data version 6: the sub-step lists of the workstreams
-  "js/migrate192.js", "js/migrate192/ws1.js", "js/migrate192/ws2.js", "js/migrate192/ws3.js", "js/migrate192/ws4.js", "js/migrate192/ws5.js",
+  "js/receffect.js", "js/screenai.js", "js/migrate192.js", "js/migrate192/ws1.js", "js/migrate192/ws2.js", "js/migrate192/ws3.js", "js/migrate192/ws4.js", "js/migrate192/ws5.js",
   // 1.9.2 — the edition switch (D3)
   "js/edition.js"
 ];

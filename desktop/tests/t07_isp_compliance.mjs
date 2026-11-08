@@ -10,7 +10,7 @@ await page.waitForSelector('#panel-isp >> text=Policy statements');
 let p = await page.evaluate(async () => (await import('/js/isp.js')).isp().policies.at(-1));
 ok(p.title === 'Access control and authentication' && p.status === 'draft' && p.statements.length === 5 && p.statements[0].id === p.id + '.1', 'policy from template');
 // life cycle
-page.on('dialog', d => d.accept(''));
+page.on('dialog', d => d.accept(/approver|approbateur/i.test(d.message()) ? 'Bob (CISO)' : ''));   // 1.9.2 (NV-020): an approval needs a named approver
 await page.click('#panel-isp button:has-text("Submit for review")'); await page.waitForTimeout(200);
 await page.click('#panel-isp button:text-is("Approve")'); await page.waitForTimeout(200);
 await page.click('#panel-isp button:text-is("Publish")'); await page.waitForTimeout(200);

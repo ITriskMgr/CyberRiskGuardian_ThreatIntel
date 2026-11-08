@@ -1,7 +1,7 @@
 // t63 — threat context (1.9.2: NV-007, NV-023, NV-024, NV-090, NV-091, NV-099). From the campaign repros wC N05 and N03b:
 // an expired snapshot blocks the proposals until a justification is recorded and says so in threat_context and threat_basis;
 // no "TODO" placeholder is copied or stored; exposure without register evidence is an information gap and its row is unticked;
-// the confidence starts empty; a malformed snapshot is refused and a stored one leaves Clear reachable; QC-27 fails an
+// the confidence starts empty; a malformed snapshot is refused and a stored one leaves Clear reachable; QC-31 fails an
 // assessment calibrated from an expired or missing snapshot; the download hook (CRG_SOURCES_BASE, loopback only) feeds
 // download → dated snapshot → expiry.
 import { open, ok, done, goto, reload, FEEDS, PORT, serveCmd, tmp } from './lib.mjs';
@@ -72,10 +72,10 @@ ok(b.snapshot_expired === true && b.days_past_expiry > 500 && /KEV listing is pe
 ok(stored.just?.length === 1 && stored.just[0].scenarios.length === 1 && stored.just[0].days_past_expiry === b.days_past_expiry, 'the justification is journalled in threatJustifications');
 ok(stored.log.length === 1 && stored.log[0].expired === true && /snapshot expired/.test(stored.log[0].cause), 'the revision log line says the snapshot was expired');
 ok(stored.exp.expired === true && stored.exp.days_past_expiry === b.days_past_expiry, 'the assessment export threat_context states expired and days_past_expiry: ' + JSON.stringify(stored.exp));
-// ---- NV-099: QC-27 fails on the expired snapshot, passes on a fresh one, fails when the snapshot is missing
+// ---- NV-099: QC-31 fails on the expired snapshot, passes on a fresh one, fails when the snapshot is missing
 const qc = await page.evaluate(async () => {
   const st = await import('/js/state.js'); const QC = await import('/js/panels/qc.js');
-  const get = () => QC.checks(st.S.ws).find(x => x.id === 'QC-27');
+  const get = () => QC.checks(st.S.ws).find(x => x.id === 'QC-31');
   const a = get();
   const fresh = JSON.parse(JSON.stringify(st.S.snap)); const t = new Date(); fresh.retrieved = t.toISOString().slice(0, 10); fresh.expires = new Date(t.getTime() + 60 * 864e5).toISOString().slice(0, 10);
   await st.setSnapshot(fresh, 'threat-context-fresh.json'); const b = get();
@@ -83,9 +83,9 @@ const qc = await page.evaluate(async () => {
   await st.setSnapshot(JSON.parse(JSON.stringify(fresh)), 'threat-context-fresh.json');
   return { a, b, c };
 });
-ok(qc.a.state === 'fail' && /expired on 2025-04-01/.test(qc.a.detail) && qc.a.fix === 'threat', 'QC-27 fails with threat_basis on an expired snapshot and opens Threat context: ' + qc.a.detail.slice(0, 120));
-ok(qc.b.state === 'pass' && /1 threat_basis/.test(qc.b.detail), 'QC-27 passes with a current snapshot');
-ok(qc.c.state === 'fail' && /no snapshot is loaded/.test(qc.c.detail), 'QC-27 fails when threat_basis entries exist and no snapshot is loaded');
+ok(qc.a.state === 'fail' && /expired on 2025-04-01/.test(qc.a.detail) && qc.a.fix === 'threat', 'QC-31 fails with threat_basis on an expired snapshot and opens Threat context: ' + qc.a.detail.slice(0, 120));
+ok(qc.b.state === 'pass' && /1 threat_basis/.test(qc.b.detail), 'QC-31 passes with a current snapshot');
+ok(qc.c.state === 'fail' && /no snapshot is loaded/.test(qc.c.detail), 'QC-31 fails when threat_basis entries exist and no snapshot is loaded');
 // with a fresh snapshot the join needs no justification and proposes nothing new (already at the floor)
 await goto(page, '#/process', 300); await goto(page, '#/threat', 1200);
 await page.click('#join-run'); await page.waitForTimeout(800);

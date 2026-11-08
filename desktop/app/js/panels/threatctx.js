@@ -185,7 +185,7 @@ function joinCard(sec, prefill) {
     const cves = parseExposure(ta.value);
     if (!cves.length) { outBox.append(banner('warn', 'No CVE found', 'Paste the CVEs the organization is confirmed to operate. Without exposure evidence the gate blocks every uplift.')); return; }
     const age = snapshotAge(SNAP);
-    if (age.expired) outBox.append(banner('bad', 'The snapshot is expired — refresh it before relying on it', `Retrieved ${age.retrieved ?? '—'}, expired ${age.expires ?? '—'} (${n0(age.daysPastExpiry ?? 0)} days ago). The ladder positions below describe the threat landscape of that date, not today's; proposals from an expired snapshot need a recorded justification and fail the quality review (QC-27).`));
+    if (age.expired) outBox.append(banner('bad', 'The snapshot is expired — refresh it before relying on it', `Retrieved ${age.retrieved ?? '—'}, expired ${age.expires ?? '—'} (${n0(age.daysPastExpiry ?? 0)} days ago). The ladder positions below describe the threat landscape of that date, not today's; proposals from an expired snapshot need a recorded justification and fail the quality review (QC-31).`));
     const rows = cves.map(c => ladderClassify(c, SNAP, true));
     lastRows = rows;
     const c = el('div', 'card'), t = el('table');
