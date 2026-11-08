@@ -30,7 +30,8 @@ import { blankRisk } from './registry.js';
 import { today, uid } from './util.js';
 
 const TAGS = ['FACT', 'INFERENCE', 'ASSUMPTION', 'EXTERNAL', 'UNKNOWN'];
-const tagOf = t => TAGS.includes(String(t || '').toUpperCase()) ? String(t).toUpperCase() : 'INFERENCE';
+// 1.9.2 (NV-056): a missing or invalid provenance tag is an ASSUMPTION (confidence Low), never an INFERENCE
+const tagOf = t => TAGS.includes(String(t || '').toUpperCase()) ? String(t).toUpperCase() : 'ASSUMPTION';
 const str = (x, n = 300) => String(x ?? '').replace(/\s+/g, ' ').trim().slice(0, n);
 const num = (x, d = 0) => { const v = Number(String(x ?? '').replace(/[^0-9.\-]/g, '')); return Number.isFinite(v) ? v : d; };
 const lvl = (x, max = 5) => Math.max(0, Math.min(max, Math.round(num(x, 0))));
@@ -199,8 +200,14 @@ export const SECTIONS = [
       for (const s of sentences(text)) {
         if (!/\b(incident|breach|ransomware|phishing|outage|compromis|attack|attaque|panne|fuite|intrusion)\b/i.test(s)) continue;
         const d = /\b((?:19|20)\d{2}(?:-\d{2})?(?:-\d{2})?)|\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déc)[a-zé]*\.?\s+(?:19|20)\d{2})/i.exec(s);
-        if (!d) continue;
-        out.push({ date: d[0], type: (/ransomware|phishing|breach|outage|DDoS|malware|fraud|intrusion|panne|fuite/i.exec(s) || ['incident'])[0], impact: '', cause: '', tag: 'FACT', source: s.slice(0, 220) });
+        // 1.9.2 (NV-067): a sentence that reports an incident without a date is still a proposal (date to confirm), when it
+        // reads as a past event rather than as a policy statement or a definition
+        const past = /\b(occurred|happened|suffered|experienced|was|were|had|detected|reported|compromised|hit|affected|a eu lieu|a subi|a été|ont été|s'est produit|a connu)\b/i.test(s);
+        if (!d && !past) continue;
+        if (!d && /\b(must|shall|should|policy|procedure|doit|devrait|politique|procédure|in case of|en cas d)/i.test(s)) continue;
+        const impact = (/\b(\d[\d,. ]*\s?(?:records?|patients?|users?|hours?|days?|clinics?|dossiers?|heures?|jours?)|unavailable|indisponible|exfiltrat\w+|encrypted|chiffrées?)\b/i.exec(s) || [''])[0];
+        out.push({ date: d ? d[0] : '', type: (/ransomware|phishing|breach|outage|DDoS|malware|fraud|intrusion|panne|fuite|compromise/i.exec(s) || ['incident'])[0], asset: '', impact, cause: '',
+          tag: d ? 'FACT' : 'INFERENCE', source: s.slice(0, 220) + (d ? '' : ' — date not stated') });
       }
       return out.slice(0, 30);
     },
@@ -226,10 +233,30 @@ export const SECTIONS = [
         [/\b(plain ?text|unencrypted|not encrypted|non chiffré)/i, 'Sensitive data not encrypted', 'CWE-311'],
         [/\b(excessive privileges?|too many admins?|local admin rights|droits d'administrateur)/i, 'Excessive privileges', 'CWE-250'],
         [/\b(no logging|logs? (?:are )?not (?:collected|reviewed)|sans journalisation)/i, 'Insufficient logging and monitoring', 'CWE-778'],
-        [/\b(exposed RDP|RDP (?:open|exposed)|open to the internet|exposé à internet)/i, 'Service exposed to the internet', 'CWE-284']];
+        [/\b(exposed RDP|RDP (?:open|exposed)|open to the internet|exposé à internet)/i, 'Service exposed to the internet', 'CWE-284'],
+        // 1.9.2 (NV-067): weaknesses an audit names in plain words
+        [/\b(no|without|lack of|missing|absence of|sans|pas de|aucune?)\s+(?:formal\s+|documented\s+|written\s+)?(?:security\s+)?(awareness|training|sensibilisation|formation)/i, 'No security awareness training', 'CWE-1053'],
+        [/\b(no|without|lack of|missing|absence of|outdated|untested|sans|pas de|aucun)\s+(?:formal\s+|documented\s+|tested\s+)?(incident response|IR plan|disaster recovery|business continuity|plan de (?:réponse|reprise|continuité))/i, 'No tested incident response or recovery plan', 'CWE-1059'],
+        [/\b(single point of failure|point unique de défaillance|no redundancy|sans redondance)/i, 'Single point of failure', 'CWE-1104'],
+        [/\b(weak passwords?|passwords? (?:are )?(?:weak|short|simple|never (?:changed|expire))|mots? de passe faibles?)/i, 'Weak password practices', 'CWE-521'],
+        [/\b(no (?:asset|hardware|software) inventory|inventory (?:is )?(?:incomplete|out of date|not maintained)|pas d'inventaire|inventaire incomplet)/i, 'No or incomplete asset inventory', 'CWE-1059'],
+        [/\b(no vulnerability (?:scan|scanning|management)|not scanned|never scanned|pas d'analyse de vulnérabilit)/i, 'No vulnerability scanning', 'CWE-1395'],
+        [/\b(legacy (?:system|application|software)s?|systèmes? (?:hérités?|patrimoni))/i, 'Legacy system in use', 'CWE-1104'],
+        [/\b(no (?:security )?(?:monitoring|SOC|SIEM)|not monitored|aucune surveillance|sans surveillance)/i, 'No security monitoring', 'CWE-778'],
+        [/\b(no (?:network )?(?:access control|NAC)|open (?:wi-?fi|wireless)|guest network shared|wi-?fi (?:non sécurisé|ouvert))/i, 'Weak network access control', 'CWE-284'],
+        [/\b((?:former|departed|ex-)\s?(?:employees?|staff|users?)[^.]{0,60}(?:still|retain|active)|accounts? not (?:disabled|removed)|comptes? (?:non désactivés?|actifs?) d'anciens)/i, 'Leavers’ accounts not disabled', 'CWE-284'],
+        [/\b(no (?:data loss prevention|DLP)|USB (?:drives?|keys?) (?:allowed|unrestricted)|clés? USB (?:permises?|non restreintes?))/i, 'Uncontrolled data transfer channels', 'CWE-284'],
+        [/\b(no (?:formal )?(?:change|patch) (?:management|process)|changes? (?:are )?not (?:tested|approved|documented)|pas de gestion des changements)/i, 'No change or patch management process', 'CWE-1395'],
+        [/\b(third[- ]part(?:y|ies)|vendors?|suppliers?|fournisseurs?)[^.]{0,60}(not (?:assessed|reviewed|audited)|no (?:contract|clause|assessment)|non évalués?)/i, 'Third parties not assessed', 'CWE-1357']];
       const out = [];
-      for (const s of sentences(text)) for (const [re, w, c] of P) if (re.test(s) && !out.some(o => o.weakness === w)) out.push({ weakness: w, asset: '', cwe: c, tag: 'FACT', source: s.slice(0, 220) });
-      return out;
+      const sens = sentences(text);
+      for (const s of sens) for (const [re, w, c] of P) if (re.test(s) && !out.some(o => o.weakness === w)) out.push({ weakness: w, asset: '', cwe: c, tag: 'FACT', source: s.slice(0, 220) });
+      // 1.9.2 (NV-067): an audit's numbered findings ("Finding 3: …", "Constat 2 — …") are weaknesses in their own words
+      for (const s of sens) {
+        const m = /^(?:Finding|Observation|Constat|Recommendation|Issue|Weakness|Gap)\s*(?:#|n[o°]\s*)?\d{1,3}\s*[:—–-]\s*(.{12,160}?)(?:[.;]|$)/i.exec(s);
+        if (m && !out.some(o => o.source === s.slice(0, 220))) out.push({ weakness: m[1].trim().replace(/[,;:]$/, ''), asset: '', cwe: '', tag: 'FACT', source: s.slice(0, 220) });
+      }
+      return out.slice(0, 40);
     },
     apply(items, ws) {
       ws.vulns ||= []; let n = 0;
@@ -424,7 +451,7 @@ for (const sec of SECTIONS) {
         sec.id === 'evidence' ? 'Never propose a numeric value for a parameter. Quote the evidence and say what it suggests (higher, lower, uncertain).' : '',
         sec.id === 'controls' ? 'Only controls the documents say are in place today. Framework references must be real identifiers: ISO22:<control> (ISO/IEC 27002:2022, e.g. 8.5), CSF2:<subcategory> (e.g. PR.AA-01), CIS81:<control number> (e.g. 6), NIST-53:<control> (e.g. AC-02).' : '',
         ...scen, ...assets, '',
-        'Answer with JSON only, in this shape:', sec.shape, '', 'DOCUMENTS:', text,
+        'Answer with JSON only, in this shape:', sec.shape, '', 'DOCUMENTS:', AI.untrusted(text, 'context documents'),
       ].filter(x => x !== '');
       return { system: 'You are a senior cybersecurity risk analyst who extracts structured, sourced facts from organizational documents for a risk assessment. You never invent facts and never calculate risk.',
                prompt: body.join('\n'), max_tokens: 8000, json: true, keepLanguage: true };
@@ -433,10 +460,26 @@ for (const sec of SECTIONS) {
 }
 
 /** Parse a model answer into review items (tags normalized, method recorded). */
-export function parseAI(sec, text) {
+export function parseAI(sec, text, corpus = '') {
   const j = AI.parseJson(text) || {};
   const items = (Array.isArray(j) ? j : j.items || j[Object.keys(j)[0]] || []).filter(x => x && typeof x === 'object');
-  return { items: items.map(x => ({ ...x, tag: tagOf(x.tag), _method: 'ai' })), truncated: !!j.__truncated };
+  // 1.9.2 (X-3 / NV-008): a FACT must quote the documents; one that does not, or whose source looks like an
+  // instruction to an AI, becomes an ASSUMPTION (confidence Low) and is flagged so the review never pre-ticks it.
+  return { items: items.map(x => {
+    const tag0 = tagOf(x.tag), untagged = !TAGS.includes(String(x.tag || '').toUpperCase());
+    const g = AI.groundTag(tag0, x.source, corpus, x.confidence);
+    const vals = Object.values(x).filter(v => typeof v === 'string').join(' ');
+    const flagged = !!g.note || AI.looksInjected(vals);
+    return { ...x, tag: flagged && g.tag === 'FACT' ? 'ASSUMPTION' : g.tag, _method: 'ai', _flagged: flagged, _untagged: untagged,
+             _note: [g.note, AI.looksInjected(vals) && !g.note ? 'text matches an instruction pattern' : '', untagged ? 'missing tag — treated as ASSUMPTION' : ''].filter(Boolean).join('; ') };
+  }), truncated: !!j.__truncated };
+}
+/** 1.9.2 (NV-067): a target that was reviewed and found nothing is recorded, so it does not stay "to do". */
+export function noteReviewed(sec, ws = S.ws, method = '', by = '') {
+  (ws.importLog ||= []).unshift({ at: new Date().toISOString(), section: sec.id, label: sec.label, added: 0, offered: 0, method, by, reviewed: 'nothing found',
+    ...(X_scope() ? { docs: X_scope() } : {}) });
+  ws.importLog = ws.importLog.slice(0, 300);
+  touch();
 }
 /** Rules method (no AI). Returns null when this target has no rules. */
 export async function byRules(sec, ws = S.ws) {

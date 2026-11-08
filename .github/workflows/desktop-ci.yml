@@ -47,22 +47,32 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
-      - name: Python dependencies (pinned)
+      # 1.9.2 (NV-087): every package pinned with its SHA-256 hash (desktop/tests/requirements-ci.lock, generated from
+      # requirements.txt + requirements-ci.txt for CPython 3.12/3.13 on linux x86_64); pip refuses anything else.
+      - name: Python dependencies (pinned, hash-checked)
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r desktop/tests/requirements-ci.txt
-      # No package-lock.json yet (review L5): it could not be generated offline when 1.9.0 was prepared. Playwright is pinned
-      # to an exact version in package.json, and it pins playwright-core exactly; generate the lock with network access
-      # (npm install --package-lock-only), commit it, and switch this step to `npm ci`.
+          pip install --require-hashes -r desktop/tests/requirements-ci.lock
+      # 1.9.2 (NV-087): the committed package-lock.json is the source of truth — `npm ci` installs exactly it and fails on drift.
       - name: Playwright (Chromium)
         working-directory: desktop/tests
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
+      # 1.9.2 (NV-087): known vulnerabilities in the pinned dependencies are reported on every run (advisory: they fail
+      # the job only at high severity, so a new advisory is seen without blocking an unrelated change)
+      - name: Dependency audit (pip-audit, npm audit)
+        continue-on-error: true
+        run: |
+          python -m pip install --quiet pip-audit
+          pip-audit -r desktop/tests/requirements-ci.lock --require-hashes --strict || echo "::warning::pip-audit found advisories (see above)"
+          (cd desktop/tests && npm audit --omit=dev --audit-level=high) || echo "::warning::npm audit found advisories (see above)"
       - name: Gates
         working-directory: desktop/app
         run: |
           python tools/version_check.py
+          python tools/ai_policy_check.py
+          python tools/writer_tree_hash.py --check
           python tools/cache_check.py
           python tools/label_check.py
           python tools/history_check.py

@@ -174,7 +174,7 @@ AI.TASKS.isp_draft = {
       'Use the organization\'s context (sector, regulations, systems, suppliers) only as it is given; do not invent facts about the organization. Where the organization must decide something (a delay, a threshold), write it as [to be decided: …].',
       '', 'Return JSON only: {"purpose":"","scope":"","statements":[{"text":"","modality":"must","refs":["ISO22:…","CSF2:…"]}],"body":"<optional details in Markdown>","notes":["what the organization must decide or check"]}',
     ].filter(Boolean);
-    return { system: 'You are a senior information security governance specialist who writes clear, auditable security policies. You never invent facts about the organization. You return JSON only.', prompt: body.join('\n'), max_tokens: 5000, json: true, keepLanguage: false };
+    return { system: 'You are a senior information security governance specialist who writes clear, auditable security policies. You never invent facts about the organization. You return JSON only.', prompt: body.join('\n'), max_tokens: 12000, json: true, keepLanguage: false };
   },
 };
 

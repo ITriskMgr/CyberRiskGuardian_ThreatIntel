@@ -394,9 +394,22 @@ function providerCard(k, pv, info, sec) {
     res.replaceChildren(el('span', 'small muted', 'Sending a test request (no workspace data, a few tokens)…'));
     try {
       const out = await post('/api/ai/test', { provider: k });
-      if (out.ok) { res.replaceChildren(banner('good', 'Works', `${out.model} answered “${out.reply || '…'}” in ${out.ms} ms through the helper.`)); await loadConfig().catch(() => {}); }
-      else res.replaceChildren(banner('bad', 'The test failed', out.error || 'No answer.'));
-    } catch (err) { res.replaceChildren(banner('bad', 'The test failed', String(err.message || err))); }
+      if (out.ok) {
+        res.replaceChildren(banner('good', 'Works', `${out.model} answered “${out.reply || '…'}” in ${out.ms} ms through the helper.`)); await loadConfig().catch(() => {});
+        // 1.9.2 (NV-085): after a passed test, the configured model is compared with what the endpoint lists; a name the
+        // endpoint does not know is said so, with the picker offered (a provider without a list endpoint is left alone)
+        try {
+          const lst = await apiJson('/api/ai/models?provider=' + encodeURIComponent(k));
+          const ids = (lst.models || []).map(m => m.id);
+          if (!lst.error && ids.length && model && !ids.includes(model)) {
+            const selm = select([['', '— choose —'], ...lst.models.map(m => [m.id, m.name])], '');
+            selm.addEventListener('change', async () => { if (!selm.value) return; await saveAi({ [k + '_model']: selm.value }); toast('Model set to ' + selm.value); render(sec); });
+            res.append(banner('warn', tr('The model “{0}” is not in the list this endpoint offers').replace('{0}', model),
+              el('div', null, el('div', 'small', tr('The connection works, but a request naming an unknown model fails with “not found”. Pick one of the {0} models the endpoint lists, or keep the name if you know it is served under an alias.').replace('{0}', ids.length)), selm)));
+          }
+        } catch { /* no list endpoint: nothing to compare with */ }
+      } else res.replaceChildren(banner('bad', 'The test failed', modelError(out.error) || 'No answer.'));
+    } catch (err) { res.replaceChildren(banner('bad', 'The test failed', modelError(String(err.message || err)))); }
     b.disabled = false; b.textContent = was;
   } }, 'Test this provider'),
     el('span', 'small muted', pv.local ? 'Checks the endpoint, the chosen model and that it answers.'
@@ -408,6 +421,15 @@ function providerCard(k, pv, info, sec) {
       await saveAi({ custom: list }); toast('Provider removed'); render(sec);
     } }, 'Remove this provider') : null), res);
   return c;
+}
+
+/** 1.9.2 (NV-085): a provider's 404 / not_found on the model name, said in plain words. */
+function modelError(msg) {
+  const t = String(msg || '');
+  if (/\b404\b|not_found|not found|does not exist|unknown model|no such model|model_not_found/i.test(t)) {
+    return tr('The provider does not know this model name (404 / not found). Check the Model field: use “List models” to pick a name the endpoint serves, or type the exact identifier.') + ' — ' + t;
+  }
+  return t;
 }
 
 async function aiSection(body, sec) {

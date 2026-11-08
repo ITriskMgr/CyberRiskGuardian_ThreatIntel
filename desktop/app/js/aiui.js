@@ -4,6 +4,7 @@
    if the person cancels. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, banner, kpi, n0, toast, copyText, pill, field } from './util.js';
+import { tr } from './i18n.js';
 import { S, touch } from './state.js';
 import * as anon from './anon.js';
 import * as AI from './ai.js';
@@ -103,6 +104,12 @@ export function request(task, opts = {}, { title = 'AI request', ws = S.ws } = {
         kpi('Destination', AI.isLocal(a.provider) ? 'this machine' : AI.provider(a.provider).label,
             AI.isLocal(a.provider) ? 'local model' : AI.host(a.provider) || 'remote endpoint', AI.kindOf(a.provider)),
         kpi('Web search', p.web_search ? 'on' : 'off', p.web_search ? 'for missing information' : (a.provider === AI.WEB_SEARCH_PROVIDER ? 'not needed' : 'available on the Claude API only'))),
+      // 1.9.2 (NV-084): everything else the request carries — nothing is sent that this screen does not show
+      el('div', 'grid g4', { style: { marginTop: '6px' } },
+        kpi('Model', p.model || tr('provider default'), tr('as set in Settings → AI')),
+        kpi('Max. output tokens', n0(p.max_tokens), tr('the answer is reported as cut off beyond this')),
+        kpi('Temperature', p.temperature != null ? String(p.temperature) : tr('not sent'), p.temperature != null ? tr('local models only') : tr('provider default')),
+        p.untrusted ? kpi('Untrusted text', tr('wrapped'), tr('<untrusted_document>: data, never instructions'), 'good') : kpi('Untrusted text', tr('none'), tr('no document, passage or feed text'))),
       creaBox,
       el('p', 'note', 'This is the payload, byte for byte, and you can edit it: remove what should not leave, add context the documents lack, sharpen the question. What is in these two boxes when you press Send is exactly what is transmitted — nothing else. ', editedPill),
       el('label', 'small muted', 'Instructions (system)'), sysTa,

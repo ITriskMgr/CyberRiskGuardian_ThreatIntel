@@ -12,6 +12,8 @@ import { HS, probe, apiJson, post, loadConfig, hfetch } from '../helper.js';
 import { parse, profileTerms, relevance, stixBundle } from '../feedparse.js';
 import * as TR from '../triage.js';
 import * as AI from '../ai.js';
+import * as aiui from '../aiui.js';
+import { tr } from '../i18n.js';
 import { copyText } from '../util.js';
 
 const CATALOGUE = () => (HS.sources.length ? HS.sources : (self.CRG_SOURCES || []));
@@ -301,12 +303,12 @@ function triageView(body, sec, items) {
     AI.enabled(ws) ? el('button', { class: 'btn ghost', disabled: briefBusy, onclick: async e => {
       briefBusy = true; e.target.disabled = true; e.target.textContent = 'Preparing…';
       try {
-        const prepared = AI.prepare('briefing', ws, { input: TR.briefingInput(tri, ws), note: triCfg.note });
-        if (!confirm(`Send the triage result to ${AI.isLocal(prepared.provider) ? 'the local model' : AI.provider(prepared.provider).label}?\n\n` +
-                     `${prepared.bytes} bytes — the summarised triage, not the raw items.\n\n` +
-                     'Cancel to see the payload on the Virtual consultant screen first.')) { briefBusy = false; render(sec); return; }
-        const out = await AI.send(prepared, ws);
-        brief = { text: TR.markdown(tri, ws, { note: triCfg.note }), ai: out };
+        // 1.9.2 (NV-021): the same preview as every other AI request — payload shown in full, anonymizer offered,
+        // confidential workspaces confirm each call — instead of a confirm() that pointed to a preview that did not exist
+        const st = await aiui.status(ws, 'briefing');
+        if (!st.ok) throw new Error(st.why);
+        const out = await aiui.request('briefing', { input: TR.briefingInput(tri, ws), note: triCfg.note }, { title: tr('Weekly briefing — what will be sent'), ws });
+        if (out) brief = { text: TR.markdown(tri, ws, { note: triCfg.note }), ai: out };
       } catch (err) { sec.append(banner('bad', 'The briefing could not be written', String(err.message || err))); }
       briefBusy = false; render(sec);
     } }, 'Write it with an AI management section') : null));

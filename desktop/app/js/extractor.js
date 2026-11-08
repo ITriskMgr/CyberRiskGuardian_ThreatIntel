@@ -66,10 +66,17 @@ export const isEmpty = v => v === undefined || v === null || v === '' || (Array.
 /** Normalize one proposed value: ≤ 50 words, types, ranges. */
 export function normalize(k, raw) {
   const kind = KIND[k] || 'text';
-  let value = raw?.value ?? raw ?? '';
+  // 1.9.2 (#18 / NV-013): a proposal is {value, tag, …} or a bare value. An object without a value — the empty {} the
+  // rules pass for a field they did not find, or a model answer lacking "value" — is an empty value, never the
+  // object itself (which String() turned into "[object Object]", tagged INFERENCE and ticked).
+  const isObj = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
+  let value = isObj ? (raw.value ?? raw.v ?? raw.text ?? '') : (raw ?? '');
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) value = value.value ?? value.text ?? value.name ?? '';
   let tag = String(raw?.tag || '').toUpperCase().trim();
-  if (!TAGS.includes(tag)) tag = isEmpty(value) ? 'UNKNOWN' : 'INFERENCE';
   const notes = [];
+  // 1.9.2 (NV-056): a missing or invalid provenance tag is an ASSUMPTION, confidence Low — never an INFERENCE
+  const untagged = !TAGS.includes(tag);
+  if (untagged) { tag = isEmpty(value) ? 'UNKNOWN' : 'ASSUMPTION'; if (!isEmpty(value) && raw?.tag) notes.push('invalid tag "' + String(raw.tag).slice(0, 20) + '" — treated as ASSUMPTION'); else if (!isEmpty(value) && isObj && 'tag' in raw) notes.push('missing tag — treated as ASSUMPTION'); }
   if (kind === 'number') {
     const n = typeof value === 'number' ? value : Number(String(value).replace(/[^\d.\-]/g, ''));
     value = Number.isFinite(n) && String(value).trim() !== '' ? Math.round(n) : '';
@@ -90,7 +97,26 @@ export function normalize(k, raw) {
     if (w.length > 50) { value = w.slice(0, 50).join(' ').replace(/[,;:]?$/, '…'); notes.push('shortened to 50 words'); }
   }
   if (isEmpty(value)) tag = 'UNKNOWN';
-  return { key: k, value, tag, source: String(raw?.source || '').slice(0, 300), confidence: ['High', 'Medium', 'Low'].includes(raw?.confidence) ? raw.confidence : (tag === 'FACT' ? 'High' : tag === 'UNKNOWN' ? 'Low' : 'Medium'), notes };
+  const source = String(isObj ? raw.source || '' : '').slice(0, 300);
+  let confidence = ['High', 'Medium', 'Low'].includes(raw?.confidence) ? raw.confidence : (tag === 'FACT' ? 'High' : tag === 'UNKNOWN' ? 'Low' : 'Medium');
+  if (untagged && !isEmpty(value)) confidence = 'Low';
+  return { key: k, value, tag, source, confidence, notes };
+}
+
+/**
+ * 1.9.2 (X-3 / NV-008): apply the quote check to a normalized proposal. A FACT whose source does not quote the
+ * corpus verbatim, or whose source matches the injection pattern, becomes an ASSUMPTION (confidence Low) and is
+ * marked `flagged` so the review table never pre-ticks it. `corpus` is the text that was sent (unwrapped).
+ */
+export function ground(p, corpus) {
+  if (!p || p.tag === 'UNKNOWN') return p;
+  const g = AI.groundTag(p.tag, p.source, corpus, p.confidence);
+  if (g.tag !== p.tag || g.note) {
+    p.tag = g.tag; p.confidence = g.confidence || p.confidence; p.flagged = true;
+    (p.notes ||= []).push(g.note);
+  }
+  if (AI.looksInjected(p.value)) { p.flagged = true; (p.notes ||= []).push('value matches an instruction pattern'); if (p.tag === 'FACT') { p.tag = 'ASSUMPTION'; p.confidence = 'Low'; } }
+  return p;
 }
 
 /* ---------------- the document corpus ---------------- */
@@ -146,9 +172,9 @@ AI.TASKS.extract_profile = {
         : 'Web search is not available: for fields the documents do not cover, propose a cautious ASSUMPTION (say why in "source") or leave the value empty with tag UNKNOWN.',
       '', 'Return JSON only:',
       '{"fields":{"<field key>":{"value":"…","tag":"FACT|INFERENCE|ASSUMPTION|EXTERNAL|UNKNOWN","source":"<document name and a short quote, or URL, or why it is assumed>","confidence":"High|Medium|Low"}},"gaps":["<what to collect, ≤ 12 words each>"]}',
-      'Include every field key above, even when UNKNOWN.', '', 'DOCUMENTS:', text || '(no document text available)',
+      'Include every field key above, even when UNKNOWN.', '', 'DOCUMENTS:', AI.untrusted(text || '(no document text available)', 'context documents'),
     ];
-    return { system: AI_SYSTEM, prompt: body.join('\n'), max_tokens: 6000, json: true, web_search: web, keepLanguage: true };
+    return { system: AI_SYSTEM, prompt: body.join('\n'), max_tokens: 8000, json: true, web_search: web, keepLanguage: true };
   },
 };
 AI.TASKS.extract_crown = {
@@ -162,29 +188,32 @@ AI.TASKS.extract_crown = {
       '(Low, Medium, High, Very high), main dependencies, suppliers involved.', '', RULES, '',
       'Return JSON only:',
       '{"crown":[{"name":"","role":"","owner":"","c":"Low|Medium|High|Very high","i":"…","a":"…","dependencies":"","suppliers":"","tag":"FACT|INFERENCE|ASSUMPTION|EXTERNAL|UNKNOWN","source":""}]}',
-      '', 'DOCUMENTS:', text || '(no document text available)',
+      '', 'DOCUMENTS:', AI.untrusted(text || '(no document text available)', 'context documents'),
     ].filter(x => x !== '');
-    return { system: AI_SYSTEM, prompt: body.join('\n'), max_tokens: 5000, json: true, keepLanguage: true };
+    return { system: AI_SYSTEM, prompt: body.join('\n'), max_tokens: 6000, json: true, keepLanguage: true };
   },
 };
 const AI_SYSTEM = `You extract structured information for CyberRiskGuardian, a cybersecurity risk assessment tool.
 You never invent organizational facts; every value carries a provenance tag and a source. You return JSON only.`;
 
-export function parseProfile(text) {
+export function parseProfile(text, corpus = '') {
   const j = AI.parseJson(text);
-  const f = j.fields || j;
+  const f = (j && typeof j === 'object' && j.fields && typeof j.fields === 'object') ? j.fields : (j || {});
   const out = {};
-  for (const [k] of FIELDS) out[k] = normalize(k, f[k] || {});
-  return { fields: out, gaps: Array.isArray(j.gaps) ? j.gaps.slice(0, 20).map(String) : [] };
+  for (const [k] of FIELDS) out[k] = ground(normalize(k, f[k] ?? {}), corpus);
+  const flagged = FIELDS.filter(([k]) => out[k].flagged).map(([k]) => k);
+  return { fields: out, gaps: Array.isArray(j.gaps) ? j.gaps.slice(0, 20).map(String) : [], flagged, truncated: !!j.__truncated };
 }
 const LV = v => { const s = String(v || '').toLowerCase(); return /very/.test(s) ? 'Very high' : /high|élev/.test(s) ? 'High' : /med|moy/.test(s) ? 'Medium' : /low|faib/.test(s) ? 'Low' : ''; };
-export function parseCrown(text) {
+export function parseCrown(text, corpus = '') {
   const j = AI.parseJson(text);
-  return (j.crown || j.crown_jewels || []).slice(0, 12).map(r => {
+  return (j.crown || j.crown_jewels || []).filter(r => r && typeof r === 'object').slice(0, 12).map(r => {
     const n = normalize('context', { value: r.role, tag: r.tag });
+    const tag0 = TAGS.includes(String(r.tag || '').toUpperCase()) ? String(r.tag).toUpperCase() : 'ASSUMPTION';   // NV-056
+    const p = ground({ tag: tag0, source: String(r.source || '').slice(0, 300), confidence: tag0 === 'FACT' ? 'High' : 'Low', value: String(r.name || ''), notes: [] }, corpus);
     return { name: String(r.name || '').trim().slice(0, 80), role: n.value, owner: String(r.owner || '').slice(0, 80), c: LV(r.c), i: LV(r.i), a: LV(r.a),
       dependencies: normalize('context', { value: r.dependencies }).value, suppliers: normalize('context', { value: r.suppliers }).value,
-      tag: TAGS.includes(String(r.tag).toUpperCase()) ? String(r.tag).toUpperCase() : 'INFERENCE', source: String(r.source || '').slice(0, 300) };
+      tag: p.tag, source: p.source, confidence: p.confidence, flagged: !!p.flagged, notes: p.notes || [] };
   }).filter(r => r.name);
 }
 

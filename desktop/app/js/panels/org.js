@@ -176,7 +176,7 @@ export async function extractProfile(sec, { chain = false } = {}) {
       const cp = await X.corpus(ws);
       const out = await aiui.request('extract_profile', { text: cp.text, web: ch.web, fictional: ws.kind !== 'organization' }, { title: tr('Profile extraction — what will be sent') });
       if (!out) return chain ? extractCrown(sec) : toImport();
-      res = X.parseProfile(out.text); res.method = 'ai'; res.model = out.model; res.sources = out.sources; res.entryId = out.entryId;
+      res = X.parseProfile(out.text, cp.text); res.method = 'ai'; res.model = out.model; res.sources = out.sources; res.entryId = out.entryId;
     }
   } catch (e) { toast(tr('Extraction failed: ') + (e.message || e), 'bad'); return; }
   reviewProfile(sec, res, chain);
@@ -187,21 +187,25 @@ function reviewProfile(sec, res, chain) {
   if (!D || D.wsId !== ws.id) D = newDraft(ws);
   const rows = X.FIELDS.map(([k, l]) => {
     const p = res.fields[k], cur = X.getField(D, k);
-    return { k, l, p, cur, take: p.tag !== 'UNKNOWN' && (X.isEmpty(cur) || (['appetite', 'currency'].includes(k) && !D.org.prov?.[k] && !D.appetite_rationale)), val: Array.isArray(p.value) ? p.value.join('; ') : p.value };
+    // 1.9.2 (X-3 / NV-008): a value set aside by the quote check (FACT without its quote, or instruction-like text) is never pre-ticked
+    return { k, l, p, cur, take: p.tag !== 'UNKNOWN' && !p.flagged && (X.isEmpty(cur) || (['appetite', 'currency'].includes(k) && !D.org.prov?.[k] && !D.appetite_rationale)), val: Array.isArray(p.value) ? p.value.join('; ') : p.value };
   });
+  const flaggedN = rows.filter(r => r.p.flagged).length;
   const fmt = v => Array.isArray(v) ? v.join('; ') : (v ?? '');
   const t = table([
     { key: 'take', label: '', sortable: false, cls: 'cb', render: r => { const c = el('input', { type: 'checkbox', checked: r.take, disabled: r.p.tag === 'UNKNOWN' && !r.val }); c.addEventListener('change', () => { r.take = c.checked; }); return c; } },
     { key: 'l', label: 'Field', render: r => el('b', null, tr(r.l)) },
     { key: 'cur', label: 'Current value', render: r => el('div', { class: 'small', 'data-noi18n': '' }, String(fmt(r.cur)).slice(0, 160) || '—') },
     { key: 'val', label: 'Proposed value (editable)', sortable: false, render: r => { const i = el(String(r.val).length > 60 ? 'textarea' : 'input', { value: r.val, rows: 2 }); if (i.tagName === 'TEXTAREA') i.value = r.val; i.addEventListener('input', () => { r.val = i.value; r.edited = true; if (i.value.trim()) { r.take = true; } }); return i; } },
-    { key: 'tag', label: 'Tag', render: r => el('span', { class: 'pill tag-' + r.p.tag + ' ' + X.TAG_KIND[r.p.tag], title: X.TAG_HELP[r.p.tag] }, r.p.tag) },
+    { key: 'tag', label: 'Tag', render: r => el('span', null, el('span', { class: 'pill tag-' + r.p.tag + ' ' + X.TAG_KIND[r.p.tag], title: X.TAG_HELP[r.p.tag] }, r.p.tag), r.p.flagged ? el('span', { class: 'pill warn', title: (r.p.notes || []).join('; '), style: { marginLeft: '4px' } }, tr('check')) : null) },
     { key: 'src', label: 'Source', render: r => el('div', { class: 'small', 'data-noi18n': '' }, /^https?:/.test(r.p.source) ? el('a', { href: r.p.source, target: '_blank', rel: 'noopener noreferrer' }, r.p.source.slice(0, 80)) : r.p.source || '—', r.p.notes.length ? el('div', 'muted', r.p.notes.join('; ')) : null) },
   ], rows, { class: 'compact' });
   const counts = Object.fromEntries(X.TAGS.map(tg => [tg, rows.filter(r => r.p.tag === tg).length]));
   const m = modal(tr('Review the extracted profile'),
     el('p', 'note', tr(res.method === 'ai' ? 'Proposed by AI' : 'Proposed by rules (no AI)') + (res.model ? ' · ' + res.model : '') + ' — ' + tr('Analytical estimate — validation required.') + ' ' + tr('Ticked values go into the form; you then Save or Cancel.')),
-    el('div', 'chips', ...X.TAGS.map(tg => el('span', { class: 'pill tag-' + tg + ' ' + X.TAG_KIND[tg], title: X.TAG_HELP[tg] }, `${tg} ${counts[tg]}`))),
+    el('div', 'chips', ...X.TAGS.map(tg => el('span', { class: 'pill tag-' + tg + ' ' + X.TAG_KIND[tg], title: X.TAG_HELP[tg] }, `${tg} ${counts[tg]}`)),
+      flaggedN ? el('span', 'pill warn', tr('{0} set aside — quote not found or instruction-like text; left unticked').replace('{0}', flaggedN)) : null,
+      res.truncated ? el('span', 'pill warn', tr('answer truncated — first items kept')) : null),
     el('div', 'tablewrap', { style: { marginTop: '10px', maxHeight: '55vh', overflow: 'auto' } }, t),
     res.gaps?.length ? el('details', null, el('summary', null, tr('Information still to collect') + ` (${res.gaps.length})`), el('ul', { class: 'small', 'data-noi18n': '' }, ...res.gaps.map(g => el('li', null, g)))) : null,
     res.sources?.length ? el('details', null, el('summary', null, tr('Web pages consulted') + ` (${res.sources.length})`), el('ul', 'small', ...res.sources.map(s => el('li', null, el('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer' }, s.title || s.url))))) : null,
@@ -268,12 +272,12 @@ export async function extractCrown(sec) {
       const cp = await X.corpus(ws);
       const out = await aiui.request('extract_crown', { text: cp.text, profile: X.brief(ws) }, { title: tr('Crown-jewel extraction — what will be sent') });
       if (!out) return toImport();
-      list = X.parseCrown(out.text); meta = { model: out.model, entryId: out.entryId };
+      list = X.parseCrown(out.text, cp.text); meta = { model: out.model, entryId: out.entryId };
     }
   } catch (e) { toast(tr('Extraction failed: ') + (e.message || e), 'bad'); return; }
   const A = ws.assessment;
   const exists = n => (A.CROWN || []).some(r => (r[1] || '').toLowerCase() === n.toLowerCase());
-  const rows = list.map(r => Object.assign(r, { take: !exists(r.name) }));
+  const rows = list.map(r => Object.assign(r, { take: !exists(r.name) && !r.flagged }));   // 1.9.2: set-aside proposals are never pre-ticked
   const m = modal(tr('Review the proposed crown jewels'),
     el('p', 'note', tr(ch.method === 'ai' ? 'Proposed by AI' : 'Proposed by rules (no AI)') + (meta.model ? ' · ' + meta.model : '') + ' — ' + tr('Analytical estimate — validation required.')),
     rows.length ? el('div', 'tablewrap', { style: { maxHeight: '55vh', overflow: 'auto' } }, table([
@@ -282,7 +286,7 @@ export async function extractCrown(sec) {
       { key: 'role', label: 'Role in the mission', render: r => el('div', { class: 'small', 'data-noi18n': '' }, r.role || '—') },
       { key: 'cia', label: 'C · I · A', render: r => [r.c, r.i, r.a].map(x => x || '—').join(' · ') },
       { key: 'dep', label: 'Dependencies · suppliers', render: r => el('div', { class: 'small', 'data-noi18n': '' }, [r.dependencies, r.suppliers].filter(Boolean).join(' · ') || '—') },
-      { key: 'tag', label: 'Tag', render: r => el('span', { class: 'pill tag-' + r.tag + ' ' + X.TAG_KIND[r.tag], title: (X.TAG_HELP[r.tag] || '') + (r.source ? ' — ' + r.source : '') }, r.tag) },
+      { key: 'tag', label: 'Tag', render: r => el('span', null, el('span', { class: 'pill tag-' + r.tag + ' ' + X.TAG_KIND[r.tag], title: (X.TAG_HELP[r.tag] || '') + (r.source ? ' — ' + r.source : '') }, r.tag), r.flagged ? el('span', { class: 'pill warn', title: (r.notes || []).join('; '), style: { marginLeft: '4px' } }, tr('check')) : null) },
     ], rows, { class: 'compact' })) : el('div', 'empty-state', el('b', null, 'Nothing found'), 'No crown-jewel candidate in the documents.'),
     el('div', 'btnrow', { style: { marginTop: '12px' } },
       el('button', { class: 'btn', disabled: !rows.length, onclick: () => {
