@@ -7,7 +7,7 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "js/app.js", "js/version.js", "js/nav.js", "js/util.js", "js/store.js", "js/state.js", "js/ontology.js", "js/picker.js", "js/extract.js", "js/snapgen.js",
   "js/charts.js", "js/kri.js", "js/xlsx.js", "js/exportx.js",
   "js/helper.js", "js/catalog.js", "js/recommend.js", "js/backup.js", "js/forecast.js", "js/ai.js", "js/triage.js", "js/feedparse.js", "js/anon.js", "js/registry.js", "js/assets.js", "js/data/controls.js", "js/data/sources.js", "js/data/methods.js", "js/data/chapters.js", "js/chapterhelp.js", "js/frameworks.js",
-  "js/prefs.js", "js/detail.js", "js/helpmenu.js", "js/whyscreen.js", "js/a11y.js", "js/winlock.js", "js/setupwizard.js", "js/i18n.js", "js/i18n/fr.js", "js/users.js", "js/process.js", "js/aiui.js", "js/extractor.js", "js/help.js", "js/chat.js", "js/linker.js", "js/importer.js", "USER-GUIDE.md", "USER-GUIDE.fr.md",
+  "js/prefs.js", "js/detail.js", "js/helpmenu.js", "js/whyscreen.js", "js/a11y.js", "js/winlock.js", "js/teaching.js", "js/setupwizard.js", "js/i18n.js", "js/i18n/fr.js", "js/users.js", "js/process.js", "js/aiui.js", "js/extractor.js", "js/help.js", "js/chat.js", "js/linker.js", "js/importer.js", "USER-GUIDE.md", "USER-GUIDE.fr.md",
   "js/panels/org.js", "js/panels/dashboard.js", "js/panels/register.js", "js/panels/scenario.js", "js/panels/batch.js",
   "js/panels/calc.js", "js/panels/recs.js", "js/panels/threats.js", "js/panels/vulns.js", "js/panels/threatctx.js",
   "js/panels/cvss.js", "js/panels/budget.js", "js/panels/export.js", "js/panels/online.js",

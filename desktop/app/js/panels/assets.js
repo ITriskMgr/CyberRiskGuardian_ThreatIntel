@@ -108,7 +108,7 @@ function inventory(body, sec, scored, R) {
      added without C/I/A levels: listed until the analyst marks them reviewed; nothing is changed automatically. */
   const rv = ws.assetReview; const pend = (rv?.pending || []).filter(x => ws.assets.some(a => a.id === x.id));
   if (pend.length && !rv.reviewed) body.append(banner('warn', tr('{0} asset(s) to review').replace('{0}', pend.length),
-    el('div', null, el('p', 'small', 'These assets were created from the organization profile by an earlier release, or without C/I/A levels: fragments of a longer phrase, a default type, C/I/A left at 3/3/3 or a duplicate name. Open each one to merge, retype, rescore or delete it, then mark the list reviewed. Nothing was changed by the update.'),
+    el('div', null, el('p', 'small', 'These assets were created from the organization profile before this review existed, or without C/I/A levels: fragments of a longer phrase, a default type, C/I/A left at 3/3/3 or a duplicate name. Open each one to merge, retype, rescore or delete it, then mark the list reviewed. Nothing was changed by the update.'),
       el('ul', 'small', ...pend.slice(0, 30).map(x => el('li', null, el('a', { href: '#/assets/' + x.id }, x.id + ' ' + (x.name || '')), el('span', 'muted', ' — ' + x.why.map(w => tr(w)).join('; ')))), pend.length > 30 ? el('li', 'muted', `+${pend.length - 30}`) : null),
       el('div', 'btnrow', el('button', { class: 'btn sm', onclick: () => { rv.reviewed = today(); rv.pending = []; touch(); toast(tr('Asset review marked done')); render(sec); } }, 'Mark the list reviewed')))));
   body.append(card(el('div', 'btnrow',

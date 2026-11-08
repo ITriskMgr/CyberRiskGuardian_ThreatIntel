@@ -148,6 +148,15 @@ Ouvrez ensuite `http://localhost:8099/`.
 > pour le navigateur, tout comme n'importe quel autre port. Utilisez le lanceur, ou toujours la même
 > adresse, et vous retrouverez toujours vos espaces de travail.
 
+**Déjà en cours d’exécution ?** Depuis 1.9.2, les lanceurs n’arrêtent plus silencieusement une copie en cours.
+Si une copie de l’application sert déjà le port (le même dossier démarré deux fois, ou une autre installation
+dans un autre dossier), le lanceur la nomme et demande **Stop it and start this version instead? [y/N]**
+(« L’arrêter et démarrer cette version à la place ? »). Appuyez sur **Retour** (ou **n**) pour laisser la copie
+en cours telle quelle : le lanceur l’ouvre dans votre navigateur et vous pouvez fermer sa fenêtre. Appuyez sur
+**y** pour arrêter la copie en cours et démarrer celle-ci — à faire après une mise à niveau, pour que le
+navigateur affiche la nouvelle version. Un port occupé par un programme qui n’est pas un serveur web local
+n’est jamais touché ; démarrez plutôt sur un autre port (`./start.command 8150`, `start.bat 8150`).
+
 ### 3.3 L'arrêter
 
 Appuyez sur **Contrôle-C** dans la fenêtre de terminal. Fermer le navigateur n'arrête pas le serveur,
@@ -256,9 +265,28 @@ pour la classe ; importez-le sur n'importe quel ordinateur sous Organisation �
 *Importer un fichier JSON…*. Effacer les données de site du navigateur pour l'adresse de l'application
 supprime les espaces de travail sur cet ordinateur.
 
+**Les cas d’enseignement sont reconnus à la restauration et à l’importation (1.9.2).** Les cas fournis
+(MediBec et CanaRetail, en anglais et en français) recevaient un identifiant aléatoire, de sorte que la
+restauration d’une sauvegarde ou l’importation d’un fichier d’espace de travail créait chaque fois un second
+*MediBec — cas d’enseignement (fictif)*. L’application consigne maintenant quel cas fourni un espace de
+travail d’enseignement contient et le reconnaît quel que soit son identifiant : quand une restauration ou une
+importation rencontre un cas déjà présent, elle demande **Remplacer la copie présente ici · Conserver les deux ·
+Ignorer** (Ignorer par défaut à la restauration). Un espace d’enseignement créé depuis l’onglet Espaces de travail
+reçoit un identifiant fixe quand celui-ci est libre. Les doublons déjà présents ne sont pas fusionnés
+automatiquement : supprimez les copies en trop à la main dans Organisation → Espaces de travail (exportez-en une
+d’abord si elle contient du travail à conserver).
+
 > Le matériel confidentiel reste sur cet ordinateur, mais il demeure du matériel confidentiel sur cet
 > ordinateur. Suivez les règles de votre organisation quant aux endroits où les données d'évaluation
 > peuvent être conservées.
+
+**Une fenêtre à la fois (1.9.2).** Deux fenêtres ou onglets à la même adresse partagent les mêmes espaces de
+travail, et la dernière à enregistrer l’emporterait. L’application prend donc un verrou à l’ouverture. Une
+deuxième fenêtre affiche *CyberRiskGuardian est déjà ouvert dans une autre fenêtre* avec deux choix :
+**Utiliser ici** — l’autre fenêtre enregistre ce qu’elle tient, puis se fige derrière un avis indiquant que la
+copie est maintenant ouverte ailleurs ; cette fenêtre charge les données — ou **Fermer**. La fenêtre figée
+offre les deux mêmes choix, de sorte que vous pouvez reprendre la main. Le verrou est libéré par le navigateur
+lui-même quand une fenêtre se ferme ou plante : un plantage ne laisse jamais l’application verrouillée.
 
 ### 5.1 Versions des données : ce que vous saisissez survit aux mises à niveau
 
@@ -1032,6 +1060,18 @@ fournisseurs et installations de l'organisation, chacun lié aux scénarios et a
   récente) avec les contrôles qu'elles appuient et les actifs non conformes ; rapports en Markdown et en
   CSV.
 
+**Créer à partir du profil et des joyaux de la couronne (1.9.2).** Le bouton propose des actifs à réviser au
+lieu de les écrire : une ligne par système nommé dans *Systèmes et applications critiques* du profil et par
+joyau de la couronne, chacune cochée, avec un nom et un type modifiables. Le texte des systèmes est découpé
+sur les points-virgules et les sauts de ligne, et sur les virgules seulement hors parenthèses, de sorte que
+*DME intégré (clinique, facturation)* reste un seul actif ; les fragments comme *et facturation* sont écartés.
+Un joyau de la couronne apporte son responsable, son rôle et ses niveaux C/I/D ; un système nommé dans le
+profil n’a pas encore de niveaux : il est créé à 3/3/3 et **listé pour révision** dans une bannière en haut de
+l’inventaire jusqu’à ce que vous marquiez la liste comme revue. La même bannière liste, une seule fois, les
+actifs créés à partir du profil avant l’existence de cette révision (fragments, type par défaut, 3/3/3, noms en
+double) ; rien n’est modifié automatiquement — ouvrez chacun pour le fusionner, le retyper, le recoter ou le
+supprimer.
+
 ### 7.2.3 Maturité et résilience {#maturity}
 
 La **maturité** est cotée par rapport au NIST CSF 2.0 : six fonctions et les 22 catégories qui en
@@ -1781,6 +1821,19 @@ une **acceptation formelle** (par, date, valide jusqu'au, justification) ; chaq
 journalisée dans l'historique du risque. La carte de chaleur (inhérente, actuelle ou cible) et la liste
 des principaux risques figurent au-dessus du registre. *Actualiser les cotes à partir des scénarios*
 met à jour les cotes actuelle et cible après une modification des paramètres.
+
+**Registre vide (1.9.2).** Dans un espace de travail sans risque, les tuiles affichent **—**, pas des zéros, et
+l’état vide explique la différence entre les deux registres : le *registre des scénarios* liste chaque scénario
+que l’analyste construit et quantifie ; le *registre des risques* est la vue de la direction — un risque par
+décision, avec un responsable, une cote de 1 à 5, une décision de traitement et une acceptation formelle, lié
+aux scénarios qui le quantifient. **Créer à partir des scénarios absents du registre (n)** le remplit. Le
+registre des scénarios, le calculateur de risque et le sommaire de gestion suivent la même convention **—**
+dans un espace de travail vierge.
+
+**Scénarios supprimés (1.9.2).** La suppression d’un scénario vous avertit des risques qui le lient. Un risque
+dont le scénario a été supprimé garde le lien, signalé *scénario supprimé : S7* dans le registre et dans son
+éditeur, où **Délier** le retire (le changement est consigné). Ses indices CRG ne comptent que les scénarios
+restants ; un risque dont tous les scénarios ont disparu affiche un avertissement au lieu de chiffres.
 
 ### 7.3.10 Atténuation des risques {#mitigation}
 
@@ -4082,14 +4135,36 @@ L'agent conversationnel est en mode **aide seulement** : aucune IA, rien n'est e
 (section 7.10.4) : le consultant a son propre acheminement, son aperçu et son historique. L'agent
 conversationnel ne modifie jamais les données.
 
+### 7.12.3.1 Code de soutien sur chaque écran {#support-code}
+
+Le titre de chaque écran se termine par un petit code comme **`ORG-CROWN · 1.9.2`** : l’écran, son onglet et
+la version que vous utilisez. Cliquez dessus pour le copier et citez-le quand vous signalez un problème — il
+indique exactement où vous étiez. Il est construit à partir de l’adresse, jamais tapé à la main, et il n’est
+pas traduit.
+
+### 7.12.3.2 Clavier et lecteurs d’écran {#accessibility}
+
+La première touche **Tab** sur une page atteint **Aller au contenu**, qui déplace le focus sur le titre de
+l’écran courant ; une navigation par le menu déplace aussi le focus sur le titre du nouvel écran, de sorte que
+les onglets et les champs de l’écran sont à quelques Tab au lieu d’une centaine. Chaque champ est étiqueté pour
+les technologies d’assistance ; les filtres, cases à cocher et champs de recherche sans étiquette visible
+annoncent le texte voisin ; la matrice ATT&CK peut recevoir le focus et défiler au clavier ; le bouton de
+retrait d’une puce est une cible de 24 px.
+
 ### 7.12.4 Langue — anglais et français
 
 **EN / FR**, dans la barre supérieure (ou Paramètres → Langue et détail), change tous les écrans d'un coup ; le
 choix est mémorisé. Seule l'interface est traduite. Les données de l'organisation, les documents de
 cas, les scénarios, le contenu des catalogues (ATT&CK, CWE, titres des contrôles), les fichiers
 exportés et les réponses de l'IA restent dans leur langue d'origine — un cas en français reste en
-français dans une interface anglaise, et inversement. Les nombres suivent la langue (0,85 ; 12,3 % ;
-1 234 $). Lorsque l'interface est en français, les requêtes à l'IA demandent une rédaction en français.
+français dans une interface anglaise, et inversement. Les nombres suivent la langue sur chaque écran
+(1.9.2) : le français emploie la virgule décimale, une espace insécable pour grouper les milliers et devant
+**%** et **$** — *98,27 %*, *5 311 000 $*, *84 305* — et l’interface anglaise garde *98.27%*, *$5,311,000*,
+*84,305*. Les fichiers exportés gardent des nombres bruts. La terminologie française suit les décisions de
+l’auteur de novembre 2026 : **ratio risque résiduel / risque toléré** (forme courte *Ratio rés./tol.* dans les
+en-têtes de tableau serrés), **probabilité** partout (y compris l’échelle 1–5 du registre des risques) et
+**éléments probants** pour *evidence*. Lorsque l'interface est en français, les requêtes à l'IA demandent une
+rédaction en français.
 
 ---
 

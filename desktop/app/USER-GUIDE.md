@@ -137,6 +137,14 @@ Then open `http://localhost:8099/`.
 > so is any other port. Use the launcher, or always the same address, and you will always find your
 > workspaces.
 
+**Already running?** Since 1.9.2 the launchers never stop a running copy silently. If a copy of the
+application is already serving the port (the same folder started twice, or an earlier version in another
+folder), the launcher names it and asks **Stop it and start this version instead? [y/N]**. Press **Return**
+(or **n**) to leave the running copy as it is: the launcher opens it in your browser and you can close its
+window. Press **y** to stop the running copy and start this one — do this after an upgrade, so the browser
+shows the new version. A port held by a program that is not a local web server is never touched; start with
+another port instead (`./start.command 8150`, `start.bat 8150`).
+
 ### 3.3 Stopping it
 
 Press **Control-C** in the terminal window. Closing the browser does not stop the server, and
@@ -235,8 +243,25 @@ the time of the last save is shown top right. They are not shared with other bro
 classroom case; import it on any computer under Organization → Workspaces → *Import a JSON file*.
 Clearing the browser's site data for the app's address deletes the workspaces on that computer.
 
+**Teaching cases are recognised on restore and import (1.9.2).** The bundled cases (MediBec and CanaRetail,
+English and French) used to get a random identifier, so restoring a backup or importing a workspace file
+created a second *MediBec — teaching case (fictional)* every time. The application now records which bundled
+case a teaching workspace holds and recognises it whatever its identifier: when a restore or an import meets
+a case that is already here, it asks **Replace the copy here · Keep both · Skip** (Skip is the default on
+restore). A teaching workspace created from the Workspaces tab gets a fixed identifier when it is free.
+Duplicates that already exist are not merged automatically: delete the extra copies by hand on
+Organization → Workspaces (export one first if it holds work you want to keep).
+
 > Confidential material stays on this computer, but it is still confidential material on this
 > computer. Follow your organization's rules for where assessment data may be kept.
+
+**One window at a time (1.9.2).** Two windows or tabs on the same address share the same workspaces, and the
+last one to save would win. The application therefore takes a lock when it opens. A second window shows
+*CyberRiskGuardian is already open in another window* with two choices: **Use it here** — the other window
+saves what it holds, then freezes behind a notice that the copy is now open elsewhere; this window loads
+the data — or **Close**. The frozen window offers the same two choices, so you can take the work back. The
+lock is released by the browser itself when a window closes or crashes: a crash never leaves the
+application locked.
 
 ### 5.1 Data versions: what you enter survives upgrades
 
@@ -965,6 +990,16 @@ and facilities, each linked to the scenarios and risks it carries.
   patching, baseline, end of support, BIA, recent discovery) with the controls they support and the
   failing assets; Markdown and CSV reports.
 
+**Create from profile & crown jewels (1.9.2).** The button proposes assets for review instead of writing
+them: one line per system named in the profile's *Critical systems and applications* and per crown jewel,
+each ticked, with an editable name and type. The systems text is split on semicolons and line breaks, and
+on commas only outside parentheses, so *Integrated EHR (clinical, billing)* stays one asset; fragments
+such as *and billing* are dropped. A crown jewel brings its owner, role and C/I/A levels; a system named
+in the profile has no levels yet, so it is created at 3/3/3 and **listed for review** in a banner at the
+top of the inventory until you mark the list reviewed. The same banner lists, once, the assets created from the
+profile before this review existed (fragments, default type, 3/3/3, duplicate names); nothing is changed
+automatically — open each one to merge, retype, rescore or delete it.
+
 ### 7.2.3 Maturity & resilience {#maturity}
 
 **Maturity** is scored against NIST CSF 2.0: six functions and the 22 categories underneath them, read
@@ -1603,6 +1638,18 @@ the residual/tolerated ratio of its scenarios. Record the owner, category, treat
 review and a **formal acceptance** (by, date, valid until, rationale); every change is logged in the
 risk's history. The heat map (inherent, current or target) and the top-risks list sit above the
 register. *Refresh ratings from scenarios* updates current and target after parameters change.
+
+**Empty register (1.9.2).** On a workspace with no risk yet the tiles show **—**, not zeros, and the empty
+state explains the difference between the two registers: the *Scenario register* lists every scenario the
+analyst builds and quantifies; the *Risk register* is management's view — one risk per decision, with an
+owner, a 1–5 rating, a treatment decision and a formal acceptance, linked to the scenarios that quantify
+it. **Create from scenarios not yet in the register (n)** fills it. The Scenario register, the Risk
+calculator and the Management summary use the same **—** convention on a blank workspace.
+
+**Deleted scenarios (1.9.2).** Deleting a scenario warns you about the risks that link it. A risk whose
+scenario was deleted keeps the link, flagged *deleted scenario: S7* in the register and in its editor, where
+**Unlink** removes it (the change is logged). Its CRG figures count the remaining scenarios only; a risk
+whose scenarios are all gone shows a warning instead of figures.
 
 ### 7.3.10 Risk mitigation {#mitigation}
 
@@ -3619,14 +3666,33 @@ The chatbot is **help-only**: no AI, nothing sent. Under each answer, **Ask the 
 consultant's panel with your question typed in (section 7.10.4): the consultant has its own route, preview and
 history. The chatbot never changes data.
 
+### 7.12.3.1 Support code on every screen {#support-code}
+
+Each screen's title ends with a small code such as **`ORG-CROWN · 1.9.2`**: the screen, its tab and the
+version you are running. Click it to copy it, and quote it when you report a problem — it tells support
+exactly where you were. It is built from the address, never typed by hand, and it is not translated.
+
+### 7.12.3.2 Keyboard and screen readers {#accessibility}
+
+The first **Tab** on any page reaches **Skip to content**, which moves the focus to the current screen's
+title; a menu navigation moves the focus to the new screen's title as well, so the screen's tabs and fields
+are a few Tab presses away instead of a hundred. Every field is labelled for assistive technology; filter
+boxes, tick boxes and search fields that show no visible label announce the text next to them; the ATT&CK
+matrix can be focused and scrolled from the keyboard; the remove button of a chip is a 24 px target.
+
 ### 7.12.4 Language — English and French
 
 **EN / FR** in the top bar (or Settings → Language & detail) switches every screen at once; the
 choice is remembered. Only the interface is translated. Organization data, case documents,
 scenarios, catalogue content (ATT&CK, CWE, control titles), exported files and AI answers stay in
 their original language — a French case stays French in an English interface and vice versa.
-Numbers follow the language (0,85; 12,3 %; 1 234 $). With the interface in French, AI requests ask
-for French prose.
+Numbers follow the language on every screen (1.9.2): French uses the comma as the decimal mark, a
+non-breaking space to group thousands and before **%** and **$** — *98,27 %*, *5 311 000 $*, *84 305* —
+and the English interface keeps *98.27%*, *$5,311,000*, *84,305*. Exported files keep plain numbers.
+French terminology follows the author's decisions of November 2026: **ratio risque résiduel / risque
+toléré** (short *Ratio rés./tol.* in tight table headers), **probabilité** everywhere (including the 1–5
+scale of the risk register) and **éléments probants** for evidence. With the interface in French, AI
+requests ask for French prose.
 
 ---
 

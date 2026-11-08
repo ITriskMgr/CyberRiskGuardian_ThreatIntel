@@ -141,7 +141,7 @@ function preview(sec) {
 
   const twins = planned.rows.filter(r => r.state === 'teaching-twin');
   if (twins.length) c.append(banner('warn', tr('{0} teaching case(s) in this file are already here').replace('{0}', twins.length),
-    'A bundled teaching case is recognised whatever its id. For each one choose Replace (the copy here is overwritten by the file\'s), Keep both (the file\'s copy is added beside it) or Skip (nothing is written — the default). Duplicates created by earlier releases are deleted by hand on Organization → Workspaces.'));
+    'A bundled teaching case is recognised whatever its id. For each one choose Replace (the copy here is overwritten by the file\'s), Keep both (the file\'s copy is added beside it) or Skip (nothing is written — the default). Duplicates that already exist are deleted by hand on Organization → Workspaces.'));
   const risky = planned.rows.filter(r => r.state === 'newer-here');
   if (risky.length) c.append(banner('warn',
     `${risky.length} workspace${risky.length === 1 ? ' has' : 's have'} been modified here since this backup`,
