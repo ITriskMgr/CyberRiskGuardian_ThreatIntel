@@ -11,6 +11,29 @@ import { tr } from './i18n.js';
 import * as i18n from './i18n.js';
 import * as CH from './chapterhelp.js';
 import { WHY } from './whyscreen.js';
+import { VERSION } from './version.js';
+
+/* 1.9.2 (NV-080, T1) — a support code on every screen: SCREEN-TAB · version (e.g. "ORG-CROWN · 1.9.2"), drawn in the
+   screen's title line beside the "?" and copied to the clipboard on a click, so a tester or a user can name exactly
+   where something happened. The code is built from the route, never typed by hand. */
+export const codeFor = (panel, arg) => [panel, (arg || '').split('/')[0]].filter(Boolean).join('-').toUpperCase().replace(/[^A-Z0-9-]+/g, '');
+export function supportCode(sec, panel, arg, version = VERSION) {
+  const h1 = sec?.querySelector('h1'); if (!h1) return null;
+  const code = `${codeFor(panel, arg)} · ${version}`;
+  let b = h1.querySelector('.support-code');
+  if (!b) {
+    b = document.createElement('button'); b.type = 'button'; b.className = 'support-code'; b.setAttribute('data-noi18n', '');
+    b.addEventListener('click', async () => {
+      const txt = b.dataset.code || b.textContent;
+      try { await navigator.clipboard.writeText(txt); b.classList.add('copied'); } catch { b.classList.remove('copied'); }
+      setTimeout(() => b.classList.remove('copied'), 1500);
+    });
+    h1.append(b);
+  }
+  b.dataset.code = code; b.textContent = code;
+  b.title = tr('Support code of this screen — click to copy'); b.setAttribute('aria-label', tr('Support code {0} — click to copy').replace('{0}', code));
+  return b;
+}
 
 export const HELP = {
   process: { d: 'The nineteen steps of a complete risk assessment, then the report and the quality review: where you are, and what to do next.', g: 'process',
@@ -109,7 +132,7 @@ function watch(sec) {
   if (sec._helpObs) return;
   sec._helpObs = new MutationObserver(() => {
     const h1 = sec.querySelector('h1');
-    if (!h1 || h1.querySelector('.helpq') || sec.hidden || !sec._help) return;
+    if (!h1 || (h1.querySelector('.helpq') && h1.querySelector('.support-code')) || sec.hidden || !sec._help) return;
     const [, arg] = (location.hash || '').replace(/^#\/?/, '').split(/\/(.*)/);
     decorate(sec, sec._help.panel, arg || null, sec._help.mod);
   });
@@ -150,6 +173,7 @@ export function decorate(sec, panel, arg, mod) {
   const e = entry(panel, arg, mod);
   const h1 = sec.querySelector('h1');
   if (!h1) return;
+  supportCode(sec, panel, arg);
   if (!e) { readMore(sec, h1, panel, arg); whyLine(sec, h1, panel); return; }
   sec.querySelectorAll(':scope > .paneldesc, :scope > .helppop').forEach(n => n.remove());
   const next = h1.nextElementSibling;

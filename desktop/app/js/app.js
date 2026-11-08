@@ -64,6 +64,11 @@ import { nextStep } from './process.js';
 import * as DETAIL from './detail.js';
 import { VERSION as VERSION_NUM, SERIES as VERSION_SERIES } from './version.js';
 const VERSION_LABEL = `${VERSION_NUM} Beta (${VERSION_SERIES})`;
+/* 1.9.2 (item 1, NV-050) — the one-line footer: © Marc-André Léger · v1.9.2 Beta · ✓ Engine verified. The version is
+   read from version.js, never typed here. */
+const FOOT_VERSION = `v${VERSION_NUM} Beta`;
+import * as A11Y from './a11y.js';
+import * as WINLOCK from './winlock.js';
 import * as HELPMENU from './helpmenu.js';
 import { leaveProfile } from './panels/org.js';
 import { hfetch } from './helper.js';
@@ -159,10 +164,14 @@ function route() {
   }
   for (const k of Object.keys(PANELS)) $('panel-' + k).hidden = k !== name;
   if (current?.name !== name || current?.arg !== arg) LOG.access('screen opened', name + (arg ? '/' + arg : ''), '', S.ws?.name || '');
+  const panelChanged = !!current && current.name !== name;
   current = { name, arg };
   chat.setScreen(name);
   draw();
   $('main').scrollTop = 0;
+  // 1.9.2 (NV-092) — after a navigation to another screen the focus moves to its title; a tab switch inside a screen
+  // keeps the focus on the tab that was activated.
+  if (panelChanged) A11Y.focusHeading($('panel-' + name));
 }
 function draw() {
   if (!current || !S.ws) return;
@@ -177,7 +186,7 @@ function draw() {
   const fail = e => { console.error(e); sec.replaceChildren(banner('bad', 'This screen raised an error', String(e.stack || e))); };
   sec.classList.remove('ro');   // the read-only observer must not lock the new render of another user/step
   const after = () => {
-    HELP.decorate(sec, current.name, current.arg, PANELS[current.name]);
+    HELP.decorate(sec, current.name, current.arg, PANELS[current.name]);   // 1.9.2 (NV-080): also draws the screen's support code
     users.enforce(sec, current.name, current.arg, banner);
     // 1.5.8 — a workspace written by a newer release, or whose migration failed, is never saved over
     if (isReadOnly() && !sec.querySelector('.mig-banner')) {
@@ -301,8 +310,9 @@ function drawFoot() {
     el('span', null, i18n.tr({ good: 'Engine verified', unverified: 'Engine unverified', bad: 'Engine check failed' }[state])));
   short.classList.toggle('bad', state === 'bad'); short.classList.toggle('unverified', state === 'unverified');
   const foot = $('nav-foot'), shown = i18n.tr(full);
+  $('foot-version').textContent = FOOT_VERSION;
   foot.title = `v${VERSION_LABEL} · © 2026 Marc-André Léger — ${shown}`;
-  foot.setAttribute('aria-label', i18n.tr('© 2026 Marc-André Léger · {0} · About & versions').replace('{0}', shown));
+  foot.setAttribute('aria-label', i18n.tr('© 2026 Marc-André Léger · {0} · {1} · About & versions').replace('{0}', FOOT_VERSION).replace('{1}', shown));
 }
 drawFoot();
 window.addEventListener('crg-lang', drawFoot);
@@ -310,7 +320,9 @@ nav.init();
 TABKEYS.init();   // 1.9.0 Atlas: arrow keys and a roving tabindex on every screen's tab list
 window.addEventListener('crg-visibility', () => drawChrome());
 window.addEventListener('hashchange', route);
-Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()]).then(() => { const again = !!reopened(); if (!again) LOG.access('application opened', location.host || 'local'); DETAIL.apply(); chat.mount(); consultui.mount(); drawChrome(); route(); { const r = reopened(); if (r?.carry?.toast) toast(r.carry.toast, r.carry.kind || ''); if (r && !r.carry?.org) reopenedDone(); } setTimeout(() => document.body.classList.remove('boot'), 1400); if (!again) UPUI.startup().catch(console.warn); drawFoot(); }).catch(e => {
+/* 1.9.2 (item 2, NV-012) — one window at a time: the lock is taken before anything is read or written. When another
+   window holds it, the person chooses "Use it here" (the other window saves, then freezes) or "Close". */
+WINLOCK.acquire().then(() => Promise.all([LOG.load(), loadAll(), FW.load(), i18n.init(), users.load()])).then(() => { A11Y.init(); const again = !!reopened(); if (!again) LOG.access('application opened', location.host || 'local'); DETAIL.apply(); chat.mount(); consultui.mount(); drawChrome(); route(); { const r = reopened(); if (r?.carry?.toast) toast(r.carry.toast, r.carry.kind || ''); if (r && !r.carry?.org) reopenedDone(); } setTimeout(() => document.body.classList.remove('boot'), 1400); if (!again) UPUI.startup().catch(console.warn); drawFoot(); }).catch(e => {
   console.error(e); $('engine-banner').append(banner('bad', 'Could not open local storage', String(e.message || e)));
 });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
