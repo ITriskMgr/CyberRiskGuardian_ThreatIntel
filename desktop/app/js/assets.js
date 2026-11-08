@@ -19,6 +19,49 @@ const ENDPOINT_TYPES = new Set(['hardware', 'server']);
 const CLASS_W = { Public: 0, Internal: 4, Confidential: 10, Restricted: 15 };
 
 export function nextAssetId(ws = S.ws) { let n = 0; for (const a of ws.assets || []) { const m = /^A-(\d+)$/.exec(a.id); if (m) n = Math.max(n, +m[1]); } return 'A-' + String(n + 1).padStart(3, '0'); }
+/* 1.9.2 (item 19, NV-038) — the assets the organization profile and the crown jewels suggest, for review. Splits the
+   systems text on ";" and line breaks, and on "," only outside parentheses; keeps whole phrases; drops fragments. */
+const CJ_LEVEL = { low: 2, medium: 3, high: 4, 'very high': 5, faible: 2, moyen: 3, moyenne: 3, 'élevé': 4, 'élevée': 4, 'très élevé': 5, 'très élevée': 5 };
+export function splitSystems(text) {
+  const out = []; let cur = '', depth = 0;
+  for (const ch of String(text || '')) {
+    if (ch === '(' || ch === '[') depth++;
+    else if ((ch === ')' || ch === ']') && depth) depth--;
+    if (ch === ';' || ch === '\n' || (ch === ',' && depth === 0)) { out.push(cur); cur = ''; continue; }
+    cur += ch;
+  }
+  out.push(cur);
+  return out.map(s => s.trim().replace(/^(and|et|or|ou)\s+/i, '').replace(/^[-–•*]\s*/, '').replace(/[.;:]$/, '').trim())
+    .filter(s => s.length >= 4 && s.length < 120 && !/^(etc|others?|autres?|systems?|systèmes?)$/i.test(s) && (s.match(/\(/g) || []).length === (s.match(/\)/g) || []).length);
+}
+export function inferType(name) {
+  const n = String(name || '');
+  if (/equipment|device|appareil|équipement|imaging|imagerie|scanner|iot|ot\b|pump|monitor|capteur|sensor|medical/i.test(n) && !/system|système|software|logiciel/i.test(n)) return 'iot';
+  if (/network|réseau|wi-?fi|firewall|pare-feu|vpn|switch|router|routeur|lan\b|wan\b/i.test(n)) return 'network';
+  if (/cloud|saas|tenant|m365|office 365|azure|aws|google workspace|infonuagique/i.test(n)) return 'cloud';
+  if (/data(base)?|données|records?|dossiers?|archive|repository|entrepôt/i.test(n) && !/system|système|application/i.test(n)) return 'data';
+  if (/supplier|vendor|fournisseur|partner|partenaire|third.party|tiers/i.test(n)) return 'supplier';
+  if (/server|serveur|data ?cent(er|re)|hosting|hébergement/i.test(n)) return 'server';
+  if (/laptop|workstation|poste|desktop|tablet|tablette|phone|téléphone|mobile/i.test(n)) return 'hardware';
+  if (/process|processus|service|clinic|clinique|billing|facturation|scheduling|rendez-vous|teleconsult|téléconsult/i.test(n) && !/system|système|application|portal|portail|e-?mail|courriel/i.test(n)) return 'service';
+  return 'application';
+}
+export function proposeFromProfile(ws) {
+  const have = new Set((ws.assets || []).map(a => String(a.name || '').trim().toLowerCase()));
+  const seen = new Set(); const out = [];
+  const add = p => { const k = p.name.trim().toLowerCase(); if (!k || seen.has(k) || have.has(k)) return; seen.add(k); out.push(p); };
+  const sens = nm => /patient|health|ehr|dme|dossier médical|medical record|santé|clinical|clinique/i.test(nm) ? ['PHI', 'PII'] : /payment|paiement|card|carte/i.test(nm) ? ['PCI'] : /employee|employé|rh\b|hr\b/i.test(nm) ? ['HR'] : [];
+  const cls = nm => sens(nm).length ? 'Restricted' : 'Confidential';
+  for (const c of (ws.assessment?.CROWN || [])) {
+    const r = Array.isArray(c) ? c : [c.id, c.name || c.asset || '', c.role || '', c.owner || '', c.c || '', c.i || '', c.a || ''];
+    const nm = String(r[1] || '').trim(); if (nm.length < 2) continue;
+    const lv = x => CJ_LEVEL[String(x || '').trim().toLowerCase()];
+    const cia = lv(r[4]) && lv(r[5]) && lv(r[6]) ? { c: lv(r[4]), i: lv(r[5]), a: lv(r[6]) } : null;
+    add({ name: nm, type: inferType(nm), owner: String(r[3] || ''), desc: String(r[2] || ''), cia, classification: cls(nm), sensitivity: sens(nm), source: 'crown' });
+  }
+  for (const nm of splitSystems(ws.org?.systems)) add({ name: nm, type: inferType(nm), owner: '', desc: '', cia: null, classification: cls(nm), sensitivity: sens(nm), source: 'profile' });
+  return out;
+}
 export function blankAsset(o = {}) {
   return Object.assign({ id: nextAssetId(), name: '', type: 'application', subtype: '', desc: '', owner: '', custodian: '', location: '', env: 'production', ip: '', hostname: '', os: '', vendor: '', product: '', version: '', cpe: '',
     tags: [], classification: 'Internal', sensitivity: [], cia: { c: 3, i: 3, a: 3 }, bia: { mtd: '', rto: '', rpo: '', fin: 0, ops: 0, legal: 0, rep: 0, safety: 0, processes: '', revhr: '' },

@@ -1,7 +1,7 @@
 /* Risk calculator — portfolio table (include/exclude each scenario) and the full single-scenario calculation.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, go, val, select, money } from '../util.js';
+import { el, n0, n1, n2, pct, kpi, banner, card, pill, pillFor, field, toast, go, val, select, money } from '../util.js';
 import { techName } from '../ontology.js';
 import { S, touch, compute, setIncluded, scen, blankScenario, nextScenarioId, PARAMS } from '../state.js';
 import { tr } from '../i18n.js';
@@ -40,8 +40,9 @@ function portfolio(box, sec) {
   box.replaceChildren();
   if (whatIf.appetite !== null || whatIf.factor !== null) box.append(banner('warn', 'What-if values in use', `Appetite ${R.appetite}, factor ${n0(R.factor)} — not saved.`));
   const k = el('div', 'grid g5');
-  k.append(kpi('Included', `${R.inc.length} / ${R.rows.length}`, 'scenarios in totals'), kpi('Estimated', n0(R.totals.est)), kpi('Tolerated', n0(R.totals.tol)),
-    kpi('Residual', n0(R.totals.res), R.totals.est ? `−${Math.round(100 - R.totals.res / R.totals.est * 100)}% after treatment` : ''),
+  const N = x => R.rows.length ? n0(x) : '—';   // 1.9.2 (NV-054): "—" on a blank workspace
+  k.append(kpi('Included', R.rows.length ? `${n0(R.inc.length)} / ${n0(R.rows.length)}` : '—', 'scenarios in totals'), kpi('Estimated', N(R.totals.est)), kpi('Tolerated', N(R.totals.tol)),
+    kpi('Residual', N(R.totals.res), R.totals.est ? `−${pct(1 - R.totals.res / R.totals.est, 0)} after treatment` : ''),
     kpi('Portfolio Res/Tol', R.totals.tol ? n2(R.totals.res / R.totals.tol) : '—', R.totals.tol ? CRG.classify(R.totals.res / R.totals.tol) : '', R.totals.tol ? pillFor(CRG.classify(R.totals.res / R.totals.tol)) : ''));
   box.append(k);
   if (R.errors.length) box.append(banner('bad', 'Not calculable', R.errors.map(e => e.id + ': ' + e.error).join(' · ')));
@@ -77,7 +78,7 @@ function portfolio(box, sec) {
       c.addEventListener('change', () => { setIncluded(r.id, c.checked); portfolio(box, sec); });
       const tr = el('tr', (r.inc ? '' : 'off ') + (loaded === r.id ? 'sel ' : '') + 'click',
         el('td', 'cb', c), el('td', 'mono', r.id), el('td', null, el('a', { href: '#/scenario/' + r.id }, (r.name || '').slice(0, 70)), el('div', 'small muted', srcOf(r))),
-        el('td', 'num', n2(val(r.s.params.PbA))), el('td', 'num', n2(val(r.s.params.Pbx))), el('td', 'num', r.cvss.toFixed(1)),
+        el('td', 'num', n2(val(r.s.params.PbA))), el('td', 'num', n2(val(r.s.params.Pbx))), el('td', 'num', n1(r.cvss)),
         el('td', 'num', n0(r.est)), el('td', 'num', n0(r.tol)), el('td', 'num', n0(r.mit)), el('td', 'num', n0(r.res)), el('td', 'num', n2(r.ratio)),
         el('td', null, pill(r.cls, pillFor(r.cls))), el('td', 'num', r.cost ? money(r.cost) : '—'));
       tr.addEventListener('click', e => { if (e.target.closest('input,a')) return; loaded = r.id; singleCalc(document.getElementById('single-calc')); drawTable(); document.getElementById('single-calc').scrollIntoView({ behavior: 'smooth' }); });

@@ -4,8 +4,9 @@
    the linked scenarios through the verified engine. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as users from '../users.js';
-import { el, n0, n2, kpi, card, pill, pillFor, chip, select, toast, table, field, today, go, debounce } from '../util.js';
+import { el, n0, n2, kpi, card, pill, pillFor, chip, select, toast, table, field, today, go, debounce, banner } from '../util.js';
 import { S, touch, compute, scen } from '../state.js';
+import { tr } from '../i18n.js';
 import { linkEditor } from '../picker.js';
 import * as G from '../registry.js';
 
@@ -21,12 +22,30 @@ export function render(sec, arg) {
   const lv = r => G.level(G.score(r.current));
   const notLinked = ws.assessment.SCEN.filter(s => !rs.some(r => r.scenarios.includes(s.id)));
   const overdue = rs.filter(r => r.review && r.review < today() && r.status !== 'closed');
+  const broken = rs.filter(r => G.missingScenarios(r, ws).length);   // 1.9.2 (item 10): links to deleted scenarios
+  /* 1.9.2 (item 9, NV-054) — an empty register shows "—" in its tiles, not zeros that look like a result. */
+  const N = x => rs.length ? n0(x) : '—';
   sec.append(el('div', 'grid g5',
-    kpi('Risks', n0(rs.length), `${rs.filter(r => r.status !== 'closed').length} open or monitored`),
-    kpi('High or very high', n0(rs.filter(r => G.score(r.current) >= 10).length), 'current rating', rs.some(r => G.score(r.current) >= 10) ? 'bad' : 'good'),
-    kpi('Above tolerance (CRG)', n0(rs.filter(r => G.crgOf(r, R)?.ratio > CRG.BAND_HIGH).length), 'linked scenarios residual / tolerated'),
-    kpi('Formally accepted', n0(rs.filter(r => r.acceptance?.by).length), 'with an acceptance record'),
-    kpi('Reviews overdue', n0(overdue.length), 'review date passed', overdue.length ? 'warn' : 'good')));
+    kpi('Risks', N(rs.length), rs.length ? `${rs.filter(r => r.status !== 'closed').length} open or monitored` : 'no risk recorded yet'),
+    kpi('High or very high', N(rs.filter(r => G.score(r.current) >= 10).length), 'current rating', rs.some(r => G.score(r.current) >= 10) ? 'bad' : rs.length ? 'good' : ''),
+    kpi('Above tolerance (CRG)', N(rs.filter(r => G.crgOf(r, R)?.ratio > CRG.BAND_HIGH).length), 'linked scenarios residual / tolerated'),
+    kpi('Formally accepted', N(rs.filter(r => r.acceptance?.by).length), 'with an acceptance record'),
+    kpi('Reviews overdue', N(overdue.length), 'review date passed', overdue.length ? 'warn' : rs.length ? 'good' : '')));
+  if (broken.length) sec.append(banner('warn', tr('{0} risk(s) link a scenario that no longer exists').replace('{0}', broken.length),
+    el('span', null, tr('Their CRG figures count the remaining scenarios only. Open each risk and use Unlink, or link another scenario: '),
+      ...broken.map((r, i) => el('span', null, i ? ', ' : '', el('a', { href: '#/riskreg/' + r.id }, `${r.id} (${G.missingScenarios(r, ws).join(', ')})`))))));
+  if (!rs.length) {
+    /* 1.9.2 (item 9) — the empty state says what this register is for, how it differs from the Scenario register, and
+       offers the one action that fills it. */
+    sec.append(card(el('div', 'empty-state', el('b', null, 'The risk register is empty'),
+      el('p', null, 'The Scenario register lists every scenario the analyst builds and quantifies with the engine. The Risk register is management\'s view: one risk per decision to take, with an owner, a 1–5 rating, a treatment decision and a formal acceptance when the residual risk is kept — each risk linked to the scenarios that quantify it. A risk can group several scenarios; a scenario can stay out of the register.'),
+      el('div', 'btnrow', { style: { justifyContent: 'center', marginTop: '10px' } },
+        el('button', { class: 'btn', disabled: !notLinked.length, onclick: () => { for (const s of notLinked) ws.risks.push(G.riskFromScenario(s)); touch(); toast(notLinked.length + ' ' + tr('risk(s) created from scenarios')); render(sec); } }, `Create from scenarios not yet in the register (${notLinked.length})`),
+        el('button', { class: 'btn ghost', onclick: () => { const r = G.blankRisk(); ws.risks.push(r); editId = r.id; touch(); render(sec); } }, 'New risk'),
+        notLinked.length ? null : el('button', { class: 'btn ghost', onclick: () => go('register') }, 'Open the Scenario register')),
+      notLinked.length ? null : el('p', 'small muted', 'There is no scenario to create risks from yet: build scenarios first.'))));
+    return;
+  }
   // actions
   sec.append(card(el('div', 'btnrow',
     el('button', { class: 'btn', onclick: () => { const r = G.blankRisk(); ws.risks.push(r); editId = r.id; touch(); render(sec); } }, 'New risk'),
@@ -43,7 +62,7 @@ export function render(sec, arg) {
     && (!flt.q || [r.id, r.title, r.desc, r.owner, r.threatText, r.threats.join(' '), r.vulns.join(' ')].join(' ').toLowerCase().includes(flt.q.toLowerCase())));
   const cols = [
     { key: 'id', label: 'ID', cls: 'mono' },
-    { key: 'title', label: 'Risk', render: r => el('div', null, el('b', null, r.title || '(untitled)'), el('div', 'small muted', [r.category, r.owner].filter(Boolean).join(' · ')),
+    { key: 'title', label: 'Risk', render: r => el('div', null, el('b', null, r.title || '(untitled)'), G.missingScenarios(r, ws).length ? el('span', null, ' ', pill(tr('deleted scenario: {0}').replace('{0}', G.missingScenarios(r, ws).join(', ')), 'bad')) : null, el('div', 'small muted', [r.category, r.owner].filter(Boolean).join(' · ')),
       el('div', 'chips', { style: { marginTop: '3px' } }, ...r.threats.slice(0, 2).map(t => chip(t, { kind: 't', href: '#/threats/' + t })), ...r.vulns.slice(0, 2).map(v => chip(v, { kind: v.startsWith('CWE') ? 'c' : (S.snap?.kev?.cves?.[v] ? 'k' : 'v'), href: '#/vulns/' + v })))) },
     { key: 'cur', label: 'Current', render: r => { const [t, k] = lv(r); return el('span', null, pill(t, k), el('span', 'small muted', ` ${r.current.l}×${r.current.i}`)); }, sort: r => G.score(r.current) },
     { key: 'tgt', label: 'Target', render: r => { const [t, k] = G.level(G.score(r.target)); return el('span', null, pill(t, k), el('span', 'small muted', ` ${r.target.l}×${r.target.i}`)); }, sort: r => G.score(r.target) },
@@ -107,6 +126,9 @@ function editor(r, sec, R) {
   const scBox = el('div', 'chips');
   for (const s of ws.assessment.SCEN) scBox.append(el('label', { class: 'chip', style: { cursor: 'pointer' }, title: s.name }, el('input', { type: 'checkbox', checked: r.scenarios.includes(s.id), style: { width: 'auto', margin: 0 },
     onchange: e => { if (e.target.checked) r.scenarios.push(s.id); else r.scenarios = r.scenarios.filter(x => x !== s.id); G.log(r, (e.target.checked ? 'Linked ' : 'Unlinked ') + s.id); touch(); render(sec); } }), ' ', s.id));
+  // 1.9.2 (item 10) — a link to a scenario that was deleted stays visible, flagged, with Unlink
+  for (const id of G.missingScenarios(r, ws)) scBox.append(el('span', { class: 'chip k', title: tr('This scenario no longer exists in the workspace') }, el('span', null, `${id} — ${tr('deleted scenario')}`),
+    el('button', { class: 'btn sm ghost', type: 'button', 'aria-label': tr('Unlink {0}').replace('{0}', id), onclick: () => { r.scenarios = r.scenarios.filter(x => x !== id); G.log(r, 'Unlinked deleted scenario ' + id); touch(); render(sec); } }, 'Unlink')));
   const asBox = el('div', 'chips');
   for (const a of ws.assets || []) asBox.append(el('label', { class: 'chip', style: { cursor: 'pointer' }, title: a.type }, el('input', { type: 'checkbox', checked: r.assets.includes(a.id), style: { width: 'auto', margin: 0 },
     onchange: e => { if (e.target.checked) r.assets.push(a.id); else r.assets = r.assets.filter(x => x !== a.id); touch(); } }), ' ', a.id + ' ' + a.name));
@@ -128,7 +150,9 @@ function editor(r, sec, R) {
   return card({ id: 'risk-edit' }, el('div', 'row', el('h2', { style: { flex: 1, margin: 0 } }, `${r.id} — ${r.title || 'new risk'}`),
       el('button', { class: 'btn sm ghost danger', onclick: () => { if (!confirm(`Delete ${r.id}?`)) return; ws.risks = ws.risks.filter(x => x !== r); editId = null; touch(); render(sec); } }, 'Delete'),
       el('button', { class: 'btn sm ghost', onclick: () => { editId = null; render(sec); } }, 'Close')),
-    c ? el('div', 'note', `CRG (linked scenarios): estimated ${n0(c.est)}, tolerated ${n0(c.tol)}, residual ${n0(c.res)} — ratio ${n2(c.ratio)}, `, pill(c.cls, pillFor(c.cls))) : el('div', 'note', 'No scenario linked: CRG figures need at least one scenario.'),
+    c ? el('div', 'note', `CRG (linked scenarios): estimated ${n0(c.est)}, tolerated ${n0(c.tol)}, residual ${n0(c.res)} — ratio ${n2(c.ratio)}, `, pill(c.cls, pillFor(c.cls)))
+      : G.missingScenarios(r, ws).length ? banner('warn', 'Linked scenario deleted', tr('Every scenario this risk linked has been deleted ({0}): its CRG figures cannot be computed. Unlink them below and link another scenario.').replace('{0}', G.missingScenarios(r, ws).join(', ')))
+      : el('div', 'note', 'No scenario linked: CRG figures need at least one scenario.'),
     d, field('Description', desc),
     el('div', 'grid g3', { style: { marginTop: '10px' } }, rating('inherent'), rating('current'), rating('target')),
     el('h4', null, 'Threats (ATT&CK)'), linkEditor(r.threats, 'attack', () => touch()),

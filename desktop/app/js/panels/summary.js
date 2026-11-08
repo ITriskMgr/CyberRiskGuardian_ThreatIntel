@@ -112,7 +112,7 @@ export function render(sec) {
       el('tr', null, el('td', null, tr('After treatment')), ...CLS.map(c => el('td', 'num', String(x.after[c]))))));
   sec.append(el('div', 'cols2',
     card(el('h2', null, 'Residual risk against tolerance'), grid,
-      el('div', 'grid g3', { style: { marginTop: '10px' } }, kpi('Estimated', n0(x.R.totals.est)), kpi('Tolerated', n0(x.R.totals.tol)), kpi('Residual', n0(x.R.totals.res))),
+      el('div', 'grid g3', { style: { marginTop: '10px' } }, kpi('Estimated', x.R.rows.length ? n0(x.R.totals.est) : '—'), kpi('Tolerated', x.R.rows.length ? n0(x.R.totals.tol) : '—'), kpi('Residual', x.R.rows.length ? n0(x.R.totals.res) : '—')),   // 1.9.2 (NV-054): "—" on a blank workspace
       el('p', 'note', 'Risk units are relative decision-support indicators, not dollars.')),
     card(el('h2', null, 'Portfolio and budget'), el('div', 'grid g2',
       kpi('Recommended portfolio, year 1', money(Math.round(x.y1))),

@@ -6,7 +6,8 @@
    lifecycle management and traceability, timestamped audit trail and compliance reporting.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, field, today, debounce, go } from '../util.js';
+import { el, n0, kpi, card, pill, chip, select, toast, table, banner, download, toCSV, field, today, debounce, go, modal, pct } from '../util.js';
+import { tr } from '../i18n.js';
 import { S, touch, compute, scen } from '../state.js';
 import { HS, probe, apiJson, hfetch } from '../helper.js';
 import * as X from '../assets.js';
@@ -30,7 +31,7 @@ export function render(sec, arg) {
     kpi('Assets', n0(ws.assets.length), `${new Set(ws.assets.map(a => a.type)).size} types · ${ws.assets.filter(a => a.discovery).length} discovered`),
     kpi('Critical', n0(crit), 'criticality ≥ 70', crit ? 'warn' : ''),
     kpi('Highest dynamic risk', scored.length ? n0(Math.max(...scored.map(x => x.d.score))) : '—', 'criticality × exposure (0–100)'),
-    kpi('EDR coverage', ep.length ? Math.round(100 * ep.filter(a => a.endpoint?.edr === true).length / ep.length) + '%' : '—', `${ep.length} endpoints and servers`, ep.some(a => a.endpoint?.edr === false) ? 'warn' : ''),
+    kpi('EDR coverage', ep.length ? pct(ep.filter(a => a.endpoint?.edr === true).length / ep.length, 0) : '—', `${n0(ep.length)} endpoints and servers`, ep.some(a => a.endpoint?.edr === false) ? 'warn' : ''),
     kpi('Linked to scenarios', n0(ws.assets.filter(a => X.scenariosOf(a.id, ws).length).length), `of ${ws.assets.length}`)));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
   for (const [k, t] of [['inventory', 'Inventory'], ['discovery', 'Discovery & import'], ['software', 'Software & data'], ['bia', 'Business impact'], ['vulns', 'Vulnerabilities & configuration'],
@@ -68,12 +69,48 @@ function inventory(body, sec, scored, R) {
   q.addEventListener('input', debounce(() => { flt.q = q.value; upd(); }, 200));
   for (const [c, k] of [[ty, 'type'], [ti, 'tier'], [cl, 'cls'], [sg, 'stage']]) c.addEventListener('change', () => { flt[k] = c.value; upd(); });
   upd();
+  /* 1.9.2 (item 19, NV-038) — "Create from profile & crown jewels" proposes assets for review instead of writing junk:
+     the systems text is split on ";" and line breaks, and on "," only outside parentheses; fragments ("and", "etc.",
+     unbalanced parentheses, under 4 characters) are dropped; a crown jewel brings its owner, role and C/I/A levels;
+     the type is inferred from the name (devices and equipment → IoT/OT, network words → network device, cloud →
+     cloud service, data words → data, suppliers → third party), everything else an application. The proposals are
+     shown ticked for review — the analyst unticks, edits the name or the type, then adds. Nothing is created before. */
   const fromProfile = () => {
-    const ws = S.ws; let n = 0;
-    const names = [...(ws.assessment.CROWN || []).map(c => Array.isArray(c) ? c[1] || c[0] : c.name || c.asset || ''), ...String(ws.org.systems || '').split(/[;,\n]/)].map(s => String(s).trim().replace(/^and\s+/i, '').replace(/\.$/, '')).filter(s => s.length >= 3 && s.length < 80);
-    for (const nm of [...new Set(names)]) if (!ws.assets.some(a => a.name.toLowerCase() === nm.toLowerCase())) { const a = X.blankAsset({ name: nm, type: /e-?mail|ehr|system|billing|portal|scheduling|pharmacy|laborator|radiolog/i.test(nm) ? 'application' : /equipment|device/i.test(nm) ? 'iot' : 'application', classification: /patient|health|ehr|medical|personal/i.test(nm) ? 'Restricted' : 'Confidential', sensitivity: /patient|health|ehr|medical/i.test(nm) ? ['PHI', 'PII'] : [] }); ws.assets.push(a); X.log(ws, a.id, 'create', '', '', a.name, 'organization profile'); n++; }
-    touch(); toast(n + ' asset(s) created from the profile and crown jewels — review their classification'); render(sec);
+    const ws = S.ws;
+    const proposals = X.proposeFromProfile(ws);
+    if (!proposals.length) { toast(tr('Nothing to propose: every system named in the profile and the crown jewels is already an asset.')); return; }
+    const rows = proposals.map(p => Object.assign({ take: true }, p));
+    const t = table([
+      { key: 'take', label: '', sr: 'Add', sortable: false, cls: 'cb', render: r => { const c = el('input', { type: 'checkbox', checked: r.take, 'aria-label': tr('Add {0}').replace('{0}', r.name) }); c.addEventListener('change', () => { r.take = c.checked; }); return c; } },
+      { key: 'name', label: 'Asset (editable)', sortable: false, render: r => { const i = el('input', { value: r.name, 'aria-label': tr('Asset name') }); i.addEventListener('input', () => { r.name = i.value; }); return i; } },
+      { key: 'type', label: 'Type', sortable: false, render: r => { const sl = select(X.TYPES, r.type, { 'aria-label': tr('Type of {0}').replace('{0}', r.name) }); sl.addEventListener('change', () => { r.type = sl.value; }); return sl; } },
+      { key: 'cia', label: 'C · I · A', render: r => r.cia ? `${r.cia.c} · ${r.cia.i} · ${r.cia.a}` : tr('3 · 3 · 3 (default — to score)') },
+      { key: 'src', label: 'Source', render: r => el('span', 'small muted', r.source === 'crown' ? tr('crown jewel') : tr('profile: critical systems')) },
+    ], rows, { class: 'compact' });
+    const m = modal(tr('Review the assets proposed from the profile'),
+      el('p', 'note', 'Each line is one system named in the profile or one crown jewel. Untick what is not an asset, fix a name or a type, then add. C/I/A come from the crown jewel\'s levels where they exist; otherwise they stay at 3/3/3 and the asset is listed for scoring.'),
+      el('div', 'tablewrap', { style: { maxHeight: '55vh', overflow: 'auto' } }, t),
+      el('div', 'btnrow', { style: { marginTop: '12px' } },
+        el('button', { class: 'btn', onclick: () => {
+          let n = 0; const toScore = [];
+          for (const r of rows) {
+            const nm = String(r.name || '').trim(); if (!r.take || nm.length < 2 || ws.assets.some(a => a.name.toLowerCase() === nm.toLowerCase())) continue;
+            const a = X.blankAsset({ name: nm, type: r.type, owner: r.owner || '', desc: r.desc || '', classification: r.classification, sensitivity: r.sensitivity, cia: r.cia || { c: 3, i: 3, a: 3 } });
+            ws.assets.push(a); X.log(ws, a.id, 'create', '', '', a.name, r.source === 'crown' ? 'crown jewel' : 'organization profile'); n++;
+            if (!r.cia) toScore.push(a.id);
+          }
+          if (toScore.length) { ws.assetReview ||= { pending: [], created: null, reviewed: null }; ws.assetReview.pending = [...(ws.assetReview.pending || []), ...toScore.map(id => ({ id, name: ws.assets.find(a => a.id === id)?.name || id, why: ['C/I/A left at the 3/3/3 default'] }))]; ws.assetReview.reviewed = null; }
+          m.close(); touch(); toast(n + ' ' + tr('asset(s) created — review their classification and C/I/A')); render(sec);
+        } }, 'Add ticked assets'),
+        el('button', { class: 'btn ghost', onclick: () => m.close() }, 'Cancel')));
   };
+  /* 1.9.2 (item 19) — the one-time review of assets created from the profile before 1.9.2 (migration), and of those
+     added without C/I/A levels: listed until the analyst marks them reviewed; nothing is changed automatically. */
+  const rv = ws.assetReview; const pend = (rv?.pending || []).filter(x => ws.assets.some(a => a.id === x.id));
+  if (pend.length && !rv.reviewed) body.append(banner('warn', tr('{0} asset(s) to review').replace('{0}', pend.length),
+    el('div', null, el('p', 'small', 'These assets were created from the organization profile by an earlier release, or without C/I/A levels: fragments of a longer phrase, a default type, C/I/A left at 3/3/3 or a duplicate name. Open each one to merge, retype, rescore or delete it, then mark the list reviewed. Nothing was changed by the update.'),
+      el('ul', 'small', ...pend.slice(0, 30).map(x => el('li', null, el('a', { href: '#/assets/' + x.id }, x.id + ' ' + (x.name || '')), el('span', 'muted', ' — ' + x.why.map(w => tr(w)).join('; ')))), pend.length > 30 ? el('li', 'muted', `+${pend.length - 30}`) : null),
+      el('div', 'btnrow', el('button', { class: 'btn sm', onclick: () => { rv.reviewed = today(); rv.pending = []; touch(); toast(tr('Asset review marked done')); render(sec); } }, 'Mark the list reviewed')))));
   body.append(card(el('div', 'btnrow',
       el('button', { class: 'btn', onclick: () => { const a = X.blankAsset(); ws.assets.push(a); X.log(ws, a.id, 'create', '', '', '(new)'); editId = a.id; touch(); render(sec); } }, 'New asset'),
       el('button', { class: 'btn ghost', onclick: fromProfile }, 'Create from profile & crown jewels'),

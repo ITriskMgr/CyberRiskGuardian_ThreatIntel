@@ -1,7 +1,8 @@
 /* Scenario register — every scenario with its threats, vulnerabilities and computed risk indices (risk indices are not KRIs).
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, n2, kpi, banner, card, pill, pillFor, chip, table, download, toast, go, select } from '../util.js';
+import { el, n0, n1, n2, pct, decMax, kpi, banner, card, pill, pillFor, chip, table, download, toast, go, select } from '../util.js';
+import { tr } from '../i18n.js';
 import { S, touch, compute, setIncluded, exportAssessment, normalizeScenario, blankScenario, nextScenarioId, emit } from '../state.js';
 import { techName, cwe } from '../ontology.js';
 
@@ -53,16 +54,17 @@ export function render(sec) {
     el('button', { class: 'btn ghost', onclick: () => fileIn.click() }, 'Load assessment JSON…'), fileIn,
     el('button', { class: 'btn ghost', onclick: () => download((ws.org.name || ws.name).replace(/[^\w.-]+/g, '_') + '-assessment.json', JSON.stringify(exportAssessment(), null, 1), 'application/json') }, 'Export JSON (crg_calc.py)'),
     el('button', { class: 'btn ghost', onclick: () => go('export') }, 'Export to Excel…'),
-  ), el('div', 'note', `${a.SCEN.length} scenarios · appetite ${R.appetite} · factor ${n0(R.factor)} · ${R.inc.length} included in totals (choose in the Risk calculator).`)));
+  ), el('div', 'note', `${n0(a.SCEN.length)} scenarios · appetite ${decMax(R.appetite, 2)} · factor ${n0(R.factor)} · ${n0(R.inc.length)} included in totals (choose in the Risk calculator).`)));
 
   if (R.errors.length) sec.append(banner('bad', `${R.errors.length} scenario(s) cannot be calculated`,
     el('div', null, ...R.errors.map(e => el('div', null, el('a', { href: '#/scenario/' + e.id }, e.id), ' — ' + e.error)))));
 
   const k = el('div', 'grid g4');
-  k.append(kpi('Scenarios included', n0(R.inc.length), `${a.SCEN.length - R.inc.length} excluded`),
-    kpi('Total estimated', n0(R.totals.est), 'included scenarios'),
-    kpi('Total residual', n0(R.totals.res), R.totals.est ? `reduction ${Math.round(100 - R.totals.res / R.totals.est * 100)}%` : ''),
-    kpi('Above tolerance', n0(R.counts.above), `${R.counts.at} at · ${R.counts.below} below`, R.counts.above ? 'bad' : 'good'));
+  const N = x => a.SCEN.length ? n0(x) : '—';   // 1.9.2 (NV-054): a blank workspace shows "—", not zeros that look like results
+  k.append(kpi('Scenarios included', N(R.inc.length), a.SCEN.length ? `${n0(a.SCEN.length - R.inc.length)} excluded` : 'no scenario yet'),
+    kpi('Total estimated', N(R.totals.est), 'included scenarios'),
+    kpi('Total residual', N(R.totals.res), R.totals.est ? tr('reduction {0}').replace('{0}', pct(1 - R.totals.res / R.totals.est, 0)) : ''),
+    kpi('Above tolerance', N(R.counts.above), a.SCEN.length ? `${n0(R.counts.at)} at · ${n0(R.counts.below)} below` : '', R.counts.above ? 'bad' : a.SCEN.length ? 'good' : ''));
   sec.append(k);
 
   if (!a.SCEN.length) {
@@ -98,4 +100,3 @@ export function render(sec) {
   box.append(el('div', 'row', el('div', { style: { flex: '1 1 320px' } }, q), el('div', { style: { width: '220px' } }, stSel)), el('div', 'tablewrap', { style: { marginTop: '12px' } }, t));
   sec.append(box);
 }
-const n1 = x => Number(x).toFixed(1);
