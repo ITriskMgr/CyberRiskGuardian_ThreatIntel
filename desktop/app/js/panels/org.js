@@ -357,7 +357,7 @@ function crown(body, arg, sec) {
   const LV = ['', 'Low', 'Medium', 'High', 'Very high'];
   const t = el('table', 'grid compact');
   const draw = () => {
-    t.replaceChildren(el('thead', null, el('tr', null, ...CJ_COLS.map(c => el('th', null, c)), el('th', null, 'Provenance'), el('th'))));
+    t.replaceChildren(el('thead', null, el('tr', null, ...CJ_COLS.map(c => el('th', null, c)), el('th', null, 'Provenance'), el('th', null, el('span', 'sr-only', 'Actions')))));
     const tb = el('tbody');
     a.CROWN.forEach((r, i) => {
       const tr = el('tr');
@@ -647,7 +647,7 @@ function workspaces(body, arg, sec) {
     el('div', 'btnrow', { style: { marginTop: '12px' } }, el('button', { class: 'btn', onclick: () => from.value === 'import' ? fileIn.click() : doCreate().catch(e => msg.replaceChildren(banner('bad', 'Could not create', String(e.message || e)))) }, 'Create workspace'), fileIn), msg));
 
   const t = el('table');
-  t.append(el('thead', null, el('tr', null, ...['Workspace', 'Type', 'Organization', 'Scenarios', 'Modified', ''].map(h => el('th', null, h)))));
+  t.append(el('thead', null, el('tr', null, ...['Workspace', 'Type', 'Organization', 'Scenarios', 'Modified'].map(h => el('th', null, h)), el('th', null, el('span', 'sr-only', 'Actions')))));
   const tb = el('tbody');
   for (const w of S.list) {
     const cur = w.id === S.ws.id;

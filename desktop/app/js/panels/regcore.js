@@ -33,7 +33,7 @@ export function stateCell(register, r, ws) {
   const stale = C.rowStale(register, r, ws);
   const est = ['INFERENCE', 'ASSUMPTION'].includes(r.prov?.tag) && r.status !== 'confirmed';
   return el('div', null, pill(tr(st[1]), r.status === 'confirmed' ? 'good' : r.status === 'conflicting' ? 'bad' : r.status === 'unknown' ? 'warn' : ''),
-    stale ? pill(tr('stale'), 'warn') : null, est ? el('div', 'small muted', MK.ESTIMATE) : null);
+    stale ? pill(tr('stale data'), 'warn') : null, est ? el('div', 'small muted', MK.ESTIMATE) : null);
 }
 /** An unknown count reads "unknown", never 0. */
 export const cnt = v => v === null || v === undefined || v === '' ? el('span', 'muted', tr('unknown')) : String(v);
@@ -94,7 +94,7 @@ function overview(X, body, redraw, ws) {
   body.append(el('div', { class: 'grid g4', id: id + '-kris' }, ...defs.map(d => {
     const v = K.values[d.id], m = K.meta[d.id], st = X.status(d, v, m);
     const sub = m.empty ? tr('no data') : m.gap ? `${tr('no data')} · ${tr('{0} unknown').replace('{0}', m.unknown)} · ${tr('Information gap — organizational validation required')}` : m.na ? tr('not applicable') : d.unit === 'count' ? tr('{0} expired').replace('{0}', m.num)
-      : `${m.num} / ${m.den} · ${tr('{0} unknown').replace('{0}', m.unknown)} · ${tr('{0} stale').replace('{0}', m.stale)}` + (d.id === 'CRG-22' && m.legacy ? ' · ' + tr('{0} legacy').replace('{0}', m.legacy) : '')
+      : `${n0(m.num)} / ${n0(m.den)} · ${trn(m.unknown, '# unknown value', '# unknown values')} · ${trn(m.stale, '# stale value', '# stale values')}` + (d.id === 'CRG-22' && m.legacy ? ' · ' + tr('{0} legacy').replace('{0}', m.legacy) : '')
         + (d.id === 'CRG-18' && m.den ? ' · ' + tr('phishing-resistant {0}').replace('{0}', pct(m.pr / m.den, 1)) : '');
     const t = kpi(`${d.id} ${tr(d.name)}`, fmt(d, v), sub, kind(st.k));
     t.dataset.kri = d.id; t.append(el('div', 's', pill(tr(st.label), kind(st.k))));

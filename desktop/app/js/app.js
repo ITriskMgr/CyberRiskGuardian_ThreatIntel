@@ -166,13 +166,15 @@ function route() {
   for (const k of Object.keys(PANELS)) $('panel-' + k).hidden = k !== name;
   if (current?.name !== name || current?.arg !== arg) LOG.access('screen opened', name + (arg ? '/' + arg : ''), '', S.ws?.name || '');
   const panelChanged = !!current && current.name !== name;
+  const tabHadFocus = !panelChanged && document.activeElement?.getAttribute('role') === 'tab' && $('panel-' + name).contains(document.activeElement);
   current = { name, arg };
   chat.setScreen(name);
   draw();
   $('main').scrollTop = 0;
   // 1.9.2 (NV-092) — after a navigation to another screen the focus moves to its title; a tab switch inside a screen
-  // keeps the focus on the tab that was activated.
+  // (which redraws the screen) puts the focus back on the tab that is now selected.
   if (panelChanged) A11Y.focusHeading($('panel-' + name));
+  else if (tabHadFocus) $('panel-' + name).querySelector('[role="tab"][aria-selected="true"]')?.focus();
 }
 function draw() {
   if (!current || !S.ws) return;

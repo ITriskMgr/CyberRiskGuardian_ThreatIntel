@@ -5,7 +5,7 @@ import { el, n0, n2, pct100, kpi, card, pill, field, select, toast, table, today
 import { S, touch, compute } from '../state.js';
 import { allDefs, autoValues, autoMeta, status, series, trend, moduleLabel } from '../kri.js';
 import { lineChart, sparkline, gauge } from '../charts.js';
-import { tr } from '../i18n.js';
+import { tr, trn } from '../i18n.js';
 
 let selected = 'CRG-01', compare = false;
 const flt = { q: '', status: 'all', kind: 'all', owner: 'all' };
@@ -112,7 +112,7 @@ export function render(sec) {
   const cols = [
     { key: 'sel', label: '', labelNode: tick, sortable: false, cls: 'cb', render: r => { const c = el('input', { type: 'checkbox', checked: sel.has(r.d.id), title: 'Show as gauge and record' }); c.addEventListener('change', () => { c.checked ? sel.add(r.d.id) : sel.delete(r.d.id); setSel(sel); }); return c; } },
     { key: 'id', label: 'KRI', render: r => el('div', null, el('b', null, r.d.id + ' '), r.d.name, r.d.module ? el('div', 'small muted', tr(moduleLabel(r.d))) : null,
-        el('div', 'small muted', r.d.module && meta[r.d.id] ? `${r.d.method} · ${meta[r.d.id].num ?? '—'} / ${meta[r.d.id].den ?? '—'} · ${meta[r.d.id].unknown} unknown · ${meta[r.d.id].stale} stale` : (r.d.method || r.d.risk || ''))), sort: r => r.d.id },
+        el('div', 'small muted', r.d.module && meta[r.d.id] ? `${r.d.method} · ${meta[r.d.id].num ?? '—'} / ${meta[r.d.id].den ?? '—'} · ${trn(meta[r.d.id].unknown, '# unknown value', '# unknown values')} · ${trn(meta[r.d.id].stale, '# stale value', '# stale values')}` : (r.d.method || r.d.risk || ''))), sort: r => r.d.id },
     { key: 'v', label: 'Current', num: true, render: r => fmtV(r.d, r.v), sort: r => r.v ?? -1 },
     { key: 'th', label: 'Target · warning · critical', render: r => r.d.raw ? el('span', { 'data-noi18n': '' }, [r.d.raw.target, r.d.raw.warning, r.d.raw.critical].map(x => x || '—').join(' · '))   // thresholds typed by the analyst: data
       : r.d.target === null && r.d.warn === null ? 'tracked, no threshold'
@@ -194,7 +194,7 @@ function defsEditor(sec) {
   const K = S.ws.assessment.KRIS;
   const cols = ['ID', 'KRI', 'Scenarios', 'Measurement', 'Data source', 'Owner', 'Frequency', 'Target', 'Warning', 'Critical'];
   const t = el('table', 'grid compact');
-  t.append(el('thead', null, el('tr', null, ...cols.map(c => el('th', null, c)), el('th'))));
+  t.append(el('thead', null, el('tr', null, ...cols.map(c => el('th', null, c)), el('th', null, el('span', 'sr-only', 'Actions')))));
   const tb = el('tbody');
   K.forEach((k, i) => {
     tb.append(el('tr', null, ...cols.map((c, j) => { const n = el('input', { value: k[j] ?? '', style: { width: j === 1 || j === 3 ? '200px' : j === 0 ? '70px' : '96px' } }); n.addEventListener('change', () => { k[j] = n.value; touch(); }); return el('td', null, n); }),

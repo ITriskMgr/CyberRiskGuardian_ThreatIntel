@@ -61,7 +61,7 @@ function years(out, sec) {
   const { per, rows } = commitments(ws);
   const target = CRG.budgetTarget(Number(a.APPETITE)), B = CRG.BUDGET_BAND;
   const t = el('table', 'grid compact');
-  t.append(el('thead', null, el('tr', null, ...['Year', 'Total IT budget', 'Planned cyber spend', 'Actual cyber spend', 'Baseline', 'Committed initiatives', 'Baseline + committed', '% of IT', 'Against the guideline', 'Note', ''].map(h => el('th', null, h)))));
+  t.append(el('thead', null, el('tr', null, ...['Year', 'Total IT budget', 'Planned cyber spend', 'Actual cyber spend', 'Baseline', 'Committed initiatives', 'Baseline + committed', '% of IT', 'Against the guideline', 'Note'].map(h => el('th', null, h)), el('th', null, el('span', 'sr-only', 'Actions')))));
   const tb = el('tbody');
   for (const y of ws.budgetYears) {
     const inp = (k, w) => { const i = el('input', { type: k === 'note' ? 'text' : 'number', value: y[k] ?? '', style: { width: w } }); i.addEventListener('change', () => { y[k] = k === 'note' ? i.value : i.value === '' ? null : Number(i.value); touch(); render(sec); }); return i; };

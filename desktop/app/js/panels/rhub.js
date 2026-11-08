@@ -82,7 +82,7 @@ async function browse(body, sec) {
       { key: 'themes', label: 'Themes', sortable: false, render: x => el('div', 'chips', ...(x.c.catalog?.themes || []).slice(0, 3).map(t => chip(label(V?.theme, t)))) },
       { key: 'sev', label: 'Severity', render: x => x.c.catalog?.severity ? pill(label(RH.SEVERITY, x.c.catalog.severity), { low: 'good', medium: 'warn', high: 'bad', vhigh: 'bad' }[x.c.catalog.severity]) : '—' },
       { key: 'ev', label: 'Evidence', render: x => label(RH.EVIDENCE, x.c.catalog?.evidence)?.split(' — ')[0] || '—' },
-      { key: 'mod', label: 'Status', render: x => el('div', null, modPill(x.c), RH.stale(x.c) ? pill('stale', 'warn') : null, x.c.anonymized ? null : pill('not anonymized', 'warn')) },
+      { key: 'mod', label: 'Status', render: x => el('div', null, modPill(x.c), RH.stale(x.c) ? pill('stale contribution', 'warn') : null, x.c.anonymized ? null : pill('not anonymized', 'warn')) },
       { key: 'from', label: 'From', render: x => el('div', { class: 'small', 'data-noi18n': '' }, x.c.contributor || '', el('div', 'muted', x.c.published || '')) },
       { key: 'x', label: '', sortable: false, render: x => el('button', { class: 'btn sm ghost', 'data-ro-ok': '', onclick: () => showCard(detail, x.c) }, 'Details') },
     ], rows, { class: 'compact' })) : el('div', 'empty-state', el('b', null, 'No card matches'), all.length ? 'Loosen a filter.' : 'Read the shared folder or a package file to fill the catalogue.'),

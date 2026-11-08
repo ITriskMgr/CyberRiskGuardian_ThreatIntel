@@ -107,7 +107,7 @@ export function render(sec) {
 
   // residual vs tolerance
   const grid = el('table', 'compact');
-  grid.append(el('thead', null, el('tr', null, el('th', null, ''), ...CLS.map(c => el('th', 'num', tr(c))))),
+  grid.append(el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Row')), ...CLS.map(c => el('th', 'num', tr(c))))),
     el('tbody', null, el('tr', null, el('td', null, tr('Before treatment')), ...CLS.map(c => el('td', 'num', String(x.before[c])))),
       el('tr', null, el('td', null, tr('After treatment')), ...CLS.map(c => el('td', 'num', String(x.after[c]))))));
   sec.append(el('div', 'cols2',

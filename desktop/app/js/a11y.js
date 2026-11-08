@@ -61,14 +61,15 @@ export function nameControls(root = document.body) {
   for (const m of root.querySelectorAll('.matrix:not([tabindex])')) { m.tabIndex = 0; if (!m.getAttribute('aria-label')) m.setAttribute('aria-label', tr('ATT&CK matrix — scroll with the arrow keys')); }
 }
 
-let obs = null, pending = false;
+let obs = null, queued = null;
 export function init() {
   if (obs) return;
   nameControls(document.body);
+  // added nodes are gathered across callbacks and named once per frame (a screen draws in several steps)
   obs = new MutationObserver(muts => {
-    if (pending) return;
-    pending = true;
-    requestAnimationFrame(() => { pending = false; for (const m of muts) for (const n of m.addedNodes) if (n.nodeType === 1) nameControls(n); });
+    const first = !queued; queued ||= new Set();
+    for (const m of muts) for (const n of m.addedNodes) if (n.nodeType === 1 && n.isConnected) queued.add(n);
+    if (first) requestAnimationFrame(() => { const q = queued; queued = null; for (const n of q) if (n.isConnected) nameControls(n); });
   });
   obs.observe(document.body, { subtree: true, childList: true });
   const skip = document.getElementById('skip-link');
