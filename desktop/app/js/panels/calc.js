@@ -5,6 +5,7 @@ import { el, n0, n1, n2, pct, kpi, banner, card, pill, pillFor, field, toast, go
 import { techName } from '../ontology.js';
 import { S, touch, compute, setIncluded, scen, blankScenario, nextScenarioId, PARAMS } from '../state.js';
 import { tr } from '../i18n.js';
+import { appetiteCheck } from './org.js';   // 1.9.2 review (M2): the same appetite rule as the profile
 
 let whatIf = { appetite: null, factor: null };
 let loaded = null;   // scenario id loaded in the single calculator
@@ -24,7 +25,12 @@ export function render(sec, arg) {
   sec.append(card(el('div', 'row',
     el('div', { style: { width: '150px' } }, field('<b>Appetite</b>', appIn)),
     el('div', { style: { width: '150px' } }, field('Factor', facIn)),
-    el('button', { class: 'btn ghost', onclick: () => { a.APPETITE = Number(appIn.value); a.FACTOR = Number(facIn.value); whatIf = { appetite: null, factor: null }; touch(); toast('Saved as the workspace appetite and factor'); portfolio(portBox, sec); } }, 'Save as workspace values'),
+    el('button', { class: 'btn ghost', onclick: () => {
+      // 1.9.2 review (M2, NV-017): the calculator's save obeys the profile's rule — appetite strictly in (0, 1), warned outside 0.1–0.9; factor > 0
+      const ac = appetiteCheck(appIn.value); if (!ac.ok) { toast(ac.message, 'bad'); appIn.focus(); return; }
+      const f = Number(facIn.value); if (facIn.value === '' || !Number.isFinite(f) || f <= 0) { toast(tr('The factor must be a number greater than 0 (the method holds it at 1,000).'), 'bad'); facIn.focus(); return; }
+      if (ac.kind === 'warn') toast(ac.message, 'warn');
+      a.APPETITE = Number(appIn.value); a.FACTOR = f; whatIf = { appetite: null, factor: null }; touch(); toast('Saved as the workspace appetite and factor'); portfolio(portBox, sec); } }, 'Save as workspace values'),
     el('button', { class: 'btn ghost', onclick: () => { whatIf = { appetite: null, factor: null }; appIn.value = a.APPETITE; facIn.value = a.FACTOR; portfolio(portBox, sec); } }, 'Reset'),
   ), el('div', 'note', 'Changing appetite or factor here is a what-if: totals update instantly but nothing is saved until you choose to.')), portBox);
   portfolio(portBox, sec);

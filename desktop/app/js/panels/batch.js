@@ -290,7 +290,8 @@ function csv(top, drawGrid) {
           const num = (k, d) => { const v = parseFloat(g(k)); return Number.isFinite(v) ? v : d; };
           draft().push({ pick: true, name: g('name'), statement: g('statement'), threat_source: g('threat_source'), assets: g('assets'), vulns: list('vulns').join('; '),
             attack: list('attack'), cwe: list('cwe').map(x => /^\d+$/.test(x) ? 'CWE-' + x : x.toUpperCase()), cves: list('cves').map(x => x.toUpperCase()),
-            params: Object.fromEntries(PARAMS.map(k => [k, num(k, 0.5)])), cvss: g('cvss'), cvss_score: /^CVSS/i.test(g('cvss')) ? null : (parseFloat(g('cvss')) || null),
+            // 1.9.2 review (L5): a numeric CVSS column is a score, not a vector (and a score of 0 is kept, never dropped)
+            params: Object.fromEntries(PARAMS.map(k => [k, num(k, 0.5)])), cvss: /^CVSS/i.test(g('cvss')) ? g('cvss') : '', cvss_score: /^CVSS/i.test(g('cvss')) ? null : (Number.isFinite(parseFloat(g('cvss'))) ? parseFloat(g('cvss')) : null),
             red_p: num('red_p', 0), red_i: num('red_i', 0), owner: g('owner'), horizon: g('horizon'), pattern: 'csv' });
           n++;
         }
@@ -376,8 +377,11 @@ function commit(redraw) {
     if (r.crgo) s.crgo = structuredClone(r.crgo);              // 1.5.7 — ontology keys, controls and obligations travel with it
     if (PAT.valid(r.scenPattern)) s.scenPattern = PAT.valid(r.scenPattern);   // 1.9.0 — CRGO 'has scenario pattern'
     for (const k of PARAMS) s.params[k] = { v: Number(r.params[k]), qual: '', rat: (r.rat && r.rat[k]) || 'Batch default — analytical estimate, validation required.', ev: (r.rat && r.rat[k + '_ev']) || '', conf: (r.conf && r.conf[k]) || 'Low' };
-    if (r.cvss) { s.cvss = r.cvss; s.vector_source = 'pattern'; s.vector_ref = r.cvss; }   // 1.9.2 (NV-002) — a pattern's vector, to confirm in the editor
-    else if (r.cvss_score !== null && r.cvss_score !== undefined && r.cvss_score !== '') { s.cvss_score = Number(r.cvss_score); s.vector_source = 'pattern'; s.vector_ref = s.cvss; }
+    if (r.cvss && /^CVSS:4\.0\//.test(String(r.cvss))) { s.cvss = r.cvss; s.vector_source = 'pattern'; s.vector_ref = r.cvss; }   // 1.9.2 (NV-002) — a pattern's vector, to confirm in the editor
+    else if (r.cvss && Number.isFinite(Number(r.cvss)) && (r.cvss_score === null || r.cvss_score === undefined || r.cvss_score === '')) { s.cvss = ''; s.cvss_score = Number(r.cvss); s.vector_source = 'score'; s.vector_ref = ''; }   // L5: a numeric CSV "vector" is a score
+    // 1.9.2 review (H2) — a row with a score and no vector (CVE register with a non-v4 score, CRGO prior, Risk Registry row,
+    // CSV with a numeric CVSS column): the scenario computes on that score; the default vector is not kept beside it
+    else if (r.cvss_score !== null && r.cvss_score !== undefined && r.cvss_score !== '' && Number.isFinite(Number(r.cvss_score))) { s.cvss = ''; s.cvss_score = Number(r.cvss_score); s.vector_source = 'score'; s.vector_ref = ''; }
     a.SCEN.push(s); added.push(s.id);
   }
   S.ws.batchDraft = keep; touch();
@@ -389,7 +393,7 @@ function commit(redraw) {
 
 /* ---------------- from ATT&CK, CVE or CWE ---------------- */
 const pick = { attack: new Set(), cve: new Set(), cwe: new Set(), tactic: 'all', q: { attack: '', cve: '', cwe: '' }, cveFilter: 'all', ownAsset: true, src: 'auto', assets: new Set() };
-const VEC = {
+export const VEC = {   // the placeholder vectors of the builders (1.9.2 review, H2: the migration recognises them — keep migrate192/review.js in step)
   impact: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:H/SC:N/SI:N/SA:H',
   access: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N',
   data: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N',

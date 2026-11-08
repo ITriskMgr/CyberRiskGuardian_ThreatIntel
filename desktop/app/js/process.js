@@ -26,6 +26,9 @@ export const GROUPS = [
   ['scenarios', 'Steps 5 to 8: scenarios'], ['quant', 'Steps 9 to 11: quantification'], ['treatment', 'Steps 12 to 14: treatment'],
   ['money', 'Steps 15 to 18: robustness, priorities and money'], ['close', 'Step 19 and closing: monitoring and reporting'],
 ];
+/** 1.9.2 review (M3, X-5): a scenario decision is recorded when it has an option, a named decision-maker and, for a transfer, a named approver. */
+export const decisionNamed = d => !!(d && d.option && String(d.by || '').trim() && (d.option !== 'Transfer' || String(d.approver || '').trim()));
+
 export const STEPS = [
   { id: 'setup', n: 1, g: 'context', title: 'Build the evidence register',
     purpose: 'One workspace per organization or business case, its documents, and the evidence register: every source numbered E1, E2… and typed as documented, exercise, SME input or external.',
@@ -147,12 +150,15 @@ export const STEPS = [
     done: 'Every included scenario has a valid CVSS score entered by the analyst (a vector, or a score by equivalency) — not the vector the scenario was created with — and every score by equivalency has all its justifications.',
     screens: [['cvss', 'CVSS v4.0'], ['scenario', 'Scenario editor']],
     parts: ws => { const inc = scenInc(ws), bad = inc.filter(s => { try { CRG.cvssOf(s); return false; } catch { return true; } }), eq = inc.filter(s => EQ.isEquiv(s) && EQ.gaps(s).length);
-      const def = inc.filter(s => vectorState(s) === 'default'), pat = inc.filter(s => vectorState(s) === 'pattern');
+      const def = inc.filter(s => vectorState(s) === 'default'), pat = inc.filter(s => vectorState(s) === 'pattern'), sco = inc.filter(s => vectorState(s) === 'score');
       return [{ what: 'Every included scenario has a CVSS score', ok: inc.length > 0 && !bad.length, fix: ['scenario', 'Scenario editor'], hint: bad.length ? bad.map(s => s.id).join(', ') : '' },
         { what: 'Every vector was entered by the analyst, not left at the default', ok: inc.length > 0 && !def.length, fix: ['scenario', 'Scenario editor'],
           hint: def.length ? def.map(s => s.id).join(', ') + ' — ' + tr('still the default vector of a new scenario: score the representative weakness (vector or equivalency) in the editor’s CVSS tab.') : '' },
         { what: 'Vectors that came with a pattern or a candidate are confirmed', ok: !pat.length, fix: ['scenario', 'Scenario editor'],
           hint: pat.length ? pat.map(s => s.id).join(', ') + ' — ' + tr('the vector of the pattern or candidate the scenario came from: confirm it here (one click, recorded) or change it in the editor’s CVSS tab (a changed vector counts as entered).') : '', confirm: pat.map(s => s.id) },
+        // 1.9.2 review (H2) — a scenario created from a row that carried a score and no vector computes on that score
+        { what: 'Scores that came without a vector (CVE register, ontology prior, registry or batch row) are confirmed', ok: !sco.length, fix: ['scenario', 'Scenario editor'],
+          hint: sco.length ? sco.map(s => `${s.id} (${s.cvss_score})`).join(', ') + ' — ' + tr('the stored score of the row the scenario came from, used as is: confirm it here (one click, recorded) or enter the v4.0 Base vector of the actual weakness in the editor’s CVSS tab.') : '', confirm: sco.map(s => s.id) },
         { what: 'Every score by equivalency is justified metric by metric', ok: !eq.length, fix: ['cvss', 'CVSS v4.0'], hint: eq.map(s => s.id).join(', ') }]; },
     tips: ['CVSS is Base-only; exploitation evidence belongs in Pb(ψ,A).', 'CVSS is a multiplier, never a selection criterion.', 'A new scenario carries a default vector (9.3) so that it computes; it is not a score of anything until you replace it.'],
     status(ws) { const inc = scenInc(ws); if (!inc.length) return 'todo'; const bad = inc.filter(s => { try { CRG.cvssOf(s); return false; } catch { return true; } }).length, eq = inc.filter(s => EQ.isEquiv(s) && EQ.gaps(s).length).length, def = inc.filter(s => vectorState(s) !== 'entered').length;
@@ -192,10 +198,10 @@ export const STEPS = [
     inputs: 'Steps 11–13.',
     done: 'Every included scenario above tolerance before treatment carries probability and impact reductions that come from its measures or from an explicit analyst entry — never the value a new scenario started with.',
     screens: [['mitigation', 'Risk mitigation'], ['calc', 'Risk calculator'], ['register', 'Scenario register']],
-    parts: ws => { const R = compute(ws), need = R.inc.filter(r => r.pre_ratio > CRG.BAND_HIGH), ok = need.filter(r => reduced(r.s)).length;
-      return [{ what: 'Reductions are set where treatment is needed', ok: need.length === ok, fix: ['mitigation', 'Risk mitigation'], hint: `${ok} of ${need.length}. ` + tr('Risk mitigation → “Apply to all covered scenarios” writes the measures’ combined reductions (1 − ∏(1 − r)) on each scenario, and records where they came from.') }]; },
+    parts: ws => { const R = compute(ws), need = R.inc.filter(r => r.pre_ratio > CRG.BAND_HIGH), ok = need.filter(r => reduced(r.s) && !underReview(r.s, ws)).length, rev = need.filter(r => underReview(r.s, ws)).map(r => r.id);
+      return [{ what: 'Reductions are set where treatment is needed', ok: need.length === ok, fix: ['mitigation', 'Risk mitigation'], hint: `${ok} of ${need.length}. ` + (rev.length ? tr('{0} still on the earlier default 0.5 / 0.5 listed for review (D2): {1} — review them on the Process page or set their reductions. ').replace('{0}', rev.length).replace('{1}', rev.join(', ')) : '') + tr('Risk mitigation → “Apply to all covered scenarios” writes the measures’ combined reductions (1 − ∏(1 − r)) on each scenario, and records where they came from.') }]; },
     tips: ['Residual below tolerance (< 0.90) needs rp × ri > 1 − 0.90 × appetite ÷ average damage; a ratio of 1.0 or less needs rp × ri ≥ 1 − appetite ÷ average damage.', 'A new scenario starts at rp = ri = 0: its residual risk is its estimated risk until a measure or the analyst reduces it.'],
-    status(ws) { const R = compute(ws); if (!R.inc.length) return 'todo'; const need = R.inc.filter(r => r.pre_ratio > CRG.BAND_HIGH); return need.every(r => reduced(r.s)) ? 'done' : 'partial'; } },
+    status(ws) { const R = compute(ws); if (!R.inc.length) return 'todo'; const need = R.inc.filter(r => r.pre_ratio > CRG.BAND_HIGH); return need.every(r => reduced(r.s) && !underReview(r.s, ws)) ? 'done' : 'partial'; } },
   { id: 'sensitivity', n: 15, g: 'money', title: 'Run the sensitivity analysis',
     purpose: 'Lower, central and higher cases (±0.10) for the important or uncertain scenarios, and the decisions that change when the assumptions do.',
     inputs: 'The quantified scenarios and their confidence.',
@@ -208,10 +214,11 @@ export const STEPS = [
     inputs: 'Steps 11–15.',
     done: 'Every included scenario has a management decision recorded.',
     screens: [['recs/scenarios', 'Recommendations — By scenario'], ['riskreg', 'Risk register']],
-    parts: ws => { const R = compute(ws); const dec = R.inc.filter(r => ws.decisions?.[r.id]?.option).length;
-      return [{ what: 'Every included scenario has a management decision', ok: R.inc.length > 0 && dec === R.inc.length, fix: ['recs/scenarios', 'Recommendations — By scenario'], hint: R.inc.length ? `${dec} of ${R.inc.length} recorded. ` + tr('Recommendations → By scenario: accept, transfer, avoid or mitigate, with the accountable owner — Management decision required.') : '' }]; },
+    // 1.9.2 review (M3, X-5): a decision counts only when it names its decision-maker (and, for a transfer, its approver)
+    parts: ws => { const R = compute(ws); const dec = R.inc.filter(r => decisionNamed(ws.decisions?.[r.id])).length, unnamed = R.inc.filter(r => ws.decisions?.[r.id]?.option && !decisionNamed(ws.decisions[r.id])).map(r => r.id);
+      return [{ what: 'Every included scenario has a management decision by a named person', ok: R.inc.length > 0 && dec === R.inc.length, fix: ['recs/scenarios', 'Recommendations — By scenario'], hint: R.inc.length ? `${dec} of ${R.inc.length} recorded. ` + (unnamed.length ? tr('{0} recorded without a named decision-maker (or transfer approver): {1}. ').replace('{0}', unnamed.length).replace('{1}', unnamed.join(', ')) : '') + tr('Recommendations → By scenario: accept, transfer, avoid or mitigate, with the accountable owner — Management decision required.') : '' }]; },
     tips: ['Prioritization is a matter of judgment in every tool: the score is one input.', 'Accept, transfer, avoid or mitigate: Management decision required.'],
-    status(ws) { const R = compute(ws); if (!R.inc.length) return 'todo'; const dec = R.inc.filter(r => ws.decisions?.[r.id]?.option).length; return dec === R.inc.length ? 'done' : dec ? 'partial' : 'todo'; } },
+    status(ws) { const R = compute(ws); if (!R.inc.length) return 'todo'; const dec = R.inc.filter(r => decisionNamed(ws.decisions?.[r.id])).length; return dec === R.inc.length ? 'done' : dec ? 'partial' : 'todo'; } },
   { id: 'recommend', n: 17, g: 'money', title: 'Assemble the investment portfolio',
     purpose: 'The recommended portfolio, by horizon, with costs, owners and sequence, reviewed and formally approved by the accountable person.',
     inputs: 'Selected measures, priorities.',
@@ -276,6 +283,13 @@ export function quantified(ws = S.ws) {
 /** 1.9.2 (NV-002) — step 14: reductions count when they come from the measures or from an explicit entry (red_source), or
  *  when both are above 0 (an entry, since a new scenario starts at 0 / 0). */
 export const reduced = s => !!s.red_source || (Number(s.red_p) > 0 && Number(s.red_i) > 0);
+/** 1.9.2 review (M4) — a scenario still on the D2 review list (untouched 0.5 / 0.5 of a migrated workspace) is not reduced
+ *  until the review is marked done or its reductions change. No number changes. */
+export function underReview(s, ws) {
+  const rv = ws?.reductionReview;
+  if (!rv || rv.reviewed || !(rv.scenarios || []).includes(s.id)) return false;
+  return Number(s.red_p) === 0.5 && Number(s.red_i) === 0.5 && !s.red_source;
+}
 /** 1.9.2 (NV-035) — step 19: a KRI is complete with the scenarios it addresses (2), its measurement method (3), data source (4),
  *  owner (5), frequency (6), target (7) and the warning and critical thresholds (8, 9). */
 const KRI_FIELDS = [[2, 'scenarios'], [3, 'measurement'], [4, 'data source'], [5, 'owner'], [6, 'frequency'], [7, 'target'], [8, 'warning threshold'], [9, 'critical threshold']];

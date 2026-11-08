@@ -25,6 +25,7 @@ export function render(sec, arg) {
   snapshotCard(sec);
   generator(sec);
   joinCard(sec, arg === 'join');
+  watchList(sec);
   revisionLog(sec);
   ladderCard(sec);
 }
@@ -238,17 +239,22 @@ function proposals(box, rows, age) {
   const c = el('div', 'card');
   c.append(el('h2', null, 'Proposed Pb(ψ,A) changes'));
   if (!props.length) { c.append(el('p', 'note', 'No linked scenario sits below its ladder band. Link CVEs to scenarios (scenario editor or vulnerability register) to receive proposals.')); box.append(c); return; }
-  const checks = props.map(p => el('input', { type: 'checkbox', checked: p.ex.confirmed, title: p.ex.confirmed ? '' : GAP }));
+  /* 1.9.2 review (H3) — AGENTS.md and threat-intel rule 2: an intelligence-derived change without an exposure note is an
+     unsupported claim. Without register evidence the proposal cannot be accepted (checkbox disabled); it goes to the watch
+     list instead, where the intelligence is recorded until the organization confirms exposure. */
+  const checks = props.map(p => el('input', { type: 'checkbox', checked: p.ex.confirmed, disabled: !p.ex.confirmed, title: p.ex.confirmed ? '' : tr('Cannot be accepted: {0}. Add it to the watch list instead.').replace('{0}', GAP) }));
+  const watchBtn = p => el('button', { class: 'btn xs ghost', onclick: () => { const r = addWatch(p); toast(r ? tr('{0} · {1} added to the watch list').replace('{0}', p.r.cve).replace('{1}', p.s.id) : tr('{0} · {1} is already on the watch list').replace('{0}', p.r.cve).replace('{1}', p.s.id), r ? 'good' : ''); touch('redraw'); } }, 'Add to the watch list');
   const conf = props.map(() => select([['', '— choose —'], ['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low']], ''));
   const just = el('textarea', { class: 'code', rows: 2, placeholder: 'Why this expired snapshot may still support the change (e.g. no newer snapshot can be retrieved on this network; the KEV listing is permanent). Recorded with each accepted change.' });
   const accept = el('button', { class: 'btn' }, 'Accept selected');
   const why = el('div', 'small muted');
   const refresh = () => {
-    const ticked = props.map((p, i) => i).filter(i => checks[i].checked);
+    const ticked = props.map((p, i) => i).filter(i => checks[i].checked && props[i].ex.confirmed);   // H3: a row without exposure evidence never counts
     const missing = ticked.filter(i => !conf[i].value);
     const needJust = age?.expired && ticked.length && !just.value.trim();
+    const gated = props.filter(p => !p.ex.confirmed).length;
     accept.disabled = !ticked.length || missing.length > 0 || !!needJust;
-    why.textContent = !ticked.length ? tr('Tick at least one proposal.') : missing.length ? tr('Choose a confidence for every ticked proposal ({0} missing).').replace('{0}', missing.length) : needJust ? tr('The snapshot is expired: write a justification before accepting.') : '';
+    why.textContent = !ticked.length ? (gated === props.length ? tr('No proposal has exposure evidence: none can be accepted ({0}). Add them to the watch list.').replace('{0}', GAP) : tr('Tick at least one proposal.')) : missing.length ? tr('Choose a confidence for every ticked proposal ({0} missing).').replace('{0}', missing.length) : needJust ? tr('The snapshot is expired: write a justification before accepting.') : '';
   };
   checks.forEach(b => b.addEventListener('change', refresh)); conf.forEach(x => x.addEventListener('change', refresh)); just.addEventListener('input', refresh);
   const t = el('table', 'compact');
@@ -261,10 +267,10 @@ function proposals(box, rows, age) {
     tb.append(el('tr', null, el('td', 'cb', checks[i]), el('td', null, el('a', { href: '#/scenario/' + p.s.id }, p.s.id + ' ' + (p.s.name || '').slice(0, 50))),
       el('td', 'mono', p.r.cve + ' · ' + p.r.rung), el('td', 'num', n2(p.from)), el('td', 'num', el('b', null, n2(p.to))),
       el('td', null, n2(before.ratio) + ' → ' + n2(after.ratio) + ' ', pill(CRG.classify(after.ratio), pillFor(CRG.classify(after.ratio)))),
-      el('td', 'small', p.ex.confirmed ? p.ex.text : el('span', 'muted', GAP)), el('td', null, conf[i])));
+      el('td', 'small', p.ex.confirmed ? p.ex.text : el('div', null, el('span', 'muted', GAP), ' ', onWatch(p) ? pill('on the watch list', 'warn') : watchBtn(p))), el('td', null, p.ex.confirmed ? conf[i] : el('span', 'muted', '—'))));
   });
   t.append(tb);
-  c.append(el('div', 'tablewrap', t), el('p', 'note', 'Proposals raise Pb(ψ,A) to the floor of the ladder band, never beyond it, and only for exposed CVEs linked to the scenario. Ratios are recomputed by the verified engine. Accepting records a threat_basis entry and a revision-log line; a proposal without register evidence stays unticked and, if you accept it anyway, carries the information-gap marker.'));
+  c.append(el('div', 'tablewrap', t), el('p', 'note', 'Proposals raise Pb(ψ,A) to the floor of the ladder band, never beyond it, and only for exposed CVEs linked to the scenario. Ratios are recomputed by the verified engine. Accepting records a threat_basis entry and a revision-log line. A proposal without register evidence cannot be accepted: the intelligence goes to the watch list until the vulnerability register confirms the exposure (asset inventory or scanner evidence); then re-run the join.'));
   if (age?.expired) c.append(banner('bad', 'Expired snapshot: a justification is required', el('div', null, el('div', 'small', `This snapshot expired ${n0(age.daysPastExpiry ?? 0)} days ago. Prefer a refreshed one; otherwise record why these proposals may still stand. The justification is stored with each change (threat_basis.justification) and in the workspace journal of threat justifications.`), just)));
   accept.addEventListener('click', () => {
     let n = 0;
@@ -272,7 +278,7 @@ function proposals(box, rows, age) {
     const justification = age?.expired ? just.value.trim() : '';
     const accepted = [];
     props.forEach((p, i) => {
-      if (!checks[i].checked || !conf[i].value) return;
+      if (!checks[i].checked || !conf[i].value || !p.ex.confirmed) return;   // H3: never without exposure evidence
       p.s.params.Pbx = Object.assign({}, p.s.params.Pbx, { v: p.to, conf: conf[i].value, ev: [p.s.params.Pbx.ev, 'threat-context ' + S.snap.retrieved + (age?.expired ? ' (expired)' : '')].filter(Boolean).join('; ') });
       (p.s.threat_basis ||= []).push({ cve: p.r.cve, parameter: 'Pb(psi,A)', from: p.from, to: p.to, ladder_rung: p.r.rung, ladder_label: p.r.label, band: p.r.band,
         evidence: [p.r.evidence + ` (snapshot ${S.snap.retrieved})`], exposure: p.ex.text, exposure_confirmed: p.ex.confirmed, confidence: conf[i].value, date: today(), cvss_unchanged: true,
@@ -287,6 +293,26 @@ function proposals(box, rows, age) {
   c.append(el('div', 'btnrow', accept, why));
   refresh();
   box.append(c);
+}
+
+/* ---------------- 1.9.2 review (H3): the watch list ---------------- */
+const onWatch = p => (S.ws.threatWatch || []).some(w => w.cve === p.r.cve && w.scenario === p.s.id && !w.closed);
+/** Record an intelligence-derived proposal that has no exposure evidence; nothing in the scenario changes. */
+function addWatch(p) {
+  if (onWatch(p)) return false;
+  (S.ws.threatWatch ||= []).push({ date: today(), cve: p.r.cve, scenario: p.s.id, parameter: 'Pb(psi,A)', from: p.from, proposed: p.to, ladder_rung: p.r.rung, ladder_label: p.r.label, band: p.r.band,
+    evidence: p.r.evidence + ` (snapshot ${S.snap?.retrieved || '—'})`, snapshot: S.snap?.retrieved || null, exposure: GAP, reason: 'No exposure evidence in the vulnerability register: the estimate is not changed (threat-intel rule 2).' });
+  return true;
+}
+function watchList(sec) {
+  const list = (S.ws.threatWatch || []).filter(w => !w.closed);
+  if (!list.length) return;
+  const t = el('table', 'compact');
+  t.append(el('thead', null, el('tr', null, ...['Date', 'CVE · rung', 'Scenario', 'Pb(ψ,A) now → proposed', 'Evidence', 'Exposure', ''].map(h => el('th', null, h)))));
+  t.append(el('tbody', null, ...list.map(w => el('tr', null, el('td', 'mono', w.date), el('td', 'mono', `${w.cve} · ${w.ladder_rung}`), el('td', null, el('a', { href: '#/scenario/' + w.scenario }, w.scenario)),
+    el('td', 'num', n2(w.from) + ' → ' + n2(w.proposed)), el('td', 'small', w.evidence), el('td', 'small muted', w.exposure),
+    el('td', null, el('button', { class: 'btn xs ghost', onclick: () => { w.closed = today(); touch('redraw'); } }, 'Remove'))))));
+  sec.append(el('h2', null, 'Watch list'), card(el('div', 'tablewrap', t), el('p', 'note', 'Intelligence about CVEs the organization is not confirmed to operate. Nothing here changes an estimate: when the vulnerability register confirms the exposure (Exposed, with its product or asset), re-run the exposure join and accept the proposal there. Report the watch list with the snapshot date so the reader sees what was seen and set aside.')));
 }
 
 function revisionLog(sec) {

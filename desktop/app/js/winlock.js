@@ -75,17 +75,35 @@ async function tryLock({ steal = false } = {}) {
   } catch { return true; }   // no storage at all: nothing to protect
 }
 
-/** Ask the holder to save and freeze, then take the lock. Resolves when this window holds it. */
-async function takeOver() {
-  const acked = new Promise(resolve => {
-    const c = channel(); if (!c) { resolve(false); return; }
-    const h = e => { if (e.data?.type === 'frozen' && e.data.from !== ID) { c.removeEventListener('message', h); resolve(true); } };
-    c.addEventListener('message', h);
-    setTimeout(() => { c.removeEventListener('message', h); resolve(false); }, 1500);
-  });
-  post({ type: 'takeover' });
-  await acked;
+/** How long the taking-over window waits for the holder's "frozen" (saved) confirmation before offering the override. */
+let ACK_TIMEOUT_MS = 15000;
+export const ackTimeout = () => ACK_TIMEOUT_MS;
+/** For the test suites only: shorten the wait before the override is offered. */
+export const setAckTimeout = ms => { ACK_TIMEOUT_MS = Math.max(200, Number(ms) || 15000); };
+/** Ask the holder to save and freeze, then take the lock. Resolves { acked } when this window holds it.
+ *  1.9.2 review (M5): the lock is taken only after the holder confirms it saved (its "frozen" message), so this window never
+ *  loads data the other window is still writing. When no confirmation comes within ACK_TIMEOUT_MS (a hung window, a
+ *  missed message), `onWait` is told and the person decides: keep waiting, or take over anyway — never silently. */
+async function takeOver({ onWait = null } = {}) {
+  const c = channel();
+  let acked = false;
+  if (c) {
+    acked = await new Promise(resolve => {
+      let timer = null, done = false;
+      const finish = v => { if (done) return; done = true; clearTimeout(timer); c.removeEventListener('message', h); resolve(v); };
+      const h = e => { if (e.data?.type === 'frozen' && e.data.from !== ID) finish(true); };
+      c.addEventListener('message', h);
+      const arm = () => { timer = setTimeout(async () => {
+        if (!onWait) { finish(false); return; }
+        const again = await onWait();           // true: wait another round; false: take over anyway
+        if (again) { post({ type: 'takeover' }); arm(); } else finish(false);
+      }, ACK_TIMEOUT_MS); };
+      arm();
+      post({ type: 'takeover' });
+    });
+  } else post({ type: 'takeover' });
   await tryLock({ steal: true });
+  return { acked };
 }
 
 /* ---------- when another window took over ---------- */
@@ -95,12 +113,16 @@ async function onStolen() {
   try { const st = await import('./state.js'); await st.saveNow(); } catch { /* nothing open yet */ }
   try { const U = await import('./users.js'); if (U.active()) await U.save(); } catch { /* single-user */ }
   store.freeze();                       // from here on nothing is written from this window
+  try { (await import('./prefs.js')).freeze?.(); } catch { /* preferences module not loaded */ }   // M5: preferences stop writing too
   post({ type: 'frozen' });
   if (releaseFn) { try { releaseFn(); } catch { /* released */ } releaseFn = null; }
   overlay('taken');
 }
 export const isFrozen = () => frozen;
 export const isHeld = () => held;
+/** The last takeover from this window: { acked, at } — acked false means the person took over without the other window's confirmation. */
+let lastTakeover = null;
+export const takeoverInfo = () => lastTakeover;
 
 /* ---------- screens ---------- */
 let box = null;
@@ -123,9 +145,22 @@ function screen(kind) {
     const close = d('button', 'btn ghost', t('Close this window')); close.type = 'button'; close.id = 'winlock-close';
     row.append(use, close); wrap.append(row);
     close.addEventListener('click', () => closeWindow());
+    const wait = d('p', 'small winlock-wait'); wait.hidden = true; wrap.append(wait);
     use.addEventListener('click', async () => {
-      use.disabled = true; use.textContent = t('Taking over…');
-      await takeOver();
+      use.disabled = true; close.disabled = true; use.textContent = t('Waiting for the other window to save…');
+      // 1.9.2 review (M5): no silent takeover — after ACK_TIMEOUT_MS without the other window's confirmation, the person chooses
+      const onWait = () => new Promise(resolve => {
+        wait.hidden = false; wait.replaceChildren();
+        wait.append(d('b', '', t('The other window did not confirm that it saved its work.')), ' ',
+          d('span', '', t('It may be busy saving a large workspace, or it may be hung. Keep waiting, or take over anyway: whatever that window has not saved yet will be lost.')));
+        const row = d('div', 'btnrow'); const keep = d('button', 'btn', t('Keep waiting')); keep.type = 'button'; keep.id = 'winlock-wait-more';
+        const anyway = d('button', 'btn ghost', t('Take over anyway')); anyway.type = 'button'; anyway.id = 'winlock-force';
+        row.append(keep, anyway); wait.append(row); close.disabled = false;
+        keep.addEventListener('click', () => { wait.hidden = true; close.disabled = true; resolve(true); });
+        anyway.addEventListener('click', () => { wait.hidden = true; resolve(false); });
+      });
+      const { acked } = await takeOver({ onWait });
+      lastTakeover = { acked, at: Date.now() };
       if (kind === 'taken') { store.unfreeze(); location.reload(); return; }   // reload: the data may have changed in the other window
       wrap.remove(); box = null; document.body.classList.remove('winlocked');
       acquireResolve?.(true); acquireResolve = null;

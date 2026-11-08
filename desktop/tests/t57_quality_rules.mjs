@@ -12,7 +12,7 @@ const base = await page.evaluate(async () => {
   return out;
 });
 for (const [id, v] of Object.entries(base)) {
-  ok(v.n === 31 && v.new.length === 5, id + ': 31 checks, QC-27 to QC-31 present (QC-31 = ws3 snapshot freshness, numbered at integration) ' + v.new.join(' '));
+  ok(v.n === 32 && v.new.length === 6, id + ': 32 checks, QC-27 to QC-32 present (QC-31 = ws3 snapshot freshness, numbered at integration; QC-32 = exposure evidence, review H3) ' + v.new.join(' '));
   ok(v.new.every(x => !/fail/.test(x)), id + ': the bundled case does not fail the new checks ' + v.new.join(' '));
   ok(v.fails.length === 0, id + ': no failed check at all on the bundled case ' + v.fails.join(','));
 }
@@ -64,7 +64,7 @@ ok(after.c30 === 'fail' && /estimated 84,305 →/.test(after.c30d), 'a figure ch
 /* ---------------- the Quality review screen shows the new rows ---------------- */
 await goto(page, '#/qc', 1000);
 const rows = await page.$$eval('#panel-qc tbody tr', trs => trs.map(tr => tr.firstElementChild.textContent));
-ok(rows.length === 31 && rows.includes('QC-27') && rows.includes('QC-30') && rows.includes('QC-31'), 'the Quality review screen lists 31 checks');
+ok(rows.length === 32 && rows.includes('QC-27') && rows.includes('QC-30') && rows.includes('QC-31') && rows.includes('QC-32'), 'the Quality review screen lists 32 checks');
 
 ok(errors.length === 0, 'no console error: ' + errors.join(' | ').slice(0, 400));
 await browser.close(); done('t57 quality review rules (NV-082)');

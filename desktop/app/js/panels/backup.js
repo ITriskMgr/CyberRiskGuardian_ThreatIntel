@@ -192,6 +192,7 @@ function preview(sec) {
         // 1.9.1 (B4): reopen on the Process page so no screen keeps a workspace from before the restore
         await reopen('process', { toast: `Restored ${done.workspaces} workspace(s)` +
               (done.replaced ? `, ${done.replaced} teaching case(s) replaced` : '') + (done.skipped_twins ? `, ${done.skipped_twins} teaching case(s) skipped` : '') +
+              (done.kept_conflicts ? `, ${done.kept_conflicts} kept beside the copy here (one Replace per copy)` : '') +
               (done.deleted ? `, deleted ${done.deleted}` : '') +
               (done.frameworks ? `, ${done.frameworks} framework pack(s)` : '') });
       } catch (err) {

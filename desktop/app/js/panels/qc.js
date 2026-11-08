@@ -16,6 +16,7 @@
      their vectors · equivalency justified · no reference left on a superseded catalogue · screening flags reviewed ·
      transfers approved.
    1.9.2 (QC-31, ws3): likelihoods calibrated from the threat context rest on a current (≤ 90 days) snapshot.
+   1.9.2 review (QC-32, H3): every likelihood calibrated from the threat context rests on exposure evidence (threat-intel rule 2).
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, table, kpi, n0, go, today } from '../util.js';
@@ -44,8 +45,10 @@ export function checks(ws = S.ws) {
   // A formal recommendation names its approver in approved.by, or in a history entry of the approval (to 'approved', with a by)
   const namedApprover = r => String(r.approved?.by || '').trim() || (r.history || []).some(h => h.to === 'approved' && String(h.by || '').trim());
   const recs = (ws.recommendations || []).filter(r => ['approved', 'in-implementation', 'completed'].includes(r.status) && !namedApprover(r));
-  add('QC-02', 'No result is called approved unless a person approved it', badDec.length || recs.length ? 'fail' : 'pass',
-    badDec.length || recs.length ? [...badDec.map(d => d.id), ...recs.map(r => (r.code || r.id) + ' (' + tr('approved without a named approver') + ')')].join(', ') : tr('Every decision recorded as made names its decision maker, every approved recommendation its approver; risk acceptances rest on a delegation valid on the decision date.'), recs.length && !badDec.length ? 'recs/' + recs[0].id : 'csm/decisions');   // the fix link opens the recommendation
+  // 1.9.2 review (M3, X-5): the scenario decisions of Recommendations → By scenario (ws.decisions) need a named decision-maker, a transfer its approver
+  const scenDec = Object.entries(ws.decisions || {}).filter(([, d]) => d?.option && !PROC.decisionNamed(d)).map(([id, d]) => `${id} (${tr(d.option === 'Transfer' && String(d.by || '').trim() ? 'transfer without a named approver' : 'decision without a named decision-maker')})`);
+  add('QC-02', 'No result is called approved unless a person approved it', badDec.length || recs.length || scenDec.length ? 'fail' : 'pass',
+    badDec.length || recs.length || scenDec.length ? [...badDec.map(d => d.id), ...recs.map(r => (r.code || r.id) + ' (' + tr('approved without a named approver') + ')'), ...scenDec].join(', ') : tr('Every decision recorded as made names its decision maker, every approved recommendation its approver; risk acceptances rest on a delegation valid on the decision date.'), recs.length && !badDec.length ? 'recs/' + recs[0].id : scenDec.length && !badDec.length ? 'recs/scenarios' : 'csm/decisions');   // the fix link opens the recommendation
   const satNoEv = (ws.grc?.determinations || []).filter(d => d.state === 'satisfied' && !(d.evidence || []).length);
   const reqCompliantNoEv = (ws.compliance?.requirements || []).filter(r => r.status === 'compliant' && !String(r.evidence || '').trim());
   add('QC-03', '"Supported by a control" is not called "compliant"', satNoEv.length ? 'fail' : reqCompliantNoEv.length ? 'warn' : 'pass',
@@ -165,6 +168,12 @@ export function checks(ws = S.ws) {
     fresh.state === 'pass' ? (fresh.n ? tr('{0} threat_basis entry(ies) rest on the snapshot of {1}, valid until {2}.').replace('{0}', fresh.n).replace('{1}', fresh.retrieved || '—').replace('{2}', fresh.expires || '—') : tr('No likelihood is calibrated from the threat context; the 90-day rule applies once one is.'))
       : fresh.missing ? tr('{0} threat_basis entry(ies) calibrate Pb(ψ,A), but no snapshot is loaded in this workspace: load the one they cite, or a refreshed one, and re-run the exposure join.').replace('{0}', fresh.n)
       : tr('{0} threat_basis entry(ies) rest on a snapshot that expired on {1} ({2} days ago): refresh the snapshot and re-run the exposure join. Snapshots expire after 90 days.').replace('{0}', fresh.n).replace('{1}', fresh.expires || '—').replace('{2}', fresh.daysPast ?? '—'), 'threat');
+  // 1.9.2 review (H3) — AGENTS.md: intelligence calibrates Pb(A) / Pb(ψ,A) only where organizational evidence confirms exposure;
+  // an exposure-ungated calibration fails the quality review (threat-intel rule 2: watch list, not an estimate)
+  const ug = ungatedThreatBasis(ws);
+  add('QC-32', 'Every likelihood calibrated from the threat context rests on exposure evidence', ug.length ? 'fail' : 'pass',
+    ug.length ? tr('{0} threat_basis entry(ies) have no exposure evidence (the CVE is not confirmed in the vulnerability register): {1}. Record the exposure in the register and re-run the join, or revert the parameter and keep the intelligence on the watch list — Information gap — organizational validation required.').replace('{0}', ug.length).replace('{1}', ug.map(x => `${x.scenario} · ${x.cve}`).join(', '))
+      : fresh.n ? tr('Every threat_basis entry names the vulnerability-register evidence of the exposure.') : tr('No likelihood is calibrated from the threat context.'), 'threat');
   return out;
 }
 PROC.registerQc(checks);   // 1.9.2 (NV-018) — the report step requires no failed check
@@ -202,6 +211,19 @@ export function snapshotFreshness(ws = S.ws, today = new Date()) {
   if (!n) return { state: 'pass', n: 0, retrieved: snap?.retrieved || null, expires: snap?.expires || null, missing: !snap, expired, daysPast };
   if (!snap) return { state: 'fail', n, missing: true, expired: true, retrieved: null, expires: null, daysPast: null };
   return { state: expired ? 'fail' : 'pass', n, missing: false, expired, retrieved: snap.retrieved || null, expires: snap.expires || null, daysPast: expired ? daysPast : 0 };
+}
+
+/** 1.9.2 review (H3) — threat_basis entries that calibrated a parameter without exposure evidence: exposure_confirmed false, or
+ *  (older entries) an exposure text that is empty, the information-gap marker or a placeholder. */
+export function ungatedThreatBasis(ws = S.ws) {
+  const out = [];
+  for (const s of ws.assessment?.SCEN || []) for (const b of Array.isArray(s.threat_basis) ? s.threat_basis : []) {
+    if (!b || typeof b !== 'object') continue;
+    const ex = String(b.exposure || '').trim();
+    const gated = b.exposure_confirmed === true || (b.exposure_confirmed === undefined && ex && !/^(TODO|—|-|n\/a|none|information gap|lacune d)/i.test(ex));
+    if (!gated) out.push({ scenario: s.id, cve: b.cve || '—' });
+  }
+  return out;
 }
 
 /* ---------------- 1.6.0 checks (CRGO 0.10.0 brief §4) ---------------- */

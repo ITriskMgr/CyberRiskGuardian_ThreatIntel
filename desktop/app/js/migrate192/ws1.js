@@ -87,6 +87,8 @@ function candidatesUp(w, note) {
 function frozenZerosUp(w, note) {
   const done = RE.repairFrozenZeros(w, { today: today() });
   if (done.length) note(`${done.length} approved recommendation(s) frozen at "reduction 0" recomputed under the decided rule (item 23); earlier figures kept beside the new ones: ${done.join(', ')}`);
+  // 1.9.2 review (M1): a zero the earlier rule did not cause (own measures not in force) is kept and listed, never recomputed
+  if (done.left?.length) note(`${done.left.length} approved recommendation(s) frozen at "reduction 0" left as approved and listed for review (their measures were not in force when approved; today's measures would give more): ${done.left.join(', ')}`);
 }
 
 export default [

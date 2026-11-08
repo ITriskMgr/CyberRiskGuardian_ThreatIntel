@@ -70,6 +70,20 @@ export function effect(rec, ws, { inForce = IN_FORCE, CRG = globalThis.CRG } = {
   return { rows, totals };
 }
 
+/** Were this recommendation's own measures in force (approved, in progress or implemented) — the condition under which the
+ *  earlier rule froze a reduction of 0 (item 23)? Reads the measures named at approval (approved.measures), else today's;
+ *  a measure that records dated status changes (m.history [{ at, to }]) is read as of the approval date, else by its status. */
+export function ownMeasuresInForce(rec, ws, { inForce = IN_FORCE } = {}) {
+  const ids = (rec.approved?.measures && rec.approved.measures.length ? rec.approved.measures : rec.measures) || [];
+  const at = String(rec.approved?.at || '');
+  return ids.some(id => {
+    const m = (ws.measures || []).find(x => x.id === id); if (!m) return false;
+    const hist = Array.isArray(m.history) ? m.history.filter(h => h && h.to && h.at && String(h.at).slice(0, 10) <= at).sort((a, b) => String(a.at).localeCompare(String(b.at))) : [];
+    const status = at && hist.length ? hist[hist.length - 1].to : m.status;
+    return inForce.includes(status);
+  });
+}
+
 /** Is this recommendation formally approved (its frozen figures matter)? */
 export const isFormal = r => ['approved', 'in-implementation', 'completed'].includes(r?.status);
 
@@ -80,14 +94,24 @@ export const isFormal = r => ['approved', 'in-implementation', 'completed'].incl
  * recommendation's history says so. Returns the recommendations repaired. Idempotent (a repaired record is skipped).
  */
 export function repairFrozenZeros(ws, { today = new Date().toISOString().slice(0, 10), CRG = globalThis.CRG } = {}) {
-  const done = [];
+  const done = []; done.left = [];
   if (!CRG) return done;
   for (const rec of ws.recommendations || []) {
-    if (!isFormal(rec) || !rec.approved || rec.approved.recomputed) continue;
+    if (!isFormal(rec) || !rec.approved || rec.approved.recomputed || rec.approved.zeroReview) continue;
     if (Math.abs(Number(rec.approved.reduction) || 0) >= 0.5) continue;
     let e;
     try { e = effect(rec, ws, { CRG }); } catch { continue; }
     if (!(e.totals.reduction >= 0.5)) continue;
+    /* 1.9.2 review (M1) — only a zero the earlier rule produced is recomputed: that rule counted the recommendation's own
+       measures in the baseline when they were already in force, so they cancelled out. A zero frozen while the own measures
+       were not in force (coefficients set after the approval, measures still proposed) is legitimate: it is left as approved
+       and listed for the analyst's review, nothing recomputed. */
+    if (!ownMeasuresInForce(rec, ws)) {
+      rec.approved.zeroReview = { at: today, label: 'frozen reduction kept — the recommendation’s measures were not in force when it was approved; review by hand', currentEffect: e.totals.reduction };
+      (rec.history ||= []).unshift({ at: new Date().toISOString(), action: 'review', from: 'reduction ' + Math.round(Number(rec.approved.reduction) || 0), to: 'reduction ' + Math.round(Number(rec.approved.reduction) || 0),
+        by: 'Desktop 1.9.2 (data version 6)', note: `Frozen reduction kept as approved: the recommendation’s own measures were not in force, so the earlier rule did not cause this zero. Today’s measures would give ${Math.round(e.totals.reduction)}; amend the recommendation (a new version) if that is what was meant.` });
+      done.left.push(rec.code || rec.id); continue;
+    }
     const prev = { reduction: rec.approved.reduction, aftRes: rec.approved.aftRes, aftRatio: rec.approved.aftRatio, brought: rec.approved.brought, curRes: rec.approved.curRes, curRatio: rec.approved.curRatio };
     rec.approved.recomputed = { at: today, previous: prev, by: 'Desktop 1.9.2, data version 6', label: 'recomputed in 1.9.2 from current measures',
       rule: 'reduction = residual without this recommendation’s own measures − residual with them, whatever their status (decided item 23, R-2)' };

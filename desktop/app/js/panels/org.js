@@ -13,6 +13,7 @@ import { tr } from '../i18n.js';
 import * as IU from './importui.js';
 import * as RESET from '../reset.js';
 import * as TEACH from '../teaching.js';
+import { retypeNumbers } from '../migrate192/ws2.js';   // 1.9.2 review (L2)
 import * as store from '../store.js';
 
 /* 1.9.2 (items 4–5, NV-036) — a workspace that is already here (same id, or the same bundled teaching case under another
@@ -622,7 +623,15 @@ function workspaces(body, arg, sec) {
         ws.crgo = MIG.blankCrgo(ws.id);
         for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, texts[d.id] || ''); d.id = nid; }
       }
-      else if (Array.isArray(data.SCEN)) { ws = newWorkspace({ name: nm, kind: kind.value, assessment: Object.assign({ INITIATIVES: [], KRIS: [], EVIDENCE: [], CANDIDATES: [], CROWN: [] }, data) }); if (data.ORGANIZATION) ws.org.name = data.ORGANIZATION; }
+      else if (Array.isArray(data.SCEN)) {
+        ws = newWorkspace({ name: nm, kind: kind.value, assessment: Object.assign({ INITIATIVES: [], KRIS: [], EVIDENCE: [], CANDIDATES: [], CROWN: [] }, data) }); if (data.ORGANIZATION) ws.org.name = data.ORGANIZATION;
+        // 1.9.2 review (L2): a plain assessment file is stamped data version 6 and never meets the 5 → 6 sub-steps, so the typing
+        // rule (X-2) is applied here: numeric text ("0.7", APPETITE "0.3", FACTOR "1000") becomes the number it spells, same figures
+        const NUMERIC = /^\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?\s*$/i;
+        for (const k of ['APPETITE', 'FACTOR']) if (typeof ws.assessment[k] === 'string' && NUMERIC.test(ws.assessment[k])) ws.assessment[k] = Number(ws.assessment[k]);
+        const fixed = retypeNumbers(ws);
+        if (fixed.length) (ws.revisionLog ||= []).push({ date: today(), scenario: '—', parameter: 'typing', from: 'text', to: 'number', what: `${fixed.length} numeric text value(s) retyped as numbers at import (same figures): ${fixed.slice(0, 12).join(', ')}${fixed.length > 12 ? ', …' : ''}` });
+      }
       else throw new Error('Not a CyberRiskGuardian workspace or assessment file (no SCEN array).');
     } else ws = newWorkspace({ name: nm, kind: kind.value });
     if (edu.checked) ws.kind = 'classroom';

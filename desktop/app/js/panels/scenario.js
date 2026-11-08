@@ -94,9 +94,18 @@ export function render(sec, arg) {
     el('button', { class: 'btn ghost sm danger', onclick: () => {
       // 1.9.2 (item 10, NV-037): the risks of the Risk register that link this scenario are named before it goes
       const linked = (S.ws.risks || []).filter(r => (r.scenarios || []).includes(s.id));
-      const warn = linked.length ? '\n\n' + tr('{0} risk(s) link this scenario: {1}. They will show the link as deleted until you unlink them or link another scenario.').replace('{0}', linked.length).replace('{1}', linked.map(r => r.id).join(', ')) : '';
+      let warn = linked.length ? '\n\n' + tr('{0} risk(s) link this scenario: {1}. They will show the link as deleted until you unlink them or link another scenario.').replace('{0}', linked.length).replace('{1}', linked.map(r => r.id).join(', ')) : '';
+      // 1.9.2 review (L6): measures, recommendations and KRIs that reference the scenario are named too, and unlinked on deletion
+      const meas = (S.ws.measures || []).filter(m => (m.scen || []).includes(s.id));
+      const recs = (S.ws.recommendations || []).filter(r => (r.scenarios || []).includes(s.id));
+      const kris = (a.KRIS || []).filter(k => String(k[2] || '').split(/[,;\s]+/).includes(s.id));
+      if (meas.length || recs.length || kris.length) warn += '\n\n' + tr('Also linked and unlinked on deletion: {0} measure(s) ({1}), {2} recommendation(s) ({3}), {4} KRI(s) ({5}). An approved recommendation keeps its frozen figures; its history records the removal.')
+        .replace('{0}', meas.length).replace('{1}', meas.map(m => m.id).join(', ') || '—').replace('{2}', recs.length).replace('{3}', recs.map(r => r.code || r.id).join(', ') || '—').replace('{4}', kris.length).replace('{5}', kris.map(k => k[0]).join(', ') || '—');
       if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?` + warn)) return;
       for (const r of linked) (r.history ||= []).push({ date: today(), what: `Linked scenario ${s.id} deleted — link flagged until Unlink` });   // item 10: logged in each risk's history
+      for (const m of meas) { m.scen = m.scen.filter(x => x !== s.id); if (m.eff) delete m.eff[s.id]; }
+      for (const r of recs) { r.scenarios = r.scenarios.filter(x => x !== s.id); (r.history ||= []).unshift({ at: new Date().toISOString(), action: 'unlinked', from: s.id, to: '', by: users.name() || '', note: `Scenario ${s.id} deleted by the analyst: removed from this recommendation (frozen figures, if any, unchanged)` }); }
+      for (const k of kris) k[2] = String(k[2] || '').split(/[,;\s]+/).filter(x => x && x !== s.id).join(', ');
       a.SCEN.splice(idx, 1); for (const i of a.INITIATIVES) if (Array.isArray(i[3])) i[3] = i[3].filter(x => x !== s.id);
       S.ws.excluded = S.ws.excluded.filter(x => x !== s.id); delete S.ws.decisions[s.id]; touch(); toast('Deleted ' + s.id); go('register');
     } }, 'Delete'))));

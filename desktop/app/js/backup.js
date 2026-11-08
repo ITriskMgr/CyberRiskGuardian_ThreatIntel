@@ -187,9 +187,12 @@ export function unchangedSinceCreation(w) {
   if (c) {
     try {
       const fresh = fillShape(exampleWorkspace(c));   // the same shape repair a stored copy went through (assetIds, …)
+      // 1.9.2 review (H1 test): the stored copy is compared after the same shape repair — a seeded copy that was never
+      // saved after a load lacks the fields fillShape adds (assetIds, …) and is not "changed" for that
+      const here = fillShape(JSON.parse(JSON.stringify(w)));
       const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
-      return same(w.assessment, fresh.assessment) && same(w.risks || [], fresh.risks || []) && same(w.measures || [], fresh.measures || []) && !(w.docs || []).length
-        && !(w.recommendations || []).length && !(w.kriHistory || []).length && same(w.org, fresh.org);
+      return same(here.assessment, fresh.assessment) && same(here.risks || [], fresh.risks || []) && same(here.measures || [], fresh.measures || []) && !(w.docs || []).length
+        && !(w.recommendations || []).length && !(w.kriHistory || []).length && same(here.org, fresh.org);
     } catch { /* case not installed: fall through */ }
   }
   if (!w.created || !w.modified) return false;
@@ -220,6 +223,15 @@ export async function plan(obj) {
              scenarios: w.assessment?.SCEN?.length || 0,
              recommendations: (w.recommendations || []).length };
   });
+  /* 1.9.2 review (H1) — several copies of the same case in one file (two examples, both non-identical to the copy here):
+     Replace targets the bundled copy here once; every further row is offered Keep both, never a second Replace that
+     would overwrite the first. */
+  const seenTwin = new Set();
+  for (const r of rows) {
+    if (r.state !== 'teaching-twin' || !r.twin) continue;
+    if (seenTwin.has(r.twin.id)) { r.suggest = 'keep'; r.note += ' Another workspace in this file already targets that copy: Keep both is suggested (one Replace per copy here).'; }
+    seenTwin.add(r.twin.id);
+  }
   const twinIds = new Set(rows.map(r => r.twin?.id).filter(Boolean));
   const orphan = [...here.keys()].filter(id => !(obj.payload.workspaces || []).some(w => w.id === id) && !twinIds.has(id))
     .map(id => ({ id, name: here.get(id).name || id }));
@@ -242,15 +254,22 @@ export async function restore(obj, { ids = null, mode = 'merge', frameworks = tr
      'keep' (both stay, the file's copy under a new id) or 'skip' (the default: the file's copy is not written); or
      { choice, twin } to name the twin the plan showed when several copies of the case are here. */
   const remap = {};   // old blob key id → new id
+  done.kept_conflicts = 0;
   if (Object.keys(twins).length) {
     const all = (await store.all('ws')).filter(Boolean);
+    const replacedTwins = new Set();
     wss = wss.filter(w => {
       const t = twins[w.id]; if (!t) return true;
-      const choice = typeof t === 'string' ? t : t.choice;
+      let choice = typeof t === 'string' ? t : t.choice;
       const twin = (t.twin && all.find(x => x.id === t.twin)) || all.find(x => x.id !== w.id && TEACH.sameCase(x, w));
-      if (choice === 'skip' || !twin && choice !== 'keep') { done.skipped_twins++; return false; }
+      /* 1.9.2 review (H1): a twin choice is only honoured for a bundled teaching copy (kind "example") on both sides. A
+         classroom or organization workspace is never skipped or overwritten through the twin rule: it is written as itself. */
+      if (!twin || twin.kind !== 'example' || w.kind !== 'example' || !TEACH.sameCase(twin, w)) return true;
+      if (choice === 'skip') { done.skipped_twins++; return false; }
+      // one Replace per copy here: a second Replace on the same twin would overwrite the first (last write wins) → Keep both
+      if (choice === 'replace' && replacedTwins.has(twin.id)) { choice = 'keep'; done.kept_conflicts++; }
       const oldId = w.id;
-      if (choice === 'replace') { remap[oldId] = twin.id; w.id = twin.id; done.replaced++; }
+      if (choice === 'replace') { remap[oldId] = twin.id; w.id = twin.id; done.replaced++; replacedTwins.add(twin.id); }
       else if (choice === 'keep') { const nid = 'ws-' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4); remap[oldId] = nid; w.id = nid; done.kept++; }
       // the CRGO organisation base is derived from the id: a default base follows the new id, a base the person set is kept
       if (w.id !== oldId && (!w.crgo?.base || w.crgo.base === MIG.blankCrgo(oldId).base)) w.crgo = Object.assign(MIG.blankCrgo(w.id), { label: w.crgo?.label || '' });
