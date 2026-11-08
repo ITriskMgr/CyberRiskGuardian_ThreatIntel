@@ -52,5 +52,6 @@ export default [
     up(w, note) {
       const fixed = repairObjectObject(w);
       if (fixed.length) note(`#18: cleared "[object Object]" in ${fixed.length} field(s): ${fixed.join(', ')} — re-run the extraction or fill them by hand`);
+      else note('#18: no "[object Object]" value found in the profile, the crown jewels or the budget; nothing to clear');
     } },
 ];
