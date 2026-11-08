@@ -122,6 +122,16 @@ const q = await page.evaluate(async () => {
   return { qc: w, totals: [Math.round(R.est), Math.round(R.res)] };
 });
 ok(q.qc === 'warn', 'QC-21 warns on a disagreeing stored score');
+// data version 6 (ws2 sub-step): numbers stored as text are retyped, same figures, journalled
+const mg = await page.evaluate(async () => {
+  const W = await import('/js/migrate192/ws2.js');
+  const w = { assessment: { SCEN: [{ id: 'T1', params: { PbA: { v: '0.7' }, Pbx: { v: 0.6 }, De: '0.6', Dm: { v: 0.8 }, Th: { v: 0.5 }, Mu: { v: 'high' } }, red_p: '0.65', red_i: 0.7, cvss_score: '9.3' }] } };
+  const fixed = W.retypeNumbers(w); const s = w.assessment.SCEN[0];
+  const notes = []; W.default[0].up(w, n => notes.push(n));
+  return { fixed, types: [typeof s.params.PbA.v, typeof s.params.De, typeof s.red_p, typeof s.cvss_score, s.params.Mu.v], vals: [s.params.PbA.v, s.params.De, s.red_p, s.cvss_score], notes };
+});
+ok(mg.fixed.join() === 'T1.red_p,T1.cvss_score,T1.PbA,T1.De' && mg.types.join() === 'number,number,number,number,high' && mg.vals.join() === '0.7,0.6,0.65,9.3', 'migrate192/ws2: numeric text retyped as numbers (same figures), a word left alone ' + JSON.stringify(mg));
+ok(mg.notes.length === 1 && /nothing retyped/.test(mg.notes[0]), 'the sub-step journals even when nothing changes: ' + mg.notes[0]);
 ok(q.totals[0] === 84305 && q.totals[1] === 41023, 'totals unchanged after the exercise ' + q.totals);
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
 await browser.close(); done('t59 CVSS precedence');

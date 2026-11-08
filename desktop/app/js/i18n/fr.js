@@ -12838,4 +12838,5 @@ export default {
 "Scenario values stored as text are retyped as numbers (same figures; one typing rule for every engine)": "Les valeurs de scénario enregistrées comme texte sont retypées en nombres (mêmes chiffres ; une seule règle de typage pour tous les moteurs)",
 "{0} numeric text value(s) retyped as numbers: {1}": "{0} valeur(s) numérique(s) en texte retypée(s) en nombres : {1}",
 "Tolerated risk is 0 ({0} = 0): the risk-to-tolerance ratio is not applicable — confirm the zero is deliberate (the scenario is then not a risk in the period) rather than a placeholder": "Le risque toléré est 0 ({0} = 0) : le ratio risque résiduel / risque toléré n’est pas applicable — confirmez que le zéro est voulu (le scénario n’est alors pas un risque dans la période) plutôt qu’une valeur provisoire",
+"scenario values: every number is stored as a number (nothing retyped)": "valeurs de scénario : chaque nombre est enregistré comme nombre (rien à retyper)",
 };

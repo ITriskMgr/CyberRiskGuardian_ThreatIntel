@@ -1765,9 +1765,29 @@ que la sensibilité du scénario a été examinée (étape 15 du Processus).
 **Chaque donnée d'entrée est vérifiée.** Pb(A), Pb(ψ,A), δe, δm, μ(E) et les réductions doivent être
 entre 0 et 1, θ dans (0, 1], l'appétence strictement entre 0 et 1, δm au moins égal à δe, et un score CVSS —
 un vecteur ou un score de 0 à 10 — est **obligatoire** : un champ CVSS vide est signalé *CVSS requis*,
-jamais calculé comme 0. Un score enregistré à côté d'un vecteur est recalculé à partir du vecteur et un
-désaccord est signalé (Éditeur de scénarios et Revue de qualité QC-21) ; le score enregistré est utilisé
-tant que vous ne le modifiez pas.
+jamais calculé comme 0.
+
+**Le vecteur a préséance.** Quand un scénario porte à la fois un vecteur et un score enregistré, le moteur
+utilise le score **du vecteur** — la même règle que les moteurs des modules d'extension, de sorte que le
+même fichier donne les mêmes chiffres partout — et un score enregistré qui diverge est **signalé**, jamais
+corrigé en silence : une bannière sur la fiche de risque, une pastille *score enregistré ≠ vecteur* dans le
+Registre des scénarios et dans le tableau du calculateur, la Revue de qualité QC-21, une entrée
+`cvss_check` dans l'exportation JSON et un indicateur dans l'exportation Excel (CVSS_Basis et Analyse).
+Saisir dans l'éditeur de scénarios un vecteur qui s'analyse retire le score saisi et consigne l'ancien
+score dans les révisions du scénario. Un score enregistré seul (sans vecteur) est utilisé tel quel. Seules
+les onze **métriques de base** de CVSS v4.0 sont acceptées : un vecteur portant des métriques de menace
+(E), environnementales (CR, IR, AR, M…) ou supplémentaires est refusé, avec un message qui dit où vont les
+preuves (preuves d'exploitation dans Pb(ψ,A) ; contexte organisationnel dans μ(E), δe, δm et θ).
+
+**Risque toléré nul.** Pb(A), Pb(ψ,A), μ(E) et le CVSS peuvent valoir 0 (le scénario n'est alors pas un
+risque dans la période) : le risque toléré est 0, le ratio n'est pas défini et le verdict se lit **Non
+applicable (risque toléré 0)** — jamais *Au-dessus de la tolérance*. Un avertissement vous demande de
+confirmer que le zéro est voulu plutôt qu'une valeur provisoire.
+
+**Une seule règle de typage.** Une valeur doit être un nombre : un nombre saisi comme texte (« 0,7 ») ou
+une valeur oui/non est refusé avec *doit être un nombre* ; une réduction absente (pas de red_p ni de red_i)
+vaut 0, aucun traitement. Les espaces de travail enregistrés par une version plus ancienne de l'application
+sont retypés une fois au démarrage (mêmes chiffres, consignés au journal).
 
 ### 7.3.9 Registre des risques {#riskreg}
 
@@ -1789,7 +1809,11 @@ met à jour les cotes actuelle et cible après une modification des paramètres.
   tout catalogue que vous avez chargé dans *Cadres et normes* (section 7.5.4) — SP 800-171 r3,
   ITSP.10.171, COBIT 2019 ou votre propre importation. Recherchez, filtrez par cadre, par fonction ou
   par capacité, cochez des contrôles et faites *Ajouter* pour les intégrer à une mesure nouvelle ou
-  existante.
+  existante. Les CIS Controls v8.1 sont © Center for Internet Security (CC BY-NC-ND 4.0) : les éditions
+  communautaire et éducative affichent les titres des contrôles et les libellés paraphrasés par CRGO des
+  mesures de sauvegarde, avec l'avis CIS ; l'édition commerciale liste les contrôles et mesures de
+  sauvegarde CIS **par identifiant seulement**, en attendant l'approbation par CIS des titres dans un
+  produit payant. L'onglet *Versions* de la page À propos (menu Aide) nomme l'édition que vous utilisez.
 - **Mesures.** Nom, fonction, responsable, statut (proposée, approuvée, en cours, mise en œuvre,
   rejetée), coût ponctuel et récurrent, mois avant l'obtention du bénéfice, effort, confiance,
   réduction de vraisemblance par défaut **rp** et réduction d'impact **ri**, modifiables par scénario
@@ -1804,7 +1828,10 @@ met à jour les cotes actuelle et cible après une modification des paramètres.
 - **Effet sur chaque scénario.** Plusieurs mesures sur le même levier se combinent selon la **règle du
   produit**, celle de la méthode dans tous les outils : **red_p = 1 − ∏(1 − rp)** et **red_i = 1 − ∏(1 − ri)**
   — les réductions de probabilité ensemble, les réductions d'impact ensemble, chaque coefficient entre 0
-  et 1, de sorte que le résultat ne dépasse jamais 1 ; le moteur vérifié applique ensuite la convention du classeur atténué =
+  et 1, de sorte que le résultat ne dépasse jamais 1. Un coefficient hors de 0–1 (saisi, importé ou
+  proposé par l'IA) est **signalé, jamais ramené dans la plage** : il porte une marque rouge *hors de
+  0–1*, figure dans une bannière et reste exclu de la règle du produit jusqu'à sa correction. Le moteur
+  vérifié applique ensuite la convention du classeur atténué =
   estimé × red_p × red_i. Le tableau affiche le ratio actuel et le ratio avec les mesures. **Appliquer**
   écrit les valeurs combinées dans le scénario avec une entrée de révision ; **Annuler les
   modifications** rétablit les valeurs précédentes. Comme la convention multiplie les deux réductions,
@@ -3451,8 +3478,13 @@ son budget TI total, les dépenses de cybersécurité prévues, les dépenses de
 coût de base (fonctionnement) et une note. *Ajouter* l'année suivante ou l'année précédente — une
 nouvelle année copie la précédente comme point de départ. Pour chaque année, le tableau indique les
 initiatives engagées cette année-là, la base + les engagements en proportion du budget TI, et leur
-position par rapport à la ligne directrice (sous le plancher de 4 %, sous / à / au-dessus de la cible
-d'appétence, au-dessus du plafond de 12 %). Le **graphique par année** présente, empilées, la base et les
+position par rapport à la cible cohérente avec l'appétence (sous la cible ponctuelle de 4 %, sous / à /
+au-dessus de la cible cohérente avec l'appétence, au-dessus de la cible ponctuelle de 12 %). Les
+conventions sont celles des moteurs des modules d'extension : l'**écart** est *dépense − cible* (négatif =
+sous la cible), la **position** nomme les cibles ponctuelles de 4 % / 7,8 % / 12 %, et une dépense sous la
+cible ponctuelle de 4 % ne donne aucun appétit impliqué — elle implique un appétit *supérieur à 0,70, hors de
+la ligne directrice*, une décision que la direction doit prendre explicitement. Le **graphique par année**
+présente, empilées, la base et les
 initiatives engagées, les dépenses prévues (barre) et les dépenses réelles (◆), le tout en proportion du
 budget TI de l'année, par rapport aux lignes de 4 % / 7,8 % / 12 % et à la cible d'appétence.
 
@@ -3511,7 +3543,15 @@ se prend par initiative.
 
   Une ligne d'aperçu indique le nombre de scénarios et de feuilles avant la génération. Les coûts des
   initiatives partagées sont répartis de nouveau entre les scénarios exportés, et le README consigne la
-  portée choisie.
+  portée choisie. Le classeur est rédigé dans la **langue de l'interface** : titres, en-têtes, notes et
+  verdicts suivent EN ou FR ; les noms de feuilles restent en anglais parce que les formules y renvoient,
+  et vos propres données (noms de scénarios, vecteurs, responsables, noms de KRI) ne sont jamais
+  traduites. Comme dans le classeur du module d'extension, *Residual* porte la garde `MAX(0, …)`, la
+  colonne *Validity* indique *CVSS requis* quand le score est vide, les cellules de ratio affichent *n/a*
+  quand le risque toléré est 0, la feuille *CVSS_Basis* liste le score utilisé, sa source, tout score
+  enregistré et la vérification, et les lignes centrales de la feuille *Sensitivity* sont liées à *Inputs*
+  (jamais décalées ni bornées) tandis que les lignes décalées sont bornées dans le sens du décalage
+  seulement.
 - **JSON d'évaluation** — tous les scénarios ou ceux inclus, lisible par `crg_calc.py`,
   `build_workbook.py` et le plugiciel. Les liens ATT&CK, CWE et CVE sont transmis comme champs
   facultatifs qui ne modifient aucun total.
@@ -3583,11 +3623,22 @@ non d'une coïncidence, et c'est la première chose à essayer.
 Des plages peuvent être **proposées** à partir de la confiance déjà consignée pour chaque paramètre,
 selon une règle énoncée : ±0,15 pour une confiance faible, ±0,10 pour une confiance moyenne, ±0,05 pour
 une confiance élevée, bornées aux limites propres de chaque paramètre (θ n'est jamais proposé à zéro ou
-en dessous). Une proposition est un point de départ à modifier, et non une réponse.
+en dessous ; les bornes de δm ne descendent jamais sous celles de δe). Une proposition est un point de
+départ à modifier, et non une réponse. Quelles que soient les plages, un essai dont le δm tiré tombe sous
+δe est relevé à δe avant le passage au moteur, de sorte qu'une exécution n'avorte jamais sur un tirage. La
+**P(au-dessus tol.)** par scénario est la part des essais dont le *propre* ratio risque résiduel / risque
+toléré dépasse 1,10 — chaque essai est comparé à son propre risque toléré, comme le fait la méthode et
+comme le faisait déjà l'indicateur du portefeuille.
 
 Les exécutions utilisent un **germe** : le même germe reproduit exactement une exécution, de sorte qu'un
 chiffre figurant dans un rapport peut être régénéré. Un germe différent donne une exécution différente,
 ce qui permet de vérifier si votre conclusion dépend de l'échantillon.
+
+**Cas de sensibilité (Calculateur de risque, Excel).** Le cas central est le calcul tel quel, jamais
+décalé ni borné ; les cas inférieur et supérieur décalent chaque paramètre de ±0,10 et bornent le résultat à
+[0,05 ; 0,99] dans le sens du décalage seulement, de sorte qu'un cas ne peut jamais être plus doux que le
+cas central à cause de la borne (un Pb(A) de 1,00 reste 1,00 dans le cas supérieur ; une réduction de 0
+reste 0).
 
 **Facteurs déterminants.** Le graphique en tornade maintient chaque autre paramètre à sa valeur la plus
 probable et fait varier un seul paramètre sur sa plage. Il n'est délibérément *pas* dérivé de

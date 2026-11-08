@@ -75,7 +75,7 @@ et sa propre version GitHub avec trois fichiers :
 
 | Fichier | D’où il vient |
 |---|---|
-| `CyberRiskGuardian_Desktop_v<version>-beta.zip` | `desktop/dist/` (le contenu exact de `desktop/app/`) |
+| `CyberRiskGuardian_Desktop_v<version>-beta.zip` | `desktop/dist/` — construit par `python3 desktop/app/tools/package_desktop.py --edition community` (le contenu exact de `desktop/app/`, l’édition inscrite dans `js/edition.js`). Décision D3 : `--edition commercial` produit `…-beta-commercial.zip`, où les CIS Controls v8.1 figurent par identifiant seulement (titres et libellés CRGO retirés de `js/data/controls.js` dans la copie) tant que CIS n’a pas approuvé les titres ; `--edition educational` garde les titres avec l’avis CIS, comme l’édition communautaire |
 | `CyberRiskGuardian_Desktop_v<version>-beta.zip.sha256` | `shasum -a 256 <zip> > <zip>.sha256` — **obligatoire depuis la 1.9.0** : la vérification des mises à jour contrôle le téléchargement avec ce fichier et marque « non vérifié » une version qui ne l’a pas |
 | `CyberRiskGuardian_Desktop_v<version>-beta_Installation_Windows_macOS_EN_FR.pdf` | `desktop/app/INSTALL-Windows-macOS-EN-FR.pdf`, reconstruit par `python3 desktop/app/tools/build_install_pdf.py` chaque fois que `INSTALL.md` change |
 

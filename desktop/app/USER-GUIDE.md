@@ -1589,9 +1589,27 @@ review** marks the scenario's sensitivity as reviewed (Process step 15).
 
 **Every input is checked.** Pb(A), Pb(ψ,A), δe, δm, μ(E) and the reductions must be within 0–1, θ in
 (0, 1], the appetite strictly between 0 and 1, δm at least δe, and a CVSS score — a vector or a score from 0
-to 10 — is **required**: an empty CVSS field is reported as *CVSS required*, never computed as 0. A score
-stored beside a vector is recomputed from the vector and a disagreement is flagged (Scenario editor and
-Quality review QC-21); the stored score is used until you change it.
+to 10 — is **required**: an empty CVSS field is reported as *CVSS required*, never computed as 0.
+
+**The vector wins.** When a scenario carries both a vector and a stored score, the engine uses the
+**vector's** score — the same rule as the plugin engines, so the same file gives the same figures
+everywhere — and a stored score that disagrees is **flagged**, never corrected silently: a banner on
+the risk card, a *stored score ≠ vector* pill in the Scenario register and in the calculator's table,
+Quality review QC-21, a `cvss_check` entry in the JSON export and a flag in the Excel export
+(CVSS_Basis and Analyse). Typing a vector that parses in the Scenario editor clears the override and
+records the old score in the scenario's revisions. A stored score alone (no vector) is used as entered.
+Only the eleven **Base metrics** of CVSS v4.0 are accepted: a vector carrying Threat (E),
+Environmental (CR, IR, AR, M…) or Supplemental metrics is refused with a message that says where the
+evidence belongs (exploitation evidence in Pb(ψ,A); organizational context in μ(E), δe, δm and θ).
+
+**Zero tolerated risk.** Pb(A), Pb(ψ,A), μ(E) and CVSS may be 0 (the scenario is then not a risk in
+the period): the tolerated risk is 0, the ratio is undefined and the verdict reads **Not applicable
+(tolerated risk 0)** — never *Above tolerance*. A warning asks you to confirm the zero is deliberate
+rather than a placeholder.
+
+**One typing rule.** A value must be a number: a number typed as text ("0.7") or a yes/no value is
+rejected with *must be a number*; a missing reduction (no red_p or red_i) means 0, no treatment.
+Workspaces saved by an older version of the application are retyped once at start-up (same figures, journalled).
 
 ### 7.3.9 Risk register {#riskreg}
 
@@ -1609,6 +1627,10 @@ register. *Refresh ratings from scenarios* updates current and target after para
 - **Control catalogue.** The current editions: ISO/IEC 27002:2022, NIST SP 800-53 Rev. 5 (with
   enhancements on request), NIST CSF 2.0, CIS Controls v8.1, ATT&CK mitigations, the CRG measures, and any catalogue you have loaded in
   *Frameworks & standards* (section 7.5.4) — SP 800-171 r3, ITSP.10.171, COBIT 2019 or your own import.
+  CIS Controls v8.1 are © Center for Internet Security (CC BY-NC-ND 4.0): the Community and
+  Educational editions show the control titles and CRGO's own paraphrased safeguard labels with the CIS
+  notice; the Commercial edition lists CIS controls and safeguards **by identifier only** until CIS
+  approves the titles in a paid product. The *Versions* tab of the About page (Help menu) names the edition you are running.
   Search, filter by framework, function or capability, tick controls and *Add* them to a new or
   existing measure.
 - **Measures.** Name, function, owner, status (proposed, approved, in progress, implemented,
@@ -1624,7 +1646,9 @@ register. *Refresh ratings from scenarios* updates current and target after para
 - **Effect on each scenario.** Several measures on the same lever are combined by the **product rule**,
   the method's rule in every tool: **red_p = 1 − ∏(1 − rp)** and **red_i = 1 − ∏(1 − ri)** — probability
   reductions together, impact reductions together, each coefficient within 0–1, so the result never exceeds
-  1; the verified engine then applies the workbook convention mitigated =
+  1. A coefficient outside 0–1 (typed, imported or proposed by AI) is **flagged, never clamped**: it is
+  shown with a red *outside 0–1* mark, listed in a banner and left out of the product rule until you
+  correct it. The verified engine then applies the workbook convention mitigated =
   estimated × red_p × red_i. The table shows the current ratio and the ratio with the measures.
   **Apply** writes the combined values into the scenario with a revision entry; **Revert** restores the
   previous values. Because the convention multiplies the two reductions, a package that reduces only
@@ -3071,8 +3095,12 @@ end value outside. The test is the gap to that target, which is escalated rather
 budget, planned cyber spend, actual cyber spend, baseline (run) cost and a note. *Add* the next or
 the previous year — a new year copies the previous one as a starting point. For each year the table
 shows the initiatives committed that year, baseline + committed as a share of the IT budget, and
-where that sits against the guideline (below the 4% floor, below / at / above the appetite target,
-above the 12% ceiling). The **chart by year** shows baseline and committed initiatives stacked, the
+where that sits against the appetite-consistent target (below the 4% point target, below / at /
+above the appetite-consistent target, above the 12% point target). The conventions are those of the
+plugin engines: the **gap** is *spend − target* (negative = below the target), the **position**
+names the 4% / 7.8% / 12% point targets, and a spend below the 4% point target gives no implied
+appetite — it implies an appetite *above 0.70, outside the guideline*, a management decision to make
+explicitly. The **chart by year** shows baseline and committed initiatives stacked, the
 planned spend (bar) and the actual spend (◆), all as a share of that year's IT budget, against the
 4% / 7.8% / 12% lines and the appetite target.
 
@@ -3124,6 +3152,14 @@ initiative.
 
   A preview line gives the number of scenarios and sheets before you generate. Shared initiative
   costs are re-split across the exported scenarios, and the README records the scope chosen.
+  The workbook is written in the **interface language**: titles, headers, notes and verdict texts
+  follow EN or FR; sheet names stay in English because the formulas refer to them, and your own data
+  (scenario names, vectors, owners, KRI names) is never translated. As in the plugin's workbook,
+  *Residual* carries the `MAX(0, …)` guard, the *Validity* column reports *CVSS required* when the
+  score is blank, the ratio cells show *n/a* when the tolerated risk is 0, the *CVSS_Basis* sheet
+  lists the score used, its source, any stored score and the check, and the *Sensitivity* sheet's
+  central rows link to *Inputs* (never shifted or clamped) while the shifted rows clamp in the
+  direction of the shift only.
 - **Assessment JSON** — all or included scenarios, readable by `crg_calc.py`, `build_workbook.py`
   and the plugin. ATT&CK, CWE and CVE links travel as optional fields that change no total.
 - **Context pack** — Markdown for the CyberRiskGuardian agent. It contains the full text of your
@@ -3186,12 +3222,21 @@ check on the forecaster, not a coincidence, and it is the first thing to try.
 
 Ranges can be **proposed** from the confidence you already recorded against each parameter, by a
 stated rule: ±0.15 for Low confidence, ±0.10 for Medium, ±0.05 for High, clamped to each parameter's
-own limits (θ is never proposed at or below zero). A proposal is a starting point to edit, not an
-answer.
+own limits (θ is never proposed at or below zero; the δm bounds never fall below the δe bounds). A
+proposal is a starting point to edit, not an answer. Whatever the ranges, a trial whose sampled δm
+falls below δe is raised to δe before the engine runs, so a run never aborts on a draw. The
+per-scenario **P(above tol.)** is the share of trials whose *own* risk-to-tolerance ratio exceeds
+1.10 — each trial is compared with its own tolerated risk, as the method does and as the portfolio
+KPI already did.
 
 Runs are **seeded**: the same seed reproduces a run exactly, so a figure in a report can be
 regenerated. A different seed gives a different run, which is how you check whether your conclusion
 depends on the sample.
+
+**Sensitivity cases (Risk calculator, Excel).** The central case is the plain calculation, never
+shifted or clamped; the lower and higher cases shift every parameter by ±0.10 and clamp the result to
+[0.05, 0.99] in the direction of the shift only, so a case can never be milder than the central one
+because of the clamp (a Pb(A) of 1.00 stays 1.00 in the higher case; a reduction of 0 stays 0).
 
 **Drivers.** The tornado chart holds every other parameter at its likely value and sweeps one across
 its range. It is deliberately *not* derived from the Monte Carlo sample, because "what if this one

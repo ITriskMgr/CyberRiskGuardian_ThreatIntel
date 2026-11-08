@@ -42,5 +42,5 @@ export function retypeNumbers(w) {
 
 export default [
   { group: 'ASSESSMENT', title: 'Scenario values stored as text are retyped as numbers (same figures; one typing rule for every engine)',
-    up(w, note) { const fixed = retypeNumbers(w); if (fixed.length) note(`${fixed.length} numeric text value(s) retyped as numbers: ${fixed.slice(0, 12).join(', ')}${fixed.length > 12 ? ', …' : ''}`); } },
+    up(w, note) { const fixed = retypeNumbers(w); note(fixed.length ? `${fixed.length} numeric text value(s) retyped as numbers: ${fixed.slice(0, 12).join(', ')}${fixed.length > 12 ? ', …' : ''}` : 'scenario values: every number is stored as a number (nothing retyped)'); } },
 ];
