@@ -15,6 +15,7 @@
    1.8.0 (book v2.51): standard markers · valid inputs and a CVSS for every scenario · stored scores agree with
      their vectors · equivalency justified · no reference left on a superseded catalogue · screening flags reviewed ·
      transfers approved.
+   1.9.2 (QC-27, ws3): likelihoods calibrated from the threat context rest on a current (≤ 90 days) snapshot.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, table, kpi, n0, go, today } from '../util.js';
@@ -135,7 +136,26 @@ export function checks(ws = S.ws) {
     !oldCase ? tr('Not a teaching case on the earlier vectors.')
       : declined ? tr('S2 and S8 still use AV:N: the AV:L vectors were declined on {0}. The Process page lets you reconsider and take them (journalled), or Reset data → Start over takes the current case.').replace('{0}', AVL.lastEntry(ws)?.date || '—')
       : tr('S2 and S8 still use AV:N. The current case and the book use AV:L (the e-mailed document is opened locally): the Process page offers the AV:L vectors (journalled), or Reset data → Start over takes the current case.'), 'process');
+  // 1.9.2 (NV-099, ws3) — the project rule: an assessment that calibrates Pb(ψ,A) from the threat context needs a current snapshot
+  const fresh = snapshotFreshness(ws);
+  add('QC-27', 'The threat-context snapshot behind the calibrated likelihoods is current', fresh.state,
+    fresh.state === 'pass' ? (fresh.n ? tr('{0} threat_basis entry(ies) rest on the snapshot of {1}, valid until {2}.').replace('{0}', fresh.n).replace('{1}', fresh.retrieved || '—').replace('{2}', fresh.expires || '—') : tr('No likelihood is calibrated from the threat context; the 90-day rule applies once one is.'))
+      : fresh.missing ? tr('{0} threat_basis entry(ies) calibrate Pb(ψ,A), but no snapshot is loaded in this workspace: load the one they cite, or a refreshed one, and re-run the exposure join.').replace('{0}', fresh.n)
+      : tr('{0} threat_basis entry(ies) rest on a snapshot that expired on {1} ({2} days ago): refresh the snapshot and re-run the exposure join. Snapshots expire after 90 days.').replace('{0}', fresh.n).replace('{1}', fresh.expires || '—').replace('{2}', fresh.daysPast ?? '—'), 'threat');
   return out;
+}
+
+/** Snapshot freshness against the threat_basis entries (NV-099): fail when entries exist and the snapshot is missing or expired. */
+export function snapshotFreshness(ws = S.ws, today = new Date()) {
+  const n = (ws.assessment?.SCEN || []).reduce((t, s) => t + (Array.isArray(s.threat_basis) ? s.threat_basis.length : 0), 0);
+  const snap = ws.snapshot;
+  const exp = typeof snap?.expires === 'string' && /^\d{4}-\d{2}-\d{2}/.test(snap.expires) ? new Date(snap.expires.slice(0, 10)) : null;
+  const t = new Date(today.toISOString().slice(0, 10));
+  const daysPast = exp ? Math.round((t - exp) / 86400000) : null;
+  const expired = !exp || daysPast > 0;
+  if (!n) return { state: 'pass', n: 0, retrieved: snap?.retrieved || null, expires: snap?.expires || null, missing: !snap, expired, daysPast };
+  if (!snap) return { state: 'fail', n, missing: true, expired: true, retrieved: null, expires: null, daysPast: null };
+  return { state: expired ? 'fail' : 'pass', n, missing: false, expired, retrieved: snap.retrieved || null, expires: snap.expires || null, daysPast: expired ? daysPast : 0 };
 }
 
 /* ---------------- 1.6.0 checks (CRGO 0.10.0 brief §4) ---------------- */

@@ -14,6 +14,8 @@
    but does not eliminate, the risk of re-identification. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 
+import { ROLE_WORDS, TITLE_RX, TLDS, TECH_WORDS, ORG_WORDS, SAFE_ACRONYMS, CAP, NAME_PAIR, NAME_CUE_RX, KEEP_HOSTS, FILE_EXT, NETBIOS_RX, REF_RX, USER_CUE_RX, CODENAME_RX, splitPeople } from './data/anon-words.js';
+
 export const DEFAULT_OPTS = { enabled: true, org: true, people: true, assets: true, network: true, contact: true, amounts: true, dates: false, dropText: false, region: true, custom: '' };
 export const OPT_LABEL = {
   org: 'Organization names and acronym → “Organization A”', people: 'People\'s names (owners, custodians, approvers, members, instructor, users) and user names → “Person 1…”',
@@ -22,16 +24,13 @@ export const OPT_LABEL = {
   contact: 'E-mail addresses, phone numbers, postal codes, personal and reference numbers (file, employee, ticket)',
   amounts: 'Money amounts → ranges', dates: 'Dates → month only', dropText: 'Drop free-text fields (rationale, evidence, notes, narrative, stakeholders, review notes, descriptions)', region: 'Region → country only',
 };
-const KEEP_HOSTS = /(^|\.)(mitre\.org|nist\.gov|cve\.org|first\.org|cisa\.gov|cyber\.gc\.ca|ncsc\.gov\.uk|github\.com|abuse\.ch|sans\.edu|alienvault\.com|microsoft\.com|cwe\.mitre\.org|attack\.mitre\.org|epss\.empiricalsecurity\.com|iso\.org|cisecurity\.org|w3id\.org|cyberriskguardian\.ca|leger\.ca|example\.org|example\.com|example\.net|example)$/i;
 /* 1.9.2 — free text that may name people or describe the organization indirectly (NV-089). */
 const TEXT_KEYS = new Set(['rat', 'ev', 'evidence', 'rationale', 'notes', 'note', 'narrative', 'desc_private', 'acceptance_note', 'cvss_note', 'history',
   'stakeholders', 'review', 'threat_description', 'threatText', 'description', 'desc', 'exposure', 'background', 'why']);
-const ROLE_WORDS = /\b(lead|manager|officer|director|team|operations|ciso|cio|cto|ceo|cfo|coo|owner|administrator|admin|architect|security|it|hr|privacy|procurement|facilities|board|committee|vendor|supplier|department|service|desk|analyst|engineer|head|chief|responsible|dpo|soc|management|direction|équipe|sécurité|conseil|comité|fournisseur|service|informatique|ti|responsable|gestionnaire|directeur|directrice|analyste|n\/a|tbd|todo|none|unknown|inconnu|aucun)\b/i;
 /* People fields (NV-005): every value is a person, whatever its shape. */
 const PEOPLE_KEYS = new Set(['owner', 'custodian', 'accountable', 'approver', 'approvedBy', 'approved_by', 'requestedBy', 'acceptedBy', 'submittedBy', 'confirmedBy',
   'author', 'sponsor', 'by', 'who', 'instructor', 'decisionMaker', 'reviewer', 'assessor', 'requester', 'contact', 'members', 'consulted', 'informed', 'assignee', 'analyst']);
 const SKIP_KEYS = new Set(['published', 'crgo', 'snapshot', 'consultant', 'aiLog', 'docs', 'kb', 'premig', 'catalogueMigration']);
-const TITLE_RX = /^(?:dr|dre|mr|mrs|ms|mme|mlle|m|me|pr|prof|hon|sir|dame|ing|ingénieure?|maître)\.?\s+/i;
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /** Two to four capitalized words, O'/Mc/Mac/accents/hyphens allowed, no role word: the 1.4.0 test, kept for the register validation. */
 export const looksLikeName = s => /^[A-ZÀ-Ý](?:[a-zà-ÿ'’-]+|c[A-Z][a-zà-ÿ]+|'[A-Z][a-zà-ÿ]+)(?:[ -][A-ZÀ-Ý](?:[a-zà-ÿ'’-]+|c[A-Z][a-zà-ÿ]+|'[A-Z][a-zà-ÿ]+)){1,3}$/.test(bareName(String(s))) && !ROLE_WORDS.test(bareName(String(s)));
@@ -48,7 +47,6 @@ export function bareName(v) {
 /** A value of a people field that is not a person: empty, a role only ("IT", "Security team"), or a placeholder. */
 const notAPerson = s => !s || s.length < 3 || !/[a-zà-ÿ]/i.test(s) || s.split(/\s+/).every(w => ROLE_WORDS.test(w)) || /^(person|personne)\s*\d+$/i.test(s) || /^(organization|organisation)\s+[a-z]$/i.test(s);
 /** The pieces of a people-field value: "A, B and C" → [A, B, C]. */
-const splitPeople = v => String(v || '').split(/\s*(?:[;\n]|,(?!\s*(?:jr|sr|ph\.?d|m\.?sc|mba|cissp|cisa|cism|crisc)\b)|\band\b|\bet\b|&)\s*/i).map(x => x.trim()).filter(Boolean);
 
 let USERS = null;
 import('./users.js').then(m => { USERS = m; }).catch(() => { USERS = null; });
@@ -171,30 +169,12 @@ const UNC_RX = /\\\\[\p{L}\p{N}._$-]{2,}(?:\\[^\s\\"'<>|]+)*\\?/gu;
 const IPV6_RX = /(?<![\p{L}\p{N}:.])(?:(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|(?:[0-9a-f]{1,4}:){1,7}:(?:[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){0,6})?|::(?:[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){0,6}))(?:\/\d{1,3})?(?![\p{L}\p{N}:.])/giu;
 const MAC_RX = /\b(?:[0-9A-F]{2}[:-]){5}[0-9A-F]{2}\b|\b(?:[0-9A-F]{4}\.){2}[0-9A-F]{4}\b/gi;
 const IPV4_RX = /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\/\d{1,2})?(?::\d{1,5})?\b/g;
-const TLDS = '(?:[a-z]{2}|com|org|net|edu|gov|mil|int|info|biz|io|ai|app|dev|cloud|online|site|tech|store|xyz|health|care|med|pro|name|mobi|tel|travel|museum|coop|aero|jobs|asia|cat|bank|insurance|email|network|systems|solutions|services|group|global|world|digital|data|local|lan|corp|internal|intra|intranet|home|private|ad|test|invalid|localhost|arpa|onion)';
 const HOST_RX = new RegExp('(?<![\\p{L}\\p{N}@/._-])(?:[a-z0-9](?:[a-z0-9_-]{0,62})\\.)+' + TLDS + '(?![\\p{L}\\p{N}_-])(?:\\.(?![\\p{L}\\p{N}]))?', 'giu');
-const FILE_EXT = /\.(js|mjs|cjs|ts|json|py|md|csv|tsv|xlsx|xls|docx|doc|pdf|txt|xml|yml|yaml|html|htm|css|png|jpg|jpeg|gif|svg|zip|gz|tar|exe|dll|bat|sh|ps1|log|ini|cfg|conf|bak|tmp|dat|db|sql|pem|crt|key|p12|pfx|rtf|pptx|ppt|odt|ods|odp|jar|war|iso|img|dmg|pkg|msi|apk|ipa|mp4|mp3|wav|mov|avi|torrent)$/i;
-const NETBIOS_RX = /\b(?:SRV|SVR|DC|FS|DB|SQL|APP|WEB|WWW|WS|PC|LT|LAP|VM|HV|ESX|NAS|FW|SW|RTR|PRN|PRT|EX|EXCH|MAIL|PRD|PROD|DEV|TST|TEST|UAT|QA|BK|BKP|BAK|AD|DNS|DHCP|SCCM|WSUS|CTX|VDI|RDS|TS|HR|FIN|ERP|CRM|PACS|EHR|LAB|RIS|SAP|SCADA|PLC|HMI|CAM|NVR|IOT|WLC|AP)[-_][A-Z0-9][A-Z0-9_-]{0,14}\d\b|\b(?:SRV|DC|FS|DB|SQL|APP|WEB|WS|PC|VM|ESX|NAS|FW|PRD|PROD|DEV|TST|UAT|WLC|AP)\d{2,4}\b/g;
 const E164_RX = /(?<![\p{L}\p{N}])\+\d{1,3}(?:[\s.-]?\(?\d{1,4}\)?){2,5}(?![\p{L}\p{N}])/gu;
 const NANP_RX = /(?:\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}\b/g;
 const POSTAL_RX = /\b[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d\b/gi;
-const REF_RX = /\b(?:MRN|EMP|EMPL|INC|REQ|CHG|RITM|TKT|TICKET|CASE|SR|SIN|NAS|SSN|RAMQ|NAM|NIP|PIN|ID|BADGE|DOSSIER|MATRICULE|PATIENT|EMPLOYEE|EMPLOYÉ)\s*(?:#|№|no\.?|number|numéro|:|-)?\s*[A-Z]{0,3}-?\d{4,12}\b/gi;
-const USER_CUE_RX = /\b(?:as|user|username|account|login|compte|utilisateur|identifiant)\s+(?:user\s+)?([a-z][a-z0-9]*[._-][a-z0-9._-]{2,30})\b/gi;
 const DOTTED_USER_RX = /\b[a-z]{2,}\.[a-z]{3,}\b(?![.-]?[a-z])/g;
-const CODENAME_RX = /(\b(?:[Pp]rojec?t|[Pp]rogramme?|[Ii]nitiative|[Oo]p[eé]ration|[Cc]odename|[Cc]ode name|[Nn]om de code)\s+)([A-Z][a-zà-ÿ]{3,}|[A-Z]{2}[a-zà-ÿ]{2,})(?![\p{L}\p{N}])/gu;
 /* Free-text names (NV-089): a capitalized pair with a cue — a title, a role in brackets, or "with/by/led by…" — and no technology or role word. */
-const CAP = "[A-ZÀ-Ý](?:[a-zà-ÿ'’-]+|c[A-Z][a-zà-ÿ]+|'[A-Z][a-zà-ÿ]+)";
-const NAME_PAIR = `(${CAP}(?:[ -]${CAP}){1,2})`;
-const NAME_CUE_RX = new RegExp(`(?:\\b(?:dr|dre|mr|mrs|ms|mme|mlle|me|pr|prof)\\.?\\s+${NAME_PAIR})|(?:\\b(?:with|by|from|contact|led by|signed by|approved by|accepted by|reported by|interview with|interviewed|met|meeting with|avec|par|contacter|signé par|approuvé par|rencontre avec)\\s+(?:the\\s+|le\\s+|la\\s+)?(?:(?:CEO|CIO|CISO|CTO|CFO|COO|DPO|director|directeur|directrice|manager|gestionnaire|officer|VP|president|président|présidente)\\s+)?${NAME_PAIR})|(?:${NAME_PAIR}\\s*\\((?:[^)]*\\b(?:officer|director|manager|lead|head|chief|ciso|cio|cto|ceo|cfo|coo|dpo|analyst|engineer|administrator|admin|consultant|auditor|owner|responsable|directeur|directrice|gestionnaire|analyste|conseiller|conseillère|vérificateur|vérificatrice|agent|agente)\\b[^)]*)\\))`, 'gu');
-const TECH_WORDS = new Set(['active', 'directory', 'microsoft', 'windows', 'server', 'exchange', 'office', 'azure', 'entra', 'google', 'cloud', 'cisco', 'palo', 'alto', 'fortinet', 'fortigate', 'citrix', 'vmware', 'oracle', 'linux', 'apache', 'red', 'hat',
-  'amazon', 'web', 'services', 'okta', 'veeam', 'sophos', 'crowdstrike', 'sentinel', 'splunk', 'defender', 'intune', 'teams', 'sharepoint', 'onedrive', 'outlook', 'adobe', 'acrobat', 'chrome', 'firefox', 'safari', 'android', 'apple', 'ios', 'macos',
-  'valid', 'accounts', 'public', 'facing', 'application', 'remote', 'access', 'phishing', 'spearphishing', 'attachment', 'link', 'supply', 'chain', 'compromise', 'brute', 'force', 'drive', 'credential', 'dumping', 'exfiltration', 'impair', 'defenses', 'inhibit',
-  'system', 'recovery', 'data', 'encrypted', 'impact', 'lateral', 'movement', 'command', 'scripting', 'interpreter', 'user', 'execution', 'exploit', 'exploitation', 'external', 'services', 'network', 'service', 'discovery', 'destruction',
-  'risk', 'register', 'registry', 'scenario', 'policy', 'standard', 'control', 'controls', 'project', 'phase', 'step', 'board', 'call', 'centre', 'center', 'clinic', 'hospital', 'health', 'care', 'information', 'security', 'privacy', 'account', 'email', 'mail',
-  'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
-  'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'loi', 'law', 'act', 'canada', 'quebec', 'québec', 'montréal', 'montreal', 'laval', 'ontario', 'toronto', 'ottawa', 'united', 'states', 'france', 'paris',
-  'north', 'south', 'east', 'west', 'nord', 'sud', 'est', 'ouest', 'general', 'protection', 'regulation', 'personal', 'medical', 'patient', 'records', 'record', 'management', 'business', 'continuity', 'disaster', 'incident', 'response', 'plan', 'threat', 'evidence', 'ladder',
-  'organization', 'organisation', 'person', 'personne', 'asset', 'internal', 'external', 'high', 'medium', 'low', 'critical', 'analytical', 'estimate', 'validation', 'required', 'decision', 'gap', 'organizational']);
 /* The ATT&CK, CWE and mitigation vocabulary of the bundled knowledge base (kb.js, self.CRG_KB): a capitalized pair made only of
    those words ("Removable Media", "Valid Accounts") is a technique, not a person. Built once, on first use. */
 let KBWORDS = null;
@@ -212,10 +192,6 @@ const kbWords = () => {
   return KBWORDS;
 };
 /* Words that make a capitalized pair an organization, a product or a place rather than a person (listed in the preview, never replaced as a person). */
-const ORG_WORDS = new Set(['hébergement', 'hosting', 'inc', 'ltd', 'ltée', 'corp', 'corporation', 'company', 'compagnie', 'solutions', 'services', 'technologies', 'technology', 'consulting', 'conseil', 'conseils', 'groupe', 'group', 'systems', 'systèmes', 'informatique',
-  'santé', 'health', 'clinic', 'clinique', 'pharma', 'bank', 'banque', 'assurance', 'assurances', 'insurance', 'labs', 'laboratoire', 'laboratoires', 'partners', 'partenaires', 'associés', 'associates', 'logiciels', 'software', 'networks', 'réseaux', 'sécurité', 'security',
-  'digital', 'numérique', 'cloud', 'data', 'données', 'médical', 'medical', 'hospital', 'hôpital', 'centre', 'center', 'université', 'university', 'collège', 'college', 'école', 'school', 'ministère', 'ministry', 'agence', 'agency', 'ville', 'city', 'municipalité', 'municipality',
-  'canada', 'québec', 'quebec', 'international', 'global', 'industries', 'industrie', 'manufacturing', 'énergie', 'energy', 'telecom', 'télécom', 'communications', 'media', 'médias', 'capital', 'finance', 'financial', 'financière', 'trust', 'fiducie', 'foundation', 'fondation', 'institute', 'institut']);
 const pairOk = s => { const w = s.toLowerCase().split(/[\s-]+/); if (w.length < 2 || w.some(x => TECH_WORDS.has(x) || ROLE_WORDS.test(x))) return false; const kb = kbWords(); return !w.every(x => kb.has(x)); };
 const nameOk = s => pairOk(s) && !s.toLowerCase().split(/[\s-]+/).some(x => ORG_WORDS.has(x));
 
@@ -318,12 +294,6 @@ export function residual(out, ctx) {
   }
   return [...new Set(found)];
 }
-const SAFE_ACRONYMS = new Set(['CVE', 'CWE', 'KEV', 'EPSS', 'CVSS', 'CAPEC', 'MFA', 'EDR', 'XDR', 'NDR', 'SIEM', 'SOC', 'SOAR', 'IAM', 'PAM', 'DLP', 'VPN', 'DNS', 'DHCP', 'API', 'URL', 'URI', 'HTTP', 'HTTPS', 'SSL', 'TLS', 'SSH', 'RDP', 'SMB', 'FTP', 'SFTP', 'LDAP', 'SQL', 'NAS', 'SAN', 'CMDB', 'ITSM', 'SOP',
-  'AD', 'IT', 'HR', 'OT', 'ICS', 'SCADA', 'PLC', 'CEO', 'CISO', 'CIO', 'CTO', 'CFO', 'COO', 'DPO', 'VP', 'PDG', 'DG', 'DSI', 'RSSI', 'ISO', 'IEC', 'NIST', 'CIS', 'COBIT', 'ITIL', 'GDPR', 'RGPD', 'PIPEDA', 'LPRPDE', 'HIPAA', 'PCI', 'DSS', 'SOX', 'EHR', 'EMR', 'DSE', 'PACS', 'HL7', 'FHIR', 'DICOM',
-  'ERP', 'CRM', 'SAP', 'AWS', 'GCP', 'SAAS', 'PAAS', 'IAAS', 'USB', 'PC', 'VM', 'OS', 'IP', 'MAC', 'LAN', 'WAN', 'WIFI', 'IOT', 'AI', 'IA', 'ML', 'LLM', 'PDF', 'JSON', 'CSV', 'XML', 'YAML', 'KPI', 'KRI', 'QC', 'RACI', 'BIA', 'BCP', 'DRP', 'PCA', 'PRA', 'RTO', 'RPO', 'SLA', 'UPS', 'HVAC',
-  'FR', 'EN', 'CA', 'US', 'UK', 'EU', 'NA', 'TBD', 'TODO', 'FAQ', 'ID', 'PIN', 'OTP', 'SSO', 'PHI', 'PII', 'NDA', 'RFP', 'CAD', 'USD', 'EUR', 'ATT', 'CK', 'MITRE', 'CISA', 'CCCS', 'RCMP', 'GRC', 'OQLF', 'BTM', 'CRG', 'CRGO', 'TLP', 'IOC', 'TTP', 'APT', 'DDOS', 'DOS', 'XSS', 'RCE', 'LPE', 'SSRF', 'CSRF',
-  'UNC', 'SCEN', 'JSON', 'MDR', 'ISP', 'DMARC', 'DKIM', 'SPF', 'ARP', 'SMS', 'BEC', 'SDLC', 'IDOR', 'JIT', 'CICD', 'NOC', 'EOL', 'EOS', 'OLA', 'VOIP', 'SIP', 'PBX', 'ATM', 'POS', 'RFID', 'NFC', 'BLE', 'GPS', 'LTE', 'SNMP', 'NTP', 'SMTP', 'IMAP', 'POP', 'TCP', 'UDP', 'ICMP', 'RPC', 'DCOM', 'WMI', 'COM', 'GPO', 'UPN', 'SID', 'GUID', 'UUID', 'CLI', 'GUI', 'IDE', 'SDK', 'OSS', 'FOSS', 'SBOM', 'TPRM', 'VRM', 'ERM', 'BCM', 'RAID', 'VMS', 'EPP', 'MTTD', 'MTTR', 'MTBF', 'KEV', 'CPE', 'SWID', 'OVAL', 'SCAP', 'STIX', 'TAXII', 'MISP', 'OTX', 'ISAC', 'ICS', 'DNP', 'OPC', 'MQTT', 'HTTPS', 'WPA', 'WEP', 'EAP', 'RADIUS', 'TACACS', 'IPSEC', 'IKE', 'GRE', 'MPLS', 'BGP', 'OSPF', 'VRRP', 'HSRP', 'STP', 'QOS', 'FTE', 'ROI', 'TCO', 'NPV', 'IRR', 'CAPEX', 'OPEX', 'YTD', 'QTD', 'FY', 'EBITDA', 'GAAP', 'IFRS', 'SEC', 'FINRA', 'OSFI', 'AMF', 'BSIF', 'CSSF', 'FCA', 'PRA', 'DORA', 'NIS', 'CMMC', 'FEDRAMP', 'ITSG', 'ITSP', 'CCCS', 'CSE', 'CSIS', 'OPC', 'CAI', 'PHIPA', 'HIA', 'CCPA', 'CPRA', 'LGPD', 'POPIA', 'PDPA', 'APPI', 'CRA', 'ARC', 'CNIL', 'ICO', 'EDPB', 'ENISA', 'BSI', 'CERT', 'FIRST', 'SSVC', 'CVSS', 'AV', 'AC', 'AT', 'PR', 'UI', 'VC', 'VI', 'VA', 'SC', 'SI', 'SA', 'MDM', 'BYOD', 'NAC', 'WAF', 'IDS', 'IPS', 'CA', 'PKI', 'HSM', 'KMS', 'TPM', 'BIOS', 'UEFI', 'RAM', 'CPU', 'GPU', 'SSD', 'HDD', 'OWASP', 'SANS', 'ENISA', 'NCSC', 'ANSSI', 'IRP', 'CSIRT', 'CERT', 'SOC2', 'SOC1', 'AICPA', 'IIA', 'ISACA', 'COSO', 'CSF', 'SP', 'SSVC', 'WIP', 'ETA', 'FYI', 'PS', 'NB', 'RE', 'RH', 'TI', 'SI', 'SST', 'UTC', 'EST', 'PST', 'GMT',
-  'MEDIBEC', 'CANARETAIL', 'NORDELLE', 'BOREAL', 'BORÉAL', 'ASA', 'PIX', 'ESXI', 'VDI', 'RDS', 'CTX', 'CPT', 'DBA', 'SRE', 'QA', 'UAT', 'PROD', 'DEV', 'TST', 'DMZ', 'VLAN', 'ACL', 'IDP', 'SP', 'SAML', 'OAUTH', 'OIDC', 'JWT', 'CDN', 'VPC', 'IAC', 'DC', 'FS', 'DB', 'APP', 'WEB', 'WS', 'SRV']);
 /** Name-like pairs and acronyms in the output that no replacement covers — for the preview, so the analyst can add them (NV-089). */
 export function nameLike(out, ctx) {
   const s = String(out || '');

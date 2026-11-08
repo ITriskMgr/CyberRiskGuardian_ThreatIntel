@@ -1,10 +1,18 @@
 /* Threat context — load or generate a dated snapshot, place exposed CVEs on the Threat Evidence Ladder,
    apply exposure-gated Pb(ψ,A) proposals to scenarios with an audit trail, and keep the revision log.
-   © 2026 Marc-André Léger. CC BY-NC 4.0 */
+   1.9.2 (NV-007, NV-023, NV-024, NV-090): an expired snapshot blocks the proposals until a justification is recorded, and
+   says so in the threat_context block and every threat_basis entry (expired, days_past_expiry); no "TODO" placeholder is
+   copied or stored — the confidence is the one chosen or null with confidence_required, and exposure without register
+   evidence is recorded as "Information gap — organizational validation required", its row unticked; a snapshot is
+   validated before it is stored, and a malformed one stored earlier still leaves Clear reachable; the introduction says
+   what the join proposes (Pb(ψ,A) only). © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, download, copyText, today, select } from '../util.js';
 import { S, touch, setSnapshot, compute, scen } from '../state.js';
-import { LADDER, classify as ladderClassify, parseExposure, snapshotAge, snapshotStats, SCHEMA } from '../../threat.js';
+import { LADDER, classify as ladderClassify, parseExposure, snapshotAge, snapshotStats, validateSnapshot, SCHEMA } from '../../threat.js';
+import { tr } from '../i18n.js';
+
+const GAP = 'Information gap — organizational validation required';
 import { parseKev, parseEpss, build, KEV_URL, KEV_MIRROR, epssUrl, REGIONAL_SOURCES } from '../snapgen.js';
 
 let LASTJOIN = null, lastRows = null;
@@ -12,7 +20,8 @@ let LASTJOIN = null, lastRows = null;
 export function render(sec, arg) {
   sec.replaceChildren(el('h1', null, 'Threat context'),
     el('p', 'lede', el('span', null, 'A snapshot is dated evidence about the threat environment. It may calibrate ', el('span', 'mono', 'Pb(A)'), ' and ', el('span', 'mono', 'Pb(ψ,A)'),
-      ' only, within Threat Evidence Ladder bands, and only where exposure is confirmed. It never informs δe, δm, θ or μ(E).')));
+      ' only, within Threat Evidence Ladder bands, and only where exposure is confirmed. It never informs δe, δm, θ or μ(E). On this screen the exposure join proposes ',
+      el('span', 'mono', 'Pb(ψ,A)'), ' changes only (to the floor of the ladder band); ', el('span', 'mono', 'Pb(A)'), ' stays the analyst\'s estimate, informed by the regional strategic sources listed in the snapshot and recorded in the scenario editor.')));
   snapshotCard(sec);
   generator(sec);
   joinCard(sec, arg === 'join');
@@ -28,7 +37,12 @@ function snapshotCard(sec) {
   fileIn.addEventListener('change', async e => {
     const f = e.target.files?.[0]; if (!f) return;
     status.textContent = 'Reading ' + f.name + '…';
-    try { const snap = JSON.parse(await f.text()); await setSnapshot(snap, f.name); toast('Snapshot stored in this workspace'); }
+    try {
+      const snap = JSON.parse(await f.text());
+      const problems = validateSnapshot(snap);
+      if (problems.length) { status.replaceChildren(banner('bad', 'Not a usable snapshot — nothing was stored', `${f.name}: ${problems.join(' · ')}. Expected the JSON of threat_snapshot.py or of the generator below (schema ${SCHEMA}).`)); fileIn.value = ''; return; }
+      await setSnapshot(snap, f.name); toast('Snapshot stored in this workspace');
+    }
     catch (err) { status.replaceChildren(banner('bad', 'Could not read that file', String(err.message || err))); }
   });
   const clear = el('button', { class: 'btn ghost', id: 'snap-clear', onclick: async () => { await setSnapshot(null); toast('Snapshot removed from this workspace'); } }, 'Clear');
@@ -40,6 +54,7 @@ function snapshotCard(sec) {
       const r = await fetch('examples/threat-context/threat-context-example.json', { cache: 'no-store' });
       if (!r.ok) throw new Error(`the file is missing from this installation (HTTP ${r.status})`);
       const snap = await r.json();
+      const problems = validateSnapshot(snap); if (problems.length) throw new Error('the bundled file is not a usable snapshot: ' + problems.join(' · '));
       await setSnapshot(snap, 'threat-context-example.json');
       toast('Example snapshot loaded — it is an example, not current intelligence');
     } catch (err) {
@@ -69,6 +84,10 @@ function snapshotCard(sec) {
       el('div', { style: { marginTop: '4px' } }, SNAP.example.not || ''),
       el('div', 'small muted', { style: { marginTop: '4px' } }, 'Built ', SNAP.retrieved || '—', ' from ', SNAP.example.built_from || 'the project snapshot', '.'))));
   const age = snapshotAge(SNAP), st = snapshotStats(SNAP);
+  if (st.problems.length) {   // a malformed snapshot stored by an earlier release: say so, keep Clear reachable, draw nothing from it
+    status.replaceChildren(banner('bad', 'The stored snapshot is malformed — clear it and load a valid one', st.problems.join(' · ')));
+    return;
+  }
   if (!st.schemaOk) status.append(banner('warn', 'Unexpected schema', `Found ${st.schema || 'none'}, expected ${SCHEMA}. Fields may be missing.`));
   status.append(document.createTextNode((S.ws.snapshot?.name ? S.ws.snapshot.name + ' — ' : '') + (age.expired ? `retrieved ${age.retrieved}. EXPIRED ${Math.abs(age.daysLeft)} days ago — refresh before relying on it.`
     : `retrieved ${age.retrieved}, ${age.daysLeft} days of validity left.`)));
@@ -162,54 +181,78 @@ function joinCard(sec, prefill) {
   function run() {
     outBox.replaceChildren();
     if (!SNAP) { outBox.append(banner('warn', 'No snapshot', 'Load a snapshot first — the ladder needs dated evidence.')); return; }
+    if (validateSnapshot(SNAP).length) { outBox.append(banner('bad', 'The stored snapshot is malformed', 'Clear it (Snapshot card above) and load a valid one before running the join.')); return; }
     const cves = parseExposure(ta.value);
     if (!cves.length) { outBox.append(banner('warn', 'No CVE found', 'Paste the CVEs the organization is confirmed to operate. Without exposure evidence the gate blocks every uplift.')); return; }
+    const age = snapshotAge(SNAP);
+    if (age.expired) outBox.append(banner('bad', 'The snapshot is expired — refresh it before relying on it', `Retrieved ${age.retrieved ?? '—'}, expired ${age.expires ?? '—'} (${n0(age.daysPastExpiry ?? 0)} days ago). The ladder positions below describe the threat landscape of that date, not today's; proposals from an expired snapshot need a recorded justification and fail the quality review (QC-27).`));
     const rows = cves.map(c => ladderClassify(c, SNAP, true));
     lastRows = rows;
     const c = el('div', 'card'), t = el('table');
-    t.append(el('thead', null, el('tr', null, ...['CVE', 'Rung', 'Band', 'Ladder position', 'Evidence', 'Scenarios'].map((h, i) => el('th', i === 1 || i === 2 ? 'num' : null, h)))));
+    t.append(el('thead', null, el('tr', null, ...['CVE', 'Rung', 'Band', 'Ladder position', 'Evidence', 'Exposure evidence', 'Scenarios'].map((h, i) => el('th', i === 1 || i === 2 ? 'num' : null, h)))));
     const tb = el('tbody');
     for (const r of rows) {
       const scs = ws.assessment.SCEN.filter(s => (s.cves || []).includes(r.cve));
+      const ex = exposureFor(r.cve);
       tb.append(el('tr', null, el('td', 'mono', el('a', { href: '#/vulns/' + r.cve }, r.cve)), el('td', 'num', String(r.rung)), el('td', 'num', `${r.band[0].toFixed(2)}–${r.band[1].toFixed(2)}`),
         el('td', null, pill(r.label, r.rung >= 4 ? 'bad' : r.rung >= 3 ? 'warn' : 'good')), el('td', null, r.evidence),
+        el('td', 'small', ex.confirmed ? ex.text : el('span', 'muted', GAP)),
         el('td', null, scs.length ? scs.map(s => s.id).join(', ') : el('span', 'muted', 'not linked'))));
     }
     t.append(tb); c.append(el('div', 'tablewrap', t));
-    const r4 = rows.filter(r => r.rung >= 4).length, r5 = rows.filter(r => r.rung === 5).length;
+    const r4 = rows.filter(r => r.rung >= 4).length, r5 = rows.filter(r => r.rung === 5).length, noEv = rows.filter(r => !exposureFor(r.cve).confirmed).length;
     c.append(el('div', 'note', `${rows.length} CVE placed · ${r4} at rung 4 or above, proposing Pb(ψ,A) ≥ 0.70. Each change needs a threat_basis block recording the evidence dates and the exposure evidence. CVSS stays Base-only.`));
+    if (noEv) c.append(banner('warn', 'Exposure without register evidence', `${n0(noEv)} CVE(s) pasted here are not confirmed in the vulnerability register (Exposed, with a product or asset). A pasted identifier is not exposure evidence: their proposals are left unticked and recorded as “${GAP}” until the register holds the asset inventory or scanner evidence.`));
     if (r5) c.append(banner('bad', 'Rung 5 reached', 'Direct organizational evidence means an incident, not a prospective risk. Invoke incident response first.'));
     outBox.append(c);
     LASTJOIN = {
-      threat_context: { snapshot: ws.snapshot?.name ?? 'threat-context.json', retrieved: SNAP.retrieved, expires: SNAP.expires, regions: SNAP.regions ?? [],
+      threat_context: { snapshot: ws.snapshot?.name ?? 'threat-context.json', retrieved: SNAP.retrieved, expires: SNAP.expires, expired: age.expired, days_past_expiry: age.daysPastExpiry ?? null,
+        regions: Array.isArray(SNAP.regions) ? SNAP.regions : [],
         sources: snapshotStats(SNAP).sources.map(s => [s.name, s.version, s.scoreDate, s.entries != null ? s.entries + ' entries' : null].filter(Boolean).join(' · ')) },
-      threat_basis: rows.map(r => ({ cve: r.cve, parameter: 'Pb(psi,A)', ladder_rung: r.rung, ladder_label: r.label, band: r.band, evidence: [r.evidence + ` (snapshot ${SNAP.retrieved})`],
-        exposure: exposureFor(r.cve), confidence: 'TODO — High / Medium / Low', cvss_unchanged: true, cvss_note: 'Base-only per C2; exploitation evidence routed to Pb(psi,A)' })),
+      threat_basis: rows.map(r => { const ex = exposureFor(r.cve); return { cve: r.cve, parameter: 'Pb(psi,A)', ladder_rung: r.rung, ladder_label: r.label, band: r.band, evidence: [r.evidence + ` (snapshot ${SNAP.retrieved})`],
+        exposure: ex.text, exposure_confirmed: ex.confirmed, confidence: null, confidence_required: true, snapshot_expired: age.expired, days_past_expiry: age.daysPastExpiry ?? null,
+        cvss_unchanged: true, cvss_note: 'Base-only per C2; exploitation evidence routed to Pb(psi,A)' }; }),
     };
     copyBtn.disabled = false;
-    proposals(outBox, rows);
+    proposals(outBox, rows, age);
   }
   if (SNAP && parseExposure(ta.value).length) run();
 }
-const exposureFor = cve => { const v = S.ws.vulns.find(x => x.id === cve && x.exposed); return v ? `Vulnerability register: ${[v.product, v.asset].filter(Boolean).join(' on ') || 'confirmed'} (${v.source || 'analyst'})` : 'TODO — cite the asset inventory or scanner evidence that confirms this technology is operated'; };
+/** The exposure evidence of a CVE: the vulnerability register (Exposed, with its product or asset and source), else the information-gap marker. */
+const exposureFor = cve => {
+  const v = S.ws.vulns.find(x => x.id === cve && x.exposed);
+  return v ? { confirmed: true, text: `Vulnerability register: ${[v.product, v.asset].filter(Boolean).join(' on ') || 'confirmed'} (${v.source || 'analyst'})` } : { confirmed: false, text: GAP };
+};
 
-/** Exposure-gated, band-bounded Pb(ψ,A) proposals for scenarios that link the CVE. Analyst accepts each one. */
-function proposals(box, rows) {
+/** Exposure-gated, band-bounded Pb(ψ,A) proposals for scenarios that link the CVE. Analyst accepts each one, with a confidence
+    chosen for each (nothing preselected), a justification when the snapshot is expired, and rows without register evidence unticked. */
+function proposals(box, rows, age) {
   const ws = S.ws, a = ws.assessment;
   const props = [];
   for (const r of rows) for (const s of a.SCEN.filter(x => (x.cves || []).includes(r.cve))) {
     const cur = Number(s.params.Pbx.v);
     let to = null;
     if (cur < r.band[0]) to = r.band[0];   // raise to the band floor; intelligence never lowers an organizational estimate on its own
-    if (to !== null) props.push({ s, r, from: cur, to });
+    if (to !== null) props.push({ s, r, from: cur, to, ex: exposureFor(r.cve) });
   }
   const c = el('div', 'card');
   c.append(el('h2', null, 'Proposed Pb(ψ,A) changes'));
   if (!props.length) { c.append(el('p', 'note', 'No linked scenario sits below its ladder band. Link CVEs to scenarios (scenario editor or vulnerability register) to receive proposals.')); box.append(c); return; }
-  const checks = props.map(() => el('input', { type: 'checkbox', checked: true }));
-  const conf = props.map(() => select(['Medium', 'High', 'Low'], 'Medium'));
+  const checks = props.map(p => el('input', { type: 'checkbox', checked: p.ex.confirmed, title: p.ex.confirmed ? '' : GAP }));
+  const conf = props.map(() => select([['', '— choose —'], ['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low']], ''));
+  const just = el('textarea', { class: 'code', rows: 2, placeholder: 'Why this expired snapshot may still support the change (e.g. no newer snapshot can be retrieved on this network; the KEV listing is permanent). Recorded with each accepted change.' });
+  const accept = el('button', { class: 'btn' }, 'Accept selected');
+  const why = el('div', 'small muted');
+  const refresh = () => {
+    const ticked = props.map((p, i) => i).filter(i => checks[i].checked);
+    const missing = ticked.filter(i => !conf[i].value);
+    const needJust = age?.expired && ticked.length && !just.value.trim();
+    accept.disabled = !ticked.length || missing.length > 0 || !!needJust;
+    why.textContent = !ticked.length ? tr('Tick at least one proposal.') : missing.length ? tr('Choose a confidence for every ticked proposal ({0} missing).').replace('{0}', missing.length) : needJust ? tr('The snapshot is expired: write a justification before accepting.') : '';
+  };
+  checks.forEach(b => b.addEventListener('change', refresh)); conf.forEach(x => x.addEventListener('change', refresh)); just.addEventListener('input', refresh);
   const t = el('table', 'compact');
-  t.append(el('thead', null, el('tr', null, el('th', 'cb', ''), ...['Scenario', 'CVE · rung', 'Pb(ψ,A) now', 'Proposed', 'Ratio now → after', 'Confidence'].map(h => el('th', null, h)))));
+  t.append(el('thead', null, el('tr', null, el('th', 'cb', ''), ...['Scenario', 'CVE · rung', 'Pb(ψ,A) now', 'Proposed', 'Ratio now → after', 'Exposure evidence', 'Confidence'].map(h => el('th', null, h)))));
   const tb = el('tbody');
   props.forEach((p, i) => {
     const before = CRG.calc(p.s, a.APPETITE, a.FACTOR);
@@ -217,24 +260,32 @@ function proposals(box, rows) {
     p.before = before; p.after = after;
     tb.append(el('tr', null, el('td', 'cb', checks[i]), el('td', null, el('a', { href: '#/scenario/' + p.s.id }, p.s.id + ' ' + (p.s.name || '').slice(0, 50))),
       el('td', 'mono', p.r.cve + ' · ' + p.r.rung), el('td', 'num', n2(p.from)), el('td', 'num', el('b', null, n2(p.to))),
-      el('td', null, n2(before.ratio) + ' → ' + n2(after.ratio) + ' ', pill(CRG.classify(after.ratio), pillFor(CRG.classify(after.ratio)))), el('td', null, conf[i])));
+      el('td', null, n2(before.ratio) + ' → ' + n2(after.ratio) + ' ', pill(CRG.classify(after.ratio), pillFor(CRG.classify(after.ratio)))),
+      el('td', 'small', p.ex.confirmed ? p.ex.text : el('span', 'muted', GAP)), el('td', null, conf[i])));
   });
   t.append(tb);
-  c.append(el('div', 'tablewrap', t), el('p', 'note', 'Proposals raise Pb(ψ,A) to the floor of the ladder band, never beyond it, and only for exposed CVEs linked to the scenario. Ratios are recomputed by the verified engine. Accepting records a threat_basis entry and a revision-log line.'),
-    el('div', 'btnrow', el('button', { class: 'btn', onclick: () => {
-      let n = 0;
-      ws.revisionLog ||= [];
-      props.forEach((p, i) => {
-        if (!checks[i].checked) return;
-        p.s.params.Pbx = Object.assign({}, p.s.params.Pbx, { v: p.to, conf: conf[i].value, ev: [p.s.params.Pbx.ev, 'threat-context ' + S.snap.retrieved].filter(Boolean).join('; ') });
-        (p.s.threat_basis ||= []).push({ cve: p.r.cve, parameter: 'Pb(psi,A)', from: p.from, to: p.to, ladder_rung: p.r.rung, ladder_label: p.r.label, band: p.r.band,
-          evidence: [p.r.evidence + ` (snapshot ${S.snap.retrieved})`], exposure: exposureFor(p.r.cve), confidence: conf[i].value, date: today(), cvss_unchanged: true });
-        ws.revisionLog.push({ date: today(), scenario: p.s.id, parameter: 'Pb(psi,A)', from: p.from, to: p.to, ratioFrom: p.before.ratio, ratioTo: p.after.ratio,
-          clsFrom: CRG.classify(p.before.ratio), clsTo: CRG.classify(p.after.ratio), cause: `${p.r.cve}: ${p.r.evidence}`, snapshot: S.snap.retrieved });
-        n++;
-      });
-      touch('redraw'); toast(n + ' scenario(s) recalibrated');
-    } }, 'Accept selected')));
+  c.append(el('div', 'tablewrap', t), el('p', 'note', 'Proposals raise Pb(ψ,A) to the floor of the ladder band, never beyond it, and only for exposed CVEs linked to the scenario. Ratios are recomputed by the verified engine. Accepting records a threat_basis entry and a revision-log line; a proposal without register evidence stays unticked and, if you accept it anyway, carries the information-gap marker.'));
+  if (age?.expired) c.append(banner('bad', 'Expired snapshot: a justification is required', el('div', null, el('div', 'small', `This snapshot expired ${n0(age.daysPastExpiry ?? 0)} days ago. Prefer a refreshed one; otherwise record why these proposals may still stand. The justification is stored with each change (threat_basis.justification) and in the workspace journal of threat justifications.`), just)));
+  accept.addEventListener('click', () => {
+    let n = 0;
+    ws.revisionLog ||= [];
+    const justification = age?.expired ? just.value.trim() : '';
+    const accepted = [];
+    props.forEach((p, i) => {
+      if (!checks[i].checked || !conf[i].value) return;
+      p.s.params.Pbx = Object.assign({}, p.s.params.Pbx, { v: p.to, conf: conf[i].value, ev: [p.s.params.Pbx.ev, 'threat-context ' + S.snap.retrieved + (age?.expired ? ' (expired)' : '')].filter(Boolean).join('; ') });
+      (p.s.threat_basis ||= []).push({ cve: p.r.cve, parameter: 'Pb(psi,A)', from: p.from, to: p.to, ladder_rung: p.r.rung, ladder_label: p.r.label, band: p.r.band,
+        evidence: [p.r.evidence + ` (snapshot ${S.snap.retrieved})`], exposure: p.ex.text, exposure_confirmed: p.ex.confirmed, confidence: conf[i].value, date: today(), cvss_unchanged: true,
+        snapshot: S.snap.retrieved, snapshot_expired: !!age?.expired, days_past_expiry: age?.daysPastExpiry ?? null, ...(justification ? { justification } : {}) });
+      ws.revisionLog.push({ date: today(), scenario: p.s.id, parameter: 'Pb(psi,A)', from: p.from, to: p.to, ratioFrom: p.before.ratio, ratioTo: p.after.ratio,
+        clsFrom: CRG.classify(p.before.ratio), clsTo: CRG.classify(p.after.ratio), cause: `${p.r.cve}: ${p.r.evidence}` + (age?.expired ? ` — snapshot expired ${age.daysPastExpiry} days` : '') + (p.ex.confirmed ? '' : ` — ${GAP}`), snapshot: S.snap.retrieved, expired: !!age?.expired });
+      accepted.push(p.s.id); n++;
+    });
+    if (justification) (ws.threatJustifications ||= []).push({ date: today(), snapshot: S.snap.retrieved, expires: S.snap.expires, days_past_expiry: age?.daysPastExpiry ?? null, text: justification, scenarios: accepted });
+    touch('redraw'); toast(n + ' scenario(s) recalibrated');
+  });
+  c.append(el('div', 'btnrow', accept, why));
+  refresh();
   box.append(c);
 }
 
