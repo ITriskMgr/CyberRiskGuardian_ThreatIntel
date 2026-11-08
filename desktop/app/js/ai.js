@@ -237,7 +237,7 @@ export function groundTag(tag, source, corpus, confidence = '') {
   const src = flat(source);
   if (looksInjected(src)) return { tag: 'ASSUMPTION', confidence: 'Low', note: 'source matches an instruction pattern — downgraded from ' + (tag || 'untagged') };
   if (tag !== 'FACT') return { tag, confidence, note: '' };
-  const quotes = [...src.matchAll(/[“"«]([^”"»]{8,})[”"»]/g)].map(m => flat(m[1]));
+  const quotes = [...src.matchAll(/[\u201c\x22\xab]([^\u201d\x22\xbb]{8,})[\u201d\x22\xbb]/g)].map(m => flat(m[1]));   // “ " « … ” " » (escaped: the gates' comment stripper reads a quote in a regex as a string)
   const probes = quotes.length ? quotes : (src.length >= 12 ? [src] : []);
   const hay = flat(corpus).toLowerCase();
   const found = probes.some(q => { const t = q.toLowerCase().replace(/[…]+$/, '').trim(); return t.length >= 8 && hay.includes(t.slice(0, 200)); });

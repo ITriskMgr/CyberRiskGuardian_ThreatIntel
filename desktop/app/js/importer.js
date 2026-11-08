@@ -202,7 +202,7 @@ export const SECTIONS = [
         const d = /\b((?:19|20)\d{2}(?:-\d{2})?(?:-\d{2})?)|\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déc)[a-zé]*\.?\s+(?:19|20)\d{2})/i.exec(s);
         // 1.9.2 (NV-067): a sentence that reports an incident without a date is still a proposal (date to confirm), when it
         // reads as a past event rather than as a policy statement or a definition
-        const past = /\b(occurred|happened|suffered|experienced|was|were|had|detected|reported|compromised|hit|affected|a eu lieu|a subi|a été|ont été|s'est produit|a connu)\b/i.test(s);
+        const past = /\b(occurred|happened|suffered|experienced|was|were|had|detected|reported|compromised|hit|affected|a eu lieu|a subi|a été|ont été|s\x27est produit|a connu)\b/i.test(s);
         if (!d && !past) continue;
         if (!d && /\b(must|shall|should|policy|procedure|doit|devrait|politique|procédure|in case of|en cas d)/i.test(s)) continue;
         const impact = (/\b(\d[\d,. ]*\s?(?:records?|patients?|users?|hours?|days?|clinics?|dossiers?|heures?|jours?)|unavailable|indisponible|exfiltrat\w+|encrypted|chiffrées?)\b/i.exec(s) || [''])[0];
@@ -239,12 +239,12 @@ export const SECTIONS = [
         [/\b(no|without|lack of|missing|absence of|outdated|untested|sans|pas de|aucun)\s+(?:formal\s+|documented\s+|tested\s+)?(incident response|IR plan|disaster recovery|business continuity|plan de (?:réponse|reprise|continuité))/i, 'No tested incident response or recovery plan', 'CWE-1059'],
         [/\b(single point of failure|point unique de défaillance|no redundancy|sans redondance)/i, 'Single point of failure', 'CWE-1104'],
         [/\b(weak passwords?|passwords? (?:are )?(?:weak|short|simple|never (?:changed|expire))|mots? de passe faibles?)/i, 'Weak password practices', 'CWE-521'],
-        [/\b(no (?:asset|hardware|software) inventory|inventory (?:is )?(?:incomplete|out of date|not maintained)|pas d'inventaire|inventaire incomplet)/i, 'No or incomplete asset inventory', 'CWE-1059'],
-        [/\b(no vulnerability (?:scan|scanning|management)|not scanned|never scanned|pas d'analyse de vulnérabilit)/i, 'No vulnerability scanning', 'CWE-1395'],
+        [/\b(no (?:asset|hardware|software) inventory|inventory (?:is )?(?:incomplete|out of date|not maintained)|pas d\x27inventaire|inventaire incomplet)/i, 'No or incomplete asset inventory', 'CWE-1059'],
+        [/\b(no vulnerability (?:scan|scanning|management)|not scanned|never scanned|pas d\x27analyse de vulnérabilit)/i, 'No vulnerability scanning', 'CWE-1395'],
         [/\b(legacy (?:system|application|software)s?|systèmes? (?:hérités?|patrimoni))/i, 'Legacy system in use', 'CWE-1104'],
         [/\b(no (?:security )?(?:monitoring|SOC|SIEM)|not monitored|aucune surveillance|sans surveillance)/i, 'No security monitoring', 'CWE-778'],
         [/\b(no (?:network )?(?:access control|NAC)|open (?:wi-?fi|wireless)|guest network shared|wi-?fi (?:non sécurisé|ouvert))/i, 'Weak network access control', 'CWE-284'],
-        [/\b((?:former|departed|ex-)\s?(?:employees?|staff|users?)[^.]{0,60}(?:still|retain|active)|accounts? not (?:disabled|removed)|comptes? (?:non désactivés?|actifs?) d'anciens)/i, 'Leavers’ accounts not disabled', 'CWE-284'],
+        [/\b((?:former|departed|ex-)\s?(?:employees?|staff|users?)[^.]{0,60}(?:still|retain|active)|accounts? not (?:disabled|removed)|comptes? (?:non désactivés?|actifs?) d\x27anciens)/i, 'Leavers’ accounts not disabled', 'CWE-284'],
         [/\b(no (?:data loss prevention|DLP)|USB (?:drives?|keys?) (?:allowed|unrestricted)|clés? USB (?:permises?|non restreintes?))/i, 'Uncontrolled data transfer channels', 'CWE-284'],
         [/\b(no (?:formal )?(?:change|patch) (?:management|process)|changes? (?:are )?not (?:tested|approved|documented)|pas de gestion des changements)/i, 'No change or patch management process', 'CWE-1395'],
         [/\b(third[- ]part(?:y|ies)|vendors?|suppliers?|fournisseurs?)[^.]{0,60}(not (?:assessed|reviewed|audited)|no (?:contract|clause|assessment)|non évalués?)/i, 'Third parties not assessed', 'CWE-1357']];

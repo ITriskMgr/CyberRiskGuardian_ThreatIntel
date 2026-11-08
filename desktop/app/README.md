@@ -202,6 +202,28 @@ Keys live in the macOS login keychain, or elsewhere in `~/.cyberriskguardian/crg
 in a log, and never in a backup: the backup strips any field whose name looks like a key, token,
 secret or password.
 
+Text the organization did not write for the application — context documents, retrieved passages, feed items — is
+sent inside an `<untrusted_document>` wrapper that the instructions declare to be data, never instructions; every
+FACT a model returns must quote that text, or it becomes an assumption and is never pre-ticked. A cut-off answer is
+reported as such (stop reason, tokens used); an empty answer is an error. The user guide, sections 8.6–8.8, says
+which model size the features need.
+
+### The helper's per-launch token: what it protects, and what it does not
+
+The helper listens on `127.0.0.1` only and answers `/api/*` only to the application: the request must carry the
+`X-CRG` header (a foreign web page cannot add it without a CORS preflight, which the helper never approves), a
+`Host` and an `Origin` that name the helper itself, and the **per-launch token** — a random value made at each
+start that the page reads from `/api/session` (same origin only) and sends back as `X-CRG-Token`. This defeats
+**web pages in the browser**: DNS rebinding, a malicious page on another port, a cross-site request. It is a
+**loopback design, not an authentication of the user**: any process that runs on this computer under your account
+can open `http://127.0.0.1:8099/api/session` itself and obtain the token, exactly as the page does. The helper
+therefore grants a local process nothing it could not do already — it reads the same files you can read, and the
+API keys never leave the helper in any answer — but it does not defend the API against software running as you.
+If that matters on a shared or managed computer, run the application under a dedicated account, and keep the
+helper's port closed to other users with the operating system's firewall (it binds to loopback, so other
+computers never reach it). A later release may deliver the token through a file readable by you only
+(mode 600) or through the URL fragment instead of an endpoint; the design above is the one shipped.
+
 ## Languages
 
 **EN / FR** in the top bar switches the interface at once. Only interface text is translated: the values of
