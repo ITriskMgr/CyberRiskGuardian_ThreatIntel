@@ -69,9 +69,11 @@ export function normalize(k, raw) {
   // 1.9.2 (#18 / NV-013): a proposal is {value, tag, …} or a bare value. An object without a value — the empty {} the
   // rules pass for a field they did not find, or a model answer lacking "value" — is an empty value, never the
   // object itself (which String() turned into "[object Object]", tagged INFERENCE and ticked).
+  // Decided fix (#18): only a scalar or an array is a value; a missing value stays empty and is tagged UNKNOWN (not ticked).
   const isObj = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
-  let value = isObj ? (raw.value ?? raw.v ?? raw.text ?? '') : (raw ?? '');
-  if (value !== null && typeof value === 'object' && !Array.isArray(value)) value = value.value ?? value.text ?? value.name ?? '';
+  let value = isObj ? raw.value : raw;
+  if (value === undefined || value === null || (typeof value === 'object' && !Array.isArray(value))) value = '';
+  if (Array.isArray(value)) value = value.filter(x => x !== null && typeof x !== 'object');
   let tag = String(raw?.tag || '').toUpperCase().trim();
   const notes = [];
   // 1.9.2 (NV-056): a missing or invalid provenance tag is an ASSUMPTION, confidence Low — never an INFERENCE
@@ -209,9 +211,10 @@ export function parseCrown(text, corpus = '') {
   const j = AI.parseJson(text);
   return (j.crown || j.crown_jewels || []).filter(r => r && typeof r === 'object').slice(0, 12).map(r => {
     const n = normalize('context', { value: r.role, tag: r.tag });
+    const scalar = v => (v === null || v === undefined || typeof v === 'object') ? '' : String(v);   // #18: never an object's "[object Object]"
     const tag0 = TAGS.includes(String(r.tag || '').toUpperCase()) ? String(r.tag).toUpperCase() : 'ASSUMPTION';   // NV-056
-    const p = ground({ tag: tag0, source: String(r.source || '').slice(0, 300), confidence: tag0 === 'FACT' ? 'High' : 'Low', value: String(r.name || ''), notes: [] }, corpus);
-    return { name: String(r.name || '').trim().slice(0, 80), role: n.value, owner: String(r.owner || '').slice(0, 80), c: LV(r.c), i: LV(r.i), a: LV(r.a),
+    const p = ground({ tag: tag0, source: scalar(r.source).slice(0, 300), confidence: tag0 === 'FACT' ? 'High' : 'Low', value: scalar(r.name), notes: [] }, corpus);
+    return { name: scalar(r.name).trim().slice(0, 80), role: n.value, owner: scalar(r.owner).slice(0, 80), c: LV(r.c), i: LV(r.i), a: LV(r.a),
       dependencies: normalize('context', { value: r.dependencies }).value, suppliers: normalize('context', { value: r.suppliers }).value,
       tag: p.tag, source: p.source, confidence: p.confidence, flagged: !!p.flagged, notes: p.notes || [] };
   }).filter(r => r.name);
@@ -220,18 +223,77 @@ export function parseCrown(text, corpus = '') {
 /* ---------------- rules (no AI) ---------------- */
 const KW = {
   context: /\b(context|background|overview|about us|présentation|contexte)\b/i,
-  mission: /\b(mission|vision|purpose|raison d'être)\b/i,
   services: /\b(services?|products?|offer|produits?|offre)\b/i,
   processes: /\b(process(es)?|operations|workflow|processus|opérations)\b/i,
   systems: /\b(system|application|EHR|ERP|CRM|platform|software|logiciel|système)\b/i,
   cloud: /\b(cloud|Azure|AWS|Google Cloud|Microsoft 365|Office 365|SaaS|infonuagique|nuage)\b/i,
-  suppliers: /\b(supplier|vendor|provider|partner|outsourc|fournisseur|partenaire|sous-trait)/i,
   sensitive: /\b(personal|health|patient|confidential|sensitive|payment|PII|PHI|renseignements personnels|santé|confidentiel)\b/i,
   availability: /\b(availability|continuity|downtime|24\/7|RTO|RPO|disponibilité|continuité)\b/i,
   maturity: /\b(firewall|antivirus|MFA|backup|SOC|SIEM|EDR|IDS|IPS|encryption|policy|pare-feu|sauvegarde|chiffrement)\b/i,
   incidents: /\b(incident|breach|attack|ransomware|phishing|outage|intrusion|fuite|attaque|hameçonnage)\b/i,
 };
 function sentences(text) { return text.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+(?=[A-ZÀ-Ý0-9])/).map(s => s.trim()).filter(s => s.length > 25 && s.length < 600); }
+
+/* 1.9.2 (NV-067) — conservative rules for two fields the keyword scan got wrong (wrong source for suppliers, mission
+   merging other lines). A document is read as blocks: a HEADING (a short line without a final period, or a numbered
+   title) or a LABELLED line ("Mission: …", "Key suppliers: …") opens a block that ends at the next heading or labelled
+   line or blank line. Mission comes only from a mission block or a mission sentence; suppliers only from a block or a
+   line that names suppliers. Anything else stays UNKNOWN for review rather than guessed. */
+const HEADING = /^(?:\d+(?:\.\d+)*\s*[.)-]?\s+)?[A-ZÀ-Ý][^.!?]{1,70}$/;
+const LABELLED = /^([A-ZÀ-Ý][\w’\x27 /&-]{1,50})\s*:\s*(.*)$/;
+/** The blocks of a text: [{ title, label, body }] — title/label lower-cased for matching, body the lines that follow. */
+export function blocks(text) {
+  const out = [];
+  let cur = null;
+  const push = () => { if (cur && (cur.body.trim() || cur.label)) out.push({ ...cur, body: cur.body.trim() }); cur = null; };
+  for (const raw of String(text || '').split(/\r?\n/)) {
+    const line = raw.replace(/[\s\u00a0]+/g, ' ').trim();
+    if (!line) { push(); continue; }
+    const lab = LABELLED.exec(line);
+    if (lab) { push(); cur = { title: lab[1].toLowerCase(), label: true, body: lab[2] }; continue; }
+    if (line.length <= 80 && HEADING.test(line) && !/,/.test(line)) { push(); cur = { title: line.toLowerCase(), label: false, body: '' }; continue; }
+    if (!cur) cur = { title: '', label: false, body: '' };
+    cur.body += (cur.body ? '\n' : '') + line;
+  }
+  push();
+  return out;
+}
+const MISSION_T = /\b(mission|raison d[’\x27]être|notre mission|énoncé de mission|mission statement)\b/i;
+const MISSION_S = /\b(?:(?:our|its|the|la|sa|notre)\s+mission\s+(?:is|est|statement|:)|mission\s+statement|a pour mission|raison d[’\x27]être\s*:)/i;
+/** The mission: the first mission-labelled block (its first paragraph only), else the first sentence that states a mission; else nothing. */
+export function missionOf(text) {
+  for (const b of blocks(text)) {
+    if (MISSION_T.test(b.title) && b.body) { const para = b.body.split('\n')[0]; return { value: para, quote: para }; }
+  }
+  for (const s of sentences(text)) if (MISSION_S.test(s)) return { value: s, quote: s };
+  return null;
+}
+const SUPPLIER_T = /\b(suppliers?|vendors?|partners?|third[- ]part(?:y|ies)|service providers?|outsourc\w*|fournisseurs?|partenaires?|prestataires?|sous-traitants?|tiers)\b/i;
+/** Lines that name suppliers: the body of a supplier-titled block or a supplier-labelled line — never general text. */
+export function supplierLines(text) {
+  const out = [];
+  for (const b of blocks(text)) if (SUPPLIER_T.test(b.title) && b.body) out.push(...b.body.split('\n').filter(Boolean));
+  return out;
+}
+/** One supplier line split into its items — on ; , "and" / "et" — outside parentheses (what a supplier provides). */
+export function supplierItems(line) {
+  const clean = line.replace(/^[-•*\d.)\s]+/, '').trim();
+  const held = [];
+  const masked = clean.replace(/\([^)]*\)/g, m => { held.push(m); return `\u0001${held.length - 1}\u0001`; });
+  return masked.split(/\s*(?:;|,|\bet\b|\band\b|\bainsi que\b)\s*/).map(x => x.replace(/\u0001(\d+)\u0001/g, (_, i) => held[Number(i)]).trim()).filter(Boolean);
+}
+/** Supplier names from those lines: list items, "A, B and C" enumerations, "Name (what it provides)". */
+export function supplierNames(text) {
+  const names = [];
+  for (const l of supplierLines(text)) {
+    for (const part of supplierItems(l)) {
+      const nm = part.replace(/\s*[(—–-].*$/, '').replace(/\.$/, '').trim();
+      if (nm.length >= 2 && nm.length <= 60 && /[A-Za-zÀ-ÿ]/.test(nm) && !/^(the|a|an|our|its|le|la|les|un|une|nos)$/i.test(nm) && !names.includes(nm)) names.push(nm);
+    }
+  }
+  return names.slice(0, 25);
+}
+
 export async function byRules(ws = S.ws) {
   const { docs, text } = await corpus(ws);
   const out = {};
@@ -241,6 +303,17 @@ export async function byRules(ws = S.ws) {
     if (!rx) { out[k] = normalize(k, {}); continue; }
     const hits = sens.filter(x => rx.test(x.s)).slice(0, 3);
     out[k] = hits.length ? normalize(k, { value: hits.map(h => h.s).join(' '), tag: 'FACT', source: `${hits[0].d} — “${hits[0].s.slice(0, 120)}”`, confidence: 'Medium' }) : normalize(k, {});
+  }
+  // NV-067: mission and suppliers follow the conservative rules above (UNKNOWN rather than a guess)
+  out.mission = normalize('mission', {});
+  out.suppliers = normalize('suppliers', {});
+  for (const d of docs) {
+    const m = missionOf(d.text);
+    if (m) { out.mission = normalize('mission', { value: m.value, tag: 'FACT', source: `${d.name} — “${m.quote.slice(0, 120)}”`, confidence: 'Medium' }); break; }
+  }
+  for (const d of docs) {
+    const names = supplierNames(d.text);
+    if (names.length) { out.suppliers = normalize('suppliers', { value: names.join('; '), tag: 'FACT', source: `${d.name} — “${supplierLines(d.text)[0].slice(0, 120)}”`, confidence: 'Medium' }); break; }
   }
   const h = hints(text);
   if (h.regulations.length) out.regulations = normalize('regulations', { value: h.regulations, tag: 'FACT', source: 'Named in the documents (keyword scan)' });

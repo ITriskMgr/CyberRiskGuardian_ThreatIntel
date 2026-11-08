@@ -6,8 +6,9 @@
 // French markers (NV-044, NV-041), the briefing through the preview (NV-021) and the D5 small-model warning (NV-047).
 // The planted-injection document of the campaign's live pass is replayed with a canned answer that follows it, as
 // Qwen2.5-14B did on the author's Mac, and the defences are asserted.
-import { open, ok, done, URL, MOCK, goto, waitInPage } from './lib.mjs';
+import { open, ok, done, URL, MOCK, FIXTURES, goto, waitInPage } from './lib.mjs';
 import fs from 'fs';
+import path from 'path';
 const { browser, page, errors } = await open('#/org/profile');
 page.on('dialog', d => d.accept());
 
@@ -188,7 +189,7 @@ const N = await page.evaluate(async () => {
   const r = M.migrateWorkspace(JSON.parse(JSON.stringify(w)), { fill: st.migrate });
   const log = (r.ws.migrationLog || []).flatMap(e => (e.steps || []).flatMap(x => x.notes || [])).join('\n');
   const r2 = M.migrateWorkspace(JSON.parse(JSON.stringify(r.ws)), { fill: st.migrate });
-  return { n1, n2, n3: n3.value, n4: n4.value, bad, size: r.ws.org.size, region: r.ws.org.region, context: r.ws.org.context, prov: r.ws.org.prov.size, crown: r.ws.assessment.CROWN[0][2], noted: /#18: cleared "\[object Object\]" in 4 field/.test(log), v: r.ws.dataVersion, again: r2.status,
+  return { n1, n2, n3: n3.value, n4: n4.value, bad, size: r.ws.org.size, region: r.ws.org.region, context: r.ws.org.context, prov: r.ws.org.prov.size, crown: r.ws.assessment.CROWN[0][2], noted: /#18: cleared "\[object Object\]" in 4 field\(s\), re-tagged UNKNOWN/.test(log), v: r.ws.dataVersion, again: r2.status,
     est: Math.round((await import('/js/state.js')).compute(r.ws).totals.est) };
 });
 ok(N.n1.value === '' && N.n1.tag === 'UNKNOWN', '#18: normalize(k, {}) is an empty UNKNOWN: ' + JSON.stringify(N.n1));
@@ -199,6 +200,64 @@ ok(N.prov?.tag === 'UNKNOWN' && N.prov?.repaired === true, '#18 repair on load: 
 ok(N.noted && N.v === 6, '#18 repair on load: journalled in the migration log, data version 6: ' + N.noted);
 ok(N.again === 'current', 'repair is idempotent (a second migration changes nothing)');
 ok(N.est === 84305, 'the MediBec total is unchanged by the migration: ' + N.est);
+
+// #18, the decided fix in full: only scalars or arrays are values; the AI path (parseProfile omitted fields, parseCrown
+// role / dependencies / suppliers / name); the repair condition (prov.method 'rules' or no source) and crown columns 2, 7, 8
+const D18 = await page.evaluate(async () => {
+  const X = await import('/js/extractor.js'); const st = await import('/js/state.js'); const M = await import('/js/migrate.js');
+  const prof = X.parseProfile(JSON.stringify({ fields: { name: { value: 'Acme', tag: 'FACT', source: 'doc — "Acme"' } } }), 'Acme');   // every other field omitted
+  const omitted = Object.entries(prof.fields).filter(([k]) => k !== 'name').map(([, v]) => [v.value, v.tag]);
+  const crown = X.parseCrown(JSON.stringify({ crown: [{ name: { text: 'EMR' }, role: { value: 'x' }, dependencies: {}, suppliers: { a: 1 }, c: 'High', tag: 'FACT', source: 'x' }, { name: 'Portal', role: 'Bookings', dependencies: ['Azure', { x: 1 }], suppliers: '', tag: 'INFERENCE' }] }), '');
+  const regs = X.normalize('regulations', { value: ['Law 25', {}, 'PIPEDA'], tag: 'FACT' });
+  const w = st.exampleWorkspace ? st.exampleWorkspace('medibec') : st.newWorkspace({ name: 'x' });
+  w.dataVersion = 5; w.migrationLog = [];
+  w.org.size = '[object Object]'; w.org.regulations = ['Law 25', '[object Object]']; w.org.context = '[object Object]'; w.org.mission = '[object Object]';
+  w.org.prov = { size: { tag: 'INFERENCE', method: 'rules', source: 'x' }, regulations: { tag: 'FACT', method: 'AI', source: '' }, context: { tag: 'INFERENCE', method: 'AI claude', source: 'doc — "context"' } };
+  w.assessment.CROWN = [['CJ1', 'EMR', '[object Object]', '', '', '', '', '[object Object]', '[object Object]'], ['CJ2', 'Portal', 'ok', '', '[object Object]', '', '', '', '']];
+  w.crownProv = { Portal: { tag: 'FACT', method: 'rules', source: '' } };
+  const r = M.migrateWorkspace(JSON.parse(JSON.stringify(w)), { fill: st.migrate });
+  const notes = (r.ws.migrationLog || []).flatMap(e => (e.steps || []).flatMap(x => x.notes || [])).join('\n');
+  return { omitted, crown, regs: regs.value, size: r.ws.org.size, regsAfter: r.ws.org.regulations, context: r.ws.org.context, mission: r.ws.org.mission, sizeProv: r.ws.org.prov.size,
+    crown0: r.ws.assessment.CROWN[0], crown1: r.ws.assessment.CROWN[1], notes };
+});
+ok(D18.omitted.every(([v, t]) => (v === '' || (Array.isArray(v) && !v.length)) && t === 'UNKNOWN') && D18.omitted.length === 21, '#18 AI path: every field the model omitted is empty and UNKNOWN (never "[object Object]")');
+ok(D18.crown[0].name === '' || D18.crown.length === 1, '#18 AI path: a crown jewel whose name is an object is dropped, not "[object Object]"');
+ok(D18.crown.length === 1 && D18.crown[0].name === 'Portal' && D18.crown[0].role === 'Bookings' && D18.crown[0].dependencies === 'Azure' && D18.crown[0].suppliers === '', '#18 AI path: role / dependencies / suppliers accept scalars or arrays only: ' + JSON.stringify(D18.crown[0]));
+ok(JSON.stringify(D18.regs) === JSON.stringify(['Law 25', 'PIPEDA']), '#18: a list keeps only its scalar items: ' + JSON.stringify(D18.regs));
+ok(D18.size === '' && D18.sizeProv.tag === 'UNKNOWN' && D18.sizeProv.repaired === true, '#18 repair: method rules → cleared and re-tagged UNKNOWN');
+ok(JSON.stringify(D18.regsAfter) === JSON.stringify(['Law 25']), '#18 repair: a list holding the literal (empty source) is cleaned: ' + JSON.stringify(D18.regsAfter));
+ok(D18.mission === '' , '#18 repair: a field without any provenance is cleared');
+ok(D18.context === '[object Object]' && /left for review in 1 field\(s\)[^\n]*org\.context/.test(D18.notes), '#18 repair: a value with another provenance (AI, with a source) is left and listed for review');
+ok(D18.crown0[2] === '' && D18.crown0[7] === '' && D18.crown0[8] === '' && D18.crown1[4] === '[object Object]' && D18.crown1[2] === 'ok', '#18 repair: crown-jewel columns 2, 7, 8 only (column 4 untouched): ' + JSON.stringify([D18.crown0, D18.crown1]));
+ok(/cleared "\[object Object\]" in 6 field\(s\), re-tagged UNKNOWN/.test(D18.notes) && /profile has no history/.test(D18.notes), '#18 repair: journalled with the count and the release-note caveat');
+
+// ---------- 5b. NV-067: conservative rules — mission from a mission block or sentence, suppliers only from lines that name them
+const MB = fs.readFileSync(path.join(FIXTURES, 'MediBec_BusinessCase_v2-0c_Student.txt'), 'utf8');
+const CR = fs.readFileSync(path.join(FIXTURES, 'CanaRetail_BusinessCase_v2-0c_Student.txt'), 'utf8');
+const R67 = await page.evaluate(async ({ MB, CR }) => {
+  const X = await import('/js/extractor.js'); const IM = await import('/js/importer.js'); const st = await import('/js/state.js'); const store = await import('/js/store.js');
+  const run = async (name, text) => {
+    const w = st.newWorkspace({ name: 'NV-067 ' + name }); w.docs = [{ id: 'd-' + name, name: name + '.txt', category: 'Business case' }];
+    await store.put('blob', 'doc:d-' + name, text); await st.create(w);
+    const r = await X.byRules(st.S.ws);
+    const sup = IM.SECTION.suppliers.rules(text);
+    return { mission: [r.fields.mission.value.slice(0, 80), r.fields.mission.tag, r.fields.mission.source.slice(0, 60)], suppliers: [r.fields.suppliers.value, r.fields.suppliers.tag], third: sup.map(x => x.name), bad: Object.entries(r.fields).filter(([, v]) => /\[object Object\]/.test(String(v.value))).map(([k]) => k) };
+  };
+  const synth = 'Acme Clinic — context\n\nMission: To deliver safe outpatient care to the North Shore.\nThe clinic also runs a pharmacy.\n\nKey suppliers and partners\n- Bell Canada (network and telephony)\n- Azure (EMR hosting)\n- Cleanco Services\n\nOperations\nOur vendors are reviewed yearly by the board; a new vendor, Shadow Ltd, was discussed.\nThe company is on a mission to grow.';
+  const synth2 = 'Overview\nThe clinic has 40 staff. Our mission is to care for patients first; profits second.\nSuppliers: Bell Canada, Azure and Cleanco Services.\n';
+  return { medibec: await run('MediBec', MB), canaretail: await run('CanaRetail', CR), synth: await run('Synth', synth), synth2: await run('Synth2', synth2), blocks: X.blocks(synth).map(b => b.title) };
+}, { MB, CR });
+for (const k of ['medibec', 'canaretail']) {
+  const r = R67[k];
+  ok(r.mission[1] === 'UNKNOWN' || /mission/i.test(r.mission[2]), `NV-067 ${k}: the mission is UNKNOWN or quotes a mission sentence (never a merged line): ` + JSON.stringify(r.mission));
+  ok(r.suppliers[1] === 'UNKNOWN' && r.third.length === 0, `NV-067 ${k}: no supplier is guessed from general text mentioning vendors: ` + JSON.stringify([r.suppliers, r.third]));
+  ok(r.bad.length === 0, `NV-067 ${k}: no "[object Object]"`);
+}
+ok(R67.synth.mission[0] === 'To deliver safe outpatient care to the North Shore.' && R67.synth.mission[1] === 'FACT', 'NV-067: a "Mission:" line gives the mission, stopping at the next line: ' + JSON.stringify(R67.synth.mission));
+ok(R67.synth.suppliers[0] === 'Bell Canada; Azure; Cleanco Services' && R67.synth.suppliers[1] === 'FACT', 'NV-067: suppliers come from the supplier-titled block only (Shadow Ltd in general text is not taken): ' + JSON.stringify(R67.synth.suppliers));
+ok(JSON.stringify(R67.synth.third) === JSON.stringify(['Bell Canada', 'Azure', 'Cleanco Services']), 'NV-067: the third-party import target follows the same rule: ' + JSON.stringify(R67.synth.third));
+ok(R67.synth2.mission[0].startsWith('Our mission is to care for patients first') && R67.synth2.suppliers[0] === 'Bell Canada; Azure; Cleanco Services', 'NV-067: a mission sentence and a "Suppliers:" labelled line are read: ' + JSON.stringify([R67.synth2.mission[0], R67.synth2.suppliers]));
+ok(R67.blocks.includes('mission') && R67.blocks.includes('key suppliers and partners') && R67.blocks.includes('operations'), 'blocks(): labelled lines and headings open blocks: ' + R67.blocks.join(' | '));
 
 // ---------- 6. consultant: byte-measured guard keeps the question and the rules; French markers
 const K = await page.evaluate(async () => {

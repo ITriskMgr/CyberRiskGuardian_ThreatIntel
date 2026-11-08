@@ -1,0 +1,381 @@
+CanaRetail Integrated Cybersecurity Teaching Case
+By Marc-André Léger, PhD
+Incident Response | Audit Planning | Cybersecurity Risk Management
+Teaching text - Version v2.0c
+Prepared for use in cybersecurity, audit, governance, and risk management courses
+Instructor’s use note
+This document is designed as an editable case package. The instructor may distribute the full document or separate the student narrative, risk scenario library, evidence appendices, and instructor annex into different files. The case is fictional. It is intentionally realistic but not intended to represent any actual retailer, regulator, vendor, employee, customer, or cyber incident.
+This revised version strengthens the original CanaRetail case by making it directly applicable to three connected learning objectives: managing a live retail-sector cyber incident, preparing a risk-based cybersecurity audit plan, and conducting a scenario-based cybersecurity risk assessment that supports a cybersecurity roadmap for the 2024-2030 planning horizon.
+How to Use This Case
+CanaRetail is a fictional pan-Canadian retail chain headquartered in Montreal with 100 stores, a national e-commerce platform, POS terminals, loyalty program data, cloud services, ERP integration, smart retail devices, and a hybrid IT operating model. The case can be used as a one-week discussion exercise, a multi-week group assignment, or a semester-long integrated case.
+The case supports three related but distinct forms of analysis. Students can first manage an incident as if they were members of CanaRetail’s incident response or crisis team. They can then prepare an internal audit plan to assess governance, controls, remediation, and resilience. Finally, they can conduct a structured scenario-based cybersecurity risk assessment and propose a prioritized roadmap aligned with CanaRetail’s risk appetite.
+Strong student submissions should be evidence-based, internally consistent, transparent about uncertainty, and aligned with CanaRetail’s business model, customer trust obligations, payment ecosystem exposure, operational constraints, and risk appetite.
+Student Case Narrative
+You are a full-time employee or advisor working with CanaRetail’s cybersecurity, audit, or risk management function. Depending on the assignment, your role may be an incident response analyst, a cybersecurity audit planner, a cybersecurity risk analyst, or an advisor to the CIO and senior management.
+CanaRetail’s business depends on trusted digital retail operations. A serious cyber incident could affect online sales, point-of-sale transactions, inventory availability, loyalty program data, supplier coordination, store operations, and public confidence. Students must identify what is known, what is uncertain, which decisions must be made, and which stakeholders must be informed.
+Key Decision Questions
+When should CanaRetail declare a major cyber incident and activate crisis management?
+Should affected systems, stores, POS terminals, cloud resources, or e-commerce services be isolated, shut down, or kept operating?
+What must be communicated to customers, employees, payment partners, privacy authorities, law enforcement, vendors, and the public?
+Which controls failed, why did they fail, and what evidence would support that conclusion?
+Which remediation actions should be funded first within realistic budget, staffing, and implementation constraints?
+Regulatory, Privacy, and Payment-Compliance Teaching Assumptions
+For teaching purposes, assume that CanaRetail is subject to Canadian Federal privacy requirements for personal information, payment card ecosystem expectations for cardholder data, contractual requirements imposed by payment processors and acquiring banks, provincial consumer protection considerations where relevant, and law enforcement coordination where criminal activity is suspected. Instructors may adjust this set of assumptions depending on the course's jurisdictional focus.
+The purpose of this case is not to train students to provide legal advice. Students should identify legal, privacy, contractual, and compliance issues; explain why they matter; and recommend that CanaRetail coordinate with legal counsel, privacy officers, payment partners, cyber insurers, law enforcement, external forensic specialists, and relevant authorities as appropriate.
+
+The business case
+Introduction
+Founded in the mid-20th century by the brothers David and Benjamin Cohen, Canadians of Moroccan descent who immigrated to Montreal, Canada in 1947, CanaRetail has since grown into one of Canada's premier national retail chains. Its headquarters, nestled in the vibrant heart of Montreal, are the nerve center of an extensive network that spans across the vast Canadian landscape. It features 100 retail stores operating under the name Maison Helenas, from the bustling streets of Toronto and Vancouver to the tranquil settings of the Maritimes and the Northern Territories.
+CanaRetail offers a rich array of products, encompassing apparel, electronics, home goods, and more. Such diversity not only reflects its commitment to catering to varied customer needs but also ensures a broad customer base across different demographics. Alongside its physical presence, CanaRetail has ventured into the digital realm, boasting a robust online shopping platform that guarantees a seamless consumer experience. Whether customers prefer to click-and-collect or home delivery, the brand delivers at every digital touchpoint.
+CanaRetail's distinguishing feature is its unwavering commitment to ethical sourcing. The brand goes to great lengths to ensure its products are sourced responsibly, giving preference to vendors who champion ethical labour practices and sustainable methods. When possible, it favours Canadian suppliers and particularly made-in-Canada products. This ethos extends to its customers. Recognizing the integral role loyal patrons play in its success, CanaRetail has rolled out an engaging loyalty program that spoils members with exclusive deals, early access to sales, and a points system that rewards every purchase.
+Beyond commerce, CanaRetail also commits to community engagement. The company's strong sense of corporate social responsibility manifests itself in various community outreach programs and environmental initiatives. This cements its reputation as a caring brand.
+On the operational front, CanaRetail's supply chain is a marvel of efficiency and integration. Seamlessly blending local and international suppliers, the brand's advanced inventory management systems ensure product availability, whether on store shelves or online. This operational prowess is powered by a diverse workforce, a tapestry of cultures that reflects Canada's multicultural ethos. Each of CanaRetail's stores, while adhering to the brand's signature look, often has a layout tailored to the needs of its regional clientele.
+However, the journey hasn't been without challenges. The onset of the 2020s saw a marked increase in cyber-attack attempts on the retail sector, with CanaRetail in the crosshairs. Though they've managed to stave off these digital threats, they remain aware that many of their competitors weren't as fortunate. This has spurred a renewed focus on cybersecurity measures.
+Although CanaRetail has no operational, financial, political, or commercial links to Israel, and although all its retail locations are in Canada, senior management has become attentive to a broader geopolitical risk factor. Because the founders’ Jewish heritage is publicly known and forms part of the company’s origin story, management recognizes that periods of heightened conflict in the Middle East could increase CanaRetail’s exposure to ideologically motivated cyber activity, online harassment, misinformation, brand impersonation, website defacement, distributed denial-of-service attacks, or phishing campaigns. This concern is not based on any actual foreign affiliation or political position taken by the company, but rather on the possibility that threat actors, activists, or opportunistic cybercriminals could misinterpret, exploit, or weaponize perceived identity-based associations. As a result, CanaRetail treats geopolitical and hate-motivated cyber activity as part of its broader threat landscape, particularly where such activity could affect customer trust, employee safety, brand reputation, e-commerce availability, or store operations.
+As CanaRetail gazes into the future, visions of growth and innovation for the 2024-2030 planning horizon come into view. The brand is on a mission to further cement its position in the Canadian retail landscape through technological advancements, unwavering commitment to sustainable practices, and a fortified approach to cybersecurity, ensuring both company and customer data remain impregnable.
+From its inception, CanaRetail has evolved into a dominant force in the Canadian retail sector, consistently upholding its core values of customer-centricity, ethical practices, and ceaseless innovation.
+CanaRetail's IT Infrastructure Overview
+CanaRetail's primary data center is near its Montreal headquarters. This center houses high-end servers, data storage solutions, and backup systems. It's designed with redundant power supplies and cooling mechanisms to ensure optimal uptime. This data center accommodates:
+Servers: Using Microsoft Server 2022 and the Microsoft business suite, CanaRetail implemented multiple tiers, including application, database, and web servers. They run on virtualization technologies to optimize resource allocation and maximize uptime.
+Storage Solutions: SAN (Storage Area Network) and NAS (Network Attached Storage) systems provide rapid data access and retrieval.
+Backup Systems: Incorporating both incremental and full backups, ensuring quick data recovery.
+Environmental Controls: Advanced cooling systems, moisture control, and fire suppression mechanisms protect the equipment.
+Complementing its on-premises data center, CanaRetail utilizes cloud services for scalable storage and computing resources, as well as disaster recovery. This hybrid approach ensures flexibility in handling demand spikes, especially during shopping seasons. Partnering with leading cloud providers AWS and Microsoft Azure, CanaRetail leverages:
+IaaS (Infrastructure as a Service): To ensure scalability and flexibility during high-traffic periods.
+PaaS (Platform as a Service): Enabling developers to build applications without worrying about underlying infrastructure.
+Throughout all the retail locations, an integrated Retail Store System has been implemented gradually over the years, which includes:
+Point-of-Sale (POS) Systems: Each of the 100 stores is equipped with advanced POS terminals that handle sales transactions, integrate with inventory management systems, and synchronize data with the central system in real time.
+Inventory Management: CanaRetail employs an Automated Inventory System that connects to both its e-commerce platform and POS systems. This ensures consistent stock levels and provides alerts for restocking.
+An E-Commerce platform is in place. The company's online shopping portal is hosted on robust servers and uses content delivery networks (CDNs) to ensure fast access for users across Canada. It's also integrated with payment gateways for secure online transactions. CanaRetail's online storefront:
+CDN: Utilizes multiple content delivery networks to optimize loading times, regardless of the user's location.
+Payment Solutions: Integrates with various payment processors, offering multiple payment methods such as credit cards, e-wallets, and cryptocurrencies.
+Personalization Engine: AI-powered tools analyze user behaviour to provide personalized shopping suggestions.
+All of these are supported by a robust Network Infrastructure. CanaRetail's wide-area network (WAN) connects all its store locations to its headquarters in Montreal. It employs VPNs for secure remote access, ensuring data integrity and security. This also includes:
+SD-WAN: Software-defined wide area networking allows dynamic path selection for traffic, optimizing bandwidth usage.
+Network Monitoring Tools: Constantly scrutinize network traffic, ensuring no bottlenecks or potential breach points.
+Security Infrastructure:
+Firewalls and Intrusion Detection Systems (IDS): Deployed at key network entry and exit points to monitor, alert, and block any suspicious activity.
+Endpoint Security: All devices, from desktops at the headquarters to the POS terminals in stores, are equipped with the latest antivirus and antimalware software.
+Data Encryption: CanaRetail prioritizes encrypting sensitive data, both in transit and at rest, especially customer and financial data.
+Zero Trust Architecture: Emphasizing "never trust, always verify", this model reduces potential insider threats.
+Behavioural Analytics: Tools monitor patterns to identify unusual activity, potentially flagging breaches in real-time.
+Communication Infrastructure: Unified Communication systems support both internal (between employees) and external (with customers and suppliers) communication needs. This encompasses email servers, VoIP telephony, and video conferencing solutions.
+CanaRetail's unified system includes:
+Collaboration Platforms: Microsoft Teams for team communication.
+Customer Relationship Management (CRM): SAP is used to track customer interactions and enhance engagement.
+Mobile and IoT Infrastructure: With the increasing need for mobility, CanaRetail uses mobile device management (MDM) solutions to manage company-issued smartphones and tablets. Additionally, Internet of Things (IoT) devices, like smart shelves and security cameras, are integrated into the infrastructure at all the retail locations.
+Smart Retail Components: Smart shelves notify when stock is low. NFC (Near Field Communication) tags provide detailed product information to shoppers' smartphones.
+Device Management: Central control over every connected device, from updating software to ensuring security protocols.
+Backup and Disaster Recovery: Both on-site and cloud-based backup solutions are in place. In the event of data loss, the disaster recovery plan ensures swift data restoration with minimal downtime.
+Hybrid strategy with:
+Cold, Warm, and Hot Sites: Depending on recovery time objectives, these sites ensure business continuity. The main backup site is in the Ville Saint-Laurent (QC) industrial park; a second site is in Mississauga (ON), and additional sites in Saguenay (QC), Vancouver (BC), and Ottawa (ON) are available via a contract with CGI Inc. 
+Regular Drills: To ensure preparedness in the event of a disaster, yearly drills are held.
+Development and Testing Environment: A separate environment where new software or updates are tested before deployment to the live system. This prevents potential issues in the main infrastructure.
+CI/CD Pipelines: Continuous integration and continuous delivery ensure software updates are tested and deployed efficiently.
+Virtual Sandboxes: Developers can test new features without affecting the main environment.
+CanaRetail's IT infrastructure is a harmonious blend of traditional on-premises solutions and modern cloud technologies. This hybrid model ensures resilience, scalability, and agility, enabling CanaRetail to meet evolving business needs while ensuring customer satisfaction and data security.
+CanaRetail's Enterprise Resource Planning system (ERP)
+CanaRetail's ERP system is an intricate blend of functionalities designed specifically for the dynamic needs of large-scale retailing. It is using SAP S/4HANA 2025 FPS01. Serving as the nerve center for operations, this ERP system streamlines the flow of products, from suppliers to distribution centers and ultimately to individual stores. With real-time inventory tracking, demand forecasting, and supplier relationship management embedded within, the supply chain operates seamlessly.
+In parallel, the financial management facet of the system centralizes accounting, ensuring precise tracking of sales, expenses, and profitability across all store locations. From handling payroll intricacies to navigating tax compliance and budgeting, this component ensures CanaRetail's financial health is consistently monitored.
+The human resource dynamics of such a sprawling organization are also structured by the ERP. All aspects of employee data management, recruitment, training modules, and performance assessments across CanaRetail's vast workforce, whether at the bustling head office in Montreal or the quietest regional store, are housed under this umbrella.
+On the customer front, the ERP doesn't skip a beat. The built-in Customer Relationship Management (CRM) capability focuses on mining insights into customer behaviour. Whether it's the nuances of managing loyalty programs, addressing complaints, or providing granular insights into sales trends, the system is adept.
+In today's digital age, e-commerce is not just a supplementary channel but a primary one for many. Recognizing this, CanaRetail's ERP is robustly integrated with its online retail platform. This ensures that every aspect of online retail, from real-time stock availability checks to the intricate processes of order handling and customer communications, is in sync. Similarly, the physical point-of-sale systems in every CanaRetail store are integrated with the ERP, ensuring real-time sales tracking and instant inventory updates.
+But what sets the ERP apart is its advanced analytical capabilities powered by artificial intelligence. All generated data is processed to provide critical insights. Store managers, sales staff, and even executives are empowered by these insights via mobile access, enabling informed decision-making on the go.
+However, with great power comes great responsibility, especially when handling data. CanaRetail's ERP places paramount importance on data protection, fortified with top-notch cybersecurity measures. From regular audits, advanced encryption techniques to multi-factor authentication protocols and sophisticated intrusion detection systems, data integrity is sacrosanct.
+Recognizing that the retail landscape is ever evolving, the system's architecture emphasizes customizability. Built on a flexible framework, it accommodates new tools or modules with ease. To complement this, CanaRetail invests in continuous training programs, ensuring that every team member is attuned to the system's capabilities.
+Moreover, the ERP isn't restricted to on-premises servers. It leverages cloud technology, offering scalability, flexibility, and the assurance of data backups in secure cloud environments. And in today's conscious era, the ERP also keeps tabs on the environmental impact of CanaRetail's operations, from waste management metrics, energy consumption figures, to ethical sourcing practices. Concurrently, it is adept at ensuring the company's operations comply with all Canadian retail regulations.
+In essence, CanaRetail's ERP system is more than just software; it's the digital heartbeat that ensures the company's thriving presence across Canada.
+The primary SAP modules and functional areas utilized include:
+1. Merchandising & Master Data (Core Retail Engine)
+Article Master Data: Used to track retail-specific variants (e.g., managing a single clothing article across multiple sizes, colours, and styles).
+Assortment & Listing: Controls which store locations or digital channels receive specific products based on region, store size, and consumer demographics. 
+Retail Pricing & Promotions: Calculates margins, manages markdowns, and deploys promotional campaigns seamlessly across both physical store registers and online channels. 
+2. Supply Chain & Inventory Logistics
+SAP MM (Materials Management): Handles centralized procurement, stock purchasing from suppliers, and tracking vendor performance.
+SAP CAR (Customer Activity Repository): A critical retail platform that aggregates point-of-sale (POS) data in real time, providing unified omnichannel inventory visibility to support "click-and-collect" (BOPIS) services.
+SAP F&R (Forecasting and Replenishment): Uses historical checkout data and predictive algorithms to automatically trigger store replenishment orders, minimizing empty shelves.
+SAP EWM (Extended Warehouse Management): Manages regional Distribution Centers (DCs), high-volume cross-docking, and item picking to keep inventory moving rapidly to stores.
+3. Store Operations & Customer Touchpoints
+SAP SD (Sales and Distribution): Manages B2B wholesale orders, franchise shipments, and customer shipping/billing operations.
+POS Connectivity (Inbound/Outbound): Pulls daily sales data, cash receipts, and coupon usage into the main ledger while pushing updated price files down to store registers.
+In-Store MIM (Merchandise and Inventory Management): Empowers floor employees using mobile devices and SAP Fiori apps to conduct inventory counts, check stock levels, and receive inventory directly at the back dock.
+4. Enterprise Support (Back Office)
+SAP FI/CO (Financial Accounting & Controlling): Manages store-by-store profit margins, corporate general ledgers, accounts payable to suppliers, and daily cash reconciliation.
+SAP SuccessFactors / HCM: Manages human resources, focusing heavily on store employee shift scheduling, payroll, and high-volume seasonal hiring.
+CanaRetail IT department
+At CanaRetail, the IT department serves as the technological backbone, underpinning every facet of the company's operations. Headed by the Chief Information Officer (CIO), the department is pivotal in crafting and executing a cohesive IT strategy that aligns seamlessly with the company's broader business goals. In 2026, it had a yearly IT budget of $150M, including salaries, with a planned 10% annual growth.
+A substantial portion of the IT department's responsibilities lies in infrastructure management. This encompasses maintaining the health, efficiency, and security of both physical and virtual hardware components, from servers and storage solutions to networking devices. Ensuring that these systems receive timely updates and patches, the department guarantees the resilience and robustness of the company's technological foundations.
+In parallel with these hardware-focused endeavours, the IT department is deeply invested in application management. This domain centers around supporting and optimizing a suite of business applications, from customer relationship management tools to the e-commerce platform. By vigilantly monitoring these systems' health and performance, the department ensures that potential hitches are addressed pre-emptively, minimizing downtime.
+Given the complexities of the contemporary digital landscape, the role of cybersecurity cannot be overstated. CanaRetail's IT department houses a dedicated Security Operations Center (SOC), which tirelessly monitors network traffic, manages firewalls, and oversees intrusion detection systems. This proactive approach safeguards the company from an ever-evolving array of cyber threats.
+Closely aligned with cybersecurity, the Network Operations Center (NOC) is another critical arm of the IT department. Tasked with ensuring network uptime, managing data traffic, and overseeing the myriad communication channels within the enterprise, the NOC is indispensable for CanaRetail's smooth day-to-day operations.
+In software development and deployment, the DevOps team within the IT department plays a crucial role. By managing the continuous integration and deployment pipelines, they ensure that software updates are seamlessly integrated into the system without disrupting ongoing operations.
+Beyond these technical facets, the IT department is also the point of contact for internal support. With a dedicated helpdesk, they resolve technical issues faced by employees, ensuring that any technological hindrance is swiftly addressed and allowing for smooth business operations.
+Additionally, CanaRetail's IT department is not just inward-focused. Recognizing the importance of customer experience, particularly on digital platforms, the department also helps ensure the e-commerce platform offers a seamless shopping experience, from browsing products to completing secure online transactions.
+In essence, the IT department at CanaRetail is a dynamic and multifaceted entity, orchestrating a symphony of technological solutions that enable the company to thrive in today's competitive retail landscape. Whether it's fortifying cyber defences, ensuring smooth network operations, optimizing software applications, or supporting employees, the department stands as a pillar of excellence and innovation within CanaRetail.
+IT workforce
+At the helm of CanaRetail's vast technological empire stands the Chief Information Officer (CIO). This strategic visionary not only oversees the entire IT landscape but also ensures that technology strategies align seamlessly with CanaRetail's ambitious business goals. The CIO's insight and leadership, reporting directly to the CEO, act as a bridge between boardroom decisions and ground-level implementations.
+Under the CIO's aegis are several IT Directors, each championing a distinct domain within the tech ecosystem. The Director of IT Infrastructure manages all aspects of the hardware that powers the enterprise. From ensuring the health of servers and storage units to keeping patches and updates up to date, they keep the technological backbone robust and resilient.
+Then there's the Director of Application Management. Their realm revolves around the myriad software solutions and platforms that the company employs. Whether it's the CRM tools that streamline customer interactions or the powerful e-commerce engine that drives online sales, this director ensures applications run smoothly, with minimal hitches.
+Security, an ever evolving and paramount concern, falls under the Director of Cybersecurity. Leading the Security Operations Center (SOC), they remain ever-vigilant, safeguarding CanaRetail from external threats while also fortifying internal systems. Complementing this role is the Director of Network, who oversees the Network Operations Center (NOC). With the critical task of guaranteeing network uptime and efficient traffic management, they are the sentinels of CanaRetail's vast communication channels.
+No tech entity can thrive without continuous innovation. This is where the DevOps team, managed by its dedicated lead, comes into play. They harmoniously weave the threads of development with IT operations, ensuring software updates are swift, efficient, and devoid of disruptions.
+Yet, even with the most advanced systems, occasional hiccups are inevitable. Enter the Support and Helpdesk team. Led by the Helpdesk Manager, they serve as frontline warriors, providing technical support to employees and, when necessary, assisting customers on the e-commerce front.
+As we delve deeper into the hierarchical structure, each directorial division encompasses a wide range of roles, from System Administrators and Network Engineers to Security Analysts and DevOps Engineers. These individuals, the heart and soul of CanaRetail's IT brigade, carry out day-to-day operations, ensuring the retail giant's technological wheels turn without a hitch.
+CanaRetail's philosophy extends beyond just roles and responsibilities. The company is profoundly committed to its staff. Through a blend of training programs, certifications, and mentorship initiatives, it ensures that its IT personnel remain at the cutting edge of technological advancements. Recruitment strategies focus on a mix of technical prowess and a keen understanding of the retail landscape, ensuring a harmonious blend of tech and trade. Embracing modern work dynamics, CanaRetail offers varied working modes – from remote and hybrid to essential on-site roles, especially those intricately tied to infrastructure management.
+Furthermore, for its budding tech aficionados, the company runs a unique rotation program. Junior staff members get the invaluable opportunity to experience different IT facets, fostering a versatile and well-rounded IT workforce. Through a partnership with the Business Technology Department at the John-Molson School of Business, a local business school in Montreal, CanaRetail employs two coop students during the Fall and Winter semesters and five during the summer. Students who remain for more than one internship while keeping a 3.5+ GPA are also eligible for a scholarship that covers their tuition and books. Often, the best students are offered full time positions when they graduate.  
+IT Organizational Structure
+The IT organizational structure at CanaRetail ensures that the company's information technology resources are used efficiently and effectively in alignment with the organization's goals. While relatively small to remain agile, it provides clear paths of command, responsibility, and communication, which are vital in managing and deploying technology solutions that support an organization's business processes. The current structure is presented below:
+1. Chief Information Officer (CIO)
+Oversees the IT strategy aligned with CanaRetail's business goals.
+Directly reports to the CEO.
+2. IT Directors and teams
+Director of IT Infrastructure: Manages all infrastructure-related teams.
+Infrastructure Team Lead (1)
+System architect (1)
+Infrastructure implementation specialist (4)
+Helpdesk Manager (1)
+System Administrators (4)
+IT Support Technicians (8)
+Director of Application Management: Focuses on software solutions and platforms. 
+Application Support Team Lead (1)
+Database Administrators (2)
+Application Specialists (6)
+DevOps Team Lead (1)
+Project manager / Scrum Master (2)
+DevOps Engineers (2)
+Director of Cybersecurity: Leads the SOC and other security initiatives.
+Cybersecurity Governance Team Lead (1)
+Security Analysts (2)
+Cybersecurity Defense Team Lead (1)
+Security Analysts (4)
+Cybersecurity operations / SOC manager (1)
+SOC Level 1, 2, and 3 Security Analysts (10)
+Director of Network: Heads the NOC and related activities. 
+Network Management Team Lead (1)
+Network Engineers (4)
+IT costs and salaries
+The 2026 IT budget is $150M, including salaries, with a planned 10% annual growth rate.  IT salaries account for 10% of the total IT budget, and all other IT costs account for 90%. The 10% salary assumption is intentionally simplified for teaching purposes. It reflects only direct internal IT salary costs and excludes external consultants, managed service providers, cloud service fees, software subscriptions, hardware depreciation, outsourced SOC support, and project-based professional services.
+The cybersecurity allocation is a teaching assumption. It begins at 7% of the 2025 IT budget and gradually rises by 2030 to reflect CanaRetail’s increasing dependence on e-commerce, POS systems, SAP integration, cloud services, loyalty program data, third-party payment processors, and heightened exposure to reputational threats. As part of the assignment, students should assess whether this allocation is appropriate, considering CanaRetail’s risk appetite, regulatory and payment-compliance obligations, incident-response maturity, staffing capacity, and implementation constraints, as well as the risk assessments the students will complete.
+CanaRetail's Risk Appetite Statement
+This statement was published in the latest annual reports and in internal documents: 
+At CanaRetail, we recognize the digital landscape as a double-edged sword: while it drives our retail business by offering convenience and expanded reach, it also poses various cybersecurity risks. Our overarching risk strategy centers on ensuring customer trust and maintaining brand reputation while fostering innovation.
+Overall Risk Appetite: Moderate
+CanaRetail is risk neutral (0.5). It is willing to accept a moderate level of risk to achieve its strategic and operational objectives. While we pursue opportunities to enhance our market presence, we will not compromise the security of our customers' data and our core operational integrity.
+Data Breach: Low
+Given the sensitive nature of customer data (credit card details, personal information), our risk appetite for potential data breaches is low. We aim to implement strict controls and measures to ensure the confidentiality and integrity of our data.
+Operational Disruptions: Moderate
+We are willing to accept some risks that may cause short-term operational disruptions if they lead to long-term benefits. However, any disruption should not exceed 24 hours, especially for our online sales platform.
+Financial Impact: Moderate-Low
+We can absorb certain financial setbacks arising from risk events, provided they don't threaten our long-term viability. Any potential financial loss from a single risk event should not exceed 5% of our quarterly revenue.
+Innovation & Technology Adoption: Moderate-High
+To stay competitive, we understand the need to adopt new technologies and innovations. We have a greater appetite for risk in this domain, provided it promises significant market advantages. Still, any new technology adoption must undergo a rigorous risk assessment.
+Regulatory, Privacy, and Payment Compliance: Very Low
+CanaRetail operates in an environment shaped by privacy law, payment-card ecosystem obligations, consumer protection expectations, contractual requirements, and public trust. Our appetite for non-compliance or unmanaged privacy and payment risk is very low, given the potential legal, financial, contractual, and reputational consequences.
+Reputational Impact: Low
+Our brand and reputation are paramount. We have little appetite for risks that could damage our brand image or diminish customer trust.
+To uphold this risk appetite, CanaRetail commits to:
+Continuously invest in cybersecurity infrastructure and training.
+Regularly review and update risk management strategies in line with industry best practices and global standards.
+Engage with stakeholders, including customers, to understand their concerns and expectations regarding risk.
+Note to students: You are expected to challenge this statement or, at a minimum, provide justification as to why you agree with it.
+
+Module A: Incident Response Exercise
+In this module, students act as members of CanaRetail’s incident response team. The exercise may begin with suspicious activity affecting the e-commerce platform, POS systems, cloud storage, ERP integration, or loyalty program data. Students should not initially assume the event is merely a technical outage; they must assess whether it is a security incident, a privacy breach, a payment-card event, a supplier compromise, a ransomware attack, or an operational failure.
+Incident response objectives include protecting customers, containing the threat, preserving evidence, maintaining store and e-commerce operations where safe, validating payment integrity, restoring critical systems, coordinating with third parties, and communicating responsibly.
+Suggested incident response deliverables
+Initial incident classification and severity assessment.
+First 24-hour situation report for executives and the Board.
+Containment and evidence preservation plan for stores, POS terminals, e-commerce systems, identity services, cloud resources, and ERP components.
+Stakeholder notification and communications matrix covering customers, employees, privacy authorities, payment processors, acquiring banks, card brands, vendors, law enforcement, cyber insurer, and media.
+Recovery plan with service prioritization, backup validation, online sales workarounds, store operations workarounds, and supplier coordination.
+Lessons-learned report linking technical root causes to governance, audit, control maturity, and risk management improvements.
+Module B: Cybersecurity Audit Planning Exercise
+In this module, students act as internal auditors or cybersecurity audit planners. Their task is to develop a risk-based cybersecurity audit plan that provides independent assurance over CanaRetail’s governance, controls, remediation, and resilience. The audit plan should be defensible to senior management and the Audit Committee.
+Suggested audit universe
+Cyber governance and Board reporting.
+Incident response and crisis management.
+SOC monitoring, detection, alert triage, and escalation.
+Identity and access management, including privileged access and former employee access.
+E-commerce application security, API security, secure development, and CI/CD controls.
+POS security, payment-card data protection, store network segmentation, and remote support access.
+Cloud security configuration, logging, identity, and shared-responsibility controls.
+ERP security, data integrity, supplier integration, inventory management, and financial processing controls.
+Backup and disaster recovery, including ransomware-resilient restoration testing.
+Third-party cyber risk, payment processor dependencies, supplier access, and contractual incident notification.
+Security awareness, phishing resilience, and role-based training for stores, executives, developers, and support teams.
+Privacy, data governance, loyalty program data, analytics, and AI-enabled personalization controls.
+Students should prioritize audit work based on inherent risk, business criticality, prior findings, evidence quality, regulatory or contractual exposure, customer impact, and management’s remediation claims.
+Module C: Simple Scenario-Based Risk Management Exercise
+In this module, students act as cybersecurity risk analysts. The objective is to produce a scenario-based cybersecurity risk assessment that supports a prioritized cybersecurity roadmap for the 2024-2030 planning horizon. Students should identify credible risk scenarios, assess inherent and residual risk, recommend treatment options, estimate cost and implementation complexity, and identify risks requiring executive or Board acceptance.
+Risk scoring guidance
+Students may use qualitative ratings or a simple normalized model that separates threat presence, exploitability, business impact, and control maturity. A simple inherent risk calculation may use Threat Presence x Exploitability x Business Impact. Residual risk should then reflect the effectiveness of existing controls, planned treatments, and remaining uncertainty. Students must document assumptions and explain the evidence needed to improve confidence in the assessment.
+Students should distinguish the severity of technical vulnerabilities from enterprise risk. A vulnerability with a high technical severity may not be the highest business risk if compensating controls are strong or business exposure is limited. Conversely, a governance, vendor, or recovery weakness may create high enterprise risk even when no single CVSS-scored vulnerability exists.
+Suggested risk register fields
+Risk ID and scenario statement.
+Affected assets, business processes, customers, stores, vendors, or data types.
+Existing preventive, detective, corrective, and governance controls.
+Inherent risk, control assessment, residual risk, and confidence level.
+Treatment choice: avoid, mitigate, transfer, or accept.
+Recommended actions, owner, cost category, implementation timeline, dependencies, and residual risk acceptance authority.
+
+Module D: In-Depth Scenario-Based Risk Management Exercise
+As part of this exercise, students will apply the risk analysis model studied in class to the CanaRetail case and the Excel spreadsheet, which are available on Moodle. The task is to develop one (1) original risk analysis scenario and integrate nine additional scenarios provided in the CanaRetail case. Students will complete scenarios S1-S10 and risk mitigation measures M1-M10, conduct a complete risk analysis, and formulate recommendations for the organization.
+Objectives:
+Understand the practical application of cybersecurity risk analysis.
+Develop and analyze risk scenarios using a structured model.
+Propose mitigation measures tailored to the identified risks.
+Guidelines:
+Create one (1) original risk analysis scenario to add to nine (9) pre-existing scenarios of the CanaRetail case.
+Complete the requested information for each scenario in the Excel spreadsheet, including for scenario pages S1 to S10 and mitigation measures M1 to M10.
+Perform a comprehensive risk assessment for each scenario, considering the following parameters:
+Probability of the hazard occurring: Pb(A)
+Presence of vulnerability: Pb(ψ)
+Probability of exploitation of the vulnerability by the hazard: Pb(ψ,A)
+Estimated damage: δe(ψ,A)
+Maximum damage: δm(ψ,A)
+Resilience level: θ(ψ,A)
+Organizational criticality (expected utility): μ(E) — the importance of the affected service or process to the organization’s mission, on a 0–1 scale.
+Formulate mitigation recommendations for all the scenarios analyzed, in a document of one (1) to two (2) pages maximum.
+Prepare a memorandum to management explaining and justifying your recommendations.
+The mitigation recommendations and the memorandum documents will be submitted in WORD or PDF format.
+You must also submit the completed risk assessment in Excel. 
+What to submit:
+The scenario that was created.
+Mitigation recommendations.
+A memorandum with recommendations.
+The completed risk assessment in Excel. 
+Evaluation criteria:
+Relevance and originality of the scenario created (20%)
+Completeness and precision in filling out risk analysis tables (20%)
+Appropriateness and applicability of proposed mitigation measures (20%)
+Clarity and argumentation of the recommendations made in the memorandum (20%)
+Compliance with presentation standards and editorial quality (10%)
+Ability to synthesize information and formulate strategic conclusions (10%)
+Weighting:
+This practical work is valued at 20% of the final course grade.
+Submission Format:
+The work must be submitted as an Excel file for the analysis tables and a WORD document for the recommendations and memorandum. Submission will be made via Moodle before the specified deadline.
+Additional guidance for students
+Additional guidance to help you as you work through it:
+1. Recommendation Document:
+Content Depth: The recommendation document should justify your choices clearly. While you don’t need to detail every possible mitigation measure, focus on key recommendations that balance the organization’s risk tolerance, budget constraints (referencing the Gartner guidelines of spending 4% to 12% of the IT budget on cybersecurity), and overall business objectives.
+Focus: It’s unlikely you can recommend all mitigations for all scenarios within the 1-2-page limit. Prioritize the most critical and impactful measures and explain why they were selected.
+Justification: For each scenario, emphasize why you chose certain mitigations. Consider:
+The organization’s risk appetite.
+The cost-effectiveness of the measures.
+Alignment with industry standards (e.g., ISO 27002 or COBIT).
+Alignment with the organization’s governance framework and culture.
+The risk reduction potential aims to reduce unacceptable risks to an acceptable level.
+Structure:
+A brief introduction.
+Recommendations for each scenario.
+A rationale for selecting each mitigation strategy.
+A conclusion summarizing your overall approach.
+2. Memorandum:
+This should be a concise, professional memo addressed to management, outlining your overall recommendation strategy. Include:
+A summary of your risk analysis findings.
+The key mitigation strategies proposed.
+A justification of how your approach fits within the organization’s risk tolerance and budgetary constraints.
+3. Risk Assessment in Excel:
+Complete all scenarios (S1 to S10) and the associated mitigation measures (M1 to M10) as outlined.
+Ensure that the risk parameters for each scenario (e.g., probability, vulnerability, damage, resilience) are completed in full.
+The Excel analysis should align with your recommendations.
+4. Key Considerations:
+Balance risk and reward: Don’t aim to eliminate all risks—focus on prioritizing unacceptable risks based on the organization's tolerance.
+Document Length: Stick to the 1–2-page guideline per scenario for the recommendation document, but feel free to add appendices if needed—they will not count towards the page limit.
+5. Submission Requirements:
+A completed Excel file with your scenario analysis and mitigations.
+A Word document containing:
+Your recommendation (2 pages).
+A memorandum (note to management, 1 page).
+The original scenario you created (1-3 pages, using the model provided).
+The goal is to provide a balanced, well-justified recommendation that takes into account the organization’s needs, risk tolerance, and financial constraints.
+
+
+
+Examples of cyberattacks in the retail industry
+Since 2020, the retail industry has been on the frontline of an escalating cyber war, facing a variety of cyber threats. While the details of many attacks remain proprietary to the affected organizations, some have become public knowledge. Here's a summary of several significant cyber-attacks in the retail sector to organizations like CanaRetail since 2020:
+E-Skimming Attacks: These involve malicious actors compromising online checkout pages to "skim" credit card information. Magecart, a group specializing in this, has been linked to multiple attacks on online retailers.
+Ransomware Attacks: These involve encrypting an organization's data and demanding a ransom in return for the decryption key. For instance, in 2020, the Luxottica Group (owner of brands like Ray-Ban) suffered a ransomware attack affecting its operations.
+Credential Stuffing: This attack uses previously breached username-password combinations to gain unauthorized access. In early 2020, a major U.S. retail chain experienced such an attack, with cybercriminals attempting to gain access to user accounts.
+Point-of-Sale (POS) Malware: Attacks using POS malware involve compromising POS terminals to capture customer card details. In recent years, various retail outlets have been impacted, underscoring the need for enhanced POS security.
+Distributed Denial of Service (DDoS) Attacks: These attacks aim to flood a website with traffic, causing it to crash. While primarily associated with activism, they've been weaponized for extortion or as a distraction for another type of attack.
+Supply Chain Attacks: This method involves targeting less-secure elements in a company's supply chain. One of the most notable incidents in this category, though not exclusive to the retail sector, was the SolarWinds attack in 2020.
+Data Breaches: Cybercriminals often target retailers for their wealth of customer data. From credit card details to personal information, once accessed, this data can be sold on the dark web or used for fraudulent activities.
+Phishing Attacks: With the rise of online shopping due to the pandemic, there has been an increase in phishing attacks targeting customers. These malicious emails imitate genuine communications from retailers to trick recipients into giving away sensitive information.
+It's worth noting that the increased digitization in the retail sector, accelerated by the pandemic, has expanded the attack surface for many retailers. As cyber threats continue to evolve, so too must the strategies and technologies deployed to counteract them. The incidents mentioned are just a snapshot of the broader cyber threat landscape, emphasizing the need for constant vigilance and proactive cybersecurity measures in the retail sector.
+
+CanaRetail Cybersecurity Risk Scenarios
+With the help of cybersecurity consultants hired to review CanaRetail’s cybersecurity posture, the following scenario library was created. This student-facing list provides only scenario prompts. Students should develop their own risk statements, assumptions, control mappings, inherent and residual risk ratings, treatment recommendations, cost estimates, and implementation priorities.
+Phishing attack targeting senior executives.
+Ransomware attack encrypting critical data.
+Insider threat leading to data exfiltration.
+DDoS attack on the e-commerce platform during peak sale season.
+Point-of-Sale (POS) malware attack leading to credit card data theft.
+Unpatched software exploited by hackers.
+Inadequate multi-factor authentication leading to account breaches.
+Mobile application vulnerabilities exploited to access user data.
+IoT devices (like smart shelves) hijacked for botnet attacks.
+Unsecured cloud storage bucket exposing customer information.
+Former employee retains access and misuses privileges.
+Data breach due to weak encryption standards.
+SQL injection on the e-commerce website.
+Social engineering attack targeting customer support.
+Attack on backup systems, preventing data recovery.
+Infiltration of the corporate network via a compromised device.
+Malware introduced via external storage devices.
+Physical breach leading to server room access.
+Credential stuffing attack due to reused passwords.
+Inadequate firewall configurations allowing unauthorized access.
+Malicious advertisement displayed on the e-commerce platform.
+Data leak due to misconfigured permissions.
+Infiltration via compromised software update.
+Attack on third-party payment processors.
+Inadequate logging and monitoring allowing undetected breaches.
+DNS poisoning directing users to malicious websites.
+Inadequate network segmentation allowing lateral movement.
+Targeted spear-phishing attack on the IT department.
+Mismanagement of cryptographic keys.
+Rogue Wi-Fi access points set up to intercept data.
+API vulnerabilities exploited to access backend data.
+Exploit of outdated browser plugins on company machines.
+Insider trading based on stolen confidential financial data.
+Compromised update on third-party plugins.
+Malicious code embedded in third-party website widgets.
+Insider threat altering financial transactions.
+Unauthorized access to the development environment.
+Fileless malware attack on employee machines.
+Remote code execution due to server misconfigurations.
+Man-in-the-browser attack on e-commerce transactions.
+VPN vulnerabilities exploited for unauthorized access.
+Uncontrolled use of shadow IT leading to data breaches.
+Exploitation of known, but unaddressed vulnerabilities.
+Data interception due to weak transport layer security.
+Exploiting vulnerabilities in content management systems.
+Eavesdropping on unencrypted internal communications.
+Infiltration via compromised smart lighting systems.
+Stolen devices without encryption or remote wipe capabilities.
+Misconfigured DNS leading to domain hijacking.
+Tapping into teleconferencing tools to eavesdrop on corporate meetings.
+
+Assignment Options and Suggested Deliverables
+The instructor can use the case in several formats. The following options can be adapted for undergraduate, graduate, executive, or professional training audiences.
+Option 1: Incident response tabletop package
+Classify the incident and justify severity.
+Prepare a 24-hour situation report.
+Recommend containment and evidence preservation actions.
+Prepare a stakeholder communication matrix.
+Identify lessons learned and connect them to control improvements.
+Option 2: Risk-based cybersecurity audit plan
+Prepare an audit universe and assign inherent risk ratings.
+Select the top five audit priorities for the next 12 months.
+Develop one detailed audit program for a selected area.
+Explain evidence needed to test control design and operating effectiveness.
+Prepare an Audit Committee memo explaining the assurance value of the plan.
+Option 3: Scenario-based cybersecurity risk assessment
+Select and analyze at least eight scenarios from the scenario library.
+Justify inherent risk, control maturity, and residual risk.
+Recommend risk treatments and identify risk owners.
+Estimate cost category, dependencies, and implementation difficulty.
+Prepare a 2024-2030 roadmap aligned with risk appetite and budget constraints.
+
+Student version (CyberRiskGuardian Education Package 1.0). The instructor annexes, sample answers and instructor guidance appendices of this case are distributed in the Educator Edition. Fictional case — CC BY-NC 4.0, © Marc-André Léger.

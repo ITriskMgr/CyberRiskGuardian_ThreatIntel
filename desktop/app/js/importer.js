@@ -21,7 +21,7 @@
 'use strict';
 import { S, touch, initArr, PARAMS } from './state.js';
 import * as AI from './ai.js';
-import { corpus, scope as X_scope, markExtracted as X_mark } from './extractor.js';
+import { corpus, scope as X_scope, markExtracted as X_mark, supplierLines as X_supplierLines, supplierItems as X_supplierItems } from './extractor.js';
 import { blankAsset, nextAssetId } from './assets.js';
 import { blankMeasure } from './catalog.js';
 import * as K from './catalog.js';
@@ -101,12 +101,17 @@ export const SECTIONS = [
     shape: '{"items":[{"name":"","provides":"","access":"remote|data|hosting|none","contract":"","certification":"","criticality":"High|Medium|Low","tag":"","source":""}]}',
     cols: [['name', 'Supplier', true], ['provides', 'Provides', true], ['access', 'Access', true], ['certification', 'Contract / certification', true], ['criticality', 'Criticality', true]],
     rules(text) {
+      // 1.9.2 (NV-067): supplier facts come only from the lines or sections that name suppliers (a "Suppliers:" line,
+      // a "Key suppliers and partners" heading and the lines under it) — never from general text that mentions vendors.
+      // Each list item is one supplier; what follows in parentheses or after a dash is what it provides. Nothing is guessed.
       const out = new Map();
-      for (const s of sentences(text)) {
-        if (!/\b(vendor|supplier|provider|outsourc|contractor|fournisseur|prestataire|managed service|MSP|SaaS)\b/i.test(s)) continue;
-        for (const m of s.matchAll(/\b([A-Z][A-Za-z0-9&.\-]+(?:\s[A-Z][A-Za-z0-9&.\-]+){0,3})\b/g)) {
-          const nm = m[1]; if (nm.length < 3 || /^(The|A|An|Our|This|We|Le|La|Les|Un|Une|In|For|All|Each)$/.test(nm.split(' ')[0])) continue;
-          if (!out.has(norm(nm))) out.set(norm(nm), { name: nm, provides: '', access: /remote|VPN|access/i.test(s) ? 'remote' : /host|cloud|SaaS/i.test(s) ? 'hosting' : '', tag: 'INFERENCE', source: s.slice(0, 200) });
+      for (const l of X_supplierLines(text)) {
+        for (const part of X_supplierItems(l)) {
+          const m = /^([^(—–-]{2,60}?)\s*(?:\(([^)]{1,120})\)|[—–-]\s*(.{1,120}))?\.?$/.exec(part.trim());
+          if (!m) continue;
+          const nm = m[1].trim(); if (nm.length < 2 || !/[A-Za-zÀ-ÿ]/.test(nm) || /^(the|a|an|our|its|le|la|les|un|une|nos)$/i.test(nm)) continue;
+          const prov = (m[2] || m[3] || '').trim();
+          if (!out.has(norm(nm))) out.set(norm(nm), { name: nm, provides: prov, access: /remote|VPN|accès à distance/i.test(prov) ? 'remote' : /host|cloud|SaaS|hébergement|infonuag/i.test(prov) ? 'hosting' : /data|données/i.test(prov) ? 'data' : '', tag: 'FACT', source: l.slice(0, 200) });
         }
       }
       return [...out.values()].slice(0, 25);
