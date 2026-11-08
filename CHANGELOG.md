@@ -54,6 +54,16 @@ of the unified engine rules (X-1, X-2) that the Core plugin 2.2.1, CRG Pro Quant
 - References: the unified engine rules and the budget conventions (NV-094, NV-095) in `crg-formulas-and-workbook.md` and
   `master-task-spec.md` (*Resolved methodology choices*).
 
+### CRGO 0.11.1
+- The pinned CRGO release is **0.11.1** (tag `v0.11.1`, 8 November 2026 — the patch of 0.11.0 built for this release:
+  input validation and structured errors in the query interface and MCP server, write-back path, CIS v8.1 coverage of
+  `scenarios_for_control`, content review, FR-2 / FR-3 label terminology; no term added, removed or deprecated):
+  `crgo_contract.PINNED_RELEASE`, `.mcp.json`, `AGENTS.md`, `NOTICE.md`, the skill and `crgo-integration.md`,
+  `desktop-ci.yml` (`CRGO_REF: v0.11.1`). dss/v1 still works from v0.9.1; compliance/v1 and secops/v1 from 0.10.0.
+- `test_crgo_contract.py` compares CRGO's contract examples without their `ontologyRelease` (a patch release does not
+  regenerate them) and requires the produced documents to carry the pinned release (53 checks).
+- CI also runs `test_cross_engine.py`, `scripts/ssvc_compare.py` and `scripts/build_evals.py --replay`.
+
 ## 1.7.1 — 4 November 2026
 
 Documentation and guardrail wording only. No formula change: the MediBec regression stays at 84,305 / 41,023.

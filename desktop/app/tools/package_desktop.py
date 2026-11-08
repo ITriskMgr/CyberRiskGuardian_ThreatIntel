@@ -11,6 +11,8 @@ What it does
      in a paid product (the Community and Educational editions keep the titles with the CIS notice);
   4. writes CyberRiskGuardian_Desktop_v<version>-<channel>[-<edition>].zip and its .sha256 next to it (PUBLISHING.md §4).
   The community zip keeps the historical name (no edition suffix), so the update check and its SHA-256 file are unchanged.
+  As every release since 1.9.0, the zip unpacks into one folder named like the zip (the guides say
+  `cd CyberRiskGuardian_Desktop_v<version>-<channel>`); `.nojekyll` is kept, the launchers keep their execute bit.
 
 Exit 1 when the edition is unknown, when the strip leaves a CIS title behind, or when the copy differs from the source
 in anything but the two files above (a package must be the source tree plus the edition).
@@ -39,7 +41,7 @@ def copy_tree(dst):
         out = dst if rel == "." else os.path.join(dst, rel)
         os.makedirs(out, exist_ok=True)
         for f in files:
-            if f in SKIP_FILES or f.startswith(".") or f.endswith((".pyc", ".zip", ".sha256")):
+            if f in SKIP_FILES or (f.startswith(".") and f != ".nojekyll") or f.endswith((".pyc", ".zip", ".sha256")):
                 continue
             shutil.copy2(os.path.join(root, f), os.path.join(out, f))
 
@@ -104,7 +106,7 @@ def main():
     name = f"CyberRiskGuardian_Desktop_v{v}-{ch}{suffix}.zip"
     tmp = tempfile.mkdtemp(prefix="crg-pkg-")
     try:
-        dst = os.path.join(tmp, "CyberRiskGuardian_Desktop")
+        dst = os.path.join(tmp, name[:-4])          # the folder the zip unpacks into, named like the zip
         copy_tree(dst)
         set_edition(dst, a.edition)
         stripped = strip_cis(dst) if a.edition == "commercial" else 0
@@ -119,7 +121,7 @@ def main():
             for root, _, files in os.walk(dst):
                 for f in sorted(files):
                     full = os.path.join(root, f)
-                    z.write(full, os.path.relpath(full, dst))
+                    z.write(full, os.path.relpath(full, tmp))
         digest = sha256(zpath)
         open(zpath + ".sha256", "w", encoding="utf-8").write(f"{digest}  {name}\n")
         print(f"wrote {zpath}\n      {zpath}.sha256 ({digest})")
