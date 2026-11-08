@@ -1,55 +1,158 @@
-/* anon.js — anonymization of registry packages before they are published or shared (1.4.0).
-   Replaces the organization's names, people's names, asset names, e-mail addresses, IP addresses, internal host
-   names and domains, URLs, phone numbers and postal codes with stable placeholders; optionally generalizes
-   amounts and dates, and drops free-text fields. Identifiers that carry no organizational information —
-   ATT&CK, CWE, CVE, CAPEC, control identifiers, parameters — are kept so the package stays useful.
+/* anon.js — anonymization of registry packages and AI payloads before they leave this computer (1.4.0; rebuilt in 1.9.2).
+   Replaces the organization's names, people's names, asset names, e-mail addresses, IP addresses (v4 and v6), MAC
+   addresses, internal host names (DNS, NetBIOS, UNC paths), domains, URLs, phone numbers, postal codes, personal
+   and reference numbers with stable placeholders; optionally generalizes amounts and dates, and drops free-text
+   fields. Identifiers that carry no organizational information — ATT&CK, CWE, CVE, CAPEC, control identifiers,
+   parameters — are kept so the package stays useful.
+   1.9.2 (NV-005, NV-006, NV-026, NV-089, NV-098): every value of a people field is a person whatever its shape
+   (O'Brien, McDonald, "Dr." prefixes, "(CISO)" suffixes, lower-case names), the technical passes (e-mail, URL, host,
+   address) run before the name replacements so that local parts and host labels cannot survive a partial
+   replacement, every replacement is inserted as a token so no later pass re-reads another pass's output, and the
+   residual check reads the replacement table itself. The preview lists the name-like pairs and acronyms it could
+   not attribute, for the analyst to add.
    The re-identification table stays on this computer. Review the preview: automatic anonymization reduces,
    but does not eliminate, the risk of re-identification. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 
 export const DEFAULT_OPTS = { enabled: true, org: true, people: true, assets: true, network: true, contact: true, amounts: true, dates: false, dropText: false, region: true, custom: '' };
 export const OPT_LABEL = {
-  org: 'Organization names → “Organization A”', people: 'People\'s names (owners, members, instructor) → “Person 1…”', assets: 'Asset names → “Asset A01 (type)”',
-  network: 'IP addresses, internal host names, domains and URLs (public references kept)', contact: 'E-mail addresses, phone numbers, postal codes',
-  amounts: 'Money amounts → ranges', dates: 'Dates → month only', dropText: 'Drop free-text fields (rationale, evidence, notes, narrative)', region: 'Region → country only',
+  org: 'Organization names and acronym → “Organization A”', people: 'People\'s names (owners, custodians, approvers, members, instructor, users) and user names → “Person 1…”',
+  assets: 'Asset names → “Asset A01 (type)”',
+  network: 'IP addresses (v4, v6), MAC addresses, internal host names (DNS, NetBIOS, UNC paths), domains and URLs (public references kept)',
+  contact: 'E-mail addresses, phone numbers, postal codes, personal and reference numbers (file, employee, ticket)',
+  amounts: 'Money amounts → ranges', dates: 'Dates → month only', dropText: 'Drop free-text fields (rationale, evidence, notes, narrative, stakeholders, review notes, descriptions)', region: 'Region → country only',
 };
-const KEEP_HOSTS = /(^|\.)(mitre\.org|nist\.gov|cve\.org|first\.org|cisa\.gov|cyber\.gc\.ca|ncsc\.gov\.uk|github\.com|abuse\.ch|sans\.edu|alienvault\.com|microsoft\.com|cwe\.mitre\.org|attack\.mitre\.org|epss\.empiricalsecurity\.com|iso\.org|cisecurity\.org)$/i;
-const TEXT_KEYS = new Set(['rat', 'ev', 'evidence', 'rationale', 'notes', 'note', 'narrative', 'desc_private', 'acceptance_note', 'cvss_note', 'history']);
-const ROLE_WORDS = /\b(lead|manager|officer|director|team|operations|ciso|cio|cto|ceo|owner|administrator|admin|architect|security|it|hr|privacy|procurement|facilities|board|committee|vendor|supplier|department|service|desk|analyst|engineer|head|chief|responsible|dpo|soc)\b/i;
+const KEEP_HOSTS = /(^|\.)(mitre\.org|nist\.gov|cve\.org|first\.org|cisa\.gov|cyber\.gc\.ca|ncsc\.gov\.uk|github\.com|abuse\.ch|sans\.edu|alienvault\.com|microsoft\.com|cwe\.mitre\.org|attack\.mitre\.org|epss\.empiricalsecurity\.com|iso\.org|cisecurity\.org|w3id\.org|cyberriskguardian\.ca|leger\.ca|example\.org|example\.com|example\.net|example)$/i;
+/* 1.9.2 — free text that may name people or describe the organization indirectly (NV-089). */
+const TEXT_KEYS = new Set(['rat', 'ev', 'evidence', 'rationale', 'notes', 'note', 'narrative', 'desc_private', 'acceptance_note', 'cvss_note', 'history',
+  'stakeholders', 'review', 'threat_description', 'threatText', 'description', 'desc', 'exposure', 'background', 'why']);
+const ROLE_WORDS = /\b(lead|manager|officer|director|team|operations|ciso|cio|cto|ceo|cfo|coo|owner|administrator|admin|architect|security|it|hr|privacy|procurement|facilities|board|committee|vendor|supplier|department|service|desk|analyst|engineer|head|chief|responsible|dpo|soc|management|direction|équipe|sécurité|conseil|comité|fournisseur|service|informatique|ti|responsable|gestionnaire|directeur|directrice|analyste|n\/a|tbd|todo|none|unknown|inconnu|aucun)\b/i;
+/* People fields (NV-005): every value is a person, whatever its shape. */
+const PEOPLE_KEYS = new Set(['owner', 'custodian', 'accountable', 'approver', 'approvedBy', 'approved_by', 'requestedBy', 'acceptedBy', 'submittedBy', 'confirmedBy',
+  'author', 'sponsor', 'by', 'who', 'instructor', 'decisionMaker', 'reviewer', 'assessor', 'requester', 'contact', 'members', 'consulted', 'informed', 'assignee', 'analyst']);
+const SKIP_KEYS = new Set(['published', 'crgo', 'snapshot', 'consultant', 'aiLog', 'docs', 'kb', 'premig', 'catalogueMigration']);
+const TITLE_RX = /^(?:dr|dre|mr|mrs|ms|mme|mlle|m|me|pr|prof|hon|sir|dame|ing|ingénieure?|maître)\.?\s+/i;
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-export const looksLikeName = s => /^[A-ZÀ-Ý][a-zà-ÿ'’-]+(?:[ -][A-ZÀ-Ý][a-zà-ÿ'’-]+){1,3}$/.test(String(s).trim()) && !ROLE_WORDS.test(s);
+/** Two to four capitalized words, O'/Mc/Mac/accents/hyphens allowed, no role word: the 1.4.0 test, kept for the register validation. */
+export const looksLikeName = s => /^[A-ZÀ-Ý](?:[a-zà-ÿ'’-]+|c[A-Z][a-zà-ÿ]+|'[A-Z][a-zà-ÿ]+)(?:[ -][A-ZÀ-Ý](?:[a-zà-ÿ'’-]+|c[A-Z][a-zà-ÿ]+|'[A-Z][a-zà-ÿ]+)){1,3}$/.test(bareName(String(s))) && !ROLE_WORDS.test(bareName(String(s)));
+/** The name without its title, parenthesised role or trailing ", role" (NV-005). */
+export function bareName(v) {
+  let s = String(v || '').trim().replace(/\s+/g, ' ');
+  s = s.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s*\[.*?\]\s*/g, ' ').trim();
+  s = s.replace(TITLE_RX, '').trim();
+  const parts = s.split(/\s*[,—–|/]\s*/);
+  if (parts.length > 1 && parts.slice(1).every(p => !p || ROLE_WORDS.test(p) || !/[a-zà-ÿ]/i.test(p))) s = parts[0];
+  s = s.replace(/\s*[-–—]\s*(?:[^-–—]*\b(?:ciso|cio|cto|ceo|cfo|coo|dpo|director|directeur|directrice|manager|gestionnaire|officer|lead|head|chief)\b[^-–—]*)$/i, '').trim();
+  return s;
+}
+/** A value of a people field that is not a person: empty, a role only ("IT", "Security team"), or a placeholder. */
+const notAPerson = s => !s || s.length < 3 || !/[a-zà-ÿ]/i.test(s) || s.split(/\s+/).every(w => ROLE_WORDS.test(w)) || /^(person|personne)\s*\d+$/i.test(s) || /^(organization|organisation)\s+[a-z]$/i.test(s);
+/** The pieces of a people-field value: "A, B and C" → [A, B, C]. */
+const splitPeople = v => String(v || '').split(/\s*(?:[;\n]|,(?!\s*(?:jr|sr|ph\.?d|m\.?sc|mba|cissp|cisa|cism|crisc)\b)|\band\b|\bet\b|&)\s*/i).map(x => x.trim()).filter(Boolean);
+
+let USERS = null;
+import('./users.js').then(m => { USERS = m; }).catch(() => { USERS = null; });
+
+/** Every person named in a people field of the workspace (and the application's user accounts). */
+export function peopleOf(ws) {
+  const out = new Set();
+  const take = v => { for (const piece of splitPeople(v)) { const bare = bareName(piece); if (!notAPerson(bare)) { out.add(bare); const full = piece.trim(); if (full !== bare && full.length >= 3) out.add(full); } } };
+  const seen = new Set();
+  const visit = (o, depth) => {
+    if (!o || typeof o !== 'object' || depth > 8 || seen.has(o)) return;
+    seen.add(o);
+    if (Array.isArray(o)) { for (const x of o) visit(x, depth + 1); return; }
+    for (const [k, v] of Object.entries(o)) {
+      if (SKIP_KEYS.has(k)) continue;
+      if (PEOPLE_KEYS.has(k)) { if (typeof v === 'string') take(v); else if (Array.isArray(v)) v.forEach(x => typeof x === 'string' ? take(x) : visit(x, depth + 1)); else if (v && typeof v === 'object') { if (typeof v.name === 'string') take(v.name); visit(v, depth + 1); } }
+      else if (v && typeof v === 'object') visit(v, depth + 1);
+    }
+  };
+  visit(ws, 0);
+  for (const u of USERS?.U?.users || []) if (u?.name) take(u.name);
+  for (const g of USERS?.U?.groups || []) for (const m of g?.members || []) if (typeof m === 'string') take(m);
+  return [...out];
+}
+
+/** Upper-case tokens of the workspace text that read as an acronym of the organization's name (NV-089): the first
+    letter opens the name, the last letter opens one of its words, every letter appears in order ("NWS" for Northwind Santé). */
+export function orgAcronyms(ws, clean) {
+  const name = String(clean || '').toLowerCase();
+  const words = name.split(/\s+/).filter(Boolean);
+  if (words.length < 1 || name.length < 4) return [];
+  const initials = new Set(words.map(w => w[0]));
+  let blob = '';
+  try { blob = JSON.stringify(ws, (k, v) => SKIP_KEYS.has(k) ? undefined : v); } catch { return []; }
+  const out = new Set();
+  for (const m of blob.matchAll(/(?<![\p{L}\p{N}])[A-Z]{3,6}(?![\p{L}\p{N}])/gu)) {
+    const t = m[0]; if (SAFE_ACRONYMS.has(t) || out.has(t)) continue;
+    const l = t.toLowerCase();
+    if (l[0] !== words[0][0] || !initials.has(l[l.length - 1])) continue;
+    let i = 0, ok = true;
+    for (const ch of l) { i = name.indexOf(ch, i); if (i < 0) { ok = false; break; } i++; }
+    if (ok) out.add(t);
+  }
+  return [...out];
+}
 
 /** Build the replacement context from the workspace. */
 export function context(ws, opts) {
   const repl = []; // [regex, replacement, kind]
   const map = {};  // original → placeholder, kept locally
-  const add = (orig, rep, kind) => { orig = String(orig || '').trim(); if (orig.length < 3 || map[orig]) return; map[orig] = rep; repl.push([new RegExp('(?<![\\w])' + esc(orig) + '(?![\\w])', 'gi'), rep, kind]); };
+  const add = (orig, rep, kind, { ci = true } = {}) => {
+    orig = String(orig || '').trim(); if (orig.length < 3 || map[orig]) return;
+    map[orig] = rep;
+    repl.push([new RegExp('(?<![\\p{L}\\p{N}_])' + esc(orig) + '(?![\\p{L}\\p{N}_])', ci ? 'giu' : 'gu'), rep, kind]);
+  };
   if (opts.org) {
     const names = [ws.org?.name, ws.name, ws.classroom?.team, ws.classroom?.case_title].filter(Boolean);
     for (const n of names) {
       const clean = n.replace(/\s*[—–-]\s*.*$/, '').replace(/\(.*?\)/g, '').trim();
       add(n, 'Organization A', 'organization'); add(clean, 'Organization A', 'organization');
-      const first = clean.split(/\s+/)[0]; if (first && first.length >= 4 && /^[A-Z]/.test(first)) add(first, 'Organization A', 'organization');
+      const words = clean.split(/\s+/).filter(w => /^\p{Lu}/u.test(w) && !/^(inc|ltd|ltée|llc|corp|co|sa|sarl|gmbh|plc|the|le|la|les|de|du|des|et|and|of|group|groupe)\.?$/i.test(w));
+      const first = words[0]; if (first && first.length >= 4) add(first, 'Organization A', 'organization');
+      // the acronym of the name (NV-089): "Northwind Santé Inc." → NSI and NS; two-letter acronyms only as whole upper-case tokens
+      const acr = words.map(w => w[0]).join('').toUpperCase();
+      if (acr.length >= 3) add(acr, 'Organization A', 'organization', { ci: false });
+      if (acr.length >= 4) add(acr.slice(0, acr.length - 1), 'Organization A', 'organization', { ci: false });
+      for (const a of orgAcronyms(ws, clean)) add(a, 'Organization A', 'organization', { ci: false });
     }
     for (const a of String(ws.org?.aliases || '').split(/[,;\n]/)) add(a, 'Organization A', 'organization');
   }
   if (opts.people) {
     let n = 0;
-    const people = new Set();
-    const owners = [...ws.assessment.SCEN.map(s => s.owner), ...(ws.measures || []).map(m => m.owner), ...(ws.risks || []).flatMap(r => [r.owner, r.acceptance?.by]),
-      ...(ws.assets || []).flatMap(a => [a.owner, a.custodian]), ws.classroom?.instructor, ...String(ws.classroom?.members || '').split(/[,;\n]/)];
-    for (const o of owners) if (o && looksLikeName(o)) people.add(o.trim());
-    for (const p of people) add(p, 'Person ' + (++n), 'person');
+    const people = peopleOf(ws).sort((a, b) => b.length - a.length);
+    const byBare = {};
+    for (const p of people) {
+      const bare = bareName(p);
+      const rep = byBare[bare.toLowerCase()] || (byBare[bare.toLowerCase()] = 'Person ' + (++n));
+      add(p, rep, 'person'); add(bare, rep, 'person');
+      const w = bare.toLowerCase().split(/[\s-]+/).filter(Boolean);
+      if (w.length >= 2) {   // the user names and e-mail local parts derived from the name
+        const f = w[0].replace(/[^a-z0-9]/g, ''), l = w[w.length - 1].replace(/[^a-z0-9]/g, '');
+        if (f && l) for (const u of [`${f}.${l}`, `${f[0]}${l}`, `${f}_${l}`, `${f}${l}`, `${l}.${f}`, `${f[0]}.${l}`]) if (u.length >= 5) add(u, rep.toLowerCase().replace(' ', ''), 'person');
+      }
+    }
   }
   if (opts.assets) {
-    (ws.assets || []).forEach((a, i) => { if (a.name && a.name.length >= 4) add(a.name, `Asset A${String(i + 1).padStart(2, '0')} (${a.type || 'asset'})`, 'asset'); if (a.hostname) add(a.hostname, `host-${String(i + 1).padStart(2, '0')}`, 'network'); });
+    (ws.assets || []).forEach((a, i) => {
+      const nn = String(i + 1).padStart(2, '0');
+      if (a.name && a.name.length >= 4) add(a.name, `Asset A${nn} (${a.type || 'asset'})`, 'asset');
+      for (const h of String(a.hostname || '').split(/[,;\s]+/)) if (h.length >= 3) add(h, `host-a${nn}`, 'network');
+      for (const h of String(a.ip || '').split(/[,;\s]+/)) if (h.length >= 3) add(h, `[IP-a${nn}]`, 'network');
+      for (const h of String(a.url || '').split(/[,;\s]+/)) if (h.length >= 6) add(h, '[internal URL]', 'network');
+    });
+    // IAM / CM scopes name systems and hosts (NV-026)
+    for (const r of [...(ws.cm?.ciScopes || []), ...(ws.cm?.baselines || []), ...(ws.iam?.accounts || []), ...(ws.iam?.privileged || [])])
+      for (const k of ['hostname', 'host', 'hosts', 'ip', 'system', 'systems']) for (const h of String(r?.[k] || '').split(/[,;\s]+/)) if (/[a-z]/i.test(h) && /[\d.-]/.test(h) && h.length >= 4) add(h, 'host-' + (Object.keys(map).length + 1), 'network');
   }
-  for (const line of String(opts.custom || '').split('\n')) {
+  // the analyst's additional terms: the options' own list, else the workspace's (anonTerms, 1.9.2) — so AI payloads get them too
+  for (const line of String(opts.custom || ws.anonTerms || '').split('\n')) {
     const m = /^(.+?)\s*(?:=>|→|=)\s*(.*)$/.exec(line.trim());
     if (m) add(m[1], m[2] || '[redacted]', 'custom'); else if (line.trim()) add(line.trim(), '[redacted]', 'custom');
   }
   repl.sort((a, b) => b[0].source.length - a[0].source.length);
-  return { repl, map, counts: {}, ips: {}, hosts: {}, mails: {} };
+  return { repl, map, counts: {}, ips: {}, hosts: {}, mails: {}, free: {}, nFree: 0 };
 }
 
 function money(x) {
@@ -61,25 +164,115 @@ function money(x) {
 }
 const MONEY_KEYS = new Set(['initial', 'recurring', 'cost', 'y1', 'it_budget', 'spend', 'baseline', 'actual', 'revenue_hour', 'value']);
 
+/* ---------------- the technical patterns (NV-006, NV-026) ---------------- */
+const EMAIL_RX = /[\p{L}\p{N}.+_-]+@[\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+/gu;
+const URL_RX = /\b(?:https?|ftps?|sftp|smb|ldaps?|rdp|ssh|vnc):\/\/[^\s)"'<>\]]+/gi;
+const UNC_RX = /\\\\[\p{L}\p{N}._$-]{2,}(?:\\[^\s\\"'<>|]+)*\\?/gu;
+const IPV6_RX = /(?<![\p{L}\p{N}:.])(?:(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|(?:[0-9a-f]{1,4}:){1,7}:(?:[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){0,6})?|::(?:[0-9a-f]{1,4}(?::[0-9a-f]{1,4}){0,6}))(?:\/\d{1,3})?(?![\p{L}\p{N}:.])/giu;
+const MAC_RX = /\b(?:[0-9A-F]{2}[:-]){5}[0-9A-F]{2}\b|\b(?:[0-9A-F]{4}\.){2}[0-9A-F]{4}\b/gi;
+const IPV4_RX = /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\/\d{1,2})?(?::\d{1,5})?\b/g;
+const TLDS = '(?:[a-z]{2}|com|org|net|edu|gov|mil|int|info|biz|io|ai|app|dev|cloud|online|site|tech|store|xyz|health|care|med|pro|name|mobi|tel|travel|museum|coop|aero|jobs|asia|cat|bank|insurance|email|network|systems|solutions|services|group|global|world|digital|data|local|lan|corp|internal|intra|intranet|home|private|ad|test|invalid|localhost|arpa|onion)';
+const HOST_RX = new RegExp('(?<![\\p{L}\\p{N}@/._-])(?:[a-z0-9](?:[a-z0-9_-]{0,62})\\.)+' + TLDS + '(?![\\p{L}\\p{N}_-])(?:\\.(?![\\p{L}\\p{N}]))?', 'giu');
+const FILE_EXT = /\.(js|mjs|cjs|ts|json|py|md|csv|tsv|xlsx|xls|docx|doc|pdf|txt|xml|yml|yaml|html|htm|css|png|jpg|jpeg|gif|svg|zip|gz|tar|exe|dll|bat|sh|ps1|log|ini|cfg|conf|bak|tmp|dat|db|sql|pem|crt|key|p12|pfx|rtf|pptx|ppt|odt|ods|odp|jar|war|iso|img|dmg|pkg|msi|apk|ipa|mp4|mp3|wav|mov|avi|torrent)$/i;
+const NETBIOS_RX = /\b(?:SRV|SVR|DC|FS|DB|SQL|APP|WEB|WWW|WS|PC|LT|LAP|VM|HV|ESX|NAS|FW|SW|RTR|PRN|PRT|EX|EXCH|MAIL|PRD|PROD|DEV|TST|TEST|UAT|QA|BK|BKP|BAK|AD|DNS|DHCP|SCCM|WSUS|CTX|VDI|RDS|TS|HR|FIN|ERP|CRM|PACS|EHR|LAB|RIS|SAP|SCADA|PLC|HMI|CAM|NVR|IOT|WLC|AP)[-_][A-Z0-9][A-Z0-9_-]{0,14}\d\b|\b(?:SRV|DC|FS|DB|SQL|APP|WEB|WS|PC|VM|ESX|NAS|FW|PRD|PROD|DEV|TST|UAT|WLC|AP)\d{2,4}\b/g;
+const E164_RX = /(?<![\p{L}\p{N}])\+\d{1,3}(?:[\s.-]?\(?\d{1,4}\)?){2,5}(?![\p{L}\p{N}])/gu;
+const NANP_RX = /(?:\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}\b/g;
+const POSTAL_RX = /\b[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d\b/gi;
+const REF_RX = /\b(?:MRN|EMP|EMPL|INC|REQ|CHG|RITM|TKT|TICKET|CASE|SR|SIN|NAS|SSN|RAMQ|NAM|NIP|PIN|ID|BADGE|DOSSIER|MATRICULE|PATIENT|EMPLOYEE|EMPLOYÉ)\s*(?:#|№|no\.?|number|numéro|:|-)?\s*[A-Z]{0,3}-?\d{4,12}\b/gi;
+const USER_CUE_RX = /\b(?:as|user|username|account|login|compte|utilisateur|identifiant)\s+(?:user\s+)?([a-z][a-z0-9]*[._-][a-z0-9._-]{2,30})\b/gi;
+const DOTTED_USER_RX = /\b[a-z]{2,}\.[a-z]{3,}\b(?![.-]?[a-z])/g;
+const CODENAME_RX = /(\b(?:[Pp]rojec?t|[Pp]rogramme?|[Ii]nitiative|[Oo]p[eé]ration|[Cc]odename|[Cc]ode name|[Nn]om de code)\s+)([A-Z][a-zà-ÿ]{3,}|[A-Z]{2}[a-zà-ÿ]{2,})(?![\p{L}\p{N}])/gu;
+/* Free-text names (NV-089): a capitalized pair with a cue — a title, a role in brackets, or "with/by/led by…" — and no technology or role word. */
+const CAP = "[A-ZÀ-Ý](?:[a-zà-ÿ'’-]+|c[A-Z][a-zà-ÿ]+|'[A-Z][a-zà-ÿ]+)";
+const NAME_PAIR = `(${CAP}(?:[ -]${CAP}){1,2})`;
+const NAME_CUE_RX = new RegExp(`(?:\\b(?:dr|dre|mr|mrs|ms|mme|mlle|me|pr|prof)\\.?\\s+${NAME_PAIR})|(?:\\b(?:with|by|from|contact|led by|signed by|approved by|accepted by|reported by|interview with|interviewed|met|meeting with|avec|par|contacter|signé par|approuvé par|rencontre avec)\\s+(?:the\\s+|le\\s+|la\\s+)?(?:(?:CEO|CIO|CISO|CTO|CFO|COO|DPO|director|directeur|directrice|manager|gestionnaire|officer|VP|president|président|présidente)\\s+)?${NAME_PAIR})|(?:${NAME_PAIR}\\s*\\((?:[^)]*\\b(?:officer|director|manager|lead|head|chief|ciso|cio|cto|ceo|cfo|coo|dpo|analyst|engineer|administrator|admin|consultant|auditor|owner|responsable|directeur|directrice|gestionnaire|analyste|conseiller|conseillère|vérificateur|vérificatrice|agent|agente)\\b[^)]*)\\))`, 'gu');
+const TECH_WORDS = new Set(['active', 'directory', 'microsoft', 'windows', 'server', 'exchange', 'office', 'azure', 'entra', 'google', 'cloud', 'cisco', 'palo', 'alto', 'fortinet', 'fortigate', 'citrix', 'vmware', 'oracle', 'linux', 'apache', 'red', 'hat',
+  'amazon', 'web', 'services', 'okta', 'veeam', 'sophos', 'crowdstrike', 'sentinel', 'splunk', 'defender', 'intune', 'teams', 'sharepoint', 'onedrive', 'outlook', 'adobe', 'acrobat', 'chrome', 'firefox', 'safari', 'android', 'apple', 'ios', 'macos',
+  'valid', 'accounts', 'public', 'facing', 'application', 'remote', 'access', 'phishing', 'spearphishing', 'attachment', 'link', 'supply', 'chain', 'compromise', 'brute', 'force', 'drive', 'credential', 'dumping', 'exfiltration', 'impair', 'defenses', 'inhibit',
+  'system', 'recovery', 'data', 'encrypted', 'impact', 'lateral', 'movement', 'command', 'scripting', 'interpreter', 'user', 'execution', 'exploit', 'exploitation', 'external', 'services', 'network', 'service', 'discovery', 'destruction',
+  'risk', 'register', 'registry', 'scenario', 'policy', 'standard', 'control', 'controls', 'project', 'phase', 'step', 'board', 'call', 'centre', 'center', 'clinic', 'hospital', 'health', 'care', 'information', 'security', 'privacy', 'account', 'email', 'mail',
+  'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
+  'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre', 'loi', 'law', 'act', 'canada', 'quebec', 'québec', 'montréal', 'montreal', 'laval', 'ontario', 'toronto', 'ottawa', 'united', 'states', 'france', 'paris',
+  'north', 'south', 'east', 'west', 'nord', 'sud', 'est', 'ouest', 'general', 'protection', 'regulation', 'personal', 'medical', 'patient', 'records', 'record', 'management', 'business', 'continuity', 'disaster', 'incident', 'response', 'plan', 'threat', 'evidence', 'ladder',
+  'organization', 'organisation', 'person', 'personne', 'asset', 'internal', 'external', 'high', 'medium', 'low', 'critical', 'analytical', 'estimate', 'validation', 'required', 'decision', 'gap', 'organizational']);
+/* The ATT&CK, CWE and mitigation vocabulary of the bundled knowledge base (kb.js, self.CRG_KB): a capitalized pair made only of
+   those words ("Removable Media", "Valid Accounts") is a technique, not a person. Built once, on first use. */
+let KBWORDS = null;
+const kbWords = () => {
+  if (KBWORDS) return KBWORDS;
+  KBWORDS = new Set();
+  const KB = (typeof self !== 'undefined' && self.CRG_KB) || null;
+  const takeWords = t => { for (const w of String(t || '').toLowerCase().split(/[^\p{L}]+/u)) if (w.length >= 2) KBWORDS.add(w); };
+  if (KB) {
+    for (const t of Object.values(KB.tech || {})) { takeWords(t.n || t.name); takeWords(t.fullName); }
+    for (const m of Object.values(KB.mit || {})) takeWords(m.n);
+    for (const c of Object.values(KB.cwe || {})) takeWords(c.n || c.name);
+    for (const t of KB.tactics || []) takeWords(t[2]);
+  }
+  return KBWORDS;
+};
+/* Words that make a capitalized pair an organization, a product or a place rather than a person (listed in the preview, never replaced as a person). */
+const ORG_WORDS = new Set(['hébergement', 'hosting', 'inc', 'ltd', 'ltée', 'corp', 'corporation', 'company', 'compagnie', 'solutions', 'services', 'technologies', 'technology', 'consulting', 'conseil', 'conseils', 'groupe', 'group', 'systems', 'systèmes', 'informatique',
+  'santé', 'health', 'clinic', 'clinique', 'pharma', 'bank', 'banque', 'assurance', 'assurances', 'insurance', 'labs', 'laboratoire', 'laboratoires', 'partners', 'partenaires', 'associés', 'associates', 'logiciels', 'software', 'networks', 'réseaux', 'sécurité', 'security',
+  'digital', 'numérique', 'cloud', 'data', 'données', 'médical', 'medical', 'hospital', 'hôpital', 'centre', 'center', 'université', 'university', 'collège', 'college', 'école', 'school', 'ministère', 'ministry', 'agence', 'agency', 'ville', 'city', 'municipalité', 'municipality',
+  'canada', 'québec', 'quebec', 'international', 'global', 'industries', 'industrie', 'manufacturing', 'énergie', 'energy', 'telecom', 'télécom', 'communications', 'media', 'médias', 'capital', 'finance', 'financial', 'financière', 'trust', 'fiducie', 'foundation', 'fondation', 'institute', 'institut']);
+const pairOk = s => { const w = s.toLowerCase().split(/[\s-]+/); if (w.length < 2 || w.some(x => TECH_WORDS.has(x) || ROLE_WORDS.test(x))) return false; const kb = kbWords(); return !w.every(x => kb.has(x)); };
+const nameOk = s => pairOk(s) && !s.toLowerCase().split(/[\s-]+/).some(x => ORG_WORDS.has(x));
+
+/* Replacements are inserted as private-use tokens and resolved at the end: no pass ever reads another pass's output,
+   and nothing already replaced (or deliberately kept) is matched again. */
+const TOK = (i) => `${i}`;
+const TOK_RX = /(\d+)/g;
+
 export function text(s, ctx, opts) {
   if (typeof s !== 'string' || !s) return s;
   const bump = k => { ctx.counts[k] = (ctx.counts[k] || 0) + 1; };
-  for (const [rx, rep, kind] of ctx.repl) s = s.replace(rx, () => { bump(kind); return rep; });
+  const slots = [];
+  const put = v => { slots.push(v); return TOK(slots.length - 1); };
+  // 0 · public references are kept whole (and never re-read by the host or user-name patterns)
+  s = s.replace(URL_RX, u => { let h = ''; try { h = new URL(u).hostname; } catch { /* keep */ } if (KEEP_HOSTS.test(h)) return put(u); if (!opts.network) return u; bump('url'); return put('[internal URL]'); });
+  // 1 · contact and network passes first (NV-006): local parts and host labels never survive a partial replacement
   if (opts.contact) {
-    s = s.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, m => { bump('email'); return ctx.mails[m] ||= 'user' + (Object.keys(ctx.mails).length + 1) + '@example.org'; });
-    s = s.replace(/(?:\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}\b/g, () => { bump('phone'); return '[phone]'; });
-    s = s.replace(/\b[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d\b/gi, () => { bump('postal'); return '[postal code]'; });
+    s = s.replace(EMAIL_RX, m => { if (/@example\.(org|com|net)$/i.test(m)) return put(m); bump('email'); return put(ctx.mails[m.toLowerCase()] ||= 'user' + (Object.keys(ctx.mails).length + 1) + '@example.org'); });
   }
   if (opts.network) {
-    s = s.replace(/https?:\/\/[^\s)"'<>]+/g, u => { let h = ''; try { h = new URL(u).hostname; } catch { /* keep */ } if (KEEP_HOSTS.test(h)) return u; bump('url'); return '[internal URL]'; });
-    s = s.replace(/\b(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?\b/g, m => { bump('ip'); return ctx.ips[m] ||= `[IP-${Object.keys(ctx.ips).length + 1}]`; });
-    s = s.replace(/\b(?:[a-z0-9-]+\.)+(?:local|lan|corp|internal|intra|ad|qc\.ca|ca|com|org|net|io|med)\b/gi, m => {
-      if (KEEP_HOSTS.test(m) || /\.(js|json|py|md|csv|xlsx|docx|pdf)$/i.test(m) || /^(crg|kb|sample|threat|cvss4)\./i.test(m)) return m;
-      bump('host'); return ctx.hosts[m.toLowerCase()] ||= `host-${Object.keys(ctx.hosts).length + 1}.example`;
+    s = s.replace(UNC_RX, () => { bump('unc'); return put('[UNC path]'); });
+    s = s.replace(MAC_RX, () => { bump('mac'); return put('[MAC address]'); });
+    s = s.replace(IPV6_RX, m => { bump('ip'); return put(ctx.ips[m.toLowerCase()] ||= `[IP-${Object.keys(ctx.ips).length + 1}]`); });
+    s = s.replace(IPV4_RX, m => { const base = m.split(/[/:]/)[0]; bump('ip'); return put((ctx.ips[base] ||= `[IP-${Object.keys(ctx.ips).length + 1}]`) + (m.includes('/') ? '/' + m.split('/')[1].split(':')[0] : '')); });
+    s = s.replace(HOST_RX, m => {
+      const h = m.replace(/\.$/, '');
+      const first = h.split('.')[0];
+      if (KEEP_HOSTS.test(h) || FILE_EXT.test(h) || /^(crg|kb|sample|threat|cvss4|host-\w+|user\d+)\./i.test(h) || first.length < 2 || !/[a-z]/i.test(first) || /^(p\.ex|e\.g|i\.e|etc|cf|vs|no|nos|art|al|ex|eg|ie|ph\.d|m\.sc|b\.sc|et\.al|a\.m|p\.m)$/i.test(h)) return m;
+      bump('host'); return put((ctx.hosts[h.toLowerCase()] ||= `host-${Object.keys(ctx.hosts).length + 1}.example`) + (m.endsWith('.') ? '.' : ''));
     });
+    s = s.replace(NETBIOS_RX, m => { bump('host'); return put(ctx.hosts[m.toLowerCase()] ||= `host-${Object.keys(ctx.hosts).length + 1}`); });
+  }
+  if (opts.contact) {
+    s = s.replace(E164_RX, () => { bump('phone'); return put('[phone]'); });
+    s = s.replace(NANP_RX, () => { bump('phone'); return put('[phone]'); });
+    s = s.replace(POSTAL_RX, () => { bump('postal'); return put('[postal code]'); });
+    s = s.replace(REF_RX, () => { bump('reference'); return put('[reference]'); });
+  }
+  // 2 · the replacement table: organization, people, assets, custom terms (longest first)
+  for (const [rx, rep, kind] of ctx.repl) s = s.replace(rx, () => { bump(kind); return put(rep); });
+  // project and programme code names (NV-089): "Project Bluefin" → "Project [codename]"
+  if (opts.org) s = s.replace(CODENAME_RX, (m, cue, name) => { if (TECH_WORDS.has(name.toLowerCase()) || ROLE_WORDS.test(name)) return m; bump('codename'); return cue + put('[codename]'); });
+  // 3 · people named in free text with a cue, and user names (NV-089, NV-026)
+  if (opts.people) {
+    s = s.replace(NAME_CUE_RX, (m, a, b, c) => {
+      const name = a || b || c; if (!name || !nameOk(name)) return m;
+      const key = name.toLowerCase();
+      const rep = ctx.free[key] || (ctx.free[key] = 'Person F' + (++ctx.nFree));
+      ctx.map[name] ||= rep; bump('person');
+      return m.replace(name, put(rep));
+    });
+    s = s.replace(USER_CUE_RX, (m, u) => { if (/^(?:person\d+|user\d+)$/.test(u)) return m; bump('username'); return m.slice(0, m.length - u.length) + put('[username]'); });
+    s = s.replace(DOTTED_USER_RX, m => { if (FILE_EXT.test(m) || /^(e\.g|i\.e|etc|vs|cf|ex|p\.ex|env|www)\b/i.test(m) || /^(person\d+|user\d+)$/i.test(m) || /\.(js|py|md|ca|com|org|net|io|ch|fr|uk|us|gov|edu|example|local|lan|exe|dll|txt|log|csv|json|xml|yml|yaml|html|pdf|doc|docx|xls|xlsx|zip|gz)$/i.test(m)) return m; bump('username'); return put('[username]'); });
   }
   if (opts.dates) s = s.replace(/\b(\d{4}-\d{2})-\d{2}(T[\d:.]+Z?)?\b/g, '$1');
-  return s;
+  // 4 · resolve the tokens (nested tokens are not possible: a token is never matched by any pattern above)
+  return s.replace(TOK_RX, (_, i) => slots[+i]);
 }
 
 /** Deep-copy obj with every string anonymized, money generalized, free text optionally dropped. */
@@ -89,7 +282,7 @@ export function walk(obj, ctx, opts, key = '') {
   if (obj && typeof obj === 'object') {
     const o = {};
     for (const [k, v] of Object.entries(obj)) {
-      if (opts.dropText && TEXT_KEYS.has(k)) continue;
+      if (opts.dropText && TEXT_KEYS.has(k) && (typeof v === 'string' || Array.isArray(v))) continue;
       if (opts.amounts && MONEY_KEYS.has(k) && typeof v === 'number') { o[k] = money(v); continue; }
       o[k] = walk(v, ctx, opts, k);
     }
@@ -110,4 +303,42 @@ function generalizeRegion(r) {
 }
 export function summary(ctx) {
   return Object.entries(ctx.counts).map(([k, n]) => `${n} ${k}`).join(' · ') || 'no replacement';
+}
+
+/* ---------------- the residual check (NV-005: reads the replacement table) ---------------- */
+/** Terms of the replacement table (organization, people, assets, hosts, custom) still present in the output text. */
+export function residual(out, ctx) {
+  const t = String(out || '').toLowerCase();
+  const found = [];
+  for (const k of Object.keys(ctx?.map || {})) {
+    const key = k.toLowerCase(); if (key.length < 3) continue;
+    // a term is "present" as a whole word (a four-letter acronym inside a longer word is not a leak)
+    const rx = new RegExp('(?<![\\p{L}\\p{N}_])' + esc(key) + '(?![\\p{L}\\p{N}_])', 'u');
+    if (rx.test(t)) found.push(k);
+  }
+  return [...new Set(found)];
+}
+const SAFE_ACRONYMS = new Set(['CVE', 'CWE', 'KEV', 'EPSS', 'CVSS', 'CAPEC', 'MFA', 'EDR', 'XDR', 'NDR', 'SIEM', 'SOC', 'SOAR', 'IAM', 'PAM', 'DLP', 'VPN', 'DNS', 'DHCP', 'API', 'URL', 'URI', 'HTTP', 'HTTPS', 'SSL', 'TLS', 'SSH', 'RDP', 'SMB', 'FTP', 'SFTP', 'LDAP', 'SQL', 'NAS', 'SAN', 'CMDB', 'ITSM', 'SOP',
+  'AD', 'IT', 'HR', 'OT', 'ICS', 'SCADA', 'PLC', 'CEO', 'CISO', 'CIO', 'CTO', 'CFO', 'COO', 'DPO', 'VP', 'PDG', 'DG', 'DSI', 'RSSI', 'ISO', 'IEC', 'NIST', 'CIS', 'COBIT', 'ITIL', 'GDPR', 'RGPD', 'PIPEDA', 'LPRPDE', 'HIPAA', 'PCI', 'DSS', 'SOX', 'EHR', 'EMR', 'DSE', 'PACS', 'HL7', 'FHIR', 'DICOM',
+  'ERP', 'CRM', 'SAP', 'AWS', 'GCP', 'SAAS', 'PAAS', 'IAAS', 'USB', 'PC', 'VM', 'OS', 'IP', 'MAC', 'LAN', 'WAN', 'WIFI', 'IOT', 'AI', 'IA', 'ML', 'LLM', 'PDF', 'JSON', 'CSV', 'XML', 'YAML', 'KPI', 'KRI', 'QC', 'RACI', 'BIA', 'BCP', 'DRP', 'PCA', 'PRA', 'RTO', 'RPO', 'SLA', 'UPS', 'HVAC',
+  'FR', 'EN', 'CA', 'US', 'UK', 'EU', 'NA', 'TBD', 'TODO', 'FAQ', 'ID', 'PIN', 'OTP', 'SSO', 'PHI', 'PII', 'NDA', 'RFP', 'CAD', 'USD', 'EUR', 'ATT', 'CK', 'MITRE', 'CISA', 'CCCS', 'RCMP', 'GRC', 'OQLF', 'BTM', 'CRG', 'CRGO', 'TLP', 'IOC', 'TTP', 'APT', 'DDOS', 'DOS', 'XSS', 'RCE', 'LPE', 'SSRF', 'CSRF',
+  'UNC', 'SCEN', 'JSON', 'MDR', 'ISP', 'DMARC', 'DKIM', 'SPF', 'ARP', 'SMS', 'BEC', 'SDLC', 'IDOR', 'JIT', 'CICD', 'NOC', 'EOL', 'EOS', 'OLA', 'VOIP', 'SIP', 'PBX', 'ATM', 'POS', 'RFID', 'NFC', 'BLE', 'GPS', 'LTE', 'SNMP', 'NTP', 'SMTP', 'IMAP', 'POP', 'TCP', 'UDP', 'ICMP', 'RPC', 'DCOM', 'WMI', 'COM', 'GPO', 'UPN', 'SID', 'GUID', 'UUID', 'CLI', 'GUI', 'IDE', 'SDK', 'OSS', 'FOSS', 'SBOM', 'TPRM', 'VRM', 'ERM', 'BCM', 'RAID', 'VMS', 'EPP', 'MTTD', 'MTTR', 'MTBF', 'KEV', 'CPE', 'SWID', 'OVAL', 'SCAP', 'STIX', 'TAXII', 'MISP', 'OTX', 'ISAC', 'ICS', 'DNP', 'OPC', 'MQTT', 'HTTPS', 'WPA', 'WEP', 'EAP', 'RADIUS', 'TACACS', 'IPSEC', 'IKE', 'GRE', 'MPLS', 'BGP', 'OSPF', 'VRRP', 'HSRP', 'STP', 'QOS', 'FTE', 'ROI', 'TCO', 'NPV', 'IRR', 'CAPEX', 'OPEX', 'YTD', 'QTD', 'FY', 'EBITDA', 'GAAP', 'IFRS', 'SEC', 'FINRA', 'OSFI', 'AMF', 'BSIF', 'CSSF', 'FCA', 'PRA', 'DORA', 'NIS', 'CMMC', 'FEDRAMP', 'ITSG', 'ITSP', 'CCCS', 'CSE', 'CSIS', 'OPC', 'CAI', 'PHIPA', 'HIA', 'CCPA', 'CPRA', 'LGPD', 'POPIA', 'PDPA', 'APPI', 'CRA', 'ARC', 'CNIL', 'ICO', 'EDPB', 'ENISA', 'BSI', 'CERT', 'FIRST', 'SSVC', 'CVSS', 'AV', 'AC', 'AT', 'PR', 'UI', 'VC', 'VI', 'VA', 'SC', 'SI', 'SA', 'MDM', 'BYOD', 'NAC', 'WAF', 'IDS', 'IPS', 'CA', 'PKI', 'HSM', 'KMS', 'TPM', 'BIOS', 'UEFI', 'RAM', 'CPU', 'GPU', 'SSD', 'HDD', 'OWASP', 'SANS', 'ENISA', 'NCSC', 'ANSSI', 'IRP', 'CSIRT', 'CERT', 'SOC2', 'SOC1', 'AICPA', 'IIA', 'ISACA', 'COSO', 'CSF', 'SP', 'SSVC', 'WIP', 'ETA', 'FYI', 'PS', 'NB', 'RE', 'RH', 'TI', 'SI', 'SST', 'UTC', 'EST', 'PST', 'GMT',
+  'MEDIBEC', 'CANARETAIL', 'NORDELLE', 'BOREAL', 'BORÉAL', 'ASA', 'PIX', 'ESXI', 'VDI', 'RDS', 'CTX', 'CPT', 'DBA', 'SRE', 'QA', 'UAT', 'PROD', 'DEV', 'TST', 'DMZ', 'VLAN', 'ACL', 'IDP', 'SP', 'SAML', 'OAUTH', 'OIDC', 'JWT', 'CDN', 'VPC', 'IAC', 'DC', 'FS', 'DB', 'APP', 'WEB', 'WS', 'SRV']);
+/** Name-like pairs and acronyms in the output that no replacement covers — for the preview, so the analyst can add them (NV-089). */
+export function nameLike(out, ctx) {
+  const s = String(out || '');
+  const known = new Set(Object.keys(ctx?.map || {}).map(k => k.toLowerCase()));
+  const pairs = new Map(), acronyms = new Map();
+  const pairRx = new RegExp(`(?<![\\p{L}\\p{N}'’-])${CAP}(?:[ -]${CAP}){1,2}(?![\\p{L}\\p{N}])`, 'gu');
+  for (const m of s.matchAll(pairRx)) {
+    const v = m[0].trim();
+    if (known.has(v.toLowerCase()) || !pairOk(v) || /^(Person|Organization|Asset|Analytical|Information|Management)\b/.test(v)) continue;
+    if (/^[A-Z][a-z]+ [A-Z][a-z]+$/.test(v) && /^(The|This|That|Each|Every|Some|Any|All|No|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten|New|Old|First|Second|Third|Last|Next|If|When|While|Before|After|During|Since|Until|Because|Although|However|Therefore|Also|Then|Thus|Hence|Both|Either|Neither|Such|Other|Another|Most|Many|Few|Several|Various|Le|La|Les|Un|Une|Des|Ce|Cette|Ces|Si|Quand|Lorsque|Après|Avant|Pendant|Depuis|Chaque|Tout|Toute|Tous|Toutes|Aucun|Aucune|Plusieurs|Certains|Certaines|Autre|Autres)$/.test(v.split(' ')[0])) continue;
+    pairs.set(v, (pairs.get(v) || 0) + 1);
+  }
+  for (const m of s.matchAll(/(?<![\p{L}\p{N}-])[A-Z]{3,6}(?![\p{L}\p{N}-])/gu)) {
+    const v = m[0]; if (SAFE_ACRONYMS.has(v) || known.has(v.toLowerCase()) || !/[A-Z]{2}/.test(v) || s[m.index - 1] === '[' || s[m.index + v.length] === ':' || s.slice(m.index + v.length, m.index + v.length + 2) === '":') continue;
+    acronyms.set(v, (acronyms.get(v) || 0) + 1);
+  }
+  return { pairs: [...pairs.entries()].sort((a, b) => b[1] - a[1]).map(([t, n]) => ({ term: t, n })), acronyms: [...acronyms.entries()].sort((a, b) => b[1] - a[1]).map(([t, n]) => ({ term: t, n })) };
 }

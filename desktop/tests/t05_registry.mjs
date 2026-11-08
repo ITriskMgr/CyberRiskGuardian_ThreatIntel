@@ -10,6 +10,9 @@ await page.evaluate(async (dir) => {
 }, SHARED);
 await page.waitForSelector('text=1 · The risks to share', { timeout: 20000 });
 ok(await page.isVisible('nav a[aria-current="page"]:has-text("Contribute risks")'), 'menu marks the Contribute entry');
+// 1.9.2 (NV-005): owners of every shape are people, whatever the shape — they must not reach the contribution
+await page.evaluate(async () => { const st = await import('/js/state.js'); const sc = st.S.ws.assessment.SCEN; sc[0].owner = "Mary O'Brien"; sc[1].owner = 'Dr. Paul Leduc'; sc[2].owner = 'anne mcdonald (CISO)'; sc[0].stakeholders = 'Nadia Belkacem (privacy officer), Board'; st.touch(); await st.saveNow(); location.hash = '#/registry/browse'; });
+await page.waitForTimeout(300); await page.evaluate(() => { location.hash = '#/registry/contribute'; }); await page.waitForSelector('text=1 · The risks to share', { timeout: 20000 });
 // defaults from the profile
 const cat = await page.evaluate(async () => { const RH = await import('/js/rhub.js'); const st = await import('/js/state.js'); return RH.catalogDefaults(st.S.ws); });
 ok(cat.sector === 'health' && cat.region === 'CA-QC' && cat.size === 'medium', 'catalogue defaults from the profile ' + JSON.stringify(cat));
@@ -28,6 +31,7 @@ const pkg = JSON.parse(fs.readFileSync(SHARED + '/' + files[0], 'utf8'));
 const txt = JSON.stringify(pkg);
 ok(pkg.schema === 'crg-registry/2' && pkg.anonymized === true && pkg.entries.length === 3, 'anonymized crg-registry/2 package with 3 entries');
 ok(!/MediBec/i.test(txt), 'organization name not in the package');
+ok(!/O'Brien|Leduc|mcdonald|Belkacem/i.test(txt), 'owners of every shape (O\'Brien, Dr., lower case, (CISO)) and a stakeholder named with a role are not in the package');
 ok(pkg.entries[0].catalog.region === 'CA-QC' && pkg.entries[0].catalog.sector === 'health', 'catalogue kept at province level');
 ok(!('source_ref' in pkg.entries[0]), 'no internal scenario id');
 // second installation: fresh browser context reads the shared folder
