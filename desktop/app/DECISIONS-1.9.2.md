@@ -58,8 +58,7 @@ still holds (`DECISIONS-1.8.0.md`, `DECISIONS-1.9.0.md`, `DECISIONS-1.9.1.md`). 
   commercial: `…-beta-commercial.zip`, CIS identifiers only) and committed under `desktop/dist/` as 1.9.1 did; the
   `FIRST-INSTALL`, `FIRST-TIME-SETUP` and `INSTALL-Windows-macOS-EN-FR` PDFs rebuilt with `tools/build_install_pdf.py`.
 - **Known open items for the author** (not build decisions): the launcher prompt on the Mac and on Windows (item 3), the
-  minisign public key (NV-086, status *no-key* until pinned), the CRGO `v0.11.1` tag and approval rows, the stand-alone
-  Writer repository sync (`--force` once), the Education slide screenshots (1.9.1), a native French read-through,
+  minisign public key (NV-086, status *no-key* until pinned), the CRGO `v0.11.1` tag and approval rows, the Education slide screenshots (1.9.1), a native French read-through,
   `claude plugin eval` with a model.
 
 ## Independent review fixes (lead's rules, 8 November 2026; `review-1.9.2.md`, branch `claude/192-review-fixes`)
