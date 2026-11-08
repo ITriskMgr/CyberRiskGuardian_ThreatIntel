@@ -1769,7 +1769,11 @@ The bundled **MITRE ATT&CK Enterprise v19.2** knowledge base — 697 techniques 
   CVEs to scenarios from here, pull those already linked in scenarios, or export the register.
 - **Import** — NVD CVE API 2.0 files and CVE JSON 5 records you downloaded (CVSS v4.0 Base vector
   and CWE are kept; v3.1-only records are flagged for rescoring), and scanner or CMDB CSV exports.
-  The app never queries an API with your CVE list.
+  The app never queries an API with your CVE list. Every record is validated before it is stored: a
+  CVE identifier of the right shape, a score within 0–10 (or none), a CVSS vector of the right shape
+  (or none), text fields capped at 300 characters; records that fail are skipped and counted, repaired
+  ones are counted too, and the reasons are listed under the summary. A file that cannot be read
+  (truncated, not JSON) is reported beside the summary, never hidden by it.
 - **CWE explorer** — the 2024 CWE Top 25 and search over 938 weaknesses; each weakness shows the
   ATT&CK techniques that exploit it and the scenarios and CVEs that carry it.
 - **CVE detail** — everything known locally about one CVE.
@@ -1933,7 +1937,9 @@ working, not a fault: the triage is only as good as what you have recorded.
 - **Sources & downloads.** Your accepted sources with key status, last download, item count and
   status. *Download ticked now* runs them through the helper; when done, the files are loaded and
   matched. *Load latest files* loads what the scheduled task downloaded. Files from elsewhere can be
-  loaded by hand.
+  loaded by hand. One bad record never discards a file: each record is read on its own, the ones that
+  cannot be read are skipped, and the *Loaded here* column shows, per source, how many records were
+  skipped and why, or that the file itself could not be read (malformed JSON or XML).
 - **Relevant to this organization.** Items scored by the terms of this workspace — exposed register
   CVEs weigh most, then IOCs on the watch list, assets' vendors, products and software, technologies
   in the profile, watch terms, scenario techniques, sector and region. Hover a score for the reasons.
@@ -2019,10 +2025,32 @@ register*. Each is placed on the **Threat Evidence Ladder**:
 
 **Proposed Pb(ψ,A) changes.** For each scenario that links an exposed CVE and whose Pb(ψ,A) sits
 below the CVE's band, the app proposes raising it to the **floor** of the band and shows the ratio
-before and after. Nothing changes until you accept: accepting writes a `threat_basis` entry on the
-scenario (evidence, snapshot date, exposure, confidence) and a line in the **revision log** —
-which scenario moved, by how much, and whether its tolerance classification changed because of the
-threat landscape rather than the organization.
+before and after. The join proposes **Pb(ψ,A) only**; Pb(A) stays your estimate, informed by the
+regional strategic sources the snapshot lists. Nothing changes until you accept: accepting writes a
+`threat_basis` entry on the scenario (evidence, snapshot date, exposure, confidence) and a line in the
+**revision log** — which scenario moved, by how much, and whether its tolerance classification
+changed because of the threat landscape rather than the organization.
+
+Three rules apply to the proposals:
+
+- **Exposure evidence comes from the vulnerability register**, not from the pasted list. A CVE marked
+  *Exposed* in the register, with its product or asset and source, is cited as the exposure evidence.
+  A CVE pasted here but absent from the register is **not** confirmed exposure: its proposal is left
+  unticked and labelled **Information gap — organizational validation required**; if you accept it
+  anyway, the marker is stored in the `threat_basis` entry so that a reviewer sees the gap.
+- **Choose a confidence for each proposal.** Nothing is preselected; *Accept selected* stays disabled
+  until every ticked proposal has one.
+- **An expired snapshot blocks the proposals** until you write a justification. The screen says, where
+  the decision is made, that the snapshot expired and how many days ago; the justification is stored
+  with each accepted change (`threat_basis.justification`) and in the workspace's journal of threat
+  justifications, and the Quality review fails QC-27 until the snapshot is refreshed. *Copy
+  threat_basis JSON* and the assessment export both say whether the snapshot was expired
+  (`expired`, `days_past_expiry`); no placeholder such as "TODO" is ever copied or stored —
+  a confidence not yet chosen is `null` with `confidence_required`.
+
+**A snapshot of the wrong shape is refused.** Opening a file that is not a `crg-threat-context/1`
+snapshot (dates, KEV and EPSS tables, sources) stores nothing and lists the problems. A malformed
+snapshot stored by an earlier release leaves the screen usable: it says so and offers **Clear**.
 
 The limits that cannot be configured away: intelligence calibrates Pb(A) and Pb(ψ,A) only, to a
 band, never δe, δm, θ or μ(E); without confirmed exposure it is watch-list context; CVSS stays
@@ -2527,8 +2555,10 @@ exceptions and the indicators, CRG-25 as CRGO's known configuration coverage) fo
 
 ### 7.5.8 Quality review {#qc}
 
-Eighteen checks to run before a report or a write-back leaves the analyst, each with *pass*, *attention* or
-*fail*, the detail, and a button to the screen that fixes it.
+The checks to run before a report or a write-back leaves the analyst, each with *pass*, *attention* or
+*fail*, the detail, and a button to the screen that fixes it. The first eighteen are listed below; QC-19 to QC-26
+(book v2.51 alignment: markers, valid inputs, CVSS vectors, equivalency, catalogues, screening, transfers, the
+teaching case's vectors) and QC-27 appear on the screen with their rule.
 
 | Check | What it verifies |
 |---|---|
@@ -2550,6 +2580,7 @@ Eighteen checks to run before a report or a write-back leaves the analyst, each 
 | QC-16 | No response action is presented as authorised without a valid approval (containment or destructive actions without one are listed as audit signals). |
 | QC-17 | TLP:RED and TLP:AMBER+STRICT material stays out of reports, recommendations, scenario rationales, communications and exports. |
 | QC-18 | Source confidence is never used as a probability (a likelihood rationale relying on a STIX, feed or indicator confidence fails). |
+| QC-27 | The threat-context snapshot behind the calibrated likelihoods is current: when `threat_basis` entries exist, a missing snapshot or one past its 90-day lifetime fails, with a button to Threat context (refresh the snapshot, re-run the exposure join). |
 
 A pass means the rule was not visibly broken in the data recorded here; the checks support a reviewer,
 they do not replace one.
@@ -3004,8 +3035,10 @@ user holding **A** (Accountable) on the Report step. Others can browse.
 3. **Anonymization** — **on by default**. Organization, people and asset names, e-mail, IP addresses,
    internal hosts and amounts are replaced; the region is kept at province or state level (or country —
    *Registry settings*) and the size as a band. Switching anonymization off asks for a second
-   confirmation, and the cards then say *not anonymized*. The screen lists any workspace term still
-   present, and shows the package itself before you share it.
+   confirmation, and the cards then say *not anonymized*. The screen applies the same rules as Publish
+   & share (section 7.9.5) — including your *Additional terms to replace* —, reports any term of the
+   replacement table still present and the name-like terms no replacement covers, and shows the package
+   itself before you share it.
 4. **Share** — **Share to the registry** writes the package into the shared folder (or the outbox);
    **Download the package** gives you the file.
 
@@ -3027,13 +3060,40 @@ tick *Moderated cards only* see exactly that set.
 **Publish & share** publishes the **whole** risk register and scenario registry of
 the workspace as one package (`crg-registry/1`), for management, auditors or a partner. Choose the
 content (risk register with threats and vulnerabilities, scenario registry, measures), the scope and the
-format (JSON, Markdown, CSV). **Anonymize this package** replaces the organization's names, people's
-names, asset and host names, IP addresses, internal URLs and domains, e-mails, phone numbers and postal
-codes, turns amounts into ranges, and optionally truncates dates, drops free text and replaces your own
-list of terms; ATT&CK, CWE, CVE and control identifiers and the parameters are kept. Read the preview: a
-banner lists any workspace term still present. Then **Download**, **Copy** or **Publish to the shared
-registry**. Each publication is logged; the re-identification table stays in the workspace and is never
-published. **Import a shared registry** reuses others' scenarios as a library — imported scenarios are
+format (JSON, Markdown, CSV). **Anonymize this package** replaces the organization's names and
+acronyms, people's names, asset and host names, IP addresses (v4 and v6), MAC addresses, internal URLs,
+domains, NetBIOS names and UNC paths, e-mails, phone numbers, postal codes, file, employee and ticket
+numbers, user names and project code names, turns amounts into ranges, and optionally truncates dates,
+drops free text and replaces your own list of terms; ATT&CK, CWE, CVE and control identifiers and the
+parameters are kept.
+
+**Every value of a people field is treated as a person, whatever its shape** — "Mary O'Brien",
+"Dr. Paul Leduc", "Jean Tremblay (CISO)", a lower-case name — for owners and custodians of risks,
+scenarios, measures, assets, KRIs and recommendations, approvers, acceptors, classroom members and the
+application's users; the user names derived from a name (sophie.gagnon, sgagnon) are replaced too.
+People named in free text are replaced when a cue identifies them (a title, a role in brackets, "led
+by", "interview with"…). E-mail addresses and host names are replaced before any name, so a local part
+or a host label can never survive a partial replacement.
+
+**Read the preview.** Three banners are possible:
+
+- **No known identifying term found** — nothing from the replacement table remains and no
+  unattributed name-like term was found. Read the preview anyway: free text can identify an organization
+  indirectly.
+- **Check these before publishing** — the package still holds **name-like terms** (capitalized pairs
+  such as a supplier, a site or a person no field names) or **acronyms** the application does not
+  recognize. Each is a button: one click adds it to **Additional terms to replace**; *Replace all of
+  these* adds them all. A term that identifies nothing can stay.
+- **Identifying terms remain in the package** — a term of the replacement table itself is still present
+  (for example a spelling your own replacement reintroduced). Download, Copy and Publish then ask you to
+  confirm; the publication log records the residual terms.
+
+The **Additional terms to replace** belong to the workspace and are shared with the Risk Registry
+contribution (section 7.9) and with the AI payload anonymizer (*Anonymize before sending*, Settings → AI — local & remote),
+which uses the same rules. Then **Download**, **Copy** or **Publish to the shared registry**. Each
+publication is logged; the re-identification table stays in the workspace and is never published.
+Publishing writes only files with the application's own name prefixes, into the shared folder or the
+outbox, and never replaces a file the application did not create. **Import a shared registry** reuses others' scenarios as a library — imported scenarios are
 excluded from the calculator until you review them. The Risk Registry reads these packages too.
 
 ### 7.9.6 Registry settings

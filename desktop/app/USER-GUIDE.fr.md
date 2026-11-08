@@ -1969,7 +1969,12 @@ et 44 mesures d'atténuation — liée aux modèles d'attaque **CAPEC v3.9** et 
 - **Importer** — les fichiers de l'API CVE 2.0 de NVD et les fiches CVE JSON 5 que vous avez
   téléchargés (le vecteur de base CVSS v4.0 et la CWE sont conservés ; les fiches uniquement en v3.1
   sont signalées pour une nouvelle cotation), ainsi que les exportations CSV de balayeurs ou de CMDB.
-  L'application n'interroge jamais une API avec votre liste de CVE.
+  L'application n'interroge jamais une API avec votre liste de CVE. Chaque enregistrement est validé
+  avant d'être stocké : un identifiant CVE de la bonne forme, un score compris entre 0 et 10 (ou aucun),
+  un vecteur CVSS de la bonne forme (ou aucun), des champs de texte plafonnés à 300 caractères ; les
+  enregistrements rejetés sont ignorés et comptés, les enregistrements réparés aussi, et les raisons sont
+  énumérées sous le sommaire. Un fichier illisible (tronqué, non JSON) est signalé à côté du sommaire,
+  jamais masqué par lui.
 - **Explorateur CWE** — le Top 25 CWE 2024 et une recherche parmi 938 faiblesses ; chaque faiblesse
   affiche les techniques ATT&CK qui l'exploitent ainsi que les scénarios et les CVE qui la comportent.
 - **Détail de la CVE** — tout ce qui est connu localement au sujet d'une CVE.
@@ -2152,7 +2157,10 @@ vaut que ce que vous avez consigné.
   téléchargement, le nombre d'éléments et l'état. *Télécharger maintenant les éléments cochés* les
   exécute au moyen de l'assistant local ; une fois terminé, les fichiers sont chargés et mis en
   correspondance. *Charger les fichiers les plus récents* charge ce que la tâche planifiée a téléchargé.
-  Les fichiers provenant d'ailleurs peuvent être chargés manuellement.
+  Les fichiers provenant d'ailleurs peuvent être chargés manuellement. Un mauvais enregistrement ne fait
+  jamais rejeter un fichier : chaque enregistrement est lu séparément, ceux qui ne peuvent pas être lus sont
+  ignorés, et la colonne *Chargé ici* indique, par source, combien d'enregistrements ont été ignorés et
+  pourquoi, ou que le fichier lui-même n'a pas pu être lu (JSON ou XML malformé).
 - **Pertinent pour cette organisation.** Éléments notés selon les termes de cet espace de travail — les
   CVE exposées du registre pèsent le plus, puis les IOC de la liste de surveillance, les fournisseurs,
   produits et logiciels des actifs, les technologies du profil, les termes surveillés, les techniques
@@ -2248,11 +2256,36 @@ incidents.
 
 **Changements proposés de Pb(ψ,A).** Pour chaque scénario lié à une CVE exposée et dont la valeur
 Pb(ψ,A) se situe sous la fourchette de la CVE, l'application propose de la relever au **plancher** de
-la fourchette et affiche le ratio avant et après. Rien ne change tant que vous n'acceptez pas :
-l'acceptation inscrit une entrée `threat_basis` dans le scénario (preuve, date de l'instantané,
-exposition, confiance) et une ligne dans le **journal des révisions** — quel scénario a changé, de
-combien, et si son classement par rapport à la tolérance a changé en raison du paysage des menaces
-plutôt que de l'organisation.
+la fourchette et affiche le ratio avant et après. La jointure propose **Pb(ψ,A) seulement** ; Pb(A)
+reste votre estimation, éclairée par les sources stratégiques régionales que l'instantané énumère.
+Rien ne change tant que vous n'acceptez pas : l'acceptation inscrit une entrée `threat_basis` dans le
+scénario (élément probant, date de l'instantané, exposition, confiance) et une ligne dans le **journal
+des révisions** — quel scénario a changé, de combien, et si son classement par rapport à la tolérance a
+changé en raison du paysage des menaces plutôt que de l'organisation.
+
+Trois règles s'appliquent aux propositions :
+
+- **La preuve d'exposition vient du registre des vulnérabilités**, pas de la liste collée. Une CVE
+  marquée *Exposée* dans le registre, avec son produit ou son actif et sa source, est citée comme preuve
+  d'exposition. Une CVE collée ici mais absente du registre n'est **pas** une exposition confirmée : sa
+  proposition reste décochée et porte le marqueur **Lacune d'information — validation organisationnelle
+  requise** ; si vous l'acceptez malgré tout, le marqueur est conservé dans l'entrée `threat_basis` pour
+  qu'un réviseur voie la lacune.
+- **Choisissez une confiance pour chaque proposition.** Rien n'est présélectionné ; *Accepter la
+  sélection* reste désactivé tant que chaque proposition cochée n'en a pas une.
+- **Un instantané périmé bloque les propositions** jusqu'à ce que vous écriviez une justification.
+  L'écran dit, à l'endroit où la décision se prend, que l'instantané est périmé et depuis combien de
+  jours ; la justification est conservée avec chaque changement accepté (`threat_basis.justification`) et
+  dans le journal des justifications de menace de l'espace de travail, et la revue de qualité échoue au
+  contrôle QC-27 tant que l'instantané n'est pas rafraîchi. *Copier le JSON threat_basis* et l'export de
+  l'évaluation indiquent tous deux si l'instantané était périmé (`expired`, `days_past_expiry`) ; aucun
+  substitut tel que « TODO » n'est jamais copié ni stocké — une confiance non encore choisie vaut `null`
+  avec `confidence_required`.
+
+**Un instantané de la mauvaise forme est refusé.** Ouvrir un fichier qui n'est pas un instantané
+`crg-threat-context/1` (dates, tables KEV et EPSS, sources) ne stocke rien et énumère les problèmes. Un
+instantané malformé stocké par une version antérieure laisse l'écran utilisable : il le dit et offre
+**Effacer**.
 
 Les limites qu'aucun paramétrage ne peut lever : le renseignement étalonne seulement Pb(A) et Pb(ψ,A),
 à une fourchette, jamais δe, δm, θ ou μ(E) ; sans exposition confirmée, il ne constitue qu'un contexte de
@@ -2822,8 +2855,11 @@ connue de CRGO) suit CRGO 0.11.
 
 ### 7.5.8 Revue de qualité {#qc}
 
-Dix-huit vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte l'analyste, chacune avec
-*réussi*, *à surveiller* ou *échec*, le détail, et un bouton menant à l'écran qui permet la correction.
+Les vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte l'analyste, chacune avec
+*réussi*, *à surveiller* ou *échec*, le détail, et un bouton menant à l'écran qui permet la correction. Les dix-huit
+premières sont énumérées ci-dessous ; QC-19 à QC-26 (alignement sur le livre v2.51 : marqueurs, entrées valides,
+vecteurs CVSS, équivalence, catalogues, présélection, transferts, vecteurs du cas pédagogique) et QC-27 apparaissent
+à l'écran avec leur règle.
 
 | Vérification | Ce qu'elle vérifie |
 |---|---|
@@ -2845,6 +2881,7 @@ Dix-huit vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte 
 | QC-16 | Aucune action d'intervention n'est présentée comme autorisée sans approbation valide (les actions de confinement ou destructrices qui n'en ont pas sont énumérées comme signaux d'audit). |
 | QC-17 | Les éléments TLP:RED et TLP:AMBER+STRICT restent hors des rapports, des recommandations, des justifications de scénarios, des communications et des exportations. |
 | QC-18 | La confiance d'une source n'est jamais utilisée comme probabilité (une justification de vraisemblance qui s'appuie sur la confiance d'un objet STIX, d'un flux ou d'un indicateur échoue). |
+| QC-27 | L'instantané du contexte de menace derrière les probabilités calibrées est à jour : lorsque des entrées `threat_basis` existent, un instantané absent ou au-delà de sa durée de vie de 90 jours échoue, avec un bouton vers Contexte de menace (rafraîchir l'instantané, relancer la jointure d'exposition). |
 
 Une réussite signifie que la règle n'a pas été visiblement enfreinte dans les données consignées ici ;
 les vérifications appuient un réviseur, elles ne le remplacent pas.
@@ -3374,8 +3411,10 @@ l'étape Rapport. Les autres peuvent parcourir.
    les adresses de courriel, les adresses IP, les hôtes internes et les montants sont remplacés ; la
    région est conservée au niveau de la province ou de l'État (ou du pays — *Paramètres du registre*)
    et la taille sous forme de tranche. La désactivation de l'anonymisation demande une deuxième
-   confirmation, et les fiches portent alors la mention *non anonymisée*. L'écran énumère tout terme de
-   l'espace de travail encore présent et affiche le paquet lui-même avant que vous le partagiez.
+   confirmation, et les fiches portent alors la mention *non anonymisée*. L'écran applique les mêmes
+   règles que Publier et partager (section 7.9.5) — y compris vos *Termes supplémentaires à remplacer* —,
+   signale tout terme de la table de remplacement encore présent et les termes ressemblant à des noms
+   qu'aucun remplacement ne couvre, et affiche le paquet lui-même avant que vous le partagiez.
 4. **Partager** — **Partager dans le registre** écrit le paquet dans le dossier partagé (ou la boîte
    d'envoi) ; **Télécharger le paquet** vous remet le fichier.
 
@@ -3400,14 +3439,45 @@ exactement cet ensemble.
 l'espace de travail en un seul paquet (`crg-registry/1`), à l'intention de la direction, des auditeurs
 ou d'un partenaire. Choisissez le contenu (registre des risques avec menaces et vulnérabilités, registre
 des scénarios, mesures), la portée et le format (JSON, Markdown, CSV). **Anonymiser ce paquet** remplace
-les noms de l'organisation, les noms des personnes, les noms d'actifs et d'hôtes, les adresses IP, les
-URL et domaines internes, les adresses de courriel, les numéros de téléphone et les codes postaux,
-transforme les montants en fourchettes et, au besoin, tronque les dates, supprime le texte libre et
-remplace votre propre liste de termes ; les identifiants ATT&CK, CWE, CVE et de contrôles ainsi que les
-paramètres sont conservés. Lisez l'aperçu : un bandeau énumère tout terme de l'espace de travail encore
-présent. Ensuite, choisissez **Télécharger**, **Copier** ou **Publier dans le registre partagé**.
-Chaque publication est journalisée ; la table de réidentification reste dans l'espace de travail et
-n'est jamais publiée. **Importer un registre partagé** réutilise les scénarios d'autres organisations
+les noms et acronymes de l'organisation, les noms des personnes, les noms d'actifs et d'hôtes, les
+adresses IP (v4 et v6), les adresses MAC, les URL et domaines internes, les noms NetBIOS et les chemins
+UNC, les adresses de courriel, les numéros de téléphone, les codes postaux, les numéros de dossier,
+d'employé et de billet, les noms d'utilisateur et les noms de code de projets, transforme les montants en
+fourchettes et, au besoin, tronque les dates, supprime le texte libre et remplace votre propre liste de
+termes ; les identifiants ATT&CK, CWE, CVE et de contrôles ainsi que les paramètres sont conservés.
+
+**Chaque valeur d'un champ de personne est traitée comme une personne, quelle que soit sa forme** —
+« Mary O'Brien », « Dr. Paul Leduc », « Jean Tremblay (CISO) », un nom en minuscules — pour les
+responsables et dépositaires des risques, des scénarios, des mesures, des actifs, des KRI et des
+recommandations, les approbateurs, les personnes qui acceptent un risque, les membres d'un groupe-classe
+et les utilisateurs de l'application ; les noms d'utilisateur dérivés d'un nom (sophie.gagnon, sgagnon)
+sont aussi remplacés. Les personnes nommées dans le texte libre sont remplacées lorsqu'un indice les
+identifie (un titre, un rôle entre parenthèses, « dirigé par », « entrevue avec »…). Les adresses de
+courriel et les noms d'hôtes sont remplacés avant tout nom, de sorte qu'une partie locale ou une
+étiquette d'hôte ne peut jamais survivre à un remplacement partiel.
+
+**Lisez l'aperçu.** Trois bandeaux sont possibles :
+
+- **Aucun terme d'identification connu trouvé** — rien de la table de remplacement ne subsiste et aucun
+  terme ressemblant à un nom non attribué n'a été trouvé. Lisez tout de même l'aperçu : le texte libre
+  peut identifier une organisation indirectement.
+- **Vérifiez ces éléments avant de publier** — le paquet contient encore des **termes ressemblant à des
+  noms** (paires de mots à majuscule, comme un fournisseur, un site ou une personne qu'aucun champ ne
+  nomme) ou des **acronymes** que l'application ne reconnaît pas. Chacun est un bouton : un clic
+  l'ajoute aux **Termes supplémentaires à remplacer** ; *Remplacer tous ceux-ci* les ajoute tous. Un terme
+  qui n'identifie rien peut rester.
+- **Des termes identifiants subsistent dans le paquet** — un terme de la table de remplacement elle-même
+  est encore présent (par exemple une graphie que votre propre remplacement a réintroduite). Télécharger,
+  Copier et Publier demandent alors une confirmation ; le journal des publications consigne les termes
+  résiduels.
+
+Les **Termes supplémentaires à remplacer** appartiennent à l'espace de travail et sont partagés avec la
+contribution au Registre partagé des risques (section 7.9) et avec l'anonymiseur des charges utiles IA
+(*Anonymiser avant l'envoi*, Paramètres → IA — locale et distante), qui applique les mêmes règles. Ensuite, choisissez
+**Télécharger**, **Copier** ou **Publier dans le registre partagé**. Chaque publication est
+journalisée ; la table de réidentification reste dans l'espace de travail et n'est jamais publiée. La
+publication n'écrit que des fichiers portant les préfixes de nom de l'application, dans le dossier
+partagé ou la boîte d'envoi, et ne remplace jamais un fichier que l'application n'a pas créé. **Importer un registre partagé** réutilise les scénarios d'autres organisations
 comme bibliothèque — les scénarios importés sont exclus du calculateur jusqu'à ce que vous les ayez
 examinés. Le Registre partagé des risques lit aussi ces paquets.
 
