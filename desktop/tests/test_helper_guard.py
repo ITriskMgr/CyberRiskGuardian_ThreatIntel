@@ -351,7 +351,7 @@ class WriterEngine(unittest.TestCase):
         self.assertEqual(A.op_answer({"code": "PARAM-PWD-ROTATION", "value": "90", "status": "answered"})["param"], True)
         with self.assertRaises(A.ApiError):
             A.op_answer({"code": "PARAM-PWD-ROTATION", "value": " ", "status": "answered"})
-        self.assertEqual(A.op_meta({})["crgo"], "v0.11.0")
+        self.assertEqual(A.op_meta({})["crgo"], "v0.11.1")
         self.assertEqual(A.op_meta({})["version"], "0.1.1")
         self.assertIn("ai_text", A.OPS)
 

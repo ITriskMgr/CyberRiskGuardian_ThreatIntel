@@ -1,7 +1,7 @@
 /* CyberRiskGuardian Desktop — offline cache. Bump CACHE when any file changes.
    Network-first since 1.1.1: when the app is being served, the served files always win, so a new
    version shows at once; the cache is used only when no server is running (installed app offline). */
-const CACHE = "crg-desktop-1.9.1";
+const CACHE = "crg-desktop-1.9.2";
 const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.js", "sample.js", "medibec.js", "kb.js",
   "canaretail.js", "medibec-fr.js",
   "js/app.js", "js/version.js", "js/nav.js", "js/util.js", "js/store.js", "js/state.js", "js/ontology.js", "js/picker.js", "js/extract.js", "js/snapgen.js",

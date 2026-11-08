@@ -1,6 +1,6 @@
 # Publier CyberRiskGuardian with Threat Live-feed
 
-Édition dérivée de CyberRiskGuardian v1.1.0 (devenu l’édition Core, plugiciel Core 2.2.0 en novembre 2026). Dépôt cible :
+Édition dérivée de CyberRiskGuardian v1.1.0 (devenu l’édition Core, plugiciel Core 2.2.1 en novembre 2026). Dépôt cible :
 **https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel**
 
 ## 1. Avant le premier push
@@ -22,10 +22,10 @@
            examples/medibec/source/medibec30.json      # doit afficher 84 305 / 41 023
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crg_calc.py   # ALL PASSED
    ```
-   Avec une copie de CRGO 0.11.0 (étiquette v0.11.0 ; v0.9.1 suffit pour dss/v1) :
+   Avec une copie de CRGO 0.11.1 (étiquette v0.11.1 ; v0.9.1 suffit pour dss/v1) :
    ```bash
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crgo_contract.py \
-           --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.0}   # tous les contrôles doivent passer
+           --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.1}   # tous les contrôles doivent passer
    ```
 4. Vérifiez qu'aucun appel réseau n'existe dans le chemin de calcul (voir `BOOTSTRAP.md`).
 5. `bash scripts/sync-project-config.sh`
@@ -37,7 +37,7 @@ Le dépôt est déjà initialisé avec un premier commit et le remote configuré
 ```bash
 git branch -M main
 git push -u origin main
-git tag v1.7.0          # version du plugiciel (plugin.json = marketplace.json)
+git tag v1.7.2          # version du plugiciel (plugin.json = marketplace.json)
 git push --tags
 ```
 

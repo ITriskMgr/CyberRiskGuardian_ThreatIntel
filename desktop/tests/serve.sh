@@ -14,7 +14,7 @@ export CRG_KEYS_DIR="${CRG_KEYS_DIR:-$TMPD/keys}"
 # Canned AI answers: the helper reads (and writes _last.json into) a scratch copy, never the repository's mock/.
 MOCK_SRC="${CRG_AI_MOCK_SRC:-$HERE/mock}"
 export CRG_AI_MOCK="${CRG_AI_MOCK:-$TMPD/mock}"
-export CRGO_HOME="${CRGO_HOME:-$HERE/../../CyberRiskGuardian-Ontology-0.11.0}"
+export CRGO_HOME="${CRGO_HOME:-$HERE/../../CyberRiskGuardian-Ontology-0.11.1}"
 LOG="${CRG_SERVE_LOG:-$TMPD/serve-$PORT.log}"
 mkdir -p "$TMPD" "$CRG_FEEDS_DIR" "$CRG_ORG_DIR" "$CRG_AI_MOCK"
 if [ "$(cd "$CRG_AI_MOCK" && pwd)" = "$(cd "$MOCK_SRC" && pwd)" ]; then

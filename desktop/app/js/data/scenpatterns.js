@@ -17,7 +17,7 @@ export const CRGO_NS = 'https://w3id.org/crgo/';
 /** CRGO 0.11.0 terms: the class of the patterns and the property that links a scenario to one. */
 export const SCENARIO_PATTERN = 'CRGO_0001387';
 export const HAS_SCENARIO_PATTERN = 'CRGO_0001478';
-export const RELEASE = '0.11.0';
+export const RELEASE = '0.11.1';   // 1.9.2: bundled release; the six patterns are unchanged since 0.11.0
 export const STATUS = 'approved';
 
 /** The six patterns: CRGO identifier, CRGO key, English name (French in i18n), CRGO themes, textbook chapter,

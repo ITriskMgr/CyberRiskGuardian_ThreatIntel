@@ -58,10 +58,10 @@ plugin ships no credentials and retrieves nothing from them.
 
 ## CyberRiskGuardian Ontology (CRGO)
 The plugin can connect to the **CyberRiskGuardian Ontology** (CRGO), © 2026 Marc-André Léger, CC BY-NC 4.0
-(https://github.com/ITriskMgr/CyberRiskGuardian-Ontology), release **0.11.0** (tag `v0.11.0`). CRGO is a separate
+(https://github.com/ITriskMgr/CyberRiskGuardian-Ontology), release **0.11.1** (tag `v0.11.1`). CRGO is a separate
 work and is not redistributed here; its imports and vocabularies keep their own licences as stated in CRGO's
 `NOTICE.md`. Licensed standards (IIA, ISACA, AICPA, COSO, ISO) appear only as identifiers, official headings and
-paraphrases. Suggested citation: "CyberRiskGuardian Ontology (CRGO) v0.11.0, Marc-André Léger, CC BY-NC 4.0."
+paraphrases. Suggested citation: "CyberRiskGuardian Ontology (CRGO) v0.11.1, Marc-André Léger, CC BY-NC 4.0."
 
 ## Software dependencies
 `cvss`, `openpyxl`, `mcp` (optionally `pyoxigraph`, `rdflib`, `jsonschema` for CRGO), `docx` (npm) and LibreOffice

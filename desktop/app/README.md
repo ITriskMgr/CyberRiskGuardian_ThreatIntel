@@ -8,10 +8,10 @@ treatment options; track **KRIs over time**; position funding choices on the ris
 risk-seeking budget band; and export the assessment to **Excel** with live formulas. Around the
 assessment: policy, compliance and audit management, the **Security Policy Writer** (it drafts the policy
 set in English and French for ISP management to manage), a local SIEM and SOAR fed by files, the
-**CyberRiskGuardian Ontology** (CRGO 0.11.0), a shared **Risk Registry**, and a pack that turns the KRI
+**CyberRiskGuardian Ontology** (CRGO 0.11.1), a shared **Risk Registry**, and a pack that turns the KRI
 dashboard into a **Claude Dashboard** on claude.ai.
 
-**Version 1.9.0 Beta (1.9.x).** For teaching, exploration and method validation; validate every result
+**Version 1.9.2 Beta (1.9.x).** For teaching, exploration and method validation; validate every result
 before it supports a real decision.
 
 **Markers.** Every output follows the book's evidence discipline: provisional values carry *Analytical estimate —
@@ -39,7 +39,7 @@ extraction may also ask Claude to **search the web** for missing profile items; 
 extraction dialog. The SIEM and SOAR have **no live connector**: they read files you import. Nothing is sent
 automatically, on a schedule, or in the background, and no network call sits in the calculation path.
 
-© 2026 Marc-André Léger. Proprietary licence, free for students and non-profit organisations. Version 1.9.0 Beta (1.9.x) — see `CHANGELOG.md`.
+© 2026 Marc-André Léger. Proprietary licence, free for students and non-profit organisations. Version 1.9.2 Beta (1.9.x) — see `CHANGELOG.md`.
 Who may use it without asking and whose situation needs a commercial licence: Help → About & versions → Licence in the
 application.
 Project: https://github.com/ITriskMgr/CyberRiskGuardian · https://www.leger.ca
@@ -94,7 +94,7 @@ arrangement as the mobile app.
 
 **The ontology (optional).** The application ships with a snapshot of CRGO. To use the ontology's own MCP
 server — organisation context, write-back as proposals, compliance and security-operations contexts — clone
-CRGO 0.11.0 beside the application (v0.10.0 or later works; the 0.11 terms then stay absent) (`CyberRiskGuardian-Ontology*` folders are found newest first) or register
+CRGO 0.11.1 beside the application (v0.10.0 or later works; the 0.11 terms then stay absent) (`CyberRiskGuardian-Ontology*` folders are found newest first) or register
 it in Claude as `crgo-ontology`. `INSTALL.md` section 5.3.
 
 See `USER-GUIDE.md` for the full walkthrough, first-run verification and troubleshooting.
@@ -113,7 +113,7 @@ links to its section of the user guide.
 | Organization | **Organization profile** | Workspaces (with several Word/PDF documents imported at creation, or started from one of the four bundled teaching examples: MediBec and CanaRetail, in English and in French); profile, obligations, crown jewels, appetite and budget; classroom setting; context documents with local text extraction and keyword hints; **Import from documents** — add documents at any time and extract the profile, the crown jewels and fourteen other targets from them alone (step 1); evidence. |
 | | **Information assets** | Inventory linked to scenarios and risks; discovery imports and drop folder; software and data; classification and criticality; BIA; dynamic risk; vulnerability and configuration correlation; endpoint status; dependency graph and blast radius; lifecycle; audit trail; asset compliance. |
 | | **Maturity & resilience** | NIST CSF 2.0 maturity — six functions, 22 categories, scored 0–5 against a target — and an eighteen-question resilience instrument on the six capabilities θ is defined as; the two readings of θ shown with the gap named; dated history; the scenario count the measured level suggests. |
-| | **Ontology · CRGO** | Scenarios suggested from the ontology for the organization, controls by technique and scenarios by control; the **organisation link**: organisation graph, context of a scenario, write-back of results as proposals (dss/v1), and the compliance and security-operations contexts (compliance/v1, secops/v1, CRGO v0.10.0 or later); **Connection** names the CRGO release (0.11.0, approved) and its additions. |
+| | **Ontology · CRGO** | Scenarios suggested from the ontology for the organization, controls by technique and scenarios by control; the **organisation link**: organisation graph, context of a scenario, write-back of results as proposals (dss/v1), and the compliance and security-operations contexts (compliance/v1, secops/v1, CRGO v0.10.0 or later); **Connection** names the CRGO release (0.11.1, approved) and its additions. |
 | | **Reset data** | Put a teaching case back to its starting point, handing step 2 (context and crown jewels) back to the student, or — as an administrator — reset a workspace at one of four depths or delete it, with what would go counted before you confirm. |
 | Risk assessment | **Evidence register** | The sources of the assessment numbered E1, E2…, typed documented / exercise / SME input / external, with strength and where each is cited. |
 | | **KRI dashboard** | Top 5 indicators by default (worst first), gauges with thresholds, search and multi-select, recorded measurements, trends and charts. |

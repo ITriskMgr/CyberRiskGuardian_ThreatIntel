@@ -41,7 +41,7 @@ ok(tabs.length === 8 && /Word export/.test(tabs[7]), 'eight Writer steps: ' + ta
 const about = await page.textContent('#panel-writer');
 R.aboutCrgo = (about.match(/CRGO\s+(v?[\d.]+)/) || [])[1];
 ok(/28 documents, 606 clauses/.test(about), '28 documents, 606 clauses shown');
-ok(R.aboutCrgo === 'v0.11.0', 'NV-W06: About shows the CRGO release of the bundled snapshot (v0.11.0): ' + R.aboutCrgo);
+ok(R.aboutCrgo === 'v0.11.1', 'NV-W06: About shows the CRGO release of the bundled snapshot (v0.11.1): ' + R.aboutCrgo);
 ok(/0\.1\.1 beta/.test(about), 'Writer 0.1.1 beta shown');
 await page.selectOption('#panel-writer select >> nth=0', 'en,fr'); await page.waitForTimeout(300);
 const langs = await page.evaluate(async () => { const w = (await import('/js/writer.js')).W(); return { l: w.languages, org10: w.answers['ORG-10']?.value }; });

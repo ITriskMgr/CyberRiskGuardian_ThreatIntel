@@ -1,4 +1,4 @@
-# CyberRiskGuardian Desktop 1.9.1 Beta — First-time setup
+# CyberRiskGuardian Desktop 1.9.2 Beta — First-time setup
 
 **English below · [Français plus bas](#français)**
 
