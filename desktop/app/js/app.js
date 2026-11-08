@@ -97,6 +97,7 @@ function selfCheck() {
     const r = CRG.run(CRG_SAMPLE);
     const est = Math.round(r.totals.est), res = Math.round(r.totals.res);
     if (est === EXPECTED.est && res === EXPECTED.res) {
+      ENGINE.totals = { est, res };   // 1.9.2 (X-6): the footer re-formats them in the interface locale (drawFoot)
       state.textContent = `engine verified · ${n0(est)} / ${n0(res)}`;
       return casesCheck(state, out);
     }
@@ -130,7 +131,7 @@ function casesCheck(state, out) {
       err || `Expected ${n0(exp.est)} / ${n0(exp.res)}, got ${n0(est)} / ${n0(res)}. Reinstall the application; do not rely on that example until it matches again.`));
     return false;
   }
-  if (self.CRG_CANARETAIL) state.textContent += ` · CanaRetail ${n0(EXPECTED_CANARETAIL.est)} / ${n0(EXPECTED_CANARETAIL.res)}`;
+  if (self.CRG_CANARETAIL) { state.textContent += ` · CanaRetail ${n0(EXPECTED_CANARETAIL.est)} / ${n0(EXPECTED_CANARETAIL.res)}`; if (ENGINE.totals) ENGINE.totals.canaretail = { ...EXPECTED_CANARETAIL }; }
   return true;
 }
 
@@ -309,7 +310,12 @@ function drawFoot() {
   short.replaceChildren(el('span', { 'aria-hidden': 'true' }, { good: '✓ ', unverified: '◻ ', bad: '✗ ' }[state]),
     el('span', null, i18n.tr({ good: 'Engine verified', unverified: 'Engine unverified', bad: 'Engine check failed' }[state])));
   short.classList.toggle('bad', state === 'bad'); short.classList.toggle('unverified', state === 'unverified');
-  const foot = $('nav-foot'), shown = i18n.tr(full);
+  /* 1.9.2 (X-6, NV-040 "engine status") — the totals follow the interface locale: « moteur vérifié · 84 305 / 41 023 » */
+  if (state === 'good' && ENGINE.totals) {
+    const t = ENGINE.totals;
+    $('engine-state').textContent = `engine verified · ${n0(t.est)} / ${n0(t.res)}` + (t.canaretail ? ` · CanaRetail ${n0(t.canaretail.est)} / ${n0(t.canaretail.res)}` : '');
+  }
+  const foot = $('nav-foot'), shown = i18n.tr($('engine-state').textContent);
   $('foot-version').textContent = FOOT_VERSION;
   foot.title = `v${VERSION_LABEL} · © 2026 Marc-André Léger — ${shown}`;
   foot.setAttribute('aria-label', i18n.tr('© 2026 Marc-André Léger · {0} · {1} · About & versions').replace('{0}', FOOT_VERSION).replace('{1}', shown));

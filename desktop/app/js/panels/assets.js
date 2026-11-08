@@ -300,12 +300,12 @@ function vulns(body, sec, scored) {
   }
   // endpoint & configuration
   const ep = scored.filter(x => ['hardware', 'server', 'network', 'cloud', 'iot'].includes(x.a.type));
-  const pct = (xs, f) => xs.length ? Math.round(100 * xs.filter(f).length / xs.length) + '%' : '—';
+  const share = (xs, f) => xs.length ? pct(xs.filter(f).length / xs.length, 0) : '—';
   const epOnly = ep.filter(x => ['hardware', 'server'].includes(x.a.type));
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Endpoint security status and configuration baselines'),
-    el('div', 'grid g5', kpi('EDR', pct(epOnly, x => x.a.endpoint?.edr === true), `${epOnly.filter(x => x.a.endpoint?.edr === false).length} without`), kpi('Disk encryption', pct(epOnly, x => x.a.endpoint?.disk_enc === true)),
-      kpi('Patched ≤ 60 days', pct(epOnly, x => x.a.endpoint?.last_patch && (Date.now() - new Date(x.a.endpoint.last_patch)) / 864e5 <= 60)),
-      kpi('Baseline compliant', pct(ep, x => x.a.baseline?.status === 'compliant'), `${ep.filter(x => x.a.baseline?.status === 'drift').length} in drift`),
+    el('div', 'grid g5', kpi('EDR', share(epOnly, x => x.a.endpoint?.edr === true), `${epOnly.filter(x => x.a.endpoint?.edr === false).length} without`), kpi('Disk encryption', share(epOnly, x => x.a.endpoint?.disk_enc === true)),
+      kpi('Patched ≤ 60 days', share(epOnly, x => x.a.endpoint?.last_patch && (Date.now() - new Date(x.a.endpoint.last_patch)) / 864e5 <= 60)),
+      kpi('Baseline compliant', share(ep, x => x.a.baseline?.status === 'compliant'), `${ep.filter(x => x.a.baseline?.status === 'drift').length} in drift`),
       kpi('Past end of support', n0(ep.filter(x => (x.a.lifecycle?.eos || x.a.lifecycle?.eol || '9999') < today()).length), '', ep.some(x => (x.a.lifecycle?.eos || '9999') < today()) ? 'bad' : '')),
     ep.length ? el('div', 'tablewrap', { style: { marginTop: '10px' } }, table([{ key: 'a', label: 'Asset', render: x => x.a.id + ' ' + x.a.name }, { key: 'os', label: 'OS', render: x => x.a.os || '' },
       { key: 'edr', label: 'EDR', render: x => x.a.endpoint?.edr === true ? pill('yes', 'good') : x.a.endpoint?.edr === false ? pill('no', 'bad') : '?' },
@@ -397,10 +397,10 @@ function audit(body) {
 function compliance(body, sec) {
   const ws = S.ws, rep = X.complianceReport(ws);
   const md = () => ['# Asset compliance report — ' + (ws.org.name || ws.name), '', `Generated ${today()} · ${ws.assets.length} assets`, '', '| Check | Controls | Applicable | Pass | % | Failing assets |', '|---|---|---|---|---|---|',
-    ...rep.map(c => `| ${c.id} ${c.name} | ${c.ctl} | ${c.applicable} | ${c.pass} | ${c.pct === null ? '—' : Math.round(c.pct * 100) + '%'} | ${c.fail.map(a => a.id).join(', ')} |`)].join('\n');
+    ...rep.map(c => `| ${c.id} ${c.name} | ${c.ctl} | ${c.applicable} | ${c.pass} | ${c.pct === null ? '—' : pct(c.pct, 0)} | ${c.fail.map(a => a.id).join(', ')} |`)].join('\n');
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Asset compliance checks'),
     el('div', 'tablewrap', table([{ key: 'id', label: 'Check', render: c => el('span', null, el('b', 'mono', c.id), ' ', c.name) }, { key: 'ctl', label: 'Controls' }, { key: 'applicable', label: 'Applicable', num: true },
-      { key: 'pct', label: 'Pass', num: true, render: c => c.pct === null ? '—' : el('span', null, `${c.pass} · `, pill(Math.round(c.pct * 100) + '%', c.pct >= 0.95 ? 'good' : c.pct >= 0.8 ? 'warn' : 'bad')), sort: c => c.pct ?? 2 },
+      { key: 'pct', label: 'Pass', num: true, render: c => c.pct === null ? '—' : el('span', null, `${c.pass} · `, pill(pct(c.pct, 0), c.pct >= 0.95 ? 'good' : c.pct >= 0.8 ? 'warn' : 'bad')), sort: c => c.pct ?? 2 },
       { key: 'fail', label: 'Failing assets', render: c => el('div', 'chips', ...c.fail.slice(0, 12).map(a => chip(a.id, { title: a.name, href: '#/assets/' + a.id })), c.fail.length > 12 ? el('span', 'small muted', '+' + (c.fail.length - 12)) : null) }], rep, { class: 'compact' })),
     el('div', 'btnrow', { style: { marginTop: '10px' } }, el('button', { class: 'btn', onclick: () => download(`asset-compliance-${today()}.md`, md(), 'text/markdown') }, 'Report (.md)'),
       el('button', { class: 'btn ghost', onclick: () => download(`asset-compliance-${today()}.csv`, toCSV([['check', 'name', 'controls', 'applicable', 'pass', 'pct', 'failing'], ...rep.map(c => [c.id, c.name, c.ctl, c.applicable, c.pass, c.pct === null ? '' : (c.pct * 100).toFixed(1), c.fail.map(a => a.id).join(' ')])]), 'text/csv') }, 'CSV'),

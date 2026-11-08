@@ -1,7 +1,7 @@
 /* KRI dashboard — computed and operational key risk indicators, threshold status, recorded history,
    trend analysis and charts. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, n2, kpi, card, pill, field, select, toast, table, today, banner, download, toCSV, parseCSV } from '../util.js';
+import { el, n0, n2, pct100, kpi, card, pill, field, select, toast, table, today, banner, download, toCSV, parseCSV } from '../util.js';
 import { S, touch, compute } from '../state.js';
 import { allDefs, autoValues, autoMeta, status, series, trend, moduleLabel } from '../kri.js';
 import { lineChart, sparkline, gauge } from '../charts.js';
@@ -9,7 +9,7 @@ import { tr } from '../i18n.js';
 
 let selected = 'CRG-01', compare = false;
 const flt = { q: '', status: 'all', kind: 'all', owner: 'all' };
-const fmtV = (d, v) => v === null || v === undefined || !Number.isFinite(v) ? '—' : (d.unit === '%' ? v.toFixed(d.fmt ?? 1) + '%' : d.fmt === 0 ? n0(v) : n2(v));
+const fmtV = (d, v) => v === null || v === undefined || !Number.isFinite(v) ? '—' : (d.unit === '%' ? pct100(v, d.fmt ?? 1) : d.fmt === 0 ? n0(v) : n2(v));   // 1.9.2 (X-6): locale
 const arrow = t => t.dir === 'flat' ? '→' : t.dir === 'up' ? '↑' : '↓';
 
 export function render(sec) {
@@ -77,7 +77,7 @@ export function render(sec) {
   // gauges for the selected indicators
   const gBox = el('div', 'gauges');
   for (const r of rowsAll.filter(r => sel.has(r.d.id))) {
-    const f = v => r.d.unit === '%' ? Math.round(v) + '%' : r.d.fmt === 0 ? n0(v) : n2(v);
+    const f = v => r.d.unit === '%' ? pct100(v, 0) : r.d.fmt === 0 ? n0(v) : n2(v);
     const g = gauge({ value: r.v, target: r.d.target, warn: r.d.warn, crit: r.d.crit, dir: r.d.dir, unit: r.d.unit, fmt: f });
     gBox.append(el('div', { class: 'gcard ' + (r.st.k === 'bad' ? 'bad' : r.st.k === 'warn' ? 'warn' : ''), title: 'Click for the trend', onclick: () => { selected = r.d.id; drawDetail(); detail.scrollIntoView({ behavior: 'smooth' }); } },
       el('div', 'gname', el('b', null, r.d.id), r.d.name),
@@ -96,7 +96,7 @@ export function render(sec) {
       const refs = [];
       if (Number.isFinite(r.d.warn)) refs.push({ y: r.d.warn, label: 'warning', color: 'var(--warn)' });
       if (Number.isFinite(r.d.crit)) refs.push({ y: r.d.crit, label: 'critical', color: 'var(--bad)' });
-      mBox.append(el('div', 'opt', el('h4', null, r.d.id + ' ' + r.d.name), r.pts.length ? lineChart({ series: [{ name: r.d.name, color: 'var(--series-1)', points: r.pts }], refs, width: 420, height: 170, yFmt: v => r.d.unit === '%' ? v.toFixed(0) + '%' : (Math.abs(v) >= 100 ? n0(v) : n2(v)) }) : el('div', 'small muted', 'no history yet')));
+      mBox.append(el('div', 'opt', el('h4', null, r.d.id + ' ' + r.d.name), r.pts.length ? lineChart({ series: [{ name: r.d.name, color: 'var(--series-1)', points: r.pts }], refs, width: 420, height: 170, yFmt: v => r.d.unit === '%' ? pct100(v, 0) : (Math.abs(v) >= 100 ? n0(v) : n2(v)) }) : el('div', 'small muted', 'no history yet')));
     }
     sec.append(card(el('h2', null, 'Trends of the selected indicators'), el('p', 'note', 'One chart per indicator, each on its own scale — indicators with different units are never forced onto one axis.'), mBox));
   }
@@ -114,7 +114,7 @@ export function render(sec) {
     { key: 'id', label: 'KRI', render: r => el('div', null, el('b', null, r.d.id + ' '), r.d.name, r.d.module ? el('div', 'small muted', tr(moduleLabel(r.d))) : null,
         el('div', 'small muted', r.d.module && meta[r.d.id] ? `${r.d.method} · ${meta[r.d.id].num ?? '—'} / ${meta[r.d.id].den ?? '—'} · ${meta[r.d.id].unknown} unknown · ${meta[r.d.id].stale} stale` : (r.d.method || r.d.risk || ''))), sort: r => r.d.id },
     { key: 'v', label: 'Current', num: true, render: r => fmtV(r.d, r.v), sort: r => r.v ?? -1 },
-    { key: 'th', label: 'Target · warning · critical', render: r => r.d.raw ? [r.d.raw.target, r.d.raw.warning, r.d.raw.critical].map(x => x || '—').join(' · ')
+    { key: 'th', label: 'Target · warning · critical', render: r => r.d.raw ? el('span', { 'data-noi18n': '' }, [r.d.raw.target, r.d.raw.warning, r.d.raw.critical].map(x => x || '—').join(' · '))   // thresholds typed by the analyst: data
       : r.d.target === null && r.d.warn === null ? 'tracked, no threshold'
       : (() => { const dn = r.d.dir === 'down', inc = r.d.unit === 'count'; const g = dn ? '≤' : '≥', b = dn ? (inc ? '≥' : '>') : (inc ? '≤' : '<');
           return `${g}${r.d.target ?? '—'} · ${b}${r.d.warn ?? '—'} · ${b}${r.d.crit ?? '—'}`; })() },
@@ -157,7 +157,7 @@ export function render(sec) {
     if (d.warn !== null && d.warn !== undefined && d.warn !== d.target) refs.push({ y: d.warn, label: 'warning ' + d.warn, color: 'var(--warn)' });
     if (d.crit !== null && d.crit !== undefined) refs.push({ y: d.crit, label: 'critical ' + d.crit, color: 'var(--bad)' });
     detail.replaceChildren(card(el('div', 'row', el('div', { style: { flex: '1 1 400px' } }, field('<b>Trend for</b>', pick))),
-      pts.length ? lineChart({ series: [{ name: d.name, color: 'var(--series-1)', points: pts }], refs, yLabel: d.name, yFmt: v => d.unit === '%' ? v.toFixed(0) + '%' : (Math.abs(v) >= 100 ? n0(v) : n2(v)) })
+      pts.length ? lineChart({ series: [{ name: d.name, color: 'var(--series-1)', points: pts }], refs, yLabel: d.name, yFmt: v => d.unit === '%' ? pct100(v, 0) : (Math.abs(v) >= 100 ? n0(v) : n2(v)) })
         : el('div', 'empty-state', el('b', null, 'No history for this KRI yet'), 'Record a measurement above; each recording adds a point.'),
       pts.length >= 2 ? el('div', 'grid g5', { style: { marginTop: '12px' } },
         kpi('First → last', `${fmtV(d, tr.first)} → ${fmtV(d, tr.last)}`, `${pts[0].x} → ${pts[pts.length - 1].x}`),

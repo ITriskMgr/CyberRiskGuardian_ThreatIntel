@@ -184,7 +184,7 @@ Tolerated = ${g('PbA')} × ${g('Pbx')} × ${n2(r.cvss)} × ${g('app')} × ${g('M
 Mitigated = ${n2(r.est)} × ${g('redp')} × ${g('redi')} = ${n2(r.mit)}
 Residual  = ${n2(r.est)} − ${n2(r.mit)} = ${n2(r.res)}
 Ratio     = ${n2(r.res)} ÷ ${n2(r.tol)} = ${n2(r.ratio)}` +
-    (cost > 0 ? `\nCost-effectiveness = ((${n2(r.est)} − ${n2(r.res)}) ÷ ${n0(cost)}) × 1000 = ${n2((r.est - r.res) / cost * 1000)} risk units removed per $1,000` : '');
+    (cost > 0 ? '\n' + tr('Cost-effectiveness = (({0} − {1}) ÷ {2}) × 1000 = {3} risk units removed per $1,000').replace('{0}', n2(r.est)).replace('{1}', n2(r.res)).replace('{2}', n0(cost)).replace('{3}', n2((r.est - r.res) / cost * 1000)) : '');   // 1.9.2 (NV-046): translated as a line of its own
   c.append(pre);
   if (r.mit > r.est) c.append(banner('bad', 'Mitigation exceeds estimated risk', 'The reduction estimates are wrong. Revise them rather than reporting a negative or absolute-valued residual.'));
   c.append(el('div', 'note', 'Risk units are not dollars. They are relative decision-support indicators.'));
