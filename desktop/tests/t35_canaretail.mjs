@@ -2,7 +2,7 @@
 // The picker offers the four cases in both interface languages; every case reproduces the reference of the
 // start-up self-check in the browser engine and in engine/crg_calc.py; Start over rebuilds the case the
 // workspace came from; the French MediBec keeps every number (84,305 / 41,023) and only translates text.
-import { open, ok, done, waitInPage, APP, TMP } from './lib.mjs';
+import { open, ok, done, waitInPage, clickAndReopen, APP, TMP } from './lib.mjs';
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -23,7 +23,9 @@ const fromSel = await page.$$('#panel-org select');
 for (const s of fromSel) if (await s.evaluate(n => [...n.options].some(o => o.value === 'canaretail'))) { await s.selectOption('canaretail'); break; }
 const kindNow = await page.$$eval('#panel-org select', ss => ss.find(s => [...s.options].some(o => o.value === 'example'))?.value);
 ok(kindNow === 'example', 'choosing a bundled example sets the type to teaching example');
-await page.click('#panel-org button:has-text("Create workspace")');
+// Create workspace ends in reopen() (reload): wait for the new page, then for the case (polling before the reload could
+// land between select() and location.reload() and the next evaluation died with the context — the t35 flake of 1.9.1)
+await clickAndReopen(page, '#panel-org button:has-text("Create workspace")');
 await waitInPage(page, async () => (await import('/js/state.js')).S.ws?.teaching?.case === 'canaretail');
 
 const r = await page.evaluate(async () => {

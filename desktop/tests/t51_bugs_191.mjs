@@ -5,7 +5,7 @@
 //    default chosen in Settings → AI), not to the generic "Other local model"; same for the remote side;
 // B4 a workspace created, switched or deleted from the screens reopens the application on it: no screen keeps
 //    the previous workspace (MediBec) in memory.
-import { open, ok, done, FEEDS } from './lib.mjs';
+import { open, ok, done, FEEDS, clickAndReopen } from './lib.mjs';
 import fs from 'fs';
 import path from 'path';
 // 1.9.2 (NV-069) — the suite sets its own AI configuration: whatever a previous run or a person left in crg-config.json
@@ -113,8 +113,8 @@ async function createVia(name, from) {
     if (vals.includes('example') && vals.includes('organization')) await s.selectOption('organization');
   }
   await marker();
-  await page.click('#panel-org button:has-text("Create workspace")');
-  await page.waitForTimeout(1500); await ready();
+  await clickAndReopen(page, '#panel-org button:has-text("Create workspace")');   // waits for the B4 reload (t35 flake)
+  await page.waitForTimeout(300); await ready();
 }
 const screens = ['#/process', '#/org/profile', '#/register', '#/calc', '#/summary', '#/assets', '#/dashboard', '#/budget'];
 async function noMediBec(label) {

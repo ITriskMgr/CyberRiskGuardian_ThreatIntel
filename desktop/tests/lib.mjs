@@ -113,10 +113,23 @@ export async function medibec(page) {
  *  page.waitForFunction with an async predicate: Playwright treats the Promise an async predicate returns as truthy and resolves at once. */
 export async function waitInPage(page, fn, arg, { timeout = 10000, every = 100 } = {}) {
   const end = Date.now() + timeout;
-  while (!(await page.evaluate(fn, arg))) {
+  for (;;) {
+    // 1.9.2 (t35 flake): an evaluation cut by a reload the application started (reopen(), B4) is retried, not thrown
+    let v; try { v = await page.evaluate(fn, arg); } catch (e) { if (!/context was destroyed|navigation|Target closed|detached/i.test(String(e))) throw e; v = false; }
+    if (v) return;
     if (Date.now() > end) throw new Error('waitInPage: condition not met within ' + timeout + ' ms: ' + String(fn).slice(0, 120));
     await page.waitForTimeout(every);
   }
+}
+/** Click a control whose handler ends in reopen() (create / switch / restore / delete a workspace — 1.9.1 B4 reloads the
+ *  page) and come back once the new page has a workspace open: the load event is awaited before anything is evaluated,
+ *  so no evaluation lands in the window between the handler's select() and its location.reload() (the t35 flake). */
+export async function clickAndReopen(page, selector, { timeout = 20000 } = {}) {
+  const loaded = page.waitForEvent('load', { timeout }).catch(() => null);
+  await page.click(selector);
+  await loaded;
+  await waitReady(page, timeout);
+  await page.waitForFunction(() => !![...document.querySelectorAll('main > section')].find(s => !s.hidden)?.querySelector('h1'), null, { timeout, polling: 200 }).catch(() => {});
 }
 /** Go to a route inside the page (no reload) and let it render. */
 export async function goto(page, hash, ms = 600) { await page.evaluate(h => { location.hash = h; }, hash); await page.waitForTimeout(ms); }
