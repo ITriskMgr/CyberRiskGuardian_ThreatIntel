@@ -176,6 +176,7 @@ export function cost(rec, ws = S.ws) {
  * treatment-need verdicts of this module (curNeed, aftNeed) for the screens.
  */
 export function effect(rec, ws = S.ws, { inForce = RE.IN_FORCE } = {}) {
+  // NV-066: a coefficient outside 0–1 is flagged (e.totals.invalid), not clamped: receffect.js leaves it out of the product
   const e = RE.effect(rec, ws, { inForce });
   for (const r of e.rows) if (!r.error) { r.curNeed = need(r.cur.ratio); r.aftNeed = need(r.aft.ratio); }
   return e;

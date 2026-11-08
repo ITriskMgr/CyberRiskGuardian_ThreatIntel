@@ -315,17 +315,17 @@ multiutilisateur, chaque étape indique aussi qui est Responsable (R) et Approba
 | 6 | Filtrer les candidats | Chaque candidat a ses douze notes et une décision. | Filtrage des scénarios |
 | 7 | Sélectionner les scénarios les plus importants | Au moins une famille est retenue, chaque sélection fondée sur le jugement a sa justification et chaque exclusion signalée est examinée. | Familles, Schémas de pondération, Matrice de couverture, Portefeuille final |
 | 8 | Développer chaque scénario retenu en chaîne causale | Au moins 10 scénarios dans le registre, et chaque scénario inclus nomme sa source de menace, ses vulnérabilités et les actifs touchés. | Registre des scénarios, Éditeur de scénarios, Suggérer des liens de vulnérabilité |
-| 9 | Estimer les six paramètres | 80 % des paramètres des scénarios inclus sont accompagnés d'une justification. | Éditeur de scénarios, Prévisions |
-| 10 | Noter la faiblesse représentative avec le CVSS v4.0 | Chaque scénario inclus a un score CVSS valide, et chaque score par équivalence a toutes ses justifications. | CVSS v4.0, Éditeur de scénarios |
+| 9 | Estimer les six paramètres | 80 % des paramètres des scénarios inclus sont estimés : une justification qui n'est pas le texte provisoire écrit à la création, les éléments probants sur lesquels elle repose (E1, E2…) et un niveau de confiance. | Éditeur de scénarios, Prévisions |
+| 10 | Noter la faiblesse représentative avec le CVSS v4.0 | Chaque scénario inclus a un score CVSS valide saisi par l'analyste (un vecteur, ou un score par équivalence) — pas le vecteur par défaut d'un nouveau scénario — et chaque score par équivalence a toutes ses justifications. Un vecteur venu d'un modèle de lot ou d'un candidat est listé pour confirmation (facultatif). | CVSS v4.0, Éditeur de scénarios |
 | 11 | Calculer le risque estimé et le risque toléré | Les scénarios inclus se calculent sans erreur. | Calculateur de risque, Registre des scénarios |
 | 12 | Concevoir les mesures d’atténuation | Chaque scénario au-dessus de la tolérance est couvert par au moins une mesure. | Atténuation des risques |
-| 13 | Identifier les contrôles partagés | Chaque initiative touche au moins un scénario, de sorte que son coût est réparti sans double comptage. | Contrôles partagés, Atténuation des risques |
-| 14 | Recalculer le risque atténué et le risque résiduel | Chaque scénario inclus au-dessus de la tolérance avant traitement porte des réductions de probabilité et d’impact. | Calculateur de risque, Registre des scénarios |
+| 13 | Identifier les contrôles partagés | Au moins une initiative finance les mesures (Contrôles partagés → *Créer les initiatives à partir des mesures (n)*, ou *→ Initiative* sur une mesure), et chaque initiative touche au moins un scénario, de sorte que son coût est réparti sans double comptage. | Contrôles partagés, Atténuation des risques |
+| 14 | Recalculer le risque atténué et le risque résiduel | Chaque scénario inclus au-dessus de la tolérance avant traitement porte des réductions de probabilité et d’impact issues de ses mesures (Atténuation des risques → *Appliquer à tous les scénarios couverts*) ou d'une saisie explicite de l'analyste — jamais le 0 / 0 de départ d'un nouveau scénario. | Atténuation des risques, Calculateur de risque, Registre des scénarios |
 | 15 | Effectuer l’analyse de sensibilité | La sensibilité d’au moins un scénario est consignée comme examinée. | Calculateur de risque, Prévisions |
-| 16 | Prioriser les scénarios et les traitements | Chaque scénario inclus a une décision de la direction consignée. | Registre des risques, Recommandations |
+| 16 | Prioriser les scénarios et les traitements | Chaque scénario inclus a une décision de la direction consignée (Recommandations → Par scénario). | Recommandations — Par scénario, Registre des risques |
 | 17 | Constituer le portefeuille d’investissement | Au moins une recommandation est approuvée. | Recommandations, Registre des risques |
 | 18 | Calibrer le budget de cybersécurité | L'année budgétaire est remplie et les initiatives sont réparties. | Budget |
-| 19 | Définir les indicateurs clés de risque | Au moins un ICR est entièrement défini et au moins une mesure est consignée. | Tableau de bord des ICR, Prévisions |
+| 19 | Définir les indicateurs clés de risque | Au moins un ICR est entièrement défini — les scénarios visés, la méthode de mesure, la source de données, le responsable, la fréquence, la cible et les seuils — et au moins une mesure est consignée. | Tableau de bord des ICR, Prévisions |
 | Rapport | Rapport de gestion, revue de qualité et partage | Le sommaire de gestion a été exporté et la revue de qualité ne montre aucun contrôle en échec. | Sommaire de gestion, Revue de qualité, Exporter · Excel, Gestion de la conformité, Gestion des PSI, Registre partagé des risques, Publier et partager |
 
 Les étapes conservent leurs identifiants dans la matrice RACI du mode multiutilisateur : une étape ajoutée à une numérotation antérieure hérite des droits que ses utilisateurs avaient sur l'étape dont elle provient.
@@ -832,12 +832,25 @@ contre-vérification d'étalonnage.
 Le formulaire du nouvel espace de travail a sa propre zone de dépôt : déposez ou choisissez plusieurs
 fichiers Word (.docx) ou PDF à la fois — le cas d'affaires, le profil de l'entreprise, un rapport
 d'audit, l'historique des incidents ; les fichiers Excel, PowerPoint et texte sont aussi acceptés.
-Retirez ceux que vous avez ajoutés par erreur. Trois options enchaînent les extractions tout de suite
-après la création : *Extraire le profil et l'appétence de ces documents après la création*, *Puis
-extraire les joyaux de la couronne* et *Puis extraire davantage des documents (Importer des documents)*, qui ouvre
-**Importer des documents** (ci-dessous). Cliquez sur **Créer l'espace de travail** : chaque fichier est
-lu sur votre ordinateur avec une ligne de progression (mots trouvés, *peu de texte trouvé*, ou une
-erreur).
+Retirez ceux que vous avez ajoutés par erreur. Sous l'en-tête **Extraire des documents (chacune demande
+d'abord IA ou Règles seulement)**, quatre options enchaînent les extractions tout de suite après la
+création : *Extraire le profil et l'appétence de ces documents après la création*, *Puis extraire les
+joyaux de la couronne*, *Puis extraire davantage des documents (Importer des documents)*, qui ouvre
+**Importer des documents** (ci-dessous), et *Extraire aussi les faits utiles aux politiques pour le
+rédacteur de politiques de sécurité*. Les quatre sont des extractions; sans IA, laissez les quatre
+décochées. Une option cochée n'envoie rien d'elle-même : chaque extraction demande d'abord de choisir
+**IA** (avec un aperçu de ce qui est envoyé) ou **Règles seulement** (hors ligne). Cliquez sur **Créer
+l'espace de travail** : chaque fichier est lu sur votre ordinateur avec une ligne de progression (mots
+trouvés, *peu de texte trouvé*, ou une erreur).
+
+**Lancer une extraction plus tard.** Les options peuvent rester décochées et être lancées en tout temps :
+**Profil et appétence → Extraire des documents…** propose chaque champ du profil (vérifiez d'abord que les
+documents figurent sous **Documents de contexte** et, pour l'IA, que le fournisseur réussit **Tester ce
+fournisseur** dans **Paramètres → IA — locale et distante**); **Joyaux de la couronne** a le même bouton;
+**Importer des documents → Démarrer l'importation** couvre les autres cibles. Tant que le contexte est
+incomplet et que des documents existent, la carte de l'étape 2 de la page **Processus** offre le même
+bouton **Extraire des documents…**, avec une ligne qui dit ce qu'il faut (des documents, un fournisseur
+d'IA testé ou Règles seulement) et des liens vers Joyaux de la couronne et Importer des documents.
 
 **Profil et appétence.** Contexte, mission, produits et services, processus et systèmes critiques,
 infonuagique, fournisseurs, information sensible, exigences de disponibilité, contrôles et maturité,
@@ -2845,6 +2858,11 @@ Dix-huit vérifications à exécuter avant qu'un rapport ou un renvoi ne quitte 
 | QC-16 | Aucune action d'intervention n'est présentée comme autorisée sans approbation valide (les actions de confinement ou destructrices qui n'en ont pas sont énumérées comme signaux d'audit). |
 | QC-17 | Les éléments TLP:RED et TLP:AMBER+STRICT restent hors des rapports, des recommandations, des justifications de scénarios, des communications et des exportations. |
 | QC-18 | La confiance d'une source n'est jamais utilisée comme probabilité (une justification de vraisemblance qui s'appuie sur la confiance d'un objet STIX, d'un flux ou d'un indicateur échoue). |
+| QC-19 à QC-26 | Les marqueurs normalisés ; des entrées dans les plages valides et un CVSS pour chaque scénario ; des scores enregistrés qui concordent avec leur vecteur ; l'équivalence justifiée ; aucune référence à un catalogue remplacé ; les candidats signalés examinés ; les transferts avec un approbateur ; le cas d'enseignement sur les vecteurs actuels. |
+| QC-27 | Aucun scénario inclus ne repose sur des paramètres provisoires ou non estimés : un paramètre compte quand sa justification n'est pas le texte provisoire écrit à la création, ses éléments probants sont nommés et sa confiance est fixée (échec quand un scénario n'en a aucun des six, attention quand certains manquent). |
+| QC-28 | Chaque scénario inclus est une chaîne causale complète : énoncé, source de menace, vulnérabilités et actifs touchés. |
+| QC-29 | Un manque budgétaire par rapport à la cible cohérente avec l'appétence est signalé à la direction — demandé dans le sommaire exporté ou inscrit comme décision — et non résorbé en silence. |
+| QC-30 | Le sommaire de gestion concorde avec le classeur à l'unité : les chiffres consignés à l'exportation (estimé, toléré, résiduel, scénarios inclus) sont ceux du moteur aujourd'hui ; un changement depuis l'exportation échoue et nomme ce qui a bougé. |
 
 Une réussite signifie que la règle n'a pas été visiblement enfreinte dans les données consignées ici ;
 les vérifications appuient un réviseur, elles ne le remplacent pas.

@@ -18,16 +18,20 @@ export const measureEffect = (m, id) => ({ rp: Number(m.eff?.[id]?.rp ?? m.rp) |
 /** The statuses that count as "in force" for the measures that are not this recommendation's own. */
 export const IN_FORCE = ['approved', 'in-progress', 'implemented'];
 
-/** Combined reductions on scenario `id` of the measures that pass `pred`. */
+/** A reduction coefficient is valid within 0–1 (the same test as catalog.js validCoef; NV-066). */
+export const validCoef = x => Number.isFinite(x) && x >= 0 && x <= 1;
+
+/** Combined reductions on scenario `id` of the measures that pass `pred`. A coefficient outside 0–1 is never clamped
+ *  (NV-066: the book says flag it): it is left out of the product and listed in `invalid` [{ m, id, lever, value }]. */
 export function combined(ws, id, pred) {
-  let qp = 1, qi = 1;
+  let qp = 1, qi = 1; const invalid = [];
   for (const m of ws.measures || []) {
     if (!pred(m) || !(m.scen || []).includes(id)) continue;
     const e = measureEffect(m, id);
-    qp *= 1 - Math.max(0, Math.min(1, e.rp));
-    qi *= 1 - Math.max(0, Math.min(1, e.ri));
+    if (validCoef(e.rp)) qp *= 1 - e.rp; else invalid.push({ m: m.id, id, lever: 'rp', value: e.rp });
+    if (validCoef(e.ri)) qi *= 1 - e.ri; else invalid.push({ m: m.id, id, lever: 'ri', value: e.ri });
   }
-  return { red_p: 1 - qp, red_i: 1 - qi };
+  return { red_p: 1 - qp, red_i: 1 - qi, invalid };
 }
 
 /** The treatment-need verdict keys on a ratio (the same bands as recommend.js need()). */
@@ -51,12 +55,14 @@ export function effect(rec, ws, { inForce = IN_FORCE, CRG = globalThis.CRG } = {
     try {
       const cur = CRG.calc(Object.assign({}, s, { red_p: +base.red_p.toFixed(6), red_i: +base.red_i.toFixed(6) }), app, fac);
       const aft = CRG.calc(Object.assign({}, s, { red_p: +with_.red_p.toFixed(6), red_i: +with_.red_i.toFixed(6) }), app, fac);
-      rows.push({ id, name: s.name || id, cur, aft, curAct: act(cur.ratio), aftAct: act(aft.ratio), delta: cur.res - aft.res });
-    } catch (e) { rows.push({ id, name: s.name || id, error: String(e.message || e) }); }
+      rows.push({ id, name: s.name || id, cur, aft, curAct: act(cur.ratio), aftAct: act(aft.ratio), delta: cur.res - aft.res, invalid: with_.invalid });
+    } catch (e) { rows.push({ id, name: s.name || id, error: String(e.message || e), invalid: with_.invalid }); }
   }
   const ok = rows.filter(r => !r.error);
   const sum = (k, w) => ok.reduce((t, r) => t + (r[w][k] || 0), 0);
   const totals = { curRes: sum('res', 'cur'), aftRes: sum('res', 'aft'), tol: sum('tol', 'cur') };
+  // NV-066 — out-of-range coefficients of the measures involved, flagged for the screen (never clamped, never applied)
+  totals.invalid = rows.flatMap(r => r.invalid || []);
   totals.reduction = totals.curRes - totals.aftRes;
   totals.curRatio = totals.tol ? totals.curRes / totals.tol : NaN;
   totals.aftRatio = totals.tol ? totals.aftRes / totals.tol : NaN;

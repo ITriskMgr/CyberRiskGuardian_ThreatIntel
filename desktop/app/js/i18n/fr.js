@@ -12784,4 +12784,6 @@ export default {
 "Exported on {0} without the figures of the day (an export of this release records them): export the summary again to compare.": "Exporté le {0} sans les chiffres du jour (une exportation de cette version les consigne) : exportez de nouveau le sommaire pour comparer.",
 "The risk appetite must be strictly between 0 and 1: {0} is refused. Use the book’s anchors (0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high).": "L’appétence au risque doit être strictement entre 0 et 1 : {0} est refusée. Utilisez les repères du livre (0,1–0,2 très averse au risque · 0,3 faible · 0,5 neutre · 0,7 élevée · 0,8–0,9 très élevée).",
 "Appetite {0} is outside the book’s anchors (0.1–0.9): justify it in the rationale — Management decision required.": "L’appétence {0} est hors des repères du livre (0,1–0,9) : justifiez-la dans la justification — Décision de la direction requise.",
+"Measure coefficient outside 0–1": "Coefficient de mesure hors de 0–1",
+"Flagged, not applied: {0}. Correct the measure in Risk mitigation; the figures below leave these coefficients out.": "Signalé, non appliqué : {0}. Corrigez la mesure dans Atténuation des risques; les chiffres ci-dessous laissent ces coefficients de côté.",
 };

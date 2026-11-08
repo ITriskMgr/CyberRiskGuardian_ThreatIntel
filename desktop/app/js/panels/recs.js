@@ -342,6 +342,9 @@ function detail(body, sec, r) {
 
   const e = REC.effect(r, ws);
   const c = REC.cost(r, ws);
+  // NV-066 — a measure coefficient outside 0–1 is flagged here, never clamped: it is left out of the figures until corrected
+  if (e.totals.invalid?.length) body.append(banner('bad', 'Measure coefficient outside 0–1',
+    tr('Flagged, not applied: {0}. Correct the measure in Risk mitigation; the figures below leave these coefficients out.').replace('{0}', e.totals.invalid.map(x => `${x.m} ${x.lever} ${x.value} (${x.id})`).join(', '))));
   body.append(el('div', 'grid g4',
     kpi('Expected reduction', n0(e.totals.reduction), 'residual risk, verified engine', e.totals.reduction > 0 ? 'good' : ''),
     kpi('Ratio', `${n2(e.totals.curRatio)} → ${n2(e.totals.aftRatio)}`, 'portfolio of its scenarios',

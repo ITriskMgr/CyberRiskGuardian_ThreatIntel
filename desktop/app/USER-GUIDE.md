@@ -287,21 +287,21 @@ happens. In multi-user mode each step also shows who is Responsible and Accounta
 | 2 | Describe the context and identify the crown jewels | At least 8 of the 12 context fields are filled, and there are at least 3 crown jewels or 5 information assets. | Profile & appetite, Crown jewels, Information assets, Existing safeguards, Maturity & resilience |
 | 3 | Define the scope, the horizon and the threat context | The assessment period is stated, a threat-context snapshot is loaded and the vulnerability register holds at least one entry. | Profile & appetite, Threat context, Vulnerabilities · CVE/CWE, Threats · ATT&CK, Threat feeds & social |
 | 4 | Set the risk appetite and the materiality criteria | The appetite is strictly between 0 and 1 with a rationale, the IT budget is entered and the materiality criteria are written. | Profile & appetite, Budget |
-| 5 | Generate candidate scenarios | At least 20 candidates (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). | Batch scenarios, Scenario screening, Ontology · CRGO |
+| 5 | Generate candidate scenarios | At least 20 **distinct** candidates in Scenario screening → Candidates & scores (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). Rows in the Batch grid do not count until they are added as candidates; three ways to add them: Batch scenarios → *Add the ticked rows as screening candidates*, *Add a candidate*, *Add the register’s scenarios as candidates*. | Batch scenarios, Scenario screening, Ontology · CRGO |
 | 6 | Screen the candidates | Every candidate has its twelve scores and a disposition. | Scenario screening |
 | 7 | Select the most material scenarios | At least one family is selected, every judgment-based selection has its rationale, and every flagged exclusion is reviewed. | Families, Weighting schemes, Coverage matrix, Final portfolio |
 | 8 | Develop each selected scenario as a causal chain | At least 10 scenarios in the register, and every included scenario names its threat source, vulnerabilities and affected assets. | Scenario register, Scenario editor, Suggest vulnerability links |
-| 9 | Estimate the six parameters | 80% of the parameters of the included scenarios carry a rationale. | Scenario editor, Forecasts |
-| 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score, and every score by equivalency has all its justifications. | CVSS v4.0, Scenario editor |
+| 9 | Estimate the six parameters | 80% of the parameters of the included scenarios are estimated: a rationale that is not the placeholder written at creation, the evidence it rests on (E1, E2…) and a confidence level. | Scenario editor, Forecasts |
+| 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score entered by the analyst (a vector, or a score by equivalency) — not the default vector a new scenario starts with — and every score by equivalency has all its justifications. A vector that came with a batch pattern or a candidate is listed for confirmation (optional). | CVSS v4.0, Scenario editor |
 | 11 | Calculate estimated and tolerated risk | The included scenarios compute without error. | Risk calculator, Scenario register |
 | 12 | Design mitigation measures | Every scenario above tolerance is covered by at least one measure. | Risk mitigation |
-| 13 | Identify shared controls | Every initiative addresses at least one scenario, so its cost is allocated without double-counting. | Shared controls, Risk mitigation |
-| 14 | Recalculate mitigated and residual risk | Every included scenario above tolerance before treatment carries probability and impact reductions. | Risk calculator, Scenario register |
+| 13 | Identify shared controls | At least one initiative funds the measures (Shared controls → *Create initiatives from the measures (n)*, or *→ Initiative* on a measure), and every initiative addresses at least one scenario, so its cost is allocated without double-counting. | Shared controls, Risk mitigation |
+| 14 | Recalculate mitigated and residual risk | Every included scenario above tolerance before treatment carries probability and impact reductions that come from its measures (Risk mitigation → *Apply to all covered scenarios*) or from an explicit analyst entry — never the 0 / 0 a new scenario starts with. | Risk mitigation, Risk calculator, Scenario register |
 | 15 | Run the sensitivity analysis | At least one scenario’s sensitivity is recorded as reviewed. | Risk calculator, Forecasts |
-| 16 | Prioritize scenarios and treatments | Every included scenario has a management decision recorded. | Risk register, Recommendations |
+| 16 | Prioritize scenarios and treatments | Every included scenario has a management decision recorded (Recommendations → By scenario). | Recommendations — By scenario, Risk register |
 | 17 | Assemble the investment portfolio | At least one recommendation is approved. | Recommendations, Risk register |
 | 18 | Calibrate the cybersecurity budget | The budget year is filled and the initiatives are allocated. | Budget |
-| 19 | Define key risk indicators | At least one KRI is fully defined and at least one measurement is recorded. | KRI dashboard, Forecasts |
+| 19 | Define key risk indicators | At least one KRI is fully defined — the scenarios it addresses, its measurement method, data source, owner, frequency, target and thresholds — and at least one measurement is recorded. | KRI dashboard, Forecasts |
 | Report | Management report, quality review and sharing | The management summary has been exported and the quality review shows no failed check. | Management summary, Quality review, Export · Excel, Compliance management, ISP management, Risk Registry, Publish & share |
 
 The steps keep their identifiers in the RACI matrix of multi-user mode: a step added to an earlier numbering inherits the rights its users had on the step it came from.
@@ -788,11 +788,23 @@ version of the case; the instructor values of the case library served only as a 
 
 The New-workspace form has its own drop zone: drop or choose several Word (.docx) or PDF files at once
 — the business case, the company profile, an audit report, the incident history; Excel, PowerPoint and
-text files are accepted too. Remove any you added by mistake. Three options chain the extractions right
-after creation: *Extract the profile & appetite from these documents after creation*, *Then extract the
-crown jewels*, and *Then extract more from the documents (Import from documents)*, which opens **Import from documents**
-(below). Click **Create workspace**: each file is read on your computer with a progress line
-(words found, *little text found*, or an error).
+text files are accepted too. Remove any you added by mistake. Under the heading **Extract from the
+documents (each asks AI or Rules only first)**, four options chain the extractions right after creation:
+*Extract the profile & appetite from these documents after creation*, *Then extract the crown jewels*,
+*Then extract more from the documents (Import from documents)*, which opens **Import from documents**
+(below), and *Also extract policy facts for the Security Policy Writer*. All four are extractions; with AI
+off, leave all four unticked. A ticked option sends nothing by itself: each extraction first asks you to
+choose **AI** (with a preview of what is sent) or **Rules only** (offline). Click **Create workspace**: each
+file is read on your computer with a progress line (words found, *little text found*, or an error).
+
+**Starting an extraction later.** The options can be left unticked and run at any time: **Profile &
+appetite → Extract from documents…** proposes every field of the profile (check first that the documents
+appear under **Context documents** and, for AI, that the provider passes **Test this provider** in
+**Settings → AI — local & remote**); **Crown jewels** has the same button; **Import from documents →
+Start the import** covers the other targets. While the context is incomplete and documents exist, the
+step-2 card of the **Process** page offers the same **Extract from documents…** button, with a line
+stating what it needs (documents, a tested AI provider or Rules only) and links to Crown jewels and
+Import from documents.
 
 **Profile & appetite.** Context, mission, products and services, critical processes and systems,
 cloud, suppliers, sensitive information, availability requirements, controls and maturity, incident
@@ -1474,9 +1486,21 @@ proposals, journalled in the scenario's revisions and the revision log.
   computer*.
 
 **How many, and then what.** About 25 to 40 candidates for a portfolio of ten, never fewer than 20 (20 is the
-quick lab version). **Add the ticked rows as screening candidates** sends the ticked rows to Scenario screening
-(section 7.3.7) with the strategy that produced them; **Add … selected to the register** adds them as
-scenarios directly.
+quick lab version). A banner above the grid says where Process step 5 stands (*n of 20 distinct candidates in
+the screening*): the rows of the grid are a draft and count for nothing until they are candidates. **Add the
+ticked rows as screening candidates** sends the ticked rows to Scenario screening (section 7.3.7) with the
+strategy that produced them and, as the candidate's **draft**, everything the row carries — the six
+parameters, the vector, the ATT&CK, CWE and CVE links, the chain — so that nothing is lost when the candidate
+is later created as a scenario. A row identical to an existing candidate (same name, threat source and
+assets) is skipped and the toast says how many. **Add … selected to the register** adds them as scenarios
+directly, bypassing the screening: use it for scenarios already selected.
+
+Generated rows start with **no treatment**: probability and impact reductions of 0, as the book defines the
+pre-treatment state; the reductions come later from the measures (Risk mitigation) or from you. When fewer
+combinations exist than the number asked, the screen says so (*Only n combination(s) exist for m asked*), and
+clicking **Generate candidates** again adds nothing: a combination already in the grid is skipped. Candidates
+proposed by AI enter the grid **unticked**, for review; a value the AI proposed as 0 stays 0, and a value it
+did not return is a marked neutral 0.5 with confidence Low.
 
 In **Propose with AI**, ticking **Include security-operations evidence** adds a summary of those seeds to
 the request — shown in the preview like everything else. It is filtered: TLP:RED and TLP:AMBER+STRICT
@@ -1516,9 +1540,26 @@ the workbook's Candidates sheet carries); Batch scenarios → **Add the ticked r
 adds rows from the grid, and **Add a candidate** adds one by hand.
 
 **How many.** About **25 to 40 candidates for a portfolio of ten**, never fewer than **20** (20 is the quick
-lab version); the banner at the top says where the workspace stands. A good population uses at least three
-of the five **generation strategies** — top-down, bottom-up, threat-driven, dependency-driven and localized
-generic — recorded per candidate.
+lab version); the banner at the top says where the workspace stands, and the count is of **distinct**
+candidates (same name, threat source and assets = one candidate; the Candidates tile says how many
+duplicates the list holds). A good population uses at least three of the five **generation strategies** —
+top-down, bottom-up, threat-driven, dependency-driven and localized generic — recorded per candidate.
+
+**Three ways to add candidates** (Process step 5): Batch scenarios → **Add the ticked rows as screening
+candidates**; **Add a candidate** (by hand, then its chain and scores on the card); **Add the register's
+scenarios as candidates (n)**, which turns every scenario of the Scenario register not yet linked to a
+candidate or a family into a candidate row linked to it (the register itself is untouched), so an existing
+portfolio can be screened. **Remove**, on a candidate's card, takes it out with its scores, flags, watch
+entry and family membership after a confirmation, and writes the data log; a member of a family selected for
+the portfolio cannot be removed until it is taken out of the family.
+
+**Propose scores with AI (n unscored)** sends the organization context, the twelve criteria and each
+candidate's one-line chain (never a risk parameter) and shows the answer in a review table before anything is
+written: candidates you already scored are unticked, **evidence strength is capped at 3** (4 and 5 mean
+direct organizational evidence the AI has not seen), escalation flags are **only added**, never removed, and
+every card applied is marked *scores proposed by AI* with the model and the date, its rationale starting with
+"AI:" and carrying *Analytical estimate — validation required*. The AI log entry stays pending until you apply
+or dismiss.
 
 **Candidates & scores.** **Score** opens a candidate's card: the twelve criteria scored 1 (very low) to 5
 (very high) — business criticality, asset criticality, threat relevance, exposure or vulnerability,
@@ -1555,9 +1596,17 @@ question to answer, not a quota to fill.
 and the **evidence-collection plan**: how each selected scenario will be validated, by whom and by when.
 
 **Final portfolio.** For each selected family, the six **"why this scenario?"** questions and **Create the
-scenario**, which adds it to the register with its consolidated statement; its parameters are then
-estimated in the Scenario editor (Process step 9). The MediBec teaching case ships its screening: 45
-candidates, ten families, P05 and P10 selected by judgment and C31 on the watch list for explicit review.
+scenario**, which adds it to the register with the family's consolidated statement and **everything its
+best-scored member carries**: the causal chain (threat source, vulnerabilities, assets), the six parameters
+with their rationale and confidence where the candidate had them, the CVSS vector, the ATT&CK, CWE and CVE
+links, owner and horizon. A parameter the candidate never had keeps a placeholder rationale that step 9 does
+not count; a parameter it brought reads *starting value, not estimated* until you write the rationale and the
+evidence. The vector is marked as coming from a pattern or candidate until you confirm or change it in the
+editor's CVSS tab (step 10 lists it, optional). Reductions start at 0 unless the candidate's row set them. A
+candidate selected on its own (disposition *Select*, no family) is created the same way from its score card
+or from the **Selected candidates not consolidated into a family** list of this tab. The MediBec teaching
+case ships its screening: 45 candidates, ten families, P05 and P10 selected by judgment and C31 on the watch
+list for explicit review.
 
 ### 7.3.8 Risk calculator {#calc}
 
@@ -1690,7 +1739,7 @@ considered and why this one, the owner, the horizon, the decision asked of manag
 |---|---|---|
 | **Draft** | Being written. Figures are live and move with the workspace. | In review, deferred, rejected |
 | **In review** | With the decision-makers. Their comments are recorded against it. | Approved, draft, deferred, rejected |
-| **Approved** | A decision has been taken. **The figures are frozen** with the date and the approver. | In implementation, deferred |
+| **Approved** | A decision has been taken. **The figures are frozen** with the date and the approver, whose name is required: without it the approval is refused, and the Quality review (QC-02) fails an approved recommendation that names no approver. | In implementation, deferred |
 | **In implementation** | Being delivered. Progress, due date and next review are tracked. | Completed, deferred |
 | **Completed** | Delivered. | — |
 | **Deferred** / **Rejected** | Terminal. The reason is recorded. | — |
@@ -1709,9 +1758,15 @@ the effect on the ratio, the options considered, the dependencies, the residual 
 how it will be measured, and the decision being asked for. Missing items are named; it does not guess
 them for you.
 
-**A recommendation cannot claim credit for a control you already have.** The baseline is everything
-already in force, including this recommendation's own measures if they are already implemented. If
-you tick a measure whose status is *implemented*, the claimed reduction is zero, and that is correct.
+**What a recommendation delivers.** Its reduction is the residual risk **without this recommendation's
+own measures** minus the residual risk **with them**, whatever their status; every other measure already
+in force (approved, in progress, implemented) is in both figures. A measure of the recommendation that the
+organization has already implemented is therefore counted once, on the "with" side: it is still this
+recommendation's measure, and approving it no longer freezes a reduction of 0. Recommendations approved
+under the earlier rule and frozen at 0 while their measures do reduce the risk were recomputed once when
+the workspace was opened by this release — the one written exception to "a migration never changes an
+organization's numbers": the earlier figures are kept beside the new ones, labelled, in the recommendation's
+history, and the screen shows a banner saying so.
 
 **Consolidation** looks across the drafts and proposes merging those that share control themes or
 scenarios into fewer enterprise initiatives, with the reason stated. Nothing is merged for you —
@@ -2550,6 +2605,11 @@ Eighteen checks to run before a report or a write-back leaves the analyst, each 
 | QC-16 | No response action is presented as authorised without a valid approval (containment or destructive actions without one are listed as audit signals). |
 | QC-17 | TLP:RED and TLP:AMBER+STRICT material stays out of reports, recommendations, scenario rationales, communications and exports. |
 | QC-18 | Source confidence is never used as a probability (a likelihood rationale relying on a STIX, feed or indicator confidence fails). |
+| QC-19 to QC-26 | The standard markers; inputs within range and a CVSS for every scenario; stored scores agreeing with their vectors; equivalency justified; no superseded catalogue reference; flagged candidates reviewed; transfers with an approver; the teaching case on the current vectors. |
+| QC-27 | No included scenario rests on placeholder or unestimated parameters: a parameter counts when its rationale is not the placeholder written at creation, its evidence is named and its confidence set (fail when a scenario has none of the six, attention when some are missing). |
+| QC-28 | Every included scenario is a complete causal chain: statement, threat source, vulnerabilities and affected assets. |
+| QC-29 | A budget shortfall to the appetite-consistent target is escalated — asked of management in the exported summary or written as a decision — not reconciled silently. |
+| QC-30 | The management summary agrees with the workbook to the unit: the figures recorded at export (estimated, tolerated, residual, scenarios included) are the engine's figures today; a change since the export fails and names what moved. |
 
 A pass means the rule was not visibly broken in the data recorded here; the checks support a reviewer,
 they do not replace one.

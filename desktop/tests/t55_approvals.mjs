@@ -43,6 +43,16 @@ const r = await page.evaluate(async () => {
     fixed, again, legacy: { reduction: legacy.approved.reduction, prev: legacy.approved.recomputed?.previous?.reduction, hist: legacy.history[0]?.action, rule: legacy.approved.recomputed?.rule?.slice(0, 40) }, qcBlank: qcBlank.state + ' ' + qcBlank.detail.slice(0, 80), code: rec.code };
 });
 ok(r.reduction > 0 && r.oldReduction === r.reduction, 'a recommendation whose only measure is already implemented delivers its reduction (decided rule, item 23): ' + Math.round(r.reduction));
+// NV-066 — a coefficient outside 0–1 is flagged, never clamped
+const coef = await page.evaluate(async () => {
+  const st = await import('/js/state.js'); const RE = await import('/js/receffect.js'); const ws = st.S.ws;
+  const m = ws.measures.find(x => x.id === 'MS-T2'); m.rp = 1.4;
+  const e = RE.effect({ measures: ['MS-T2'], scenarios: ['S1'] }, ws);
+  m.rp = 0.5;
+  const ok2 = RE.effect({ measures: ['MS-T2'], scenarios: ['S1'] }, ws);
+  return { invalid: e.totals.invalid.map(x => x.m + ':' + x.lever + ':' + x.value), redWith: e.rows[0].aft.res > ok2.rows[0].aft.res, none: ok2.totals.invalid.length };
+});
+ok(coef.invalid.join() === 'MS-T2:rp:1.4' && coef.redWith && coef.none === 0, 'an rp of 1.4 is flagged and left out of the product (NV-066), not clamped to 1 ' + JSON.stringify(coef));
 ok(/name of the approver/.test(r.refused), 'approval with an empty name is refused: ' + r.refused.slice(0, 60));
 ok(r.qcBefore === 'pass' && r.qcAfter === 'pass' && r.by === 'Marc-André Léger' && Math.round(r.frozen) === Math.round(r.reduction), 'QC-02 passes for a recommendation approved in the UI with a named approver (item 22); the frozen reduction is the decided one');
 ok(r.fixed.join() === 'REC-90' && r.again.length === 0, 'a legacy recommendation frozen at 0 is recomputed once at load (idempotent) ' + JSON.stringify([r.fixed, r.again]));
