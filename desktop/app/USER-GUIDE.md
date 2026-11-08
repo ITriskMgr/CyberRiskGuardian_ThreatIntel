@@ -735,7 +735,13 @@ The page opens on where the work stands. A ring beside the title counts the step
 band — what it is for and, check by check, what it still needs: ✓ done, → the first thing to do (with its hint), ◻ the
 rest. Its first button, **Next: …**, opens the screen of that first unmet check (for example *Next: At least one context
 document* opens Organization → Context documents); the second opens another screen of the step. In multi-user mode the
-band names who is Responsible and Accountable, and says so when the step is someone else's. **Seven groups** shows one tile per group with a
+band names who is Responsible and Accountable, and says so when the step is someone else's. On step 2, while the context is
+incomplete and documents exist, the band carries **Extract from documents…** as its primary button, a prerequisite line
+(documents, AI provider tested or Rules only) and links to Crown jewels and Import from documents (see 7.2.1). Above the
+band, a **review item** appears once when a workspace opened by this release still holds scenarios on the probability and
+impact reductions of 0.5 that every new scenario used to receive: nothing is changed; review each one (Risk mitigation
+applies the measures' reductions, the editor records an explicit value) and close the item with your name — journalled.
+**Seven groups** shows one tile per group with a
 progress arc and its state (*3 of 3 done*, *Step 9 in progress*, *To do*); the group in progress is opened below its tiles as
 one row per step, and clicking another tile opens that group instead. When the engine classifies included scenarios above
 tolerance, a tile lists them with **Open Risk calculator**. Lower down, **All nineteen steps** opens every step card with its
@@ -811,7 +817,10 @@ cloud, suppliers, sensitive information, availability requirements, controls and
 history and the legal and regulatory obligations. Below them: the **risk appetite** with its rationale,
 the multiplication factor and currency, and the **IT budget**, current cybersecurity spend and baseline
 run cost used by the Budget screen. When management has not approved an appetite, the *appetite
-estimator* suggests one from ticked factors — labelled an analytical estimate, to be validated.
+estimator* suggests one from ticked factors — labelled an analytical estimate, to be validated. **Save**
+checks the appetite: a value that is not strictly between 0 and 1 (0, 1, 1.5, −0.2) is refused with the reason
+and nothing is saved; a value outside the book's anchors 0.1–0.9 (0.95, 0.05) is saved with a warning asking
+for a rationale — Management decision required.
 
 *Cybersecurity budget (current spend)* is everything spent on cybersecurity this year: staff, tools,
 services, projects. *Baseline (run) security cost* is the part of that spend needed just to keep

@@ -770,7 +770,13 @@ un bandeau foncé — à quoi elle sert et, vérification par vérification, ce 
 première chose à faire (avec son indication), ◻ le reste. Son premier bouton, **Suivant : …**, ouvre l'écran de cette
 première vérification non remplie (par exemple *Suivant : Au moins un document de contexte* ouvre Organisation →
 Documents de contexte); le second ouvre un autre écran de l'étape. En mode multi-utilisateur, le bandeau nomme qui est
-Responsable et Imputable, et le dit lorsque l'étape revient à quelqu'un d'autre. **Sept groupes** montre
+Responsable et Imputable, et le dit lorsque l'étape revient à quelqu'un d'autre. À l'étape 2, tant que le contexte est
+incomplet et que des documents existent, le bandeau porte **Extraire des documents…** comme bouton principal, une ligne de
+prérequis (documents, fournisseur d'IA testé ou Règles seulement) et des liens vers Joyaux de la couronne et Importer des
+documents (voir 7.2.1). Au-dessus du bandeau, un **point de revue** apparaît une fois quand un espace de travail ouvert par
+cette version contient encore des scénarios aux réductions de probabilité et d'impact de 0,5 que tout nouveau scénario
+recevait jusqu'ici : rien n'est changé ; révisez chacun (Atténuation des risques inscrit les réductions des mesures,
+l'éditeur consigne une valeur explicite) et fermez le point avec votre nom — journalisé. **Sept groupes** montre
 une tuile par groupe avec un arc de progression et son état (*3 sur 3 terminées*, *Étape 9 en cours*, *À faire*) ; le groupe
 en cours est ouvert sous les tuiles, une ligne par étape, et un clic sur une autre tuile ouvre ce groupe à la place. Lorsque
 le moteur classe des scénarios inclus au-dessus de la tolérance, une tuile les énumère avec **Ouvrir Calculateur de risque**.
@@ -858,7 +864,10 @@ historique des incidents et obligations légales et réglementaires. En dessous�
 risque** avec sa justification, le facteur de multiplication et la devise, ainsi que le **budget TI**,
 les dépenses actuelles en cybersécurité et le coût de base de fonctionnement utilisés par l'écran
 Budget. Lorsque la direction n'a pas approuvé d'appétence, l'*Estimateur d'appétence* en suggère une à
-partir des facteurs cochés — présenté comme une estimation analytique, à valider.
+partir des facteurs cochés — présenté comme une estimation analytique, à valider. **Enregistrer** vérifie
+l'appétence : une valeur qui n'est pas strictement entre 0 et 1 (0, 1, 1,5, −0,2) est refusée avec la raison et
+rien n'est enregistré ; une valeur hors des repères du livre 0,1–0,9 (0,95, 0,05) est enregistrée avec un
+avertissement qui demande une justification — Décision de la direction requise.
 
 *Budget de cybersécurité (dépenses actuelles)* correspond à tout ce qui est dépensé en cybersécurité
 cette année : personnel, outils, services, projets. *Coût de base (fonctionnement) de la sécurité* est
@@ -1643,9 +1652,23 @@ des révisions.
   TLP:AMBER+STRICT sur cet ordinateur*.
 
 **Combien, et ensuite.** Environ 25 à 40 candidats pour un portefeuille de dix, jamais moins de 20 (20
-correspond à la version rapide des laboratoires). **Ajouter les lignes cochées comme candidats au filtrage**
-envoie les lignes cochées au Filtrage des scénarios (section 7.3.7) avec la stratégie qui les a produites ;
-**Ajouter … sélectionnés au registre** les ajoute directement comme scénarios.
+correspond à la version rapide des laboratoires). Un bandeau au-dessus de la grille dit où en est l'étape 5 du
+Processus (*n candidats distincts sur 20 au filtrage*) : les lignes de la grille sont une ébauche et ne comptent
+pour rien tant qu'elles ne sont pas des candidats. **Ajouter les lignes cochées comme candidats au filtrage**
+envoie les lignes cochées au Filtrage des scénarios (section 7.3.7) avec la stratégie qui les a produites et,
+comme **ébauche** du candidat, tout ce que porte la ligne — les six paramètres, le vecteur, les liens ATT&CK,
+CWE et CVE, la chaîne —, de sorte que rien n'est perdu quand le candidat devient plus tard un scénario. Une
+ligne identique à un candidat existant (même nom, source de menace et actifs) est sautée et le message dit
+combien. **Ajouter … sélectionnés au registre** les ajoute directement comme scénarios, en contournant le
+filtrage : réservez-le aux scénarios déjà retenus.
+
+Les lignes générées partent **sans traitement** : réductions de probabilité et d'impact à 0, l'état avant
+traitement tel que le livre le définit ; les réductions viennent ensuite des mesures (Atténuation des risques)
+ou de vous. Quand il existe moins de combinaisons que le nombre demandé, l'écran le dit (*Seulement n
+combinaison(s) pour m demandés*), et cliquer de nouveau sur **Générer les candidats** n'ajoute rien : une
+combinaison déjà dans la grille est sautée. Les candidats proposés par l'IA entrent dans la grille **non
+cochés**, à réviser ; une valeur que l'IA a proposée à 0 reste 0, et une valeur qu'elle n'a pas renvoyée est un
+0,5 neutre marqué, avec la confiance Faible.
 
 Dans **Proposer avec l'IA**, cocher **Inclure les preuves des opérations de sécurité** ajoute à la
 requête un résumé de ces amorces — affiché dans l'aperçu comme tout le reste. Il est filtré : les
@@ -1692,9 +1715,29 @@ lignes cochées comme candidats au filtrage** ajoute des lignes de la grille, et
 ajoute un à la main.
 
 **Combien.** Environ **25 à 40 candidats pour un portefeuille de dix**, jamais moins de **20** (20
-correspond à la version rapide des laboratoires) ; le bandeau du haut indique où en est l'espace de travail.
-Une bonne population utilise au moins trois des cinq **stratégies de génération** — descendante, ascendante,
-axée sur la menace, axée sur les dépendances et générique localisée —, consignées pour chaque candidat.
+correspond à la version rapide des laboratoires) ; le bandeau du haut indique où en est l'espace de travail, et
+le compte porte sur les candidats **distincts** (même nom, source de menace et actifs = un candidat ; la tuile
+Candidats dit combien de doublons la liste contient). Une bonne population utilise au moins trois des cinq
+**stratégies de génération** — descendante, ascendante, axée sur la menace, axée sur les dépendances et
+générique localisée —, consignées pour chaque candidat.
+
+**Trois façons d'ajouter des candidats** (étape 5 du Processus) : Scénarios en lot → **Ajouter les lignes
+cochées comme candidats au filtrage** ; **Ajouter un candidat** (à la main, puis sa chaîne et ses notes sur la
+fiche) ; **Ajouter les scénarios du registre comme candidats (n)**, qui fait de chaque scénario du Registre des
+scénarios non encore lié à un candidat ou à une famille une ligne candidate liée à lui (le registre lui-même
+n'est pas touché), pour filtrer un portefeuille existant. **Retirer**, sur la fiche d'un candidat, l'enlève
+avec ses notes, ses indicateurs, son entrée de surveillance et son appartenance à une famille, après
+confirmation, et écrit le journal des données ; un membre d'une famille retenue pour le portefeuille ne peut
+pas être retiré avant d'être sorti de la famille.
+
+**Proposer des notes avec l'IA (n non notés)** envoie le contexte de l'organisation, les douze critères et la
+chaîne d'une ligne de chaque candidat (jamais un paramètre de risque) et montre la réponse dans un tableau de
+révision avant d'écrire quoi que ce soit : les candidats que vous avez déjà notés sont décochés, **la force
+des éléments probants est plafonnée à 3** (4 et 5 signifient des éléments probants organisationnels directs
+que l'IA n'a pas vus), les indicateurs d'escalade sont **seulement ajoutés**, jamais retirés, et chaque fiche
+appliquée est marquée *notes proposées par l'IA* avec le modèle et la date, sa justification commençant par
+« AI: » et portant *Estimation analytique — validation requise*. L'entrée du journal d'IA reste en attente
+jusqu'à ce que vous appliquiez ou écartiez.
 
 **Candidats et notes.** **Score** ouvre la fiche d'un candidat : les douze critères notés de 1 (très
 faible) à 5 (très élevé) — criticité d'affaires, criticité de l'actif, pertinence de la menace, exposition ou
@@ -1737,8 +1780,16 @@ de promotion et son responsable, et le **plan de collecte des preuves** : commen
 validé, par qui et pour quand.
 
 **Portefeuille final.** Pour chaque famille retenue, les six questions **« pourquoi ce scénario ? »** et
-**Créer le scénario**, qui l'ajoute au registre avec son énoncé regroupé ; ses paramètres sont ensuite
-estimés dans l'Éditeur de scénarios (étape 9 du Processus). Le cas d'enseignement MediBec fournit son
+**Créer le scénario**, qui l'ajoute au registre avec l'énoncé regroupé de la famille et **tout ce que porte son
+membre le mieux noté** : la chaîne causale (source de menace, vulnérabilités, actifs), les six paramètres avec
+leur justification et leur confiance là où le candidat les avait, le vecteur CVSS, les liens ATT&CK, CWE et
+CVE, le responsable et l'horizon. Un paramètre que le candidat n'a jamais eu garde une justification provisoire
+que l'étape 9 ne compte pas ; un paramètre qu'il a apporté se lit *valeur de départ, non estimée* jusqu'à ce que
+vous rédigiez la justification et les éléments probants. Le vecteur est marqué comme venant d'un modèle ou d'un
+candidat jusqu'à ce que vous le confirmiez ou le changiez dans l'onglet CVSS de l'éditeur (l'étape 10 le liste,
+facultatif). Les réductions partent de 0 sauf si la ligne du candidat les a fixées. Un candidat retenu seul
+(décision *Retenir*, sans famille) est créé de la même façon depuis sa fiche de notes ou depuis la liste
+**Candidats retenus non regroupés dans une famille** de cet onglet. Le cas d'enseignement MediBec fournit son
 filtrage : 45 candidats, dix familles, P05 et P10 retenues par jugement et C31 sur la liste de surveillance
 pour examen explicite.
 
@@ -1892,7 +1943,7 @@ la raison du choix de celle-ci, le responsable, l'horizon, la décision demandé
 |---|---|---|
 | **Brouillon** | En cours de rédaction. Les chiffres sont dynamiques et évoluent avec l'espace de travail. | En revue, reporté, rejeté |
 | **En revue** | Entre les mains des décideurs. Leurs commentaires y sont consignés. | Approuvé, brouillon, reporté, rejeté |
-| **Approuvé** | Une décision a été prise. **Les chiffres sont figés** avec la date et l'approbateur. | En cours de mise en œuvre, reporté |
+| **Approuvé** | Une décision a été prise. **Les chiffres sont figés** avec la date et l'approbateur, dont le nom est requis : sans lui l'approbation est refusée, et la Revue de qualité (QC-02) met en échec une recommandation approuvée qui ne nomme aucun approbateur. | En cours de mise en œuvre, reporté |
 | **En cours de mise en œuvre** | En cours de réalisation. L'avancement, l'échéance et le prochain examen sont suivis. | Terminé, reporté |
 | **Terminé** | Réalisé. | — |
 | **Reporté** / **Rejeté** | Final. La raison est consignée. | — |
@@ -1911,10 +1962,16 @@ horizon, les coûts, les mesures, les scénarios visés, l'effet sur le ratio, l
 dépendances, le risque résiduel après traitement, la façon dont elle sera mesurée, et la décision
 demandée. Les éléments manquants sont nommés ; il ne les devine pas à votre place.
 
-**Une recommandation ne peut pas s'attribuer le mérite d'un contrôle dont vous disposez déjà.** La base
-de référence comprend tout ce qui est déjà en vigueur, y compris les propres mesures de cette
-recommandation si elles sont déjà mises en œuvre. Si vous cochez une mesure dont le statut est *mis en
-œuvre*, la réduction revendiquée est nulle, et c'est exact.
+**Ce qu'une recommandation apporte.** Sa réduction est le risque résiduel **sans les mesures propres de
+cette recommandation** moins le risque résiduel **avec elles**, quel que soit leur statut ; toute autre mesure
+déjà en vigueur (approuvée, en cours, mise en œuvre) figure dans les deux chiffres. Une mesure de la
+recommandation que l'organisation a déjà mise en œuvre est donc comptée une fois, du côté « avec » : c'est
+toujours la mesure de cette recommandation, et l'approuver ne fige plus une réduction de 0. Les
+recommandations approuvées selon l'ancienne règle et figées à 0 alors que leurs mesures réduisent bel et bien
+le risque ont été recalculées une fois à l'ouverture de l'espace de travail par cette version — la seule
+exception écrite à « une migration ne change jamais les chiffres d'une organisation » : les anciens chiffres
+sont conservés à côté des nouveaux, étiquetés, dans l'historique de la recommandation, et l'écran l'indique
+par un bandeau.
 
 **Consolidation** examine l'ensemble des ébauches et propose de fusionner celles qui partagent des
 thèmes de contrôle ou des scénarios en un nombre moindre d'initiatives d'entreprise, en énonçant la
