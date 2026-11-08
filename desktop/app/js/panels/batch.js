@@ -377,7 +377,6 @@ function commit(redraw) {
     for (const k of PARAMS) s.params[k] = { v: Number(r.params[k]), qual: '', rat: (r.rat && r.rat[k]) || 'Batch default — analytical estimate, validation required.', ev: (r.rat && r.rat[k + '_ev']) || '', conf: (r.conf && r.conf[k]) || 'Low' };
     if (r.cvss) { s.cvss = r.cvss; s.vector_source = 'pattern'; s.vector_ref = r.cvss; }   // 1.9.2 (NV-002) — a pattern's vector, to confirm in the editor
     else if (r.cvss_score !== null && r.cvss_score !== undefined && r.cvss_score !== '') { s.cvss_score = Number(r.cvss_score); s.vector_source = 'pattern'; s.vector_ref = s.cvss; }
-    if (s.red_p > 0 || s.red_i > 0) s.red_source = { kind: 'batch', date: today(), cause: 'set on the batch row' };   // 1.9.2 (NV-001) — an entry, not a default
     a.SCEN.push(s); added.push(s.id);
   }
   S.ws.batchDraft = keep; touch();

@@ -259,7 +259,7 @@ export function scenarioFromCandidate(c, ws = S.ws, { family = null } = {}) {
   if (d.cvss && /^CVSS:4\.0\//.test(d.cvss)) { s.cvss = d.cvss; s.vector_source = 'pattern'; s.vector_ref = d.cvss; }
   else if (d.cvss_score !== null && d.cvss_score !== undefined && d.cvss_score !== '' && Number.isFinite(Number(d.cvss_score))) { s.cvss_score = Number(d.cvss_score); s.vector_source = 'pattern'; s.vector_ref = s.cvss; }
   if (d.cvss_note) s.cvss_note = d.cvss_note;
-  if (d.red_p > 0 || d.red_i > 0) { s.red_p = Number(d.red_p) || 0; s.red_i = Number(d.red_i) || 0; s.red_source = { kind: 'candidate', date: today(), cause: `set on the candidate row ${c?.id || ''}` }; }
+  if (d.red_p > 0 || d.red_i > 0) { s.red_p = Number(d.red_p) || 0; s.red_i = Number(d.red_i) || 0; }   // set on the row: an entry, counted by step 14 (no red_source record — that one names measures)
   if (d.owner) s.owner = d.owner;
   if (d.horizon) s.horizon = d.horizon;
   if (d.scenPattern) s.scenPattern = d.scenPattern;

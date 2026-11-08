@@ -12745,8 +12745,6 @@ export default {
 "scored {0}": "noté {0}",
 "scores proposed by AI": "notes proposées par l’IA",
 "screening scores proposed by AI applied": "notes de filtrage proposées par l’IA appliquées",
-"set on the batch row": "fixé sur la ligne du lot",
-"set on the candidate row {0}": "fixé sur la ligne du candidat {0}",
 "still the default vector of a new scenario: score the representative weakness (vector or equivalency) in the editor’s CVSS tab.": "encore le vecteur par défaut d’un nouveau scénario : notez la faiblesse représentative (vecteur ou équivalence) dans l’onglet CVSS de l’éditeur.",
 "the vector of the pattern or candidate the scenario came from: confirm or change it in the editor’s CVSS tab (a changed vector counts as confirmed).": "le vecteur du modèle ou du candidat dont vient le scénario : confirmez-le ou changez-le dans l’onglet CVSS de l’éditeur (un vecteur modifié compte comme confirmé).",
 "they go to the scenario when it is created (Process step 9 then asks for the rationale and evidence).": "ils passent au scénario à sa création (l’étape 9 du processus demande ensuite la justification et les éléments probants).",
