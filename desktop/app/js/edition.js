@@ -23,3 +23,9 @@ export const EDITION_LABEL = { community: 'Community edition', educational: 'Edu
 export const CIS_NOTICE = CIS_TITLES
   ? 'CIS Controls v8.1 © Center for Internet Security, Inc. Control titles and CRGO’s own paraphrased safeguard labels are shown for non-commercial use under CC BY-NC-ND 4.0; cite CIS by identifier (https://www.cisecurity.org/controls/v8-1).'
   : 'CIS Controls v8.1 © Center for Internet Security, Inc. This edition lists CIS controls and safeguards by identifier only, pending CIS approval of the titles in a commercial product; see https://www.cisecurity.org/controls/v8-1 for the titles.';
+/** The identifier-only form of a CIS Controls v8.1 catalogue row: [title, group] when titles may not be shown (commercial
+ *  edition), the row's own title and group otherwise. Pure, so the package script and the catalogue agree and a test can call it. */
+export function cisRow(id, title, grp, cisTitles = CIS_TITLES) {
+  if (cisTitles) return [title, grp];
+  return [/^CIS /.test(id) ? id : `CIS v8.1 safeguard ${id}`, /^CIS Controls/.test(grp) ? grp : 'CIS ' + String(grp).replace(/^CIS\s+/, '').split(' ')[0]];
+}

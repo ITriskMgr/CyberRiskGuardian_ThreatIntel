@@ -11,16 +11,14 @@ import { S, compute, scen, initiatives, initArr, INIT_COLS } from './state.js';
 import { KB, tech, mitigation, MEASURES } from './ontology.js';
 import { today, uid } from './util.js';
 import * as FW from './frameworks.js';
-import { CIS_TITLES, CIS_NOTICE } from './edition.js';
+import { CIS_TITLES, CIS_NOTICE, cisRow } from './edition.js';
 
 const C = self.CRG_CONTROLS || { frameworks: [], tags: {}, controls: [], flags: [] };
 /* Edition switch (D3): the CIS Controls v8.1 framework carries the notice of this edition; in the commercial edition its
    controls and safeguards are listed by identifier only (cisOnlyId), whatever the catalogue file holds. */
 const CIS_FW = 'CIS81';
 for (const f of C.frameworks) if (f.id === CIS_FW) f.note = (CIS_TITLES ? f.note + ' ' : '') + CIS_NOTICE;
-const cisOnlyId = (f, id, title, grp) => (!CIS_TITLES && f.id === CIS_FW)
-  ? [/^CIS /.test(id) ? id : `CIS v8.1 safeguard ${id}`, /^CIS Controls/.test(grp) ? grp : 'CIS ' + String(grp).replace(/^CIS\s+/, '').split(' ')[0]]
-  : [title, grp];
+const cisOnlyId = (f, id, title, grp) => (f.id === CIS_FW ? cisRow(id, title, grp) : [title, grp]);
 export const FRAMEWORKS = [...C.frameworks];
 /** Bundled frameworks plus any imported pack that introduces a new framework. */
 export function frameworkList() {

@@ -12835,4 +12835,7 @@ export default {
 "Below the appetite-consistent target · spend − target; negative = below the target": "Sous la cible cohérente avec l’appétit · dépense − cible ; négatif = sous la cible",
 "only CVSS v4.0 Base metrics are accepted (CVSS-B); \"{0}\" is not a Base metric - route exploitation evidence to Pb(ψ,A)": "seules les métriques de base CVSS v4.0 sont acceptées (CVSS-B) ; « {0} » n’est pas une métrique de base – acheminez les preuves d’exploitation vers Pb(ψ,A)",
 "Only base metrics are supported here (\"{0}\")": "Seules les métriques de base sont prises en charge ici (« {0} »)",
+"Scenario values stored as text are retyped as numbers (same figures; one typing rule for every engine)": "Les valeurs de scénario enregistrées comme texte sont retypées en nombres (mêmes chiffres ; une seule règle de typage pour tous les moteurs)",
+"{0} numeric text value(s) retyped as numbers: {1}": "{0} valeur(s) numérique(s) en texte retypée(s) en nombres : {1}",
+"Tolerated risk is 0 ({0} = 0): the risk-to-tolerance ratio is not applicable — confirm the zero is deliberate (the scenario is then not a risk in the period) rather than a placeholder": "Le risque toléré est 0 ({0} = 0) : le ratio risque résiduel / risque toléré n’est pas applicable — confirmez que le zéro est voulu (le scénario n’est alors pas un risque dans la période) plutôt qu’une valeur provisoire",
 };

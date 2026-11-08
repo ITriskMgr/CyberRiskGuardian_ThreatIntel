@@ -19,4 +19,28 @@
    Import leaf modules only (e.g. util.js, markers.js, a module of your own that imports none of those four). © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 
-export default [];
+/* One typing rule for every engine (X-2 / NV-095): a numeric string ("0.7") is no longer read as a number, so a scenario
+   value stored as text — an old import or a hand-edited JSON — is converted to the number it already spells. The figure is
+   the same; only its type changes, and the journal says which fields. Nothing else is touched (a boolean or a word stays
+   as it is and the engine reports it). Idempotent. */
+const NUMERIC = /^\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?\s*$/i;
+export function retypeNumbers(w) {
+  const fixed = [];
+  const fix = (obj, key, where) => {
+    const v = obj[key];
+    if (typeof v === 'string' && NUMERIC.test(v)) { obj[key] = Number(v); fixed.push(where); }
+  };
+  for (const s of w.assessment?.SCEN || []) {
+    for (const k of ['red_p', 'red_i', 'cvss_score']) fix(s, k, `${s.id}.${k}`);
+    for (const [k, p] of Object.entries(s.params || {})) {
+      if (p && typeof p === 'object') fix(p, 'v', `${s.id}.${k}`);
+      else fix(s.params, k, `${s.id}.${k}`);
+    }
+  }
+  return fixed;
+}
+
+export default [
+  { group: 'ASSESSMENT', title: 'Scenario values stored as text are retyped as numbers (same figures; one typing rule for every engine)',
+    up(w, note) { const fixed = retypeNumbers(w); if (fixed.length) note(`${fixed.length} numeric text value(s) retyped as numbers: ${fixed.slice(0, 12).join(', ')}${fixed.length > 12 ? ', …' : ''}`); } },
+];

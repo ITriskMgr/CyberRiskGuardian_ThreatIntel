@@ -153,23 +153,23 @@ export async function buildWorkbook(opts = {}) {
     SCEN.forEach((s, j) => put(wpo, r, 11 + j, it.scenarios.includes(s.id) ? 1 : 0, BLUE, '0'));
     put(wpo, r, 11 + N, it.start || ''); put(wpo, r, 12 + N, it.end || ''); put(wpo, r, 13 + N, it.success || '', { wrap: true });
   });
-  const PN = P0 + INITS.length - 1, tr = PN + 1;
+  const PN = P0 + INITS.length - 1, PTOT = PN + 1;
   const sumY = k => INITS.reduce((s, it) => s + (k === 'y1' ? (Number(it.initial) || 0) + (Number(it.recurring) || 0) : Number(it[k]) || 0), 0);
-  put(wpo, tr, 2, tr('TOTAL (each initiative counted once)'), B);
+  put(wpo, PTOT, 2, tr('TOTAL (each initiative counted once)'), B);
   if (INITS.length) {
-    put(wpo, tr, 6, F(`SUM(F${P0}:F${PN})`, sumY('initial')), B, '$#,##0'); put(wpo, tr, 7, F(`SUM(G${P0}:G${PN})`, sumY('recurring')), B, '$#,##0'); put(wpo, tr, 8, F(`SUM(H${P0}:H${PN})`, sumY('y1')), B, '$#,##0');
-  } else for (const c of [6, 7, 8]) put(wpo, tr, c, 0, B, '$#,##0');
+    put(wpo, PTOT, 6, F(`SUM(F${P0}:F${PN})`, sumY('initial')), B, '$#,##0'); put(wpo, PTOT, 7, F(`SUM(G${P0}:G${PN})`, sumY('recurring')), B, '$#,##0'); put(wpo, PTOT, 8, F(`SUM(H${P0}:H${PN})`, sumY('y1')), B, '$#,##0');
+  } else for (const c of [6, 7, 8]) put(wpo, PTOT, c, 0, B, '$#,##0');
   const alloc = {};
   SCEN.forEach((s, j) => {
     const v = INITS.reduce((t, it) => t + (it.scenarios.includes(s.id) ? ((Number(it.initial) || 0) + (Number(it.recurring) || 0)) / it.scenarios.length : 0), 0);
     alloc[s.id] = v;
     const c = 11 + j;
-    put(wpo, tr, c, INITS.length ? F(`SUMPRODUCT(${L(c)}${P0}:${L(c)}${PN},$J$${P0}:$J$${PN})`, v) : 0, B, '$#,##0');
+    put(wpo, PTOT, c, INITS.length ? F(`SUMPRODUCT(${L(c)}${P0}:${L(c)}${PN},$J$${P0}:$J$${PN})`, v) : 0, B, '$#,##0');
   });
-  put(wpo, tr + 1, 2, tr('Check: sum of scenario allocations - portfolio Year-1 total (should be 0)'));
+  put(wpo, PTOT + 1, 2, tr('Check: sum of scenario allocations - portfolio Year-1 total (should be 0)'));
   const allocSum = Object.values(alloc).reduce((a, b) => a + b, 0);
-  put(wpo, tr + 1, 8, N ? F(`SUM(K${tr}:${LASTF}${tr})-H${tr}`, Math.round((allocSum - sumY('y1')) * 1e6) / 1e6) : 0, {}, '$#,##0;($#,##0);-');
-  wpo.set(tr + 2, 1, tr("Allocation assumption: each initiative's Year-1 cost is split equally across the scenarios it addresses, so shared controls are never charged in full to several scenarios."), { border: false });
+  put(wpo, PTOT + 1, 8, N ? F(`SUM(K${PTOT}:${LASTF}${PTOT})-H${PTOT}`, Math.round((allocSum - sumY('y1')) * 1e6) / 1e6) : 0, {}, '$#,##0;($#,##0);-');
+  wpo.set(PTOT + 2, 1, tr("Allocation assumption: each initiative's Year-1 cost is split equally across the scenarios it addresses, so shared controls are never charged in full to several scenarios."), { border: false });
 
   /* Analyse (inserted as 2nd sheet) */
   const wa = wb.sheet('Analyse');
@@ -192,7 +192,7 @@ export async function buildWorkbook(opts = {}) {
     put(wa, r, 12, F(`C${r}*D${r}*E${r}*((F${r}+G${r})/2)*H${r}/I${r}*K${r}`, est), {}, '#,##0');
     put(wa, r, 13, F(`C${r}*D${r}*E${r}*J${r}*H${r}/I${r}*K${r}`, tol), {}, '#,##0');
     put(wa, r, 14, F(`IF(M${r}=0,"n/a",L${r}/M${r})`, tol ? est / tol : 'n/a'), {}, '0.00');
-    put(wa, r, 15, F(`Portfolio!${L(11 + idx)}${tr}`, cost), GRN, '$#,##0');
+    put(wa, r, 15, F(`Portfolio!${L(11 + idx)}${PTOT}`, cost), GRN, '$#,##0');
     put(wa, r, 16, F(`Inputs!K${ir}`, Number(s.red_p)), GRN, '0.00'); put(wa, r, 17, F(`Inputs!L${ir}`, Number(s.red_i)), GRN, '0.00');
     put(wa, r, 18, F(`L${r}*P${r}*Q${r}`, mit), {}, '#,##0'); put(wa, r, 19, F(`MAX(0,L${r}-R${r})`, res), {}, '#,##0');   // guard: never negative
     // tolerated risk 0 (a probability, mu(E) or CVSS at 0): no ratio, "Not applicable" — never "Above tolerance"
@@ -381,7 +381,7 @@ export async function buildWorkbook(opts = {}) {
   put(wbu, 12, 3, F(`IF(B10<0.04,"${BELOW4}",IF(B10>0.12,"${tr("Above the 12% point target (more than a risk-averse organization's best-practice target)")}","${tr('Between the 4% and 12% point targets')}"))`, tr(CRG.bandStatus(it ? spend / it : 0))));
   put(wbu, 13, 1, tr('Treatment envelope at the 4% / 7.8% / 12% point targets (after baseline)'));
   put(wbu, 13, 2, F('MAX(0,0.04*B4-B7)', Math.max(0, 0.04 * it - base)), {}, '$#,##0'); put(wbu, 13, 3, F('MAX(0,0.078*B4-B7)', Math.max(0, 0.078 * it - base)), {}, '$#,##0'); put(wbu, 13, 4, F('MAX(0,0.12*B4-B7)', Math.max(0, 0.12 * it - base)), {}, '$#,##0');
-  put(wbu, 14, 1, tr('Portfolio Year-1 cost (all initiatives)')); put(wbu, 14, 2, F(`Portfolio!H${tr}`, sumY('y1')), GRN, '$#,##0');
+  put(wbu, 14, 1, tr('Portfolio Year-1 cost (all initiatives)')); put(wbu, 14, 2, F(`Portfolio!H${PTOT}`, sumY('y1')), GRN, '$#,##0');
   put(wbu, 15, 1, tr('Total cyber spend if portfolio funded (% of IT)')); put(wbu, 15, 2, F('IF(B4=0,0,(B7+B14)/B4)', it ? (base + sumY('y1')) / it : 0), {}, '0.00%');
 
   // budget by year and multi-year initiative allocation (live formulas)

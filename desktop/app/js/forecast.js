@@ -252,6 +252,7 @@ export function tornado(ws = S.ws, id) {
   const mk = over => {
     const b = { id: s.id, params: {}, red_p: r.red_p.likely, red_i: r.red_i.likely, cvss_score: cvss };
     for (const [k] of PARAMS) b.params[k] = r[k].likely;
+    if (b.params.Dm < b.params.De) b.params.Dm = b.params.De;               // δm ≥ δe (engine rule)
     Object.assign(b, over.at ? {} : {});
     return b;
   };
