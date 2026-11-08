@@ -13455,4 +13455,5 @@ export default {
 "copy": "copie",
 "{0} is linked to {1} scenario(s). Delete it anyway?": "{0} est lié à {1} scénario(s). Le supprimer quand même ?",
 "{0} risk(s) link this scenario: {1}. They will show the link as deleted until you unlink them or link another scenario.": "{0} risque(s) lient ce scénario : {1}. Ils afficheront le lien comme supprimé jusqu’à ce que vous les déliiez ou liiez un autre scénario.",
+"At {0} of IT the funding implies an appetite above 0.70, outside the guideline. That is a management decision to make explicitly, not a default.": "À {0} du budget TI, le financement implique une appétence supérieure à 0,70, hors de la ligne directrice. C’est une décision de la direction à prendre explicitement, pas un défaut.",
 };
