@@ -283,7 +283,7 @@ def classify(cve: str, snap: dict[str, Any], exposed: bool) -> dict[str, Any]:
             why += "; known ransomware campaign use"
     elif epss_score is not None and (epss_score >= th.get("epss_rung4_min", EPSS_RUNG4_MIN)
                                      or (percentile or 0) >= th.get("epss_percentile_rung4_min", 0.90)):
-        rung, why = 4, f"EPSS {epss_score:.3f} ({percentile:.2%} pct)"
+        rung, why = 4, f"EPSS {epss_score:.3f} (percentile {(percentile or 0):.0%})"
         # Age guard. EPSS stays high for very old CVEs because automated scanning keeps probing
         # them, not because a modern organization is credibly exposed. Reaching rung 4 on that
         # signal alone would overstate the risk, so outside KEV an old CVE is capped at rung 2.

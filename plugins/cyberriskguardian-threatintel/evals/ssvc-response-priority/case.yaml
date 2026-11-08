@@ -1,0 +1,21 @@
+schema_version: "1.1"
+name: ssvc-response-priority
+tags: ["smoke", "threat-context", "ssvc"]
+runs: 2
+execution:
+  prompt: "Walk the CISA SSVC deployer tree with the CyberRiskGuardian tools for: exploitation active, automatable yes, technical impact total, mission prevalence support, public well-being minimal. Give the outcome and say what it means for the risk indices."
+  max_turns: 10
+  timeout_seconds: 600
+  allowed_tools: ["Bash", "Read", "Skill"]
+graders:
+  - name: tool
+    type: "tool_used"
+    tool: "Bash"
+    input_match: "ssvc"
+  - name: outcome-act
+    type: "regex"
+    pattern: "\\bact\\b"
+    flags: "i"
+  - name: not-a-likelihood
+    type: "llm"
+    criteria: "The reply gives the outcome 'act' (with Mission & Well-being derived as medium) and states that an SSVC outcome is a response priority, never a likelihood: it does not change Pb(A) or Pb(ψ,A) and is not converted into a risk index."

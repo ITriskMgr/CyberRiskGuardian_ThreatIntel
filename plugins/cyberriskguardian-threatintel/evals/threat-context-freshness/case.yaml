@@ -1,0 +1,25 @@
+schema_version: "1.1"
+name: threat-context-freshness
+tags: ["smoke", "threat-context"]
+runs: 2
+execution:
+  prompt: "The fixture file threat-context-shipped.json is not in the working directory: it is in a fixtures/ directory added to this session (listed among the additional working directories). Search there, for example with Glob **/fixtures/threat-context-shipped.json from the added directory, then read it. It is a CyberRiskGuardian threat-context snapshot. Tell me its retrieval date, its expiry date, whether it is still usable for an assessment today, which sources it holds, and what the exposure gate means for a CVE it lists. Do not download anything."
+  max_turns: 12
+  timeout_seconds: 600
+  allowed_tools: ["Bash", "Read", "Glob", "Skill"]
+context:
+  add_dirs: [fixtures]
+graders:
+  - name: retrieved
+    type: "regex"
+    pattern: "2026-11-02"
+  - name: expires
+    type: "regex"
+    pattern: "2027-01-31"
+  - name: sources
+    type: "regex"
+    pattern: "KEV|Known Exploited"
+    flags: "i"
+  - name: no-network
+    type: "llm"
+    criteria: "The reply reads the snapshot locally (no download), states the 90-day lifetime and whether the snapshot is expired relative to today's date, names CISA KEV and FIRST EPSS as sources, and explains the exposure gate: a KEV listing or EPSS value may only move Pb(ψ,A) within a Threat Evidence Ladder band when organizational evidence confirms the affected technology is operated; it never becomes Pb(A) or Pb(ψ,A) directly and never changes δe, δm, θ or μ(E)."
