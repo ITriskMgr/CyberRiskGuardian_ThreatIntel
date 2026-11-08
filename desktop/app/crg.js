@@ -9,8 +9,8 @@
  * CVSS precedence (X-1): the vector wins. When a scenario carries both a vector and a stored score, the score is
  * recomputed from the vector and used; a stored score that disagrees is flagged (result.warnings), never corrected
  * silently. Only CVSS v4.0 Base metrics are accepted (CVSS-B); exploitation evidence belongs in Pb(ψ,A).
- * Zero tolerated risk (Pb(A), Pb(ψ,A), μ(E) or CVSS at 0): the ratios are undefined and the scenario is classified
- * "Not applicable (tolerated risk 0)" — never "Above tolerance".
+ * Zero tolerated risk (Pb(A), Pb(ψ,A), μ(E) or CVSS at 0): the ratios are NaN (null in JSON) and the scenario is classified
+ * "Not applicable (tolerated risk 0)" — never "Above tolerance"; a warning asks to confirm the zero is deliberate.
  * (c) 2026 Marc-André Léger — CC BY-NC 4.0 */
 (function (root) {
   "use strict";
@@ -33,8 +33,19 @@
   const isNum = x => typeof x === "number" && Number.isFinite(x);
   const C4 = () => (typeof CVSS4 !== "undefined" ? CVSS4 : require("./cvss4.js"));
 
-  /** Score a vector (Base metrics only; cvss4.js refuses Threat, Environmental and Supplemental metrics). */
+  // CVSS v4.0 metric families outside the Base metrics; refused with the reference engine's messages (X-1).
+  const THREAT = ["E"], ENVIRONMENTAL = ["CR", "IR", "AR", "MAV", "MAC", "MAT", "MPR", "MUI", "MVC", "MVI", "MVA", "MSC", "MSI", "MSA"], SUPPLEMENTAL = ["S", "AU", "R", "V", "RE", "U"];
+  /** Throws when the vector carries Threat, Environmental or Supplemental metrics: CRG scores CVSS-B only. */
+  function checkBaseOnly(vec) {
+    const keys = String(vec).trim().split("/").slice(1).filter(Boolean).map(f => f.split(":")[0]);
+    const t = keys.filter(k => THREAT.includes(k)), e = keys.filter(k => ENVIRONMENTAL.includes(k)), u = keys.filter(k => SUPPLEMENTAL.includes(k));
+    if (t.length) throw new Error("CVSS-B only: Threat metric " + t.join(", ") + " is not accepted — route exploitation evidence (CISA KEV, EPSS, proof of concept) to Pb(ψ,A) and give the Base vector");
+    if (e.length) throw new Error("CVSS-B only: Environmental metric " + e.join(", ") + " is not accepted — organizational context enters through μ(E), δe, δm and θ; give the Base vector");
+    if (u.length) throw new Error("CVSS-B only: Supplemental metric " + u.join(", ") + " is not accepted (it does not change the score) — give the Base vector");
+  }
+  /** Score a vector (Base metrics only; cvss4.js refuses anything else too). */
   function scoreVector(vec) {
+    checkBaseOnly(vec);
     const c = C4().score(String(vec).trim());
     if (!Number.isFinite(c)) throw new Error("the CVSS vector could not be scored");
     return c;
@@ -59,7 +70,11 @@
     if (vec !== null) {
       let computed;
       try { computed = scoreVector(vec); }
-      catch (e) { errors.push(id + ": invalid CVSS v4.0 vector " + JSON.stringify(vec) + " (" + String(e.message || e) + ")"); return { score: null, source: null, errors, warnings }; }
+      catch (e) {
+        const m = String(e.message || e);
+        errors.push(m.startsWith("CVSS-B only") ? id + ": " + m + " (vector " + JSON.stringify(vec) + ")" : id + ": invalid CVSS v4.0 vector " + JSON.stringify(vec) + " (" + m + ")");
+        return { score: null, source: null, errors, warnings };
+      }
       if (stored !== null && Math.abs(stored - computed) > CVSS_TOLERANCE)
         warnings.push(id + ": stored CVSS score " + stored + " disagrees with its vector (" + computed + "); the vector's score " + computed + " is used — correct the stored score");
       return { score: computed, source: "vector", errors, warnings };
@@ -122,8 +137,16 @@
     const tol = base * appetite;
     const mit = est * rp * ri;
     const res = Math.max(0, est - mit);        // guard: never negative (reductions are validated to 0–1)
-    const ratio = tol ? res / tol : NaN, pre_ratio = tol ? est / tol : NaN;
-    return { cvss: c, cvss_source: cv.source, est, tol, mit, res, ratio, pre_ratio, warnings: cv.warnings };
+    // zero tolerated risk: the ratios are NaN (null once serialized to JSON, as the reference engine's None) and the verdict
+    // is "Not applicable (tolerated risk 0)"; a warning asks to confirm the zero is deliberate, never "Above tolerance"
+    const warnings = cv.warnings.slice();
+    let ratio = NaN, pre_ratio = NaN;
+    if (tol) { ratio = res / tol; pre_ratio = est / tol; }
+    else {
+      const zero = ["PbA", "Pbx", "Mu"].filter(k => p[k] === 0).map(k => LABEL[k]).concat(c === 0 ? ["CVSS"] : []);
+      warnings.push((s.id || "Scenario") + ": tolerated risk is 0 (" + zero.join(", ") + " = 0): the risk-to-tolerance ratio is not applicable — confirm the zero is deliberate (the scenario is then not a risk in the period) rather than a placeholder");
+    }
+    return { cvss: c, cvss_source: cv.source, est, tol, mit, res, ratio, pre_ratio, warnings };
   }
 
   /** Tolerance verdict; an undefined ratio (tolerated risk 0) is "Not applicable (tolerated risk 0)". */

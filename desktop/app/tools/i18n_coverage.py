@@ -188,7 +188,10 @@ def collect():
     return found
 
 
-CONTENT_ONLY = {'js/exportx.js'}            # text of exported workbooks and files: kept in English
+# Spreadsheet formulas (IF(, MAX(, SUM…, cell refs with {n} placeholders) and sheet names (Case_View, "Analyse -", a list of sheets ending in " -")
+FORMULA = re.compile(r'^(?:=|IF\(|MAX\(|MIN\(|SUM\w*\(|ROUND\(|ABS\(|PRODUCT\(|\(Inputs!|F\{\d\}\*|1-\(|[A-Z]{1,2}\{\d\}[*/+-])')
+SHEETNAME = re.compile(r'^[A-Z][A-Za-z]*(?:_[A-Z][A-Za-z]*)+$|^(?:Analyse|Inputs|Parameters|Portfolio|Sensitivity|Case_View|Candidates|Scenarios|KRIs|CVSS_Basis|Evidence|Organization|Threats|Vulnerabilities|Recommendations|KRI_History|Budget|Threat_Context|,| |\(MITRE ATT&CK\)|\(CVE / CWE / KEV / EPSS\))+ -$')
+CONTENT_ONLY = set()                        # 1.9.2 (NV-083): the Excel export follows the interface language too, so js/exportx.js is in the gate
 
 
 def interface_strings():
@@ -198,6 +201,8 @@ def interface_strings():
         x = re.sub(r'\s+', ' ', x).strip()
         if not ui_like(x): return
         if re.search(r'\{"|^<!doctype|^CVSS:|^[A-Za-z_]+!\$?[A-Z{]|^#{1,3} |^\| |^\{\d+\}$|^[\W\d_{}]+$|^"', x, re.I): return
+        # 1.9.2 — the Excel export is in the gate: its spreadsheet formulas and sheet names are not interface text
+        if FORMULA.match(x) or SHEETNAME.match(x): return
         out.setdefault(x, set()).update(src)
     for k, v in collect().items():
         if v <= CONTENT_ONLY: continue

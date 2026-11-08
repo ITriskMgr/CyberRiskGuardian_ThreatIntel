@@ -430,6 +430,14 @@ export function exportAssessment(ws = S.ws, { includedOnly = false } = {}) {
   if (includedOnly) a.SCEN = a.SCEN.filter(s => included(s.id, ws));
   a.ORGANIZATION = ws.org.name || ws.name;
   if (ws.snapshot) a.threat_context = { snapshot: ws.snapshot.name, retrieved: ws.snapshot.retrieved, expires: ws.snapshot.expires };
+  // The vector wins (X-1): a stored score that disagrees with its vector is flagged in the file too, so a reader that
+  // uses the stored score sees the disagreement. Nothing is changed: both values are exported as entered.
+  const warnings = [];
+  for (const s of a.SCEN) {
+    const c = CRG.cvssCheck(s);
+    if (c.agree === false) { s.cvss_check = { stored: c.stored, computed: c.computed, agree: false, used: 'vector' }; warnings.push(`${s.id}: stored CVSS score ${c.stored} disagrees with its vector (${c.computed}); the vector's score is used`); }
+  }
+  if (warnings.length) a.warnings = warnings;
   return a;
 }
 

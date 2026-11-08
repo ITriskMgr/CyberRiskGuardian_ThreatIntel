@@ -16,7 +16,7 @@ CVSS precedence: the vector wins — its score is recomputed and used; a stored 
 carrying Threat (E), Environmental (CR/IR/AR, M*) or Supplemental metrics is rejected; exploitation evidence
 belongs in Pb(ψ,A).
 Zero tolerated risk (Pb(A), Pb(ψ,A), μ(E) or CVSS at 0): the ratios are nan and the scenario is classified
-"Not applicable (tolerated risk 0)".
+"Not applicable (tolerated risk 0)"; the ratios are None (null in JSON) and a warning asks to confirm the zero is deliberate.
 
 Usage:
     python3 crg_calc.py scenarios.json [--appetite 0.30] [--factor 1000] [--json]
@@ -39,9 +39,12 @@ DEFAULT_FACTOR = float(os.environ.get("CRG_FACTOR", "1000"))
 LABEL = {"PbA": "Pb(A)", "Pbx": "Pb(ψ,A)", "De": "δe", "Dm": "δm", "Th": "θ", "Mu": "μ(E)"}
 PARAMS = ("PbA", "Pbx", "De", "Dm", "Th", "Mu")
 
-# CVSS v4.0 Base metrics (CVSS-B). Anything else in a vector is refused: Threat (E), Environmental (CR, IR, AR,
-# MAV, MAC, …), Supplemental (S, AU, R, V, RE, U).
+# CVSS v4.0 Base metrics (CVSS-B). Anything else in a vector is refused, with the reference engine's messages: Threat (E)
+# compounds with Pb(ψ,A); Environmental (CR, IR, AR, M*) duplicates μ(E), δe/δm and θ; Supplemental changes no score.
 BASE_METRICS = ("AV", "AC", "AT", "PR", "UI", "VC", "VI", "VA", "SC", "SI", "SA")
+CVSS_THREAT_METRICS = ("E",)
+CVSS_ENVIRONMENTAL_METRICS = ("CR", "IR", "AR", "MAV", "MAC", "MAT", "MPR", "MUI", "MVC", "MVI", "MVA", "MSC", "MSI", "MSA")
+CVSS_SUPPLEMENTAL_METRICS = ("S", "AU", "R", "V", "RE", "U")
 
 
 class CRGInputError(ValueError):
@@ -52,8 +55,13 @@ class CRGInputError(ValueError):
         super().__init__("; ".join(self.errors))
 
 
+class CVSSBaseOnlyError(ValueError):
+    """The vector carries Threat, Environmental or Supplemental metrics: CRG scores CVSS-B only."""
+
+
 def check_base_vector(vector):
-    """Raise ValueError unless the vector carries CVSS v4.0 Base metrics only (every mandatory metric, no other)."""
+    """Raise unless the vector carries CVSS v4.0 Base metrics only (every mandatory metric, no other).
+    CVSSBaseOnlyError names the metric family and where its evidence belongs (the reference engine's messages)."""
     v = str(vector).strip()
     if not v.startswith("CVSS:4.0/"):
         raise ValueError('vector must start with "CVSS:4.0/"')
@@ -61,11 +69,22 @@ def check_base_vector(vector):
     for f in v.split("/")[1:]:
         if ":" not in f:
             raise ValueError(f'malformed field "{f}"')
-        k = f.split(":", 1)[0]
-        if k not in BASE_METRICS:
-            raise ValueError(f'only CVSS v4.0 Base metrics are accepted (CVSS-B); "{k}" is not a Base metric '
-                             "- route exploitation evidence to Pb(ψ,A)")
-        keys.append(k)
+        keys.append(f.split(":", 1)[0])
+    threat = [k for k in keys if k in CVSS_THREAT_METRICS]
+    env = [k for k in keys if k in CVSS_ENVIRONMENTAL_METRICS]
+    supp = [k for k in keys if k in CVSS_SUPPLEMENTAL_METRICS]
+    if threat:
+        raise CVSSBaseOnlyError(f"CVSS-B only: Threat metric {', '.join(threat)} is not accepted - route exploitation "
+                                "evidence (CISA KEV, EPSS, proof of concept) to Pb(ψ,A) and give the Base vector")
+    if env:
+        raise CVSSBaseOnlyError(f"CVSS-B only: Environmental metric {', '.join(env)} is not accepted - organizational "
+                                "context enters through μ(E), δe, δm and θ; give the Base vector")
+    if supp:
+        raise CVSSBaseOnlyError(f"CVSS-B only: Supplemental metric {', '.join(supp)} is not accepted (it does not change "
+                                "the score) - give the Base vector")
+    unknown = [k for k in keys if k not in BASE_METRICS]
+    if unknown:
+        raise ValueError("unknown metric " + ", ".join(unknown))
     missing = [k for k in BASE_METRICS if k not in keys]
     if missing:
         raise ValueError("missing mandatory metrics: " + ", ".join(missing))
@@ -123,6 +142,9 @@ def resolve_cvss(s):
             computed = cvss4(vec)[0]
         except ImportError:
             errors.append(f"{sid}: the cvss package is needed to score the vector (pip install cvss)")
+            return None, None, errors, warnings
+        except CVSSBaseOnlyError as e:                      # Threat / Environmental / Supplemental: never scored as CVSS-B
+            errors.append(f"{sid}: {e} (vector {vec!r})")
             return None, None, errors, warnings
         except Exception as e:                              # noqa: BLE001 — invalid vector string
             errors.append(f"{sid}: invalid CVSS v4.0 vector {vec!r} ({e})")
@@ -220,14 +242,20 @@ def calc(s, appetite=DEFAULT_APPETITE, factor=DEFAULT_FACTOR):
     tol = base * appetite
     mit = est * rp * ri
     res = max(0.0, est - mit)             # guard: never negative (reductions are validated to 0-1)
-    ratio = res / tol if tol else float("nan")
-    pre = est / tol if tol else float("nan")
+    if tol:
+        ratio, pre = res / tol, est / tol
+    else:                                 # zero tolerated risk: the ratio is not applicable (None; never "Above tolerance")
+        ratio = pre = None
+        zero = [LABEL[k] for k in ("PbA", "Pbx", "Mu") if p[k] == 0] + (["CVSS"] if c == 0 else [])
+        warnings = warnings + [f"{s.get('id') or 'Scenario'}: tolerated risk is 0 ({', '.join(zero)} = 0): the risk-to-tolerance "
+                               "ratio is not applicable - confirm the zero is deliberate (the scenario is then not a risk "
+                               "in the period) rather than a placeholder"]
     return dict(cvss=c, cvss_source=src, est=est, tol=tol, mit=mit, res=res, ratio=ratio, pre_ratio=pre, warnings=warnings)
 
 
 def classify(ratio):
-    """Tolerance verdict; an undefined ratio (tolerated risk 0) is "Not applicable (tolerated risk 0)"."""
-    if not _num(ratio):
+    """Tolerance verdict; None or NaN (tolerated risk 0) is "Not applicable (tolerated risk 0)", not a verdict."""
+    if ratio is None or not _num(ratio):
         return NOT_APPLICABLE
     if ratio < BAND_LOW:
         return "Below tolerance"

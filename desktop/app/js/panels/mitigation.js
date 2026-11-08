@@ -122,7 +122,7 @@ function plan(body, sec) {
     { key: 'cur', label: 'Current red_p · red_i', num: true, render: r => r.error ? '—' : `${n2(r.s.red_p)} · ${n2(r.s.red_i)}` },
     { key: 'curr', label: 'Current ratio', num: true, render: r => r.error ? r.error : el('span', null, n2(r.cur.ratio), ' ', pill(r.curCls.split(' ')[0], pillFor(r.curCls))), sort: r => r.cur?.ratio ?? 0 },
     { key: 'ms', label: 'Measures', sortable: false, render: r => el('div', 'chips', ...(r.c?.measures || []).map(m => chip(m.id, { title: m.name }))) },
-    { key: 'comb', label: 'Combined red_p · red_i', num: true, render: r => !r.c?.measures.length ? '—' : el('span', { title: '1 − ∏(1 − r) per dimension' }, `${n2(r.c.red_p)} · ${n2(r.c.red_i)}`) },
+    { key: 'comb', label: 'Combined red_p · red_i', num: true, render: r => !r.c?.measures.length ? '—' : el('span', { title: '1 − ∏(1 − r) per dimension' }, `${n2(r.c.red_p)} · ${n2(r.c.red_i)}`, r.c.invalid?.length ? el('span', { class: 'pill bad', style: { marginLeft: '4px' }, title: r.c.invalid.map(x => `${x.m.id} ${x.lever} ${x.value}`).join(', ') }, 'coefficient outside 0–1') : null) },
     { key: 'after', label: 'Ratio with measures', num: true, render: r => !r.after ? '—' : el('span', null, n2(r.after.ratio), ' ', pill(r.cls.split(' ')[0], pillFor(r.cls))), sort: r => (r.after || r.cur)?.ratio ?? 0 },
     { key: 'res', label: 'Residual current → with', num: true, render: r => r.error ? '—' : r.after ? `${n0(r.cur.res)} → ${n0(r.after.res)}` : n0(r.cur.res), sort: r => r.cur?.res ?? 0 },
     { key: 'cost', label: 'Measure cost share', num: true, render: r => money(cost.per[r.s.id] || 0), sort: r => cost.per[r.s.id] || 0 },
@@ -132,8 +132,10 @@ function plan(body, sec) {
       r.s.redPrev ? el('button', { class: 'btn sm ghost', onclick: () => { K.revertScenario(r.s.id); touch(); render(sec); } }, 'Revert') : null) },
   ];
   const warnZero = imp.filter(r => r.c?.measures.length && (r.c.red_p === 0 || r.c.red_i === 0));
+  const badCoef = imp.flatMap(r => r.c?.invalid || []);
   body.append(card(el('div', 'row', el('h2', { style: { flex: 1, margin: 0 } }, 'Effect on each scenario'),
       el('button', { class: 'btn sm', onclick: () => { const ids = imp.filter(r => r.c?.measures.length).map(r => r.s.id); const d = K.applyToScenarios(ids, ws, statuses); touch(); toast(d.length + ' scenario(s) updated' + (d.skipped.length ? ' · ' + tr('explicit override kept: {0} (Apply on its row replaces it)').replace('{0}', d.skipped.join(', ')) : '')); render(sec); } }, 'Apply to all covered scenarios')),
+    badCoef.length ? banner('bad', 'Reduction coefficients outside 0–1', tr('Flagged, not clamped: these coefficients are left out of the product rule until they are corrected — ') + badCoef.map(x => `${x.m.id} ${x.lever} ${x.value} (${x.id})`).join(', ')) : null,
     warnZero.length ? banner('warn', 'Measures with no effect under the workbook convention', `${warnZero.map(r => r.s.id).join(', ')}: the combined likelihood or impact reduction is 0. The CyberRiskGuardian engine computes mitigated = estimated × red_p × red_i (Excel guide v1.0c §11.5), so a package that reduces only one dimension mitigates nothing. Add a measure that reduces the other dimension, or set a non-zero effect.`) : null,
     el('div', 'tablewrap', { style: { marginTop: '10px' } }, table(tcols, imp.filter(r => r.c?.measures.length || r.s.redPrev), { class: 'compact', sortKey: 'curr', sortDir: -1 })),
     el('p', 'note', 'Only scenarios with at least one measure are listed. Apply writes red_p and red_i into the scenario, records a revision with the ratio before and after, and keeps the previous values so Revert restores them. Costs: each measure\'s Year-1 cost split equally across its scenarios, so a shared measure is never counted twice.')));
@@ -156,8 +158,9 @@ function editor(m, sec) {
   const effRows = m.scen.filter(id => scen(id)).map(id => ({ id }));
   const effT = table([
     { key: 'id', label: 'Scenario', render: r => el('span', null, el('b', 'mono', r.id), ' ', scen(r.id)?.name || '') },
-    { key: 'rp', label: 'Likelihood reduction rp', render: r => { const i = el('input', { type: 'number', min: 0, max: 1, step: 0.05, value: K.effect(m, r.id).rp, style: { width: '90px' } }); i.addEventListener('change', () => { (m.eff[r.id] ||= {}).rp = Math.max(0, Math.min(1, +i.value)); touch(); render(sec); }); return i; } },
-    { key: 'ri', label: 'Impact reduction ri', render: r => { const i = el('input', { type: 'number', min: 0, max: 1, step: 0.05, value: K.effect(m, r.id).ri, style: { width: '90px' } }); i.addEventListener('change', () => { (m.eff[r.id] ||= {}).ri = Math.max(0, Math.min(1, +i.value)); touch(); render(sec); }); return i; } },
+    // a coefficient outside 0–1 is kept as typed and flagged (the book flags, never clamps); the product rule leaves it out
+    { key: 'rp', label: 'Likelihood reduction rp', render: r => coefInput(m, r.id, 'rp', sec) },
+    { key: 'ri', label: 'Impact reduction ri', render: r => coefInput(m, r.id, 'ri', sec) },
     { key: 'why', label: 'Rationale', render: r => { const i = el('input', { value: m.eff[r.id]?.rationale || '', placeholder: 'why this effect for this scenario' }); i.addEventListener('change', () => { (m.eff[r.id] ||= {}).rationale = i.value; save(); }); return i; } },
     { key: 'd', label: '', sortable: false, render: r => m.eff[r.id] && (m.eff[r.id].rp !== undefined || m.eff[r.id].ri !== undefined) ? el('button', { class: 'btn sm ghost', title: 'Use the measure default', onclick: () => { delete m.eff[r.id].rp; delete m.eff[r.id].ri; touch(); render(sec); } }, 'default') : el('span', 'small muted', 'default') },
   ], effRows, { class: 'compact' });
@@ -342,4 +345,12 @@ function about(body) {
     card(el('h2', { style: { marginTop: 0 } }, 'Catalogue sources'),
       table([{ key: 'name', label: 'Framework' }, { key: 'count', label: 'Controls', num: true, render: f => n0(K.fwCount(f.id)) }, { key: 'origin', label: 'Origin' }, { key: 'note', label: 'Note' }], K.frameworkList(), { class: 'compact' }),
       el('p', 'note', 'Capabilities (tags) are assigned by a transparent keyword table (tools/build_controls.py) and link each control to the CRG measures, to ATT&CK mitigations and to default effect ranges. They are aids to search, not mappings endorsed by the standards bodies.')));
+}
+
+/** A per-scenario coefficient input: the value typed is stored as is; outside 0–1 it is flagged beside the field (never clamped). */
+function coefInput(m, id, lever, sec) {
+  const v = K.effect(m, id)[lever];
+  const i = el('input', { type: 'number', min: 0, max: 1, step: 0.05, value: v, style: { width: '90px' }, 'aria-invalid': K.validCoef(v) ? 'false' : 'true' });
+  i.addEventListener('change', () => { const x = Number(i.value); (m.eff[id] ||= {})[lever] = x; if (!K.validCoef(x)) toast(tr('{0} must be within 0–1 — the value is kept but flagged and not applied').replace('{0}', lever), 'bad'); touch(); render(sec); });
+  return K.validCoef(v) ? i : el('span', null, i, ' ', el('span', 'pill bad', 'outside 0–1'));
 }
