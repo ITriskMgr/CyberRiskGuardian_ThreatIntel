@@ -221,7 +221,7 @@ livré avec l'application est CRGO 0.11.1.
 Le bas du menu de gauche doit afficher (une ligne, fixée sous le menu, qui défile seul) :
 
 ```
-© Marc-André Léger · ✓ Moteur vérifié
+© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié
 ```
 
 Cliquez dessus, ou ouvrez **Aide → À propos et versions**, pour voir les totaux qu'il résume :
@@ -729,7 +729,7 @@ Le menu latéral compte onze sections, dans cet ordre : **Démarrer · Organisa
 risques · Menaces et vulnérabilités · Gouvernance · Gestion de la conformité · Gestion de l'audit ·
 Opérations de sécurité · Registre partagé des risques · Outils · Paramètres**. Ce chapitre le suit écran
 par écran. **Aide** est le bouton de la barre supérieure (section 7.12). Le nom et le logo de
-l'application restent en haut du menu, et le pied de page — **© Marc-André Léger · ✓ Moteur vérifié**, qui
+l'application restent en haut du menu, et le pied de page — **© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié**, qui
 ouvre **Aide → À propos et versions** — en bas; seul le menu entre les deux défile, dans le menu complet, le
 rail et le tiroir.
 

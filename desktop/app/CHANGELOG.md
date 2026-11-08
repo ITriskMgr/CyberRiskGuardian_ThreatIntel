@@ -1,6 +1,271 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
-## 1.9.1 Beta (unreleased)
+## 1.9.2 Beta — 8 November 2026
+
+One release for the whole backlog (author decision D4 of 8 November 2026): the decided items 1–23 and C1, C2, C4, C5 of
+the release record, every finding of the 8 November test campaign (`next-version-spec.md` v6: NV-001…NV-099, NV-W01…W08,
+NV-P01…P15, NV-C01…C08, NV-E01…E07, cross-cutting X-1…X-9), with **Threat Intel plugin 1.7.2**, **Core 2.2.1**, **CRG Pro
+2.0.1**, **Security Policy Writer 0.1.1**, **CRGO 0.11.1** and **Education 2.1.2** alongside. **No formula changed**:
+MediBec **84,305 / 41,023** and CanaRetail **27,526 / 16,049** are unchanged in every engine (desktop JS, desktop Python,
+plugin). Workspaces move to **data version 6** (one step 5 → 6 made of sub-steps, journalled; see *Data and migration*
+below). Decisions taken during the build: `DECISIONS-1.9.2.md`. Author decisions applied: D1 (desktop Writer copy
+canonical), D2 (new scenarios start at reductions 0; old 0.5 flagged, never changed), D3 (commercial build cites CIS by
+identifier only until CIS approves), D5 (local-model guidance and warning), D6 (money in the interface locale; exports keep
+plain numbers), FR-1…FR-3 (French terminology), R-1 (campaign severities kept), R-2 (item 23 rule kept).
+
+### Must-read release notes
+- **Data version 6, one-way.** At first start each workspace is brought to data version 6 once (Backup & restore →
+  Migration journal). A workspace saved by 1.9.2 opens **read-only** in 1.9.1 and earlier: export a backup before
+  upgrading if you may need to go back. The migration changes no organization's numbers, with one written exception:
+- **Item 23 — recomputed figures (the one exception).** A recommendation approved before 1.9.2 whose measure was already
+  implemented was frozen at a reduction of 0. When the workspace is opened, 1.9.2 recomputes those frozen figures from the
+  current measures and scenarios under the decided rule (R-2: reduction = residual without this recommendation's own
+  measures − residual with them, whatever their status; other measures in force stay in the baseline); the frozen 0 is
+  kept beside the new figure, labelled *recomputed in 1.9.2 from current measures*, in the recommendation's history and
+  the migration journal, and a banner says so on the recommendation. This is the one written exception to "a migration
+  never changes a real organization's numbers" (`DECISIONS-1.9.2.md`).
+- **Item 20 — already-promoted scenarios are not recoverable.** Scenarios created from the scenario screening before
+  1.9.2 cannot be recovered: their candidate carried no draft. They keep their *Analytical estimate — validation required
+  — to estimate (Process step 9)* placeholders, which step 9 and the quality review (QC-27) no longer count as estimates;
+  estimate each parameter in the Scenario editor. Candidates created from 1.9.2 on keep a draft, and a scenario created
+  from them takes it.
+- **Item 18 — hand-typed values over repaired fields.** 1.9.2 clears the `[object Object]` values the 1.9.1 extraction
+  wrote into the profile (Size, Region, Context, Name, Legal obligations) and into crown-jewel role / dependencies /
+  suppliers, and re-tags them UNKNOWN. A value you typed by hand over one of these before upgrading is not recovered —
+  the profile keeps no history — so re-enter it or re-run the extraction. The journal entry says the same.
+- **Item 6 — duplicate workspaces are deleted by hand.** Restore and import now recognise the bundled teaching cases
+  (MediBec, CanaRetail, EN/FR) whatever their identifier and ask *Replace the copy here / Keep both / Skip* (*Update the
+  one here* on import). Duplicate copies that earlier restores or imports created are not merged automatically: delete
+  the extra ones by hand on Organization → Organization profile → Workspaces (Delete), keeping the copy you work in —
+  export a copy first if it holds work you want to keep.
+- **Budget gap: the sign changed (NV-094).** *Gap to target* is now **spend − target** with its sign (negative = below
+  the appetite-consistent target), as in the Threat Intel plugin and Core 2.2.1; a *Position* KPI reads it out, and the
+  implied appetite is *above 0.70, outside the guideline* (null) when spend is below 4 % of the IT budget instead of being
+  clamped to 0.70. The Excel Budget sheet follows. A reader of a 1.9.1 export and a 1.9.2 export sees opposite signs on
+  the same gap.
+- **Local models (D5).** Settings → AI → *Which AI model for which feature* names the minimum the campaign found usable
+  (about **30B parameters on a machine with at least 48 GB**); a local model under that size — or whose size is not in
+  its name — raises a quality warning on the Virtual consultant, the exploitation forecast and the CVE link features,
+  with one-click *Route to ‹default remote›* or *Switch off*. Nothing is re-routed by itself.
+- **Signed updates are inactive until a key is pinned (NV-086).** The helper can verify a `<zip>.minisig` signature
+  (pure-Python Ed25519, minisign format) but the pinned public key `UPDATE_MINISIGN_PUBKEY` in `serve.py` is empty: every
+  update shows *Signature not checked (no key)* until the author publishes a release-signing key. The SHA-256 check of
+  1.9.0 still applies.
+- **Launcher prompt (item 3).** `start.command`, `start.sh` and `start.bat` no longer stop a running copy silently: the
+  terminal asks *CyberRiskGuardian is already running (version ‹x›, folder ‹path›). Stop it and start this one? [y/N]*;
+  Return opens the browser on the running copy. A port used by another program keeps the earlier message. To be checked
+  on the author's Mac and on Windows (`DECISIONS-1.9.2.md`).
+
+### Method, process and recommendations (items 20, 22, 23; C1, C2, C4, C5; NV-001, 002, 003, 010, 011, 017, 018, 020, 022, 031, 032, 034, 035, 065, 066, 082, 097)
+- **NV-001 / D2** — a new scenario starts with probability and impact reductions of **0** (the book); every creation path
+  (editor, Batch scenarios, CSV, AI rows, imports, Risk hub, SecOps seed, CRGO, Publish & share) does the same. A stored
+  scenario without a recorded reduction is given the 0.5 the earlier release displayed, so its numbers do not move;
+  scenarios still on the untouched 0.5 / 0.5 are listed in a one-time review on the Process page (closing it needs a
+  name; revision log and data log).
+- **NV-002** — the next-step card no longer marks steps 9, 10, 11 and 14 done on placeholders: step 9 counts a parameter
+  only with a rationale that is not the creation placeholder, an evidence reference and a confidence; step 10 refuses the
+  blank scenario's default vector and **blocks** on a vector that came with a batch pattern or a candidate until the
+  analyst confirms it (one click on the Process card, recorded) or changes it; step 14 needs a recorded reduction source
+  or both reductions above 0.
+- **NV-003 / item 20** — candidates keep their full Batch draft on the screening record (`CANDIDATES` stays 9 columns for
+  the workbook); promoting a family takes the parameters and CVSS of the highest-scoring member, combines ATT&CK / CWE /
+  CVE, asset and evidence links across members, fills threat source, vulnerabilities, assets, consequences and
+  background (rationale, judgement, evidence basis) from the rows; new **Create the scenario** on a stand-alone Select
+  candidate; the consultant's candidates are array rows with a draft (**item 7 / C3 / NV-022**), and rows saved the
+  earlier way are converted (journalled).
+- **NV-010 / item 22** — approving a recommendation requires an approver's name (button disabled until typed, refused
+  server-side too); QC-02 reads `approved.by` and history entries, checks every formal status and links to the
+  recommendation. **NV-020 / X-5** — an ISP version can no longer be approved with a blank approver.
+- **NV-011 / item 23 / R-2** — the recommendation effect rule and the load-time recomputation above (`js/receffect.js`).
+- **NV-066** — out-of-range measure coefficients are **flagged, never clamped** (one helper, `validCoef`, in
+  `receffect.js`, re-exported by `catalog.js`): the Risk mitigation screen marks the field, the impact table and a banner;
+  Recommendations shows a red banner; the Excel Residual cells carry `MAX(0,…)`, Validity reads *CVSS required* and the
+  Measures effects table has a Check column.
+- **NV-017** — an appetite ≤ 0 or ≥ 1 is refused on Save; outside 0.1–0.9 it is saved with a warning and a live message.
+- **NV-018** — a failed quality-review check keeps the last step open ("no failed check").
+- **NV-031 / NV-032** — step 13 needs at least one initiative funding the measures, with **Create initiatives from the
+  measures (n)** on Shared controls; step 16 opens Recommendations → By scenario, where the decision is written.
+- **NV-034 / C4** — step 5 counts **distinct** candidates ("20 candidates in Scenario screening — n now"), names the three
+  ways with their buttons (Batch scenarios → Add the ticked rows; Scenario screening → Add a candidate; Add scenarios from
+  the register as candidates), opens Batch when there are no candidates; Batch skips duplicate combinations and duplicate
+  rows, warns when fewer combinations exist than asked, shows the "These rows are not candidates yet" banner, and the
+  toast after sending carries the count; Candidates & scores shows **n / 20** (about 25–40 for ten); step 5 tips explain
+  the five generation strategies; steps 6 and 7 reviewed.
+- **NV-035** — done checks aligned with the book: step 2 (crown-jewel owner and C/I/A), step 3 (scope, exclusions,
+  perspectives — new profile card *Scope, exclusions and perspectives*), step 8 (initiating event and consequences
+  required), step 18 (every initiative costed and committed to a budget year), step 19 (full KRI definition).
+- **NV-065** — an AI-proposed 0 stays 0 in Batch (missing → 0.5 marked Low); AI rows enter unticked.
+- **NV-082** — four new quality-review rules: **QC-27** placeholder or unestimated parameters, **QC-28** complete causal
+  chain, **QC-29** budget gap escalated (not reconciled silently), **QC-30** memo agrees with the workbook (figures
+  recorded at export; *warn* when exported before 1.9.2 — CanaRetail ships like that). With **QC-31** (snapshot freshness,
+  below) the table runs QC-01…QC-31.
+- **NV-097 / item 11** — step 2 shows **Extract from documents…** with its prerequisites; the new-workspace form says
+  each extraction first asks AI or Rules only; FIRST-TIME-SETUP §7.2 and the user guide §7.2.1 rewritten (EN/FR).
+- **C1** — *Add scenarios from the register as candidates (n)* (tick list, duplicates skipped, origin noted, audit
+  entry). **C2** — *Remove* on each candidate (confirmation naming it, scores and family membership removed, data log,
+  refused for a member of a selected family). **C5** — *Estimate with AI* / *Estimate all unscored with AI (n)* propose
+  the 12 criterion scores with rationales, flags (only added) and a selection confidence in a review panel; only accepted
+  scores count; analyst scores are never overwritten; EV is capped at 2 unless the rationale cites an evidence ID;
+  acceptance needs a name (*AI-proposed, accepted by ‹name› on ‹date›*); new FEATURES entry *Screening score estimates*
+  (medium sensitivity, workspace provider; off hides both buttons); CSV column *AI scores*.
+
+### Engines, CVSS, forecasts, Excel (items 21; NV-004, 014, 015, 016, 045, 066, 083, 094, 095, NV-P03, NV-P08, NV-P12 / D3, X-1, X-2)
+- **NV-004 / item 21 / X-1 — the vector wins.** `crg.js` and `engine/crg_calc.py` recompute the vector's score and use it;
+  a stored score that disagrees by more than 0.05 is flagged on the risk card, the calculator, the Scenario register,
+  the JSON export (`cvss_check`, top-level `warnings`) and the Excel *CVSS basis* column / `CVSS_Basis` sheet. Typing a
+  vector that parses clears the stored score and records a revision; a plain score typed over a vector replaces it with a
+  recorded revision. Threat (`E`), Environmental and Supplemental metrics are refused with the plugin's message
+  (**NV-P03**: *CVSS-B only — route exploitation evidence to Pb(ψ,A)*).
+- **NV-016 / NV-P08 — zero tolerated risk.** Pb(A), Pb(ψ,A), μ(E) or CVSS = 0 gives a `null` ratio and the verdict **Not
+  applicable (tolerated risk 0)** with a warning, never *Above tolerance*; Excel ratio cells read `IF(M=0,"n/a",…)`.
+- **NV-095 / X-2 — one typing rule** (plugin convention): numeric strings and booleans are rejected ("must be a number"),
+  NaN / infinity rejected, a missing reduction means 0. A load-time sub-step retypes numeric text stored by earlier
+  releases (same figures, journalled). `desktop/tests/test_engine_cross.py` runs the plugin's shared conformance test
+  (`test_cross_engine.py`, TI 1.7.2) against both desktop engines and compares seeded sets across JS, Python and the
+  plugin engine.
+- **NV-014 / NV-015 — forecasts.** δm is raised to δe after every draw (run, tornado, sweep, residual path) and *Propose
+  ranges* keeps δm bounds ≥ δe bounds; per-scenario *P(above tolerance)* counts trials whose own residual / tolerated
+  ratio exceeds 1.10 (same rule as the portfolio KPI).
+- **NV-045 — sensitivity.** The central case is the unshifted scenario (never clamped); shifted values clamp to
+  [0.05, 0.99] in the direction of the shift only, so a case is never milder than the central one; Excel Sensitivity
+  Central rows link to Inputs and the shifted rows use directional `MAX`/`MIN` formulas (also in TI 1.7.2 and Pro 2.0.1).
+- **NV-094 — budget conventions** unified on the Threat Intel plugin (gap sign above; point-target wording; `targetStatus`,
+  `budgetPosition`, `POINT_TARGETS`, `designThresholds`).
+- **NV-083 — Excel in the interface language**: titles, headers, notes and verdict literals through `tr()`; formula
+  string literals and their cached values translated together (LibreOffice recalculation: 0 cells differ); sheet names
+  stay English; user data never translated.
+- **NV-P12 / D3 — editions.** `js/edition.js` (`community` | `educational` | `commercial`) shown on About → Versions;
+  `tools/package_desktop.py --edition <id>` builds the ZIP and its `.sha256`; the commercial ZIP strips the 171 CIS
+  titles and CRGO labels from `js/data/controls.js` (CIS Controls by identifier only until CIS approves); the source tree
+  is always the Community edition.
+
+### Privacy, sharing, threat intelligence, imports (NV-005, 006, 007, 023, 024, 025, 026, 060, 061, 062, 063, 089, 090, 091, 098, 099)
+- **NV-005 / NV-006 / NV-026 / NV-089 / NV-098 — anonymization.** People fields of every shape (owners, custodians,
+  approvers, acceptors, authors, reviewers… and user accounts) are replaced, titles and bracketed roles stripped, derived
+  user names replaced; e-mail, URL and host passes run before the organization name; IPv6, MAC, UNC paths, NetBIOS hosts,
+  any-TLD host names, E.164 phones and reference numbers (MRN, EMP, INC, badge, dossier…) are covered; names in free text
+  are replaced with a cue, project code names become `[codename]`, the organization acronym is derived; the preview lists
+  the remaining name-like pairs with one-click *add to Additional terms*; *Drop free-text fields* drops more fields; a
+  residual check turns the banner red and asks for confirmation before Download / Copy / Publish (the publication log
+  records the residual terms). *Additional terms* live in the workspace (`anonTerms`) so Publish & share, the Risk
+  Registry contribution and *Anonymize before sending* for AI requests replace the same terms.
+- **NV-007 / NV-023 / NV-090 / NV-024 — threat context.** An expired snapshot shows a red banner with the days past
+  expiry; *Accept selected* needs a confidence (starts empty) and a typed justification, stored in each `threat_basis`
+  entry and in `threatJustifications`; copied JSON, stored entries and the assessment export carry `snapshot_expired` /
+  `days_past_expiry`; rows without register evidence start unticked and carry the Information-gap marker instead of "TODO";
+  the introduction says the join proposes Pb(ψ,A) only; a malformed snapshot is validated before storage and a stored one
+  shows a red status with Clear reachable.
+- **NV-099 — QC-31**: a missing or expired snapshot behind calibrated likelihoods fails the quality review.
+- **NV-091** — `CRG_SOURCES_BASE` (loopback only) lets a suite download KEV and EPSS from a mock and build a dated snapshot
+  (t63: dated today, expires in 90 days, expired at day 91).
+- **NV-060** — Publish accepts only the application's own file names and targets, never overwrites a file it did not
+  write (`published.json`; 409 otherwise). **NV-025 / NV-061 / NV-062 / NV-063** — NVD/CVE JSON and scanner CSV imports
+  validate records (ID, score, vector, CWE; 50 MB / 20 MB caps) and count read / new / updated / skipped / repaired; a bad
+  feed record is skipped and noted, malformed RSS reports the XML reason, `javascript:` / `data:` links dropped; the Sigma
+  importer requires `logsource` and `detection` mappings.
+
+### AI handling, helper, Writer (item 18; NV-008, 009, 013, 019, 021, 029, 033, 043, 044, 047, 055, 056, 057, 058, 059, 067, 084, 085, 086, 087, 088, 096; NV-W01…W08; X-3, X-4, X-9)
+- **NV-013 / item 18** — the rules and AI extractions accept only scalars or arrays (a missing value stays empty, tagged
+  UNKNOWN, not ticked); the load-time repair above. **NV-067** — mission and suppliers are read only from a block or line
+  that names them; +14 weakness patterns, audit findings in their own words, undated incidents proposed as INFERENCE; a
+  target reviewed with nothing found is recorded as such.
+- **NV-008 / NV-056 / X-3 — untrusted text.** Every document, passage, feed item and excerpt sent to a model is wrapped
+  in `<untrusted_document>` with a system line; a FACT whose quoted source is not in the sent corpus, or that matches an
+  injection pattern, becomes ASSUMPTION / Low and is flagged (*check / à vérifier*), never pre-ticked; a missing or invalid
+  tag → ASSUMPTION / Low. The injection patterns of the Writer and the page are kept in step.
+- **NV-033 / X-9 — truncated and empty answers.** The helper reads the stop reason, answers 502 for an empty answer and
+  flags a truncated one; the page shows the reason and tokens and keeps the partial text; per-task token budgets raised
+  (cap 64,000); `max_completion_tokens` sent first to OpenAI, Azure and GitHub Models.
+- **NV-019** — the legacy `chat` and `analyst` tasks are gone; `/api/ai/test` obeys *remote AI off*; new gate
+  `tools/ai_policy_check.py`. **NV-029 / X-4** — every prompt built from the organization context ends with the assessment
+  period. **NV-021** — the weekly briefing goes through the payload preview, the anonymizer and the confidential consent.
+  **NV-044** — the consultant measures bytes and trims oldest history first, never the question.
+- **NV-043 / NV-055 / NV-057 / NV-058 / NV-059** — helper hardening: socket timeout, Content-Length and JSON checks (400 /
+  408), 413 over 400 kB (system text included, mock path included), model-name shape, `/api/files` serves only listed
+  files, the NVD key moves from `localStorage` into the key store, `links.org_graph_dir` validated.
+- **NV-047 / D5** — the local-model guidance and warning above. **NV-084 / NV-085** — the payload preview shows model,
+  max tokens, temperature and the untrusted flag; after a passed test the configured model is compared with the
+  provider's list (warning and picker; 404 reworded).
+- **NV-086** — signed updates (above). **NV-087** — CI installs hash-pinned Python packages (`requirements-ci.lock`),
+  uses `npm ci`, pins `docx` exactly and runs pip-audit / npm audit (advisory). **NV-088** — README section on what the
+  per-launch token protects and what it does not. **NV-096** — `desktop/tools/live/` keeps the live-pass harness
+  (`build_requests.mjs`, `live-requests.json`, `live_pass.py`) as a release check.
+- **Security Policy Writer 0.1.1 (D1: the desktop copy is canonical).** `WRITER_TREE_HASH` pins the engine tree
+  (`tools/writer_tree_hash.py`; `version_check` fails on drift). NV-009: a new helper op `ai_text` filters every document
+  line (NBSP and repeated spaces included) before the AI payload; `op_ground` drops quotes matching injection patterns.
+  NV-W02: a conflict is resolved by confirming a value (*Use this value*). NV-W03: R-22.1 and C-1.1 clauses (QC-R22.1,
+  QC-C1.1); CRGO-applicable instruments without a clause are listed as candidates. NV-W04: ORG-10 (language, now a
+  preference) drives generation. NV-W05 / X-5: confirmations and *Accept all* need a name. NV-W06: the Writer reports the
+  bundled CRGO release. NV-W07: « Si aucune n'est approuvée ». NV-W08: undetermined P-39.1 conditions are printed.
+
+### Interface, French, accessibility, workspaces, launchers (items 1–6, 9, 10, 12–16, 19; NV-012, 027, 028, 036, 037, 038, 039, 040, 041, 042, 046, 050, 051, 052, 053, 054, 064, 068, 069, 080, 092, 093 / D6, X-6, FR-1…FR-3)
+- **Item 1 / NV-050 / item 16** — footer `© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified` in one line (rail: the
+  version under © ✓); the version is filled from `js/version.js`.
+- **Item 2 / NV-012 — one window at a time**: a second window on the same address shows *CyberRiskGuardian is already open
+  in another window* with **Use it here** (the other window saves, freezes and shows its own Use it here) and **Close this
+  window**; Web Locks with a BroadcastChannel and a heartbeat fallback, released by the browser when a window crashes.
+- **Item 3 — launchers** (above). **Items 4 / 5 / NV-036** — fixed identifiers for the bundled teaching cases; restore and
+  import recognise a case under another identifier (*Replace the copy here* / *Keep both* / *Skip*; *Update the one here* on
+  import); a migration sub-step records `teaching.case` on stored examples (identifiers never changed).
+- **Item 9 / NV-054** — Risk register empty state: "—" tiles, *No risks yet — create them from your scenarios* with
+  **Create from scenarios not yet in the register (n)**; both registers' ledes say how they differ and link to each other.
+  **Item 10 / NV-037** — *Linked scenario ‹id› no longer exists* with **Unlink**; deleting a scenario that risks link
+  warns first and logs it in each risk's history.
+- **Item 19 / NV-038 / NV-039** — *Create from profile* opens a review list (crown jewels ticked with owner, C/I/A,
+  description, dependencies and a link; free-text names unticked and editable; split on ";" and new lines only, E-refs
+  stripped, fragments skipped) then **Add ticked**; a one-time **Keep / Delete** review over the assets the old button
+  created (nothing deleted without a click); crown jewels added from an extraction appear at once.
+- **Items 12–15 / NV-040 / NV-052 / NV-053 / NV-051 / NV-093 / D6 / X-6** — numbers, percentages and money in the
+  interface locale everywhere on screen (FR `98,27 %`, `1 479 / 1 505`, `5 311 000 $`; exports keep plain numbers);
+  French plurals (`trn`); CM change types have their own labels (« Changement standard »), « périmé » for stale; the
+  French top bar wraps instead of overlapping.
+- **NV-042 / FR-1…FR-3** — « Ratio risque résiduel / risque toléré » (short « Ratio rés./tol. »), « probabilité »
+  everywhere (« vraisemblance » retired), « Éléments probants » everywhere (« Preuves » retired): 362 catalogue values,
+  the French guide and the French half of FIRST-TIME-SETUP rewritten; gate `tools/fr_terms_check.py` and t71. **NV-041 /
+  NV-046** — markers, periods, suggested KRI names, status buttons, batch pattern names and the recs / calculator
+  templates reach the catalogue; the i18n gate ignores functional selectors only.
+- **NV-027 / NV-028 / NV-064 / NV-092 / NV-080 — accessibility.** `table.grid` columns align with their headers; every
+  field has an id, a label and `aria-describedby`; leftover controls are named (`js/a11y.js`); the current-menu badge
+  reaches 5.0:1, chip targets 24 px, empty headers get screen-reader text, heading order is fixed on the recommendation,
+  ATT&CK, compliance and ontology screens (t72 gates it with axe-core 4.14); a skip link and focus on the screen's h1
+  after a menu navigation; a support code *PANEL-TAB · version* in every h1 (copy on click).
+- **NV-068 / NV-069** — the helper docstring carries no version literal (gate); the dead duplicate `AI_DEFAULT_MODEL`
+  removed; t51 resets the AI configuration it depends on.
+
+### Ontology, plugins and the release (NV-C01…C08, NV-P01…P15, NV-E01…E07, X-7, X-8)
+- **CRGO 0.11.1** bundled (`data/crgo-snapshot.json`, `crgo-assurance.json` rebuilt from tag v0.11.1, 8 November 2026):
+  input validation and structured errors in the query interface and MCP server (C01–C03), the write-back path (C04),
+  content review — ten firewall families and others re-themed, trailing colons removed, CIS FR labels « Enseigner à … »
+  (C05), `scenarios_for_control` reaches 117 of 153 CIS v8.1 safeguards (C06), shapes and check hygiene (C07, C08), and
+  the French labels of FR-2 / FR-3 (« probabilité », « élément(s) probant(s) »); no term added, removed or deprecated.
+  The snapshot's legal test results no longer list the class *TestEvidence*. Every pin, guide and the CI workflow move to
+  0.11.1; the 39 CIS v8.1 values CRGO flags `REVIEW:` stay unverified.
+- **Threat Intel plugin 1.7.2** ships in this repository (root `CHANGELOG.md`): the reference engine of the unified rules
+  (X-1, X-2), the shared `test_cross_engine.py`, the label-check fixes (NV-P11), the SSVC note closed and EPSS in one
+  format (NV-P14), seven evals with offline graders (NV-P15), `NOTICE.md` and the licence title (NV-P13). Core 2.2.1,
+  CRG Pro 2.0.1 and Education 2.1.2 (NV-E01…E07; the instructor guide's *Fixed in Desktop 1.9.2* table) are released from
+  their own repositories.
+- **Release hygiene (X-7 / NV-068)**: CHANGELOG dated, README 1.9.2, `PUBLISHING.md` §4 names the edition switch;
+  `desktop-ci.yml` runs the cross-engine test, `ssvc_compare.py` and the eval replay.
+
+### Data and migration
+- **Data version 6** — one step 5 → 6 of sub-steps (`js/migrate192/*.js`), each journalled and idempotent: reductions
+  of 0.5 recorded and `reductionReview` listed, consultant candidates converted, frozen zeros recomputed (item 23),
+  numeric text retyped, `anonTerms` and `threatJustifications` added, `[object Object]` repaired (item 18),
+  `teaching.case` recorded and `assetReview` listed. New workspace fields: `reductionReview` (ASSESSMENT), `anonTerms` (ORGANIZATION), `threatJustifications`
+  (ASSESSMENT), `assetReview` (CONTEXT). t11 and t73 check the MediBec assessment is byte-identical and 84,305 / 41,023
+  before and after.
+
+### Tests and gates
+- New suites t54–t74 (new assessment, approvals, candidates, QC-27…30, French of ws1, CVSS precedence, forecast rules,
+  Excel and editions, anonymization, threat context, imports and publishing, untrusted AI text, helper hardening, Writer
+  ×2, interface, FR numbers, FR terms, axe, workspaces and registers, launchers), `test_engine_cross.py`,
+  `test_publish_guard.py`; helper guard tests 19 → 37. New gates: `ai_policy_check.py`, `writer_tree_hash.py --check`,
+  `fr_terms_check.py`. Full set on the release: 74 browser suites and the Python tests, 0 failed (see `DECISIONS-1.9.2.md`).
+- Harness: `CRG_PORT` derives URL, scratch folder and mock ports; `clickAndReopen()` for flows that end in a reload
+  (the t35 flake); axe-core 4.14 vendored (MPL-2.0, `NOTICE.md`).
+
+## 1.9.1 Beta — 4 November 2026
 
 The next step always obvious, a level of detail for every reader, one Help, and four bugs found in author testing.
 No change to the engine, the formulas, the plugin edition or the workspace data version (5): MediBec 84,305 / 41,023

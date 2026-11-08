@@ -62,7 +62,7 @@ another port.
 
 ## 4. Check the engine before trusting a number
 
-The bottom of the left menu must show `© Marc-André Léger · ✓ Engine verified`. Click it (or open
+The bottom of the left menu must show `© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified`. Click it (or open
 **Help → About & versions**) to see the totals behind it:
 
 ```
@@ -369,7 +369,7 @@ puis ouvrez `http://localhost:8099/`. Le port est un argument positionnel :
 
 ## 4. Vérifier le moteur avant de vous fier à un chiffre
 
-Le bas du menu de gauche doit afficher `© Marc-André Léger · ✓ Moteur vérifié`. Cliquez dessus (ou ouvrez
+Le bas du menu de gauche doit afficher `© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié`. Cliquez dessus (ou ouvrez
 **Aide → À propos et versions**) pour voir les totaux qu’il résume (les nombres gardent le même format dans
 toutes les langues) :
 

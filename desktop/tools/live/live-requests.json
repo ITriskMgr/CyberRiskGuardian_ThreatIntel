@@ -7,7 +7,7 @@
   "temperature": null,
   "max_tokens": 8000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "02-extract_crown",
@@ -17,7 +17,7 @@
   "temperature": null,
   "max_tokens": 6000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "03-scenarios",
@@ -27,7 +27,7 @@
   "temperature": null,
   "max_tokens": 19100,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "04-critique",
@@ -37,7 +37,7 @@
   "temperature": null,
   "max_tokens": 12000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "05-extract_s_controls",
@@ -47,7 +47,7 @@
   "temperature": 0.3,
   "max_tokens": 8000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)",
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)",
   "expect": "local_only"
  },
  {
@@ -58,7 +58,7 @@
   "temperature": null,
   "max_tokens": 8000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "07-link_vulns",
@@ -78,7 +78,7 @@
   "temperature": null,
   "max_tokens": 10000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "09-isp_draft",
@@ -88,7 +88,7 @@
   "temperature": null,
   "max_tokens": 12000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "10-writer_facts",
@@ -98,7 +98,7 @@
   "temperature": null,
   "max_tokens": 8000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)"
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)"
  },
  {
   "id": "11-writer_tailor",
@@ -137,7 +137,7 @@
   "temperature": null,
   "max_tokens": 3000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)",
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)",
   "expect": "local_only"
  },
  {
@@ -158,7 +158,7 @@
   "temperature": null,
   "max_tokens": 8000,
   "web_search": false,
-  "captured_from": "Desktop 1.9.1 (build_requests.mjs, MediBec teaching case, fictional)",
+  "captured_from": "Desktop 1.9.2 (build_requests.mjs, MediBec teaching case, fictional)",
   "expect": "injection"
  }
 ]

@@ -66,7 +66,10 @@ the application is never reachable from your network.
 | **Windows** | Double-click **`start.bat`**. |
 | **Linux** | Double-click **`start.sh`**, or run `./start.sh` in a terminal. |
 
-A terminal window opens, then your browser opens on the application. **Leave the terminal window open
+A terminal window opens, then your browser opens on the application. If a copy is already running (the same
+folder started twice, or an earlier version in another folder), the terminal asks *CyberRiskGuardian is already
+running (version x, folder path). Stop it and start this one? [y/N]* — **Return** opens the running copy in your
+browser; **y** stops it and starts this one (do this after an upgrade). **Leave the terminal window open
 while you work**: it is the local server and the helper that downloads threat sources and keeps your
 API keys. **Control-C** in that window stops it (or **Exit** in the application’s top bar).
 
@@ -84,7 +87,7 @@ the questions; you can skip them for now.
 The bottom of the left menu must show:
 
 ```
-© Marc-André Léger · ✓ Engine verified
+© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified
 ```
 
 At every start the application recomputes its bundled teaching cases — MediBec (30 scenarios, English
@@ -215,8 +218,11 @@ serveur local n’écoute que sur `127.0.0.1` : l’application n’est jamais a
 | **Windows** | Double-cliquez **`start.bat`**. |
 | **Linux** | Double-cliquez **`start.sh`**, ou lancez `./start.sh` dans un terminal. |
 
-Une fenêtre de terminal s’ouvre, puis votre navigateur s’ouvre sur l’application. **Laissez la fenêtre
-de terminal ouverte pendant que vous travaillez** : c’est le serveur local et l’assistant local qui
+Une fenêtre de terminal s’ouvre, puis votre navigateur s’ouvre sur l’application. Si une copie est déjà en cours
+(le même dossier démarré deux fois, ou une version antérieure dans un autre dossier), le terminal demande
+*CyberRiskGuardian is already running (version x, folder path). Stop it and start this one? [y/N]* — **Retour** ouvre
+la copie en cours dans votre navigateur; **y** l’arrête et démarre celle-ci (à faire après une mise à niveau).
+**Laissez la fenêtre de terminal ouverte pendant que vous travaillez** : c’est le serveur local et l’assistant local qui
 télécharge les sources de menace et garde vos clés d’API. **Contrôle-C** dans cette fenêtre l’arrête
 (ou **Quitter** dans la barre supérieure de l’application).
 
@@ -235,7 +241,7 @@ pratique** — la section 5 du Document 2 explique les questions; vous pouvez le
 Le bas du menu de gauche doit afficher :
 
 ```
-© Marc-André Léger · ✓ Moteur vérifié
+© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié
 ```
 
 À chaque démarrage, l’application recalcule ses cas pédagogiques fournis — MediBec (30 scénarios, en

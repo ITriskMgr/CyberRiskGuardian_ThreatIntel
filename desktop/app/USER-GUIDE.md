@@ -200,10 +200,10 @@ application is CRGO 0.11.1.
 
 ## 4. First run: verify the engine before trusting a number
 
-The bottom of the left menu must show (1.9.1: one line, pinned below the menu, which scrolls on its own):
+The bottom of the left menu must show (one line with the version, pinned below the menu, which scrolls on its own):
 
 ```
-© Marc-André Léger · ✓ Engine verified
+© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified
 ```
 
 Click it, or open **Help → About & versions**, to see the totals behind it:
@@ -701,7 +701,7 @@ The side menu has eleven sections, in this order: **Start · Organization · Ris
 vulnerabilities · Governance · Compliance management · Audit management · Security operations · Risk
 Registry · Tools · Settings**. This chapter follows it screen by screen. **Help** is the button in the top bar
 (section 7.12). The application's name and logo stay at the top of the menu and the footer —
-**© Marc-André Léger · ✓ Engine verified**, which opens **Help → About & versions** — at its bottom; only the
+**© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified**, which opens **Help → About & versions** — at its bottom; only the
 menu between them scrolls, in the full menu, the rail and the drawer.
 
 **Finding your way in the menu.**

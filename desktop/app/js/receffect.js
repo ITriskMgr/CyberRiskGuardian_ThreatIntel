@@ -18,7 +18,7 @@ export const measureEffect = (m, id) => ({ rp: Number(m.eff?.[id]?.rp ?? m.rp) |
 /** The statuses that count as "in force" for the measures that are not this recommendation's own. */
 export const IN_FORCE = ['approved', 'in-progress', 'implemented'];
 
-/** A reduction coefficient is valid within 0–1 (the same test as catalog.js validCoef; NV-066). */
+/** A reduction coefficient is valid within 0–1 (NV-066). The one definition: catalog.js re-exports it. */
 export const validCoef = x => Number.isFinite(x) && x >= 0 && x <= 1;
 
 /** Combined reductions on scenario `id` of the measures that pass `pred`. A coefficient outside 0–1 is never clamped

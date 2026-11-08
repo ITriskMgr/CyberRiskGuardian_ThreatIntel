@@ -12,6 +12,7 @@ import { KB, tech, mitigation, MEASURES } from './ontology.js';
 import { today, uid } from './util.js';
 import * as FW from './frameworks.js';
 import { CIS_TITLES, CIS_NOTICE, cisRow } from './edition.js';
+import { validCoef } from './receffect.js';
 
 const C = self.CRG_CONTROLS || { frameworks: [], tags: {}, controls: [], flags: [] };
 /* Edition switch (D3): the CIS Controls v8.1 framework carries the notice of this edition; in the commercial edition its
@@ -138,8 +139,9 @@ export const active = (m, statuses) => statuses ? statuses.includes(m.status) : 
 /** Effect of measure m on scenario id: per-scenario override, else the measure's default. */
 export const effect = (m, id) => ({ rp: Number(m.eff?.[id]?.rp ?? m.rp) || 0, ri: Number(m.eff?.[id]?.ri ?? m.ri) || 0 });
 
-/** A coefficient the product rule can take: a finite number within 0–1 (the book flags anything else, never clamps it). */
-export const validCoef = x => Number.isFinite(x) && x >= 0 && x <= 1;
+/** A coefficient the product rule can take: a finite number within 0–1 (the book flags anything else, never clamps it).
+    One helper for the catalogue and the recommendation effect (1.9.2): it lives in the leaf module receffect.js. */
+export { validCoef };
 /** Out-of-range coefficients of a measure, per scenario and lever: [{ m, id, lever, value }]. */
 export function invalidCoefs(m, ids = m.scen || []) {
   const out = [];
