@@ -199,9 +199,14 @@ application picks up the new files.
 before stopping a copy that is already running). At first start each workspace moves once to **data version 6**
 (journalled in Backup & restore → Migration journal). The migration is one-way: a workspace saved by 1.9.2 opens
 **read-only** in 1.9.1 — export a backup first if you may need to go back. It changes no number except the one written
-exception of release 1.9.2 (recommendations approved before 1.9.2 whose reductions were frozen at 0 are recomputed; the
-frozen figure is kept beside the new one, labelled). Duplicate copies of the teaching cases created by earlier restores
-or imports are not merged: delete the extra ones by hand under Organization → Workspaces.
+exception of release 1.9.2 (a recommendation approved before 1.9.2 whose reductions were frozen at 0 while one of its own
+measures was in force is recomputed; the frozen figure is kept beside the new one, labelled; any other frozen 0 is kept
+as approved and listed for review). A scenario created before 1.9.2 from a row that carried a score and no vector keeps
+computing on that score (its placeholder vector is cleared, journalled) and step 10 asks you to confirm the score. The
+quality review now fails QC-32 for a likelihood calibrated from the threat context without vulnerability-register
+evidence, and QC-02 for a scenario decision without a named decision-maker: complete the evidence or the name. Duplicate
+copies of the teaching cases created by earlier restores or imports are not merged: delete the extra ones by hand under
+Organization → Workspaces.
 
 **From 1.8.x:** the steps below are the same. At first start each workspace is brought to data version 5 once
 (journalled in Backup & restore → Migration journal; no number changes). The offline copy of the ontology is rebuilt
@@ -517,9 +522,15 @@ lanceur demande maintenant avant d’arrêter une copie déjà en cours). Au pre
 une fois à la **version de données 6** (consigné dans Sauvegarde et restauration → Journal de migration). La migration est
 à sens unique : un espace de travail enregistré par la 1.9.2 s’ouvre **en lecture seule** dans la 1.9.1 — exportez d’abord
 une sauvegarde si vous pourriez devoir revenir en arrière. Aucun nombre ne change, à l’exception écrite de la version 1.9.2
-(les recommandations approuvées avant la 1.9.2 dont les réductions étaient figées à 0 sont recalculées; le chiffre figé est
-conservé à côté du nouveau, étiqueté). Les doublons des cas d’enseignement créés par des restaurations ou importations
-antérieures ne sont pas fusionnés : supprimez les copies en trop à la main dans Organisation → Espaces de travail.
+(une recommandation approuvée avant la 1.9.2 dont les réductions étaient figées à 0 alors qu’une de ses propres mesures
+était en vigueur est recalculée; le chiffre figé est conservé à côté du nouveau, étiqueté; tout autre 0 figé est conservé
+tel qu’approuvé et énuméré pour examen). Un scénario créé avant la 1.9.2 à partir d’une ligne qui portait un score sans
+vecteur continue de calculer sur ce score (son vecteur de remplacement est effacé, consigné au journal) et l’étape 10 vous
+demande de confirmer le score. La revue de qualité échoue maintenant au contrôle QC-32 pour une probabilité calibrée à
+partir du contexte de menace sans élément probant du registre des vulnérabilités, et au contrôle QC-02 pour une décision
+de scénario sans décideur nommé : complétez l’élément probant ou le nom. Les doublons des cas d’enseignement créés par des
+restaurations ou importations antérieures ne sont pas fusionnés : supprimez les copies en trop à la main dans
+Organisation → Espaces de travail.
 
 **Depuis la 1.8.x :** les étapes ci-dessous sont les mêmes. Au premier démarrage, chaque espace de travail passe une fois à
 la version de données 5 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). L’exemplaire hors ligne de l’ontologie est reconstruit à partir de

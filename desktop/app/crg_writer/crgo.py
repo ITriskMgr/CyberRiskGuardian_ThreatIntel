@@ -23,7 +23,7 @@ import re
 
 from .engine import Profile
 
-CRGO_RELEASE = "v0.11.0"      # the release the Writer was written against; crgo_release() reports the bundled one (0.1.1, NV-W06)
+CRGO_RELEASE = "v0.11.1"      # the release the Writer was written against; crgo_release() reports the bundled one (0.1.1, NV-W06)
 
 
 def crgo_release() -> str:

@@ -23,7 +23,22 @@ plain numbers), FR-1…FR-3 (French terminology), R-1 (campaign severities kept)
   measures − residual with them, whatever their status; other measures in force stay in the baseline); the frozen 0 is
   kept beside the new figure, labelled *recomputed in 1.9.2 from current measures*, in the recommendation's history and
   the migration journal, and a banner says so on the recommendation. This is the one written exception to "a migration
-  never changes a real organization's numbers" (`DECISIONS-1.9.2.md`).
+  never changes a real organization's numbers" (`DECISIONS-1.9.2.md`). The repair is limited to the defect it corrects
+  (review M1): a frozen figure is recomputed only when at least one of the recommendation's own measures was in force;
+  any other frozen 0 (for example a measure still *proposed* whose coefficients were set after the approval) is **kept
+  as approved**, listed in the migration journal for review and shown with a review banner on the recommendation.
+- **Score-only scenarios keep their stored score (review H2).** A scenario created before 1.9.2 from a row that carried a
+  score and no vector (CVE register with a non-v4 score, ontology prior, Risk Registry or CSV row) kept the blank
+  scenario's default vector beside that score; under the new "vector wins" rule it would have computed on the default
+  vector (9.3). At first start the placeholder vector is cleared (kept in the scenario's revisions, journalled) so the
+  scenario goes on computing on its stored score: **no figure moves**. Step 10 lists these scenarios and asks the analyst
+  to **confirm the score** (or enter the v4.0 Base vector of the actual weakness) before the step counts as done.
+- **QC-32 fails pre-1.9.2 ungated threat-context entries, by design (review H3).** A `threat_basis` entry accepted
+  before 1.9.2 without vulnerability-register evidence (its exposure text empty or a placeholder) now fails the quality
+  review. Record the exposure in the register and re-run the join, or revert the parameter and keep the intelligence on
+  the new **Watch list** (Threat context). From 1.9.2 on, such a proposal cannot be accepted at all.
+- **Decisions without a decision-maker (review M3).** A scenario decision recorded before 1.9.2 without a name shows a
+  warning on Recommendations → By scenario until the name is entered, does not count for step 16 and fails QC-02.
 - **Item 20 — already-promoted scenarios are not recoverable.** Scenarios created from the scenario screening before
   1.9.2 cannot be recovered: their candidate carried no draft. They keep their *Analytical estimate — validation required
   — to estimate (Process step 9)* placeholders, which step 9 and the quality review (QC-27) no longer count as estimates;
@@ -55,6 +70,72 @@ plain numbers), FR-1…FR-3 (French terminology), R-1 (campaign severities kept)
   terminal asks *CyberRiskGuardian is already running (version ‹x›, folder ‹path›). Stop it and start this one? [y/N]*;
   Return opens the browser on the running copy. A port used by another program keeps the earlier message. To be checked
   on the author's Mac and on Windows (`DECISIONS-1.9.2.md`).
+
+### Independent review (H1–H4, M1–M6, L1–L6; `review-1.9.2.md`, 8 November 2026)
+An independent code review of the integrated build (`c6ca841`) found four High, seven Medium and six Low findings; all
+but H5 (the version bump) and M7 (TI 1.7.2 in the tree), handled by the release preparation, are fixed here. New suite
+`t75_review_fixes.mjs` (69 checks; every block fails on `c6ca841`); t42, t57, t63, t66 and the Python guard tests
+adjusted. MediBec 84,305 / 41,023 before and after.
+- **H1 — Restore and import no longer treat a classroom workspace as the bundled teaching case.** A teaching twin is only
+  a workspace of kind *example* (`teaching.inferCase` returns null for any other kind, whatever `teaching.case` says); a
+  student's classroom workspace derived from MediBec is restored or imported as itself, never skipped or overwritten.
+  Two copies of the same case in one backup: *Replace* targets the bundled copy once; every further row is offered *Keep
+  both* (a second Replace is converted and reported in the toast, "n kept beside the copy here (one Replace per copy)").
+  The "unchanged since creation" test compares the stored copy after the same shape repair as the fresh one, so a clean
+  install's untouched MediBec gets Replace suggested.
+- **H2 — Scenarios created from a score-only row keep computing on their stored score.** New data-version-6 sub-step
+  (`js/migrate192/review.js`, after ws1…ws5): a scenario whose vector is a builder placeholder (the blank scenario's
+  default or the batch builders' `VEC.impact/access/data`) beside a stored score, not confirmed and not by equivalency,
+  has the placeholder cleared (`cvss: ''`, `vector_source: 'score'`), the cleared vector kept in its revisions, the change
+  journalled — no figure moves (7.5 stays 7.5). New vector state `score`: step 10 lists "Scores that came without a
+  vector … are confirmed" with a *Confirm the score of Sn* button (recorded in the revisions). Batch commit, screening
+  promotion and the CSV path no longer keep the default vector beside a score. Analyst-entered vectors with a disagreeing
+  stored score are untouched (X-1 applies, flagged).
+- **H3 — The exposure gate cannot be bypassed.** A Pb(ψ,A) proposal without vulnerability-register evidence has its
+  checkbox disabled (reason in the tooltip) and an **Add to the watch list** button; *Accept* never applies a row without
+  exposure evidence, even one forced through the DOM. New workspace field `threatWatch` (CVE, scenario, rung, proposed
+  band, snapshot date, Information-gap marker) with a **Watch list** card on Threat context (*Remove* per entry). New
+  **QC-32** (fail): any `threat_basis` entry with `exposure_confirmed: false`, or an older entry whose exposure text is
+  empty or a placeholder — pre-1.9.2 ungated entries fail by design (above). The guides' QC tables run QC-01…QC-32 and
+  the proposals rule is rewritten (EN/FR).
+- **H4 — IAM/CM report import is a guarded prompt path.** `extract_s_<module>` wraps the report in `AI.untrusted(text,
+  'report')` (so `prepare()` adds the system line); a FACT the model proposes becomes INFERENCE with a note (the prompt
+  forbids quotations, so no FACT can be grounded); AI-read counts are never pre-ticked (rules-computed counts still are);
+  report lines matching the injection pattern are listed with the proposals; the import trace records proposed (all) and
+  accepted (ticked) separately. Also wrapped: `link_vulns` (vulnerability-register titles) and the `scenarios` task's
+  security-operations seeds (alert and case titles).
+- **M1 — The item-23 repair recomputes only zeros the earlier rule caused** (above): at least one of the recommendation's
+  own measures in force, read from the measure's dated status history as of the approval date when it has one, else from
+  its current status; other zeros kept as approved, journalled ("left as approved and listed for review"), marked
+  `approved.zeroReview` with a history entry and a review banner.
+- **M2 — Risk calculator *Save as workspace values*** uses the profile's `appetiteCheck` (refuses ≤ 0, ≥ 1 or empty;
+  warns outside 0.1–0.9) and refuses a factor ≤ 0.
+- **M3 — Scenario decisions name their decision-maker (X-5).** Recommendations → By scenario has a **Decided by** field
+  (pre-filled with the signed-in name); no option is recorded without it, no Transfer without its approver. Step 16
+  counts only named decisions, QC-02 fails unnamed scenario decisions (fix link to By scenario), and a pre-1.9.2 decision
+  without a name shows a warning until the name is entered.
+- **M4 — Step 14** treats a scenario still on the D2 review list (`ws.reductionReview`, untouched 0.5 / 0.5) as not
+  reduced until the review is marked done or its reductions change. No number changes.
+- **M5 — Window takeover waits for the other window's save confirmation.** *Use it here* steals the lock only after the
+  holder's `frozen` message; after 15 s without it the screen says the other window did not confirm and offers **Keep
+  waiting** / **Take over anyway** — never silent. The frozen window also stops writing its preferences.
+- **M6 — Signed updates.** With a key pinned, a release without its `.minisig` is refused (no downgrade to SHA-256 only;
+  latent until `UPDATE_MINISIGN_PUBKEY` is set). The trusted comment is read exactly after `trusted comment: ` (a comment
+  with surrounding spaces no longer fails as invalid).
+- **L1** — The engine's CVSS-B-only, stored-score-disagrees, tolerated-risk-0, CVSS-required and "must be a number"
+  messages are translated through `{0}` patterns; « métriques Threat » → « métriques de menace ».
+- **L2** — A plain assessment JSON (`SCEN` array) imported on Organization → Workspaces is retyped at import (`APPETITE`,
+  `FACTOR`, numeric text: "0.3" → 0.3, same figures, revision-log line).
+- **L3** — Writer `ai_text` and `segments` also scan adjacent line pairs and paragraph blocks (`injected_lines`), so an
+  instruction split over two lines is set aside with both lines (desktop `crg_writer/evidence.py`, the canonical copy;
+  `WRITER_TREE_HASH` refreshed; the stand-alone repository is synced from it).
+- **L4** — `serve.py _app_made()` claims a JSON file only when it parses and its top-level `schema` starts with `crg-`; a
+  Markdown file only by its headings (a mention of the product's name is no longer a claim).
+- **L5** — CSV batch rows: a numeric CVSS column is a score (`cvss: ''`, `cvss_score`), a score of 0 is kept, and `commit`
+  no longer copies a numeric "vector".
+- **L6** — Deleting a scenario names the measures, recommendations and KRIs that reference it in the confirmation and
+  unlinks them (`m.scen` / `m.eff`, `rec.scenarios` with a history entry — frozen figures untouched —, KRI scenario
+  column).
 
 ### Method, process and recommendations (items 20, 22, 23; C1, C2, C4, C5; NV-001, 002, 003, 010, 011, 017, 018, 020, 022, 031, 032, 034, 035, 065, 066, 082, 097)
 - **NV-001 / D2** — a new scenario starts with probability and impact reductions of **0** (the book); every creation path
@@ -98,7 +179,7 @@ plain numbers), FR-1…FR-3 (French terminology), R-1 (campaign severities kept)
 - **NV-082** — four new quality-review rules: **QC-27** placeholder or unestimated parameters, **QC-28** complete causal
   chain, **QC-29** budget gap escalated (not reconciled silently), **QC-30** memo agrees with the workbook (figures
   recorded at export; *warn* when exported before 1.9.2 — CanaRetail ships like that). With **QC-31** (snapshot freshness,
-  below) the table runs QC-01…QC-31.
+  below) and **QC-32** (exposure evidence, review H3) the table runs QC-01…QC-32.
 - **NV-097 / item 11** — step 2 shows **Extract from documents…** with its prerequisites; the new-workspace form says
   each extraction first asks AI or Rules only; FIRST-TIME-SETUP §7.2 and the user guide §7.2.1 rewritten (EN/FR).
 - **C1** — *Add scenarios from the register as candidates (n)* (tick list, duplicates skipped, origin noted, audit
@@ -196,7 +277,7 @@ plain numbers), FR-1…FR-3 (French terminology), R-1 (campaign severities kept)
   NV-W02: a conflict is resolved by confirming a value (*Use this value*). NV-W03: R-22.1 and C-1.1 clauses (QC-R22.1,
   QC-C1.1); CRGO-applicable instruments without a clause are listed as candidates. NV-W04: ORG-10 (language, now a
   preference) drives generation. NV-W05 / X-5: confirmations and *Accept all* need a name. NV-W06: the Writer reports the
-  bundled CRGO release. NV-W07: « Si aucune n'est approuvée ». NV-W08: undetermined P-39.1 conditions are printed.
+  bundled CRGO release (stand-alone fallback `CRGO_RELEASE` pinned to v0.11.1). NV-W07: « Si aucune n'est approuvée ». NV-W08: undetermined P-39.1 conditions are printed.
 
 ### Interface, French, accessibility, workspaces, launchers (items 1–6, 9, 10, 12–16, 19; NV-012, 027, 028, 036, 037, 038, 039, 040, 041, 042, 046, 050, 051, 052, 053, 054, 064, 068, 069, 080, 092, 093 / D6, X-6, FR-1…FR-3)
 - **Item 1 / NV-050 / item 16** — footer `© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified` in one line (rail: the
@@ -252,16 +333,17 @@ plain numbers), FR-1…FR-3 (French terminology), R-1 (campaign severities kept)
 - **Data version 6** — one step 5 → 6 of sub-steps (`js/migrate192/*.js`), each journalled and idempotent: reductions
   of 0.5 recorded and `reductionReview` listed, consultant candidates converted, frozen zeros recomputed (item 23),
   numeric text retyped, `anonTerms` and `threatJustifications` added, `[object Object]` repaired (item 18),
-  `teaching.case` recorded and `assetReview` listed. New workspace fields: `reductionReview` (ASSESSMENT), `anonTerms` (ORGANIZATION), `threatJustifications`
-  (ASSESSMENT), `assetReview` (CONTEXT). t11 and t73 check the MediBec assessment is byte-identical and 84,305 / 41,023
+  `teaching.case` recorded and `assetReview` listed, then (review H2) placeholder vectors beside a stored score cleared
+  (`js/migrate192/review.js`). New workspace fields: `reductionReview` (ASSESSMENT), `anonTerms` (ORGANIZATION),
+  `threatJustifications` (ASSESSMENT), `assetReview` (CONTEXT), `threatWatch` (ASSESSMENT, review H3). t11 and t73 check the MediBec assessment is byte-identical and 84,305 / 41,023
   before and after.
 
 ### Tests and gates
-- New suites t54–t74 (new assessment, approvals, candidates, QC-27…30, French of ws1, CVSS precedence, forecast rules,
+- New suites t54–t75 (new assessment, approvals, candidates, QC-27…30, French of ws1, CVSS precedence, forecast rules,
   Excel and editions, anonymization, threat context, imports and publishing, untrusted AI text, helper hardening, Writer
-  ×2, interface, FR numbers, FR terms, axe, workspaces and registers, launchers), `test_engine_cross.py`,
-  `test_publish_guard.py`; helper guard tests 19 → 37. New gates: `ai_policy_check.py`, `writer_tree_hash.py --check`,
-  `fr_terms_check.py`. Full set on the release: 74 browser suites and the Python tests, 0 failed (see `DECISIONS-1.9.2.md`).
+  ×2, interface, FR numbers, FR terms, axe, workspaces and registers, launchers, review fixes), `test_engine_cross.py`,
+  `test_publish_guard.py`; helper guard tests 19 → 37, then the review's additions. New gates: `ai_policy_check.py`, `writer_tree_hash.py --check`,
+  `fr_terms_check.py`. Full set on the release: 75 browser suites (3,393 checks) and the Python tests, 0 failed (see `DECISIONS-1.9.2.md`).
 - Harness: `CRG_PORT` derives URL, scratch folder and mock ports; `clickAndReopen()` for flows that end in a reload
   (the t35 flake); axe-core 4.14 vendored (MPL-2.0, `NOTICE.md`).
 

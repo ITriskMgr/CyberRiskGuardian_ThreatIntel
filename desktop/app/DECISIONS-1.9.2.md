@@ -62,6 +62,45 @@ still holds (`DECISIONS-1.8.0.md`, `DECISIONS-1.9.0.md`, `DECISIONS-1.9.1.md`). 
   Writer repository sync (`--force` once), the Education slide screenshots (1.9.1), a native French read-through,
   `claude plugin eval` with a model.
 
+## Independent review fixes (lead's rules, 8 November 2026; `review-1.9.2.md`, branch `claude/192-review-fixes`)
+
+- **H1 — teaching-twin identity = kind `example` only.** `teaching.case` on a classroom workspace is kept (the reset to the
+  starting point needs it) but never makes it "the same case": a student's workspace derived from MediBec is never a twin
+  of the bundled example, on restore or on import. One *Replace* per copy here; every further Replace for the same twin
+  becomes *Keep both* and is reported. A classroom row never defaults to Skip.
+- **H2 — score-only scenarios: vector cleared, not recomputed.** The placeholder vector (the blank scenario's default or
+  one of the three batch placeholders) beside a stored score is removed at data version 6 so the stored score keeps
+  computing, exactly as under 1.9.1: a migration changes no number. Only the four builder placeholders are recognised; an
+  analyst-entered vector beside a disagreeing score stays under X-1 (vector wins, flagged). The old vector is kept in the
+  revisions; the scenario is held on step 10 until the analyst confirms the score or enters the real vector.
+- **H3 — the exposure gate is hard.** No intelligence-derived Pb change without vulnerability-register evidence; the watch
+  list (`threatWatch`) is the record of what was seen and not applied. QC-32 fails older ungated entries by design: the
+  analyst reverts the parameter or records the exposure and re-runs the join. This supersedes the ws3 NV-023 choice above
+  ("an analyst may still tick them"), which the review showed to contradict AGENTS.md and threat-intel rule 2.
+- **H4 — AI-read counts are never FACT and never pre-ticked** (IAM/CM import); rules-computed counts stay pre-ticked.
+- **M1 — item-23 repair narrowed to the defect.** A frozen 0 is recomputed only when at least one of the recommendation's
+  own measures (those named at approval) was in force — as of the approval date when the measure has a dated status
+  history, else from its current status. **Measures have no status history today**, so the current status is the
+  practical test (noted limitation: a measure implemented after the approval and then withdrawn would not be seen). Other
+  zeros are kept as approved and listed for review (`approved.zeroReview`), never rewritten. R-2 is unchanged.
+- **M3 — a scenario decision needs a named decision-maker** (X-5), a Transfer its approver; pre-1.9.2 decisions without a
+  name are warned about and not counted, never deleted.
+- **M4 — a scenario on the D2 review list is not "reduced"** for step 14 until the review is closed or its reductions
+  change (no number changes).
+- **M5 — takeover acknowledgement**: 15-second wait for the holder's save confirmation, then an explicit human choice
+  (*Keep waiting* / *Take over anyway*); never a silent takeover.
+- **M6 — pinned key ⇒ unsigned release refused.** Latent until `UPDATE_MINISIGN_PUBKEY` is set.
+- **L3 — the Writer fix lands in the desktop copy first (D1)**; the stand-alone repository is synced from it and its
+  `VERSION` 0.1.1 is the desktop's `WRITER_VERSION`.
+- **Final assembly (lead).** `crg_writer/crgo.py` `CRGO_RELEASE` (the release reported when no snapshot is beside the
+  package, i.e. in the stand-alone repository) moved from v0.11.0 to **v0.11.1** with the rest of the pins;
+  `WRITER_TREE_HASH` refreshed (97256cbb…). The stand-alone repository (`claude/writer-0.1.1`) received
+  `writer-sync.patch` and the byte-identical desktop copy (`--force` once, its tree had drifted); its tests pin
+  0.1.1 / v0.11.1. Full set after the merge: 75 suites, 3,393 checks, 0 failed; helper tests 53 OK without skips;
+  `test_engine_cross.py` 9/9 without skips.
+- Not fixed on the review branch, handled by the release preparation: H5 (version 1.9.2 everywhere) and M7 (TI 1.7.2 in
+  the tree, `test_engine_cross.py` without skips).
+
 ## Engines, CVSS, forecasts, Excel (ws2)
 
 - **NV-004 / item 21 — the vector wins.** `resolveCvss` / `resolve_cvss` recompute the vector's score; a stored score
