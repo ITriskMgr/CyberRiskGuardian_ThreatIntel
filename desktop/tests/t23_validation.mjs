@@ -32,7 +32,7 @@ ok(/θ must be in \(0, 1\]/.test(r.theta0), 'θ must be above 0');
 ok(/δm must be at least δe/.test(r.dmLow), 'δm ≥ δe');
 ok(/Appetite must be strictly between 0 and 1/.test(r.app0) && /Appetite/.test(r.app1), 'appetite strictly between 0 and 1');
 ok(/red_p must be within 0–1/.test(r.red), 'reductions within 0–1');
-ok(/Pb\(ψ,A\) must be within 0–1/.test(r.blankParam), 'a blank parameter is missing, not 0');
+ok(/Pb\(ψ,A\) required/.test(r.blankParam), 'a blank parameter is missing ("required"), not 0: ' + r.blankParam);
 ok(r.check.agree === false && r.check.computed === 9.3 && r.check.stored === 9.4, 'a stored score that disagrees with its vector is flagged ' + JSON.stringify(r.check));
 ok(Math.abs(r.combine - 0.65) < 1e-9, 'product rule 1 − (1 − 0.3)(1 − 0.5) = 0.65');
 ok(Math.abs(r.ce - 26.09) < 0.01, 'cost-effectiveness of the book example: 26.09 risk units per $1,000 ' + r.ce);
