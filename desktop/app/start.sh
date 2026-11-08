@@ -32,7 +32,7 @@ ask_replace() {   # $1 = description of the running copy; returns 0 to replace, 
   if [ "${CRG_LAUNCH_REPLACE:-}" = "1" ]; then return 0; fi
   if [ ! -t 0 ] && [ -z "${CRG_LAUNCH_PROMPT:-}" ]; then return 0; fi    # no terminal: behave as before 1.9.2
   local a
-  printf 'Stop it and start this version instead? [y/N] '
+  printf 'Stop it and start this one? [y/N] '
   read -r a || a=""
   case "$a" in y|Y|yes|YES|Yes|o|O|oui|OUI|Oui) return 0 ;; *) return 1 ;; esac
 }
@@ -44,10 +44,12 @@ if command -v lsof >/dev/null 2>&1; then
       case "$CMD" in
         *http.server*|*httpd*|*serve.py*)
           DIR="$(lsof -a -p "$P" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p')"
-          echo "CyberRiskGuardian is already running on port $PORT:"
-          echo "  $CMD   (process $P, folder: ${DIR:-unknown})"
-          if [ "$DIR" = "$(pwd)" ]; then echo "  It is this same folder: the running copy is the same version."
-          else echo "  It is another folder: probably an earlier version."; fi
+          # the version of the running copy, read from its own js/version.js (unknown for a bare http.server folder)
+          RV=""
+          if [ -n "$DIR" ] && [ -f "$DIR/js/version.js" ]; then RV="$(sed -n "s/^export const VERSION = '\([0-9.]*\)'.*/\1/p" "$DIR/js/version.js" | head -1)"; fi
+          echo "CyberRiskGuardian is already running (version ${RV:-unknown}, folder ${DIR:-unknown}) on port $PORT."
+          echo "  $CMD   (process $P)"
+          if [ -n "$DIR" ] && [ "$DIR" = "$(pwd)" ]; then echo "  It is this same folder."; fi
           if ask_replace "$CMD"; then
             echo "Stopping it so this version is the one you see."
             kill "$P" 2>/dev/null || true; sleep 1

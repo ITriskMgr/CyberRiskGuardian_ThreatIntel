@@ -79,24 +79,26 @@ function inventory(body, sec, scored, R) {
     const ws = S.ws;
     const proposals = X.proposeFromProfile(ws);
     if (!proposals.length) { toast(tr('Nothing to propose: every system named in the profile and the crown jewels is already an asset.')); return; }
-    const rows = proposals.map(p => Object.assign({ take: true }, p));
+    const rows = proposals.map(p => Object.assign({}, p));   // crown jewels come ticked, free-text system names unticked (decided)
     const t = table([
       { key: 'take', label: '', sr: 'Add', sortable: false, cls: 'cb', render: r => { const c = el('input', { type: 'checkbox', checked: r.take, 'aria-label': tr('Add {0}').replace('{0}', r.name) }); c.addEventListener('change', () => { r.take = c.checked; }); return c; } },
       { key: 'name', label: 'Asset (editable)', sortable: false, render: r => { const i = el('input', { value: r.name, 'aria-label': tr('Asset name') }); i.addEventListener('input', () => { r.name = i.value; }); return i; } },
       { key: 'type', label: 'Type', sortable: false, render: r => { const sl = select(X.TYPES, r.type, { 'aria-label': tr('Type of {0}').replace('{0}', r.name) }); sl.addEventListener('change', () => { r.type = sl.value; }); return sl; } },
       { key: 'cia', label: 'C · I · A', render: r => r.cia ? `${r.cia.c} · ${r.cia.i} · ${r.cia.a}` : tr('3 · 3 · 3 (default — to score)') },
-      { key: 'src', label: 'Source', render: r => el('span', 'small muted', r.source === 'crown' ? tr('crown jewel') : tr('profile: critical systems')) },
+      { key: 'owner', label: 'Owner · dependencies · suppliers', render: r => el('span', { class: 'small', 'data-noi18n': '' }, [r.owner, r.dependencies, r.suppliers].filter(Boolean).join(' · ') || '—') },
+      { key: 'src', label: 'Source', render: r => el('span', 'small muted', r.source === 'crown' ? tr('crown jewel {0}').replace('{0}', r.crownId) : tr('profile: critical systems')) },
     ], rows, { class: 'compact' });
     const m = modal(tr('Review the assets proposed from the profile'),
-      el('p', 'note', 'Each line is one system named in the profile or one crown jewel. Untick what is not an asset, fix a name or a type, then add. C/I/A come from the crown jewel\'s levels where they exist; otherwise they stay at 3/3/3 and the asset is listed for scoring.'),
+      el('p', 'note', 'Crown jewels come ticked, with their owner, C/I/A (from the crown-jewel ratings), description, dependencies and suppliers, and a link back to the crown jewel. System names from the profile\'s free text come unticked: tick the ones that are assets, fix a name or a type, then add. An asset without C/I/A levels is created at 3/3/3 and listed for scoring.'),
       el('div', 'tablewrap', { style: { maxHeight: '55vh', overflow: 'auto' } }, t),
       el('div', 'btnrow', { style: { marginTop: '12px' } },
         el('button', { class: 'btn', onclick: () => {
           let n = 0; const toScore = [];
           for (const r of rows) {
             const nm = String(r.name || '').trim(); if (!r.take || nm.length < 2 || ws.assets.some(a => a.name.toLowerCase() === nm.toLowerCase())) continue;
-            const a = X.blankAsset({ name: nm, type: r.type, owner: r.owner || '', desc: r.desc || '', classification: r.classification, sensitivity: r.sensitivity, cia: r.cia || { c: 3, i: 3, a: 3 } });
-            ws.assets.push(a); X.log(ws, a.id, 'create', '', '', a.name, r.source === 'crown' ? 'crown jewel' : 'organization profile'); n++;
+            const desc = [r.desc, r.dependencies ? tr('Dependencies: {0}').replace('{0}', r.dependencies) : '', r.suppliers ? tr('Suppliers: {0}').replace('{0}', r.suppliers) : ''].filter(Boolean).join(' · ');
+            const a = X.blankAsset({ name: nm, type: r.type, owner: r.owner || '', desc, classification: r.classification, sensitivity: r.sensitivity, cia: r.cia || { c: 3, i: 3, a: 3 }, crownId: r.crownId || '' });
+            ws.assets.push(a); X.log(ws, a.id, 'create', '', '', a.name, r.source === 'crown' ? 'crown jewel ' + r.crownId : 'organization profile'); n++;
             if (!r.cia) toScore.push(a.id);
           }
           if (toScore.length) { ws.assetReview ||= { pending: [], created: null, reviewed: null }; ws.assetReview.pending = [...(ws.assetReview.pending || []), ...toScore.map(id => ({ id, name: ws.assets.find(a => a.id === id)?.name || id, why: ['C/I/A left at the 3/3/3 default'] }))]; ws.assetReview.reviewed = null; }
@@ -108,9 +110,9 @@ function inventory(body, sec, scored, R) {
      added without C/I/A levels: listed until the analyst marks them reviewed; nothing is changed automatically. */
   const rv = ws.assetReview; const pend = (rv?.pending || []).filter(x => ws.assets.some(a => a.id === x.id));
   if (pend.length && !rv.reviewed) body.append(banner('warn', tr('{0} asset(s) to review').replace('{0}', pend.length),
-    el('div', null, el('p', 'small', 'These assets were created from the organization profile before this review existed, or without C/I/A levels: fragments of a longer phrase, a default type, C/I/A left at 3/3/3 or a duplicate name. Open each one to merge, retype, rescore or delete it, then mark the list reviewed. Nothing was changed by the update.'),
-      el('ul', 'small', ...pend.slice(0, 30).map(x => el('li', null, el('a', { href: '#/assets/' + x.id }, x.id + ' ' + (x.name || '')), el('span', 'muted', ' — ' + x.why.map(w => tr(w)).join('; ')))), pend.length > 30 ? el('li', 'muted', `+${pend.length - 30}`) : null),
-      el('div', 'btnrow', el('button', { class: 'btn sm', onclick: () => { rv.reviewed = today(); rv.pending = []; touch(); toast(tr('Asset review marked done')); render(sec); } }, 'Mark the list reviewed')))));
+    el('div', null, el('p', 'small', 'These assets were created from the organization profile before this review existed, or without C/I/A levels: fragments of a longer phrase, a default type, C/I/A left at 3/3/3 or a duplicate name. Review them one by one — Keep or Delete — nothing is deleted without a click. Assets linked to scenarios or edited since are marked.'),
+      el('div', 'btnrow', el('button', { class: 'btn sm', onclick: () => reviewList(sec, pend) }, 'Review them…'),
+        el('button', { class: 'btn sm ghost', onclick: () => { rv.reviewed = today(); rv.pending = []; touch(); toast(tr('Asset review marked done')); render(sec); } }, 'Keep all and close the review')))));
   body.append(card(el('div', 'btnrow',
       el('button', { class: 'btn', onclick: () => { const a = X.blankAsset(); ws.assets.push(a); X.log(ws, a.id, 'create', '', '', '(new)'); editId = a.id; touch(); render(sec); } }, 'New asset'),
       el('button', { class: 'btn ghost', onclick: fromProfile }, 'Create from profile & crown jewels'),
@@ -123,6 +125,31 @@ function inventory(body, sec, scored, R) {
     el('p', 'note', 'Criticality (0–100) = CIA 40 + business impact 30 + classification 15 + sensitive data 10 + dependents 5. Dynamic risk = criticality × exposure, where exposure rises with linked CVEs (KEV, EPSS, confirmed exposure), missing EDR or encryption, patch age, baseline drift, end of support, internet exposure and linked scenarios above tolerance. Hover a score for its components.')));
   const a = ws.assets.find(x => x.id === editId);
   if (a) body.append(editor(a, sec, R));
+}
+
+/* 1.9.2 (item 19) — the one-time review list: the same table over the assets the old button made, Keep or Delete each;
+   an asset linked to a scenario (s.assetIds) or edited since its creation is shown as such. Nothing is deleted without a click. */
+function reviewList(sec, pend) {
+  const ws = S.ws;
+  const rows = pend.filter(x => ws.assets.some(y => y.id === x.id)).map(x => { const a = ws.assets.find(y => y.id === x.id); const linked = X.scenariosOf(x.id, ws).length;
+    const edited = ws.assetLog.some(l => l.asset === x.id && l.action !== 'create' && l.action !== 'link'); return { x, a, linked, edited }; });
+  const done = () => { ws.assetReview.pending = ws.assetReview.pending.filter(p => ws.assets.some(a => a.id === p.id) && !decided.has(p.id)); if (!ws.assetReview.pending.length) ws.assetReview.reviewed = today(); touch(); m.close(); render(sec); };
+  const decided = new Set();
+  const t = table([
+    { key: 'a', label: 'Asset', render: r => el('div', { 'data-noi18n': '' }, el('b', null, r.a.id + ' ' + r.a.name), el('div', 'small muted', `${label(X.TYPES, r.a.type)} · C/I/A ${r.a.cia?.c}/${r.a.cia?.i}/${r.a.cia?.a}`)) },
+    { key: 'why', label: 'Why it is listed', render: r => el('span', 'small', r.x.why.map(w => tr(w)).join('; ')) },
+    { key: 'st', label: 'Status', render: r => el('span', null, r.linked ? pill(tr('linked to {0} scenario(s)').replace('{0}', r.linked), 'warn') : null, ' ', r.edited ? pill('edited since', '') : null) },
+    { key: 'act', label: '', sr: 'Decision', sortable: false, render: r => { const box = el('div', 'btnrow');
+      const keep = el('button', { class: 'btn sm', onclick: () => { decided.add(r.x.id); box.replaceChildren(pill('kept', 'good')); } }, 'Keep');
+      const del = el('button', { class: 'btn sm ghost danger', onclick: () => { if (r.linked && !confirm(tr('{0} is linked to {1} scenario(s). Delete it anyway?').replace('{0}', r.a.id).replace('{1}', r.linked))) return;
+        ws.assets = ws.assets.filter(y => y.id !== r.a.id); for (const o of ws.assets) o.deps = (o.deps || []).filter(z => z !== r.a.id); for (const s of ws.assessment.SCEN) s.assetIds = (s.assetIds || []).filter(z => z !== r.a.id);
+        X.log(ws, r.a.id, 'delete', '', r.a.name, '', 'one-time review'); decided.add(r.x.id); box.replaceChildren(pill('deleted', 'bad')); } }, 'Delete');
+      return box.append(keep, del), box; } },
+  ], rows, { class: 'compact' });
+  const m = modal(tr('Review the assets created from the profile'),
+    el('p', 'note', 'Keep leaves the asset as it is (open it later to merge, retype or rescore it); Delete removes it and its links, journalled in the audit trail. Nothing is deleted without a click.'),
+    el('div', 'tablewrap', { style: { maxHeight: '55vh', overflow: 'auto' } }, t),
+    el('div', 'btnrow', { style: { marginTop: '12px' } }, el('button', { class: 'btn', onclick: done }, 'Done'), el('button', { class: 'btn ghost', onclick: () => { m.close(); if (decided.size) { touch(); render(sec); } } }, 'Later')));
 }
 
 function editor(a, sec, R) {

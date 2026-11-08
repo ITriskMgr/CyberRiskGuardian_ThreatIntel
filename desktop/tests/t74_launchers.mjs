@@ -13,8 +13,8 @@ import { ok, done, APP, PORT } from './lib.mjs';
 const FAKE = PORT + 200;
 const sh = fs.readFileSync(path.join(APP, 'start.sh'), 'utf8'), cmd = fs.readFileSync(path.join(APP, 'start.command'), 'utf8'), bat = fs.readFileSync(path.join(APP, 'start.bat'), 'utf8');
 ok(sh === cmd, 'start.command is identical to start.sh');
-ok(/\[y\/N\]/.test(sh) && /ask_replace/.test(sh) && /Leaving it running/.test(sh), 'start.sh: y/N prompt, keep path');
-ok(/\[y\/N\]/.test(bat) && /set \/p ANS/.test(bat) && /:keep/.test(bat) && /:replace/.test(bat) && /taskkill \/PID %BUSYPID%/.test(bat), 'start.bat: the same prompt with keep / replace paths');
+ok(/Stop it and start this one\? \[y\/N\]/.test(sh) && /is already running \(version/.test(sh) && /Leaving it running/.test(sh), 'start.sh: the decided prompt, keep path');
+ok(/Stop it and start this one\? \[y\/N\]/.test(bat) && /is already running \^\(version/.test(bat) && /set \/p ANS/.test(bat) && /:keep/.test(bat) && /:replace/.test(bat) && /taskkill \/PID %BUSYPID%/.test(bat), 'start.bat: the same prompt with keep / replace paths');
 ok(!/kill "\$P" 2>\/dev\/null \|\| true; sleep 1 ;;/.test(sh), 'the silent kill of 1.9.1 is gone');
 ok(spawnSync('bash', ['-n', path.join(APP, 'start.sh')]).status === 0, 'start.sh parses (bash -n)');
 
@@ -29,7 +29,7 @@ ok(listening().length === 1, `a fake earlier copy listens on ${FAKE}`);
 const run = (answer, env = {}) => spawnSync('bash', [path.join(APP, 'start.sh'), String(FAKE)], { input: answer, env: { ...process.env, CRG_LAUNCH_PROMPT: '1', PATH: process.env.PATH, ...env }, timeout: 8000, encoding: 'utf8' });
 
 const n = run('n\n');
-ok(n.status === 0 && /already running on port/.test(n.stdout) && /Stop it and start this version instead\? \[y\/N\]/.test(n.stdout + n.stderr) && /Leaving it running/.test(n.stdout), 'N: the launcher reports the running copy, asks (read -p writes the prompt to stderr), and leaves it (exit 0)');
+ok(n.status === 0 && /CyberRiskGuardian is already running \(version \S+, folder \S+\)/.test(n.stdout) && /Stop it and start this one\? \[y\/N\]/.test(n.stdout + n.stderr) && /Leaving it running/.test(n.stdout), 'N: "CyberRiskGuardian is already running (version x, folder path). Stop it and start this one? [y/N]" and the copy is left running (exit 0): ' + n.stdout.split('\n')[0]);
 ok(listening().length === 1, 'N: the running copy is still listening');
 const d = run('\n');
 ok(d.status === 0 && /Leaving it running/.test(d.stdout) && listening().length === 1, 'Return alone = N (the default keeps the running copy)');

@@ -17,7 +17,8 @@ export function render(sec, arg) {
   const ws = S.ws; ws.risks ||= [];
   if (arg && ws.risks.some(r => r.id === arg)) editId = arg;
   const R = compute();
-  sec.replaceChildren(el('h1', null, 'Risk register'), el('p', 'lede', 'The risks management owns, each linked to the scenarios that quantify it, the threats and vulnerabilities behind it, the assets it affects and the measures that treat it. Ratings use a 1–5 likelihood × impact scale suggested from the scenario parameters; CRG figures are the sum of the linked scenarios.'));
+  sec.replaceChildren(el('h1', null, 'Risk register'), el('p', 'lede', 'The risks management owns, each linked to the scenarios that quantify it, the threats and vulnerabilities behind it, the assets it affects and the measures that treat it. Ratings use a 1–5 likelihood × impact scale suggested from the scenario parameters; CRG figures are the sum of the linked scenarios. ',
+    el('span', null, 'Unlike the ', el('a', { href: '#/register' }, 'Scenario register'), ', which lists every scenario the analyst quantifies, this register holds one risk per management decision — owner, rating, treatment, formal acceptance — linked to the scenarios behind it.')));
   const rs = ws.risks;
   const lv = r => G.level(G.score(r.current));
   const notLinked = ws.assessment.SCEN.filter(s => !rs.some(r => r.scenarios.includes(s.id)));
@@ -34,11 +35,12 @@ export function render(sec, arg) {
   if (broken.length) sec.append(banner('warn', tr('{0} risk(s) link a scenario that no longer exists').replace('{0}', broken.length),
     el('span', null, tr('Their CRG figures count the remaining scenarios only. Open each risk and use Unlink, or link another scenario: '),
       ...broken.map((r, i) => el('span', null, i ? ', ' : '', el('a', { href: '#/riskreg/' + r.id }, `${r.id} (${G.missingScenarios(r, ws).join(', ')})`))))));
+  // the pill text of the table rows is the decided wording; the banner above names the risks
   if (!rs.length) {
     /* 1.9.2 (item 9) — the empty state says what this register is for, how it differs from the Scenario register, and
        offers the one action that fills it. */
-    sec.append(card(el('div', 'empty-state', el('b', null, 'The risk register is empty'),
-      el('p', null, 'The Scenario register lists every scenario the analyst builds and quantifies with the engine. The Risk register is management\'s view: one risk per decision to take, with an owner, a 1–5 rating, a treatment decision and a formal acceptance when the residual risk is kept — each risk linked to the scenarios that quantify it. A risk can group several scenarios; a scenario can stay out of the register.'),
+    sec.append(card(el('div', 'empty-state', el('b', null, 'No risks yet — create them from your scenarios'),
+      el('p', null, el('span', null, 'The '), el('a', { href: '#/register' }, 'Scenario register'), el('span', null, ' lists every scenario the analyst builds and quantifies with the engine. The Risk register is management\'s view: one risk per decision to take, with an owner, a 1–5 rating, a treatment decision and a formal acceptance when the residual risk is kept — each risk linked to the scenarios that quantify it. A risk can group several scenarios; a scenario can stay out of the register.')),
       el('div', 'btnrow', { style: { justifyContent: 'center', marginTop: '10px' } },
         el('button', { class: 'btn', disabled: !notLinked.length, onclick: () => { for (const s of notLinked) ws.risks.push(G.riskFromScenario(s)); touch(); toast(notLinked.length + ' ' + tr('risk(s) created from scenarios')); render(sec); } }, `Create from scenarios not yet in the register (${notLinked.length})`),
         el('button', { class: 'btn ghost', onclick: () => { const r = G.blankRisk(); ws.risks.push(r); editId = r.id; touch(); render(sec); } }, 'New risk'),
@@ -62,7 +64,7 @@ export function render(sec, arg) {
     && (!flt.q || [r.id, r.title, r.desc, r.owner, r.threatText, r.threats.join(' '), r.vulns.join(' ')].join(' ').toLowerCase().includes(flt.q.toLowerCase())));
   const cols = [
     { key: 'id', label: 'ID', cls: 'mono' },
-    { key: 'title', label: 'Risk', render: r => el('div', null, el('b', null, r.title || '(untitled)'), G.missingScenarios(r, ws).length ? el('span', null, ' ', pill(tr('deleted scenario: {0}').replace('{0}', G.missingScenarios(r, ws).join(', ')), 'bad')) : null, el('div', 'small muted', [r.category, r.owner].filter(Boolean).join(' · ')),
+    { key: 'title', label: 'Risk', render: r => el('div', null, el('b', null, r.title || '(untitled)'), G.missingScenarios(r, ws).length ? el('span', null, ' ', pill(tr('Linked scenario {0} no longer exists').replace('{0}', G.missingScenarios(r, ws).join(', ')), 'bad')) : null, el('div', 'small muted', [r.category, r.owner].filter(Boolean).join(' · ')),
       el('div', 'chips', { style: { marginTop: '3px' } }, ...r.threats.slice(0, 2).map(t => chip(t, { kind: 't', href: '#/threats/' + t })), ...r.vulns.slice(0, 2).map(v => chip(v, { kind: v.startsWith('CWE') ? 'c' : (S.snap?.kev?.cves?.[v] ? 'k' : 'v'), href: '#/vulns/' + v })))) },
     { key: 'cur', label: 'Current', render: r => { const [t, k] = lv(r); return el('span', null, pill(t, k), el('span', 'small muted', ` ${r.current.l}×${r.current.i}`)); }, sort: r => G.score(r.current) },
     { key: 'tgt', label: 'Target', render: r => { const [t, k] = G.level(G.score(r.target)); return el('span', null, pill(t, k), el('span', 'small muted', ` ${r.target.l}×${r.target.i}`)); }, sort: r => G.score(r.target) },
@@ -127,7 +129,7 @@ function editor(r, sec, R) {
   for (const s of ws.assessment.SCEN) scBox.append(el('label', { class: 'chip', style: { cursor: 'pointer' }, title: s.name }, el('input', { type: 'checkbox', checked: r.scenarios.includes(s.id), style: { width: 'auto', margin: 0 },
     onchange: e => { if (e.target.checked) r.scenarios.push(s.id); else r.scenarios = r.scenarios.filter(x => x !== s.id); G.log(r, (e.target.checked ? 'Linked ' : 'Unlinked ') + s.id); touch(); render(sec); } }), ' ', s.id));
   // 1.9.2 (item 10) — a link to a scenario that was deleted stays visible, flagged, with Unlink
-  for (const id of G.missingScenarios(r, ws)) scBox.append(el('span', { class: ['chip', 'k'].join(' '), title: tr('This scenario no longer exists in the workspace') }, el('span', null, `${id} — ${tr('deleted scenario')}`),
+  for (const id of G.missingScenarios(r, ws)) scBox.append(el('span', { class: ['chip', 'k'].join(' '), title: tr('This scenario no longer exists in the workspace') }, el('span', null, tr('Linked scenario {0} no longer exists').replace('{0}', id)),
     el('button', { class: 'btn sm ghost', type: 'button', 'aria-label': tr('Unlink {0}').replace('{0}', id), onclick: () => { r.scenarios = r.scenarios.filter(x => x !== id); G.log(r, 'Unlinked deleted scenario ' + id); touch(); render(sec); } }, 'Unlink')));
   const asBox = el('div', 'chips');
   for (const a of ws.assets || []) asBox.append(el('label', { class: 'chip', style: { cursor: 'pointer' }, title: a.type }, el('input', { type: 'checkbox', checked: r.assets.includes(a.id), style: { width: 'auto', margin: 0 },

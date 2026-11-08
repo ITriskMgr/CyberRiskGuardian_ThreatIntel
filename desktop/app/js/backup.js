@@ -21,7 +21,7 @@
 'use strict';
 import { VERSION } from './version.js';
 import * as store from './store.js';
-import { S, loadAll } from './state.js';
+import { S, loadAll, exampleWorkspace } from './state.js';
 import * as FW from './frameworks.js';
 import { today } from './util.js';
 import * as RESET from './reset.js';
@@ -178,6 +178,24 @@ export async function verify(obj) {
  * What restoring this file would do, workspace by workspace. "newer-here" is the dangerous case —
  * the copy in the browser has been modified since the backup — and it is never included by default.
  */
+/** A copy that nobody changed since it was created. For a bundled teaching case the assessment, risks, measures,
+ *  recommendations, documents and KRI history are compared with a fresh copy of the case; for any other workspace,
+ *  no save after the creation minutes and no document or recommendation. */
+export function unchangedSinceCreation(w) {
+  if (!w) return false;
+  const c = TEACH.inferCase(w);
+  if (c) {
+    try {
+      const fresh = fillShape(exampleWorkspace(c));   // the same shape repair a stored copy went through (assetIds, …)
+      const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+      return same(w.assessment, fresh.assessment) && same(w.risks || [], fresh.risks || []) && same(w.measures || [], fresh.measures || []) && !(w.docs || []).length
+        && !(w.recommendations || []).length && !(w.kriHistory || []).length && same(w.org, fresh.org);
+    } catch { /* case not installed: fall through */ }
+  }
+  if (!w.created || !w.modified) return false;
+  const cr = Date.parse(w.created), m = Date.parse(w.modified);
+  return Number.isFinite(cr) && Number.isFinite(m) && m - cr < 5 * 60 * 1000 && !(w.docs || []).length && !(w.recommendations || []).length;
+}
 export async function plan(obj) {
   const all = (await store.all('ws')).filter(Boolean);
   const here = new Map(all.map(w => [w.id, w]));
@@ -186,7 +204,8 @@ export async function plan(obj) {
     let state = 'new', note = 'Not present here; it would be added.', twin = null;
     /* 1.9.2 (item 4, NV-036) — a bundled teaching case is recognised whatever its id: the same case already here under
        another id is a twin, and the person chooses Replace / Keep both / Skip (Skip by default). */
-    if (!cur) { twin = all.find(x => TEACH.sameCase(x, w)) || null; if (twin) { state = 'teaching-twin'; note = `The teaching case ${TEACH.CASE_LABEL[TEACH.inferCase(w)] || w.name} is already here as “${twin.name}” (another id). Choose Replace (overwrite the copy here), Keep both, or Skip.`; } }
+    let suggest = null;
+    if (!cur) { twin = all.find(x => TEACH.sameCase(x, w)) || null; if (twin) { state = 'teaching-twin'; suggest = unchangedSinceCreation(twin) ? 'replace' : 'skip'; note = `The teaching case ${TEACH.CASE_LABEL[TEACH.inferCase(w)] || w.name} is already here as “${twin.name}” (another id). Choose Replace the copy here${suggest === 'replace' ? ' (it has not been changed since it was created)' : ''}, Keep both, or Skip.`; } }
     if (cur) {
       const a = w.modified || '', b = cur.modified || '';
       if (a === b) { state = 'identical'; note = 'Same modification time; restoring changes nothing.'; }
@@ -196,7 +215,7 @@ export async function plan(obj) {
     // 1.5.8 — a workspace written by a newer release is not restored: this build cannot read it faithfully.
     if (MIG.isNewer(w)) { state = 'newer-format'; note = `Written by a newer release (data version ${MIG.versionOf(w)}; this one reads up to ${MIG.DATA_VERSION}). Update the application to restore it.`; }
     else if (MIG.versionOf(w) < MIG.DATA_VERSION) note += ` It will be brought from data version ${MIG.versionOf(w)} to ${MIG.DATA_VERSION} as it is restored.`;
-    return { id: w.id, name: w.name || w.id, kind: w.kind, state, note, dataVersion: MIG.versionOf(w), twin: twin ? { id: twin.id, name: twin.name } : null,
+    return { id: w.id, name: w.name || w.id, kind: w.kind, state, note, dataVersion: MIG.versionOf(w), twin: twin ? { id: twin.id, name: twin.name } : null, suggest,
              teaching: TEACH.inferCase(w), modified: w.modified, here: cur?.modified || twin?.modified || null,
              scenarios: w.assessment?.SCEN?.length || 0,
              recommendations: (w.recommendations || []).length };

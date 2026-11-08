@@ -120,7 +120,7 @@ function screen(kind) {
   if (kind !== 'closed') {
     const row = d('div', 'btnrow');
     const use = d('button', 'btn', t('Use it here')); use.type = 'button'; use.id = 'winlock-use';
-    const close = d('button', 'btn ghost', t('Close')); close.type = 'button'; close.id = 'winlock-close';
+    const close = d('button', 'btn ghost', t('Close this window')); close.type = 'button'; close.id = 'winlock-close';
     row.append(use, close); wrap.append(row);
     close.addEventListener('click', () => closeWindow());
     use.addEventListener('click', async () => {

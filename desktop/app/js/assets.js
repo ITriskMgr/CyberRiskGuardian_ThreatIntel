@@ -24,17 +24,12 @@ export function nextAssetId(ws = S.ws) { let n = 0; for (const a of ws.assets ||
 // crown-jewel C/I/A levels (EN and FR labels, accents and spaces folded) → 1–5
 const CJ_LEVEL = { low: 2, medium: 3, high: 4, 'very-high': 5, faible: 2, moyen: 3, moyenne: 3, eleve: 4, elevee: 4, 'tres-eleve': 5, 'tres-elevee': 5 };
 const fold = x => String(x || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-');
+/** Split the profile's systems text on ";" and line breaks only (decided, item 19); evidence references (E1, E12; "(E3, E4)")
+ *  are stripped; fragments ("and …", "etc.", an unbalanced parenthesis) are dropped. */
+export const stripEvidenceRefs = s => String(s || '').replace(/\s*\((?:\s*E\d+\s*[,;]?\s*)+\)/g, '').replace(/(?:^|[\s,;—–-])E\d+(?=$|[\s,;.)])/g, '').replace(/\s{2,}/g, ' ').trim();
 export function splitSystems(text) {
-  const out = []; let cur = '', depth = 0;
-  for (const ch of String(text || '')) {
-    if (ch === '(' || ch === '[') depth++;
-    else if ((ch === ')' || ch === ']') && depth) depth--;
-    if (ch === ';' || ch === '\n' || (ch === ',' && depth === 0)) { out.push(cur); cur = ''; continue; }
-    cur += ch;
-  }
-  out.push(cur);
-  return out.map(s => s.trim().replace(/^(and|et|or|ou)\s+/i, '').replace(/^[-–•*]\s*/, '').replace(/[.;:]$/, '').trim())
-    .filter(s => s.length >= 4 && s.length < 120 && !/^(etc|others?|autres?|systems?|systèmes?)$/i.test(s) && (s.match(/\(/g) || []).length === (s.match(/\)/g) || []).length);
+  return String(text || '').split(/[;\n]/).map(s => stripEvidenceRefs(s).trim().replace(/^(and|et|or|ou)\s+/i, '').replace(/^[-–•*]\s*/, '').replace(/[.;:,]$/, '').trim())
+    .filter(s => s.length >= 4 && s.length < 160 && !/^(etc|others?|autres?|systems?|systèmes?)$/i.test(s) && (s.match(/\(/g) || []).length === (s.match(/\)/g) || []).length);
 }
 export function inferType(name) {
   const n = String(name || '');
@@ -54,14 +49,22 @@ export function proposeFromProfile(ws) {
   const add = p => { const k = p.name.trim().toLowerCase(); if (!k || seen.has(k) || have.has(k)) return; seen.add(k); out.push(p); };
   const sens = nm => /patient|health|ehr|dme|dossier médical|medical record|santé|clinical|clinique/i.test(nm) ? ['PHI', 'PII'] : /payment|paiement|card|carte/i.test(nm) ? ['PCI'] : /employee|employé|rh\b|hr\b/i.test(nm) ? ['HR'] : [];
   const cls = nm => sens(nm).length ? 'Restricted' : 'Confidential';
+  const crownNames = [];
   for (const c of (ws.assessment?.CROWN || [])) {
-    const r = Array.isArray(c) ? c : [c.id, c.name || c.asset || '', c.role || '', c.owner || '', c.c || '', c.i || '', c.a || ''];
-    const nm = String(r[1] || '').trim(); if (nm.length < 2) continue;
+    const r = Array.isArray(c) ? c : [c.id, c.name || c.asset || '', c.role || '', c.owner || '', c.c || '', c.i || '', c.a || '', c.dependencies || '', c.suppliers || ''];
+    const nm = stripEvidenceRefs(r[1]).trim(); if (nm.length < 2) continue;
+    crownNames.push(nm.toLowerCase());
     const lv = x => CJ_LEVEL[fold(x)];
     const cia = lv(r[4]) && lv(r[5]) && lv(r[6]) ? { c: lv(r[4]), i: lv(r[5]), a: lv(r[6]) } : null;
-    add({ name: nm, type: inferType(nm), owner: String(r[3] || ''), desc: String(r[2] || ''), cia, classification: cls(nm), sensitivity: sens(nm), source: 'crown' });
+    // pre-ticked: a crown jewel carries its owner, C/I/A, description (role), dependencies / suppliers and a link back to its id
+    add({ name: nm, type: inferType(nm), owner: String(r[3] || ''), desc: String(r[2] || ''), dependencies: String(r[7] || ''), suppliers: String(r[8] || ''), crownId: String(r[0] || ''), cia, classification: cls(nm), sensitivity: sens(nm), source: 'crown', take: true });
   }
-  for (const nm of splitSystems(ws.org?.systems)) add({ name: nm, type: inferType(nm), owner: '', desc: '', cia: null, classification: cls(nm), sensitivity: sens(nm), source: 'profile' });
+  // system names from the free text: unticked, name and type editable; a fragment of a crown-jewel name is skipped
+  for (const nm of splitSystems(ws.org?.systems)) {
+    const k = nm.toLowerCase();
+    if (crownNames.some(c => c !== k && (c.includes(k) || k.includes(c)))) continue;
+    add({ name: nm, type: inferType(nm), owner: '', desc: '', dependencies: '', suppliers: '', crownId: '', cia: null, classification: cls(nm), sensitivity: sens(nm), source: 'profile', take: false });
+  }
   return out;
 }
 export function blankAsset(o = {}) {

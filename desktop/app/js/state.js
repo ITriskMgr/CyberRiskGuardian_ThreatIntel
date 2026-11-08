@@ -7,6 +7,7 @@ import * as store from './store.js';
 import { uid, today, val } from './util.js';
 import * as MIG from './migrate.js';
 import { VERSION } from './version.js';
+import { FIXED_ID } from './teaching.js';
 
 export const SCHEMA = 'crg-workspace/1';
 const listeners = new Set();
@@ -72,6 +73,7 @@ export function medibecWorkspace() {
     availability: 'Clinical systems are needed during clinic hours; EHR outage halts consultations.',
     maturity: 'Firewalls, IDS/IPS, antimalware, encrypted storage, on-site and off-site backups; two dedicated security staff.',
     notes: 'Source: MediBec business case v2.0b (fictional teaching case). All figures are illustrative.' } });
+  ws.id = FIXED_ID('medibec'); ws.crgo = MIG.blankCrgo(ws.id);   // 1.9.2 (item 4): a fixed id per bundled case
   ws.budget = { it_budget: 100000000, spend: 912000, baseline: 912000 };
   ws.budgetYears = null; ensureBudgetYears(ws);
   ws.appetite_rationale = 'Healthcare provider handling personal health information under Quebec Law 25: low appetite (0.30). Analytical estimate — validation required.';
@@ -111,6 +113,7 @@ export function exampleWorkspace(id = 'medibec') {
   if (!src) throw new Error(`The bundled example ${id} is not installed with this build.`);
   const d = JSON.parse(JSON.stringify(src));
   const ws = newWorkspace({ name: d.NAME, kind: 'example', assessment: d.ASSESSMENT, org: d.ORG });
+  ws.id = FIXED_ID(id); ws.crgo = MIG.blankCrgo(ws.id);   // 1.9.2 (item 4): a fixed id per bundled case
   ws.appetite_rationale = d.APPETITE_RATIONALE || '';
   if (Array.isArray(d.BUDGET_YEARS)) { ws.budgetYears = d.BUDGET_YEARS; ws.budgetYear = d.BUDGET_YEAR ?? null; }
   else { ws.budget = Object.assign({ it_budget: 0, spend: 0, baseline: 0 }, d.BUDGET || {}); ws.budgetYears = null; }

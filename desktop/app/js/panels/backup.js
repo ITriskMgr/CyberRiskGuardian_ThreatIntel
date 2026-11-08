@@ -115,7 +115,7 @@ function restoreUI(sec) {
       checked = await B.verify(loaded);
       planned = await B.plan(loaded);
       chosen = new Set(planned.rows.filter(r => r.state !== 'newer-here').map(r => r.id));
-      twinChoice = Object.fromEntries(planned.rows.filter(r => r.state === 'teaching-twin').map(r => [r.id, { choice: 'skip', twin: r.twin?.id }]));   // 1.9.2 (item 4): Skip by default
+      twinChoice = Object.fromEntries(planned.rows.filter(r => r.state === 'teaching-twin').map(r => [r.id, { choice: r.suggest || 'skip', twin: r.twin?.id }]));   // 1.9.2 (item 4): Replace when the copy here is untouched, Skip otherwise
       render(sec);
     } catch (e) { loaded = null; sec.append(banner('bad', 'The file could not be read', String(e.message || e))); }
   });
@@ -141,7 +141,7 @@ function preview(sec) {
 
   const twins = planned.rows.filter(r => r.state === 'teaching-twin');
   if (twins.length) c.append(banner('warn', tr('{0} teaching case(s) in this file are already here').replace('{0}', twins.length),
-    'A bundled teaching case is recognised whatever its id. For each one choose Replace (the copy here is overwritten by the file\'s), Keep both (the file\'s copy is added beside it) or Skip (nothing is written — the default). Duplicates that already exist are deleted by hand on Organization → Workspaces.'));
+    'A bundled teaching case is recognised whatever its id. For each one choose Replace the copy here (the default when that copy has not been changed since it was created), Keep both (the file\'s copy is added beside it) or Skip (nothing is written). Duplicates that already exist are deleted by hand on Organization → Workspaces.'));
   const risky = planned.rows.filter(r => r.state === 'newer-here');
   if (risky.length) c.append(banner('warn',
     `${risky.length} workspace${risky.length === 1 ? ' has' : 's have'} been modified here since this backup`,
@@ -156,7 +156,7 @@ function preview(sec) {
     { key: 'name', label: 'Workspace', render: r => el('div', null, el('b', null, r.name),
         el('div', 'small muted', `${r.scenarios} scenario(s) · ${r.recommendations} recommendation(s)`)) },
     { key: 'state', label: 'If restored', render: r => r.state === 'teaching-twin'
-        ? (() => { const sel = select([['skip', 'Skip (keep the copy here)'], ['replace', 'Replace the copy here'], ['keep', 'Keep both']], twinChoice[r.id]?.choice || 'skip', { 'aria-label': tr('Teaching case already here: {0}').replace('{0}', r.name) });
+        ? (() => { const sel = select([['replace', 'Replace the copy here'], ['keep', 'Keep both'], ['skip', 'Skip']], twinChoice[r.id]?.choice || 'skip', { 'aria-label': tr('Teaching case already here: {0}').replace('{0}', r.name) });
             sel.addEventListener('change', () => { twinChoice[r.id] = { choice: sel.value, twin: r.twin?.id }; }); return sel; })()
         : pill({ new: 'added', identical: 'no change', 'older-here': 'brought forward', 'newer-here': 'would lose work' }[r.state],
         r.state === 'newer-here' ? 'bad' : r.state === 'new' || r.state === 'older-here' ? 'good' : '') },

@@ -18,17 +18,17 @@ import * as store from '../store.js';
 /* 1.9.2 (items 4–5, NV-036) — a workspace that is already here (same id, or the same bundled teaching case under another
    id) is never added twice without asking: Replace the copy here · Keep both · Skip. Resolves null when the dialog
    is closed without a choice (treated as Skip). */
-function duplicateChoice(existing, incomingName, { teaching = false } = {}) {
+function duplicateChoice(existing, incomingName, { teaching = false, importing = false } = {}) {
   return new Promise(resolve => {
     let answered = false; const pick = v => { answered = true; m.close(); resolve(v); };
     const m = modal(tr(teaching ? 'This teaching case is already here' : 'This workspace is already here'),
       el('p', 'note', tr(teaching ? 'A copy of the teaching case {0} is already on this computer: “{1}”. Choose what to do with the one you are adding.'
         : 'A workspace with the same identity is already on this computer: “{1}”. Choose what to do with the one you are adding.').replace('{0}', TEACH.CASE_LABEL[TEACH.inferCase(existing)] || existing.name).replace('{1}', existing.name)),
-      el('ul', 'small', el('li', null, el('b', null, 'Replace'), ' — ', tr('the copy here is overwritten by the one you are adding (its documents, snapshot and history are replaced).')),
-        el('li', null, el('b', null, 'Keep both'), ' — ', tr('the one you are adding is created beside it, under its own id.')),
+      el('ul', 'small', el('li', null, el('b', null, importing ? 'Update the one here' : 'Replace'), ' — ', tr('the copy here is overwritten by the one you are adding (its documents, snapshot and history are replaced).')),
+        el('li', null, el('b', null, 'Keep both'), ' — ', tr(importing ? 'the one you are adding is created beside it, named “… copy”, under its own id.' : 'the one you are adding is created beside it, under its own id.')),
         el('li', null, el('b', null, 'Skip'), ' — ', tr('nothing is added; the copy here stays as it is.'))),
       el('div', 'btnrow', { style: { marginTop: '12px' } },
-        el('button', { class: 'btn danger', onclick: () => pick('replace') }, 'Replace the copy here'),
+        el('button', { class: 'btn danger', onclick: () => pick('replace') }, importing ? 'Update the one here' : 'Replace the copy here'),
         el('button', { class: 'btn', onclick: () => pick('keep') }, 'Keep both'),
         el('button', { class: 'btn ghost', onclick: () => pick('skip') }, 'Skip')));
     m.back.onclose = () => { if (!answered) resolve(null); };
@@ -586,9 +586,9 @@ function workspaces(body, arg, sec) {
         // 1.9.2 (item 5): the same workspace (same id) or the same teaching case already here → Replace / Keep both / Skip
         const existing = S.list.find(x => x.id === ws.id) || S.list.find(x => TEACH.sameCase(x, ws));
         if (existing) {
-          const ch = await duplicateChoice(existing, ws.name, { teaching: !!TEACH.inferCase(ws) });
+          const ch = await duplicateChoice(existing, ws.name, { teaching: !!TEACH.inferCase(ws), importing: true });
           if (!ch || ch === 'skip') { msg.replaceChildren(banner('warn', 'Nothing imported', tr('The copy already here was kept.'))); return; }
-          if (ch === 'replace') replacing = existing; else ws.id = uid('ws');
+          if (ch === 'replace') replacing = existing; else { ws.id = uid('ws'); ws.name = (name.value.trim() ? nm : ws.name) + ' ' + tr('copy'); }   // item 5: Keep both → “… copy”
         } else if (!TEACH.inferCase(ws) || !TEACH.isFixedId(ws.id)) ws.id = uid('ws');   // a new identity on this computer; a bundled case keeps its fixed id
         ws.crgo = MIG.blankCrgo(ws.id);
         for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, texts[d.id] || ''); d.id = nid; }

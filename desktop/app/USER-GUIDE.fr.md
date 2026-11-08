@@ -150,8 +150,8 @@ Ouvrez ensuite `http://localhost:8099/`.
 
 **Déjà en cours d’exécution ?** Depuis 1.9.2, les lanceurs n’arrêtent plus silencieusement une copie en cours.
 Si une copie de l’application sert déjà le port (le même dossier démarré deux fois, ou une autre installation
-dans un autre dossier), le lanceur la nomme et demande **Stop it and start this version instead? [y/N]**
-(« L’arrêter et démarrer cette version à la place ? »). Appuyez sur **Retour** (ou **n**) pour laisser la copie
+dans un autre dossier), le lanceur dit *CyberRiskGuardian is already running (version x, folder path)* et demande
+**Stop it and start this one? [y/N]** (« L’arrêter et démarrer celle-ci ? »). Appuyez sur **Retour** (ou **n**) pour laisser la copie
 en cours telle quelle : le lanceur l’ouvre dans votre navigateur et vous pouvez fermer sa fenêtre. Appuyez sur
 **y** pour arrêter la copie en cours et démarrer celle-ci — à faire après une mise à niveau, pour que le
 navigateur affiche la nouvelle version. Un port occupé par un programme qui n’est pas un serveur web local
@@ -270,9 +270,10 @@ supprime les espaces de travail sur cet ordinateur.
 restauration d’une sauvegarde ou l’importation d’un fichier d’espace de travail créait chaque fois un second
 *MediBec — cas d’enseignement (fictif)*. L’application consigne maintenant quel cas fourni un espace de
 travail d’enseignement contient et le reconnaît quel que soit son identifiant : quand une restauration ou une
-importation rencontre un cas déjà présent, elle demande **Remplacer la copie présente ici · Conserver les deux ·
-Ignorer** (Ignorer par défaut à la restauration). Un espace d’enseignement créé depuis l’onglet Espaces de travail
-reçoit un identifiant fixe quand celui-ci est libre. Les doublons déjà présents ne sont pas fusionnés
+importation rencontre un cas déjà présent, la restauration demande **Remplacer la copie présente ici** (par défaut
+quand cette copie n’a pas été modifiée depuis sa création) **· Conserver les deux · Ignorer**, et l’importation
+demande **Mettre à jour celui présent ici · Conserver les deux** (le nouveau est nommé « … copie ») **· Ignorer**.
+Chaque cas fourni porte maintenant un identifiant fixe. Les doublons déjà présents ne sont pas fusionnés
 automatiquement : supprimez les copies en trop à la main dans Organisation → Espaces de travail (exportez-en une
 d’abord si elle contient du travail à conserver).
 
@@ -283,9 +284,9 @@ d’abord si elle contient du travail à conserver).
 **Une fenêtre à la fois (1.9.2).** Deux fenêtres ou onglets à la même adresse partagent les mêmes espaces de
 travail, et la dernière à enregistrer l’emporterait. L’application prend donc un verrou à l’ouverture. Une
 deuxième fenêtre affiche *CyberRiskGuardian est déjà ouvert dans une autre fenêtre* avec deux choix :
-**Utiliser ici** — l’autre fenêtre enregistre ce qu’elle tient, puis se fige derrière un avis indiquant que la
-copie est maintenant ouverte ailleurs ; cette fenêtre charge les données — ou **Fermer**. La fenêtre figée
-offre les deux mêmes choix, de sorte que vous pouvez reprendre la main. Le verrou est libéré par le navigateur
+**Utiliser ici** — l’autre fenêtre enregistre ce qu’elle tient, puis affiche un écran verrouillé avec son propre
+**Utiliser ici** ; cette fenêtre charge les données — ou **Fermer cette fenêtre**. Depuis la fenêtre verrouillée,
+**Utiliser ici** reprend la main. Le verrou est libéré par le navigateur
 lui-même quand une fenêtre se ferme ou plante : un plantage ne laisse jamais l’application verrouillée.
 
 ### 5.1 Versions des données : ce que vous saisissez survit aux mises à niveau
@@ -1061,16 +1062,15 @@ fournisseurs et installations de l'organisation, chacun lié aux scénarios et a
   CSV.
 
 **Créer à partir du profil et des joyaux de la couronne (1.9.2).** Le bouton propose des actifs à réviser au
-lieu de les écrire : une ligne par système nommé dans *Systèmes et applications critiques* du profil et par
-joyau de la couronne, chacune cochée, avec un nom et un type modifiables. Le texte des systèmes est découpé
-sur les points-virgules et les sauts de ligne, et sur les virgules seulement hors parenthèses, de sorte que
-*DME intégré (clinique, facturation)* reste un seul actif ; les fragments comme *et facturation* sont écartés.
-Un joyau de la couronne apporte son responsable, son rôle et ses niveaux C/I/D ; un système nommé dans le
-profil n’a pas encore de niveaux : il est créé à 3/3/3 et **listé pour révision** dans une bannière en haut de
-l’inventaire jusqu’à ce que vous marquiez la liste comme revue. La même bannière liste, une seule fois, les
-actifs créés à partir du profil avant l’existence de cette révision (fragments, type par défaut, 3/3/3, noms en
-double) ; rien n’est modifié automatiquement — ouvrez chacun pour le fusionner, le retyper, le recoter ou le
-supprimer.
+lieu de les écrire. Les joyaux de la couronne arrivent **cochés**, chacun avec son responsable, ses niveaux C/I/D
+(tirés des cotes du joyau), sa description, ses dépendances et fournisseurs, et un lien vers le joyau. Les noms de
+systèmes tirés de *Systèmes et applications critiques* du profil arrivent **décochés**, avec un nom et un type
+modifiables ; le texte est découpé sur les points-virgules et les sauts de ligne seulement, les références aux
+éléments probants (E1, E2…) sont retirées et les fragments d’un nom de joyau sont ignorés. **Ajouter les actifs
+cochés** les crée ; un actif sans niveaux C/I/D est créé à 3/3/3 et listé dans une bannière de révision. La même
+bannière ouvre, une seule fois, une liste **Conserver / Supprimer** sur les actifs qu’un ancien bouton a créés à
+partir du profil (fragments, type par défaut, 3/3/3, noms en double) ; les actifs liés à des scénarios ou modifiés
+depuis sont signalés, et rien n’est supprimé sans un clic.
 
 ### 7.2.3 Maturité et résilience {#maturity}
 
@@ -1822,17 +1822,18 @@ journalisée dans l'historique du risque. La carte de chaleur (inhérente, actue
 des principaux risques figurent au-dessus du registre. *Actualiser les cotes à partir des scénarios*
 met à jour les cotes actuelle et cible après une modification des paramètres.
 
-**Registre vide (1.9.2).** Dans un espace de travail sans risque, les tuiles affichent **—**, pas des zéros, et
-l’état vide explique la différence entre les deux registres : le *registre des scénarios* liste chaque scénario
+**Registre vide (1.9.2).** Dans un espace de travail sans risque, les tuiles affichent **—**, pas des zéros, et le
+registre dit *Aucun risque pour l’instant — créez-les à partir de vos scénarios*, le bouton juste là. Les deux
+introductions expliquent, et pointent vers, le registre de l’autre : le *registre des scénarios* liste chaque scénario
 que l’analyste construit et quantifie ; le *registre des risques* est la vue de la direction — un risque par
 décision, avec un responsable, une cote de 1 à 5, une décision de traitement et une acceptation formelle, lié
 aux scénarios qui le quantifient. **Créer à partir des scénarios absents du registre (n)** le remplit. Le
 registre des scénarios, le calculateur de risque et le sommaire de gestion suivent la même convention **—**
 dans un espace de travail vierge.
 
-**Scénarios supprimés (1.9.2).** La suppression d’un scénario vous avertit des risques qui le lient. Un risque
-dont le scénario a été supprimé garde le lien, signalé *scénario supprimé : S7* dans le registre et dans son
-éditeur, où **Délier** le retire (le changement est consigné). Ses indices CRG ne comptent que les scénarios
+**Scénarios supprimés (1.9.2).** La suppression d’un scénario avertit d’abord (*n risque(s) lient ce scénario*) et
+consigne la suppression dans l’historique de chaque risque lié. Le risque garde le lien, signalé *Le scénario lié
+S7 n’existe plus* dans le registre et dans son éditeur, où **Délier** le retire (consigné aussi). Ses indices CRG ne comptent que les scénarios
 restants ; un risque dont tous les scénarios ont disparu affiche un avertissement au lieu de chiffres.
 
 ### 7.3.10 Atténuation des risques {#mitigation}

@@ -23,6 +23,10 @@ const foot = await page.evaluate(() => ({ text: document.getElementById('nav-foo
 ok(foot.ver === `v${VERSION} Beta`, `footer version from version.js: ${foot.ver}`);
 ok(new RegExp(`^© Marc-André Léger · v${VERSION.replace(/\\./g, '\\.')} Beta · ✓ Engine verified`).test(foot.text), 'one-line footer "© Marc-André Léger · vX.Y.Z Beta · ✓ Engine verified": ' + foot.text.slice(0, 70));
 ok(foot.visible, 'the version is visible inside the rail (not clipped)');
+// rail mode: © ✓ fold to glyphs and the version stays visible under them (decided: full menu, rail and drawer)
+await page.click('#nav-rail'); await page.waitForTimeout(300);
+ok(await page.evaluate(() => { const v = document.getElementById('foot-version'); const r = v.getBoundingClientRect(); return document.body.classList.contains('navrail') && r.width > 0 && r.height > 0 && /^v\d/.test(v.textContent); }), 'rail mode: the version stays visible');
+await page.click('#nav-rail'); await page.waitForTimeout(300);
 ok(/84,305 \/ 41,023/.test(foot.title), 'the footer title still carries the totals');
 await page.evaluate(async () => { const I = await import('/js/i18n.js'); await I.setLang('fr'); }); await page.waitForTimeout(400);
 const footFr = await page.evaluate(() => document.getElementById('nav-foot').innerText.replace(/\s+/g, ' ').trim());
@@ -75,7 +79,8 @@ await page.evaluate(async () => { const st = await import('/js/state.js'); st.S.
 const p2 = await ctx.newPage(); const err2 = []; p2.on('pageerror', e => err2.push(String(e)));
 await p2.goto(page.url()); await p2.waitForTimeout(2500);
 const lock = await p2.evaluate(() => ({ kind: document.querySelector('.winlock')?.dataset.kind, title: document.querySelector('.winlock h1')?.textContent, ws: false, use: !!document.getElementById('winlock-use'), close: !!document.getElementById('winlock-close') }));
-ok(lock.kind === 'busy' && /already open in another window/.test(lock.title) && lock.use && lock.close, 'second window: lock screen with Use it here / Close');
+const lockBtns = await p2.evaluate(() => [...document.querySelectorAll('.winlock button')].map(b => b.textContent));
+ok(lock.kind === 'busy' && /^CyberRiskGuardian is already open in another window$/.test(lock.title) && lockBtns.join('|') === 'Use it here|Close this window', 'second window: "CyberRiskGuardian is already open in another window" with Use it here / Close this window: ' + lockBtns.join(' / '));
 const hasWs2 = await p2.evaluate(async () => { const st = await import('/js/state.js'); return !!st.S.ws; });
 ok(!hasWs2, 'the second window has not loaded any workspace while locked');
 // unsaved work in window 1 (debounced save pending), then take over from window 2

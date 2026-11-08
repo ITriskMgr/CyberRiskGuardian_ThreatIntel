@@ -115,7 +115,8 @@ nav .foot .foot-engine { color: var(--mint); flex: none; }
 nav .foot .foot-engine.bad { color: var(--peach); font-weight: 700; }
 nav .foot .foot-sep { flex: none; white-space: pre; }   /* 1.9.2 (item 16): the spaces around the dot are kept */
 nav .foot .foot-version { flex: none; color: var(--rail-ink); }   /* 1.9.2 (item 1): the version always visible */
-body.navrail nav .foot .foot-version { display: none; }
+body.navrail nav .foot { flex-wrap: wrap; row-gap: 2px; }
+body.navrail nav .foot .foot-version { flex: 1 0 100%; text-align: center; font-size: 10px; order: 3; }   /* rail: © ✓ on one line, the version under them */
 #engine-state::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--mint); margin-right: 7px; vertical-align: 1px; }
 #navtree { display: flex; flex-direction: column; }
 nav .navsec { display: flex; flex-direction: column; gap: 2px; }

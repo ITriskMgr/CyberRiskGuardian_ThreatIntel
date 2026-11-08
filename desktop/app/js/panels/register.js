@@ -26,7 +26,8 @@ export function render(sec) {
   const ws = S.ws, a = ws.assessment;
   const R = compute();
   sec.replaceChildren(el('h1', null, 'Scenario register'),
-    el('p', 'lede', 'All scenarios of this workspace, computed by the verified engine. Click a scenario to view or edit it; threat and vulnerability chips open their screens.'));
+    el('p', 'lede', 'All scenarios of this workspace, computed by the verified engine. Click a scenario to view or edit it; threat and vulnerability chips open their screens. ',
+      el('span', null, 'This is the analyst\'s register of every quantified scenario; the ', el('a', { href: '#/riskreg' }, 'Risk register'), ' is management\'s view — one risk per decision, linked to the scenarios behind it.')));
 
   const fileIn = el('input', { type: 'file', accept: '.json', style: { display: 'none' } });
   fileIn.addEventListener('change', async () => {

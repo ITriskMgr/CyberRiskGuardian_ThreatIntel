@@ -36,12 +36,18 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo CyberRiskGuardian is already running on port %PORT% ^(Python process %BUSYPID%^).
-echo   If it is this same folder, the running copy is the same version; otherwise probably an earlier one.
+REM the folder of the running copy is read from its command line (python … serve.py), its version from js/version.js there
+set "BUSYDIR=unknown"
+set "BUSYVER=unknown"
+for /f "usebackq tokens=*" %%L in (`wmic process where "ProcessId=%BUSYPID%" get ExecutablePath^,CommandLine /value 2^>nul ^| findstr /i "serve.py"`) do (
+  for %%F in (%%L) do if /i "%%~nxF"=="serve.py" set "BUSYDIR=%%~dpF"
+)
+if exist "%BUSYDIR%js\version.js" for /f "tokens=2 delims='" %%V in ('findstr /c:"export const VERSION" "%BUSYDIR%js\version.js"') do set "BUSYVER=%%V"
+echo CyberRiskGuardian is already running ^(version %BUSYVER%, folder %BUSYDIR%^) on port %PORT% ^(Python process %BUSYPID%^).
 if "%CRG_LAUNCH_REPLACE%"=="1" goto :replace
 if "%CRG_LAUNCH_KEEP%"=="1" goto :keep
 set "ANS=N"
-set /p ANS="Stop it and start this version instead? [y/N] "
+set /p ANS="Stop it and start this one? [y/N] "
 if /i "!ANS!"=="y" goto :replace
 if /i "!ANS!"=="yes" goto :replace
 if /i "!ANS!"=="o" goto :replace

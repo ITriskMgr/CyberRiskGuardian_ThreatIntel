@@ -139,9 +139,9 @@ Then open `http://localhost:8099/`.
 
 **Already running?** Since 1.9.2 the launchers never stop a running copy silently. If a copy of the
 application is already serving the port (the same folder started twice, or an earlier version in another
-folder), the launcher names it and asks **Stop it and start this version instead? [y/N]**. Press **Return**
-(or **n**) to leave the running copy as it is: the launcher opens it in your browser and you can close its
-window. Press **y** to stop the running copy and start this one — do this after an upgrade, so the browser
+folder), the launcher says *CyberRiskGuardian is already running (version x, folder path)* and asks **Stop it
+and start this one? [y/N]**. Press **Return** (or **n**) to leave the running copy as it is: the launcher opens
+it in your browser and you can close its window. Press **y** to stop the running copy and start this one — do this after an upgrade, so the browser
 shows the new version. A port held by a program that is not a local web server is never touched; start with
 another port instead (`./start.command 8150`, `start.bat 8150`).
 
@@ -247,8 +247,9 @@ Clearing the browser's site data for the app's address deletes the workspaces on
 English and French) used to get a random identifier, so restoring a backup or importing a workspace file
 created a second *MediBec — teaching case (fictional)* every time. The application now records which bundled
 case a teaching workspace holds and recognises it whatever its identifier: when a restore or an import meets
-a case that is already here, it asks **Replace the copy here · Keep both · Skip** (Skip is the default on
-restore). A teaching workspace created from the Workspaces tab gets a fixed identifier when it is free.
+a case that is already here, restore asks **Replace the copy here** (the default when that copy has not been
+changed since it was created) **· Keep both · Skip**, and import asks **Update the one here · Keep both** (the new
+one is named "… copy") **· Skip**. Every bundled case now carries a fixed identifier.
 Duplicates that already exist are not merged automatically: delete the extra copies by hand on
 Organization → Workspaces (export one first if it holds work you want to keep).
 
@@ -258,8 +259,8 @@ Organization → Workspaces (export one first if it holds work you want to keep)
 **One window at a time (1.9.2).** Two windows or tabs on the same address share the same workspaces, and the
 last one to save would win. The application therefore takes a lock when it opens. A second window shows
 *CyberRiskGuardian is already open in another window* with two choices: **Use it here** — the other window
-saves what it holds, then freezes behind a notice that the copy is now open elsewhere; this window loads
-the data — or **Close**. The frozen window offers the same two choices, so you can take the work back. The
+saves what it holds, then shows a locked screen with its own **Use it here**; this window loads the data — or
+**Close this window**. From the locked window, **Use it here** takes the work back. The
 lock is released by the browser itself when a window closes or crashes: a crash never leaves the
 application locked.
 
@@ -991,14 +992,14 @@ and facilities, each linked to the scenarios and risks it carries.
   failing assets; Markdown and CSV reports.
 
 **Create from profile & crown jewels (1.9.2).** The button proposes assets for review instead of writing
-them: one line per system named in the profile's *Critical systems and applications* and per crown jewel,
-each ticked, with an editable name and type. The systems text is split on semicolons and line breaks, and
-on commas only outside parentheses, so *Integrated EHR (clinical, billing)* stays one asset; fragments
-such as *and billing* are dropped. A crown jewel brings its owner, role and C/I/A levels; a system named
-in the profile has no levels yet, so it is created at 3/3/3 and **listed for review** in a banner at the
-top of the inventory until you mark the list reviewed. The same banner lists, once, the assets created from the
-profile before this review existed (fragments, default type, 3/3/3, duplicate names); nothing is changed
-automatically — open each one to merge, retype, rescore or delete it.
+them. Crown jewels come **ticked**, each carrying its owner, C/I/A levels (mapped from the crown-jewel ratings),
+description, dependencies and suppliers, and a link back to the crown jewel. System names from the profile's
+*Critical systems and applications* come **unticked**, with an editable name and type; the text is split on
+semicolons and line breaks only, evidence references (E1, E2…) are stripped and fragments of a crown-jewel
+name are skipped. **Add ticked** creates them; an asset without C/I/A levels is created at 3/3/3 and listed in
+a review banner. The same banner opens, once, a **Keep / Delete** list over the assets an earlier button
+created from the profile (fragments, default type, 3/3/3, duplicate names); assets linked to scenarios or
+edited since are marked, and nothing is deleted without a click.
 
 ### 7.2.3 Maturity & resilience {#maturity}
 
@@ -1639,16 +1640,17 @@ review and a **formal acceptance** (by, date, valid until, rationale); every cha
 risk's history. The heat map (inherent, current or target) and the top-risks list sit above the
 register. *Refresh ratings from scenarios* updates current and target after parameters change.
 
-**Empty register (1.9.2).** On a workspace with no risk yet the tiles show **—**, not zeros, and the empty
-state explains the difference between the two registers: the *Scenario register* lists every scenario the
+**Empty register (1.9.2).** On a workspace with no risk yet the tiles show **—**, not zeros, and the register
+says *No risks yet — create them from your scenarios*, with the button right there. The two ledes explain, and
+link to, each other's register: the *Scenario register* lists every scenario the
 analyst builds and quantifies; the *Risk register* is management's view — one risk per decision, with an
 owner, a 1–5 rating, a treatment decision and a formal acceptance, linked to the scenarios that quantify
 it. **Create from scenarios not yet in the register (n)** fills it. The Scenario register, the Risk
 calculator and the Management summary use the same **—** convention on a blank workspace.
 
-**Deleted scenarios (1.9.2).** Deleting a scenario warns you about the risks that link it. A risk whose
-scenario was deleted keeps the link, flagged *deleted scenario: S7* in the register and in its editor, where
-**Unlink** removes it (the change is logged). Its CRG figures count the remaining scenarios only; a risk
+**Deleted scenarios (1.9.2).** Deleting a scenario warns first (*n risk(s) link this scenario*) and logs the
+deletion in each linked risk's history. The risk keeps the link, flagged *Linked scenario S7 no longer exists*
+in the register and in its editor, where **Unlink** removes it (logged too). Its CRG figures count the remaining scenarios only; a risk
 whose scenarios are all gone shows a warning instead of figures.
 
 ### 7.3.10 Risk mitigation {#mitigation}
