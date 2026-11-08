@@ -451,7 +451,7 @@ function detail(body, sec, r) {
       if (to === 'approved' && !by.value.trim()) { refused.replaceChildren(banner('bad', 'Name the approver', 'No recommendation is recorded as approved without a named person: type your name first.')); by.focus(); return; }
       try { REC.transition(r, to, { by: by.value.trim(), note: rn.value, ws }); redraw(); toast(`${r.code} → ${REC.STATUS_LABEL[to]}`); }
       catch (err) { refused.replaceChildren(banner('bad', 'That change was refused', String(err.message || err))); }
-    } }, '→ ' + REC.STATUS_LABEL[to]));
+    } }, '→ ' + tr(REC.STATUS_LABEL[to])));   // 1.9.2 — translated here: the arrow prefix defeats the catalogue lookup
   }
   if (r.status === 'draft' || r.status === 'in-review') c7.append(el('p', 'small muted', 'Approval freezes the figures with the approver’s name and the date; the quality review (QC-02) checks that every approved recommendation names its approver.'));
   if (frozen) bar.append(el('button', { class: 'btn sm ghost', onclick: () => {

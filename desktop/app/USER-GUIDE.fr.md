@@ -370,7 +370,7 @@ Créez l'espace de travail avec tous les documents du cas et laissez « Extrair
 
 1. Saisissez le nom de l'espace de travail; choisissez “Organisation réelle” ou “Cas d'affaires pour la classe”; pour l'enseignement, cochez “Cas pédagogique utilisé à des fins de formation”.
 2. Déposez tous les documents du cas (Word, PDF, Excel, PowerPoint, texte) dans la zone des documents.
-3. Cochez “Extraire le profil et l'appétence de ces documents après la création”, “Puis extraire les joyaux de la couronne” et, pour aller plus loin, “Puis importer d'autres éléments des documents”; cliquez sur “Créer l'espace de travail”.
+3. Cochez “Extraire le profil et l'appétence de ces documents après la création”, “Puis extraire les joyaux de la couronne” et, pour aller plus loin, « Puis extraire davantage des documents (Importer des documents) »; cliquez sur “Créer l'espace de travail”.
 4. Choisissez “Utiliser l'IA (aperçu avant l'envoi)” — vous voyez le texte exact avant tout envoi — ou “Règles seulement (sans IA, hors ligne)”.
 5. Dans la revue, modifiez toute valeur, cochez celles à conserver et cliquez sur “Mettre les valeurs cochées dans le formulaire”; vérifiez les champs et cliquez sur “Enregistrer”.
 6. Examinez les joyaux de la couronne et cliquez sur “Ajouter les joyaux de la couronne cochés”.
@@ -834,7 +834,7 @@ fichiers Word (.docx) ou PDF à la fois — le cas d'affaires, le profil de l'en
 d'audit, l'historique des incidents ; les fichiers Excel, PowerPoint et texte sont aussi acceptés.
 Retirez ceux que vous avez ajoutés par erreur. Trois options enchaînent les extractions tout de suite
 après la création : *Extraire le profil et l'appétence de ces documents après la création*, *Puis
-extraire les joyaux de la couronne* et *Puis importer d'autres éléments des documents*, qui ouvre
+extraire les joyaux de la couronne* et *Puis extraire davantage des documents (Importer des documents)*, qui ouvre
 **Importer des documents** (ci-dessous). Cliquez sur **Créer l'espace de travail** : chaque fichier est
 lu sur votre ordinateur avec une ligne de progression (mots trouvés, *peu de texte trouvé*, ou une
 erreur).

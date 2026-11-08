@@ -62,16 +62,16 @@ window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); 
  *  anchors 0.1–0.9 it is saved with a warning. Returns { ok, message, kind }. */
 export function appetiteCheck(v) {
   const a = Number(v);
-  if (v === '' || v === null || v === undefined || !Number.isFinite(a)) return { ok: false, kind: 'bad', message: 'The risk appetite is missing: enter a value strictly between 0 and 1 (0.1–0.9 on the book’s anchors).' };
-  if (a <= 0 || a >= 1) return { ok: false, kind: 'bad', message: 'The risk appetite must be strictly between 0 and 1: ' + a + ' is refused. Use the book’s anchors (0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high).' };
-  if (a < 0.1 || a > 0.9) return { ok: true, kind: 'warn', message: 'Appetite ' + a + ' is outside the book’s anchors (0.1–0.9): justify it in the rationale — Management decision required.' };
+  if (v === '' || v === null || v === undefined || !Number.isFinite(a)) return { ok: false, kind: 'bad', message: tr('The risk appetite is missing: enter a value strictly between 0 and 1 (0.1–0.9 on the book’s anchors).') };
+  if (a <= 0 || a >= 1) return { ok: false, kind: 'bad', message: tr('The risk appetite must be strictly between 0 and 1: {0} is refused. Use the book’s anchors (0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high).').replace('{0}', a) };
+  if (a < 0.1 || a > 0.9) return { ok: true, kind: 'warn', message: tr('Appetite {0} is outside the book’s anchors (0.1–0.9): justify it in the rationale — Management decision required.').replace('{0}', a) };
   return { ok: true, kind: 'good', message: '' };
 }
 function saveDraft() {
   const ws = S.ws; if (!D || D.wsId !== ws.id) return;
   const ac = appetiteCheck(D.assessment.APPETITE);
-  if (!ac.ok) { toast(tr(ac.message), 'bad'); document.getElementById('org-appetite')?.focus(); return; }
-  if (ac.kind === 'warn') toast(tr(ac.message), 'warn');
+  if (!ac.ok) { toast(ac.message, 'bad'); document.getElementById('org-appetite')?.focus(); return; }
+  if (ac.kind === 'warn') toast(ac.message, 'warn');
   ws.name = D.name; ws.org = D.org; ws.appetite_rationale = D.appetite_rationale;
   Object.assign(ws.assessment, D.assessment);
   Object.assign(ws.budget, D.budget);
@@ -145,7 +145,7 @@ function profile(body, arg, sec) {
   // appetite + budget
   const appIn = B(a, 'APPETITE', { type: 'number', step: 0.05, min: 0.1, max: 0.9, id: 'org-appetite', 'aria-describedby': 'org-appetite-check' });
   const appMsg = el('div', { class: 'small', id: 'org-appetite-check', role: 'status' });
-  const appCheck = () => { const c = appetiteCheck(appIn.value); appMsg.textContent = c.message ? tr(c.message) : ''; appMsg.style.color = c.kind === 'bad' ? 'var(--bad)' : c.kind === 'warn' ? 'var(--warn)' : ''; appMsg.style.fontWeight = c.kind === 'bad' ? '700' : ''; appIn.setAttribute('aria-invalid', String(!c.ok)); };
+  const appCheck = () => { const c = appetiteCheck(appIn.value); appMsg.textContent = c.message || ''; appMsg.style.color = c.kind === 'bad' ? 'var(--bad)' : c.kind === 'warn' ? 'var(--warn)' : ''; appMsg.style.fontWeight = c.kind === 'bad' ? '700' : ''; appIn.setAttribute('aria-invalid', String(!c.ok)); };
   appIn.addEventListener('input', appCheck);
   const factorIn = B(a, 'FACTOR', { type: 'number', step: 100, min: 1 });
   body.append(card(el('h2', null, 'Risk appetite and budget'), el('div', 'grid g4',

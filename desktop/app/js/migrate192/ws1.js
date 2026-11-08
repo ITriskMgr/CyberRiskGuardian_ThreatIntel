@@ -47,8 +47,9 @@ function reductionReviewUp(w, note) {
   }
   const ids = [...new Set(listed)];
   if (!w.reductionReview || typeof w.reductionReview !== 'object') w.reductionReview = { date: today(), scenarios: ids, reviewed: null, by: '', note: '' };
-  if (given.length) note(`${new Set(given).size} scenario(s) had no reduction recorded: given the 0.5 the earlier release applied (${[...new Set(given)].join(', ')}) — numbers unchanged`);
+  if (given.length) note(`${new Set(given).size} scenario(s) had no reduction recorded: given the 0.5 that was applied until now (${[...new Set(given)].join(', ')}) — numbers unchanged`);
   if (ids.length) note(`${ids.length} scenario(s) still on the untouched default reductions 0.5 / 0.5 listed for review (D2): ${ids.join(', ')} — nothing changed`);
+  else note('no scenario on the untouched default reductions 0.5 / 0.5 (D2): review item empty');
 }
 
 /** 2 — consultant candidates stored as objects → array rows + draft (decided item 7 / C3). */

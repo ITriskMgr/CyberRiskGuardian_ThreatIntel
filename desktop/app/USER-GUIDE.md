@@ -346,7 +346,7 @@ Create the workspace with all the case documents and let “Extract from documen
 
 1. Type the workspace name; choose “Real organization” or “Classroom business case”; for teaching tick “Educational case used for training purposes”.
 2. Drop all the case documents (Word, PDF, Excel, PowerPoint, text) on the document zone.
-3. Tick “Extract the profile & appetite from these documents after creation”, “Then extract the crown jewels” and, to go further, “Then import more from the documents”; click “Create workspace”.
+3. Tick “Extract the profile & appetite from these documents after creation”, “Then extract the crown jewels” and, to go further, “Then extract more from the documents (Import from documents)”; click “Create workspace”.
 4. Choose “Use AI (preview before sending)” — you see the exact text before anything is sent — or “Rules only (no AI, offline)”.
 5. In the review, edit any value, tick those to keep and click “Put ticked values in the form”; check the fields and click “Save”.
 6. Review the crown jewels and click “Add ticked crown jewels”.
@@ -790,7 +790,7 @@ The New-workspace form has its own drop zone: drop or choose several Word (.docx
 — the business case, the company profile, an audit report, the incident history; Excel, PowerPoint and
 text files are accepted too. Remove any you added by mistake. Three options chain the extractions right
 after creation: *Extract the profile & appetite from these documents after creation*, *Then extract the
-crown jewels*, and *Then import more from the documents*, which opens **Import from documents**
+crown jewels*, and *Then extract more from the documents (Import from documents)*, which opens **Import from documents**
 (below). Click **Create workspace**: each file is read on your computer with a progress line
 (words found, *little text found*, or an error).
 

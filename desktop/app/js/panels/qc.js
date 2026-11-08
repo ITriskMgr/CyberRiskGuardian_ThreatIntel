@@ -152,8 +152,10 @@ export function checks(ws = S.ws) {
   add('QC-29', 'A budget gap to the appetite-consistent target is escalated, not reconciled silently', bg.gap > 0 && !bg.escalated ? 'warn' : 'pass',
     !bg.it ? tr('No IT budget entered: the target cannot be computed (Process step 4).') : bg.gap > 0 ? (bg.escalated ? tr('Shortfall of {0} to the target is recorded as a decision requested in the management summary.').replace('{0}', n0(bg.gap)) : tr('Shortfall of {0} to the {1}% target with no decision requested in the management summary: write it as a decision — Management decision required.').replace('{0}', n0(bg.gap)).replace('{1}', (bg.target * 100).toFixed(1))) : tr('Spend is at or above the appetite-consistent target.'), bg.gap > 0 && !bg.escalated ? 'summary' : 'budget');
   const mm = memoMismatch(ws);
-  add('QC-30', 'The management summary agrees with the workbook to the unit', mm === null ? 'warn' : mm.length ? 'fail' : 'pass',
-    mm === null ? tr('The management summary has not been exported yet; export it after the last change.') : mm.length ? tr('Exported on {0}; since then: {1}. Export the summary again.').replace('{0}', ws.mgmtSummary.date).replace('{1}', mm.join(', ')) : tr('The figures exported with the summary on {0} are the engine’s figures today.').replace('{0}', ws.mgmtSummary.date), 'summary');
+  add('QC-30', 'The management summary agrees with the workbook to the unit', mm === null || mm === 'unknown' ? 'warn' : mm.length ? 'fail' : 'pass',
+    mm === null ? tr('The management summary has not been exported yet; export it after the last change.')
+      : mm === 'unknown' ? tr('Exported on {0} without the figures of the day (an export of this release records them): export the summary again to compare.').replace('{0}', ws.mgmtSummary.date)
+      : mm.length ? tr('Exported on {0}; since then: {1}. Export the summary again.').replace('{0}', ws.mgmtSummary.date).replace('{1}', mm.join(', ')) : tr('The figures exported with the summary on {0} are the engine’s figures today.').replace('{0}', ws.mgmtSummary.date), 'summary');
   return out;
 }
 PROC.registerQc(checks);   // 1.9.2 (NV-018) — the report step requires no failed check
@@ -169,11 +171,11 @@ export function budgetGap(ws = S.ws) {
     || (ws.mgmtSummary?.date && Number(ws.mgmtSummary?.figures?.gap) > 0);
   return { it, spend, target, gap, escalated };
 }
-/** What changed since the management summary was exported (the figures recorded with it), or null when never exported. */
+/** What changed since the management summary was exported (the figures recorded with it): an array of differences, 'unknown' when the export recorded no figures, or null when never exported. */
 export function memoMismatch(ws = S.ws) {
   const f = ws.mgmtSummary?.figures;
   if (!ws.mgmtSummary?.date) return null;
-  if (!f) return [tr('figures not recorded with the export')];
+  if (!f) return 'unknown';
   const R = compute(ws), out = [];
   for (const [k, l] of [['est', 'estimated'], ['tol', 'tolerated'], ['res', 'residual']]) if (Math.round(R.totals[k]) !== Math.round(f[k])) out.push(`${tr(l)} ${n0(f[k])} → ${n0(R.totals[k])}`);
   if ((f.n ?? R.inc.length) !== R.inc.length) out.push(tr('{0} → {1} scenarios included').replace('{0}', f.n).replace('{1}', R.inc.length));
