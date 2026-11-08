@@ -140,6 +140,8 @@ export function proposeRanges(s) {
     const lo = k === 'Th' ? 0.05 : 0;                      // θ must stay in (0, 1]
     out[k] = { min: +clamp(v - w, lo, 1).toFixed(3), likely: v, max: +clamp(v + w, lo, 1).toFixed(3), dist: 'triangular' };
   }
+  // δm ≥ δe is an engine rule: the δm bounds never fall below the δe bounds, so no proposed range can draw δm < δe.
+  out.Dm.min = Math.max(out.Dm.min, out.De.min); out.Dm.max = Math.max(out.Dm.max, out.De.max); out.Dm.likely = Math.max(out.Dm.likely, out.De.likely);
   for (const k of ['red_p', 'red_i']) {
     const v = Number(s[k]) || 0;
     const w = WIDTH.Medium;
@@ -184,7 +186,7 @@ export async function run(ws = S.ws, { trials = 10000, seed = 20261004, ids = nu
              base: { id: s.id, params: {}, red_p: 0, red_i: 0, cvss_score: cvss } };
   });
 
-  const perScen = prep.map(() => []);
+  const perScen = prep.map(() => []), perAbove = prep.map(() => 0);
   const portfolio = [], portfolioRatio = [];
   let above = 0;
   const rand = rng(seed);
@@ -195,16 +197,19 @@ export async function run(ws = S.ws, { trials = 10000, seed = 20261004, ids = nu
       const { r, base } = prep[i];
       for (const [k] of PARAMS) base.params[k] = draw(rand(), r[k]);
       if (!(base.params.Th > 0)) base.params.Th = 0.05;
+      if (base.params.Dm < base.params.De) base.params.Dm = base.params.De;   // δm ≥ δe after every draw (engine rule)
       base.red_p = clamp(draw(rand(), r.red_p), 0, 1);
       base.red_i = clamp(draw(rand(), r.red_i), 0, 1);
       const out = CRG.calc(base, app, fac);
       perScen[i].push(out.res);
+      // per-trial verdict: the trial's own tolerated risk, not the point value (the ratio is what the method tests)
+      if (out.tol ? out.res / out.tol > CRG.BAND_HIGH : false) perAbove[i]++;
       totRes += out.res; totTol += out.tol;
     }
     portfolio.push(totRes);
     const ratio = totTol ? totRes / totTol : NaN;
     portfolioRatio.push(ratio);
-    if (ratio > 1.10) above++;
+    if (ratio > CRG.BAND_HIGH) above++;
     if (onProgress && (t % chunk === chunk - 1)) {
       onProgress((t + 1) / trials);
       await new Promise(r => setTimeout(r, 0));             // let the page paint
@@ -214,9 +219,8 @@ export async function run(ws = S.ws, { trials = 10000, seed = 20261004, ids = nu
   const rows = prep.map(({ s }, i) => {
     const stat = summarize(perScen[i]);
     const point = CRG.calc(s, app, fac);
-    const overTol = perScen[i].filter(v => v / point.tol > 1.10).length / trials;
     return { id: s.id, name: s.name || s.id, point: point.res, tol: point.tol,
-             pointRatio: point.ratio, stat, pAbove: overTol,
+             pointRatio: point.ratio, stat, pAbove: perAbove[i] / trials,
              ranged: hasRanges(s) };
   });
 
@@ -248,6 +252,7 @@ export function tornado(ws = S.ws, id) {
   const mk = over => {
     const b = { id: s.id, params: {}, red_p: r.red_p.likely, red_i: r.red_i.likely, cvss_score: cvss };
     for (const [k] of PARAMS) b.params[k] = r[k].likely;
+    if (b.params.Dm < b.params.De) b.params.Dm = b.params.De;               // δm ≥ δe (engine rule)
     Object.assign(b, over.at ? {} : {});
     return b;
   };
@@ -259,6 +264,7 @@ export function tornado(ws = S.ws, id) {
     const at = v => {
       const b = mk({});
       if (k === 'red_p' || k === 'red_i') b[k] = v; else b.params[k] = (k === 'Th' ? Math.max(0.05, v) : v);
+      if (b.params.Dm < b.params.De) b.params.Dm = b.params.De;             // δm ≥ δe (engine rule)
       return CRG.calc(b, A.APPETITE, A.FACTOR).res;
     };
     const lo = at(r[k].min), hi = at(r[k].max);

@@ -87,7 +87,7 @@ export function kpi(k, v, s, kind) {
   if (s) c.append(el('div', 's', s));
   return c;
 }
-export const pillFor = cls => !cls ? '' : cls.startsWith('Below') ? 'good' : cls.startsWith('Approximately') ? 'warn' : 'bad';
+export const pillFor = cls => !cls ? '' : cls.startsWith('Below') ? 'good' : cls.startsWith('Approximately') ? 'warn' : cls.startsWith('Not applicable') ? '' : 'bad';
 export const pill = (text, kind) => el('span', 'pill ' + (kind || ''), text);
 export function banner(kind, title, body) {
   const b = el('div', 'banner ' + kind); b.append(el('b', null, title));

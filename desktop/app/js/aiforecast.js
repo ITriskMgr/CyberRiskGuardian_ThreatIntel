@@ -430,7 +430,7 @@ export async function residualPath(ws = S.ws, { years = 3, trials = 200, seed = 
   const qs = central.map(() => qGrid.map(() => []));
   const perKs = central.map(() => []);
   for (let k = 0; k < trials; k++) {
-    const params = prep.map(p => { const o = {}; for (const [key] of F.PARAMS) o[key] = F.draw(rand(), p.ranges[key]); if (!(o.Th > 0)) o.Th = 0.05; return o; });
+    const params = prep.map(p => { const o = {}; for (const [key] of F.PARAMS) o[key] = F.draw(rand(), p.ranges[key]); if (!(o.Th > 0)) o.Th = 0.05; if (o.Dm < o.De) o.Dm = o.De; return o; });   // δm ≥ δe after every draw
     const rp = prep.map(p => clamp(F.draw(rand(), p.ranges.red_p), 0, 1)), ri = prep.map(p => clamp(F.draw(rand(), p.ranges.red_i), 0, 1));
     const delay = Object.fromEntries(U.map(u => [u.id, F.draw(rand(), { min: 0.8, likely: 1, max: 1.5, dist: 'triangular' })]));
     const sq = path(new Set(), { params, rp, ri, delay }, qGrid);

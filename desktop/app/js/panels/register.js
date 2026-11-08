@@ -4,6 +4,7 @@
 import { el, n0, n2, kpi, banner, card, pill, pillFor, chip, table, download, toast, go, select } from '../util.js';
 import { S, touch, compute, setIncluded, exportAssessment, normalizeScenario, blankScenario, nextScenarioId, emit } from '../state.js';
 import { techName, cwe } from '../ontology.js';
+import { tr } from '../i18n.js';
 
 let filter = { q: '', status: 'all' };
 
@@ -57,6 +58,9 @@ export function render(sec) {
 
   if (R.errors.length) sec.append(banner('bad', `${R.errors.length} scenario(s) cannot be calculated`,
     el('div', null, ...R.errors.map(e => el('div', null, el('a', { href: '#/scenario/' + e.id }, e.id), ' — ' + e.error)))));
+  const flagged = R.rows.filter(r => CRG.cvssCheck(r.s).agree === false);
+  if (flagged.length) sec.append(banner('warn', tr('{0} scenario(s) carry a stored CVSS score that disagrees with its vector').replace('{0}', flagged.length),
+    el('div', null, tr('The vector\'s score is used. Correct or clear the stored score in the Scenario editor: '), ...flagged.map(r => el('a', { href: '#/scenario/' + r.id + '/cvss', style: { marginRight: '8px' } }, r.id)))));
 
   const k = el('div', 'grid g4');
   k.append(kpi('Scenarios included', n0(R.inc.length), `${a.SCEN.length - R.inc.length} excluded`),
@@ -85,7 +89,8 @@ export function render(sec) {
     { key: 'name', label: 'Scenario', render: r => el('div', null, el('a', { href: '#/scenario/' + r.id }, r.name || '(untitled)'), r.s.owner ? el('div', 'small muted', r.s.owner) : null) },
     { key: 'threats', label: 'Threats', sortable: false, render: r => threatChips(r.s, 3) },
     { key: 'vulns', label: 'Vulnerabilities', sortable: false, render: r => vulnChips(r.s, 3) },
-    { key: 'cvss', label: 'CVSS', num: true, render: r => n1(r.cvss) },
+    // the vector wins (X-1): a stored score that disagrees with its vector is flagged beside the score the engine used
+    { key: 'cvss', label: 'CVSS', num: true, render: r => CRG.cvssCheck(r.s).agree === false ? el('span', null, n1(r.cvss), ' ', el('span', { class: 'pill warn', title: r.warnings.join('; ') }, 'stored score ≠ vector')) : n1(r.cvss) },
     { key: 'est', label: 'Estimated', num: true, render: r => n0(r.est) },
     { key: 'res', label: 'Residual', num: true, render: r => n0(r.res) },
     { key: 'ratio', label: 'Res/Tol', num: true, render: r => n2(r.ratio) },
