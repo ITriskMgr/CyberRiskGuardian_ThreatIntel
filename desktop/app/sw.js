@@ -29,7 +29,9 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "js/ssvc.js", "js/data/ssvc-tables.js", "js/panels/ssvc.js", "js/aiforecast.js", "js/panels/aiforecast.js",
   // 1.9.0 — Atlas: the bundled fonts (SIL OFL 1.1), so the interface keeps its type offline
   "fonts/sora-latin-500-normal.woff2", "fonts/sora-latin-600-normal.woff2", "fonts/sora-latin-700-normal.woff2",
-  "fonts/atkinson-hyperlegible-latin-400-normal.woff2", "fonts/atkinson-hyperlegible-latin-400-italic.woff2", "fonts/atkinson-hyperlegible-latin-700-normal.woff2", "js/tabkeys.js"
+  "fonts/atkinson-hyperlegible-latin-400-normal.woff2", "fonts/atkinson-hyperlegible-latin-400-italic.woff2", "fonts/atkinson-hyperlegible-latin-700-normal.woff2", "js/tabkeys.js",
+  // 1.9.2 — data version 6: the sub-step lists of the workstreams
+  "js/migrate192.js", "js/migrate192/ws1.js", "js/migrate192/ws2.js", "js/migrate192/ws3.js", "js/migrate192/ws4.js", "js/migrate192/ws5.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

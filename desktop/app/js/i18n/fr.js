@@ -12594,4 +12594,8 @@ export default {
 "{0} Beta ({1})": "{0} bêta ({1})",
 "set-up questions": "questions de configuration",
 "v{0} · © 2026 Marc-André Léger — {1}": "v{0} · © 2026 Marc-André Léger — {1}",
+"migrate192 STEP6: {0} names no reset group ({1})": "migrate192 STEP6 : {0} ne nomme aucun groupe de réinitialisation ({1})",
+"Data version 5 → 6:": "Version des données 5 → 6 :",
+"no change to the workspace": "aucun changement à l'espace de travail",
+"no change to the workspace: the data version is recorded": "aucun changement à l'espace de travail : la version des données est consignée",
 };

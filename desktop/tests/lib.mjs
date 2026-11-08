@@ -1,6 +1,9 @@
 // Test harness of CyberRiskGuardian Desktop — the only one (1.9.0: the lane harnesses of tests-new were merged here).
 // Every path and port comes from the environment, with defaults relative to this repository, so the suites run the
 // same on a workstation and in CI:
+//   CRG_PORT      shorthand for parallel runs (several checkouts at once): sets the defaults of CRG_URL
+//                 (http://127.0.0.1:$CRG_PORT/), CRG_TMP ($TMPDIR/crg-desktop-tests-$CRG_PORT), CRG_MOCK_GITHUB_PORT
+//                 ($CRG_PORT+100) and CRG_EMBED_PORT ($CRG_PORT+1000). Unset: the defaults below, unchanged.
 //   CRG_URL       the running app and helper (default http://127.0.0.1:8099/)
 //   CRG_APP_DIR   the application folder (default ../app)
 //   CRG_TMP       scratch folder for the run (default $TMPDIR/crg-desktop-tests, outside the repository: the helper refuses
@@ -21,10 +24,11 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 export const TESTS = path.dirname(fileURLToPath(import.meta.url));
 const env = (k, d) => process.env[k] || d;
-export const URL = env('CRG_URL', 'http://127.0.0.1:8099/');
+const CRG_PORT = Number(process.env.CRG_PORT) || 0;
+export const URL = env('CRG_URL', `http://127.0.0.1:${CRG_PORT || 8099}/`);
 export const PORT = Number(new globalThis.URL(URL).port || 80);
 export const APP = path.resolve(env('CRG_APP_DIR', path.join(TESTS, '..', 'app')));
-export const TMP = path.resolve(env('CRG_TMP', path.join(os.tmpdir(), 'crg-desktop-tests')));
+export const TMP = path.resolve(env('CRG_TMP', path.join(os.tmpdir(), CRG_PORT ? `crg-desktop-tests-${CRG_PORT}` : 'crg-desktop-tests')));
 export const FEEDS = path.resolve(env('CRG_FEEDS_DIR', path.join(TMP, 'feeds')));
 export const ORG = path.resolve(env('CRG_ORG_DIR', path.join(TMP, 'orggraphs')));
 export const KEYS = path.resolve(env('CRG_KEYS_DIR', path.join(TMP, 'keys')));
@@ -35,8 +39,8 @@ export const CRGO = path.resolve(env('CRGO_HOME', path.join(TESTS, '..', '..', '
 /** The CRGO release the suites expect at CRGO_HOME, and whether it has the 0.11 terms (scenario patterns, CIS v8.1, crgo-iam). */
 export const CRGO_RELEASE = env('CRGO_RELEASE', '0.11.0');
 export const CRGO_011 = CRGO_RELEASE.split('.').map(Number).reduce((a, x) => a * 1000 + x, 0) >= 11000;
-export const MOCK_GITHUB_PORT = Number(env('CRG_MOCK_GITHUB_PORT', '8199'));
-export const EMBED_PORT = Number(env('CRG_EMBED_PORT', '8115'));
+export const MOCK_GITHUB_PORT = Number(env('CRG_MOCK_GITHUB_PORT', String(CRG_PORT ? CRG_PORT + 100 : 8199)));
+export const EMBED_PORT = Number(env('CRG_EMBED_PORT', String(CRG_PORT ? CRG_PORT + 1000 : 8115)));
 export const FIXTURES = path.join(TESTS, 'fixtures');
 fs.mkdirSync(TMP, { recursive: true });
 // Suites write into the mock folder (consultant.txt) and the helper writes _last.json there: never the repository's.

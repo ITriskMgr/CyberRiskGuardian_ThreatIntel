@@ -43,6 +43,8 @@
         that record split into the two, losslessly (splitIpc5 below). A data version of its own, rather than a
         repair at load time, so the split is journalled, the copy from before is kept (premig), and an earlier
         1.9.0 build opens a split workspace read-only instead of saving over it.
+     6  1.9.2 — one step made of sub-steps (STEP6, js/migrate192.js), one list per 1.9.2 workstream
+        (js/migrate192/ws1.js … ws5.js), in the STEP4 format: workspace fields and load-time repairs.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { VERSION } from './version.js';
@@ -50,6 +52,8 @@ import { LEGACY } from './data/legacy-map.js';
 import * as MK from './markers.js';
 import * as IAM from './iam.js';
 import * as CM from './cm.js';
+import { STEP6, fieldsV6 } from './migrate192.js';
+export { STEP6, fieldsV6 };
 
 /** MediBec S2 and S8: the earlier (AV:N) vector → the current (AV:L) one. The single copy of these constants
     (1.9.0): avl.js re-exports them and the Quality review (QC-26) reads them from there. */
@@ -58,7 +62,7 @@ export const AVL_VECTORS = Object.freeze({
   S8: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L' }),
 });
 
-export const DATA_VERSION = 5;
+export const DATA_VERSION = 6;
 
 /* ---------------- the 1.9.0 records (data version 4) ----------------
    Data version 4 is ONE migration step made of sub-steps, one per piece of 1.9.0 work that adds a
@@ -113,6 +117,8 @@ export const KNOWN_FIELDS = [
   'screening', 'mgmtSummary', 'catalogueMigration',
   // 1.9.0 — data version 4, one entry per sub-step
   ...STEP4.map(s => s.field),
+  // 1.9.2 — data version 6, the STEP6 entries that add a field (js/migrate192.js)
+  ...STEP6.filter(s => s.field).map(s => s.field),
 ];
 
 /* ---------------- the 1.5.8 records ---------------- */
@@ -377,6 +383,17 @@ export const MIGRATIONS = [
     from: 4, to: 5, release: '1.9.0',
     title: 'Data version 4 → 5: the identity, privilege & configuration record split into Identity & access management and Configuration management',
     up(w, note) { splitIpc5(w, note); },
+  },
+  {
+    from: 5, to: 6, release: '1.9.2',
+    get title() { return 'Data version 5 → 6: ' + (STEP6.length ? STEP6.map(s => s.title).join('; ') : 'no change to the workspace'); },
+    up(w, note) {
+      for (const s of STEP6) {
+        if (s.up) { s.up(w, note); continue; }
+        if (s.field && w[s.field] === undefined) { w[s.field] = s.blank(); note(`${s.title}: empty record added`); }
+      }
+      if (!STEP6.length) note('no change to the workspace: the data version is recorded');
+    },
   },
 ];
 
