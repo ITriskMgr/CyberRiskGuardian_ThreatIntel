@@ -184,6 +184,7 @@ function draw() {
     const m = MOD.moduleOf(current.name);
     sec.replaceChildren(el('h1', null, m.label), banner('warn', i18n.tr('This module is switched off'), i18n.tr('Switch it on in Settings → Modules. Its data stays in the workspace while it is off.')),
       el('div', 'btnrow', el('button', { class: 'btn', onclick: () => { location.hash = '#/settings/modules'; } }, 'Open Settings → Modules')));
+    HELP.supportCode(sec, current.name, current.arg);   // 1.9.2 (NV-080): the code is there even when the module is off
     return;
   }
   const fail = e => { console.error(e); sec.replaceChildren(banner('bad', 'This screen raised an error', String(e.stack || e))); };

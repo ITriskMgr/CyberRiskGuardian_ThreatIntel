@@ -32,7 +32,8 @@ ask_replace() {   # $1 = description of the running copy; returns 0 to replace, 
   if [ "${CRG_LAUNCH_REPLACE:-}" = "1" ]; then return 0; fi
   if [ ! -t 0 ] && [ -z "${CRG_LAUNCH_PROMPT:-}" ]; then return 0; fi    # no terminal: behave as before 1.9.2
   local a
-  read -r -p "Stop it and start this version instead? [y/N] " a || a=""
+  printf 'Stop it and start this version instead? [y/N] '
+  read -r a || a=""
   case "$a" in y|Y|yes|YES|Yes|o|O|oui|OUI|Oui) return 0 ;; *) return 1 ;; esac
 }
 if command -v lsof >/dev/null 2>&1; then

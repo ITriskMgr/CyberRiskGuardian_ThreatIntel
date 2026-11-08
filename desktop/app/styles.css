@@ -174,15 +174,15 @@ body.navrail nav .navsec + .navsec { margin-top: 4px; padding-top: 4px; }
 
 /* ---------- top bar and main ---------- */
 .mainwrap { display: flex; flex-direction: column; min-width: 0; height: 100vh; }
-.topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 12px; padding: 12px 34px; background: var(--bg); border-bottom: 1px solid var(--line); }
-.wsbox { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 340px; max-width: 100%; }
+.topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 12px; padding: 12px 34px; background: var(--bg); border-bottom: 1px solid var(--line); }   /* 1.9.2 (item 15): the buttons wrap to a right-aligned second line when the bar is narrow */
+.wsbox { display: flex; align-items: center; gap: 10px; min-width: min-content; flex: 1 1 0; max-width: 100%; }
 .wsbox .wslabel { margin: 0; font-size: 13px; white-space: nowrap; }
 /* 1.9.2 (item 15, NV-051) — the workspace name shrinks before anything overlaps: the select is bounded by the bar it
    sits in (not the viewport), and the kind pill never shrinks or wraps; with the consultant open the right-hand
    buttons wrap to a second line instead of colliding with « Exemple pédagogique ». */
-.wsbox select { width: auto; min-width: 160px; max-width: min(46vw, 100%); flex: 0 1 auto; font-weight: 700; background: var(--surface); text-overflow: ellipsis; }
+.wsbox select { width: 160px; min-width: 160px; max-width: min(46vw, 440px); flex: 1 1 auto; font-weight: 700; background: var(--surface); text-overflow: ellipsis; }
 .wsbox .pill { flex: none; white-space: nowrap; }
-.topright { display: flex; align-items: center; gap: 8px; font-size: 12.5px; flex-wrap: wrap; margin-left: auto; justify-content: flex-end; flex: 0 1 auto; min-width: 0; }
+.topright { display: flex; align-items: center; gap: 8px; font-size: 12.5px; flex-wrap: wrap; margin-left: 0; justify-content: flex-end; flex: 0 0 auto; }   /* no auto margin: the free space goes to the workspace box */
 .langswitch { display: inline-flex; gap: 2px; }
 .langswitch .btn.on, .topbar .langswitch .btn.ghost.on { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
 main { flex: 1; overflow-y: auto; padding: 24px 36px 72px; scroll-padding-top: 16px; }
