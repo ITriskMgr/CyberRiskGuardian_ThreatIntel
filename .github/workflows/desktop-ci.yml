@@ -47,6 +47,12 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
+      # 1.9.2: LibreOffice (soffice) recalculates the exported workbooks in t61; without it the suite fails its availability check
+      - name: LibreOffice Calc (headless)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends libreoffice-calc-nogui
+          soffice --version
       # 1.9.2 (NV-087): every package pinned with its SHA-256 hash (desktop/tests/requirements-ci.lock, generated from
       # requirements.txt + requirements-ci.txt for CPython 3.12/3.13 on linux x86_64); pip refuses anything else.
       - name: Python dependencies (pinned, hash-checked)
