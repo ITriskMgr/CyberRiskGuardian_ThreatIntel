@@ -216,7 +216,8 @@ export function opsFacts(ws = S.ws, asOf = new Date().toISOString().slice(0, 10)
   }
   return out;
 }
-/** The assessment exactly as it is sent to CRGO's bridge (included scenarios, CVSS score from this engine). */
+/** The assessment exactly as it is sent to CRGO's bridge (included scenarios, CVSS score from this engine — the vector's
+ *  score when a vector is present, X-1; a stored score that disagreed stays visible in cvss_check and warnings). */
 export function assessmentFor(ws = S.ws) {
   const a = exportAssessment(ws, { includedOnly: true });
   const run = self.CRG.run(ws.assessment);

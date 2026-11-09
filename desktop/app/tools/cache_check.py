@@ -14,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 src = open(os.path.join(ROOT, "sw.js"), encoding="utf-8").read()
 listed = set(re.findall(r'"([^"]+)"', src[src.index("const FILES"):src.index("];", src.index("const FILES"))]))
 need = []
-for d in ("js", "js/panels", "js/data", "js/i18n", "help", "frameworks", "data", "examples/threat-context", "data/simulation", "data/simulation/medibec", "kb/book", "fonts"):
+for d in ("js", "js/panels", "js/data", "js/i18n", "help", "frameworks", "data", "examples/threat-context", "data/simulation", "data/simulation/medibec", "kb/book", "fonts", "js/migrate192"):
     for f in sorted(os.listdir(os.path.join(ROOT, d))):
         p = f"{d}/{f}"
         if os.path.isfile(os.path.join(ROOT, p)) and not f.startswith("."):

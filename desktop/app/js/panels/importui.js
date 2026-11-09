@@ -61,7 +61,7 @@ export function importTab(body, sec, org) {
       el('td', null, (d.extracted || []).length ? el('div', 'chips', ...(d.extracted || []).map(x => chip(tr(x.into) + ' · ' + x.date))) : el('span', 'small muted', 'not extracted yet')));
   });
   const docTable = ws.docs.length
-    ? el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, ''), el('th', null, 'Document'), el('th', null, 'Already extracted into'))), el('tbody', null, ...docRows)))
+    ? el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Select')), el('th', null, 'Document'), el('th', null, 'Already extracted into'))), el('tbody', null, ...docRows)))
     : el('div', 'empty-state', el('b', null, 'No context documents yet'), 'Add the business case or company documents above.');
   body.append(card(el('h2', { style: { marginTop: 0 } }, '1. Documents to read'),
     el('p', 'note', 'Add documents whenever new information arrives — after the workspace was created, after the assessment started. Tick the ones to read: by default the documents you just added, so a new document can be extracted on its own without re-reading the others.'),
@@ -98,7 +98,7 @@ export function importTab(body, sec, org) {
   } }, 'Start the import');
   body.append(card({ id: 'import-card' }, el('h2', { style: { marginTop: 0 } }, '2. What to extract'),
     el('p', 'note', 'Proposals, each tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN with its source, that you review, edit and accept. Nothing is written before you add it, existing values are never replaced without your choice, and extraction never sets a risk parameter. The targets ticked below are the import plan of Process step 1.'),
-    el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, ''), el('th', null, 'Target'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...first, ...rows))),
+    el('div', 'tablewrap', el('table', 'compact', el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Select')), el('th', null, 'Target'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...first, ...rows))),
     el('div', 'grid g2', { style: { marginTop: '10px' } }, el('label', null, el('span', null, 'Method'), meth),
       el('div', 'small muted', { style: { alignSelf: 'end' } }, 'The creativity of AI answers is chosen in each preview, and its default in Settings → AI — local & remote.')),
     el('div', 'btnrow', { style: { marginTop: '10px' } },
@@ -141,7 +141,7 @@ export function importCard(body, sec, org) {
       el('td', null, s.rules ? pill('rules + AI', 'good') : pill('AI only', '')),
       el('td', null, pill(!route.provider ? tr('blocked') : AI.isLocal(route.provider) ? tr('local model') : AI.provider(route.provider).label, !route.provider ? '' : AI.kindOf(route.provider))));
   });
-  const t = el('table', 'compact', el('thead', null, el('tr', null, el('th', null, ''), el('th', null, 'What can be prefilled'), el('th', null, 'Value'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...rows));
+  const t = el('table', 'compact', el('thead', null, el('tr', null, el('th', null, el('span', 'sr-only', 'Select')), el('th', null, 'What can be prefilled'), el('th', null, 'Value'), el('th', null, 'Methods'), el('th', null, 'AI route'))), el('tbody', null, ...rows));
   const status = el('div');
   body.append(card({ id: 'import-card' }, el('h2', { style: { marginTop: 0 } }, 'Import from the documents'),
     el('p', 'note', 'Pre-fill the assessment from the documents of this workspace with the same approach as the profile: proposals, each tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN with its source, that you review, edit and accept. Nothing is written before you add it. Extraction never sets a risk parameter value.'),
@@ -179,18 +179,20 @@ export async function runAll(status) {
           text ??= (await X.corpus(ws, 200000)).text;
           const out = await aiui.request(IM.taskOf(sec), { text, fictional: ws.kind !== 'organization' }, { title: tr('Import from documents — what will be sent') + ' · ' + tr(sec.label), ws });
           if (!out) { done.push([sec, 'cancelled']); continue; }
-          res = IM.parseAI(sec, out.text); res.entryId = out.entryId;
+          res = IM.parseAI(sec, out.text, text); res.entryId = out.entryId;
         }
       }
     } catch (e) { done.push([sec, 'error', String(e.message || e)]); continue; }
     const n = await review(sec, res);
     if (res.entryId) AI.decide(res.entryId, n > 0 ? 'accepted' : 'rejected', `${n} item(s) added`);
+    // 1.9.2 (NV-067): a target reviewed with nothing to add is recorded as reviewed, not left "to do"
+    if (n === 0 && !(res?.items || []).length) { IM.noteReviewed(sec, ws, res?.items?._method || pick.method, users.name ? users.name() : ''); done.push([sec, 'reviewed']); continue; }
     done.push([sec, n === null ? 'cancelled' : 'added', n]);
   }
   X.setScope(null); fresh.clear();
   status.replaceChildren(card(el('h4', { style: { marginTop: 0 } }, 'Import summary'), table([
     { key: 'l', label: 'Target', render: d => tr(d[0].label) },
-    { key: 's', label: 'Result', render: d => d[1] === 'added' ? pill(`${d[2]} ${tr('added')}`, d[2] ? 'good' : '') : d[1] === 'skipped' ? pill(tr('skipped'), 'warn') : d[1] === 'error' ? pill(tr('error'), 'bad') : pill(tr('cancelled'), '') },
+    { key: 's', label: 'Result', render: d => d[1] === 'added' ? pill(`${d[2]} ${tr('added')}`, d[2] ? 'good' : '') : d[1] === 'reviewed' ? pill(tr('Reviewed — nothing found'), 'good') : d[1] === 'skipped' ? pill(tr('skipped'), 'warn') : d[1] === 'error' ? pill(tr('error'), 'bad') : pill(tr('cancelled'), '') },
     { key: 'w', label: 'Note', render: d => d[1] === 'added' ? el('a', { href: '#/' + d[0].route }, tr('Open the screen')) : el('span', 'small', d[2] || '') },
   ], done, { class: 'compact' })));
 }
@@ -198,11 +200,15 @@ export async function runAll(status) {
 /** The review dialog for one target. Resolves with the number added, or null if cancelled. */
 export function review(sec, res) {
   return new Promise(resolve => {
-    const items = (res?.items || []).map(x => ({ ...x, _take: x.tag !== 'UNKNOWN' }));
+    // 1.9.2 (X-3 / NV-008): a proposal whose source or text matches an instruction pattern, or whose FACT quote was
+    // not found, is never pre-ticked; the analyst ticks it knowingly
+    const items = (res?.items || []).map(x => ({ ...x, _take: x.tag !== 'UNKNOWN' && !x._flagged }));
+    const flaggedN = items.filter(x => x._flagged).length;
     const tg = t => el('span', { class: 'pill tag-' + t + ' ' + X.TAG_KIND[t], title: X.TAG_HELP[t] }, t);
     const m = modal(tr('Review') + ' — ' + tr(sec.label),
       el('p', 'note', sec.what),
-      el('div', 'chips', pill(items.length + ' ' + tr('proposal(s)'), ''), pill(res?.items?.[0]?._method === 'rules' ? tr('Proposed by rules (no AI)') : 'AI', ''), res?.truncated ? pill(tr('answer truncated — first items kept'), 'warn') : null),
+      el('div', 'chips', pill(items.length + ' ' + tr('proposal(s)'), ''), pill(res?.items?.[0]?._method === 'rules' ? tr('Proposed by rules (no AI)') : 'AI', ''), res?.truncated ? pill(tr('answer truncated — first items kept'), 'warn') : null,
+        flaggedN ? pill(tr('{0} set aside — quote not found or instruction-like text; left unticked').replace('{0}', flaggedN), 'warn') : null),
       items.length ? el('div', 'tablewrap', { style: { maxHeight: '55vh', overflow: 'auto', marginTop: '8px' } }, table([
         { key: '_take', label: '', sortable: false, cls: 'cb', render: it => { const c = el('input', { type: 'checkbox', checked: it._take }); c.addEventListener('change', () => { it._take = c.checked; }); return c; } },
         ...sec.cols.map(([k, l, ed]) => ({ key: k, label: l, sortable: false, render: it => {
@@ -211,8 +217,8 @@ export function review(sec, res) {
           const i = el(v.length > 60 ? 'textarea' : 'input', { value: v, rows: 2, 'data-noi18n': '' }); if (i.tagName === 'TEXTAREA') i.value = v;
           i.addEventListener('input', () => { IM.setCell(it, k, i.value); it._take = true; });
           return i; } })),
-        { key: 'tag', label: 'Tag', render: it => tg(it.tag || 'INFERENCE') },
-        { key: 'source', label: 'Source', sortable: false, render: it => el('div', { class: 'small muted', 'data-noi18n': '', style: { maxWidth: '260px' } }, String(it.source || '—').slice(0, 220)) },
+        { key: 'tag', label: 'Tag', render: it => el('span', null, tg(it.tag || 'ASSUMPTION'), it._flagged ? el('span', { class: 'pill warn', title: it._note || '', style: { marginLeft: '4px' } }, tr('check')) : null) },
+        { key: 'source', label: 'Source', sortable: false, render: it => el('div', { class: 'small muted', 'data-noi18n': '', style: { maxWidth: '260px' } }, String(it.source || '—').slice(0, 220), it._note ? el('div', 'warn', it._note) : null) },
       ], items, { class: 'compact' })) : el('div', 'empty-state', el('b', null, 'Nothing found'), res?.items ? 'The documents do not seem to contain this information. Try the other method, or add it by hand.' : 'This target needs AI.'),
       el('div', 'btnrow', { style: { marginTop: '12px' } },
         items.length ? el('button', { class: 'btn', onclick: () => {

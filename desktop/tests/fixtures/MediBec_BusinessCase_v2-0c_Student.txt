@@ -1,0 +1,150 @@
+MediBec
+Integrated Cybersecurity Teaching Case
+Incident Response | Audit Planning | Cybersecurity Risk Management
+Teaching text - Version v2.0c
+Prepared for use in cybersecurity, audit, governance, risk management, and health information systems courses
+By Marc-André Léger, PhD
+Instructor use note. This document is designed as an editable case package. The instructor may distribute the full document or separate the student narrative, evidence appendices, scenario library, and instructor annex into different files. The case is fictional. It is intentionally realistic but not intended to represent any actual medical centre, clinic, healthcare professional, patient, regulator, vendor, or cyber incident.
+This version strengthens the original MediBec case by making it directly applicable to three connected learning objectives: managing a live cyber incident, preparing a risk-based cybersecurity audit plan, and conducting a scenario-based cybersecurity risk assessment that leads to a multi-year action plan for the 2024-2030 planning horizon.
+
+Contents
+1. How to Use This Case
+2. Student Case Narrative
+3. MediBec Background and Healthcare Profile
+4. Governance, Technology, and Cybersecurity Operating Model
+5. Cyber Threat Context: Known Facts and Initial Uncertainties
+6. Module A: Incident Response Exercise
+7. Module B: Cybersecurity Audit Planning Exercise
+8. Module C: Scenario-Based Risk Management Exercise
+9. Scenario Library
+10. Assignment Options and Suggested Deliverables
+11. Appendices: Evidence, Templates, and Instructor Notes
+12. References and Standards Alignment Notes
+
+1. How to Use This Case
+MediBec is a fictional private medical centre operating in Quebec, with a head office in Montreal and 10 clinics located in the regions of Montreal, Quebec City, Gatineau, and Saguenay. The organization has observed multiple unsuccessful cyber-attack attempts since 2020 and has recently seen an increase in attempted attacks. Although no successful breach has been confirmed, the threat environment, the sensitivity of patient data, and the operational importance of clinical systems require a structured cybersecurity risk assessment.
+This case is designed to support three related but distinct forms of analysis. Students can first manage a simulated cyber incident as if they were members of MediBec’s cyber crisis team. They can then step back and prepare a cybersecurity audit plan to determine whether the organization’s controls, governance arrangements, and remediation priorities are adequate. Finally, they can conduct a structured scenario-based cybersecurity risk assessment and propose a prioritized 2024-2030 cybersecurity roadmap.
+The case can be used as a one-week discussion exercise, a multi-week group assignment, or a semester-long integrated case. It is especially suitable for courses in cybersecurity governance, information systems risk, privacy and health data protection, internal audit, technology risk management, cyber resilience, and business technology management.
+
+Learning objectives
+After completing the case, students should be able to explain how cyber incidents in a healthcare setting can move from technical detection to patient safety, privacy, operational, and governance concerns; identify incident response priorities under uncertainty; distinguish between technical vulnerability severity and business or clinical risk; design a risk-based cybersecurity audit plan; assess the adequacy of governance, controls, and remediation; develop a cybersecurity risk register; justify risk treatment choices in relation to risk appetite; and communicate cybersecurity risk to senior leaders and clinical stakeholders.
+The case intentionally requires judgment. Students should not expect a single correct answer. Strong submissions should be evidence-based, internally consistent, transparent about uncertainty, and aligned with MediBec’s clinical mission, privacy obligations, budget constraints, staffing limitations, and risk appetite.
+2. Student Case Narrative
+You are a full-time employee or consultant assigned to support MediBec’s cybersecurity and risk management program. Depending on the assignment, your role may be an incident response analyst, an internal audit liaison, a cybersecurity risk analyst, a privacy incident coordinator, or an advisor to the CIO and executive team. MediBec has not confirmed a successful cyberattack, but the organization has seen a sustained increase in attempted attacks and recognizes that its current cybersecurity capabilities may not be adequate for the sensitivity and operational importance of its systems.
+The CIO has asked your team to produce practical, decision-ready work. The immediate concern is to prepare for a plausible cyber incident affecting patient data, clinical services, reservations, billing, EHR access, or connected medical equipment. The medium-term concern is to determine whether existing controls, processes, and governance arrangements are adequate. The long-term concern is to develop a risk-informed cybersecurity program for the 2024-2030 planning horizon.
+Some facts in the case are deliberately incomplete. Students are expected to identify information gaps, make reasonable assumptions, document those assumptions, and explain how additional evidence would change their conclusions.
+
+3. MediBec Background and Healthcare Profile
+MediBec is a fictional private medical centre headquartered in Montreal. It operates 10 clinics across the regions of Montreal, Quebec City, Gatineau, and Saguenay. Its mission is to deliver high-quality healthcare services supported by modern technology, efficient clinical workflows, digital communication, and secure access to patient information.
+MediBec holds and processes sensitive personal and medical information, including electronic health records, billing details, administrative records, and data generated by medical equipment and specialized departmental systems. Its technology environment supports clinical care, laboratory management, radiology, pharmacy, billing, online access, and collaboration among medical professionals.
+MediBec’s challenge is not simply to prevent cyberattacks. It must protect patient health information, maintain clinical continuity, preserve public trust, comply with privacy and health-sector expectations, and ensure that technology supports care delivery rather than creating unsafe dependencies.
+
+Clinical and operational dependency
+The clinic network depends heavily on central technology services. Medical staff rely on access to EHR data, diagnostic information, communications tools, billing systems, medical imagery, and local devices. Even if an attack does not directly harm patients, an outage or data integrity issue can affect appointment scheduling, clinical decision-making, continuity of care, referrals, billing, and confidence in the organization.
+For the incident response exercise, students should consider that technical containment decisions may have clinical consequences. For the audit exercise, students should consider whether evidence exists at both the head office and clinic levels. For the risk management exercise, students should consider whether risk tolerance differs between administrative systems and systems directly affecting patient care.
+4. Governance, Technology, and Cybersecurity Operating Model
+Governance model
+Before the revised planning horizon, MediBec treated cybersecurity primarily as an IT operational responsibility. The case now frames cybersecurity as an enterprise risk issue involving patient safety, privacy, clinical continuity, executive oversight, vendor management, and regulatory exposure. The CIO remains accountable for IT strategy and operations, but cybersecurity risk must also be visible to executive management and the Board or ownership group.
+For teaching purposes, assume that MediBec has appointed a Cybersecurity and Privacy Steering Committee chaired by an executive sponsor. The CIO continues to lead technology strategy, while the cybersecurity team, privacy/compliance function, clinical operations leaders, and clinic managers share responsibility for risk identification, incident escalation, and remediation.
+
+Technology environment
+
+Cybersecurity operating model
+The original case describes a lean 15-person IT department, including a two-person cybersecurity team. This staffing level creates a realistic constraint for a private healthcare organization with sensitive data and geographically distributed clinics. Students should not assume that MediBec can implement every control immediately. They must prioritize according to patient safety, privacy impact, operational continuity, and risk reduction per dollar.
+
+Budget context
+The original case states that MediBec’s total IT budget, including salaries, is CAD 100 million. For the revised teaching case, assume that the organization is preparing a cybersecurity improvement roadmap for 2024-2030. Students may recommend phased investments, but they should respect non-financial constraints such as staffing capacity, clinical change management, vendor availability, medical-device certification constraints, and the need to maintain care delivery during implementation.
+
+5. Cyber Threat Context: Known Facts and Initial Uncertainties
+MediBec has observed multiple unsuccessful cyber-attack attempts since 2020, with an increase in attack attempts in recent months. No successful breach has been confirmed in the baseline case. This is useful pedagogically because students are not only reacting to an incident that already occurred; they are also asked to assess whether MediBec is sufficiently prepared before an incident becomes successful.
+For the incident response module, instructors may convert the threat context into a simulated live incident. The simulation should begin with uncertainty: a suspicious authentication event, an abnormal EHR access pattern, unusual traffic from a clinic, a report of failed backups, or a patient complaint about an online service. Students should have to decide what evidence is needed, when to escalate, and how to balance containment with care delivery.
+
+Regulatory, privacy, and clinical teaching assumptions
+For teaching purposes, assume that MediBec must consider Quebec and Canadian privacy expectations, health information confidentiality, professional obligations, contractual obligations with technology and cloud providers, and evidence preservation if a major incident occurs. If the instructor wishes to use a different jurisdictional variant, this section can be adapted.
+The purpose of this case is not to train students to provide legal advice. Students should identify privacy, clinical, contractual, and regulatory issues, explain why they matter, and recommend that MediBec coordinate with legal counsel, privacy officers, clinical leadership, relevant authorities, insurers, and external forensic experts as appropriate.
+6. Module A: Incident Response Exercise
+In this module, students act as members of MediBec’s cyber incident response team. The exercise begins when the IT team detects suspicious activity and one or more clinics report service disruptions. Students do not initially know whether the event is credential theft, ransomware, EHR disruption, a cloud misconfiguration, a wireless compromise, backup exposure, medical-device issue, or false positive. They must structure the response under uncertainty.
+Incident response objectives
+The primary objectives are to protect patients, contain the threat, preserve evidence, maintain essential clinical services, protect health information, meet privacy and contractual obligations, communicate responsibly, and learn from the incident. Students should explicitly balance confidentiality, integrity, availability, patient safety, privacy, legal privilege, evidence preservation, operational impact, and public trust.
+
+Incident command structure
+
+Required incident response deliverables
+Initial incident classification and severity assessment, including evidence supporting the classification.
+First 24-hour situation report for executives and clinical leadership.
+Containment and evidence preservation plan, including systems to isolate, credentials to revoke, and logs to preserve.
+Patient safety and clinical continuity assessment, including manual workarounds and service restoration priorities.
+Stakeholder notification and communications plan, including patients, staff, clinic managers, privacy/compliance stakeholders, vendors, insurers, law enforcement, and media.
+Ransom decision memo explaining whether MediBec should pay, refuse, negotiate, or delay while validating backups and recovery options.
+Lessons-learned report connecting technical root causes to governance, audit, control maturity, and risk management improvements.
+7. Module B: Cybersecurity Audit Planning Exercise
+In this module, students act as internal auditors, external assurance providers, or cybersecurity audit planners. Their task is not to investigate the simulated incident as incident responders, but to develop a risk-based audit plan that provides assurance over MediBec’s cybersecurity governance, controls, privacy safeguards, clinical resilience, remediation, and vendor management. The audit plan should be defensible to executive leadership and the Board or ownership group.
+Students should distinguish three audit questions. First, what control weaknesses are most likely to allow a significant incident? Second, are management’s cybersecurity and privacy controls properly designed and operating effectively? Third, what areas should be audited during the 2024-2030 period based on risk, patient impact, data sensitivity, operational criticality, and prior evidence?
+Audit universe
+
+Required audit planning deliverables
+A concise audit planning memo to executive leadership explaining audit priorities for the next 12 months.
+A cybersecurity audit universe with inherent risk ratings and proposed audit frequency.
+One detailed audit program for a selected high-risk area, including objectives, scope, criteria, evidence, sampling, and expected control tests.
+A preliminary root-cause analysis connecting likely incident pathways to governance, process, people, technology, clinical, and third-party control gaps.
+A remediation follow-up plan identifying which management actions require independent validation.
+8. Module C: Scenario-Based Risk Management Exercise
+In this module, students act as cybersecurity risk analysts supporting the CIO, cybersecurity team, privacy/compliance function, and clinical leadership. The objective is to produce a scenario-based cybersecurity risk assessment that supports a 2024-2030 action plan. Students should identify credible risk scenarios, assess inherent and residual risk, recommend treatment options, estimate cost and implementation complexity, and identify risks requiring executive or Board acceptance.
+Risk appetite statement
+MediBec has a low appetite for risks that could compromise patient safety, health information confidentiality, regulatory compliance, or public trust. It has a moderate appetite for carefully governed technology investments that improve care delivery, access, operational efficiency, or resilience. For teaching purposes, MediBec’s normalized cybersecurity risk tolerance is 0.40 on a 0-to-1 scale. Any residual risk above 0.25 requires executive review, and any residual risk above 0.40 requires explicit Board or ownership-group acceptance.
+
+Risk scoring methodology
+Students may use either qualitative ratings or the normalized quantitative method below. The method is intentionally simple enough for teaching while still forcing students to separate threat likelihood, exploitability, impact, control maturity, and residual risk.
+
+
+Risk register template
+
+9. Scenario Library
+The following scenarios are designed for students to analyze. This library does not provide all risk scores, CVSS values, mitigation costs, or post-mitigation reductions. Students must develop their own defensible analysis. The instructor may provide selected scoring assumptions separately if desired.
+
+Scenario analysis prompt
+For each assigned scenario, students should state the threat event, affected assets, vulnerabilities, existing controls, control gaps, inherent risk, residual risk, treatment options, recommended controls, estimated cost category, expected implementation difficulty, risk owner, and residual risk acceptance authority. Students should also explain whether CVSS is appropriate. CVSS may support technical vulnerability analysis, but it does not replace enterprise risk analysis in scenarios involving patient safety, privacy, governance, incident response, insider threats, vendor dependencies, or clinical resilience.
+10. Assignment Options and Suggested Deliverables
+The instructor can use the case in several formats. The following assignment options are written so they can be copied directly into a course outline or assignment sheet.
+Option 1: Incident response tabletop package
+Students work in teams representing MediBec’s incident response team. Each team receives the incident timeline and evidence appendices. The team must prepare a response package for the CIO and executive leadership within a defined time limit.
+Classify the incident and justify the severity.
+Prepare a situation report for the first 24 hours.
+Recommend immediate containment steps and evidence preservation measures.
+Assess patient safety and clinical continuity implications.
+Prepare a stakeholder communication matrix.
+Prepare a short executive briefing on the ransom or public communication decision.
+Identify the top five lessons learned and link each to a control improvement.
+Option 2: Risk-based cybersecurity audit plan
+Students act as internal auditors or external assurance providers, preparing a cybersecurity audit plan for executive leadership and the Board or ownership group. They must use the MediBec threat context, IT environment, risk appetite, and scenario library to identify the highest-priority audit engagements.
+Prepare an audit universe and assign inherent risk ratings.
+Select the top five audit priorities for the next 12 months.
+Develop one detailed audit program for a selected area.
+Explain the evidence needed to test control design and operating effectiveness.
+Prepare an executive memo explaining the audit plan and expected assurance value.
+Option 3: Scenario-based cybersecurity risk assessment
+Students act as cybersecurity risk analysts. Their goal is to develop a defensible 2024-2030 cybersecurity roadmap.
+Select and analyze at least eight risk scenarios from the scenario library.
+Calculate or justify inherent risk and residual risk.
+Recommend risk treatments and identify risk owners.
+Estimate implementation cost category, dependencies, and sequencing.
+Develop a 2024-2030 roadmap linked to risk appetite and budget constraints.
+Prepare an executive summary identifying risks to accept, mitigate, transfer, or avoid.
+Suggested grading rubric
+
+11. Appendices: Evidence, Templates, and Instructor Notes
+Appendix A - Sample phishing email
+
+Appendix B - Sample technical evidence
+
+Appendix C - Initial situation report template
+
+Appendix D - Privacy and clinical assessment prompt
+Students should complete a preliminary assessment of privacy, health information, and clinical continuity issues. The assessment should be coordinated with legal counsel, privacy officers, and clinical leadership. Students should not claim legal certainty; they should identify likely obligations, facts required, and responsible owners.
+
+12. References and Standards Alignment Notes
+This teaching case is fictional but aligned with commonly used cybersecurity governance, incident response, audit, privacy, and risk management concepts. Instructors may adapt the reference set to match the frameworks taught in their course.
+
+
+
+Student version (CyberRiskGuardian Education Package 1.0). The instructor annexes, sample answers and instructor guidance appendices of this case are distributed in the Educator Edition. Fictional case — CC BY-NC 4.0, © Marc-André Léger.

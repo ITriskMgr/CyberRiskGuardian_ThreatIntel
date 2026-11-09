@@ -13,4 +13,4 @@
   `references/crgo-integration.md`. Organisation graphs stay in git-ignored `output/crgo/`.
 - Environment defaults are in `.claude/settings.json` `env`. Override them in
   `.claude/settings.local.json` (never committed). `CRGO_HOME` (unset by default) points to a
-  CRGO checkout outside the repository (default `./CyberRiskGuardian-Ontology-0.11.0/`).
+  CRGO checkout outside the repository (default `./CyberRiskGuardian-Ontology-0.11.1/`).

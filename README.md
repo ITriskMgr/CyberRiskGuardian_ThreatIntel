@@ -12,29 +12,29 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 - calibrating the budget to appetite;
 - producing management reports with a **threat-driven revision log**, a one-table quick scan, and a label check for the three standard markers;
 - optionally, reading legal applicability, control evidence, findings, compliance posture and
-  detection and response readiness from the **CyberRiskGuardian Ontology (CRGO 0.11.0)** and writing
+  detection and response readiness from the **CyberRiskGuardian Ontology (CRGO 0.11.1)** and writing
   results back to it as *proposed* — see
   [below](#cyberriskguardian-ontology-crgo--optional).
 
 People stay accountable for validation and risk decisions.
 
-Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.7.0**
+Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.7.2**
 (November 2026), aligned with the textbook *Introduction to Cybersecurity Governance for Business Technology
-Management*, 3rd ed., **v2.51**; desktop application **1.9.0 Beta** — see below. Product site:
+Management*, 3rd ed., **v2.51**; desktop application **1.9.2 Beta** — see below. Product site:
 [cyberriskguardian.ca](https://cyberriskguardian.ca) · licence enquiries: sales@cyberriskguardian.ca.
 
 ## Relationship to the base edition
 
 This repository derives from **CyberRiskGuardian v1.1.0**
 ([`ITriskMgr/CyberRiskGuardian`](https://github.com/ITriskMgr/CyberRiskGuardian)). That repository continues as the
-stable, free **Core** edition — now **Core plugin 2.2.0** with the textbook plugin 2.1.1 (November 2026, aligned with
+stable, free **Core** edition — now **Core plugin 2.2.1** with the textbook plugin 2.1.1 (November 2026, aligned with
 textbook v2.51b).
 
 | | Base edition | This edition |
 |---|---|---|
 | Repository | `CyberRiskGuardian` | `CyberRiskGuardian_ThreatIntel` |
 | Plugin id | `cyberriskguardian` | `cyberriskguardian-threatintel` |
-| Version | Core 2.2.0 | 1.7.0 |
+| Version | Core 2.2.1 | 1.7.2 |
 | Formulas | identical | identical (package reductions combined with the product rule 1 − ∏(1 − rᵢ)) |
 | MediBec baseline | 84,305 / 41,023 with S2/S8 scored AV:L | **84,305 / 41,023** |
 | Threat calibration | — | snapshot lifecycle, Threat Evidence Ladder, revision log |
@@ -73,7 +73,7 @@ run both at once.
 
 ## Desktop application — try it without installing anything else
 
-**[CyberRiskGuardian Desktop 1.9.0 Beta](desktop/)** is a standalone edition of the same method that
+**[CyberRiskGuardian Desktop 1.9.2 Beta](desktop/)** is a standalone edition of the same method that
 runs entirely in your browser, offline, with your data staying on your computer. It includes the
 **Security Policy Writer** (it drafts the policy set in English and French for ISP management) and a
 **Claude Dashboard** pack for the KRI dashboard (built in Claude with the `crg-dashboard` skill). It needs neither this
@@ -82,7 +82,7 @@ plugin nor an AI provider, and it shares the engine: the MediBec baseline is the
 
 | | |
 |---|---|
-| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip) — everything included |
+| **Installable version** | [`desktop/dist/CyberRiskGuardian_Desktop_v1.9.2-beta.zip`](desktop/dist/CyberRiskGuardian_Desktop_v1.9.2-beta.zip) — everything included (Community edition; `…-beta-commercial.zip` cites CIS Controls by identifier only) |
 | **Installation instructions** | [`desktop/app/INSTALL.md`](desktop/app/INSTALL.md) — English and French · [print version, Windows and macOS side by side](desktop/app/INSTALL-Windows-macOS-EN-FR.pdf) |
 | **What it does** | [`desktop/README.md`](desktop/README.md) · the full guide in [`desktop/app/USER-GUIDE.md`](desktop/app/USER-GUIDE.md) |
 
@@ -136,7 +136,7 @@ CyberRiskGuardian_ThreatIntel/
 │   └── skills/
 │       ├── cyber-risk-assessment/
 │       │   ├── references/threat-context.md        # constraints, ladder, six source layers
-│       │   ├── references/crgo-integration.md      # CRGO 0.11.0 (contracts dss/v1, compliance/v1, secops/v1)
+│       │   ├── references/crgo-integration.md      # CRGO 0.11.1 (contracts dss/v1, compliance/v1, secops/v1)
 │       │   ├── scripts/crg_calc.py, test_crg_calc.py # engine (validated inputs) and its self-checks
 │       │   ├── scripts/threat_snapshot.py          # the only component that touches the network
 │       │   ├── scripts/crgo_contract.py            # CRGO bridge: graph, context, submit (proposed), compliance, secops
@@ -183,12 +183,12 @@ and the MediBec baseline (84,305 / 41,023) are unaffected by CRGO. Without CRGO,
 rest of this edition, the integration is a **beta**: validate every output before
 organizational use.
 
-**Set up** (pin release **0.11.0** — tag `v0.11.0`, approved by the CRGO author on 2026-11-02). The dss/v1 commands (`graph`, `context`, `submit`) still work with
+**Set up** (pin release **0.11.1** — tag `v0.11.1`, 2026-11-08, patch of 0.11.0, which the CRGO author approved on 2026-11-02). The dss/v1 commands (`graph`, `context`, `submit`) still work with
 v0.9.1 (v0.9.0 lacks the bridge fix); `compliance` and `secops` need v0.10.0 and stop with a clear
 message on an older checkout:
 ```bash
 # inside this repository's folder; CyberRiskGuardian-Ontology*/ is git-ignored
-git clone --branch v0.11.0 --depth 1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology CyberRiskGuardian-Ontology-0.11.0
+git clone --branch v0.11.1 --depth 1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology CyberRiskGuardian-Ontology-0.11.1
 # or keep your own clone anywhere (e.g. ~/GitHub/CyberRiskGuardian-Ontology on a Mac) and: export CRGO_HOME=/absolute/path/to/it
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
@@ -196,8 +196,8 @@ The first CRGO call builds a local store (about 10 s).
 
 | Where | How CRGO is found |
 |---|---|
-| Project `.mcp.json` | `${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.0}/pipeline/mcp/crgo_server.py` |
-| Plugin `.mcp.json` | `${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.0}/pipeline/mcp/crgo_server.py` — both: set **`CRGO_HOME`** (in the shell that starts Claude Code) to the checkout's absolute path when the clone is elsewhere or has another folder name (Claude Code expands `${VAR}` and `${VAR:-default}` in `.mcp.json`) |
+| Project `.mcp.json` | `${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.1}/pipeline/mcp/crgo_server.py` |
+| Plugin `.mcp.json` | `${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.1}/pipeline/mcp/crgo_server.py` — both: set **`CRGO_HOME`** (in the shell that starts Claude Code) to the checkout's absolute path when the clone is elsewhere or has another folder name (Claude Code expands `${VAR}` and `${VAR:-default}` in `.mcp.json`) |
 | `crgo_contract.py` and its test | `--crgo <path>`, else `$CRGO_HOME` |
 
 **Use** (all outputs go to the git-ignored `output/crgo/`; they are client data and belong with the
@@ -210,7 +210,7 @@ python3 $S/crgo_contract.py submit --graph output/crgo/<org>.ttl --assessment <a
         --scenarios S1,S2 --kinds residual-risk,risk-to-tolerance-ratio --actor "<analyst>"
 python3 $S/crgo_contract.py compliance --graph output/crgo/<org>.ttl --as-of <date> --summary   # CRGO >= 0.10.0
 python3 $S/crgo_contract.py secops --graph output/crgo/<org>.ttl --as-of <date> --summary       # CRGO >= 0.10.0
-python3 $S/test_crgo_contract.py --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.0}    # acceptance checks
+python3 $S/test_crgo_contract.py --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.1}    # acceptance checks
 ```
 
 Rules that come with it: write-backs are always *proposed* and never an approval, acceptance or
@@ -222,7 +222,7 @@ mapping, policy statement, acknowledgement or attestation is never compliance; a
 match is never an incident or attribution; nothing CRGO returns authorises a response action; coverage
 is validated only by an effective detection test; source confidence is not a probability; TLP markings
 are respected; ISO 37301, IIA, ISACA stay identifiers and paraphrases. Reports cite the CRGO release
-("CRGO v0.11.0, ontology release 0.11.0"; CRGO 0.11.0 adds six scenario patterns, CIS v8.1 with CRGO labels, OWASP lists, ISO/IEC 27701 and 42001, the CCSPA — all approved; CIS v8.1 values flagged `REVIEW:` stay unverified). Details:
+("CRGO v0.11.1, ontology release 0.11.1"; CRGO 0.11.0 added six scenario patterns, CIS v8.1 with CRGO labels, OWASP lists, ISO/IEC 27701 and 42001, the CCSPA — all approved; CIS v8.1 values flagged `REVIEW:` stay unverified). Details:
 `plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/references/crgo-integration.md`.
 
 ## Use
@@ -296,7 +296,7 @@ Rung 5 means an **incident**, not a prospective risk: invoke incident response f
 4. Confirm `threat_snapshot.py --offline` works with networking disabled, and that no network
    import exists in `crg_calc.py`, `build_workbook.py`, `budget_calibrator.py` or the `crg_risk`
    MCP path.
-5. With a CRGO 0.11.0 checkout, run `test_crgo_contract.py --crgo <path>`; all checks must pass.
+5. With a CRGO 0.11.1 checkout, run `test_crgo_contract.py --crgo <path>`; all checks must pass.
 6. Regenerate the shipped snapshot if it is over 90 days old.
 7. Bump the version (semver) in `plugin.json` and `marketplace.json`.
 

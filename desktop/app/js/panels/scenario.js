@@ -92,7 +92,20 @@ export function render(sec, arg) {
     el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: 0, marginRight: 'auto', color: 'var(--ink)', fontSize: '13.5px' } }, inc, 'Include in totals'),
     el('button', { class: 'btn ghost sm', onclick: () => { const c = JSON.parse(JSON.stringify(s)); c.id = nextScenarioId(); c.name = (c.name || '') + ' (copy)'; a.SCEN.splice(idx + 1, 0, c); touch(); go('scenario/' + c.id); } }, 'Duplicate'),
     el('button', { class: 'btn ghost sm danger', onclick: () => {
-      if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?`)) return;
+      // 1.9.2 (item 10, NV-037): the risks of the Risk register that link this scenario are named before it goes
+      const linked = (S.ws.risks || []).filter(r => (r.scenarios || []).includes(s.id));
+      let warn = linked.length ? '\n\n' + tr('{0} risk(s) link this scenario: {1}. They will show the link as deleted until you unlink them or link another scenario.').replace('{0}', linked.length).replace('{1}', linked.map(r => r.id).join(', ')) : '';
+      // 1.9.2 review (L6): measures, recommendations and KRIs that reference the scenario are named too, and unlinked on deletion
+      const meas = (S.ws.measures || []).filter(m => (m.scen || []).includes(s.id));
+      const recs = (S.ws.recommendations || []).filter(r => (r.scenarios || []).includes(s.id));
+      const kris = (a.KRIS || []).filter(k => String(k[2] || '').split(/[,;\s]+/).includes(s.id));
+      if (meas.length || recs.length || kris.length) warn += '\n\n' + tr('Also linked and unlinked on deletion: {0} measure(s) ({1}), {2} recommendation(s) ({3}), {4} KRI(s) ({5}). An approved recommendation keeps its frozen figures; its history records the removal.')
+        .replace('{0}', meas.length).replace('{1}', meas.map(m => m.id).join(', ') || '—').replace('{2}', recs.length).replace('{3}', recs.map(r => r.code || r.id).join(', ') || '—').replace('{4}', kris.length).replace('{5}', kris.map(k => k[0]).join(', ') || '—');
+      if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?` + warn)) return;
+      for (const r of linked) (r.history ||= []).push({ date: today(), what: `Linked scenario ${s.id} deleted — link flagged until Unlink` });   // item 10: logged in each risk's history
+      for (const m of meas) { m.scen = m.scen.filter(x => x !== s.id); if (m.eff) delete m.eff[s.id]; }
+      for (const r of recs) { r.scenarios = r.scenarios.filter(x => x !== s.id); (r.history ||= []).unshift({ at: new Date().toISOString(), action: 'unlinked', from: s.id, to: '', by: users.name() || '', note: `Scenario ${s.id} deleted by the analyst: removed from this recommendation (frozen figures, if any, unchanged)` }); }
+      for (const k of kris) k[2] = String(k[2] || '').split(/[,;\s]+/).filter(x => x && x !== s.id).join(', ');
       a.SCEN.splice(idx, 1); for (const i of a.INITIATIVES) if (Array.isArray(i[3])) i[3] = i[3].filter(x => x !== s.id);
       S.ws.excluded = S.ws.excluded.filter(x => x !== s.id); delete S.ws.decisions[s.id]; touch(); toast('Deleted ' + s.id); go('register');
     } }, 'Delete'))));
@@ -115,14 +128,15 @@ export function render(sec, arg) {
       el('div', 'rk-ratio', el('span', { class: 'big', id: 'rk-ratio', 'data-noi18n': '' }, n2(r.ratio)), el('span', 'lab', 'Risk-to-tolerance ratio')),
       el('div', 'rk-cls', pill(cls, pillFor(cls))),
       el('dl', null,
-        row(EQ.isEquiv(s) ? 'CVSS-B by equivalency' : 'CVSS-B', n2(r.cvss), s.cvss_limited || EQ.isEquiv(s) ? EQ.LIMITED : ''),
+        row(EQ.isEquiv(s) ? 'CVSS-B by equivalency' : 'CVSS-B', n2(r.cvss), s.cvss_limited || EQ.isEquiv(s) ? EQ.LIMITED : r.cvss_source === 'vector' ? 'from the vector' : 'stored score (no vector)'),
         row('Estimated', n0(r.est)), row('Tolerated', n0(r.tol)), row('Mitigated', n0(r.mit)), row('Residual', n0(r.res)),
         row('Ratio before treatment', n2(r.pre_ratio))),
       el('p', 'rk-cost', el('span', null, 'Year-1 treatment'), ': ', el('b', { 'data-noi18n': '' }, al?.y1 ? money(al.y1) : '—'), ' · ',
         al?.y1 ? el('span', null, 'CE ' + n2((r.est - r.res) / al.y1 * 1000) + ' ' + tr('risk units removed per $1,000')) : el('span', null, 'no initiative linked')),
       r.mit > r.est ? banner('bad', 'Mitigation exceeds estimated risk', 'Revise the reduction estimates.') : null,
       // 1.8.0 — a stored score is checked against its vector; a disagreement is flagged, never corrected silently
-      (() => { const cc = CRG.cvssCheck(s); return cc.agree === false ? banner('warn', 'The stored CVSS score disagrees with its vector', tr('Stored {0}, the vector scores {1}. The stored score is used until you change it.').replace('{0}', n2(cc.stored)).replace('{1}', n2(cc.computed))) : null; })(),
+      // the vector wins (X-1): a stored score is checked against its vector; a disagreement is flagged, never corrected silently
+      (() => { const cc = CRG.cvssCheck(s); return cc.agree === false ? banner('warn', 'The stored CVSS score disagrees with its vector', tr('Stored {0}, the vector scores {1}. The vector\'s score is used; correct or clear the stored score.').replace('{0}', n2(cc.stored)).replace('{1}', n2(cc.computed))) : null; })(),
       el('div', 'btnrow',
         el('button', { class: 'btn primary', onclick: () => go('calc/' + s.id) }, 'Open in risk calculator'),
         el('button', { class: 'btn ghost', onclick: () => go('recs/' + s.id) }, 'Recommendations')));
@@ -198,8 +212,25 @@ export function render(sec, arg) {
     el('p', 'note', 'Values without documented evidence are analytical estimates — validation required. Threat intelligence may move Pb(A) and Pb(ψ,A) only, within ladder bands and with exposure confirmed; never δe, δm, θ or μ(E).')));
 
   // CVSS + treatment
-  const vec = T('cvss', 0, { class: 'mono' });
+  /* The vector wins (X-1). A stored score is an override kept only while no vector is typed: when a typed vector
+     parses, the override is cleared and the old score is recorded in the scenario's revisions, so nothing disappears
+     without a trace and the engines, the register and the exports all read the same figure. */
   const score = el('input', { type: 'number', step: 0.1, min: 0, max: 10, value: s.cvss_score ?? '', placeholder: 'from vector' });
+  const vec = el('input', { class: 'mono' }); vec.value = s.cvss ?? '';
+  vec.addEventListener('input', () => {
+    s.cvss = vec.value;
+    const typed = vec.value.trim();
+    if (typed && s.cvss_score !== undefined && s.cvss_score !== null && s.cvss_score !== '') {
+      let computed = null; try { computed = CVSS4.score(typed); } catch { computed = null; }
+      if (computed !== null) {
+        const old = s.cvss_score;
+        delete s.cvss_score; score.value = '';
+        (s.revisions ||= []).push({ date: today(), cvss_score: old, what: tr('CVSS score override {0} cleared: the typed vector {1} scores {2} (the vector wins)').replace('{0}', String(old)).replace('{1}', typed).replace('{2}', n2(computed)) });
+        toast(tr('Score override {0} cleared — the vector scores {1}').replace('{0}', String(old)).replace('{1}', n2(computed)));
+      }
+    }
+    ch();
+  });
   score.addEventListener('input', () => { if (score.value === '') delete s.cvss_score; else s.cvss_score = Number(score.value); ch(); });
   const red = k => { const n = el('input', { type: 'number', step: 0.05, min: 0, max: 1, value: s[k] }); n.addEventListener('input', () => { s[k] = Number(n.value); ch(); }); return n; };
   const inits = initiatives();
@@ -217,7 +248,7 @@ export function render(sec, arg) {
   const manual = el('input', { type: 'number', step: 1000, value: s.cost_y1_manual || '', placeholder: 'used only when no initiative is linked' });
   manual.addEventListener('input', () => { s.cost_y1_manual = Number(manual.value) || 0; ch(); });
   P.cvss.append(
-    card(el('h2', null, 'CVSS v4.0 (Base only, CVSS-B)'), field('<b>Vector</b>', vec), el('div', 'grid g2', field('Score override', score, 'Leave empty to compute from the vector'),
+    card(el('h2', null, 'CVSS v4.0 (Base only, CVSS-B)'), field('<b>Vector</b>', vec), el('div', 'grid g2', field('Score override', score, 'Used only when no vector is given — with a vector, the vector\'s score is used and a disagreeing score is flagged'),
       el('div', { style: { alignSelf: 'end' } }, el('button', { class: 'btn ghost', onclick: () => go('cvss/' + encodeURIComponent(s.cvss || '') + '|' + s.id) }, 'Edit in CVSS calculator'))),
       equivBox(s, ch, vec),
       field('CVSS rationale', T('cvss_note', 3)),

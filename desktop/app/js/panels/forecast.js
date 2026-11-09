@@ -88,6 +88,7 @@ function monteCarlo(body, sec) {
     'Analytical estimate — validation required.'));
 
   body.append(el('h2', null, 'By scenario'));
+  body.append(el('p', 'small muted', 'P(above tol.): the share of trials whose own risk-to-tolerance ratio exceeds 1.10 — each trial compares its residual with its own tolerated risk, as the method does. A sampled δm below δe is raised to δe before the engine runs.'));
   body.append(card(table([
     { key: 'id', label: 'ID', cls: 'mono', render: r => chip(r.id, { href: '#/scenario/' + r.id }) },
     { key: 'name', label: 'Scenario' },

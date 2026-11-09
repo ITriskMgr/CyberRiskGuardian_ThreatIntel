@@ -11,6 +11,7 @@ import { HS, probe } from '../helper.js';
 import { tr } from '../i18n.js';
 import { VERSION as APP_VERSION, CHANNEL, SERIES, WRITER_VERSION } from '../version.js';
 import * as UPUI from '../updateui.js';
+import { EDITION_LABEL, CIS_TITLES } from '../edition.js';
 
 export const VERSION = APP_VERSION;          // one source of truth: js/version.js
 export const REPO = 'https://github.com/ITriskMgr/CyberRiskGuardian';
@@ -138,7 +139,7 @@ function versions(body) {
   const eng = document.getElementById('engine-state')?.textContent || '';
   body.append(card(el('h2', { style: { marginTop: 0 } }, 'Versions'),
     el('div', 'grid g5',
-      kpi('Application', VERSION + ' ' + CHANNEL, 'Beta ' + SERIES),
+      kpi('Application', VERSION + ' ' + CHANNEL, 'Beta ' + SERIES + ' · ' + tr(EDITION_LABEL) + (CIS_TITLES ? '' : ' · ' + tr('CIS controls by identifier only'))),
       kpi('Security Policy Writer', WRITER_VERSION + ' ' + CHANNEL, HS.helper?.writer ? tr('engine {0} in the helper').replace('{0}', HS.helper.writer) : tr('engine in the helper — not running'), HS.helper?.writer === WRITER_VERSION ? 'good' : 'warn'),
       kpi('Engine', eng.replace(/^engine /, '') || '—', 'crg.js · cvss4.js', /verified|vérifié/.test(eng) ? 'good' : 'warn'),
       kpi('Local helper', HS.helper?.helper || 'not running', HS.helper ? 'serve.py' : 'start with the launcher'),

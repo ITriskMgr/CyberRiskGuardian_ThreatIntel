@@ -11,8 +11,15 @@ import { S, compute, scen, initiatives, initArr, INIT_COLS } from './state.js';
 import { KB, tech, mitigation, MEASURES } from './ontology.js';
 import { today, uid } from './util.js';
 import * as FW from './frameworks.js';
+import { CIS_TITLES, CIS_NOTICE, cisRow } from './edition.js';
+import { validCoef } from './receffect.js';
 
 const C = self.CRG_CONTROLS || { frameworks: [], tags: {}, controls: [], flags: [] };
+/* Edition switch (D3): the CIS Controls v8.1 framework carries the notice of this edition; in the commercial edition its
+   controls and safeguards are listed by identifier only (cisOnlyId), whatever the catalogue file holds. */
+const CIS_FW = 'CIS81';
+for (const f of C.frameworks) if (f.id === CIS_FW) f.note = (CIS_TITLES ? f.note + ' ' : '') + CIS_NOTICE;
+const cisOnlyId = (f, id, title, grp) => (f.id === CIS_FW ? cisRow(id, title, grp) : [title, grp]);
 export const FRAMEWORKS = [...C.frameworks];
 /** Bundled frameworks plus any imported pack that introduces a new framework. */
 export function frameworkList() {
@@ -32,9 +39,10 @@ let ALL = null;
 /** Every control as {key, fw, fwName, id, title, grp, fn, tags, note, enh}. */
 export function controls() {
   if (ALL) return ALL;
-  ALL = C.controls.map(([fi, id, title, grp, fn, tags, note, enh]) => {
+  ALL = C.controls.map(([fi, id, title0, grp0, fn, tags, note, enh]) => {
     const f = C.frameworks[fi];
-    return { key: f.id + ':' + id, fw: f.id, fwName: f.short, id, title, grp, fn, tags, note, enh: !!enh };
+    const [title, grp] = cisOnlyId(f, id, title0, grp0);
+    return { key: f.id + ':' + id, fw: f.id, fwName: f.short, id, title, grp, fn, tags, note: !CIS_TITLES && f.id === CIS_FW ? '' : note, enh: !!enh };
   });
   // ATT&CK mitigations from kb.js
   const tagByMit = {};
@@ -131,14 +139,28 @@ export const active = (m, statuses) => statuses ? statuses.includes(m.status) : 
 /** Effect of measure m on scenario id: per-scenario override, else the measure's default. */
 export const effect = (m, id) => ({ rp: Number(m.eff?.[id]?.rp ?? m.rp) || 0, ri: Number(m.eff?.[id]?.ri ?? m.ri) || 0 });
 
-/** Combined reduction for one scenario: 1 − ∏(1 − r), separately for likelihood and impact. */
+/** A coefficient the product rule can take: a finite number within 0–1 (the book flags anything else, never clamps it).
+    One helper for the catalogue and the recommendation effect (1.9.2): it lives in the leaf module receffect.js. */
+export { validCoef };
+/** Out-of-range coefficients of a measure, per scenario and lever: [{ m, id, lever, value }]. */
+export function invalidCoefs(m, ids = m.scen || []) {
+  const out = [];
+  for (const id of ids) { const e = effect(m, id); if (!validCoef(e.rp)) out.push({ m, id, lever: 'rp', value: e.rp }); if (!validCoef(e.ri)) out.push({ m, id, lever: 'ri', value: e.ri }); }
+  return out;
+}
+
+/** Combined reduction for one scenario: 1 − ∏(1 − r), separately for likelihood and impact. A coefficient outside
+ *  0–1 is never clamped: it is left out of the product and listed in `invalid`, so the screen flags it (NV-066). */
 export function combined(id, ws = S.ws, statuses) {
-  let qp = 1, qi = 1; const ms = [];
+  let qp = 1, qi = 1; const ms = [], invalid = [];
   for (const m of ws.measures || []) {
     if (!active(m, statuses) || !(m.scen || []).includes(id)) continue;
-    const e = effect(m, id); qp *= 1 - Math.max(0, Math.min(1, e.rp)); qi *= 1 - Math.max(0, Math.min(1, e.ri)); ms.push(m);
+    const e = effect(m, id);
+    if (validCoef(e.rp)) qp *= 1 - e.rp; else invalid.push({ m, id, lever: 'rp', value: e.rp });
+    if (validCoef(e.ri)) qi *= 1 - e.ri; else invalid.push({ m, id, lever: 'ri', value: e.ri });
+    ms.push(m);
   }
-  return { red_p: 1 - qp, red_i: 1 - qi, measures: ms };
+  return { red_p: 1 - qp, red_i: 1 - qi, measures: ms, invalid };
 }
 
 /** Before/after through the verified engine for every scenario touched by a measure (or all). */
@@ -347,7 +369,9 @@ export function parseClaude(text, ws = S.ws) {
   if (!j) throw new Error('No JSON found — paste the whole answer, including the ```json block.');
   const list = Array.isArray(j) ? j : j.measures;
   if (!Array.isArray(list)) throw new Error('The JSON has no "measures" array.');
-  const clamp = x => Math.max(0, Math.min(1, Number(x) || 0));
+  // a proposed coefficient outside 0–1 is kept as proposed and flagged (never clamped silently): the screen shows it and
+  // the product rule leaves it out until the analyst corrects it
+  const coef = (x, name, id, lever) => { const v = Number(x) || 0; if (!validCoef(v)) warnings.push(`${name}: ${lever} ${v} for ${id} is outside 0–1 — flagged, not applied until corrected`); return v; };
   const out = [];
   let nextN = 0; for (const m of ws.measures || []) { const x = /^MS-(\d+)$/.exec(m.id); if (x) nextN = Math.max(nextN, +x[1]); }
   for (const m of list) {
@@ -356,8 +380,8 @@ export function parseClaude(text, ws = S.ws) {
     if (miss.length) warnings.push(`${m.name}: unknown scenario(s) ${miss.join(', ')} ignored`);
     if (!sc.length) { warnings.push(`${m.name || '(unnamed)'}: no known scenario — skipped`); continue; }
     const ctl = (m.controls || []).map(c => (c.fw || '') + ':' + (c.id || '')).filter(k => { if (!control(k)) { warnings.push(`${m.name}: control ${k} not in the catalogue — kept as text`); return false; } return true; });
-    const eff = {}; for (const x of sc) eff[x.id] = { rp: clamp(x.rp), ri: clamp(x.ri), rationale: x.rationale || '' };
-    const avg = k => sc.reduce((t, x) => t + clamp(x[k]), 0) / sc.length;
+    const eff = {}; for (const x of sc) eff[x.id] = { rp: coef(x.rp, m.name, x.id, 'rp'), ri: coef(x.ri, m.name, x.id, 'ri'), rationale: x.rationale || '' };
+    const avg = k => sc.reduce((t, x) => t + (validCoef(Number(x[k]) || 0) ? Number(x[k]) || 0 : 0), 0) / sc.length;
     out.push(blankMeasure({ id: 'MS-' + String(++nextN).padStart(2, '0'), name: m.name || 'Measure', desc: m.desc || '', fn: FN.includes(m.fn) ? m.fn : 'Prevention', owner: m.owner || '',
       initial: Number(m.initial) || 0, recurring: Number(m.recurring) || 0, months: Number(m.months) || 3, effort: m.effort || 'Medium', conf: CONF.includes(m.conf) ? m.conf : 'Low',
       ctl, ctlText: (m.controls || []).map(c => (c.fw || '') + ' ' + (c.id || '')).join(', '), tags: [...new Set(ctl.flatMap(k => control(k)?.tags?.slice(0, 1) || []))],

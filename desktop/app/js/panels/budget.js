@@ -1,14 +1,14 @@
 /* Budget — appetite-consistent cybersecurity budget, the risk-averse → risk-seeking band chart with the
    arbitrage options, and the funding frontier across scenarios. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, table, select, money } from '../util.js';
+import { el, n0, n2, pct, moneyShort, kpi, banner, card, pill, pillFor, field, toast, table, select, money } from '../util.js';
 import * as SG from '../safeguards.js';
 import { S, touch, compute, initiatives, initPlan, commitments, selectBudgetYear, addBudgetYear, ensureBudgetYears, thisYear } from '../state.js';
 import { bandChart, frontierChart, yearsChart } from '../charts.js';
 import { tr } from '../i18n.js';
 
 
-const shortMoney = x => x >= 1e6 ? '$' + (x / 1e6).toFixed(x >= 1e7 ? 0 : 1) + 'M' : x >= 1e3 ? '$' + Math.round(x / 1e3) + 'k' : '$' + Math.round(x);
+const shortMoney = x => moneyShort(x);   // 1.9.2 (X-6, D6): follows the interface locale
 
 /** Arbitrage: fund included scenarios in descending cost-effectiveness order. */
 export function arbitrage(R) {
@@ -61,17 +61,17 @@ function years(out, sec) {
   const { per, rows } = commitments(ws);
   const target = CRG.budgetTarget(Number(a.APPETITE)), B = CRG.BUDGET_BAND;
   const t = el('table', 'grid compact');
-  t.append(el('thead', null, el('tr', null, ...['Year', 'Total IT budget', 'Planned cyber spend', 'Actual cyber spend', 'Baseline', 'Committed initiatives', 'Baseline + committed', '% of IT', 'Against the guideline', 'Note', ''].map(h => el('th', null, h)))));
+  t.append(el('thead', null, el('tr', null, ...['Year', 'Total IT budget', 'Planned cyber spend', 'Actual cyber spend', 'Baseline', 'Committed initiatives', 'Baseline + committed', '% of IT', 'Against the guideline', 'Note'].map(h => el('th', null, h)), el('th', null, el('span', 'sr-only', 'Actions')))));
   const tb = el('tbody');
   for (const y of ws.budgetYears) {
     const inp = (k, w) => { const i = el('input', { type: k === 'note' ? 'text' : 'number', value: y[k] ?? '', style: { width: w } }); i.addEventListener('change', () => { y[k] = k === 'note' ? i.value : i.value === '' ? null : Number(i.value); touch(); render(sec); }); return i; };
     const com = per[y.year] || 0, tot = (Number(y.baseline) || 0) + com, p = y.it_budget > 0 ? tot / y.it_budget : null;
-    const verdict = p === null ? pill('enter the IT budget', '') : p > B.max ? pill('above the 12% ceiling', 'warn') : Math.abs(p - target) <= 0.005 ? pill('at the appetite target', 'good')
-      : p > target ? pill('above the appetite target', 'warn') : p < B.min ? pill('below the 4% floor', 'bad') : pill('below the appetite target', 'warn');
+    const verdict = p === null ? pill('enter the IT budget', '') : p > B.max ? pill('above the 12% point target', 'warn') : Math.abs(p - target) <= 0.005 ? pill('at the appetite-consistent target', 'good')
+      : p > target ? pill('above the appetite-consistent target', 'warn') : p < B.min ? pill('below the 4% point target (implied appetite above 0.70)', 'bad') : pill('below the appetite-consistent target', 'warn');
     tb.append(el('tr', y.year === ws.budgetYear ? 'sel' : null,
       el('td', null, el('button', { class: 'btn sm ' + (y.year === ws.budgetYear ? '' : 'ghost'), onclick: () => selectBudgetYear(y.year) }, String(y.year))),
       el('td', null, inp('it_budget', '130px')), el('td', null, inp('spend', '110px')), el('td', null, inp('actual', '110px')), el('td', null, inp('baseline', '110px')),
-      el('td', 'num', money(com)), el('td', 'num', money(tot)), el('td', 'num', p === null ? '—' : (p * 100).toFixed(2) + '%'), el('td', null, verdict),
+      el('td', 'num', money(com)), el('td', 'num', money(tot)), el('td', 'num', p === null ? '—' : pct(p, 2)), el('td', null, verdict),
       el('td', null, inp('note', '150px')),
       el('td', null, ws.budgetYears.length > 1 ? el('button', { class: 'btn sm ghost danger', onclick: () => { if (!window.confirm('Remove budget year ' + y.year + '?')) return; ws.budgetYears.splice(ws.budgetYears.indexOf(y), 1); ensureBudgetYears(ws); touch(); render(sec); } }, '×') : null)));
   }
@@ -124,17 +124,21 @@ function body(out) {
   const ws = S.ws, a = ws.assessment, b = ws.budget;
   const it = Number(b.it_budget), app = Number(a.APPETITE), spend = Number(b.spend), base = Number(b.baseline) || 0;
   if (!(it > 0)) { out.append(banner('warn', 'IT budget required', 'Enter the total IT budget, salaries included (Organization → Risk appetite and budget, or above).')); return; }
-  const target = CRG.budgetTarget(app), pct = spend / it, implied = CRG.impliedAppetite(pct), status = CRG.bandStatus(pct), B = CRG.BUDGET_BAND;
+  // Conventions shared with the reference engine (NV-094): gap = spend − target (negative = below the target); the position
+  // names the 4% / 7.8% / 12% point targets; below the 4% point target the implied appetite is "above 0.70, outside the guideline".
+  // Numbers follow the interface locale (X-6, D6): pct(), n2(), money().
+  const target = CRG.budgetTarget(app), share = spend / it, implied = CRG.impliedAppetite(share), status = CRG.bandStatus(share), B = CRG.BUDGET_BAND, ts = CRG.targetStatus(share, app);
+  const gap = Math.round(spend - target * it);
   const k = el('div', 'grid g5');
-  k.append(kpi('Appetite-consistent target', (target * 100).toFixed(1) + '%', money(Math.round(target * it))),
-    kpi('Current spend', (pct * 100).toFixed(2) + '%', money(spend)),
-    kpi('Gap to target', money(Math.round(target * it - spend)), spend >= target * it ? 'at or above target' : 'shortfall'),
-    kpi('Band status', pill(status, status === 'Within band' ? 'good' : 'warn'), tr('best-practice point targets 12% / 7.8% / 4% at appetite 0.30 / 0.50 / 0.70')),
-    kpi('Implied appetite', implied == null ? 'below floor' : implied.toFixed(2), implied == null ? 'spend under the 4% floor' : 'what this spend level implies'));
+  k.append(kpi('Appetite-consistent target', pct(target, 1), money(Math.round(target * it))),
+    kpi('Current spend', pct(share, 2), money(spend)),
+    kpi('Gap to target', (gap < 0 ? '−' : '') + money(Math.abs(gap)), tr(ts.status) + ' · ' + tr('spend − target; negative = below the target'), gap < 0 ? 'warn' : 'good'),
+    kpi('Position', pill(status, share >= B.min && share <= B.max ? 'good' : 'warn'), tr('best-practice point targets 12% / 7.8% / 4% at appetite 0.30 / 0.50 / 0.70')),
+    kpi('Implied appetite', implied == null ? tr('above 0.70 (outside the guideline)') : n2(implied), implied == null ? 'spend below the 4% point target' : 'what this spend level implies'));
   out.append(k);
   out.append(el('p', 'note', 'Best practice: the appetite-consistent target is a point, not a range — 12% of the total IT budget (salaries included) at appetite 0.30, 7.8% at 0.50 and 4% at 0.70, interpolated linearly in between and held at the end value outside. The test is the gap to that target, not whether the spend falls somewhere between 4% and 12%.'));
-  if (implied != null && Math.abs(implied - app) >= 0.1) out.append(banner('warn', 'Spend and appetite disagree', `The stated appetite is ${app.toFixed(2)} but the spend implies ${implied.toFixed(2)}. Escalate the inconsistency rather than silently reconciling it.`));
-  if (implied == null) out.append(banner('warn', 'Spend below the guideline floor', `At ${(pct * 100).toFixed(2)}% of IT the organization is more risk-seeking than the band describes. That is a management decision to make explicitly, not a default.`));
+  if (implied != null && Math.abs(implied - app) >= 0.1) out.append(banner('warn', 'Spend and appetite disagree', tr('The stated appetite is {0} but the spend implies {1}. Escalate the inconsistency rather than silently reconciling it.').replace('{0}', n2(app)).replace('{1}', n2(implied))));
+  if (implied == null) out.append(banner('warn', 'Spend below the 4% point target', tr('At {0} of IT the funding implies an appetite above 0.70, outside the guideline. That is a management decision to make explicitly, not a default.').replace('{0}', pct(share, 2))));
 
   // options
   const R = compute();
@@ -150,13 +154,13 @@ function body(out) {
   const options = [
     opt('A', 'A · Status quo (baseline only)', 0, R.totals.est, aboveAfter([]), 'var(--muted)', 'No new treatment. Every scenario stays at its estimated risk.'),
     opt('B', 'B · Bring above-tolerance scenarios down', aboveRows.reduce((s, r) => s + r.cost, 0), resAfter(aboveRows), aboveAfter(aboveRows), 'var(--series-3)', 'Fund the treatment of every scenario whose untreated risk exceeds tolerance.'),
-    opt('C', 'C · Best value within the appetite-consistent budget', tRows.reduce((s, r) => s + r.cost, 0), resAfter(tRows), aboveAfter(tRows), 'var(--series-1)', `Fund scenarios in cost-effectiveness order until the ${(target * 100).toFixed(1)}% target is reached.`),
+    opt('C', 'C · Best value within the appetite-consistent budget', tRows.reduce((s, r) => s + r.cost, 0), resAfter(tRows), aboveAfter(tRows), 'var(--series-1)', tr('Fund scenarios in cost-effectiveness order until the {0} target is reached.').replace('{0}', pct(target, 1))),
     opt('D', 'D · Full treatment portfolio', all.reduce((s, r) => s + r.cost, 0), resAfter(all), aboveAfter(all), 'var(--series-4)', 'Fund every included scenario\'s treatment package.'),
   ];
   const pts = [
-    { x: app, y: target, color: 'var(--ink)', shape: 'diamond', label: 'Stated appetite ' + app.toFixed(2), dy: -10, tip: `<b>Stated appetite ${app.toFixed(2)}</b>Target ${(target * 100).toFixed(1)}% of IT = ${money(target * it)}` },
-    { x: implied, y: pct, color: 'var(--series-2)', label: 'Current spend', tip: `<b>Current spend</b>${money(spend)} = ${(pct * 100).toFixed(2)}% of IT<br>Implied appetite ${implied == null ? 'beyond risk-seeking (below floor)' : implied.toFixed(2)}` },
-    ...options.map(o => ({ x: o.ia, y: o.y, color: o.color, label: o.key, tip: `<b>${o.label}</b>Total cyber ${money(o.total)} = ${(o.y * 100).toFixed(2)}% of IT<br>Implied appetite ${o.ia == null ? (o.y > B.max ? 'above ceiling' : 'below floor') : o.ia.toFixed(2)}<br>Residual ${n0(o.res)} · ${o.above} above tolerance` })),
+    { x: app, y: target, color: 'var(--ink)', shape: 'diamond', label: tr('Stated appetite') + ' ' + n2(app), dy: -10, tip: `<b>${tr('Stated appetite')} ${n2(app)}</b>${tr('Target')} ${pct(target, 1)} ${tr('of IT')} = ${money(target * it)}` },
+    { x: implied, y: share, color: 'var(--series-2)', label: 'Current spend', tip: `<b>${tr('Current spend')}</b>${money(spend)} = ${pct(share, 2)} ${tr('of IT')}<br>${tr('Implied appetite')} ${implied == null ? tr('above 0.70 (outside the guideline)') : n2(implied)}` },
+    ...options.map(o => ({ x: o.ia, y: o.y, color: o.color, label: o.key, tip: `<b>${o.label}</b>${tr('Total cyber')} ${money(o.total)} = ${pct(o.y, 2)} ${tr('of IT')}<br>${tr('Implied appetite')} ${o.ia == null ? (o.y > B.max ? tr('above the 12% point target') : tr('above 0.70 (outside the guideline)')) : n2(o.ia)}<br>${tr('Residual')} ${n0(o.res)} · ${n0(o.above)} ${tr('above tolerance')}` })),
   ];
   out.append(el('h2', null, 'Where funding choices sit — risk averse to risk seeking'),
     card(bandChart({ target: CRG.budgetTarget, anchors: CRG.ANCHORS, band: B, points: pts }),
@@ -166,10 +170,10 @@ function body(out) {
   out.append(card(el('h2', null, 'Arbitrage options'), table([
     { key: 'label', label: 'Option', render: o => el('div', null, el('b', null, o.label), el('div', 'small muted', o.desc)) },
     { key: 'cost', label: 'New Y1 cost', num: true, render: o => money(o.cost) },
-    { key: 'y', label: '% of IT (total)', num: true, render: o => (o.y * 100).toFixed(2) + '%' },
-    { key: 'ia', label: 'Implied appetite', num: true, render: o => o.ia == null ? (o.y > B.max ? '> ceiling' : '< floor') : o.ia.toFixed(2) },
+    { key: 'y', label: '% of IT (total)', num: true, render: o => pct(o.y, 2) },
+    { key: 'ia', label: 'Implied appetite', num: true, render: o => o.ia == null ? (o.y > B.max ? '> 12% target' : '> 0.70') : n2(o.ia) },
     { key: 'res', label: 'Residual risk', num: true, render: o => n0(o.res) },
-    { key: 'red', label: 'Reduction', num: true, render: o => R.totals.est ? Math.round(100 - o.res / R.totals.est * 100) + '%' : '—' },
+    { key: 'red', label: 'Reduction', num: true, render: o => R.totals.est ? pct(1 - o.res / R.totals.est, 0) : '—' },
     { key: 'above', label: 'Above tolerance', num: true, render: o => n0(o.above) },
   ], options, { sortKey: null }), el('p', 'note', 'Residual here is measured against untreated estimated risk for the included scenarios (choose them in the Risk calculator). These are decision-support comparisons; the choice — accept, transfer, avoid or mitigate — belongs to management.')));
 

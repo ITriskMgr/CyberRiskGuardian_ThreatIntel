@@ -1,6 +1,6 @@
 # Publier CyberRiskGuardian with Threat Live-feed
 
-Édition dérivée de CyberRiskGuardian v1.1.0 (devenu l’édition Core, plugiciel Core 2.2.0 en novembre 2026). Dépôt cible :
+Édition dérivée de CyberRiskGuardian v1.1.0 (devenu l’édition Core, plugiciel Core 2.2.1 en novembre 2026). Dépôt cible :
 **https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel**
 
 ## 1. Avant le premier push
@@ -22,10 +22,10 @@
            examples/medibec/source/medibec30.json      # doit afficher 84 305 / 41 023
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crg_calc.py   # ALL PASSED
    ```
-   Avec une copie de CRGO 0.11.0 (étiquette v0.11.0 ; v0.9.1 suffit pour dss/v1) :
+   Avec une copie de CRGO 0.11.1 (étiquette v0.11.1 ; v0.9.1 suffit pour dss/v1) :
    ```bash
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crgo_contract.py \
-           --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.0}   # tous les contrôles doivent passer
+           --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.1}   # tous les contrôles doivent passer
    ```
 4. Vérifiez qu'aucun appel réseau n'existe dans le chemin de calcul (voir `BOOTSTRAP.md`).
 5. `bash scripts/sync-project-config.sh`
@@ -37,7 +37,7 @@ Le dépôt est déjà initialisé avec un premier commit et le remote configuré
 ```bash
 git branch -M main
 git push -u origin main
-git tag v1.7.0          # version du plugiciel (plugin.json = marketplace.json)
+git tag v1.7.2          # version du plugiciel (plugin.json = marketplace.json)
 git push --tags
 ```
 
@@ -75,7 +75,7 @@ et sa propre version GitHub avec trois fichiers :
 
 | Fichier | D’où il vient |
 |---|---|
-| `CyberRiskGuardian_Desktop_v<version>-beta.zip` | `desktop/dist/` (le contenu exact de `desktop/app/`) |
+| `CyberRiskGuardian_Desktop_v<version>-beta.zip` | `desktop/dist/` — construit par `python3 desktop/app/tools/package_desktop.py --edition community` (le contenu exact de `desktop/app/`, l’édition inscrite dans `js/edition.js`). Décision D3 : `--edition commercial` produit `…-beta-commercial.zip`, où les CIS Controls v8.1 figurent par identifiant seulement (titres et libellés CRGO retirés de `js/data/controls.js` dans la copie) tant que CIS n’a pas approuvé les titres ; `--edition educational` garde les titres avec l’avis CIS, comme l’édition communautaire |
 | `CyberRiskGuardian_Desktop_v<version>-beta.zip.sha256` | `shasum -a 256 <zip> > <zip>.sha256` — **obligatoire depuis la 1.9.0** : la vérification des mises à jour contrôle le téléchargement avec ce fichier et marque « non vérifié » une version qui ne l’a pas |
 | `CyberRiskGuardian_Desktop_v<version>-beta_Installation_Windows_macOS_EN_FR.pdf` | `desktop/app/INSTALL-Windows-macOS-EN-FR.pdf`, reconstruit par `python3 desktop/app/tools/build_install_pdf.py` chaque fois que `INSTALL.md` change |
 

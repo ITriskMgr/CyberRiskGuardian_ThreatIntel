@@ -42,7 +42,7 @@ export const DRIFT = [['', 'To be classified'], ['degradation', 'Degradation'], 
   ['strengthening', 'Strengthening'], ['unknown', 'Unknown']];
 export const SEVERITY = [['high', 'High'], ['medium', 'Medium'], ['low', 'Low']];
 export const DV_STATES = [['open', 'Open (not closed)'], ['closed', 'Closed']];   // 'Open' alone is the verb in fr.js
-export const CH_TYPES = [['standard', 'Standard'], ['normal', 'Normal'], ['emergency', 'Emergency'], ['unauthorized_suspected', 'Unauthorized (suspected)']];
+export const CH_TYPES = [['standard', 'Standard change'], ['normal', 'Normal change'], ['emergency', 'Emergency change'], ['unauthorized_suspected', 'Unauthorized (suspected)']];   // 1.9.2 (item 14): labels of their own, so French says « changement standard », not « norme »
 export const STATUS = [['inferred', 'Inferred'], ['confirmed', 'Confirmed'], ['unknown', 'Unknown'], ['conflicting', 'Conflicting']];
 export const CONF = [['Low', 'Low'], ['Medium', 'Medium'], ['High', 'High']];
 export const TAGS = ['FACT', 'INFERENCE', 'ASSUMPTION', 'EXTERNAL', 'UNKNOWN'];
@@ -398,7 +398,7 @@ export function tokenCount(text) {
   return (t.match(new RegExp(EMAIL.source, 'g')) || []).length + (t.match(new RegExp(DOMAIN_USER.source, 'g')) || []).length + (t.match(new RegExp(SID.source, 'gi')) || []).length;
 }
 /** Accept reviewed counts: new rows with provenance; nothing else is written. Returns the rows created. */
-export function acceptImport(ws, M, items, { file, sha256, bytes, rows, method, by = '' }) {
+export function acceptImport(ws, M, items, { file, sha256, bytes, rows, method, by = '', proposed = null }) {
   const R = reg(ws, M), made = [];
   for (const it of items) {
     const register = it.register; if (!M.AI_KEYS[register]) continue;
@@ -408,11 +408,11 @@ export function acceptImport(ws, M, items, { file, sha256, bytes, rows, method, 
     if (register === 'privileged') { row.tier = it.tier; row.label = (TIERS.find(t => t[0] === it.tier)?.[1] || 'Tier ' + it.tier) + ' (imported)'; }
     if (register === 'changes') row.type = it.type || 'normal';
     row.source = String(file + (it.page ? ', p. ' + it.page : '')).slice(0, 200);
-    row.prov = { tag: TAGS.includes(it.tag) ? it.tag : 'UNKNOWN', method, file, date: today() };
+    row.prov = { tag: TAGS.includes(it.tag) ? it.tag : 'UNKNOWN', method, file, date: today(), ...(it.tagNote ? { note: it.tagNote } : {}) };   // 1.9.2 review (H4): a downgraded FACT keeps the reason
     row.status = 'inferred';
     R[register].push(row); made.push(row);
   }
-  R.imports.push({ at: new Date().toISOString(), file, sha256, bytes, rows, method, proposed: items.length, accepted: made.length, by });
+  R.imports.push({ at: new Date().toISOString(), file, sha256, bytes, rows, method, proposed: proposed ?? items.length, accepted: made.length, by });   // 1.9.2 review: proposed = every proposal, accepted = the ticked ones
   return made;
 }
 /** Tabular text (CSV or the tab-separated text of an XLSX) to rows. */

@@ -64,9 +64,9 @@ function scenarios(body, sec) {
   for (const r of rows) {
     const s = r.s, sg = suggest(r), dec = S.ws.decisions[r.id] || {};
     const d = el('details', 'card'); if (focus === r.id || (!focus && rows.indexOf(r) < 2)) d.open = true;
-    d.append(el('summary', null, el('span', 'mono', r.id), ' ', s.name || '', ' ', pill(r.cls, pillFor(r.cls)), ' ', el('span', 'small muted', `untreated ${n2(r.est / r.tol)} → treated ${n2(r.ratio)} · suggested: ${sg.primary}${sg.also.length ? ' + ' + sg.also.join(', ') : ''}`), dec.option ? el('span', null, ' ', pill('Decided: ' + dec.option, 'good')) : ''));
+    d.append(el('summary', null, el('h2', 'sumh', el('span', 'mono', r.id), ' ', s.name || ''), ' ', pill(r.cls, pillFor(r.cls)), ' ', el('span', 'small muted', `untreated ${n2(r.est / r.tol)} → treated ${n2(r.ratio)} · suggested: ${sg.primary}${sg.also.length ? ' + ' + sg.also.join(', ') : ''}`), dec.option ? el('span', null, ' ', pill('Decided: ' + dec.option, 'good')) : ''));
     const optCards = el('div', 'grid g4', ...OPTIONS.map(o => el('div', 'opt' + (o === sg.primary ? ' rec' : ''),
-      el('h4', null, o, o === sg.primary ? ' — suggested' : sg.also.includes(o) ? ' — also consider' : ''),
+      el('h3', null, o, o === sg.primary ? ' — suggested' : sg.also.includes(o) ? ' — also consider' : ''),   // 1.9.2 (NV-064): h2 (card) → h3
       el('div', 'small muted', { Mitigate: 'Reduce probability or impact with controls; residual shown is with the treatment package.', Transfer: 'Shift the financial consequence — insurance, contract, outsourcing with liability. Harm to people and operations remains.',
         Avoid: 'Stop, retire or redesign the activity or service that creates the exposure.', Accept: 'Retain the risk knowingly, within tolerance, with an accountable owner and a KRI.' }[o]))));
     const linked = (s.inits || []).map(id => inits[id]).filter(Boolean);
@@ -79,14 +79,18 @@ function scenarios(body, sec) {
     // 1.8.0 — a transfer records the share of loss covered (informational: never a reduction of the risk index) and its approver
     const share = el('input', { type: 'number', min: 0, max: 1, step: 0.05, value: dec.share ?? '', placeholder: '0–1', class: 'dec-share' });
     const appr = el('input', { value: dec.approver || '', placeholder: 'Name and role of the approver', class: 'dec-approver' });
+    // 1.9.2 review (M3, X-5): no decision is recorded without a named decision-maker (pre-filled with the signed-in name)
+    const by = el('input', { value: dec.by ?? users.name() ?? '', placeholder: 'Name of the decision-maker (required)', class: 'dec-by' });
     const trBox = el('div', { class: 'grid g2', hidden: decSel.value !== 'Transfer' }, field('Share of loss covered (0–1, informational)', share, 'What the insurance or contract would cover. It is never a reduction: the risk index and the harm to people and operations stay as they are.'), field('<b>Approver</b> of the transfer', appr));
     const save = () => {
       const sv = share.value === '' ? null : Number(share.value);
       if (sv !== null && !(sv >= 0 && sv <= 1)) { toast(tr('The share of loss covered must be within 0–1'), 'bad'); return false; }
-      S.ws.decisions[r.id] = { option: decSel.value, owner: own.value, horizon: hor.value, note: note.value, date: today(), ratio: r.ratio, cls: r.cls,
+      if (decSel.value && !by.value.trim()) { toast(tr('Name the decision-maker before the decision on {0} is recorded — Management decision required.').replace('{0}', r.id), 'bad'); by.focus(); return false; }
+      if (decSel.value === 'Transfer' && !appr.value.trim()) { toast(tr('Name the approver of the transfer of {0} before it is recorded.').replace('{0}', r.id), 'bad'); appr.focus(); return false; }
+      S.ws.decisions[r.id] = { option: decSel.value, owner: own.value, horizon: hor.value, note: note.value, date: today(), ratio: r.ratio, cls: r.cls, by: by.value.trim(),
         ...(decSel.value === 'Transfer' ? { share: sv, approver: appr.value.trim() } : {}) };
       touch(); return true; };
-    for (const x of [decSel, own, hor, note, share, appr]) x.addEventListener('change', () => { trBox.hidden = decSel.value !== 'Transfer'; if (save()) toast('Decision recorded for ' + r.id); });
+    for (const x of [decSel, own, hor, note, share, appr, by]) x.addEventListener('change', () => { trBox.hidden = decSel.value !== 'Transfer'; if (save()) toast('Decision recorded for ' + r.id); });
     d.append(el('ul', 'small', ...sg.why.map(w => el('li', null, w))), optCards,
       el('div', 'cols2', { style: { marginTop: '14px' } },
         el('div', null,
@@ -95,14 +99,15 @@ function scenarios(body, sec) {
             { key: 'id', label: 'ID', cls: 'mono' }, { key: 'name', label: 'Initiative' }, { key: 'owner', label: 'Owner' },
             { key: 'y1', label: 'Y1 total', num: true, render: i => money(i.y1) }, { key: 'n', label: 'Shared by', num: true, render: i => i.scenarios.length + ' scen.' },
           ], linked, { class: 'compact' }) : el('p', 'note', 'No initiative linked — add or link one in the Initiative portfolio tab or the scenario editor.'),
-          el('div', 'small muted', { style: { marginTop: '8px' } }, `Allocated Year-1 cost: ${money(r.cost)} · cost-effectiveness ${r.ce != null ? n2(r.ce) + ' risk units removed per $1,000' : '—'} · treatment: ${s.treatment || '—'}`)),
+          el('div', 'small muted', { style: { marginTop: '8px' } }, tr('Allocated Year-1 cost: {0} · cost-effectiveness {1} · treatment: {2}').replace('{0}', money(r.cost)).replace('{1}', r.ce != null ? n2(r.ce) + ' ' + tr('risk units removed per $1,000') : '—').replace('{2}', s.treatment || '—'))),
         el('div', null,
           el('h2', null, `ATT&CK mitigations for the linked techniques (${mits.length})`),
           mits.length ? el('div', 'chips', ...mits.map(m => chip(m.id + ' ' + m.name, { title: m.desc, href: m.url }))) : el('p', 'note', 'Link ATT&CK techniques to the scenario to see the relevant mitigations.'),
           meas.length ? el('div', { style: { marginTop: '10px' } }, el('div', 'small muted', 'CRG measures implementing them:'), el('div', 'chips', ...meas.map(m => chip(m.name + ' · ' + m.fn)))) : null,
           sg.also.includes('Transfer') ? el('div', 'chips', { style: { marginTop: '6px' } }, chip('Cyber insurance (risk transfer) · Transfer')) : null)),
       el('h2', null, 'Management decision'),
-      el('div', 'grid g4', field('<b>Option chosen</b>', decSel), field('Owner', own), field('Horizon', hor), field('Rationale', note)), trBox,
+      el('div', 'grid g4', field('<b>Option chosen</b>', decSel), field('<b>Decided by</b>', by), field('Owner', own), field('Horizon', hor)), field('Rationale', note), trBox,
+      dec.option && !dec.by ? banner('warn', tr('Decision without a named decision-maker'), tr('This decision was recorded before 1.9.2 without the name of the person who made it. Enter the name in “Decided by” and the decision is recorded again — Management decision required.')) : null,
       el('p', 'note', `Suggestion basis: appetite ${R.appetite}, tolerance band ${CRG.BAND_LOW}–${CRG.BAND_HIGH}. Quantitative results are relative indicators, not loss predictions.`));
     body.append(d);
   }
@@ -111,6 +116,14 @@ function scenarios(body, sec) {
 function shared(body) {
   const R = compute();
   const inc = new Set(R.inc.map(r => r.id)), rowBy = Object.fromEntries(R.rows.map(r => [r.id, r]));
+  // 1.9.2 (NV-031) — step 13 lands here: when there is no initiative yet, the action is to create them from the measures
+  const pending = (S.ws.measures || []).filter(m => m.status !== 'rejected' && !m.initId && (m.scen || []).length);
+  if (!(S.ws.assessment.INITIATIVES || []).length || pending.length) body.append(banner(initiatives().length ? 'warn' : 'bad', 'Process step 13 — initiatives',
+    el('div', null, el('div', null, initiatives().length ? tr('{0} measure(s) have no initiative yet. An initiative is what Budget, Recommendations and the Excel export fund; a shared control is counted once across the scenarios it addresses.').replace('{0}', pending.length)
+        : tr('No initiative yet: this screen ranks initiatives shared across scenarios, so it has nothing to show. Create them from the measures of Risk mitigation — one initiative per measure, carrying its scenarios, owner and costs — or from a measure’s “→ Initiative”.')),
+      el('div', 'btnrow', { style: { marginTop: '8px' } },
+        pending.length ? el('button', { class: 'btn sm', id: 'shared-create-inits', onclick: () => { const ids = pending.map(m => K.toInitiative(m)); touch(); toast(tr('{0} initiative(s) created from the measures').replace('{0}', ids.length)); } }, tr('Create initiatives from the measures ({0})').replace('{0}', pending.length)) : null,
+        el('button', { class: 'btn sm ghost', onclick: () => go('mitigation') }, 'Open Risk mitigation')))));
   const its = initiatives().map(i => {
     const sc = i.scenarios.filter(x => inc.has(x));
     const gain = sc.reduce((s, id) => s + (rowBy[id]?.mit || 0) / Math.max(1, (rowBy[id]?.s.inits || []).length || 1), 0);
@@ -334,6 +347,9 @@ function detail(body, sec, r) {
 
   const e = REC.effect(r, ws);
   const c = REC.cost(r, ws);
+  // NV-066 — a measure coefficient outside 0–1 is flagged here, never clamped: it is left out of the figures until corrected
+  if (e.totals.invalid?.length) body.append(banner('bad', 'Measure coefficient outside 0–1',
+    tr('Flagged, not applied: {0}. Correct the measure in Risk mitigation; the figures below leave these coefficients out.').replace('{0}', e.totals.invalid.map(x => `${x.m} ${x.lever} ${x.value} (${x.id})`).join(', '))));
   body.append(el('div', 'grid g4',
     kpi('Expected reduction', n0(e.totals.reduction), 'residual risk, verified engine', e.totals.reduction > 0 ? 'good' : ''),
     kpi('Ratio', `${n2(e.totals.curRatio)} → ${n2(e.totals.aftRatio)}`, 'portfolio of its scenarios',
@@ -341,7 +357,7 @@ function detail(body, sec, r) {
     kpi('Year-1 cost', money(c.y1), `${money(c.initial)} one-time + ${money(c.recurring)}/yr`),
     kpi('Brought within tolerance', String(e.totals.brought), `of ${e.rows.filter(x => x.curNeed?.act).length} above tolerance`)));
 
-  if (frozen && r.approved) body.append(banner('good', `Formal recommendation, approved ${r.approved.at}${r.approved.by ? ' by ' + r.approved.by : ''}`,
+  if (frozen && r.approved) body.append(banner('good', tr('Formal recommendation, approved {0}').replace('{0}', r.approved.at) + (r.approved.by ? ' ' + tr('by {0}').replace('{0}', r.approved.by) : ''),
     `Frozen at approval: reduction ${n0(r.approved.reduction)}, ratio ${n2(r.approved.curRatio)} → ${n2(r.approved.aftRatio)}, ` +
     `Year-1 cost ${money(r.approved.cost.y1)}. Those figures do not move when the workspace changes; the panel above is live. ` +
     'Editing a formal recommendation creates a new version.'));
@@ -433,18 +449,32 @@ function detail(body, sec, r) {
   const missing = REC.incomplete(r, ws);
   if (missing.length && !frozen) c7.append(banner('warn', 'Not ready for approval',
     'Still needed: ' + missing.join('; ') + '.'));
-  const by = input({ placeholder: 'Your name', style: { maxWidth: '180px' }, value: users.name() });
+  const by = input({ placeholder: 'Your name (required to approve)', style: { maxWidth: '200px' }, value: users.name(), id: 'rec-by', 'aria-label': 'Your name' });
   const rn = el('input', { placeholder: 'Note for the record', style: { flex: 1 } });
   const bar = el('div', 'row', { style: { marginTop: '8px' } }, by, rn);
+  const refused = el('div');
+  let approveBtn = null;
   for (const to of REC.allowed(r.status)) {
-    bar.append(el('button', { class: 'btn sm ' + (to === 'approved' ? '' : 'ghost'), onclick: () => {
-      try { REC.transition(r, to, { by: by.value, note: rn.value, ws }); redraw(); toast(`${r.code} → ${REC.STATUS_LABEL[to]}`); }
-      catch (err) { body.append(banner('bad', 'That change was refused', String(err.message || err))); }
-    } }, '→ ' + REC.STATUS_LABEL[to]));
+    const b = el('button', { class: 'btn sm ' + (to === 'approved' ? '' : 'ghost'), onclick: () => {
+      // 1.9.2 (decided item 22, X-5): approval needs a named approver; recommend.js refuses it too
+      if (to === 'approved' && !by.value.trim()) { refused.replaceChildren(banner('bad', 'Name the approver', 'No recommendation is recorded as approved without a named person: type your name first.')); by.focus(); return; }
+      try { REC.transition(r, to, { by: by.value.trim(), note: rn.value, ws }); redraw(); toast(`${r.code} → ${REC.STATUS_LABEL[to]}`); }
+      catch (err) { refused.replaceChildren(banner('bad', 'That change was refused', String(err.message || err))); }
+    } }, '→ ' + tr(REC.STATUS_LABEL[to]));   // 1.9.2 — translated here: the arrow prefix defeats the catalogue lookup
+    if (to === 'approved') { approveBtn = b; b.disabled = !by.value.trim(); b.title = tr('Type your name first: approval needs a named approver'); }   // decided item 22: disabled until a name is typed
+    bar.append(b);
   }
+  if (approveBtn) by.addEventListener('input', () => { approveBtn.disabled = !by.value.trim(); });
+  if (r.status === 'draft' || r.status === 'in-review') c7.append(el('p', 'small muted', 'Approval freezes the figures with the approver’s name and the date; the quality review (QC-02) checks that every approved recommendation names its approver.'));
   if (frozen) bar.append(el('button', { class: 'btn sm ghost', onclick: () => {
     REC.amend(r, { by: by.value, note: rn.value || 'edited' }); redraw(); toast(`${r.code} amended as v${r.version}`); } }, 'Record an amendment'));
-  c7.append(bar);
+  c7.append(bar, refused);
+  // 1.9.2 review (M1) — a frozen zero the earlier rule did not cause is kept as approved and shown for review
+  if (r.approved?.zeroReview) c7.append(banner('warn', tr('Frozen reduction kept — review'),
+    tr('This recommendation was approved with a reduction of {0} while its own measures were not in force, so the earlier rule did not cause the zero and nothing was recomputed. Today’s measures would give {1}: amend the recommendation (a new version) if that is what was meant.').replace('{0}', n0(r.approved.reduction || 0)).replace('{1}', n0(r.approved.zeroReview.currentEffect || 0))));
+  // 1.9.2 (decided item 23) — frozen figures recomputed by the 1.9.2 data migration keep the earlier ones beside them
+  if (r.approved?.recomputed) c7.append(banner('warn', tr('Frozen figures recomputed (decided item 23)') + ' — ' + tr('recomputed in 1.9.2 from current measures'),
+    tr('The figures frozen at approval under the earlier rule showed a reduction of {0}; the decided rule — residual without this recommendation’s own measures minus residual with them, whatever their status — gives {1}. Recomputed on {2}; the earlier figures are kept in the history.').replace('{0}', n0(r.approved.recomputed.previous?.reduction || 0)).replace('{1}', n0(r.approved.reduction)).replace('{2}', r.approved.recomputed.at)));
 
   if (r.status === 'in-implementation' || r.status === 'completed') {
     const pc = el('input', { type: 'number', min: 0, max: 100, step: 5, value: r.tracking.percent });

@@ -7,6 +7,7 @@ import * as store from './store.js';
 import { uid, today, val } from './util.js';
 import * as MIG from './migrate.js';
 import { VERSION } from './version.js';
+import { FIXED_ID } from './teaching.js';
 
 export const SCHEMA = 'crg-workspace/1';
 const listeners = new Set();
@@ -23,7 +24,9 @@ export function emit(what = 'change') { for (const f of listeners) { try { f(wha
 export function blankOrg() {
   return { name: '', context: '', sector: '', size: '', employees: '', region: '', mission: '', services: '', processes: '',
     systems: '', cloud: '', suppliers: '', regulations: [], sensitive: '', availability: '', maturity: '',
-    incidents: '', controls: '', notes: '', materiality: '' };
+    incidents: '', controls: '', notes: '', materiality: '',
+    // 1.9.2 (NV-035, step 3): what the assessment covers and leaves out, and the risk perspectives it takes (book ch. 5)
+    scope: '', exclusions: '', perspectives: '' };
 }
 export function newWorkspace({ name = 'New organization', kind = 'organization', assessment = null, org = null } = {}) {
   const now = new Date().toISOString(), id = uid('ws');
@@ -51,6 +54,8 @@ export function newWorkspace({ name = 'New organization', kind = 'organization',
     screening: MIG.blankScreening(), mgmtSummary: MIG.blankSummary(), catalogueMigration: [],
     // 1.9.0 — data version 4: every field of migrate.js STEP4
     ...MIG.fieldsV4(),
+    // 1.9.2 — data version 6: every field of migrate.js STEP6 (js/migrate192.js)
+    ...MIG.fieldsV6(),
     dataVersion: MIG.DATA_VERSION, appVersion: VERSION, migrationLog: [],
   };
 }
@@ -104,11 +109,12 @@ export const exampleAvailable = id => !!exampleOf(id)?.data();
 export function exampleWorkspace(id = 'medibec') {
   const ex = exampleOf(id);
   if (!ex) throw new Error(`Unknown bundled example: ${id}`);
-  if (id === 'medibec') { const ws = medibecWorkspace(); ws.teaching = { case: 'medibec' }; return ws; }
+  if (id === 'medibec') { const ws = medibecWorkspace(); ws.teaching = { case: 'medibec' }; ws.id = FIXED_ID('medibec'); ws.crgo = MIG.blankCrgo(ws.id); return ws; }   // 1.9.2 (item 4): a fixed id per bundled case
   const src = ex.data();
   if (!src) throw new Error(`The bundled example ${id} is not installed with this build.`);
   const d = JSON.parse(JSON.stringify(src));
   const ws = newWorkspace({ name: d.NAME, kind: 'example', assessment: d.ASSESSMENT, org: d.ORG });
+  ws.id = FIXED_ID(id); ws.crgo = MIG.blankCrgo(ws.id);   // 1.9.2 (item 4): a fixed id per bundled case
   ws.appetite_rationale = d.APPETITE_RATIONALE || '';
   if (Array.isArray(d.BUDGET_YEARS)) { ws.budgetYears = d.BUDGET_YEARS; ws.budgetYear = d.BUDGET_YEAR ?? null; }
   else { ws.budget = Object.assign({ it_budget: 0, spend: 0, baseline: 0 }, d.BUDGET || {}); ws.budgetYears = null; }
@@ -166,7 +172,7 @@ export async function loadAll() {
   for (let i = 0; i < S.list.length; i++) { S.list[i] = await upgrade(S.list[i]); if (S.migration.status !== 'current') S.migrations.push(S.migration); }
   S.migration = null;
   if (!S.list.length) {
-    const ex = medibecWorkspace();
+    const ex = exampleWorkspace('medibec');   // 1.9.2 (item 4): the seeded case carries its fixed id
     await store.put('ws', ex.id, ex); S.list = [ex];
   }
   const cur = await store.get('meta', 'current');
@@ -199,7 +205,7 @@ export async function remove(id) {
   await store.del('blob', 'premig:' + id);    // 1.5.8 — the copy kept from before a migration
   await store.del('ws', id);
   S.list = S.list.filter(x => x.id !== id);
-  if (!S.list.length) { const ex = medibecWorkspace(); await store.put('ws', ex.id, ex); S.list = [ex]; }
+  if (!S.list.length) { const ex = exampleWorkspace('medibec'); await store.put('ws', ex.id, ex); S.list = [ex]; }
   if (S.ws?.id === id) { S.ws = null; await select(S.list[0].id); }
   else emit('workspace');
 }
@@ -268,8 +274,8 @@ export function migrate(w) {
   w.isp = Object.assign({ policies: [], issues: [] }, MIG.blankIspExtra(), w.isp || {});
   w.screening = Object.assign(MIG.blankScreening(), w.screening || {}); w.mgmtSummary = Object.assign(MIG.blankSummary(), w.mgmtSummary || {});
   if (!Array.isArray(w.catalogueMigration)) w.catalogueMigration = [];
-  // 1.9.0 — data version 4: an object record keeps what it holds and gains the keys its blank has
-  for (const st of MIG.STEP4) {
+  // 1.9.0 — data version 4 and 1.9.2 — data version 6: an object record keeps what it holds and gains the keys its blank has
+  for (const st of [...MIG.STEP4, ...MIG.STEP6.filter(x => x.field)]) {
     const b = st.blank();
     if (b && typeof b === 'object' && !Array.isArray(b)) w[st.field] = Object.assign(b, w[st.field] && typeof w[st.field] === 'object' ? w[st.field] : {});
     else if (w[st.field] === undefined) w[st.field] = b;
@@ -340,9 +346,40 @@ export function normalizeScenario(s) {
     if (p === undefined || p === null || typeof p !== 'object') s.params[k] = { v: p === undefined || p === null ? 0.5 : Number(p), conf: 'Low', rat: '', ev: '' };
   }
   for (const k of ['attack', 'cwe', 'cves', 'inits', 'vulns', 'controls', 'assetIds']) if (!Array.isArray(s[k])) s[k] = s[k] ? [s[k]] : [];
-  if (s.red_p === undefined) s.red_p = 0.5;
-  if (s.red_i === undefined) s.red_i = 0.5;
+  // 1.9.2 (NV-001, D2): a missing reduction is 0 — the book's pre-treatment value and the Threat Intel engine's rule —
+  // never an invented 0.5. Stored scenarios that lacked the field were given 0.5 by data version 5 → 6 before this runs,
+  // explicitly and listed for review, so no existing organization's numbers move.
+  if (s.red_p === undefined || s.red_p === null) s.red_p = 0;
+  if (s.red_i === undefined || s.red_i === null) s.red_i = 0;
   return s;
+}
+
+/** The vector a scenario starts with when nobody has chosen one (NV-002: marked vector_source 'default'). */
+export const DEFAULT_VECTOR = 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N';
+/** 1.9.2 (NV-002) — is the scenario's vector still the one it was created with, not entered by the analyst?
+ *  'default' is the blank scenario's vector; 'pattern' a batch pattern's or a candidate's starting vector. A vector that
+ *  differs from the one recorded at creation (vector_ref) counts as entered. A score by equivalency is an analyst entry. */
+export function vectorState(s) {
+  if (!s || !s.vector_source || s.vector_source === 'confirmed') return 'entered';
+  if (s.cvss_mode === 'equivalency') return 'entered';
+  /* 1.9.2 review (H2) — 'score': the scenario came with a score and no vector (CVE register with a non-v4 score, CRGO
+     prior, Risk Registry row, batch or screening row): it computes on that stored score until the analyst confirms it
+     or enters a v4.0 vector. A vector typed since counts as entered. */
+  if (s.vector_source === 'score') return (s.cvss === '' || s.cvss == null) && s.cvss_score !== undefined && s.cvss_score !== null && s.cvss_score !== '' ? 'score' : 'entered';
+  if (s.cvss !== (s.vector_ref || DEFAULT_VECTOR)) return 'entered';
+  return s.vector_source;
+}
+
+/** 1.9.2 (NV-002, step 10) — the analyst confirms a vector that came with a pattern or a candidate: one click, recorded in
+ *  the scenario's revisions. The vector itself does not change. */
+export function confirmVector(s, by = '') {
+  if (!s || vectorState(s) === 'entered') return false;
+  const from = s.vector_source;
+  s.vector_source = 'confirmed'; s.vector_confirmed = { date: today(), by: String(by || '').trim(), from };
+  (s.revisions ||= []).push({ date: today(), what: from === 'score'
+    ? `CVSS score ${s.cvss_score} (stored, no vector) confirmed by the analyst${by ? ' (' + by + ')' : ''} — it came with the row the scenario was created from (Process step 10)`
+    : `CVSS vector ${s.cvss} confirmed by the analyst${by ? ' (' + by + ')' : ''} — it came with a ${from === 'pattern' ? 'batch pattern or candidate' : 'new scenario'} (Process step 10)` });
+  return true;
 }
 
 export function blankScenario(id) {
@@ -350,8 +387,10 @@ export function blankScenario(id) {
     id, ref: '', name: '', statement: '', stakeholders: '', threat_source: '', threat_event: '', vulns: [], assets: '', processes: '',
     controls: [], narrative: '', sequence: [], consequences: {},
     params: Object.fromEntries(PARAMS.map(k => [k, { v: k === 'Th' ? 0.5 : 0.5, qual: '', rat: '', ev: '', conf: 'Low' }])),
-    cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N', cvss_note: '',
-    red_p: 0.5, red_i: 0.5, inits: [], treatment: '', owner: '', horizon: '', attack: [], cwe: [], cves: [],
+    cvss: DEFAULT_VECTOR, cvss_note: '', vector_source: 'default', vector_ref: DEFAULT_VECTOR,
+    // 1.9.2 (NV-001, D2): before treatment rp and ri are both zero (book v2.51b ch. 6); the figures start as the
+    // pre-treatment risk, and every reduction is an analyst's or a measure's entry.
+    red_p: 0, red_i: 0, inits: [], treatment: '', owner: '', horizon: '', attack: [], cwe: [], cves: [],
     origin: 'manual', created: today(),
   });
 }
@@ -427,7 +466,19 @@ export function exportAssessment(ws = S.ws, { includedOnly = false } = {}) {
   const a = JSON.parse(JSON.stringify(ws.assessment));
   if (includedOnly) a.SCEN = a.SCEN.filter(s => included(s.id, ws));
   a.ORGANIZATION = ws.org.name || ws.name;
-  if (ws.snapshot) a.threat_context = { snapshot: ws.snapshot.name, retrieved: ws.snapshot.retrieved, expires: ws.snapshot.expires };
+  if (ws.snapshot) {   // 1.9.2 (NV-007, ws3): the export says whether the snapshot was expired at export time
+    const exp = typeof ws.snapshot.expires === 'string' && /^\d{4}-\d{2}-\d{2}/.test(ws.snapshot.expires) ? new Date(ws.snapshot.expires.slice(0, 10)) : null;
+    const t = new Date(today()); const past = exp ? Math.round((t - exp) / 86400000) : null;
+    a.threat_context = { snapshot: ws.snapshot.name, retrieved: ws.snapshot.retrieved, expires: ws.snapshot.expires, expired: exp ? past > 0 : true, days_past_expiry: exp ? Math.max(0, past) : null };
+  }
+  // The vector wins (X-1): a stored score that disagrees with its vector is flagged in the file too, so a reader that
+  // uses the stored score sees the disagreement. Nothing is changed: both values are exported as entered.
+  const warnings = [];
+  for (const s of a.SCEN) {
+    const c = CRG.cvssCheck(s);
+    if (c.agree === false) { s.cvss_check = { stored: c.stored, computed: c.computed, agree: false, used: 'vector' }; warnings.push(`${s.id}: stored CVSS score ${c.stored} disagrees with its vector (${c.computed}); the vector's score is used`); }
+  }
+  if (warnings.length) a.warnings = warnings;
   return a;
 }
 

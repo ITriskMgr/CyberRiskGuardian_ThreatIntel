@@ -1,4 +1,4 @@
-# CyberRiskGuardian Desktop 1.9.1 Beta — First-time setup
+# CyberRiskGuardian Desktop 1.9.2 Beta — First-time setup
 
 **English below · [Français plus bas](#français)**
 
@@ -195,8 +195,22 @@ the thread, available in English and French.
    start from **Blank assessment**, and drop the context documents you are allowed to use (section 4) —
    business description, organization chart, audit reports, incident history. They are read on this
    computer.
-   *With AI off*, leave the extraction options unticked and fill **Profile & appetite** and **Crown jewels**
-   yourself; with AI on, the extraction proposes values for you to review.
+   Under **Extract from the documents** the form offers **four extraction options**: *Extract the profile &
+   appetite from these documents after creation*, *Then extract the crown jewels*, *Then extract more from
+   the documents (Import from documents)* and *Also extract policy facts for the Security Policy Writer*.
+   All four are extractions. *With AI off*, leave all four unticked and fill **Profile & appetite** and
+   **Crown jewels** yourself. Even a ticked option sends nothing by itself: each extraction first asks you to
+   choose **AI** (with a preview of what is sent) or **Rules only** (offline, no AI).
+   **Starting an extraction later.** If the options were left unticked at creation, or you switch AI on
+   afterwards, you start each extraction yourself from **Organization → Organization profile**. First check
+   that your documents appear under the **Context documents** tab and, for AI, that your provider passes
+   **Test this provider** (**Settings → AI — local & remote**). Then: **Profile & appetite → Extract from
+   documents… → Use AI** (or **Rules only**) → check the preview → **Send**. You get a proposal for each
+   field to accept or edit, and nothing is saved until you click **Save**. The **Crown jewels** tab has the
+   same button, and the **Import from documents** tab covers everything else (assets, controls, incidents,
+   candidate scenarios…) through **Start the import**. The **Process** page shows the same route: while the
+   context is incomplete and documents exist, the step-2 card carries **Extract from documents…** and says
+   what it needs (documents, a tested AI provider or Rules only).
 2. Apply section 4 to this workspace now (confidential, anonymize, backup).
 3. Follow **Process** step by step. The dark **Next step** card says what the step still needs, check by
    check, and its first button opens the screen where the next thing is done. **Help → Step by step** opens
@@ -338,8 +352,8 @@ identités et des accès et la Gestion de la configuration.
 | Gouvernance | Gestion des politiques de sécurité de l’information (PSI) | Bibliothèque de politiques, éditeur, versions approuvées, accusés de lecture, non-conformités | vous tenez à jour les politiques de sécurité de l’organisation | les politiques sont gérées ailleurs |
 | Gouvernance | Rédacteur de politiques de sécurité | Rédige politiques, normes et procédures (FR/EN) à partir d’une entrevue et de documents; export Word | vous rédigez ou réécrivez des politiques — **fonctionne mieux avec l’IA** | vous ne rédigez pas de politiques |
 | Gouvernance | Gestion de la cybersécurité | Essais des contrôles par ligne de défense, instances, délégations, registres de décisions, registre des incidents | vous devez consigner les décisions sous une autorité nommée | — gardez-le : les décisions de risque l’utilisent |
-| Gouvernance | **Gestion des identités et des accès (GIA/GAP)** — *désactivé par défaut* | Registres au niveau des populations : comptes, rôles privilégiés, comptes d’urgence, revues d’accès, séparation des tâches; six ICR; les constats deviennent des preuves et des propositions de scénarios | les identités, les privilèges ou la séparation des tâches font partie du périmètre, ou un audit récent a soulevé des constats d’accès | les accès sont hors périmètre |
-| Gouvernance | **Gestion de la configuration** — *désactivé par défaut* | Configurations de référence versionnées, écarts et leurs exceptions, changements de configuration; trois ICR; les constats deviennent des preuves et des propositions de scénarios | le durcissement, la dérive ou le contrôle des changements comptent pour les scénarios évalués | la configuration est hors périmètre |
+| Gouvernance | **Gestion des identités et des accès (GIA/GAP)** — *désactivé par défaut* | Registres au niveau des populations : comptes, rôles privilégiés, comptes d’urgence, revues d’accès, séparation des tâches; six ICR; les constats deviennent des éléments probants et des propositions de scénarios | les identités, les privilèges ou la séparation des tâches font partie du périmètre, ou un audit récent a soulevé des constats d’accès | les accès sont hors périmètre |
+| Gouvernance | **Gestion de la configuration** — *désactivé par défaut* | Configurations de référence versionnées, écarts et leurs exceptions, changements de configuration; trois ICR; les constats deviennent des éléments probants et des propositions de scénarios | le durcissement, la dérive ou le contrôle des changements comptent pour les scénarios évalués | la configuration est hors périmètre |
 | Gouvernance | Registres partagés | Éléments probants, mesures correctives, exceptions et correspondances tenus une seule fois pour tous les modules | — | **gardez-le** |
 | Gouvernance | Revue de qualité | Les vérifications à faire avant qu’un rapport ne sorte | — | **gardez-le** |
 | Conformité et audit | Gestion de la conformité | Obligations, applicabilité juridique, correspondances de référentiels, campagnes, déterminations, calendrier réglementaire | vous devez démontrer la conformité (Loi 25, ISO/IEC 27001, NIST CSF 2.0, PCI DSS…) | la conformité est gérée ailleurs |
@@ -364,7 +378,7 @@ pouvez changer cela en tout temps.
 de chaque écran, une ligne qui dit pourquoi l’écran compte, et ouvre les conseils et les lignes
 directrices de la prochaine étape sur la page Processus : choisissez-le pour une première analyse.
 *Minimal* retire les introductions et les indications explicatives pour qui connaît la méthode; les
-indications qui changent le sens d’une valeur (vide ou 0, les étiquettes de preuve, les unités) restent à
+indications qui changent le sens d’une valeur (vide ou 0, les étiquettes d’élément probant, les unités) restent à
 tous les niveaux. Aucun nombre ni aucun espace de travail ne change avec le niveau. En mode
 multi-utilisateur, chaque personne connectée a le sien.
 
@@ -436,8 +450,25 @@ des paiements comme fil conducteur, en français et en anglais.
    choisissez **Organisation réelle**, partez d’une **Évaluation vierge** et déposez les documents de
    contexte que vous avez le droit d’utiliser (section 4) — description des activités, organigramme,
    rapports d’audit, historique des incidents. Ils sont lus sur cet ordinateur.
-   *Sans IA*, laissez les options d’extraction décochées et remplissez vous-même **Profil et appétence**
-   et **Joyaux de la couronne**; avec l’IA, l’extraction propose des valeurs que vous révisez.
+   Sous **Extraire des documents**, le formulaire offre **quatre options d’extraction** : *Extraire le profil
+   et l’appétence de ces documents après la création*, *Puis extraire les joyaux de la couronne*, *Puis
+   extraire davantage des documents (Importer des documents)* et *Extraire aussi les faits utiles aux politiques pour le
+   rédacteur de politiques de sécurité*. Les quatre sont des extractions. *Sans IA*, laissez les quatre
+   décochées et remplissez vous-même **Profil et appétence** et **Joyaux de la couronne**. Même cochée, une
+   option n’envoie rien d’elle-même : chaque extraction vous demande d’abord de choisir **IA** (avec un aperçu
+   de ce qui est envoyé) ou **Règles seulement** (hors ligne, sans IA).
+   **Lancer une extraction plus tard.** Si les options sont restées décochées à la création, ou si vous
+   activez l’IA ensuite, vous lancez chaque extraction vous-même depuis **Organisation → Profil de
+   l’organisation**. Vérifiez d’abord que vos documents figurent sous l’onglet **Documents de contexte** et,
+   pour l’IA, que votre fournisseur réussit **Tester ce fournisseur** (**Paramètres → IA — locale et
+   distante**). Puis : **Profil et appétence → Extraire des documents… → Utiliser l’IA (aperçu avant l’envoi)** (ou **Règles
+   seulement**) → vérifiez l’aperçu → **Envoyer**. Vous obtenez une proposition pour chaque champ, à accepter
+   ou à modifier, et rien n’est enregistré avant que vous cliquiez sur **Enregistrer**. L’onglet **Joyaux de
+   la couronne** a le même bouton, et l’onglet **Importer des documents** couvre tout le reste (actifs,
+   contrôles, incidents, scénarios candidats…) par **Démarrer l’importation**. La page **Processus** montre le
+   même chemin : tant que le contexte est incomplet et que des documents existent, la carte de l’étape 2 porte
+   **Extraire des documents…** et dit ce qu’il faut (des documents, un fournisseur d’IA testé ou Règles
+   seulement).
 2. Appliquez maintenant la section 4 à cet espace de travail (confidentiel, anonymisation, sauvegarde).
 3. Suivez le **Processus** étape par étape. La carte sombre **Prochaine étape** dit ce dont l’étape a
    encore besoin, vérification par vérification, et son premier bouton ouvre l’écran où se fait la chose

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_crgo.py — the offline snapshots of the CyberRiskGuardian Ontology (1.5.8, CRGO 0.9.x; CRGO 0.11.0 in 1.9.0).
+"""build_crgo.py — the offline snapshots of the CyberRiskGuardian Ontology (1.5.8, CRGO 0.9.x; CRGO 0.11.0 in 1.9.0; CRGO 0.11.1 in 1.9.2).
 
 Writes two files beside the application, from a CRGO checkout (v0.9.1 or later):
 
@@ -21,6 +21,8 @@ marked unverified), the OWASP Top 10:2025, LLM 2025 and Agentic 2026 identifiers
 the release ("status", "statusNote"): "proposed" when CRGO's CHANGELOG marks the release so (terms awaiting the CRGO
 project owner's approval), otherwise "approved". CRGO 0.11.0 was approved by its owner and tagged v0.11.0 on
 2026-11-02; the CIS v8.1 values flagged REVIEW: were accepted as delivered and stay marked unverified.
+1.9.2 bundles the 0.11.1 patch (2026-11-08: input validation, write-back path, CIS v8.1 coverage, FR-2/FR-3 label
+terminology; no term added, removed or deprecated).
 
 The application uses these when the ontology's MCP server cannot be reached, and says so on every result.
 Needs rdflib and pyoxigraph (as CRGO itself does). Takes about four minutes (the store is built first).
@@ -62,7 +64,7 @@ def release(onto):
 
 
 def v011(onto):
-    """CRGO 0.11.0 additions: scenario patterns, CIS Controls v8.1 (CRGO labels only), OWASP identifiers."""
+    """CRGO 0.11 additions: scenario patterns, CIS Controls v8.1 (CRGO labels only), OWASP identifiers."""
     from rdflib import Graph, URIRef
     from rdflib.namespace import RDFS, SKOS
     ids = dict(l.rstrip("\n").split("\t") for l in open(os.path.join(onto, "src", "ids.tsv"), encoding="utf-8"))
@@ -145,9 +147,10 @@ def legal(onto):
         vg = Graph().parse(os.path.join(onto, "ontology", "vocab", f + ".ttl"))
         for s, n in vg.subject_objects(SKOS.notation):
             prov[str(n)] = {"iri": str(s), "scheme": f, "label": lab(vg, s)}
+    # 1.9.2: the class TestEvidence (CRGO_0000520) starts with "Test" but is not a test result; only the four values belong here
     return {"instruments": sorted(insts.values(), key=lambda d: d["id"]),
             "orgTypes": vocab("Org"), "jurisdictions": vocab("Jur"), "dataCategories": vocab("Data"), "technologies": vocab("Tech"),
-            "lines": vocab("Line"), "aspects": vocab("Aspect"), "testResults": vocab("Test"), "complianceStates": vocab("Comp"),
+            "lines": vocab("Line"), "aspects": vocab("Aspect"), "testResults": [v for v in vocab("Test") if v["key"] != "TestEvidence"], "complianceStates": vocab("Comp"),
             "knowledgeStatus": vocab("Ks"), "applicabilityStates": vocab("App"), "provisions": prov,
             "evaluator": "pipeline/grc/applicability.py (ported to js/crgo.js for offline use; the helper runs the original)"}
 

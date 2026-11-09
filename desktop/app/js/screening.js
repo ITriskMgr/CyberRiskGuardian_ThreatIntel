@@ -13,7 +13,10 @@
    Nothing here computes risk: the risk index comes from the verified engine, after selection.
    © 2026 Marc-André Léger. All rights reserved. */
 'use strict';
-import { S } from './state.js';
+import { S, blankScenario, nextScenarioId, PARAMS } from './state.js';
+import { today } from './util.js';
+import * as MK from './markers.js';
+import { tr } from './i18n.js';
 
 export const CRITERIA = [
   ['BC', 'Business criticality', 'Does the scenario threaten an important objective or critical process?'],
@@ -125,8 +128,9 @@ export function analysis(ws = S.ws) {
   const strategies = new Set(list.flatMap(c => C[c.id]?.strategy || []));
   const scored = scoredCount(ws);
   const totals = list.map(c => ({ id: c.id, total: total(C[c.id]) })).filter(x => x.total !== null);
+  const distinct = new Set(list.map(dupKey)).size;   // 1.9.2 (NV-034) — duplicates are counted once
   return { list, units, selected, judgmentMissing, flaggedOut, flaggedUnreviewed, coverage, gaps: CATEGORIES.filter(c => !coverage[c].length),
-    strategies: [...strategies], scored, totals, guidance: countGuidance(list.length) };
+    strategies: [...strategies], scored, totals, distinct, guidance: countGuidance(distinct) };
 }
 
 /** A new family id (P01, P02 …). */
@@ -141,19 +145,152 @@ export function nextCandidateId(ws = S.ws) {
   for (const c of ws.assessment.CANDIDATES || []) { const m = /^C(\d+)$/.exec(c[0]); if (m) n = Math.max(n, Number(m[1])); }
   return 'C' + String(n + 1).padStart(2, '0');
 }
-/** Add a candidate row (the CANDIDATES layout the workbook reads: id, name, source, vulnerability, assets, consequence, ref, status, rationale). */
+/** Add a candidate row (the CANDIDATES layout the workbook reads: id, name, source, vulnerability, assets, consequence, ref, status, rationale).
+ *  1.9.2 (decided item 20): `draft` — the candidate's parameters, vector, links and chain as the batch grid, the AI or the
+ *  consultant proposed them — is kept on its screening record and travels to the scenario when the candidate is promoted. */
 export function addCandidate(o, ws = S.ws) {
   const id = o.id || nextCandidateId(ws);
   (ws.assessment.CANDIDATES ||= []).push([id, o.name || '', o.source || '', o.vuln || '', o.assets || '', o.consequence || '', o.ref || '', o.status || 'Candidate', o.note || '']);
-  if (o.strategy?.length) rec(id, ws).strategy = o.strategy.slice();
+  const r = rec(id, ws);
+  if (o.strategy?.length) r.strategy = o.strategy.slice();
+  if (o.draft) r.draft = o.draft;
+  if (o.scenario) r.scenario = o.scenario;
   return id;
+}
+
+/* ---------------- 1.9.2 — drafts, duplicates, removal, the register as a source, promotion ---------------- */
+
+/** The key that tells two candidates apart for counting (NV-034): name, threat source and assets, case and spacing aside. */
+export const dupKey = c => [c.name, c.source, c.assets].map(x => String(x || '').trim().toLowerCase().replace(/\s+/g, ' ')).join('|');
+/** Distinct candidates (NV-034): duplicates are consolidated into families during screening, but they are counted once. */
+export function distinctCount(ws = S.ws) { return new Set(candidates(ws).map(dupKey)).size; }
+/** Does a candidate with this name, source and assets already exist? */
+export function hasDuplicate(o, ws = S.ws) { const k = dupKey(o); return candidates(ws).some(c => dupKey(c) === k); }
+
+/** A draft from a batch-grid row (panels/batch.js) or a consultant proposal: only what a scenario can take. */
+export function draftFromRow(r) {
+  const P = r.params || {};
+  const num = v => (v && typeof v === 'object' ? v.v : v);
+  const params = {};
+  for (const k of PARAMS) { const v = Number(num(P[k])); if (Number.isFinite(v)) params[k] = { v, rat: (r.rat && r.rat[k]) || '', ev: (r.rat && r.rat[k + '_ev']) || '', conf: (r.conf && r.conf[k]) || '' }; }
+  const d = { statement: r.statement || '', threat_source: r.threat_source || '', vulns: Array.isArray(r.vulns) ? r.vulns.slice() : String(r.vulns || '').split(/;\s*/).filter(Boolean),
+    assets: r.assets || r.asset || '', processes: r.process || '', consequence: r.consequence || '', initiating_event: r.initiating_event || r.threat_event || '',
+    existing_controls: r.existing_controls || '', assumptions: r.assumptions || '',
+    params, attack: (r.attack || []).slice(), cwe: (r.cwe || []).slice(), cves: (r.cves || []).slice(),
+    cvss: r.cvss || '', cvss_score: r.cvss_score ?? null, cvss_note: r.cvss_note || '', red_p: Number(r.red_p) || 0, red_i: Number(r.red_i) || 0,
+    owner: r.owner || '', horizon: r.horizon || '', pattern: r.pattern || '', origin: r.ai ? 'ai' : r.hubRow ? 'registry' : r.crgo ? 'crgo' : r.docs ? 'docs' : r.secops ? 'secops' : r.pattern === 'csv' ? 'csv' : 'batch' };
+  if (r.scenPattern) d.scenPattern = r.scenPattern;
+  if (r.crgo) d.crgo = JSON.parse(JSON.stringify(r.crgo));
+  if (r.secopsEv?.length) d.secopsEv = r.secopsEv.map(e => ({ ...e, seed: r.seed || '' }));
+  if (r.model) d.model = r.model;
+  return d;
+}
+
+/** The candidate rows that stand for register scenarios not yet among the candidates (C1). */
+export function registerNotCandidates(ws = S.ws) {
+  const C = state(ws).cands, linked = new Set(Object.values(C).map(r => r?.scenario).filter(Boolean));
+  for (const f of state(ws).families || []) for (const id of f.scenarios || []) linked.add(id);
+  const refs = new Set(candidates(ws).map(c => c.ref));
+  return (ws.assessment.SCEN || []).filter(s => !linked.has(s.id) && !refs.has(s.id));
+}
+/** C1 — add the register's scenarios as candidates (one row each, linked to its scenario; nothing in the register changes). */
+export function addFromRegister(ws = S.ws, ids = null) {
+  const out = [];
+  for (const s of registerNotCandidates(ws)) {
+    if (ids && !ids.includes(s.id)) continue;
+    const id = addCandidate({ name: s.name || s.id, source: s.threat_source || '', vuln: (s.vulns || []).join('; '), assets: s.assets || '', consequence: s.statement || '',
+      ref: s.id, status: 'In the register', note: 'Added from the Scenario register (' + s.id + ').', scenario: s.id, strategy: [] }, ws);
+    out.push(id);
+  }
+  return out;
+}
+
+/** C2 — why a candidate cannot be removed, or null. A member of a selected family is part of the portfolio. */
+export function removeBlock(id, ws = S.ws) {
+  const f = familyOf(id, ws);
+  if (f?.selected) return `${id} is a member of ${f.id}, a family selected for the portfolio: take it out of the family first.`;
+  return null;
+}
+/** C2 — remove a candidate: its row, its score card, its watch entry and its family membership. Returns false when blocked. */
+export function removeCandidate(id, ws = S.ws) {
+  if (removeBlock(id, ws)) return false;
+  const a = ws.assessment, st = state(ws);
+  a.CANDIDATES = (a.CANDIDATES || []).filter(r => r[0] !== id);
+  delete st.cands[id];
+  st.watch = (st.watch || []).filter(w => w.id !== id);
+  for (const f of st.families || []) f.members = (f.members || []).filter(m => m !== id);
+  return true;
+}
+
+/** The candidate whose draft a family's scenario should start from: the member with the highest total, else the first. */
+export function bestMember(f, ws = S.ws) {
+  const C = state(ws).cands, list = candidates(ws);
+  const ms = (f.members || []).map(id => list.find(c => c.id === id)).filter(Boolean);
+  if (!ms.length) return null;
+  return ms.slice().sort((x, y) => (total(C[y.id]) ?? -1) - (total(C[x.id]) ?? -1))[0];
+}
+
+/**
+ * Decided item 20 — a scenario for the register from a candidate (and, for a family, its consolidated statement).
+ * Everything the candidate carries goes with it: the chain, the six parameters with their rationales and confidence, the
+ * vector (marked 'pattern' until the analyst confirms or changes it), the ATT&CK, CWE and CVE links, the owner and
+ * horizon. A parameter the candidate never had keeps the placeholder that step 9 does not count. Reductions start at 0
+ * (NV-001) unless the candidate's row set them. Nothing is pushed to the register here: the caller does.
+ */
+export function scenarioFromCandidate(c, ws = S.ws, { family = null } = {}) {
+  const s = blankScenario(nextScenarioId(ws));
+  const d = (c && rec(c.id, ws).draft) || {};
+  const list = candidates(ws), C = state(ws).cands;
+  // a family: its members' rows and drafts, for the links and the assets combined across them (decided item 20)
+  const members = family ? (family.members || []).map(id => list.find(x => x.id === id)).filter(Boolean) : (c ? [c] : []);
+  const drafts = members.map(m => C[m.id]?.draft || {});
+  const union = k => [...new Set(drafts.flatMap(x => x[k] || []))];
+  s.name = family ? (family.name || family.id) : (c?.name || c?.id || '');
+  s.statement = family?.statement || d.statement || c?.consequence || '';
+  s.ref = family ? family.id + ' (' + (family.members || []).join(', ') + ')' : (c ? c.id : '');
+  s.threat_source = d.threat_source || c?.source || [...new Set(members.map(m => m.source).filter(Boolean))].join('; ');
+  s.vulns = d.vulns?.length ? d.vulns.slice() : [...new Set(members.flatMap(m => String(m.vuln || '').split(/;\s*/)).filter(Boolean))];
+  const assets = [...new Set([d.assets || c?.assets, ...members.map(m => C[m.id]?.draft?.assets || m.assets)].filter(Boolean))];
+  s.assets = assets.join('; ');
+  if (d.processes) s.processes = d.processes;
+  if (d.initiating_event) s.threat_event = d.initiating_event;
+  if (d.existing_controls) s.controls = Array.isArray(d.existing_controls) ? d.existing_controls.slice() : String(d.existing_controls).split(/;\s*/).filter(Boolean);
+  if (d.assumptions) s.assumptions = d.assumptions;
+  for (const k of ['attack', 'cwe', 'cves']) { const u = union(k); if (u.length) s[k] = u; }
+  // consequences, from the candidate rows; background (why / rationale) from the family and the score cards; origin
+  const cons = [...new Set(members.map(m => C[m.id]?.draft?.consequence || (m.consequence !== s.statement ? m.consequence : '')).filter(Boolean))];
+  if (cons.length) s.consequences = Object.assign({}, s.consequences, { Operations: cons.join('; ') });
+  const why = [];
+  if (family?.rationale) why.push(`${family.id}: ${family.rationale}`);
+  if (family?.judgment) why.push(`${tr('Selected by judgment')}: ${family.judgment}`);
+  for (const m of members) { const r = C[m.id]; if (r?.rat) why.push(`${m.id}: ${r.rat}`); if (r?.basis) why.push(`${m.id} — ${tr('evidence basis')}: ${r.basis}`); if (m.note && !/to estimate/.test(m.note)) why.push(`${m.id}: ${m.note}`); }
+  if (why.length) s.background = why.join('\n');
+  const from = c ? `From candidate ${c.id}` : `From family ${family?.id || ''}`;
+  for (const k of PARAMS) {
+    const p = d.params?.[k];
+    if (p && Number.isFinite(Number(p.v))) s.params[k] = { v: Number(p.v), qual: '', rat: p.rat || `${from} — ${MK.ESTIMATE} (starting value, not estimated).`, ev: p.ev || '', conf: ['High', 'Medium', 'Low'].includes(p.conf) ? p.conf : 'Low' };
+    else s.params[k].rat = MK.PLACEHOLDER;
+  }
+  if (d.cvss && /^CVSS:4\.0\//.test(d.cvss)) { s.cvss = d.cvss; s.vector_source = 'pattern'; s.vector_ref = d.cvss; }
+  else if (d.cvss_score !== null && d.cvss_score !== undefined && d.cvss_score !== '' && Number.isFinite(Number(d.cvss_score))) { s.cvss = ''; s.cvss_score = Number(d.cvss_score); s.vector_source = 'score'; s.vector_ref = ''; }   // 1.9.2 review (H2): a score with no vector computes on the score
+  if (d.cvss_note) s.cvss_note = d.cvss_note;
+  if (d.red_p > 0 || d.red_i > 0) { s.red_p = Number(d.red_p) || 0; s.red_i = Number(d.red_i) || 0; }   // set on the row: an entry, counted by step 14 (no red_source record — that one names measures)
+  if (d.owner) s.owner = d.owner;
+  if (d.horizon) s.horizon = d.horizon;
+  if (d.scenPattern) s.scenPattern = d.scenPattern;
+  if (d.crgo) s.crgo = JSON.parse(JSON.stringify(d.crgo));
+  if (d.secopsEv?.length) s.secops = d.secopsEv.map(e => ({ ...e }));
+  s.origin = (family ? `From the scenario screening, family ${family.id}` : `From the scenario screening, candidate ${c.id}`) + (c ? ` (${c.id}${d.origin ? ', ' + d.origin : ''})` : '') + ' ' + today();
+  return s;
 }
 
 /** The screening as CSV rows (header first). */
 export function csvRows(ws = S.ws) {
   const a = analysis(ws), C = state(ws).cands;
-  const head = ['ID', 'Candidate', ...CRITERIA.map(c => c[0]), 'Total (/60)', ...SCHEMES.map(s => 'Weighted - ' + s[1]), 'Escalation flags', 'Confidence', 'Disposition', 'Family / target', 'Strategies', 'Rationale', 'Exclusion review'];
+  const head = ['ID', 'Candidate', ...CRITERIA.map(c => c[0]), 'Total (/60)', ...SCHEMES.map(s => 'Weighted - ' + s[1]), 'Escalation flags', 'Confidence', 'Disposition', 'Family / target', 'Strategies', 'Rationale', 'Exclusion review', 'AI scores'];
+  // 1.9.2 (C5) — the last column marks cards whose scores were proposed by AI and accepted (name, date, model)
+  const aiMark = r => r?.ai ? `AI-proposed, accepted by ${r.ai.by || '—'} on ${r.ai.date || ''}${r.ai.model ? ' (' + r.ai.model + ')' : ''}` : r?.aiProposal ? 'AI proposal beside the analyst\u2019s scores (not accepted)' : '';
   return [head, ...a.list.map(c => { const r = C[c.id] || {}; const sc = r.scores || [];
     return [c.id, c.name, ...CRITERIA.map((_, i) => sc[i] ?? ''), total(r) ?? '', ...SCHEMES.map(([, , w]) => weighted(r, w) ?? ''), (r.flags || []).join(' '), r.conf || '', r.disp || '',
-      familyOf(c.id, ws)?.id || r.target || '', (r.strategy || []).join(' '), r.rat || '', r.exclReview || '']; })];
+      familyOf(c.id, ws)?.id || r.target || '', (r.strategy || []).join(' '), r.rat || '', r.exclReview || '', aiMark(r)]; })];
 }

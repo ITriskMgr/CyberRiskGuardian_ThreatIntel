@@ -20,7 +20,7 @@ never sending client CVE lists, inventories or scenario text out. It calibrates 
 never `δe`, `δm`, `θ`, `μ(E)`. **CVSS v4.0 Base only** — no Threat metrics, or exploitation
 evidence counts twice.
 
-CRGO 0.11.0 (tag v0.11.0; dss/v1 from v0.9.1): states facts, **never computes risk**; write-backs
+CRGO 0.11.1 (tag v0.11.1; dss/v1 from v0.9.1): states facts, **never computes risk**; write-backs
 are **proposed** only; organisation data uses its own IRI base (never `https://w3id.org/crgo/`)
 and stays out of both repositories. Not compliance: *supports compliance*, mappings, policies,
 acknowledgements, attestations. Not an incident: alerts, indicator matches. Not a likelihood:

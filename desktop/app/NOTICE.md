@@ -46,7 +46,7 @@ not affiliated with or endorsed by MITRE.
 - **ISO/IEC 27002:2013 and :2022** — control identifiers and short titles only, for reference.
   © ISO/IEC. The control text is not reproduced; consult the standards.
 - **CIS Controls® v7.1 and v8.1** — identifiers and titles only; the 153 v8.1 safeguards by identifier with
-  CRGO 0.11.0's own paraphrased labels, no CIS text. © Center for Internet Security, Inc.,
+  CRGO 0.11.1's own paraphrased labels, no CIS text. © Center for Internet Security, Inc.,
   licensed CC BY-NC-ND 4.0. CIS Controls is a registered trademark of CIS.
 - **NIST CSF 1.1**, ISO/IEC 27002:2013 and CIS v7.1 rows come from the analyst's own list
   (Controls_list.xlsx); corrections are documented in the catalogue's flags.
@@ -103,6 +103,13 @@ Both are licensed under the **SIL Open Font License, Version 1.1**; the full lic
 `licences/Sora-OFL-1.1.txt` and `licences/AtkinsonHyperlegible-OFL-1.1.txt`. The fonts are not sold on their own and
 keep their names; no Reserved Font Name is used for a modified version (none is modified).
 
+### axe-core (test suites only, `desktop/tests/vendor/axe.min.js`)
+
+The accessibility suite (`desktop/tests/t72_axe.mjs`, 1.9.2) runs **axe-core 4.14.0** — Copyright (c) 2015–2026 Deque
+Systems, Inc., licensed under the **Mozilla Public License 2.0** (`desktop/tests/vendor/axe-core-LICENSE.txt`) — against
+the application's screens. It is a development dependency: it is not part of the application, is never served to the
+browser by the helper and is not in the offline cache.
+
 ### Textbook bundled with the Virtual consultant
 
 `kb/book/` holds the text of *Introduction to Cybersecurity Governance for Business Technology Management*,
@@ -151,7 +158,7 @@ file and on the screen, and it is not current threat intelligence.
   FIRST's terms of use, and `examples/threat-context/README.md` in the ThreatIntel repository for the
   refresh policy. Scores the analyst downloads at run time are still not redistributed.
 
-### CyberRiskGuardian Ontology (`data/crgo-snapshot.json`; CRGO 0.11.0)
+### CyberRiskGuardian Ontology (`data/crgo-snapshot.json`; CRGO 0.11.1)
 
 The identification export of the **CyberRiskGuardian Ontology (CRGO)** — © 2026 Marc-André Léger,
 CC BY-NC 4.0, https://github.com/ITriskMgr/CyberRiskGuardian-Ontology — rebuilt by
@@ -175,7 +182,7 @@ Exploited Vulnerabilities** catalogue (US Government work) and **FIRST EPSS** sc
 maximum per technique or weakness; EPSS is © FIRST, used under its terms), and the legal instruments with
 their applicability conditions (CRGO's own modelling, not legal advice).
 
-From CRGO 0.11.0 (tag v0.11.0, approved by the CRGO author on 2026-11-02) it also carries:
+From CRGO 0.11.0 (tag v0.11.0, approved by the CRGO author on 2026-11-02; bundled here as the 0.11.1 patch of 2026-11-08) it also carries:
 **CIS Critical Security Controls v8.1** control and safeguard **identifiers only**, with Implementation Group, asset
 type and security function, under CRGO's own paraphrased labels, linked to https://www.cisecurity.org/controls/v8-1
 (CIS Controls v8.1 are © Center for Internet Security, licensed CC BY-NC-ND 4.0; no CIS text is reproduced, and

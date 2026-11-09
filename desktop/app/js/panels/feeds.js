@@ -12,6 +12,8 @@ import { HS, probe, apiJson, post, loadConfig, hfetch } from '../helper.js';
 import { parse, profileTerms, relevance, stixBundle } from '../feedparse.js';
 import * as TR from '../triage.js';
 import * as AI from '../ai.js';
+import * as aiui from '../aiui.js';
+import { tr } from '../i18n.js';
 import { copyText } from '../util.js';
 
 const CATALOGUE = () => (HS.sources.length ? HS.sources : (self.CRG_SOURCES || []));
@@ -138,7 +140,9 @@ async function sources(body, sec) {
     { key: 'key', label: 'Key', render: s => !s.key_required ? 'none' : keyOk(s) ? pill('stored', 'good') : pill('missing', 'warn') },
     { key: 'last', label: 'Last download', render: s => s.st.last_ok ? el('div', null, s.st.last_ok.replace('T', ' '), el('div', 'small muted', `${s.st.items ?? '?'} items`)) : '—' },
     { key: 'status', label: 'Status', render: s => s.st.status ? el('span', { title: s.st.message || '' }, pill(s.st.status, s.st.status === 'ok' ? 'good' : s.st.status === 'error' ? 'bad' : 'warn'), s.st.message ? el('div', 'small muted', s.st.message.slice(0, 120)) : null) : '—' },
-    { key: 'loaded', label: 'Loaded here', render: s => s.loaded ? `${s.loaded.items.length} · ${s.loaded.loaded}` : '—' },
+    { key: 'loaded', label: 'Loaded here', render: s => !s.loaded ? '—' : el('div', null, `${s.loaded.items.length} · ${s.loaded.loaded}`,
+      s.loaded.error ? el('div', 'small', pill('not read', 'bad'), ' ', el('span', { 'data-noi18n': '' }, s.loaded.error.slice(0, 160))) : null,
+      (s.loaded.errors || []).length ? el('div', 'small', { title: s.loaded.errors.join('\n') }, pill(`${s.loaded.errors.length} record(s) skipped`, 'warn'), ' ', el('span', { class: 'muted', 'data-noi18n': '' }, s.loaded.errors[0].slice(0, 120))) : null) },
   ], rows, { class: 'compact' });
   const run = async (ids) => {
     if (!HS.helper) return toast('Start the app with its launcher to download', 'bad');
@@ -161,8 +165,13 @@ async function sources(body, sec) {
     el('div', 'grid g2', field('Source', srcSel), field('File(s)', fileIn)),
     el('div', 'btnrow', { style: { marginTop: '10px' } }, el('button', { class: 'btn', onclick: async () => {
       let n = 0;
-      for (const f of fileIn.files) { try { const s = srcMeta(srcSel.value); const its = parse(s.id, await f.text(), { cat: s.category, fmt: s.format }); cache.bySrc[s.id] = { loaded: today(), file: f.name, items: its }; n += its.length; } catch (e) { toast(f.name + ': ' + e.message, 'bad'); } }
-      await store.put('blob', 'feeds:items', cache); toast(n + ' items loaded'); render(sec);
+      let skipped = 0, failed = 0;
+      for (const f of fileIn.files) {
+        const s = srcMeta(srcSel.value);
+        try { const its = parse(s.id, await f.text(), { cat: s.category, fmt: s.format }); cache.bySrc[s.id] = { loaded: today(), file: f.name, items: its.slice(), errors: its.errors || [] }; n += its.length; skipped += (its.errors || []).length; }
+        catch (e) { failed++; cache.bySrc[s.id] = { loaded: today(), file: f.name, items: [], errors: [], error: String(e.message || e) }; toast(f.name + ': ' + e.message, 'bad'); }   // 1.9.2 — the failure is kept per source, not only toasted
+      }
+      await store.put('blob', 'feeds:items', cache); toast(`${n} items loaded` + (skipped ? `, ${skipped} record(s) skipped` : '') + (failed ? `, ${failed} file(s) not read` : ''), skipped || failed ? 'warn' : 'good'); render(sec);
     } }, 'Load'))));
   if (HS.helper) watch(jobBox, sec);
 }
@@ -173,8 +182,8 @@ async function loadLatest(ids) {
     try {
       const r = await hfetch('/api/feeds/latest/' + id); if (!r.ok) continue;
       const s = srcMeta(id); const its = parse(id, await r.text(), { cat: s.category, fmt: s.format });
-      cache.bySrc[id] = { loaded: today(), file: 'latest', items: its }; n++;
-    } catch (e) { console.warn(id, e); }
+      cache.bySrc[id] = { loaded: today(), file: 'latest', items: its.slice(), errors: its.errors || [] }; n++;
+    } catch (e) { cache.bySrc[id] = { loaded: today(), file: 'latest', items: [], errors: [], error: String(e.message || e) }; console.warn(id, e); }   // 1.9.2 — shown in Sources & downloads
   }
   await store.put('blob', 'feeds:items', cache);
   return n;
@@ -301,12 +310,12 @@ function triageView(body, sec, items) {
     AI.enabled(ws) ? el('button', { class: 'btn ghost', disabled: briefBusy, onclick: async e => {
       briefBusy = true; e.target.disabled = true; e.target.textContent = 'Preparing…';
       try {
-        const prepared = AI.prepare('briefing', ws, { input: TR.briefingInput(tri, ws), note: triCfg.note });
-        if (!confirm(`Send the triage result to ${AI.isLocal(prepared.provider) ? 'the local model' : AI.provider(prepared.provider).label}?\n\n` +
-                     `${prepared.bytes} bytes — the summarised triage, not the raw items.\n\n` +
-                     'Cancel to see the payload on the Virtual consultant screen first.')) { briefBusy = false; render(sec); return; }
-        const out = await AI.send(prepared, ws);
-        brief = { text: TR.markdown(tri, ws, { note: triCfg.note }), ai: out };
+        // 1.9.2 (NV-021): the same preview as every other AI request — payload shown in full, anonymizer offered,
+        // confidential workspaces confirm each call — instead of a confirm() that pointed to a preview that did not exist
+        const st = await aiui.status(ws, 'briefing');
+        if (!st.ok) throw new Error(st.why);
+        const out = await aiui.request('briefing', { input: TR.briefingInput(tri, ws), note: triCfg.note }, { title: tr('Weekly briefing — what will be sent'), ws });
+        if (out) brief = { text: TR.markdown(tri, ws, { note: triCfg.note }), ai: out };
       } catch (err) { sec.append(banner('bad', 'The briefing could not be written', String(err.message || err))); }
       briefBusy = false; render(sec);
     } }, 'Write it with an AI management section') : null));

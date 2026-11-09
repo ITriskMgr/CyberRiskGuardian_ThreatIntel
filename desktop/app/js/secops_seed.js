@@ -283,7 +283,7 @@ export function toDraft(seed, PARAMS_ = PARAMS) {
     conf: Object.fromEntries(PARAMS_.map(k => [k, 'Low'])),
     cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N', cvss_score: null,
     cvss_note: 'Default vector — security-operations evidence does not set CVSS; score the weakness in the CVSS calculator.',
-    red_p: 0.5, red_i: 0.5, owner: '', pattern: 'secops', tlp: seed.tlp,
+    red_p: 0, red_i: 0, owner: '', pattern: 'secops', tlp: seed.tlp,   // 1.9.2 (NV-001): no treatment yet
     secopsEv: seed.evidence.map(e => ({ kind: e.kind, id: e.id, date: e.date || '', tlp: e.tlp || '' })),
     background: `From security operations (${kindLabel(seed.kind)}). ${seed.whatItSuggests.text}. May inform — ${hint || 'none'}. ${seed.notes.join(' ')} ${MARK}`.replace(/\s+/g, ' ').trim(),
   };

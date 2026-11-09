@@ -16,6 +16,19 @@ theta in (0, 1]; appetite strictly in (0, 1); dm >= de; CVSS required and in 0-1
 error, never 0). When a scenario carries both a vector and a stored score, the score is recomputed from
 the vector, the vector's score is used, and a stored score that disagrees is flagged.
 
+Unified engine rules (CRG 1.9.2, cross-product reference implementation; the Core plugin, CRG Pro and the
+desktop engines follow the same rules):
+  - CVSS: the vector wins; a disagreeing stored score is flagged. Only the eleven CVSS v4.0 Base metrics
+    are accepted (CVSS-B). Threat metrics (E) are rejected with the instruction to route exploitation
+    evidence (KEV, EPSS, proof of concept) to Pb(psi,A); Environmental and Supplemental metrics are rejected.
+  - Zero tolerated risk (Pb(A), Pb(psi,A), mu(E) or CVSS equal to 0 - all admissible values) gives
+    estimated = tolerated = 0; the ratios are None and the verdict is "Not applicable (tolerated risk 0)",
+    with a warning asking the analyst to confirm the zero is deliberate. Never "Above tolerance", never a crash.
+  - A missing or null reduction (red_p, red_i) means 0 (no treatment). Numeric strings ("0.7") and booleans
+    (True/False) are rejected as "must be a number": a value must be typed as a number by whoever supplies it.
+  - A missing APPETITE in the data model falls back to the default and is reported as an
+    "Analytical estimate — validation required".
+
 Usage:
     python3 crg_calc.py scenarios.json [--appetite 0.30] [--factor 1000] [--json]
 
@@ -47,9 +60,48 @@ class CRGInputError(ValueError):
         super().__init__("; ".join(self.errors))
 
 
+CVSS_BASE_METRICS = ("AV", "AC", "AT", "PR", "UI", "VC", "VI", "VA", "SC", "SI", "SA")
+CVSS_THREAT_METRICS = ("E",)
+CVSS_ENVIRONMENTAL_METRICS = ("CR", "IR", "AR", "MAV", "MAC", "MAT", "MPR", "MUI", "MVC", "MVI", "MVA", "MSC", "MSI", "MSA")
+CVSS_SUPPLEMENTAL_METRICS = ("S", "AU", "R", "V", "RE", "U")
+NOT_APPLICABLE = "Not applicable (tolerated risk 0)"
+
+
+class CVSSBaseOnlyError(ValueError):
+    """The vector carries Threat, Environmental or Supplemental metrics: CRG scores CVSS-B only."""
+
+
+def check_base_only(vector):
+    """Raise CVSSBaseOnlyError when the vector carries metrics outside the eleven Base metrics.
+
+    CRG multiplies CVSS by Pb(psi,A): exploitation evidence counted in the Threat metric E and again in
+    Pb(psi,A) would compound, and Environmental modifiers duplicate mu(E), de/dm and theta. Routing is explicit
+    in the message so the analyst knows where the evidence belongs."""
+    if not isinstance(vector, str):
+        return
+    keys = [part.split(":", 1)[0] for part in vector.strip().split("/")[1:] if part]
+    threat = [k for k in keys if k in CVSS_THREAT_METRICS]
+    env = [k for k in keys if k in CVSS_ENVIRONMENTAL_METRICS]
+    supp = [k for k in keys if k in CVSS_SUPPLEMENTAL_METRICS]
+    if threat:
+        raise CVSSBaseOnlyError(f"CVSS-B only: Threat metric {', '.join(threat)} is not accepted - route exploitation "
+                                "evidence (CISA KEV, EPSS, proof of concept) to Pb(psi,A) and give the Base vector")
+    if env:
+        raise CVSSBaseOnlyError(f"CVSS-B only: Environmental metric {', '.join(env)} is not accepted - organizational "
+                                "context enters through mu(E), de, dm and theta; give the Base vector")
+    if supp:
+        raise CVSSBaseOnlyError(f"CVSS-B only: Supplemental metric {', '.join(supp)} is not accepted (it does not change "
+                                "the score) - give the Base vector")
+
+
 def cvss4(vector):
-    """Return (base score, severity) for a CVSS v4.0 vector string (CVSS-B)."""
+    """Return (base score, severity) for a CVSS v4.0 vector string (CVSS-B).
+
+    Only the eleven Base metrics are accepted: a vector with Threat (E), Environmental (CR … MSA) or Supplemental
+    (S, AU, R, V, RE, U) metrics raises CVSSBaseOnlyError instead of silently reporting CVSS-BT / CVSS-BE as the
+    base score. Exploitation evidence belongs in Pb(psi,A)."""
     from cvss import CVSS4
+    check_base_only(vector)
     v = CVSS4(vector)
     return float(v.base_score), v.severities()[0]
 
@@ -109,6 +161,9 @@ def resolve_cvss(s):
                 return None, None, errors, warnings
             warnings.append(f"{sid}: vector not verified (cvss package missing); stored score {stored} used")
             return float(stored), "stored (unverified)", errors, warnings
+        except CVSSBaseOnlyError as e:   # Threat / Environmental / Supplemental metrics: never scored as CVSS-B
+            errors.append(f"{sid}: {e} (vector {vec!r})")
+            return None, None, errors, warnings
         except Exception as e:  # invalid vector string
             errors.append(f"{sid}: invalid CVSS v4.0 vector {vec!r} ({e})")
             return None, None, errors, warnings
@@ -193,13 +248,22 @@ def calc(s, appetite=DEFAULT_APPETITE, factor=DEFAULT_FACTOR, cost=None):
     res = max(0.0, est - mit)            # guard: never negative (reductions are validated to 0-1)
     if cost is None:
         cost = s.get("cost", s.get("cost_y1"))
-    ratio = res / tol if tol else float("nan")
-    pre = est / tol if tol else float("nan")
+    if tol:
+        ratio, pre = res / tol, est / tol
+    else:                                # zero tolerated risk: the ratio is not applicable (never "Above tolerance")
+        ratio = pre = None
+        zero = [PARAM_NAMES[k] for k in ("PbA", "Pbx", "Mu") if p[k] == 0] + (["CVSS"] if c == 0 else [])
+        warnings.append(f"{s.get('id', '?')}: tolerated risk is 0 ({', '.join(zero)} = 0): the risk-to-tolerance "
+                        "ratio is not applicable - confirm the zero is deliberate (the scenario is then not a risk "
+                        "in the period) rather than a placeholder")
     return dict(cvss=c, cvss_source=src, est=est, tol=tol, mit=mit, res=res, ratio=ratio, pre_ratio=pre,
                 ce=cost_effectiveness(est, res, cost), warnings=warnings)
 
 
 def classify(ratio):
+    """Tolerance verdict from the risk-to-tolerance ratio. None or NaN (tolerated risk 0) is not a verdict."""
+    if ratio is None or not _num(ratio):
+        return NOT_APPLICABLE
     if ratio < BAND_LOW:
         return "Below tolerance"
     if ratio <= BAND_HIGH:
@@ -209,8 +273,11 @@ def classify(ratio):
 
 def design_thresholds(de, dm, appetite):
     """Minimum rp x ri for the residual to be no greater than tolerated (ratio <= 1.00) and for it to fall
-    below the 0.90 band (rp x ri > 1 - 0.90 x appetite / average damage). Book v2.51 ch06 'What cancels'."""
+    below the 0.90 band (rp x ri > 1 - 0.90 x appetite / average damage). Book v2.51 ch06 'What cancels'.
+    Both thresholds are None when the average damage is 0 (de = dm = 0 is valid: nothing to treat)."""
     avg = (de + dm) / 2
+    if not avg:
+        return {"at_or_below_tolerated": None, "below_band": None}
     return {"at_or_below_tolerated": max(0.0, 1 - appetite / avg), "below_band": max(0.0, 1 - BAND_LOW * appetite / avg)}
 
 
@@ -221,20 +288,33 @@ def case_normalized(s):
     return cur, cur * (1 - (s.get("red_p") or 0) * (s.get("red_i") or 0))
 
 
+def _move(x, m):
+    """Shift x by m, clamped to [0.05, 0.99] in the direction of the shift only, so a shifted case is never milder
+    than the central one because of the clamp (NV-045): Pb(A) 1.00 stays 1.00 upward, a reduction of 0 stays 0 downward."""
+    if m > 0:
+        return max(x, min(0.99, x + m))
+    if m < 0:
+        return min(x, max(0.05, x + m))
+    return x
+
+
 def shift(s, d):
     """Sensitivity case: raise threat, exploitation and damages by d; lower resilience and reductions by d.
-    Every shifted value is clamped to [0.05, 0.99]; mu(E) and CVSS are not shifted."""
+    The central case (d = 0) is never shifted and never clamped; a shifted value is clamped in the direction of the
+    shift only (NV-045, same rule as the desktop engine); mu(E) and CVSS are not shifted; dm >= de is kept."""
     t = copy.deepcopy(s)
-    clamp = lambda x: max(0.05, min(0.99, x))
     for k in ("PbA", "Pbx", "De", "Dm", "Th"):
         if not isinstance(t["params"][k], dict):
             t["params"][k] = {"v": t["params"][k]}
+    if not d:
+        t["red_p"], t["red_i"] = (t.get("red_p") or 0), (t.get("red_i") or 0)
+        return t
     for k in ("PbA", "Pbx", "De", "Dm"):
-        t["params"][k]["v"] = clamp(t["params"][k]["v"] + d)
-    t["params"]["Th"]["v"] = clamp(t["params"]["Th"]["v"] - d)
-    t["red_p"] = clamp((t.get("red_p") or 0) - d)
-    t["red_i"] = clamp((t.get("red_i") or 0) - d)
-    if t["params"]["Dm"]["v"] < t["params"]["De"]["v"]:      # clamping can only tie them; keep dm >= de
+        t["params"][k]["v"] = _move(t["params"][k]["v"], d)
+    t["params"]["Th"]["v"] = _move(t["params"]["Th"]["v"], -d)
+    t["red_p"] = _move((t.get("red_p") or 0), -d)
+    t["red_i"] = _move((t.get("red_i") or 0), -d)
+    if t["params"]["Dm"]["v"] < t["params"]["De"]["v"]:      # keep dm >= de
         t["params"]["Dm"]["v"] = t["params"]["De"]["v"]
     return t
 
@@ -309,9 +389,17 @@ def budget_position(appetite, it_budget, current_spend=0.0, portfolio_cost=0.0):
 
 def run(data, appetite=None, factor=None):
     """Compute every scenario. Raises CRGInputError with all validation errors found across the file."""
-    appetite = appetite if appetite is not None else data.get("APPETITE", DEFAULT_APPETITE)
+    warnings = []
+    if appetite is None:
+        appetite = data.get("APPETITE")
+        if appetite is None:
+            appetite = DEFAULT_APPETITE
+            warnings.append(f"APPETITE missing from the data model: defaulted to {DEFAULT_APPETITE:.2f} - "
+                            "Analytical estimate — validation required. Record the approved or estimated appetite "
+                            "with its rationale.")
     factor = factor if factor is not None else data.get("FACTOR", DEFAULT_FACTOR)
-    errors, warnings = validate_settings(appetite, factor)
+    errors, w0 = validate_settings(appetite, factor)
+    warnings += w0
     scen = data.get("SCEN") or []
     if not scen:
         errors.append("no scenarios (SCEN is empty)")
@@ -361,10 +449,12 @@ def main(argv=None):
     print(f"{'ID':5}{'CVSS':>6}{'Estimated':>11}{'Tolerated':>11}{'Residual':>10}{'Ratio':>7}{'CE/$1k':>8}  Status")
     for x in r["results"]:
         ce = "" if x["ce"] is None else f"{x['ce']:8.2f}"
-        print(f"{x['id']:5}{x['cvss']:6.1f}{x['est']:11,.0f}{x['tol']:11,.0f}{x['res']:10,.0f}{x['ratio']:7.2f}{ce:>8}  {x['cls']}")
+        ratio = "n/a" if x["ratio"] is None else f"{x['ratio']:.2f}"
+        print(f"{x['id']:5}{x['cvss']:6.1f}{x['est']:11,.0f}{x['tol']:11,.0f}{x['res']:10,.0f}{ratio:>7}{ce:>8}  {x['cls']}")
     t = r["totals"]
-    print("Ratio = risk-to-tolerance ratio (residual / tolerated); CE = risk units removed per $1,000.")
-    print(f"Total estimated {t['est']:,.0f}  residual {t['res']:,.0f}  reduction {1 - t['res'] / t['est']:.0%}")
+    print("Ratio = risk-to-tolerance ratio (residual / tolerated; n/a when tolerated risk is 0); CE = risk units removed per $1,000.")
+    reduction = f"{1 - t['res'] / t['est']:.0%}" if t["est"] else "n/a"
+    print(f"Total estimated {t['est']:,.0f}  residual {t['res']:,.0f}  reduction {reduction}")
     for w in r["warnings"]:
         print("Warning: " + w)
     return 0

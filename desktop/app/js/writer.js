@@ -1,4 +1,4 @@
-/* writer.js — CyberRiskGuardian Security Policy Writer, the model (Writer 0.1.0 beta).
+/* writer.js — CyberRiskGuardian Security Policy Writer, the model (Writer 0.1.1 beta).
 
    The Writer writes; ISP management manages.
    • What the person enters for the Writer lives in the workspace, inside the ISP record (ws.isp.writer):
@@ -38,7 +38,7 @@ export function W(ws = S.ws) {
   const w = I.writer;
   w.mode ||= 'express';
   w.languages ||= ['en'];
-  for (const k of ['answers', 'applicability', 'families']) w[k] ||= {};
+  for (const k of ['answers', 'applicability', 'families', 'params']) w[k] ||= {};
   for (const k of ['facts', 'flagged', 'issues', 'log']) w[k] ||= [];
   if (!('selection' in w)) w.selection = null;
   return w;
@@ -76,9 +76,27 @@ export const base = (ws = S.ws) => ({ answers: W(ws).answers, mode: W(ws).mode, 
 export async function answer(ws, code, value, status = 'answered', { source = 'user', by = '', fact = null } = {}) {
   const v = await call('answer', { code, value, status });
   const w = W(ws);
+  // 0.1.1 (NV-W02): a PARAM-* fact is a parameter the documents state, not an interview question: it goes to w.params
+  if (v.param) { w.params ||= {}; w.params[code] = { value: v.value, status: v.status, source, by, at: stamp(), ...(fact ? { fact } : {}) }; touch('isp'); return w.params[code]; }
   w.answers[code] = { value: v.value, status: v.status, source, by, at: stamp(), ...(fact ? { fact } : {}) };
+  // 0.1.1 (NV-W04): ORG-10 and the Start step's languages stay in step
+  if (code === 'ORG-10' && v.status === 'answered') { const L = { en: ['en'], fr: ['fr'], both: ['en', 'fr'] }[v.value]; if (L) w.languages = L; }
   touch('isp');
   return w.answers[code];
+}
+/** 0.1.1 (NV-W04): the Start step's language choice, recorded as the ORG-10 answer too (source: user). */
+export async function setLanguages(ws, langs, by = '') {
+  const w = W(ws);
+  w.languages = langs;
+  const v = langs.length > 1 ? 'both' : langs[0];
+  try { await call('answer', { code: 'ORG-10', value: v, status: 'answered' }); w.answers['ORG-10'] = { value: v, status: 'answered', source: 'user', by, at: stamp() }; } catch { /* the helper validates; the languages are saved either way */ }
+  touch('isp');
+}
+/** 0.1.1 (X-5 / NV-W05): nothing is confirmed, accepted or decided without a named person. */
+export function requireName(by) {
+  const n = String(by || '').trim();
+  if (!n) throw new Error('A named person is required: enter your name (Settings → Users, or when asked) before confirming or accepting.');
+  return n;
 }
 export function clearAnswer(ws, code) { delete W(ws).answers[code]; touch('isp'); }
 export const answered = (ws, code) => !!W(ws).answers[code]?.status;
@@ -107,6 +125,7 @@ export async function extractFacts(ws = S.ws) {
 /** Confirm a proposed fact: it becomes the answer (lists are merged), with the fact as its source. */
 export async function confirmFact(ws, f, by = '') {
   const w = W(ws);
+  by = requireName(by);
   let value = f.value;
   const cur = w.answers[f.fact_type];
   if (Array.isArray(value) && cur?.status === 'answered' && Array.isArray(cur.value)) value = [...new Set([...cur.value, ...value])];
@@ -115,7 +134,9 @@ export async function confirmFact(ws, f, by = '') {
   if (f.conflict_group) for (const o of w.facts) if (o !== f && o.conflict_group === f.conflict_group && o.state === 'proposed') { o.state = 'rejected'; o.decidedBy = by; o.decidedAt = stamp(); o.why = 'other value confirmed'; }
   touch('isp');
 }
-export function rejectFact(ws, f, by = '') { f.state = 'rejected'; f.decidedBy = by; f.decidedAt = stamp(); touch('isp'); }
+export function rejectFact(ws, f, by = '') { by = requireName(by); f.state = 'rejected'; f.decidedBy = by; f.decidedAt = stamp(); touch('isp'); }
+/** The parameters confirmed from the documents (PARAM-* facts), e.g. the password-rotation interval. */
+export const params = (ws = S.ws) => W(ws).params || {};
 
 /* ---------------- legal applicability (CRGO + a named reviewer) ---------------- */
 export function decideApplicability(ws, code, { status, reviewer, rationale, crgo = null }, by = '') {
@@ -146,6 +167,7 @@ export function applyProposal(ws, prop) {
 /** Fill the unanswered decisions that carry a suggestion, as "default accepted by <by> on <date>".
     Decisions flagged for legal review and decisions without a suggestion stay open and are returned. */
 export function acceptDefaults(ws, groups, { policy = null, by = '' } = {}) {
+  by = requireName(by);
   const w = W(ws), done = [], open = [];
   for (const g of groups) {
     if (policy && g.policy !== policy) continue;
@@ -158,7 +180,7 @@ export function acceptDefaults(ws, groups, { policy = null, by = '' } = {}) {
   }
   if (done.length) log(ws, `Suggested defaults accepted (${done.length})${policy ? ' — ' + policy : ''}`, by, { codes: done });
   touch('isp');
-  return { done, open };
+  return { done, open, by };
 }
 
 /* ---------------- generation: Writer drafts → ISP drafts ---------------- */

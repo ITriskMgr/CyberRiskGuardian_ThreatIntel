@@ -104,6 +104,9 @@ def ui_like(s):
     s = s.strip()
     if len(s) < 2 or not re.search(r'[A-Za-zÀ-ÿ]{2}', s): return False
     if CODEY.match(s) or re.fullmatch(r'&#?\w+;', s): return False
+    # 1.9.2 — a CSS selector with a functional pseudo-class or an attribute selector (":not(…)", "[type=…]"), or a
+    # comma-separated list of such selectors, is code, not interface text
+    if re.search(r':(?:not|is|where|has|nth-[\w-]+)\(|\[[\w-]+[~|^$*]?=', s) and not re.search(r'[A-Za-z]{3,} [a-z]{3,} [a-z]{3,}', s): return False
     if re.match(r'^[a-z]+(?:[A-Z][a-z0-9]+)+$', s): return False            # camelCase
     if re.match(r'^(?:var|calc|rgba?|hsla?|url)\(', s): return False
     if re.match(r'^[\d.\s]+(px|em|rem|%|vh|vw|fr|s|ms)\b', s): return False
@@ -116,6 +119,7 @@ def ui_like(s):
     parts = s.split()
     if len(parts) <= 4 and any(re.search(r'[.#\[:]', x) for x in parts) \
        and all(x in '>~+' or TOKEN.fullmatch(x) for x in parts): return False
+    if re.fullmatch(r'(?:(?:td|th|tr|thead|tbody|table|input|select|textarea|button|label|option|ul|li|a|b|p|h[1-6]|div|span|section|nav|main)\s*,\s*)+(?:td|th|tr|thead|tbody|table|input|select|textarea|button|label|option|ul|li|a|b|p|h[1-6]|div|span|section|nav|main)', s): return False   # 1.9.2: "td, th"
     if re.fullmatch(r'\.{0,2}/?[\w.-]+(?:/[\w.-]+)*\.[a-z]{2,4}', s): return False    # a file path
     if re.match(r'^(application|text|image)/', s): return False
     if re.match(r'^(SELECT|INSERT|function|return|const|let)\b', s): return False
@@ -143,6 +147,8 @@ def collect():
                 continue
             src = open(os.path.join(d, f), encoding='utf-8').read()
             src = re.sub(r"'\s*\+\s*'", '', src); src = re.sub(r'"\s*\+\s*"', '', src)   # 'a ' + 'b' → 'a b'
+            # 1.9.2 — console messages are for the developer console, never for the screen
+            src = re.sub(r"console\.(?:warn|error|log|info|debug)\((?:[^()\n]|\([^()\n]*\))*\)", "console.x()", src)
             rel = os.path.relpath(os.path.join(d, f), ROOT)
             def walk(code, depth=0):
                 for kind, v in tokens(code):
@@ -188,7 +194,10 @@ def collect():
     return found
 
 
-CONTENT_ONLY = {'js/exportx.js'}            # text of exported workbooks and files: kept in English
+# Spreadsheet formulas (IF(, MAX(, SUM…, cell refs with {n} placeholders) and sheet names (Case_View, "Analyse -", a list of sheets ending in " -")
+FORMULA = re.compile(r'^(?:=|IF\(|MAX\(|MIN\(|SUM\w*\(|ROUND\(|ABS\(|PRODUCT\(|\(Inputs!|F\{\d\}\*|1-\(|[A-Z]{1,2}\{\d\}[*/+-])')
+SHEETNAME = re.compile(r'^[A-Z][A-Za-z]*(?:_[A-Z][A-Za-z]*)+$|^(?:Analyse|Inputs|Parameters|Portfolio|Sensitivity|Case_View|Candidates|Scenarios|KRIs|CVSS_Basis|Evidence|Organization|Threats|Vulnerabilities|Recommendations|KRI_History|Budget|Threat_Context|,| |\(MITRE ATT&CK\)|\(CVE / CWE / KEV / EPSS\))+ -$')
+CONTENT_ONLY = set()                        # 1.9.2 (NV-083): the Excel export follows the interface language too, so js/exportx.js is in the gate
 
 
 def interface_strings():
@@ -198,6 +207,8 @@ def interface_strings():
         x = re.sub(r'\s+', ' ', x).strip()
         if not ui_like(x): return
         if re.search(r'\{"|^<!doctype|^CVSS:|^[A-Za-z_]+!\$?[A-Z{]|^#{1,3} |^\| |^\{\d+\}$|^[\W\d_{}]+$|^"', x, re.I): return
+        # 1.9.2 — the Excel export is in the gate: its spreadsheet formulas and sheet names are not interface text
+        if FORMULA.match(x) or SHEETNAME.match(x): return
         out.setdefault(x, set()).update(src)
     for k, v in collect().items():
         if v <= CONTENT_ONLY: continue

@@ -41,10 +41,10 @@ const M = await page.evaluate(async (fx) => {
   const s = self.CRG.run(self.CRG_SAMPLE); out.medibec = [Math.round(s.totals.est), Math.round(s.totals.res)];
   return out;
 }, fx);
-ok(M.dv === 5, 'DATA_VERSION is 5');
+ok(M.dv === 6, 'DATA_VERSION is 6');
 ok(M.known && M.group && M.factory && Array.isArray(M.factory.conversations) && M.factory.retrieval === 'lexical', 'consultant is a known field, in a reset group, blank in new workspaces');
-for (const p of M.per) ok(p.status === 'migrated' && p.to === 5 && p.c && Array.isArray(p.c.conversations) && p.step4, `${p.app}: migrated to 5 with the consultant record, journalled`);
-ok(M.v3.status === 'migrated' && M.v3.from === 3 && M.v3.steps.join() === '3→4,4→5' && /Virtual consultant/.test(M.v3.title), 'a data-version-3 workspace takes the steps 3 → 4 and 4 → 5 ' + M.v3.steps);
+for (const p of M.per) ok(p.status === 'migrated' && p.to === 6 && p.c && Array.isArray(p.c.conversations) && p.step4, `${p.app}: migrated to 6 with the consultant record, journalled`);
+ok(M.v3.status === 'migrated' && M.v3.from === 3 && M.v3.steps.join() === '3→4,4→5,5→6' && /Virtual consultant/.test(M.v3.title), 'a data-version-3 workspace takes the steps 3 → 4, 4 → 5 and 5 → 6 ' + M.v3.steps);
 ok(M.v3.untouched && M.v3.same && M.v3.again === 'current', 'the original is untouched, engine totals unchanged, migrating twice changes nothing');
 ok(M.partial.n === 1 && M.partial.mode === 'lexical', 'a partial record keeps its conversations and gains the missing keys');
 ok(M.lane.has === '{"rows":[]}' && /Lane test/.test(M.lane.title) && M.lane.factory === '{"rows":[]}', 'a sub-step appended by another lane joins the same 3 → 4 step');
@@ -65,8 +65,9 @@ ok(await page.isVisible('#panel-ai .consult-cited >> text=From your sources') &&
 ok(await page.isVisible('#panel-ai .consult-answer a[href="#/scenario/S1"]'), 'a link in the answer opens the scenario');
 const before = await page.evaluate(async () => { const st = await import('/js/state.js'); return { scen: st.S.ws.assessment.SCEN.length, cand: (st.S.ws.assessment.CANDIDATES || []).length }; });
 await page.click('#panel-ai >> text=/Send 1 proposed scenario/');
-const after = await page.evaluate(async () => { const st = await import('/js/state.js'); const c = st.S.ws.assessment.CANDIDATES; return { scen: st.S.ws.assessment.SCEN.length, cand: c.length, last: c[c.length - 1] }; });
-ok(after.scen === before.scen && after.cand === before.cand + 1 && after.last.reviewed === false && after.last.source === 'ai', 'a proposal goes to Batch scenarios for review; the register is unchanged');
+// 1.9.2 (decided item 7 / C3): the proposal is a screening row (array) with its draft kept on the screening record, logged pending
+const after = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const c = st.S.ws.assessment.CANDIDATES; const last = c[c.length - 1]; return { scen: st.S.ws.assessment.SCEN.length, cand: c.length, isRow: Array.isArray(last), ref: last[6], origin: SC.rec(last[0]).draft?.origin, seen: SC.candidates().at(-1).name === last[1] }; });
+ok(after.scen === before.scen && after.cand === before.cand + 1 && after.isRow && after.ref === 'consultant' && after.origin === 'ai' && after.seen, 'a proposal goes to Scenario screening as a candidate row with its draft; the register is unchanged ' + JSON.stringify(after));
 await page.click('#panel-ai .consult-meta >> text=Useful');
 const H = await page.evaluate(async () => { const st = await import('/js/state.js'); const AI = await import('/js/ai.js'); await st.saveNow();
   const c = st.S.ws.consultant.conversations[0]; const m = c.messages[1];

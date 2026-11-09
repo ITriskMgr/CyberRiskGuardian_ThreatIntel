@@ -1,4 +1,4 @@
-# CyberRiskGuardian Desktop 1.9.1 Beta — First-time installation
+# CyberRiskGuardian Desktop 1.9.2 Beta — First-time installation
 
 **English below · [Français plus bas](#français)**
 
@@ -41,15 +41,15 @@ the application is never reachable from your network.
 
 ## 2. Download, check and unpack
 
-1. From the release page, download **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip`** and the file beside
-   it, **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip.sha256`**.
+1. From the release page, download **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip`** and the file beside
+   it, **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256`**.
 2. **Check that the ZIP is the one that was published.** It is a security tool; start as you mean to go
    on. In a terminal, in the folder holding both files:
 
    | System | Command |
    |---|---|
-   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.1-beta.zip.sha256` → must print `OK` |
-   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.1-beta.zip -Algorithm SHA256` → the hash must equal the one in the `.sha256` file |
+   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256` → must print `OK` |
+   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.2-beta.zip -Algorithm SHA256` → the hash must equal the one in the `.sha256` file |
 
    If it does not match, do not open the ZIP: download it again.
 3. Unzip it **somewhere you can write and that you back up** — your Documents folder is fine. Keep the
@@ -66,7 +66,10 @@ the application is never reachable from your network.
 | **Windows** | Double-click **`start.bat`**. |
 | **Linux** | Double-click **`start.sh`**, or run `./start.sh` in a terminal. |
 
-A terminal window opens, then your browser opens on the application. **Leave the terminal window open
+A terminal window opens, then your browser opens on the application. If a copy is already running (the same
+folder started twice, or an earlier version in another folder), the terminal asks *CyberRiskGuardian is already
+running (version x, folder path). Stop it and start this one? [y/N]* — **Return** opens the running copy in your
+browser; **y** stops it and starts this one (do this after an upgrade). **Leave the terminal window open
 while you work**: it is the local server and the helper that downloads threat sources and keeps your
 API keys. **Control-C** in that window stops it (or **Exit** in the application’s top bar).
 
@@ -84,7 +87,7 @@ the questions; you can skip them for now.
 The bottom of the left menu must show:
 
 ```
-© Marc-André Léger · ✓ Engine verified
+© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified
 ```
 
 At every start the application recomputes its bundled teaching cases — MediBec (30 scenarios, English
@@ -117,7 +120,7 @@ using AI still need the helper: start the launcher when you need them.
 **6.1 `start.command` opens in a text editor instead of running (macOS).** In a terminal:
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.9.1-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.9.2-beta
 chmod +x start.command start.sh
 ```
 
@@ -189,15 +192,15 @@ serveur local n’écoute que sur `127.0.0.1` : l’application n’est jamais a
 
 ## 2. Télécharger, vérifier et décompresser
 
-1. Sur la page de la version, téléchargez **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip`** et le fichier
-   qui l’accompagne, **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip.sha256`**.
+1. Sur la page de la version, téléchargez **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip`** et le fichier
+   qui l’accompagne, **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256`**.
 2. **Vérifiez que le ZIP est bien celui qui a été publié.** C’est un outil de sécurité : autant
    commencer comme il se doit. Dans un terminal, dans le dossier qui contient les deux fichiers :
 
    | Système | Commande |
    |---|---|
-   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.1-beta.zip.sha256` → doit afficher `OK` |
-   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.1-beta.zip -Algorithm SHA256` → l’empreinte doit être identique à celle du fichier `.sha256` |
+   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256` → doit afficher `OK` |
+   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.2-beta.zip -Algorithm SHA256` → l’empreinte doit être identique à celle du fichier `.sha256` |
 
    Si elle ne concorde pas, n’ouvrez pas le ZIP : téléchargez-le de nouveau.
 3. Décompressez-le **à un endroit où vous pouvez écrire et que vous sauvegardez** — votre dossier
@@ -215,8 +218,11 @@ serveur local n’écoute que sur `127.0.0.1` : l’application n’est jamais a
 | **Windows** | Double-cliquez **`start.bat`**. |
 | **Linux** | Double-cliquez **`start.sh`**, ou lancez `./start.sh` dans un terminal. |
 
-Une fenêtre de terminal s’ouvre, puis votre navigateur s’ouvre sur l’application. **Laissez la fenêtre
-de terminal ouverte pendant que vous travaillez** : c’est le serveur local et l’assistant local qui
+Une fenêtre de terminal s’ouvre, puis votre navigateur s’ouvre sur l’application. Si une copie est déjà en cours
+(le même dossier démarré deux fois, ou une version antérieure dans un autre dossier), le terminal demande
+*CyberRiskGuardian is already running (version x, folder path). Stop it and start this one? [y/N]* — **Retour** ouvre
+la copie en cours dans votre navigateur; **y** l’arrête et démarre celle-ci (à faire après une mise à niveau).
+**Laissez la fenêtre de terminal ouverte pendant que vous travaillez** : c’est le serveur local et l’assistant local qui
 télécharge les sources de menace et garde vos clés d’API. **Contrôle-C** dans cette fenêtre l’arrête
 (ou **Quitter** dans la barre supérieure de l’application).
 
@@ -235,7 +241,7 @@ pratique** — la section 5 du Document 2 explique les questions; vous pouvez le
 Le bas du menu de gauche doit afficher :
 
 ```
-© Marc-André Léger · ✓ Moteur vérifié
+© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié
 ```
 
 À chaque démarrage, l’application recalcule ses cas pédagogiques fournis — MediBec (30 scénarios, en
@@ -272,7 +278,7 @@ lanceur lorsque vous en avez besoin.
 terminal :
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.1-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.2-beta
 chmod +x start.command start.sh
 ```
 

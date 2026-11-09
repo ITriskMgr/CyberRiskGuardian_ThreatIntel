@@ -1,4 +1,4 @@
-/* Publish & share (1.4.0) — publish the risk register (with its threats and vulnerabilities) and the scenario
+/* Publish & share (1.4.0; anonymization preview rebuilt in 1.9.2) — publish the risk register (with its threats and vulnerabilities) and the scenario
    registry, anonymized on request, as JSON (crg-registry/1), Markdown or CSV: download, copy, or publish to the
    shared registry folder (Google Drive, through a synced local folder or the outbox uploaded by the scheduled
    task). Import registries published by others as a library. © 2026 Marc-André Léger. CC BY-NC 4.0 */
@@ -8,6 +8,7 @@ import { S, touch, nextScenarioId, normalizeScenario } from '../state.js';
 import { HS, probe, loadConfig, post, apiJson, link } from '../helper.js';
 import * as G from '../registry.js';
 import * as A from '../anon.js';
+import { tr } from '../i18n.js';
 
 const opt = { risks: true, scenarios: true, measures: false, scope: 'all', fmt: 'json', anon: { ...A.DEFAULT_OPTS } };
 let view = 'publish', lib = null;
@@ -51,12 +52,20 @@ function publish(body, sec) {
   const cb = (obj, k, label, hint, redraw = true) => { const b = el('input', { type: 'checkbox', checked: !!obj[k], style: { width: 'auto' } }); b.addEventListener('change', () => { obj[k] = b.checked; if (redraw) render(sec); }); return el('label', { style: { display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--ink)', marginBottom: '6px' } }, b, el('span', null, label, hint ? el('div', 'small muted', hint) : null)); };
   const scope = select([['all', 'Everything'], ['included', 'Included scenarios and open risks only']], o.scope); scope.addEventListener('change', () => { o.scope = scope.value; render(sec); });
   const fmt = select([['json', 'JSON — crg-registry/1 (re-importable)'], ['md', 'Markdown report'], ['csv', 'CSV tables']], o.fmt); fmt.addEventListener('change', () => { o.fmt = fmt.value; render(sec); });
+  // 1.9.2 — the additional terms live in the workspace (anonTerms), shared with the Risk Registry contribution
+  if (a.custom !== (ws.anonTerms || '')) a.custom = ws.anonTerms || '';
   const custom = el('textarea', { placeholder: 'One term per line, optionally "term => replacement" — e.g. names of suppliers, projects, sites' }, a.custom || '');
-  custom.addEventListener('change', () => { a.custom = custom.value; render(sec); });
+  custom.addEventListener('change', () => { a.custom = custom.value; ws.anonTerms = custom.value; touch(); render(sec); });
   const { pkg, ctx } = G.buildPackage(ws, { risks: o.risks, scenarios: o.scenarios, measures: o.measures, scope: o.scope, anon: a });
   const outs = outputs(pkg);
   const preview = el('textarea', { class: 'mono', readonly: true, style: { minHeight: '260px' } }, outs[0].content.slice(0, 12000) + (outs[0].content.length > 12000 ? '\n… (preview truncated)' : ''));
-  const leaks = a.enabled ? residual(outs.map(x => x.content).join('\n'), ws) : [];
+  // 1.9.2 (NV-005, NV-089): the residual check reads the replacement table itself, and the name-like pairs and
+  // acronyms no replacement covers are listed for the analyst to add in one click.
+  const allOut = outs.map(x => x.content).join('\n');
+  const leaks = a.enabled ? A.residual(allOut, ctx) : [];
+  const unknown = a.enabled ? A.nameLike(allOut, ctx) : { pairs: [], acronyms: [] };
+  const addTerm = t => { a.custom = ws.anonTerms = [a.custom, t].filter(Boolean).join('\n'); touch(); render(sec); };
+  const addAll = terms => { a.custom = ws.anonTerms = [a.custom, ...terms].filter(Boolean).join('\n'); touch(); render(sec); };
   const nR = (pkg.risks || []).length, nS = (pkg.scenarios || []).length;
   body.append(el('div', 'grid g2',
     card(el('h2', { style: { marginTop: 0 } }, '1 · Content'),
@@ -70,31 +79,31 @@ function publish(body, sec) {
       a.enabled ? el('div', { style: { paddingLeft: '22px' } }, ...Object.entries(A.OPT_LABEL).map(([k, l]) => cb(a, k, l)), field('Additional terms to replace', custom)) : null,
       a.enabled ? el('div', 'note', 'Replacements: ' + A.summary(ctx)) : banner('warn', 'Not anonymized', 'The package carries the organization\'s name, people, assets and free text as entered.'))));
   body.append(card(el('h2', { style: { marginTop: 0 } }, `3 · Preview — ${outs.map(x => x.name).join(', ')}`),
-    leaks.length ? banner('warn', 'Check these before publishing', el('div', null, 'Terms from the workspace that are still present in the package: ', ...leaks.slice(0, 20).map(t => chip(t)), el('div', 'small', 'Add them to “Additional terms to replace”, or confirm they are not identifying.'))) : a.enabled ? banner('good', 'No known identifying term found', 'The organization name, people and asset names of this workspace do not appear in the package. Read the preview anyway: free text can identify an organization indirectly.') : null,
+    leaks.length ? banner('bad', 'Identifying terms remain in the package', el('div', null, 'Terms of the replacement table that are still present in the package: ', ...leaks.slice(0, 20).map(t => chip(t)), el('div', 'small', 'Add them to “Additional terms to replace” (with a different spelling if needed), or confirm they are not identifying. Do not publish as is.')))
+      : a.enabled && (unknown.pairs.length || unknown.acronyms.length) ? banner('warn', 'Check these before publishing', el('div', null,
+        unknown.pairs.length ? el('div', null, 'Name-like terms no replacement covers (people, suppliers, sites, projects?): ', ...unknown.pairs.slice(0, 20).map(p => el('button', { class: 'btn sm ghost', 'data-noi18n': '', title: 'Add to “Additional terms to replace”', onclick: () => addTerm(p.term) }, `${p.term} ×${p.n}`)),
+          el('button', { class: 'btn sm', style: { marginLeft: '6px' }, onclick: () => addAll(unknown.pairs.map(p => p.term)) }, 'Replace all of these')) : null,
+        unknown.acronyms.length ? el('div', { style: { marginTop: '4px' } }, 'Acronyms not recognized (an organization, a site, a system?): ', ...unknown.acronyms.slice(0, 20).map(p => el('button', { class: 'btn sm ghost', 'data-noi18n': '', title: 'Add to “Additional terms to replace”', onclick: () => addTerm(p.term) }, `${p.term} ×${p.n}`))) : null,
+        el('div', 'small', 'Each term you add is replaced by “[redacted]”; write “term => replacement” for another placeholder. A term that is not identifying can stay.')))
+      : a.enabled ? banner('good', 'No known identifying term found', 'The organization name, its acronyms, people, user names, asset and host names of this workspace do not appear in the package, and no unattributed name-like term was found. Read the preview anyway: free text can identify an organization indirectly.') : null,
     el('div', 'small muted', `${nR} risks · ${nS} scenarios · ${(pkg.threats || []).length} techniques · ${(pkg.vulnerabilities || []).length} vulnerabilities`), preview));
   const target = link('registry_local_dir') ? `the synced folder ${link('registry_local_dir')}` : 'the outbox (feeds folder → registry-outbox), uploaded to Drive by the scheduled task';
+  /* Identifying terms left in the package: the person confirms before anything leaves (the decision stays theirs; the publication log records it). */
+  const guard = () => !leaks.length || confirm(tr('Identifying terms remain in the package: {0}. Publish anyway?').replace('{0}', leaks.slice(0, 6).join(', ')));
   const record = (where, path) => { (ws.published ||= []).push({ date: new Date().toISOString().slice(0, 16).replace('T', ' '), files: outs.map(x => x.name), where, path: path || '', anonymized: !!a.enabled,
-    replacements: a.enabled ? { ...ctx.counts } : null, risks: nR, scenarios: nS, format: o.fmt }); if (a.enabled) ws.published[ws.published.length - 1].mapping = ctx.map; touch(); };
+    replacements: a.enabled ? { ...ctx.counts } : null, residual: leaks.slice(0, 20), risks: nR, scenarios: nS, format: o.fmt }); if (a.enabled) ws.published[ws.published.length - 1].mapping = ctx.map; touch(); };
   body.append(card(el('h2', { style: { marginTop: 0 } }, '4 · Publish or share'),
     el('div', 'btnrow',
-      el('button', { class: 'btn', onclick: () => { for (const x of outs) download(x.name, x.content, x.type); record('download'); toast('Downloaded'); } }, 'Download'),
+      el('button', { class: 'btn', onclick: () => { if (!guard()) return; for (const x of outs) download(x.name, x.content, x.type); record('download'); toast('Downloaded'); } }, 'Download'),
       el('button', { class: 'btn', disabled: !HS.helper, title: HS.helper ? 'Write to ' + target : 'Start the helper', onclick: async () => {
+        if (!guard()) return;
         try { let last; for (const x of outs) last = await post('/api/publish', { name: x.name, content: x.content, target: 'registry' }); record(last.outbox ? 'outbox' : 'registry folder', last.folder); toast(last.outbox ? 'Saved in the outbox — the scheduled task uploads it to Drive' : 'Published to the shared registry folder'); render(sec); }
         catch (e) { toast(e.message, 'bad'); }
       } }, 'Publish to the shared registry'),
-      el('button', { class: 'btn ghost', onclick: e => { copyText(outs[0].content, e.target); record('clipboard'); } }, 'Copy'),
+      el('button', { class: 'btn ghost', onclick: e => { if (!guard()) return; copyText(outs[0].content, e.target); record('clipboard'); } }, 'Copy'),
       driveBtn()),
     el('p', 'note', HS.helper ? `Publish writes to ${target}. Change the shared folders in Settings → Links & shared folders.` : 'Start the app with its launcher to publish to the shared folder; Download works anyway — then put the file wherever you share things.'),
     !a.enabled && ws.kind === 'organization' ? banner('bad', 'Not anonymized', 'You are about to share identifiable organizational risk information. Confirm the recipients are authorized.') : null));
-}
-
-/** Workspace terms still present in the output (organization, people, assets, suppliers). */
-function residual(text, ws) {
-  const t = text.toLowerCase();
-  const terms = new Set([ws.org.name, ws.name, ...(ws.assets || []).map(x => x.name), ...(ws.assets || []).map(x => x.hostname),
-    ...[...ws.assessment.SCEN.map(s => s.owner), ...(ws.risks || []).map(r => r.owner)].filter(o => o && /^[A-Z][a-z]+ [A-Z][a-z]+$/.test(o))]
-    .filter(Boolean).map(x => x.replace(/\(.*?\)/g, '').replace(/\s*[—–-]\s.*$/, '').trim()).filter(x => x.length >= 4));
-  return [...terms].filter(x => t.includes(x.toLowerCase()));
 }
 
 function history(body, sec) {
@@ -136,7 +145,7 @@ function library(body, sec) {
           const ns = normalizeScenario({ id: nextScenarioId(), ref: s.id, name: s.name, statement: s.statement, stakeholders: s.stakeholders || '', threat_source: s.threat_source || '', threat_event: s.threat_event || '',
             vulns: s.vulnerabilities || [], assets: s.assets || '', processes: s.processes || '', controls: s.existing_controls || [], sequence: s.sequence || [], consequences: s.consequences || {},
             params: Object.fromEntries(Object.entries(s.params || {}).map(([k, p]) => [k, { v: Number(p.v), conf: 'Low', rat: 'Imported from a shared registry — re-estimate for this organization', ev: s._from }])),
-            cvss: s.cvss, red_p: Number(s.red_p) || 0.5, red_i: Number(s.red_i) || 0.5, attack: s.attack || [], cwe: s.cwe || [], cves: (s.cves || []).map(c => c.id || c), origin: 'library: ' + s._from, created: today() });
+            cvss: s.cvss, red_p: Number(s.red_p) || 0, red_i: Number(s.red_i) || 0, attack: s.attack || [], cwe: s.cwe || [], cves: (s.cves || []).map(c => c.id || c), origin: 'library: ' + s._from, created: today() });   // 1.9.2 (NV-001): a missing reduction is 0
           ws.assessment.SCEN.push(ns); ws.excluded = [...new Set([...(ws.excluded || []), ns.id])]; n++;
         }
         (ws.library ||= []).push({ date: today(), from: lib.src.join(', '), scenarios: n });

@@ -6,7 +6,7 @@
    except "Accept" on a proposal, a separate act of the analyst.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, card, kpi, pill, banner, table, field, select, toast, today, modal, n0, go, parseCSV } from '../util.js';
+import { el, card, kpi, pill, banner, table, field, select, toast, today, modal, n0, n2, pct, pct100, go, parseCSV } from '../util.js';
 import { S, touch } from '../state.js';
 import * as SH from '../shared.js';
 import * as MK from '../markers.js';
@@ -17,7 +17,7 @@ import * as LOG from '../logs.js';
 import * as users from '../users.js';
 import * as G from '../grcui.js';
 import * as C from '../regcore.js';
-import { tr } from '../i18n.js';
+import { tr, trn } from '../i18n.js';
 
 /* ---------------- register helpers ---------------- */
 export const COUNT_HINT = 'Leave blank when unknown — 0 means none';
@@ -33,7 +33,7 @@ export function stateCell(register, r, ws) {
   const stale = C.rowStale(register, r, ws);
   const est = ['INFERENCE', 'ASSUMPTION'].includes(r.prov?.tag) && r.status !== 'confirmed';
   return el('div', null, pill(tr(st[1]), r.status === 'confirmed' ? 'good' : r.status === 'conflicting' ? 'bad' : r.status === 'unknown' ? 'warn' : ''),
-    stale ? pill(tr('stale'), 'warn') : null, est ? el('div', 'small muted', MK.ESTIMATE) : null);
+    stale ? pill(tr('stale data'), 'warn') : null, est ? el('div', 'small muted', MK.ESTIMATE) : null);
 }
 /** An unknown count reads "unknown", never 0. */
 export const cnt = v => v === null || v === undefined || v === '' ? el('span', 'muted', tr('unknown')) : String(v);
@@ -70,7 +70,7 @@ export function makeScreen(X, TABS, REG_TABS) {
 }
 
 /* ---------------- shared bits ---------------- */
-const fmt = (d, v) => v === null || v === undefined ? '—' : d.unit === '%' ? (Math.round(v * 100) / 100) + ' %' : String(v);
+const fmt = (d, v) => v === null || v === undefined ? '—' : d.unit === '%' ? pct100(v, 2) : n0(v);   // 1.9.2 (item 12, X-6): FR « 98,27 % »
 const kind = k => k === 'bad' ? 'bad' : k === 'warn' ? 'warn' : k === 'good' ? 'good' : '';
 export const who = () => users.name() || '';
 /** The window inputs of each module (Identity & access management keeps every window; Configuration management the freshness one). */
@@ -94,22 +94,22 @@ function overview(X, body, redraw, ws) {
   body.append(el('div', { class: 'grid g4', id: id + '-kris' }, ...defs.map(d => {
     const v = K.values[d.id], m = K.meta[d.id], st = X.status(d, v, m);
     const sub = m.empty ? tr('no data') : m.gap ? `${tr('no data')} · ${tr('{0} unknown').replace('{0}', m.unknown)} · ${tr('Information gap — organizational validation required')}` : m.na ? tr('not applicable') : d.unit === 'count' ? tr('{0} expired').replace('{0}', m.num)
-      : `${m.num} / ${m.den} · ${tr('{0} unknown').replace('{0}', m.unknown)} · ${tr('{0} stale').replace('{0}', m.stale)}` + (d.id === 'CRG-22' && m.legacy ? ' · ' + tr('{0} legacy').replace('{0}', m.legacy) : '')
-        + (d.id === 'CRG-18' && m.den ? ' · ' + tr('phishing-resistant {0}').replace('{0}', Math.round(1000 * m.pr / m.den) / 10 + ' %') : '');
+      : `${n0(m.num)} / ${n0(m.den)} · ${trn(m.unknown, '# unknown value', '# unknown values')} · ${trn(m.stale, '# stale value', '# stale values')}` + (d.id === 'CRG-22' && m.legacy ? ' · ' + tr('{0} legacy').replace('{0}', m.legacy) : '')
+        + (d.id === 'CRG-18' && m.den ? ' · ' + tr('phishing-resistant {0}').replace('{0}', pct(m.pr / m.den, 1)) : '');
     const t = kpi(`${d.id} ${tr(d.name)}`, fmt(d, v), sub, kind(st.k));
     t.dataset.kri = d.id; t.append(el('div', 's', pill(tr(st.label), kind(st.k))));
     return t;
   })));
   const kc = X.ID === 'cm' ? 'CRG-25' : 'CRG-23';
-  if (K.meta[kc] && !K.meta[kc].empty) body.append(el('p', 'note', tr('Unknown share {0} %, stale values {1}.').replace('{0}', K.values[kc] === null ? '—' : Math.round((100 - K.values[kc]) * 100) / 100).replace('{1}', K.meta[kc].staleValues)));
+  if (K.meta[kc] && !K.meta[kc].empty) body.append(el('p', 'note', tr('Unknown share {0}, stale values {1}.').replace('{0}', K.values[kc] === null ? '—' : pct100(100 - K.values[kc], 2)).replace('{1}', n0(K.meta[kc].staleValues))));   // 1.9.2 (item 12): locale
   // completeness + figures
   const F = X.figures(ws);
   const figs = X.ID === 'iam' ? [
-    { k: tr('Dormant accounts'), v: F.dormant === null ? '—' : n0(F.dormant) + (F.dormantUnknown ? ' · ' + tr('{0} rows unknown').replace('{0}', F.dormantUnknown) : '') },
+    { k: tr('Dormant accounts'), v: F.dormant === null ? '—' : n0(F.dormant) + (F.dormantUnknown ? ' · ' + trn(F.dormantUnknown, '# row unknown', '# rows unknown') : '') },   // 1.9.2 (item 13): plural
     { k: tr('Revocations not verified'), v: F.unverified === null ? '—' : n0(F.unverified) }] : [
     { k: tr('Open high-severity deviations'), v: F.highOpen.length ? F.highOpen.map(x => `${x.id}${x.age !== null ? ' · ' + tr('{0} days').replace('{0}', x.age) : ''}`).join(', ') : '0' },
-    { k: tr('Changes verified'), v: F.changesVerified === null ? '—' : F.changesVerified + ' %' },
-    { k: tr('Baseline adherence (compliant ÷ assessed)'), v: F.adherence === null ? '—' : F.adherence + ' %' + (F.unassessed !== null ? ' · ' + tr('{0} % unassessed').replace('{0}', F.unassessed) : '') }];
+    { k: tr('Changes verified'), v: F.changesVerified === null ? '—' : pct100(F.changesVerified, 0) },
+    { k: tr('Baseline adherence (compliant ÷ assessed)'), v: F.adherence === null ? '—' : pct100(F.adherence, 0) + (F.unassessed !== null ? ' · ' + tr('{0} unassessed').replace('{0}', pct100(F.unassessed, 0)) : '') }];
   body.append(el('div', 'grid g2',
     card(el('h2', { style: { marginTop: 0 } }, 'Completeness per register'), table([
       { key: 'label', label: 'Register', render: r => tr(r.label) }, { key: 'rows', label: 'Rows', num: true }, { key: 'complete', label: 'Complete', num: true }, { key: 'stale', label: 'Stale', num: true },
@@ -198,7 +198,7 @@ function findings(X, body, redraw, ws) {
       { key: 'f', label: 'Finding', render: x => `${x.f.id} ${x.f.rule}` }, { key: 's', label: 'Scenario', render: x => el('a', { href: '#/scenario/' + x.p.scenario }, x.p.scenario) },
       { key: 'p', label: 'Parameter', render: x => pname(x.p.param) },
       { key: 'v', label: 'From → to', render: x => `${x.p.from} → ${x.p.to}` },
-      { key: 'r', label: 'Ratio now → after', render: x => { const sc = a.SCEN.find(s => s.id === x.p.scenario); if (!sc) return '—'; const r0 = ratio(sc), r1 = ratio(sc, x.p.param, x.p.to); return r0 === null ? '—' : `${r0.toFixed(2)} → ${r1.toFixed(2)}`; } },
+      { key: 'r', label: 'Ratio now → after', render: x => { const sc = a.SCEN.find(s => s.id === x.p.scenario); if (!sc) return '—'; const r0 = ratio(sc), r1 = ratio(sc, x.p.param, x.p.to); return r0 === null ? '—' : `${n2(r0)} → ${n2(r1)}`; } },
       { key: 'c', label: 'Confidence', render: x => tr(x.p.conf) }, { key: 'w', label: 'Rationale', render: x => el('span', { class: 'small', 'data-noi18n': '' }, x.p.rationale) },
       { key: 'st', label: 'State', render: x => pill(tr({ proposed: 'Proposed', accepted: 'Accepted', dismissed: 'Dismissed' }[x.p.state]), x.p.state === 'accepted' ? 'good' : x.p.state === 'dismissed' ? '' : 'warn') },
       { key: 'a', label: '', sortable: false, render: x => x.p.state !== 'proposed' ? el('span', 'small muted', [x.p.decidedOn, x.p.decidedBy, x.p.reason].filter(Boolean).join(' · ')) : el('div', 'btnrow',
@@ -242,7 +242,7 @@ function proposeDialog(X, ws, f, redraw) {
     const from = Number(s.params?.[pr.value]?.v);
     let r0 = null, r1 = null; try { r0 = CRG.calc(s, a.APPETITE, a.FACTOR).ratio; if (to.value !== '') r1 = CRG.calc({ ...s, params: { ...s.params, [pr.value]: { ...s.params[pr.value], v: Number(to.value) } } }, a.APPETITE, a.FACTOR).ratio; } catch { /* shown as — */ }
     cur.replaceChildren(el('div', 'grid g3', kpi('Current value', String(from)), kpi('Direction hint', rule?.param === pr.value ? `${pname(pr.value)} ${rule.dir}` : '—'),
-      kpi('Ratio now → after', r0 === null ? '—' : `${r0.toFixed(2)} → ${r1 === null ? '…' : r1.toFixed(2)}`)));
+      kpi('Ratio now → after', r0 === null ? '—' : `${n2(r0)} → ${r1 === null ? '…' : n2(r1)}`)));
   };
   for (const x of [sc, pr, to]) x.addEventListener('input', upd);
   const m = modal(tr('Propose a parameter change'), el('p', 'note', 'Type the value you propose: nothing is computed for you, and saving changes nothing in the scenario.'),
@@ -258,7 +258,7 @@ function proposeDialog(X, ws, f, redraw) {
 /* ---------------- Import from a report ---------------- */
 /* The file is held in a module's import state, in memory, for the time of the review only: never in ws.docs, blobs or importLog. */
 export function importState() {
-  const IMP = { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0, release() { Object.assign(IMP, { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0 }); } };
+  const IMP = { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0, injected: [], release() { Object.assign(IMP, { file: null, text: '', rows: null, sha: '', bytes: 0, items: null, method: '', dropped: 0, injected: [] }); } };
   return IMP;
 }
 
@@ -272,7 +272,8 @@ export function registerTask(X, label) {
   AI.TASKS['extract_s_' + X.ID] = {
     label,
     build(ws, { text = '' } = {}) {
-      return { system: SYSTEM, prompt: [X.AI_PROMPT, '', 'DOCUMENTS:', text].join('\n'), max_tokens: 3000, json: true, keepLanguage: true };
+      // 1.9.2 review (H4, NV-008): the report is untrusted text — wrapped, so prepare() adds the system line (data, never instructions)
+      return { system: SYSTEM, prompt: [X.AI_PROMPT, '', 'DOCUMENTS:', AI.untrusted(text, 'report')].join('\n'), max_tokens: 3000, json: true, keepLanguage: true };
     },
   };
 }
@@ -328,7 +329,14 @@ function aiBox(X, IMP, body, redraw, ws) {
   const go2 = el('button', { class: 'btn', id: id + '-ai', disabled: !route.provider || remote, onclick: async () => {
     const out = await aiui.request(task, { text: IMP.text }, { title: tr('Import from a report — what will be sent'), ws });
     if (!out) return;
-    try { const r = X.parseAIItems(AI.parseJson(out.text)); IMP.items = r.items; IMP.dropped = r.dropped; IMP.method = 'ai'; redraw(); }
+    try {
+      const r = X.parseAIItems(AI.parseJson(out.text));
+      /* 1.9.2 review (H4) — the AI's provenance tag is not taken as given: the prompt forbids quotations, so no FACT can be
+         grounded in the report; a FACT becomes INFERENCE at most. Lines of the report that look like instructions to an AI
+         are listed with the proposals, and nothing is pre-ticked. */
+      for (const it of r.items) if (it.tag === 'FACT') { it.tag = 'INFERENCE'; it.tagNote = 'proposed FACT by the model — downgraded: counts read by an AI are inferences until a person checks them against the report'; }
+      IMP.items = r.items; IMP.dropped = r.dropped; IMP.method = 'ai'; IMP.injected = AI.injectionLines(IMP.text); redraw();
+    }
     catch (e) { toast(tr(e.message), 'bad'); }
   } }, 'Prepare the AI request');
   tick.addEventListener('change', () => { go2.disabled = !tick.checked; });
@@ -344,17 +352,22 @@ function aiBox(X, IMP, body, redraw, ws) {
 }
 
 function review(X, IMP, body, redraw, ws) {
-  const items = IMP.items, ticks = items.map(() => el('input', { type: 'checkbox', checked: true, style: { width: 'auto' } }));
-  const keys = it => Object.entries(it).filter(([k, v]) => !['register', 'type', 'tier', 'tag', 'page'].includes(k) && v !== null && v !== undefined).map(([k, v]) => `${k} ${v}`).join(' · ');
+  // 1.9.2 review (H4): counts the AI read are never pre-ticked; the offline rules' counts (computed here from the table) are
+  const items = IMP.items, ticks = items.map(() => el('input', { type: 'checkbox', checked: IMP.method === 'rules', style: { width: 'auto' } }));
+  const keys = it => Object.entries(it).filter(([k, v]) => !['register', 'type', 'tier', 'tag', 'page', 'tagNote'].includes(k) && v !== null && v !== undefined).map(([k, v]) => `${k} ${v}`).join(' · ');
   body.append(card({ id: X.ID + '-review' }, el('h2', { style: { marginTop: 0 } }, tr('Review: {0} proposed counts').replace('{0}', items.length)),
     IMP.dropped ? el('p', 'note', tr('{0} item(s) dropped: not a count, or failing the personal-data or secret guard.').replace('{0}', IMP.dropped)) : null,
+    IMP.method === 'ai' ? el('p', 'note', 'Counts read by an AI are proposals: check each one against the report before ticking it. A FACT proposed by the model is shown as INFERENCE — the report was not quoted.') : null,
+    IMP.injected?.length ? banner('warn', tr('{0} line(s) of the report look like instructions to an AI').replace('{0}', IMP.injected.length),
+      el('div', null, el('div', 'small', 'The model may have followed them. Compare every proposed count with the report itself before accepting any.'),
+        el('ul', 'small mono', { 'data-noi18n': '' }, ...IMP.injected.slice(0, 5).map(l => el('li', null, `${l.n}: ${l.text.slice(0, 160)}`))))) : null,
     items.length ? table([{ key: 't', label: '', sortable: false, render: (it, i) => ticks[i] }, { key: 'r', label: 'Register', render: it => regLabel(it.register) },
       { key: 'g', label: 'Population', render: it => it.register === 'accounts' ? tr(C.TYPES.find(t => t[0] === it.type)?.[1] || it.type) : it.register === 'privileged' ? tr(C.TIERS.find(t => t[0] === it.tier)?.[1] || '') : (it.type ? tr(C.CH_TYPES.find(t => t[0] === it.type)?.[1] || it.type) : '—') },
-      { key: 'c', label: 'Counts', render: it => el('span', 'mono small', keys(it)) }, { key: 'tag', label: 'Provenance', render: it => pill(it.tag, it.tag === 'FACT' ? 'good' : 'warn') },
+      { key: 'c', label: 'Counts', render: it => el('span', 'mono small', keys(it)) }, { key: 'tag', label: 'Provenance', render: it => el('span', { title: it.tagNote ? tr(it.tagNote) : '' }, pill(it.tag, it.tag === 'FACT' ? 'good' : 'warn'), it.tagNote ? el('span', 'small muted', ' ' + tr('(FACT downgraded)')) : null) },
       { key: 'p', label: 'Page', render: it => it.page || '—' }], items, { class: 'compact' }) : el('div', 'empty-state', tr('Nothing was proposed.')),
     el('div', 'btnrow', { style: { marginTop: '8px' } },
       el('button', { class: 'btn', id: X.ID + '-accept', onclick: () => {
-        const made = X.acceptImport(ws, items.filter((_, i) => ticks[i].checked), { file: IMP.file, sha256: IMP.sha, bytes: IMP.bytes, rows: IMP.rows ? IMP.rows.length - 1 : 0, method: IMP.method, by: who() });
+        const made = X.acceptImport(ws, items.filter((_, i) => ticks[i].checked), { file: IMP.file, sha256: IMP.sha, bytes: IMP.bytes, rows: IMP.rows ? IMP.rows.length - 1 : 0, method: IMP.method, by: who(), proposed: items.length });
         LOG.data('counts imported', `${made.length}`, X.LABEL, ws.name);
         IMP.release(); touch(); toast(tr('{0} rows added with their provenance').replace('{0}', made.length)); redraw();
       } }, 'Accept ticked'),

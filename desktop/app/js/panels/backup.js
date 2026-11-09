@@ -3,7 +3,7 @@
    before anything is written, and a copy that has moved on here is never overwritten by default.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, card, kpi, pill, banner, toast, table, download, field, input, n0, today } from '../util.js';
+import { el, card, kpi, pill, banner, toast, table, download, field, input, n0, today, select } from '../util.js';
 import { S, loadAll, emit, reopen } from '../state.js';
 import * as B from '../backup.js';
 import * as K from '../catalog.js';
@@ -11,7 +11,7 @@ import * as MIG from '../migrate.js';
 import * as store from '../store.js';
 import { tr } from '../i18n.js';
 
-let inv = null, loaded = null, planned = null, checked = null, chosen = null;
+let inv = null, loaded = null, planned = null, checked = null, chosen = null, twinChoice = {};   // 1.9.2: twinChoice[fileId] = replace | keep | skip
 const opts = { documents: true, snapshots: false, settings: true, frameworks: true };
 
 export async function render(sec, arg) {
@@ -115,6 +115,7 @@ function restoreUI(sec) {
       checked = await B.verify(loaded);
       planned = await B.plan(loaded);
       chosen = new Set(planned.rows.filter(r => r.state !== 'newer-here').map(r => r.id));
+      twinChoice = Object.fromEntries(planned.rows.filter(r => r.state === 'teaching-twin').map(r => [r.id, { choice: r.suggest || 'skip', twin: r.twin?.id }]));   // 1.9.2 (item 4): Replace when the copy here is untouched, Skip otherwise
       render(sec);
     } catch (e) { loaded = null; sec.append(banner('bad', 'The file could not be read', String(e.message || e))); }
   });
@@ -138,6 +139,9 @@ function preview(sec) {
     'This file does not match its own checksum. It has been altered or truncated. Restoring it may put ' +
     'incomplete data into the application; use another copy if you have one.'));
 
+  const twins = planned.rows.filter(r => r.state === 'teaching-twin');
+  if (twins.length) c.append(banner('warn', tr('{0} teaching case(s) in this file are already here').replace('{0}', twins.length),
+    'A bundled teaching case is recognised whatever its id. For each one choose Replace the copy here (the default when that copy has not been changed since it was created), Keep both (the file\'s copy is added beside it) or Skip (nothing is written). Duplicates that already exist are deleted by hand on Organization → Workspaces.'));
   const risky = planned.rows.filter(r => r.state === 'newer-here');
   if (risky.length) c.append(banner('warn',
     `${risky.length} workspace${risky.length === 1 ? ' has' : 's have'} been modified here since this backup`,
@@ -151,8 +155,10 @@ function preview(sec) {
         return i; } },
     { key: 'name', label: 'Workspace', render: r => el('div', null, el('b', null, r.name),
         el('div', 'small muted', `${r.scenarios} scenario(s) · ${r.recommendations} recommendation(s)`)) },
-    { key: 'state', label: 'If restored', render: r => pill(
-        { new: 'added', identical: 'no change', 'older-here': 'brought forward', 'newer-here': 'would lose work' }[r.state],
+    { key: 'state', label: 'If restored', render: r => r.state === 'teaching-twin'
+        ? (() => { const sel = select([['replace', 'Replace the copy here'], ['keep', 'Keep both'], ['skip', 'Skip']], twinChoice[r.id]?.choice || 'skip', { 'aria-label': tr('Teaching case already here: {0}').replace('{0}', r.name) });
+            sel.addEventListener('change', () => { twinChoice[r.id] = { choice: sel.value, twin: r.twin?.id }; }); return sel; })()
+        : pill({ new: 'added', identical: 'no change', 'older-here': 'brought forward', 'newer-here': 'would lose work' }[r.state],
         r.state === 'newer-here' ? 'bad' : r.state === 'new' || r.state === 'older-here' ? 'good' : '') },
     { key: 'note', label: 'Why', sortable: false, render: r => el('span', 'small', r.note) },
   ], planned.rows, { sortKey: 'name' }));
@@ -179,12 +185,14 @@ function preview(sec) {
       if (warn.length && !confirm(warn.join('.\n') + '.\n\nContinue?')) return;
       const b = e.target; b.disabled = true; b.textContent = 'Restoring…';
       try {
-        const done = await B.restore(loaded, { ids, mode: mode.value, frameworks: true, settings: true });
+        const done = await B.restore(loaded, { ids, mode: mode.value, frameworks: true, settings: true, twins: twinChoice });
         K.invalidate();
         await loadAll();
         loaded = planned = chosen = null;
         // 1.9.1 (B4): reopen on the Process page so no screen keeps a workspace from before the restore
         await reopen('process', { toast: `Restored ${done.workspaces} workspace(s)` +
+              (done.replaced ? `, ${done.replaced} teaching case(s) replaced` : '') + (done.skipped_twins ? `, ${done.skipped_twins} teaching case(s) skipped` : '') +
+              (done.kept_conflicts ? `, ${done.kept_conflicts} kept beside the copy here (one Replace per copy)` : '') +
               (done.deleted ? `, deleted ${done.deleted}` : '') +
               (done.frameworks ? `, ${done.frameworks} framework pack(s)` : '') });
       } catch (err) {

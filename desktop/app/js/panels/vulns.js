@@ -3,7 +3,7 @@
    Everything is joined locally: no CVE is ever sent to an external service (constraint C5).
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, n2, kpi, card, pill, chip, select, toast, go, banner, table, today, parseCSV, field, download, toCSV } from '../util.js';
+import { el, n0, n2, kpi, card, pill, chip, select, toast, go, banner, table, today, parseCSV, field, download, toCSV, pct } from '../util.js';
 import { S, touch, scen, blankScenario, nextScenarioId } from '../state.js';
 import { KB, cwe, searchCwe, techniquesForCwe, techName } from '../ontology.js';
 import { classify as ladder } from '../../threat.js';
@@ -102,7 +102,7 @@ function register(body, _, sec) {
     { key: 'cvss', label: 'CVSS', num: true, render: r => r.v.cvss != null && r.v.cvss !== '' ? Number(r.v.cvss).toFixed(1) : '—', sort: r => r.v.cvss ?? -1 },
     { key: 'cwe', label: 'CWE', sortable: false, render: r => el('div', 'chips', ...(r.v.cwe || []).map(c => chip(c, { kind: 'c', href: '#/vulns/' + c, title: cwe(c)?.name }))) },
     { key: 'kev', label: 'KEV', render: r => r.kev ? pill('KEV ' + (r.kev.added || '') + (r.kev.ransomware === 'Known' ? ' · ransomware' : ''), 'bad') : (S.snap ? 'no' : '—'), sort: r => r.kev ? 1 : 0 },
-    { key: 'epss', label: 'EPSS', num: true, render: r => r.epss ? n2(r.epss[0] * 100) + '%' : '—', sort: r => r.epss?.[0] ?? -1 },
+    { key: 'epss', label: 'EPSS', num: true, render: r => r.epss ? pct(r.epss[0], 2) : '—', sort: r => r.epss?.[0] ?? -1 },
     { key: 'ssvc', label: 'SSVC', render: r => { const d = SV.decisionFor(S.ws, r.v.id); return el('a', { href: '#/vulns/ssvc/' + r.v.id, title: d ? `${d.by} · ${d.date}` : 'Take the SSVC decision' }, d && d.tree === SV.treeOf(S.ws) ? pill(SV.outcomeLabel(d.outcome), SV.OUTCOMES[d.outcome]?.kind || '') : pill(d ? 'review' : 'decide', d ? 'warn' : '')); }, sort: r => SV.OUTCOMES[SV.decisionFor(S.ws, r.v.id)?.outcome]?.rank ?? -1 },
     { key: 'rung', label: 'Ladder', render: r => r.rung ? el('span', null, rungPill(r.rung), r.v.exposed ? '' : el('span', 'small muted', ' watch')) : '—', sort: r => r.rung?.rung ?? 0 },
     { key: 'sc', label: 'Scenarios', sortable: false, render: r => { const ss = scenariosFor(r.v.id); return el('div', 'chips', ...ss.map(s => chip(s.id, { href: '#/scenario/' + s.id, title: s.name })), linkSel(r.v.id, sec)); } },
@@ -121,6 +121,38 @@ function linkSel(id, sec) {
 }
 
 /* ---------------- import ---------------- */
+/* 1.9.2 (NV-025, NV-061): every record is validated before it is stored — a CVE identifier of the right shape, a score within
+   0–10 or none, a CVSS vector of the right shape or none, text fields capped — and the import reports what it skipped, with
+   the file errors kept beside the summary instead of being replaced by it. */
+const CVE_ID = /^CVE-\d{4}-\d{4,}$/i;
+const CAP = 300, CAP_TITLE = 300, CAP_CSV = 300;
+const clip = (v, n = CAP) => String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, n);
+/** A CVSS score: a number within 0–10 (one decimal), else null with a reason. */
+function cleanScore(v) {
+  if (v === '' || v === null || v === undefined) return { score: null };
+  const n = typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.'));
+  if (!Number.isFinite(n) || n < 0 || n > 10) return { score: null, bad: `score ${JSON.stringify(v)} is not within 0–10` };
+  return { score: Math.round(n * 10) / 10 };
+}
+/** A CVSS vector: CVSS:4.0 or 3.x, metric pairs only; anything else is dropped with a reason. */
+function cleanVector(v) {
+  if (!v) return { vector: null };
+  const t = String(v).trim();
+  if (/^CVSS:(4\.0|3\.[01])(\/[A-Z]{1,3}:[A-Z0-9]{1,2})+$/.test(t) && t.length <= 200) return { vector: t };
+  return { vector: null, bad: 'CVSS vector of an unexpected shape dropped' };
+}
+export function validateRecord(rec) {
+  const problems = [];
+  const id = String(rec.id || '').trim().toUpperCase();
+  if (!CVE_ID.test(id)) return { ok: false, problems: [`identifier ${JSON.stringify(clip(rec.id, 40))} is not a CVE`] };
+  const sc = cleanScore(rec.cvss); if (sc.bad) problems.push(sc.bad);
+  const vec = cleanVector(rec.cvss_vector); if (vec.bad) problems.push(vec.bad);
+  const cwe = [...new Set((Array.isArray(rec.cwe) ? rec.cwe : []).map(x => String(x).toUpperCase()).filter(x => /^CWE-\d{1,5}$/.test(x)))];
+  const out = { ...rec, id, cvss: sc.score, cvss_vector: vec.vector, cwe, title: clip(rec.title, CAP_TITLE), product: clip(rec.product), asset: clip(rec.asset), source: clip(rec.source, 120), notes: clip(rec.notes, 1000) };
+  if (out.cvss === null && !sc.bad) delete out.cvss_version;
+  return { ok: true, rec: out, problems: problems.map(p => `${id}: ${p}`) };
+}
+
 function importer(body, _, sec) {
   const V = S.ws.vulns;
   const msg = el('div');
@@ -129,30 +161,50 @@ function importer(body, _, sec) {
     if (ex) { for (const [k, v] of Object.entries(rec)) if (v !== '' && v !== null && v !== undefined && !(Array.isArray(v) && !v.length)) ex[k] = k === 'exposed' ? ex.exposed || v : v; return 0; }
     V.push(Object.assign({ kind: 'CVE', title: '', product: '', asset: '', exposed: false, source: '', added: today(), cwe: [], notes: '' }, rec)); return 1;
   };
-  const fromNvd = (j) => {
-    const items = j.vulnerabilities ? j.vulnerabilities.map(x => x.cve) : j.cveMetadata ? [j] : Array.isArray(j) ? j : [];
-    let n = 0, m = 0;
+  /** Store a candidate record after validation; counts and reasons go to `st`. */
+  const take = (cand, st) => {
+    const v = validateRecord(cand);
+    if (!v.ok) { st.skipped++; if (st.reasons.length < 12) st.reasons.push(...v.problems); return; }
+    if (v.problems.length) { st.fixed++; if (st.reasons.length < 12) st.reasons.push(...v.problems); }
+    st.read++; st.added += upsert(v.rec);
+  };
+  const fromNvd = (j, st) => {
+    const items = j && j.vulnerabilities ? (Array.isArray(j.vulnerabilities) ? j.vulnerabilities.map(x => x && x.cve ? x.cve : x) : []) : j && j.cveMetadata ? [j] : Array.isArray(j) ? j : [];
+    if (!items.length) { st.reasons.push('no CVE record recognised (expected an NVD CVE API 2.0 response, a CVE JSON 5 record, or a list of either)'); }
     for (const c of items) {
+      if (!c || typeof c !== 'object') { st.skipped++; continue; }
       if (c.cveMetadata) {   // CVE JSON 5 record
         const cna = c.containers?.cna || {};
-        const met = (cna.metrics || []).find(x => x.cvssV4_0) || (cna.metrics || []).find(x => x.cvssV3_1);
-        const cwes = (cna.problemTypes || []).flatMap(p => p.descriptions || []).map(d => d.cweId).filter(Boolean);
-        n += upsert({ id: c.cveMetadata.cveId, title: (cna.descriptions || [])[0]?.value?.slice(0, 300) || '', product: (cna.affected || []).map(a => [a.vendor, a.product].filter(Boolean).join(' ')).slice(0, 2).join('; '),
-          cvss: met?.cvssV4_0?.baseScore ?? null, cvss_vector: met?.cvssV4_0?.vectorString ?? null, cvss_version: met?.cvssV4_0 ? '4.0' : met ? '3.1 (not v4 — rescore)' : null, cwe: cwes, source: 'CVE JSON 5 record' });
-      } else if (c.id) {     // NVD API 2.0
+        const mets = Array.isArray(cna.metrics) ? cna.metrics : [];
+        const met = mets.find(x => x?.cvssV4_0) || mets.find(x => x?.cvssV3_1);
+        const cwes = (Array.isArray(cna.problemTypes) ? cna.problemTypes : []).flatMap(p => Array.isArray(p?.descriptions) ? p.descriptions : []).map(d => d?.cweId).filter(Boolean);
+        take({ id: c.cveMetadata.cveId, title: (Array.isArray(cna.descriptions) ? cna.descriptions : [])[0]?.value || '', product: (Array.isArray(cna.affected) ? cna.affected : []).map(a => [a?.vendor, a?.product].filter(Boolean).join(' ')).slice(0, 2).join('; '),
+          cvss: met?.cvssV4_0?.baseScore ?? null, cvss_vector: met?.cvssV4_0?.vectorString ?? null, cvss_version: met?.cvssV4_0 ? '4.0' : met ? '3.1 (not v4 — rescore)' : null, cwe: cwes, source: 'CVE JSON 5 record' }, st);
+      } else if (c.id !== undefined) {     // NVD API 2.0
         const v4 = c.metrics?.cvssMetricV40?.[0]?.cvssData, v31 = c.metrics?.cvssMetricV31?.[0]?.cvssData;
-        const cwes = (c.weaknesses || []).flatMap(w => w.description || []).map(d => d.value).filter(x => /^CWE-\d+$/.test(x));
-        n += upsert({ id: c.id, title: (c.descriptions || []).find(d => d.lang === 'en')?.value?.slice(0, 300) || '', cvss: v4?.baseScore ?? null, cvss_vector: v4?.vectorString ?? null,
-          cvss_version: v4 ? '4.0' : v31 ? '3.1 (not v4 — rescore)' : null, cwe: [...new Set(cwes)], source: 'NVD CVE API 2.0 file' });
-      } else m++;
+        const cwes = (Array.isArray(c.weaknesses) ? c.weaknesses : []).flatMap(w => Array.isArray(w?.description) ? w.description : []).map(d => d?.value).filter(x => /^CWE-\d+$/.test(x));
+        take({ id: c.id, title: (Array.isArray(c.descriptions) ? c.descriptions : []).find(d => d?.lang === 'en')?.value || '', cvss: v4?.baseScore ?? null, cvss_vector: v4?.vectorString ?? null,
+          cvss_version: v4 ? '4.0' : v31 ? '3.1 (not v4 — rescore)' : null, cwe: cwes, source: 'NVD CVE API 2.0 file' }, st);
+      } else { st.skipped++; if (st.reasons.length < 12) st.reasons.push('a record without a CVE identifier skipped'); }
     }
-    return [n, items.length];
+  };
+  /** The import summary: what was read, added, repaired and skipped, and every file error — nothing is replaced by the summary. */
+  const report = (st, fileErrors, extra) => {
+    msg.replaceChildren(
+      ...fileErrors.map(([f, e]) => banner('bad', f, e)),
+      banner(st.read ? (st.skipped || st.fixed ? 'warn' : 'good') : 'warn', `${n0(st.read)} records read`, `${n0(st.added)} new, ${n0(st.read - st.added)} updated, ${n0(st.skipped)} skipped, ${n0(st.fixed)} repaired (score or vector dropped). ${extra}`),
+      st.reasons.length ? el('ul', 'small', ...st.reasons.slice(0, 12).map(r => el('li', { 'data-noi18n': '' }, r)), st.reasons.length > 12 ? el('li', null, '…') : null) : null);
   };
   const nvdIn = el('input', { type: 'file', accept: '.json', multiple: true, style: { display: 'none' } });
   nvdIn.addEventListener('change', async () => {
-    let added = 0, total = 0;
-    for (const f of nvdIn.files) { try { const [a, t] = fromNvd(JSON.parse(await f.text())); added += a; total += t; } catch (e) { msg.append(banner('bad', f.name, String(e.message || e))); } }
-    touch(); msg.replaceChildren(banner('good', `${total} records read`, `${added} new, ${total - added} updated. Exposure is not set by this import — confirm it per CVE.`));
+    const st = { read: 0, added: 0, skipped: 0, fixed: 0, reasons: [] }, fileErrors = [];
+    for (const f of nvdIn.files) {
+      try { if (f.size > 50e6) throw new Error('file larger than 50 MB — split it'); fromNvd(JSON.parse(await f.text()), st); }
+      catch (e) { fileErrors.push([f.name, 'Not read: ' + String(e.message || e)]); }
+    }
+    if (st.added || st.read) touch();
+    report(st, fileErrors, 'Exposure is not set by this import — confirm it per CVE.');
+    nvdIn.value = '';
   });
   const csvTa = el('textarea', { class: 'code', rows: 7, placeholder: 'Scanner or CMDB export with a header row. Recognized columns: cve, host / asset, product / plugin name, cvss, cwe.\nEvery row of a scanner export is evidence of exposure on that host.' });
   const csvExp = el('input', { type: 'checkbox', checked: true });
@@ -167,22 +219,29 @@ function importer(body, _, sec) {
         el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', color: 'var(--ink)', margin: 0 } }, csvExp, 'Mark imported CVEs as exposure confirmed'),
         el('button', { class: 'btn ghost', onclick: () => csvIn.click() }, 'Open CSV…'), csvIn,
         el('button', { class: 'btn', onclick: () => {
-          const rows = parseCSV(csvTa.value); if (rows.length < 2) { msg.replaceChildren(banner('warn', 'Nothing to import', 'A header row and at least one data row are required.')); return; }
-          const h = rows[0].map(x => x.trim().toLowerCase());
+          const text = csvTa.value || '';
+          if (text.length > 20e6) { msg.replaceChildren(banner('bad', 'File too large', 'The CSV is larger than 20 MB — split it.')); return; }
+          const rows = parseCSV(text); if (rows.length < 2) { msg.replaceChildren(banner('warn', 'Nothing to import', 'A header row and at least one data row are required.')); return; }
+          const h = rows[0].map(x => clip(x, 80).toLowerCase());
           const col = (...names) => h.findIndex(x => names.some(n => x === n || x.includes(n)));
           const ci = col('cve'), hi = col('host', 'asset', 'ip', 'hostname', 'device'), pi = col('product', 'plugin name', 'name', 'software', 'title'), si = col('cvss'), wi = col('cwe');
-          let n = 0, seen = 0;
+          const st = { read: 0, added: 0, skipped: 0, fixed: 0, reasons: [] };
+          let seen = 0, blank = 0;
           for (const r of rows.slice(1)) {
-            const ids = ci >= 0 ? (r[ci] || '').match(/CVE-\d{4}-\d{4,}/gi) || [] : (r.join(' ').match(/CVE-\d{4}-\d{4,}/gi) || []);
+            const cells = r.map(x => clip(x, CAP_CSV));
+            const ids = ci >= 0 ? (cells[ci] || '').match(/CVE-\d{4}-\d{4,}/gi) || [] : (cells.join(' ').match(/CVE-\d{4}-\d{4,}/gi) || []);
+            if (!ids.length) { blank++; continue; }
             for (const c of ids) {
               seen++;
-              const host = hi >= 0 ? r[hi] : '';
+              const host = hi >= 0 ? cells[hi] : '';
               const ex = V.find(v => v.id === c.toUpperCase());
-              if (ex && host && !(ex.asset || '').includes(host)) ex.asset = [ex.asset, host].filter(Boolean).join(', ').slice(0, 300);
-              n += upsert({ id: c.toUpperCase(), product: pi >= 0 ? r[pi] : '', asset: ex ? ex.asset : host, cvss: si >= 0 && r[si] ? Number(r[si]) : null, cwe: wi >= 0 ? (r[wi].match(/CWE-\d+/gi) || []).map(x => x.toUpperCase()) : [], exposed: csvExp.checked, source: 'Scanner / CMDB import ' + today() });
+              const asset = ex ? (host && !(ex.asset || '').includes(host) ? [ex.asset, host].filter(Boolean).join(', ').slice(0, CAP) : ex.asset) : host;
+              take({ id: c.toUpperCase(), product: pi >= 0 ? cells[pi] : '', asset, cvss: si >= 0 && cells[si] ? cells[si] : null, cwe: wi >= 0 ? (cells[wi].match(/CWE-\d+/gi) || []) : [], exposed: csvExp.checked, source: 'Scanner / CMDB import ' + today() }, st);
             }
           }
-          touch(); msg.replaceChildren(banner('good', `${seen} CVE occurrences read`, `${n} new register entries.`));
+          if (blank) st.reasons.unshift(`${n0(blank)} row(s) without a CVE identifier ignored`);
+          if (st.added || st.read) touch();
+          report(st, [], `${n0(seen)} CVE occurrences in ${n0(rows.length - 1)} rows; fields are capped at ${CAP_CSV} characters.` + (csvExp.checked ? ' Imported CVEs are marked exposure confirmed (scanner evidence).' : ''));
         } }, 'Import'))),
     card(el('h2', null, 'Other sources to consult'), el('ul', 'small', ...[
       ['CISA Known Exploited Vulnerabilities', 'enters through the threat-context snapshot'], ['FIRST EPSS', 'enters through the threat-context snapshot'],
@@ -239,7 +298,7 @@ function cveView(body, arg, sec) {
     v.title ? el('p', null, v.title) : null,
     el('div', 'grid g4', kpi('In register', inReg ? 'yes' : 'no', inReg ? v.source : ''), kpi('Exposure', v.exposed ? 'confirmed' : 'not confirmed', v.asset || '', v.exposed ? 'good' : 'warn'),
       kpi('CISA KEV', S.snap ? (e.kev ? 'listed ' + (e.kev.added || '') : 'not listed') : '—', e.kev ? [e.kev.vendor, e.kev.product].filter(Boolean).join(' ') + (e.kev.ransomware === 'Known' ? ' · ransomware' : '') : '', e.kev ? 'bad' : ''),
-      kpi('EPSS', e.epss ? n2(e.epss[0] * 100) + '%' : '—', e.epss ? 'percentile ' + n2(e.epss[1] * 100) : S.snap ? 'not in snapshot table' : 'no snapshot')),
+      kpi('EPSS', e.epss ? pct(e.epss[0], 2) : '—', e.epss ? 'percentile ' + n2(e.epss[1] * 100) : S.snap ? 'not in snapshot table' : 'no snapshot')),
     inReg ? (d => el('div', { style: { marginTop: '12px' } }, el('b', null, 'SSVC: '), d ? pill(SV.outcomeLabel(d.outcome), SV.OUTCOMES[d.outcome]?.kind || '') : pill('not decided', ''), ' ', el('a', { href: '#/vulns/ssvc/' + id }, d ? 'Review the decision' : 'Take the decision'), el('span', 'small muted', ' — a response priority, never a likelihood')))(SV.decisionFor(S.ws, id)) : null,
     e.rung ? el('div', { style: { marginTop: '12px' } }, el('b', null, 'Threat Evidence Ladder: '), rungPill(e.rung), ' ' + e.rung.label + ' — band ' + e.rung.band.map(x => x.toFixed(2)).join('–'), el('div', 'small muted', e.rung.evidence), el('div', 'note', e.rung.note)) : null,
     el('div', 'btnrow', { style: { marginTop: '12px' } },

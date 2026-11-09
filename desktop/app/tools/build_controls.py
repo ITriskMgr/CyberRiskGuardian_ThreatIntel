@@ -10,7 +10,7 @@ CIS v7.1 — is no longer built in, and parse_userlist() is kept only to read an
   * ISO/IEC 27002:2022 and CIS Controls v8.1: identifiers and short titles only (the texts are
     copyrighted by ISO and CIS and are not reproduced);
   * 1.9.0 — CIS Controls v8.1 safeguards: identifier, Implementation Groups, asset type, security function and
-    CRGO's OWN paraphrased label (CRGO 0.11.0 vocab/cis81, read from data/crgo-snapshot.json, which
+    CRGO's OWN paraphrased label (CRGO 0.11 vocab/cis81, read from data/crgo-snapshot.json, which
     tools/build_crgo.py writes) — never CIS text; values CRGO flags REVIEW: are noted as unverified. Safeguards
     are listed like SP 800-53 enhancements (shown on search or with "enhancements and safeguards" ticked).
 
@@ -190,7 +190,7 @@ FRAMEWORKS = [
   {'id': 'ISO22', 'name': 'ISO/IEC 27002:2022', 'short': 'ISO 27002:2022', 'origin': 'Bundled — identifiers and short titles', 'note': 'Current edition (93 controls in 4 themes). © ISO/IEC — titles only; consult the standard for the control text.'},
   {'id': 'NIST-53', 'name': 'NIST SP 800-53 Rev. 5', 'short': 'SP 800-53 r5', 'origin': 'Bundled — NIST OSCAL catalogue (public domain)', 'note': 'Base controls and control enhancements, withdrawn items excluded.'},
   {'id': 'CSF2', 'name': 'NIST Cybersecurity Framework 2.0', 'short': 'NIST CSF 2.0', 'origin': 'Bundled — NIST OSCAL catalogue (public domain)', 'note': 'Subcategory outcomes with their statements.'},
-  {'id': 'CIS81', 'name': 'CIS Controls v8.1', 'short': 'CIS v8.1', 'origin': 'Bundled — controls; safeguards with CRGO labels (CRGO 0.11)', 'note': '18 controls by identifier and title; 153 safeguards by identifier with CRGO’s own paraphrased labels (CRGO 0.11.0) — no CIS text; cite CIS by identifier: https://www.cisecurity.org/controls/v8-1. CIS Controls © Center for Internet Security, CC BY-NC-ND 4.0.'},
+  {'id': 'CIS81', 'name': 'CIS Controls v8.1', 'short': 'CIS v8.1', 'origin': 'Bundled — controls; safeguards with CRGO labels (CRGO 0.11)', 'note': '18 controls by identifier and title; 153 safeguards by identifier with CRGO’s own paraphrased labels (CRGO 0.11.1) — no CIS text; cite CIS by identifier: https://www.cisecurity.org/controls/v8-1. CIS Controls © Center for Internet Security, CC BY-NC-ND 4.0.'},
   {'id': 'ATTACK-M', 'name': 'MITRE ATT&CK Enterprise mitigations', 'short': 'ATT&CK M', 'origin': 'Bundled — kb.js (ATT&CK v19.2)', 'note': 'Read from the bundled ATT&CK knowledge base at run time; linked to techniques.'},
   {'id': 'CRG', 'name': 'CyberRiskGuardian measure catalogue', 'short': 'CRG', 'origin': 'Built in', 'note': 'The 20 CRG measures used by Recommendations, mapped to ATT&CK mitigations.'},
 ]

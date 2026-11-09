@@ -65,16 +65,45 @@ export function safeMarkup(str) {
   return frag;
 }
 
-// 1.5.2 — numbers follow the interface language (en-US grouping in English, fr-CA in French).
-const LOC = () => (document.documentElement.lang === 'fr' ? 'fr-CA' : 'en-US');
+/* 1.5.2 — numbers follow the interface language (en-US grouping in English, fr-CA in French).
+   1.9.2 (X-6, NV-040, D6) — ONE set of locale-aware helpers for every screen: n0 / n1 / n2 (counts and decimals),
+   pct (a 0–1 share), pct100 (a value already in per cent, as the KRIs hold them), dec (any number of decimals) and
+   money (D6: the amount follows the interface locale — FR « 5 311 000 $ », EN "$5,311,000"; exports keep plain numbers).
+   French follows OQLF typography: a non-breaking space groups thousands and precedes « % » and « $ »; the decimal mark
+   is the comma. The gate tests/t70_fr_numbers.mjs fails when an FR screen still shows an EN-formatted number. */
+export const LOC = () => (document.documentElement.lang === 'fr' ? 'fr-CA' : 'en-US');
+export const isFRLoc = () => LOC() === 'fr-CA';
+const NBSP = ' ';
 const fmt = (x, o) => Number.isFinite(Number(x)) ? Number(x).toLocaleString(LOC(), o) : '—';
 export const n0 = x => fmt(x, { maximumFractionDigits: 0 });
 export const n1 = x => fmt(x, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 export const n2 = x => fmt(x, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-export const pct = (x, d = 1) => Number.isFinite(Number(x)) ? (LOC() === 'fr-CA' ? (Number(x) * 100).toFixed(d).replace('.', ',') + ' %' : (Number(x) * 100).toFixed(d) + '%') : '—';
-// 1.5.4 — amounts use one format in every language and on every screen: the English one ($123,423).
+/** A number with exactly d decimals in the interface locale ("9,30" / "9.30"). */
+export const dec = (x, d = 2) => fmt(x, { minimumFractionDigits: d, maximumFractionDigits: d });
+/** A number with at most d decimals (trailing zeros dropped): "0,3" / "0.3". */
+export const decMax = (x, d = 2) => fmt(x, { maximumFractionDigits: d });
+/** A share between 0 and 1 as a percentage: pct(0.9827) → "98.3%" (EN) / "98,3 %" (FR). */
+export const pct = (x, d = 1) => Number.isFinite(Number(x)) ? dec(Number(x) * 100, d) + (isFRLoc() ? NBSP + '%' : '%') : '—';
+/** A value already expressed in per cent (KRIs, coverage rates): pct100(98.27, 2) → "98.27%" / "98,27 %". */
+export const pct100 = (v, d = 1) => Number.isFinite(Number(v)) ? dec(Number(v), d) + (isFRLoc() ? NBSP + '%' : '%') : '—';
+/** English amount, whatever the interface language: for exports and files, never for a screen (D6). */
 export const n0en = x => Number.isFinite(Number(x)) ? Number(x).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '—';
-export const money = (x, cur = '') => !Number.isFinite(Number(x)) ? '—' : (cur && cur !== 'CAD' && cur !== 'USD' ? cur + ' ' : '$') + n0en(x);
+/** An amount in the interface locale (D6). CAD and USD show the dollar sign; another currency shows its code. */
+export const money = (x, cur = '') => {
+  if (!Number.isFinite(Number(x))) return '—';
+  const neg = Number(x) < 0, abs = n0(Math.abs(Number(x)));
+  const code = cur && cur !== 'CAD' && cur !== 'USD' ? String(cur) : '';
+  if (isFRLoc()) return (neg ? '−' : '') + abs + NBSP + (code || '$');
+  return (neg ? '−' : '') + (code ? code + ' ' : '$') + abs;
+};
+/** A short amount for charts and tight cells: $5.3M / 5,3 M$ · $180k / 180 k$. */
+export const moneyShort = x => {
+  if (!Number.isFinite(Number(x))) return '—';
+  const v = Number(x), fr = isFRLoc();
+  const unit = v >= 1e6 ? ['M', v / 1e6, v >= 1e7 ? 0 : 1] : v >= 1e3 ? ['k', v / 1e3, 0] : ['', v, 0];
+  const num = dec(unit[1], unit[2]);
+  return fr ? `${num}${NBSP}${unit[0]}$` : `$${num}${unit[0]}`;
+};
 export const today = () => new Date().toISOString().slice(0, 10);
 export const uid = (p = 'id') => p + '-' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
 export const clamp01 = x => Math.max(0, Math.min(1, x));
@@ -87,7 +116,7 @@ export function kpi(k, v, s, kind) {
   if (s) c.append(el('div', 's', s));
   return c;
 }
-export const pillFor = cls => !cls ? '' : cls.startsWith('Below') ? 'good' : cls.startsWith('Approximately') ? 'warn' : 'bad';
+export const pillFor = cls => !cls ? '' : cls.startsWith('Below') ? 'good' : cls.startsWith('Approximately') ? 'warn' : cls.startsWith('Not applicable') ? '' : 'bad';
 export const pill = (text, kind) => el('span', 'pill ' + (kind || ''), text);
 export function banner(kind, title, body) {
   const b = el('div', 'banner ' + kind); b.append(el('b', null, title));
@@ -149,7 +178,12 @@ export function table(cols, rows, opts = {}) {
   };
   for (const c of cols) {
     const th = el('th', c.num ? 'num' : null);
-    if (c.labelNode) th.append(c.labelNode); else th.textContent = c.label;
+    if (c.cls === 'cb') th.classList.add('cb');
+    /* 1.9.2 (NV-064) — a header with no visible text (a tick-box or action column) still names itself for screen
+       readers: c.sr, or "Select" for a tick-box column and "Actions" otherwise. */
+    if (c.labelNode) th.append(c.labelNode);
+    else if (c.label === '' || c.label === undefined || c.label === null) th.append(el('span', 'sr-only', c.sr || (c.cls === 'cb' ? 'Select' : 'Actions')));
+    else th.textContent = c.label;
     if (c.sortable !== false && !c.labelNode) {
       th.classList.add('sortable');
       th.addEventListener('click', () => { if (sortKey === c.key) dir = -dir; else { sortKey = c.key; dir = c.num ? -1 : 1; } draw(); });
@@ -164,13 +198,27 @@ export function table(cols, rows, opts = {}) {
 /* 1.9.1 — a hint that changes what a value means (blank versus 0, the evidence tags, units) is kept visible at the
    Minimal level of detail (detail.js); the others are explanatory and Minimal hides them. */
 export const KEEP_HINT = /Leave blank when unknown|0 means none|\b(FACT|INFERENCE|ASSUMPTION|EXTERNAL|UNKNOWN)\b|between 0 and 1|from 0 to 1|\b0[–-]1\b|\b0 to 10\b|per ?cent|%|\$|\bCAD\b|\b(days?|hours?|months?|years?)\b|Laissez vide si inconnu|0 signifie aucun|entre 0 et 1|\b(jours?|heures?|mois|ans|années?)\b/i;
+/* 1.9.2 (NV-028) — every field's control gets an id and its label points at it (htmlFor), so the control has an
+   accessible name (axe "label" / "select-name"); a hint is linked with aria-describedby. A control that is not a
+   form element (a chips box, a div) is labelled through aria-labelledby instead. Ids are generated once per control. */
+let fieldSeq = 0;
+export const ensureId = (n, prefix = 'f') => { if (n && n.nodeType === 1 && !n.id) n.id = `${prefix}-${(++fieldSeq).toString(36)}`; return n?.id || ''; };
+const FORM_TAGS = new Set(['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'METER', 'PROGRESS', 'OUTPUT']);
 export function field(label, input, hint, opts = {}) {
   const d = el('div', 'field');
   const l = el('label'); if (label instanceof Node) l.append(label); else l.append(safeMarkup(label));   // 1.9.0 — no innerHTML
   d.append(l, input);
+  let ctl = null;
+  if (input && input.nodeType === 1) {
+    ctl = FORM_TAGS.has(input.tagName) ? input : (input.querySelector ? input.querySelector(['input:not([type="hidden"])', 'select', 'textarea'].join(', ')) : null);
+    if (ctl && FORM_TAGS.has(ctl.tagName) && !(ctl.type === 'checkbox' && input !== ctl)) l.htmlFor = ensureId(ctl);
+    else if (!ctl) { ensureId(l, 'fl'); input.setAttribute('aria-labelledby', l.id); ctl = null; }
+    else ctl = null;
+  }
   if (hint) {
     const h = el('div', 'hint', hint);
     if (opts.keep || KEEP_HINT.test(hint instanceof Node ? hint.textContent : String(hint))) h.classList.add('keep');
+    if (ctl && !ctl.hasAttribute('aria-describedby')) ctl.setAttribute('aria-describedby', ensureId(h, 'fh'));
     d.append(h);
   }
   return d;
@@ -187,7 +235,7 @@ export function select(options, value, attrs = {}) {
 export function chip(text, opts = {}) {
   const c = el(opts.href ? 'a' : 'span', { class: 'chip ' + (opts.kind || ''), href: opts.href, title: opts.title });
   c.append(el('span', null, text));
-  if (opts.onRemove) c.append(el('button', { class: 'x', title: 'Remove', 'aria-label': 'Remove ' + text,
+  if (opts.onRemove) c.append(el('button', { class: 'x', type: 'button', title: 'Remove', 'aria-label': 'Remove ' + text,
     onclick: e => { e.preventDefault(); e.stopPropagation(); opts.onRemove(); } }, '×'));
   return c;
 }

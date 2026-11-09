@@ -21,9 +21,9 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { S, scen, compute } from './state.js';
-import * as K from './catalog.js';
 import { today, uid } from './util.js';
 import * as users from './users.js';
+import * as RE from './receffect.js';
 
 /* ---------------- vocabulary ---------------- */
 
@@ -166,51 +166,20 @@ export function cost(rec, ws = S.ws) {
 /* ---------------- expected effect, through the verified engine ---------------- */
 
 /**
- * Current and post-treatment figures for the scenarios a recommendation covers.
+ * Current and post-treatment figures for the scenarios a recommendation covers (receffect.js, decided item 23).
  *
- * "Current" applies every measure already in force. "After" additionally applies this recommendation's
- * own measures that are not yet in force. A measure of this recommendation that is already implemented
- * therefore appears in both and contributes nothing to the delta — control existence does not earn
- * treatment credit twice. The combination rule is the approved one —
- * red_p = 1 − ∏(1 − rp), red_i = 1 − ∏(1 − ri) — and CRG.calc does the arithmetic.
+ * "Current" applies every measure already in force EXCEPT this recommendation's own; "after" adds this
+ * recommendation's measures, whatever their status (R-2). A measure of this recommendation that the organization
+ * has already implemented is therefore counted once, on the "after" side: approving a recommendation whose measure
+ * is in force no longer freezes a reduction of 0. The combination rule is the approved one —
+ * red_p = 1 − ∏(1 − rp), red_i = 1 − ∏(1 − ri) — and CRG.calc does the arithmetic. The rows also carry the
+ * treatment-need verdicts of this module (curNeed, aftNeed) for the screens.
  */
-export function effect(rec, ws = S.ws, { inForce = ['approved', 'in-progress', 'implemented'] } = {}) {
-  const A = ws.assessment, app = A.APPETITE, fac = A.FACTOR;
-  const mine = new Set(rec.measures || []);
-  const rows = [];
-  for (const id of rec.scenarios || []) {
-    const s = A.SCEN.find(x => x.id === id);
-    if (!s) continue;
-    const q = (pred) => {
-      let qp = 1, qi = 1;
-      for (const m of ws.measures || []) {
-        if (!pred(m) || !(m.scen || []).includes(id)) continue;
-        const e = K.effect(m, id);
-        qp *= 1 - Math.max(0, Math.min(1, e.rp));
-        qi *= 1 - Math.max(0, Math.min(1, e.ri));
-      }
-      return { red_p: 1 - qp, red_i: 1 - qi };
-    };
-    // "Current" is everything already in force, this recommendation's own measures included when they
-    // are in force: a recommendation must not claim credit for a control the organization already has.
-    const base = q(m => inForce.includes(m.status));
-    const with_ = q(m => inForce.includes(m.status) || mine.has(m.id));
-    try {
-      const cur = CRG.calc(Object.assign({}, s, { red_p: +base.red_p.toFixed(6), red_i: +base.red_i.toFixed(6) }), app, fac);
-      const aft = CRG.calc(Object.assign({}, s, { red_p: +with_.red_p.toFixed(6), red_i: +with_.red_i.toFixed(6) }), app, fac);
-      rows.push({ id, name: s.name || id, cur, aft,
-                  curNeed: need(cur.ratio), aftNeed: need(aft.ratio),
-                  delta: cur.res - aft.res });
-    } catch (e) { rows.push({ id, name: s.name || id, error: String(e.message || e) }); }
-  }
-  const ok = rows.filter(r => !r.error);
-  const sum = (k, w) => ok.reduce((t, r) => t + (r[w][k] || 0), 0);
-  const totals = { curRes: sum('res', 'cur'), aftRes: sum('res', 'aft'), tol: sum('tol', 'cur') };
-  totals.reduction = totals.curRes - totals.aftRes;
-  totals.curRatio = totals.tol ? totals.curRes / totals.tol : NaN;
-  totals.aftRatio = totals.tol ? totals.aftRes / totals.tol : NaN;
-  totals.brought = ok.filter(r => r.curNeed.act && !r.aftNeed.act).length;
-  return { rows, totals };
+export function effect(rec, ws = S.ws, { inForce = RE.IN_FORCE } = {}) {
+  // NV-066: a coefficient outside 0–1 is flagged (e.totals.invalid), not clamped: receffect.js leaves it out of the product
+  const e = RE.effect(rec, ws, { inForce });
+  for (const r of e.rows) if (!r.error) { r.curNeed = need(r.cur.ratio); r.aftNeed = need(r.aft.ratio); }
+  return e;
 }
 
 /** §9: expected reduction per dollar of year-one cost. Null when nothing is spent. */
@@ -281,6 +250,9 @@ export function transition(rec, to, { by = '', note = '', ws = S.ws } = {}) {
     throw new TransitionError(`A recommendation cannot go from ${STATUS_LABEL[from] || from} to ${STATUS_LABEL[to] || to}.`);
   if (to === 'approved') {
     if (users.active()) { users.requireApprove('recommend'); by = by || users.name(); }   // 1.5.2 — RACI: only A approves
+    // 1.9.2 (decided item 22, X-5): no approval is recorded without a named person
+    if (!String(by || '').trim()) throw new TransitionError('Approval needs the name of the approver: no recommendation is recorded as approved without a named person.');
+    by = String(by).trim();
     const missing = incomplete(rec, ws);
     if (missing.length) throw new TransitionError('Before approval, complete: ' + missing.join('; ') + '.');
     const e = effect(rec, ws);

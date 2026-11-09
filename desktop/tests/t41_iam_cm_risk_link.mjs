@@ -4,7 +4,7 @@
 import { open, ok, done, URL, modulesOn, goto } from './lib.mjs';
 import crypto from 'crypto';
 import fs from 'fs';
-const CRG_SHA = '358816882e46fb2f58bdec0ecdce7e7d4dba7902fd5262e59f06f81df96b688b';
+const CRG_SHA = '58bec36a41d7e975f06b418153010927b313d091eee41050039fe227472fc905';   // 1.9.2 engine (ws2: vector wins, zero tolerance, one typing rule, directional sensitivity clamp)
 const { browser, page, errors } = await open('#/process');
 await modulesOn(page);
 await goto(page, '#/iam/findings', 900);
@@ -79,6 +79,6 @@ await goto(page, '#/scenario/S6/links', 900);
 ok(await page.isVisible('#cm-scenario') && /E17/.test(await page.textContent('#cm-scenario')) && /IF-07/.test(await page.textContent('#cm-scenario')), 'Scenario editor (S6) lists the CM evidence and its accepted change');
 // the engine file is unchanged
 const sha = crypto.createHash('sha256').update(fs.readFileSync(new globalThis.URL('../app/crg.js', import.meta.url))).digest('hex');
-ok(sha === CRG_SHA, 'crg.js identical to the 1.8.2 engine (SHA-256 ' + sha.slice(0, 12) + ')');
+ok(sha === CRG_SHA, 'crg.js identical to the 1.9.2 engine (SHA-256 ' + sha.slice(0, 12) + ')');
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
 await browser.close(); done('t41 iam cm risk link');

@@ -8,7 +8,8 @@
 import { el, n0, card, banner, field, select, toast, today, pill, table } from '../util.js';
 import { S, touch, setSnapshot } from '../state.js';
 import { parseKev, parseEpss, build, KEV_URL, KEV_MIRROR, epssUrl } from '../snapgen.js';
-import { api } from '../helper.js';   // 1.9.0 — X-CRG and the per-launch token
+import { api, HS, setKey, loadConfig } from '../helper.js';   // 1.9.0 — X-CRG and the per-launch token
+import { tr } from '../i18n.js';
 
 let helper = undefined;          // undefined = not probed, null = absent, object = present
 let poll = null;
@@ -16,10 +17,19 @@ const staged = { kev: null, epss: null, kevName: null, epssName: null };
 
 export async function probe() {
   try { helper = await (await api('/api/helper')).json(); } catch { helper = null; }
+  if (helper) { try { await loadConfig(); } catch { /* keys unknown */ } await migrateLegacyKey(); }
   return helper;
 }
-const keyGet = () => { try { return localStorage.getItem('crg-nvd-key') || ''; } catch { return ''; } };
-const keySet = v => { try { v ? localStorage.setItem('crg-nvd-key', v) : localStorage.removeItem('crg-nvd-key'); } catch {} };
+/* 1.9.2 (NV-058): the NVD API key is kept by the helper's key store (name "nvd", bound to services.nvd.nist.gov), like the
+   AI keys — never in the browser. A key an earlier version left in localStorage is moved there once, then removed. */
+const LEGACY_KEY = 'crg-nvd-key';
+const hasKey = () => !!(HS.keys ? HS.keys.includes('nvd') : false);
+async function migrateLegacyKey() {
+  let v = ''; try { v = localStorage.getItem(LEGACY_KEY) || ''; } catch { v = ''; }
+  if (!v || !helper) return;
+  try { await setKey('nvd', v); localStorage.removeItem(LEGACY_KEY); toast(tr('The NVD API key was moved from the browser to the helper’s key store')); }
+  catch (e) { toast(tr('The NVD API key could not be moved to the key store: ') + (e.message || e), 'bad'); }
+}
 const yesterday = () => new Date(Date.now() - 864e5).toISOString().slice(0, 10);
 const daysAgo = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
 const mb = b => b >= 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB';
@@ -46,8 +56,8 @@ function requestCard(jobsBox, filesBox, sec) {
   const mode = select([['since', 'Records changed since the last update'], ['range', 'Records changed in a date range'], ['full', 'Reload the complete NVD catalogue (long)']], 'since');
   const since = ws.feedState.nvdLast || daysAgo(30);
   const start = el('input', { type: 'date', value: since, max: today() }), end = el('input', { type: 'date', value: today(), max: today() });
-  const key = el('input', { type: 'password', value: keyGet(), placeholder: 'optional — speeds NVD up about 10×', autocomplete: 'off' });
-  key.addEventListener('change', () => keySet(key.value.trim()));
+  const key = el('input', { type: 'password', value: '', placeholder: hasKey() ? tr('a key is stored by the helper — type a new one to replace it') : 'optional — speeds NVD up about 10×', autocomplete: 'off' });
+  key.addEventListener('change', async () => { if (!key.value.trim()) return; try { await setKey('nvd', key.value.trim()); key.value = ''; key.placeholder = tr('a key is stored by the helper — type a new one to replace it'); toast(tr('NVD API key stored by the helper')); } catch (e) { toast(String(e.message || e), 'bad'); } });
   const rangeBox = el('div', 'grid g2', field('From (last modified)', start), field('To', end));
   const info = el('div', 'note');
   const upd = () => {
@@ -63,7 +73,7 @@ function requestCard(jobsBox, filesBox, sec) {
     catch (e) { toast('Could not start: ' + e.message, 'bad'); }
   };
   const nvdParams = () => {
-    const p = { mode: mode.value === 'full' ? 'full' : 'range', api_key: key.value.trim() || undefined };
+    const p = { mode: mode.value === 'full' ? 'full' : 'range' };   // the helper reads the stored NVD key itself (NV-058)
     if (mode.value === 'since') { p.start = since; p.end = today(); }
     if (mode.value === 'range') { p.start = start.value; p.end = end.value; }
     return p;
@@ -76,7 +86,7 @@ function requestCard(jobsBox, filesBox, sec) {
         field('Score date', epssDate),
         el('div', 'btnrow', { style: { marginTop: '10px' } }, el('button', { class: 'btn', disabled: !helper, onclick: () => go('epss', { date: epssDate.value }) }, 'Download'))),
       el('div', 'opt', el('h4', null, 'NVD CVE records'), el('div', 'small muted', 'CVSS v4.0 Base vectors, CWE and descriptions, saved in a compact form.'),
-        field('What to download', mode), rangeBox, field('NVD API key', key, 'Stored only in this browser on this computer; never written to the downloads folder.'), info,
+        field('What to download', mode), rangeBox, field('NVD API key', key, 'Stored by the helper in its key store (macOS keychain, or a file readable by you only), bound to services.nvd.nist.gov — never in this browser, never in the downloads folder.'), info,
         el('div', 'btnrow', { style: { marginTop: '10px' } }, el('button', { class: 'btn', disabled: !helper, onclick: () => {
           if (mode.value === 'full' && !window.confirm('Reload the complete NVD catalogue?\n\nIt can take 30–60 minutes or more without an API key. The download continues in the launcher window; you can load the file later from this screen.')) return;
           go('nvd', nvdParams());
@@ -98,7 +108,7 @@ async function drawJobs(jobsBox, filesBox, sec) {
     { key: 'act', label: '', sortable: false, render: j => el('div', 'btnrow',
       j.status === 'running' ? el('button', { class: 'btn sm ghost danger', onclick: async () => { await api(`/api/jobs/${j.id}/cancel`, { method: 'POST', body: '{}' }); drawJobs(jobsBox, filesBox, sec); } }, 'Cancel') : null,
       j.status === 'done' && j.file ? el('button', { class: 'btn sm', onclick: () => loadFromHelper(j.file, sec) }, loaded.has(j.file) ? 'Load again' : 'Load') : null,
-      ['interrupted', 'error', 'cancelled'].includes(j.status) ? el('button', { class: 'btn sm ghost', onclick: async () => { const p = Object.assign({}, j.params); if (j.source === 'nvd') p.api_key = keyGet() || undefined; await api('/api/download', { method: 'POST', body: JSON.stringify({ source: j.source, params: p }) }); drawJobs(jobsBox, filesBox, sec); } }, 'Restart') : null,
+      ['interrupted', 'error', 'cancelled'].includes(j.status) ? el('button', { class: 'btn sm ghost', onclick: async () => { const p = Object.assign({}, j.params); await api('/api/download', { method: 'POST', body: JSON.stringify({ source: j.source, params: p }) }); drawJobs(jobsBox, filesBox, sec); } }, 'Restart') : null,
       j.status !== 'running' ? el('button', { class: 'btn sm ghost', title: 'Remove from this list (the file stays)', onclick: async () => { await api(`/api/jobs/${j.id}/forget`, { method: 'POST', body: '{}' }); drawJobs(jobsBox, filesBox, sec); } }, '×') : null) },
   ], J, { sortKey: null, class: 'compact' })) : el('p', 'note', 'No download requested yet.'));
   filesBox.replaceChildren(F.length ? card(table([

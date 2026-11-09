@@ -9,7 +9,9 @@ Checks: the MediBec regression (84,305 / 41,023); the book v2.51 ch06 worked exa
 Re 3,554.46, Rt 1,777.23, mitigated 1,617.28, residual 1,937.18, ratio 1.09, cost-effectiveness 26.09,
 sensitivity 0.69 / 1.53); the design thresholds 0.50 / 0.55; the ch06 budget example (10.95%, $5.475M,
 9.4%, gap -$0.775M, implied appetite 0.42); input validation (decision 4) and the CVSS cross-check;
-the product rule for combining reductions. Exit 1 on any failure.
+the product rule for combining reductions; the unified engine rules of 1.9.2 (CVSS-B only with /E:U and /MAV:L
+refused, zero tolerated risk -> "Not applicable (tolerated risk 0)", typing rules, default appetite warning, budget
+conventions) and the CanaRetail regression (27,526 / 16,049). Exit 1 on any failure.
 """
 import argparse, copy, json, os, sys
 
@@ -118,6 +120,48 @@ def main():
           rb["cvss"] == 9.3 and any("disagrees" in x for x in rb["warnings"]))
     check("run() reports every error in the file at once",
           raises(lambda: C.run({"APPETITE": 0.3, "SCEN": [mut(PbA=2), dict(mut(Th=0), id="G17")]}), "G17"))
+
+    # 4b. unified engine rules (CRG 1.9.2, X-1 / X-2)
+    check("CVSS-B only: /E:U (Threat metric) is refused and exploitation evidence routed to Pb(psi,A)",
+          raises(lambda: C.calc(dict(copy.deepcopy(EX), cvss=VEC_AVL + "/E:U")), "Pb(psi,A)"))
+    check("CVSS-B only: /MAV:L (Environmental metric) is refused",
+          raises(lambda: C.calc(dict(copy.deepcopy(EX), cvss=VEC_AVL + "/MAV:L")), "CVSS-B only"))
+    check("CVSS-B only: /S:N (Supplemental metric) is refused",
+          raises(lambda: C.calc(dict(copy.deepcopy(EX), cvss=VEC_AVL + "/S:N")), "Supplemental"))
+    z = C.calc(mut(PbA=0.0), 0.35)
+    check("zero tolerated risk (Pb(A) = 0): ratio None, verdict 'Not applicable (tolerated risk 0)', warning",
+          z["tol"] == 0 and z["ratio"] is None and C.classify(z["ratio"]) == C.NOT_APPLICABLE and any("not applicable" in w for w in z["warnings"]))
+    check("zero tolerated risk via CVSS score 0 (no vector)",
+          C.classify(C.calc(dict(copy.deepcopy(nov), cvss_score=0.0), 0.35)["ratio"]) == C.NOT_APPLICABLE)
+    check("classify(NaN) is 'Not applicable', never 'Above tolerance'", C.classify(float("nan")) == C.NOT_APPLICABLE)
+    check("design thresholds are None when de = dm = 0", C.design_thresholds(0, 0, 0.35) == {"at_or_below_tolerated": None, "below_band": None})
+    check("rejects a boolean parameter (True is not a number)", raises(lambda: C.calc(mut(Mu=True)), "must be a number"))
+    check("rejects a numeric string parameter ('0.7')", raises(lambda: C.calc(mut(PbA="0.7")), "must be a number"))
+    nored = copy.deepcopy(EX); del nored["red_p"]; del nored["red_i"]
+    check("missing reductions mean 0 (residual = estimated)", C.calc(nored, 0.35)["res"] == C.calc(nored, 0.35)["est"])
+    noapp = C.run({"SCEN": [copy.deepcopy(EX)]})
+    check("missing APPETITE: default used and reported as an Analytical estimate",
+          noapp["appetite"] == C.DEFAULT_APPETITE and any("Analytical estimate" in w for w in noapp["warnings"]))
+    check("budget: negative IT budget rejected", raises(lambda: C.budget_position(0.35, -1), "IT budget"))
+    check("budget convention: 2% spend -> implied appetite None, negative gap, below the 4% point target",
+          (lambda b: b["implied_appetite"] is None and b["gap_amount"] < 0 and b["position"].startswith("Below the 4%"))(C.budget_position(0.35, 50e6, 1.0e6)))
+    cr = os.path.join(HERE, "fixtures", "canaretail10.json")
+    if os.path.exists(cr):
+        t = C.run(json.load(open(cr, encoding="utf-8")))["totals"]
+        check("CanaRetail regression: estimated 27,526 / residual 16,049", round(t["est"]) == 27526 and round(t["res"]) == 16049, f"{t['est']:,.0f} / {t['res']:,.0f}")
+
+    # 4c. sensitivity (NV-045): central case never shifted or clamped; directional clamp only
+    edge = mut(PbA=1.0, Pbx=0.02, Th=0.03, red_p=0.0, red_i=1.0)
+    c0 = C.shift(edge, 0)
+    check("sensitivity central case is the unshifted scenario (Pb(A) 1.00, Pb(psi,A) 0.02, theta 0.03, red_p 0 kept)",
+          (c0["params"]["PbA"]["v"], c0["params"]["Pbx"]["v"], c0["params"]["Th"]["v"], c0["red_p"], c0["red_i"]) == (1.0, 0.02, 0.03, 0.0, 1.0))
+    hi = C.shift(edge, 0.10)
+    check("higher case never milder than central: Pb(A) stays 1.00, red_p stays 0, theta 0.03 stays, red_i 0.90",
+          hi["params"]["PbA"]["v"] == 1.0 and hi["red_p"] == 0.0 and hi["params"]["Th"]["v"] == 0.03 and round(hi["red_i"], 2) == 0.90, str((hi["params"]["PbA"]["v"], hi["red_p"], hi["params"]["Th"]["v"], hi["red_i"])))
+    lo = C.shift(edge, -0.10)
+    check("lower case: Pb(psi,A) 0.02 stays (never rises to 0.05), Pb(A) 0.90, red_i stays 1.00, theta 0.13",
+          lo["params"]["Pbx"]["v"] == 0.02 and round(lo["params"]["PbA"]["v"], 2) == 0.90 and lo["red_i"] == 1.0 and round(lo["params"]["Th"]["v"], 2) == 0.13, str((lo["params"]["Pbx"]["v"], lo["params"]["PbA"]["v"], lo["red_i"], lo["params"]["Th"]["v"])))
+    check("sensitivity: central ratio equals the plain calculation", C.calc(C.shift(EX, 0), 0.35)["ratio"] == C.calc(EX, 0.35)["ratio"])
 
     # 5. product rule
     check("product rule: 0.5 and 0.5 combine to 0.75", abs(C.combine_reductions([0.5, 0.5]) - 0.75) < 1e-12)

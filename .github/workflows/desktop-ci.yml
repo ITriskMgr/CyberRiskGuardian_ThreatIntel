@@ -1,5 +1,5 @@
 # CyberRiskGuardian Desktop — gates, helper tests, engine regression and the browser suites (1.9.0).
-# Runs the application exactly as the launcher does (python3 serve.py), against CRGO 0.11.0 (tag v0.11.0), with canned AI answers
+# Runs the application exactly as the launcher does (python3 serve.py), against CRGO 0.11.1 (tag v0.11.1), with canned AI answers
 # (desktop/tests/mock, copied to $CRG_TMP/mock for the run) — no key, no model and no network beyond the checkouts and the installs below.
 name: desktop-ci
 on:
@@ -20,10 +20,10 @@ jobs:
     timeout-minutes: 75
     env:
       # The CRGO ref the suites run against
-      CRGO_REF: v0.11.0
-      CRGO_RELEASE: "0.11.0"
+      CRGO_REF: v0.11.1
+      CRGO_RELEASE: "0.11.1"
       CRG_URL: http://127.0.0.1:8101/
-      CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.11.0
+      CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.11.1
       CRG_MOCK_GITHUB_PORT: "8199"
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
@@ -39,7 +39,7 @@ jobs:
         with:
           repository: ITriskMgr/CyberRiskGuardian-Ontology
           ref: ${{ env.CRGO_REF }}
-          path: CyberRiskGuardian-Ontology-0.11.0
+          path: CyberRiskGuardian-Ontology-0.11.1
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
@@ -47,29 +47,45 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
-      - name: Python dependencies (pinned)
+      # 1.9.2: LibreOffice (soffice) recalculates the exported workbooks in t61; without it the suite fails its availability check
+      - name: LibreOffice Calc (headless)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends libreoffice-calc-nogui
+          soffice --version
+      # 1.9.2 (NV-087): every package pinned with its SHA-256 hash (desktop/tests/requirements-ci.lock, generated from
+      # requirements.txt + requirements-ci.txt for CPython 3.12/3.13 on linux x86_64); pip refuses anything else.
+      - name: Python dependencies (pinned, hash-checked)
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r desktop/tests/requirements-ci.txt
-      # No package-lock.json yet (review L5): it could not be generated offline when 1.9.0 was prepared. Playwright is pinned
-      # to an exact version in package.json, and it pins playwright-core exactly; generate the lock with network access
-      # (npm install --package-lock-only), commit it, and switch this step to `npm ci`.
+          pip install --require-hashes -r desktop/tests/requirements-ci.lock
+      # 1.9.2 (NV-087): the committed package-lock.json is the source of truth — `npm ci` installs exactly it and fails on drift.
       - name: Playwright (Chromium)
         working-directory: desktop/tests
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
+      # 1.9.2 (NV-087): known vulnerabilities in the pinned dependencies are reported on every run (advisory: they fail
+      # the job only at high severity, so a new advisory is seen without blocking an unrelated change)
+      - name: Dependency audit (pip-audit, npm audit)
+        continue-on-error: true
+        run: |
+          python -m pip install --quiet pip-audit
+          pip-audit -r desktop/tests/requirements-ci.lock --require-hashes --strict || echo "::warning::pip-audit found advisories (see above)"
+          (cd desktop/tests && npm audit --omit=dev --audit-level=high) || echo "::warning::npm audit found advisories (see above)"
       - name: Gates
         working-directory: desktop/app
         run: |
           python tools/version_check.py
+          python tools/ai_policy_check.py
+          python tools/writer_tree_hash.py --check
           python tools/cache_check.py
           python tools/label_check.py
           python tools/history_check.py
           python tools/anchor_check.py
           python tools/i18n_coverage.py fr --strict
           python tools/csp_check.py
-          # IPC.CRGO is filled from CRGO 0.11.0: no placeholder may come back, every identifier must exist in CRGO
+          # IPC.CRGO is filled from CRGO 0.11 (bundled 0.11.1): no placeholder may come back, every identifier must exist in CRGO
           python tools/crgo_tbd_check.py --release --crgo "$CRGO_HOME"
       - name: Engine regression (MediBec 84,305 / 41,023), CRGO bridge and SSVC tables
         working-directory: plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts
@@ -77,6 +93,12 @@ jobs:
           python test_crg_calc.py
           python test_crgo_contract.py --crgo "$CRGO_HOME"
           python -I test_ssvc.py
+          # 1.9.2 (X-1, X-2): one engine rule set — the shared conformance test against the plugin engine and its MCP server
+          python test_cross_engine.py
+      - name: SSVC tables and eval graders (plugin 1.7.2)
+        run: |
+          python scripts/ssvc_compare.py
+          python scripts/build_evals.py --replay
       - name: Helper guard tests
         run: python -m unittest discover -s desktop/tests -p "test_*.py" -v
       - name: Browser suites

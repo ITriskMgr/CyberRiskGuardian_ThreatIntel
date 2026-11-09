@@ -380,8 +380,13 @@ export function parseSigma(text) {
   for (const d of docs) {
     let y; try { y = parseYaml(d); } catch (e) { errors.push(String(e.message || e)); continue; }
     if (!y || typeof y !== 'object' || Array.isArray(y) || !y.title) { if (y && (y.action || y.logsource)) errors.push('document without a title skipped'); else if (d.trim()) errors.push('not a Sigma rule (no title)'); continue; }
+    // 1.9.2 (NV-063): a Sigma rule has a logsource and a detection (sigmahq.io specification); a document without both is not a rule
+    const isMap = v => v && typeof v === 'object' && !Array.isArray(v);
+    const ls = isMap(y.logsource) ? y.logsource : /^\{\s*\}$/.test(String(y.logsource ?? '')) ? {} : null;   // "logsource: { }" is a present, empty mapping
+    const det = isMap(y.detection) ? y.detection : null;
+    if (!ls || !det) { errors.push(`"${String(y.title).slice(0, 60)}": not a Sigma rule (${!ls && !det ? 'no logsource and no detection' : !ls ? 'no logsource' : 'no detection'} mapping)`); continue; }
+    if (!Object.keys(det).some(k => /^condition$/i.test(k))) errors.push(`"${String(y.title).slice(0, 60)}": detection has no condition — imported as a draft`);
     const tags = (Array.isArray(y.tags) ? y.tags : y.tags ? [y.tags] : []).map(String);
-    const ls = y.logsource && typeof y.logsource === 'object' ? y.logsource : {};
     out.push({
       title: String(y.title), ruleId: y.id ? String(y.id) : '', language: 'sigma', sigmaStatus: y.status ? String(y.status) : '', status: SIGMA_STATUS[lc(y.status)] || 'draft',
       level: LEVELS.some(l => l[0] === lc(y.level)) ? lc(y.level) : '', description: y.description ? String(y.description) : '',

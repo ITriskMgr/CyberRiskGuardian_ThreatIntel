@@ -68,6 +68,9 @@ const cai = await page.evaluate(async () => (await import('/js/panels/cm.js'))._
 ok(cai.items.length === 3 && cai.items.every(i => ['ciScopes', 'changes'].includes(i.register)) && cai.dropped >= 3 && !JSON.stringify(cai.items).match(/sentinel/i), 'CM AI answer: scope and change counts kept; accounts, hosts and e-mails dropped ' + JSON.stringify(cai.items).slice(0, 220));
 const lastCm = JSON.parse(fs.readFileSync(MOCK + '/_last.json', 'utf8'));
 ok(/^TASK: extract_s_cm/.test(lastCm.prompt) && /- ciScopes:/.test(lastCm.prompt) && !/- accounts:/.test(lastCm.prompt), 'the request names the CM task and asks for configuration counts only');
+// 1.9.2 review (H4): counts read by the AI are not pre-ticked and never tagged FACT — the analyst ticks what the report confirms
+ok(await page.evaluate(() => [...document.querySelectorAll('#cm-review input[type=checkbox]')].every(c => !c.checked)) && cai.items.every(i => i.tag !== 'FACT'), 'CM AI proposals: nothing pre-ticked, no FACT');
+await page.evaluate(() => { for (const c of document.querySelectorAll('#cm-review input[type=checkbox]')) c.checked = true; });
 await page.click('#cm-accept'); await page.waitForTimeout(500);
 const cws = await page.evaluate(async () => { const w = (await import('/js/state.js')).S.ws; return { cs: w.cm.ciScopes.map(r => `${r.inScope}/${r.assigned}/${r.assessed}/${r.compliant}|${r.prov.method}`), ch: w.cm.changes.map(r => `${r.type}:${r.count}/${r.verified}`), imp: w.cm.imports.map(t => `${t.file}|${t.method}|${t.accepted}`), iamImp: w.iam.imports.length, iamCs: 'ciScopes' in w.iam }; });
 ok(cws.cs.join() === '120/110/100/90|ai' && cws.ch.join() === 'emergency:6/4,unauthorized_suspected:1/0' && cws.imp.join() === 'cm-report.txt|ai|3' && cws.iamImp === 4 && !cws.iamCs, 'CM counts and import trace in the cm record only ' + JSON.stringify(cws));

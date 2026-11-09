@@ -2,7 +2,8 @@
    arbitrage frontier). One y-axis per chart; colors come from CSS tokens so light and dark both work.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { safeMarkup } from './util.js';
+import { safeMarkup, n0, n2, decMax, pct as pctFmt } from './util.js';
+import { tr } from './i18n.js';
 const NS = 'http://www.w3.org/2000/svg';
 export function svg(tag, attrs = {}, ...kids) {
   const n = document.createElementNS(NS, tag);
@@ -23,7 +24,7 @@ function tooltip() { if (!tip) { tip = document.createElement('div'); tip.classN
 // names and KRI notes are workspace text and never become markup.
 export function showTip(e, html) { const t = tooltip(); t.replaceChildren(safeMarkup(html)); t.style.display = 'block'; const x = Math.min(e.clientX + 14, innerWidth - t.offsetWidth - 8); t.style.left = x + 'px'; t.style.top = (e.clientY + 14) + 'px'; }
 export function hideTip() { if (tip) tip.style.display = 'none'; }
-const fmt = v => Math.abs(v) >= 1000 ? Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 }) : Number(v).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const fmt = v => Math.abs(v) >= 1000 ? n0(v) : decMax(v, 2);   // 1.9.2 (X-6): axis values follow the interface locale
 
 /** Line chart over dates. series: [{name, color, points:[{x: 'YYYY-MM-DD', y}]}]; refs: [{y, label, color}] */
 export function lineChart({ series, refs = [], width = 720, height = 240, yLabel = '', yFmt = fmt }) {
@@ -84,13 +85,13 @@ export function bandChart({ target, anchors, band, points, width = 760, height =
     root.append(svg('text', { x: (X(a) + X(b)) / 2, y: m.t - 10, 'text-anchor': 'middle', style: small ? 'font-size:10px' : 'font-weight:600;fill:var(--ink)' }, lab));
   }
   for (const v of [band.max, band.median, band.min]) root.append(svg('line', { x1: m.l, x2: m.l + W, y1: Y(v), y2: Y(v), style: 'stroke:var(--line);stroke-dasharray:2 3' }));
-  for (const t of ticks(0, ymax, 6)) root.append(svg('text', { x: m.l - 6, y: Y(t) + 4, 'text-anchor': 'end' }, (t * 100).toFixed(0) + '%'));
-  for (const a of [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) root.append(svg('text', { x: X(a), y: m.t + H + 16, 'text-anchor': 'middle' }, a.toFixed(1)));
+  for (const t of ticks(0, ymax, 6)) root.append(svg('text', { x: m.l - 6, y: Y(t) + 4, 'text-anchor': 'end' }, pctFmt(t, 0)));
+  for (const a of [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) root.append(svg('text', { x: X(a), y: m.t + H + 16, 'text-anchor': 'middle' }, decMax(a, 1)));
   root.append(svg('text', { x: m.l + W / 2, y: height - 6, 'text-anchor': 'middle' }, 'Risk appetite implied by the spend  ←  more averse · more seeking  →'));
   root.append(svg('line', { x1: m.l, x2: m.l + W, y1: m.t + H, y2: m.t + H, style: 'stroke:var(--line)' }));
   const curve = []; for (let a = 0.1; a <= 0.9001; a += 0.01) curve.push([X(a), Y(target(a))]);
   root.append(svg('path', { d: curve.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' '), style: 'fill:none;stroke:var(--ink);stroke-width:2' }));
-  root.append(svg('text', { x: X(0.115), y: Y(band.max) + 16, style: 'fill:var(--ink)' }, `Guideline ${(band.max * 100).toFixed(0)}% · ${(band.median * 100).toFixed(1)}% · ${(band.min * 100).toFixed(0)}%`));
+  root.append(svg('text', { x: X(0.115), y: Y(band.max) + 16, style: 'fill:var(--ink)' }, `${tr('Guideline')} ${pctFmt(band.max, 0)} · ${pctFmt(band.median, 1)} · ${pctFmt(band.min, 0)}`));
   // place points; spread the ones that share a margin zone
   const zoneCount = { floor: 0, ceil: 0 };
   const placed = points.map(p => {
@@ -147,7 +148,7 @@ export function frontierChart({ steps, envelopes, width = 760, height = 320, mon
     if (!i) return;
     const c = svg('circle', { cx: X(s.cost), cy: Y(s.res), r: 4.5, style: `fill:${s.above ? 'var(--bad)' : 'var(--series-1)'};stroke:var(--surface);stroke-width:2` });
     const hit = svg('circle', { cx: X(s.cost), cy: Y(s.res), r: 11, style: 'fill:transparent' });
-    hit.addEventListener('mousemove', e => showTip(e, `<b>${s.id} — ${s.name}</b>Cost ${money(s.step)} · reduces ${fmt(s.gain)}<br>Cumulative ${money(s.cost)} · residual ${fmt(s.res)}<br>CE ${s.ce.toFixed(2)} per $1k`));
+    hit.addEventListener('mousemove', e => showTip(e, `<b>${s.id} — ${s.name}</b>${tr('Cost')} ${money(s.step)} · ${tr('reduces')} ${fmt(s.gain)}<br>${tr('Cumulative')} ${money(s.cost)} · ${tr('residual')} ${fmt(s.res)}<br>CE ${n2(s.ce)} ${tr('per $1,000')}`));
     hit.addEventListener('mouseleave', hideTip);
     root.append(c, hit);
     if (i <= 5) root.append(svg('text', { x: X(s.cost) + (i % 2 ? 7 : -7), y: Y(s.res) + (i % 2 ? -8 : 16), 'text-anchor': i % 2 ? 'start' : 'end', style: 'fill:var(--ink);font-size:10.5px' }, s.id));
@@ -197,8 +198,8 @@ export function yearsChart({ years, band, target, width = 760, height = 300, mon
   const Y = v => m.t + H - v / ymax * H;
   const slot = W / Math.max(1, years.length), bw = Math.min(46, slot * 0.42);
   const root = svg('svg', { viewBox: `0 0 ${width} ${height}`, class: 'chart', role: 'img', 'aria-label': 'Cybersecurity budget by year as a share of the IT budget' });
-  for (const t of ticks(0, ymax, 5)) { root.append(svg('line', { x1: m.l, x2: m.l + W, y1: Y(t), y2: Y(t), style: 'stroke:var(--line);stroke-dasharray:2 3' })); root.append(svg('text', { x: m.l - 6, y: Y(t) + 4, 'text-anchor': 'end' }, (t * 100).toFixed(0) + '%')); }
-  const lines = [[band.min, '4% risk seeking', 'var(--series-2)'], [band.median, '7.8% neutral', 'var(--muted)'], [band.max, '12% risk averse', 'var(--series-1)'], [target, `target ${(target * 100).toFixed(1)}%`, 'var(--ink)']];
+  for (const t of ticks(0, ymax, 5)) { root.append(svg('line', { x1: m.l, x2: m.l + W, y1: Y(t), y2: Y(t), style: 'stroke:var(--line);stroke-dasharray:2 3' })); root.append(svg('text', { x: m.l - 6, y: Y(t) + 4, 'text-anchor': 'end' }, pctFmt(t, 0))); }
+  const lines = [[band.min, `${pctFmt(band.min, 0)} ${tr('risk seeking')}`, 'var(--series-2)'], [band.median, `${pctFmt(band.median, 1)} ${tr('neutral')}`, 'var(--muted)'], [band.max, `${pctFmt(band.max, 0)} ${tr('risk averse')}`, 'var(--series-1)'], [target, `${tr('target')} ${pctFmt(target, 1)}`, 'var(--ink)']];
   const used = [];
   for (const [v, lab, col] of lines) {
     root.append(svg('line', { x1: m.l, x2: m.l + W, y1: Y(v), y2: Y(v), style: `stroke:${col};stroke-width:${col === 'var(--ink)' ? 2 : 1.5};stroke-dasharray:${col === 'var(--ink)' ? '0' : '5 4'}` }));
@@ -212,12 +213,12 @@ export function yearsChart({ years, band, target, width = 760, height = 300, mon
     for (const [a, bb, col, lab, v] of segs) {
       if (bb <= a) continue;
       const r = svg('rect', { x, y: Y(bb), width: bw, height: Math.max(1, Y(a) - Y(bb) - (a > 0 ? 2 : 0)), rx: 3, style: `fill:${col};opacity:${col === 'var(--muted)' ? 0.45 : 0.9}` });
-      r.addEventListener('mousemove', e => showTip(e, `<b>${y.year} · ${lab}</b>${money(v)} · ${(pct(v, y.it) * 100).toFixed(2)}% of IT`)); r.addEventListener('mouseleave', hideTip);
+      r.addEventListener('mousemove', e => showTip(e, `<b>${y.year} · ${lab}</b>${money(v)} · ${pctFmt(pct(v, y.it), 2)} ${tr('of IT')}`)); r.addEventListener('mouseleave', hideTip);
       root.append(r);
     }
     if (y.planned > 0) { const yy = Y(pct(y.planned, y.it)); root.append(svg('line', { x1: x - 6, x2: x + bw + 6, y1: yy, y2: yy, style: 'stroke:var(--series-2);stroke-width:3' })); }
     if (y.actual > 0) { const yy = Y(pct(y.actual, y.it)); const d = svg('path', { d: `M${cx} ${yy - 7}L${cx + 7} ${yy}L${cx} ${yy + 7}L${cx - 7} ${yy}Z`, style: 'fill:var(--ink);stroke:var(--surface);stroke-width:2' });
-      d.addEventListener('mousemove', e => showTip(e, `<b>${y.year} · actual</b>${money(y.actual)} · ${(pct(y.actual, y.it) * 100).toFixed(2)}% of IT`)); d.addEventListener('mouseleave', hideTip); root.append(d); }
+      d.addEventListener('mousemove', e => showTip(e, `<b>${y.year} · actual</b>${money(y.actual)} · ${pctFmt(pct(y.actual, y.it), 2)} ${tr('of IT')}`)); d.addEventListener('mouseleave', hideTip); root.append(d); }
     root.append(svg('text', { x: cx, y: m.t + H + 18, 'text-anchor': 'middle', style: y.selected ? 'fill:var(--ink);font-weight:700' : '' }, String(y.year) + (y.it > 0 ? '' : ' (no IT budget)')));
   });
   root.append(svg('line', { x1: m.l, x2: m.l + W, y1: m.t + H, y2: m.t + H, style: 'stroke:var(--line)' }));

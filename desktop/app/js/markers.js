@@ -34,3 +34,11 @@ export function findOutdated(value, path = '', out = [], depth = 0) {
 }
 /** Replace outdated wordings in a string with the standard markers. */
 export const modernize = s => typeof s === 'string' ? OUTDATED.reduce((t, [re, use]) => t.replace(new RegExp(re.source, 'gi'), use), s) : s;
+
+/* 1.9.2 (NV-002, NV-082) — placeholder rationales: what the application itself writes on a parameter nobody has
+   estimated yet. They carry the marker, so they read as estimates, but they are not one: the Process page and the
+   quality review do not count them. Every writer of such a text uses PLACEHOLDER so the two stay in step. */
+export const PLACEHOLDER = ESTIMATE + ' — to estimate (Process step 9)';
+export const PLACEHOLDER_RE = /to estimate \(Process step 9\)|^Batch default\b|^AI-proposed\s*[—–-]|^From candidate C\d+\b[^.]*not estimated/i;
+/** Is this rationale empty or a placeholder the application wrote, rather than an analyst's or an AI's reasoning? */
+export const isPlaceholder = rat => { const s = String(rat || '').trim(); return !s || PLACEHOLDER_RE.test(s); };

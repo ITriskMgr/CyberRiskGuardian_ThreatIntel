@@ -1,6 +1,6 @@
 # CyberRiskGuardian Desktop — with Threat Intel features
 
-**Version 1.9.0 Beta (1.9.x).** For teaching, exploration and method validation. Validate
+**Version 1.9.2 Beta (1.9.x).** For teaching, exploration and method validation. Validate
 every result before it supports a real decision.
 
 A desktop companion to the CyberRiskGuardian method that runs entirely in your browser, offline, with
@@ -17,7 +17,7 @@ supported by the [CyberRiskGuardian Ontology (CRGO)](https://w3id.org/crgo/).
 
 | | |
 |---|---|
-| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.9.0-beta.zip) — about 6 MB, everything included; check it against [`…zip.sha256`](https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel/releases/tag/desktop-v1.9.0) from the release |
+| **Download** | [`dist/CyberRiskGuardian_Desktop_v1.9.2-beta.zip`](dist/CyberRiskGuardian_Desktop_v1.9.2-beta.zip) — about 7 MB, everything included; check it against [`…zip.sha256`](https://github.com/ITriskMgr/CyberRiskGuardian_ThreatIntel/releases/tag/desktop-v1.9.2) from the release |
 | **Install** | [`app/INSTALL.md`](app/INSTALL.md) — one page, **in English and in French** |
 | **Print version** | [`app/INSTALL-Windows-macOS-EN-FR.pdf`](app/INSTALL-Windows-macOS-EN-FR.pdf) — Windows and macOS side by side, 14 pages |
 

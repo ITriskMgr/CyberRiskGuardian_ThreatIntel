@@ -100,6 +100,14 @@ export function tr(s) {
   return v == null ? str : lead + v + trail;
 }
 export const t = tr;
+/** 1.9.2 (NV-052, item 13) — a count with its singular or plural form, each a catalogue key with '#' for the number:
+ *  trn(1, '# row unknown', '# rows unknown') → "1 ligne inconnue"; trn(3, …) → "3 lignes inconnues". The number is
+ *  written in the interface locale (fr-CA grouping in French). English keeps the same two forms. */
+export function trn(n, one, many) {
+  const k = Math.abs(Number(n)) === 1 ? one : many;
+  const num = Number.isFinite(Number(n)) ? Number(n).toLocaleString(locale()) : String(n);
+  return tr(k.replace('#', num));
+}
 
 function skip(node) {
   for (let e = node.nodeType === 1 ? node : node.parentElement; e; e = e.parentElement) {

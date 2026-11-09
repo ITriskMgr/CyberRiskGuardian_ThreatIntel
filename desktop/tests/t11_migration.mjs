@@ -42,6 +42,19 @@ const r = await page.evaluate(async ({ fx, tiny }) => {
   // a newer workspace is not migrated and opens read-only
   const newer = { ...JSON.parse(JSON.stringify(once)), id: 'ws_future', name: 'From the future', dataVersion: M.DATA_VERSION + 1, futureField: 1 };
   out.newer = M.migrateWorkspace(newer).status;
+  // a 1.9.1 workspace (data version 5) takes the one step 5 → 6, journalled, with unchanged totals (both teaching cases)
+  out.v5 = [];
+  for (const id of ['medibec', 'canaretail']) {
+    const w5 = st.exampleWorkspace(id); w5.dataVersion = 5; w5.migrationLog = [];
+    const b5 = JSON.stringify(w5);
+    const r5 = M.migrateWorkspace(JSON.parse(b5), { fill: st.migrate });
+    const a = crg.run(JSON.parse(b5).assessment), b = crg.run(r5.ws.assessment);
+    const step = r5.steps.find(x => x.to === 6) || {};
+    out.v5.push({ id, status: r5.status, from: r5.from, to: r5.ws.dataVersion, steps: r5.steps.map(x => x.from + '→' + x.to).join(), release: step.release,
+      notes: (step.notes || []).length, journal: (r5.ws.migrationLog || []).length === 1 && r5.ws.migrationLog[0].from === 5 && r5.ws.migrationLog[0].to === 6,
+      est: Math.round(a.totals.est), res: Math.round(a.totals.res), same: Math.round(a.totals.est) === Math.round(b.totals.est) && Math.round(a.totals.res) === Math.round(b.totals.res),
+      again: M.migrateWorkspace(r5.ws, { fill: st.migrate }).status });
+  }
   // a failing step leaves the original untouched
   const bad = JSON.parse(JSON.stringify(fx[0].workspaces[0])); bad.isp = { issues: 5 };
   const snap = JSON.stringify(bad);
@@ -53,10 +66,10 @@ const r = await page.evaluate(async ({ fx, tiny }) => {
   return out;
 }, { fx, tiny });
 ok(!r.unknownInFactory.length, 'every factory field is in KNOWN_FIELDS ' + r.unknownInFactory);
-ok(r.factoryVersion === 5, 'new workspaces carry data version 5');
+ok(r.factoryVersion === 6, 'new workspaces carry data version 6');
 ok(!r.knownWithoutGroup.length, 'every known field belongs to a reset group ' + r.knownWithoutGroup);
 for (const p of r.per) {
-  ok(p.status === 'migrated' && p.to === 5, `${p.app} · ${p.name}: migrated to data version 5 (${p.status})`);
+  ok(p.status === 'migrated' && p.to === 6, `${p.app} · ${p.name}: migrated to data version 6 (${p.status})`);
   ok(p.evMoved && p.newRecords, `${p.app} · ${p.name}: evidence moved to the shared register, new records present`);
   ok(!p.missing.length, `${p.app} · ${p.name}: every field present ${p.missing}`);
   ok(p.same, `${p.app} · ${p.name}: engine totals unchanged`);
@@ -64,6 +77,9 @@ for (const p of r.per) {
 }
 ok(r.second === 'current', 'migrating twice changes nothing');
 ok(r.newer === 'newer', 'a newer data version is not migrated');
+for (const v of r.v5) ok(v.status === 'migrated' && v.from === 5 && v.to === 6 && v.steps === '5→6' && v.release === '1.9.2' && v.notes >= 1 && v.journal && v.same && v.again === 'current',
+  `a 1.9.1 workspace (data version 5, ${v.id}) migrates to 6 in one journalled step with unchanged totals ${v.est} / ${v.res} ` + JSON.stringify(v));
+ok(r.v5.some(v => v.id === 'medibec' && v.est === 84305 && v.res === 41023) && r.v5.some(v => v.id === 'canaretail' && v.est === 27526 && v.res === 16049), 'the teaching cases keep 84,305 / 41,023 and 27,526 / 16,049 ' + r.v5.map(v => v.est + '/' + v.res));
 ok(r.failed.status === 'failed' && r.failed.untouched && r.failed.error, 'a failing step leaves the original untouched and says why');
 // reload: start-up migration, pre-migration copy, read-only for the future workspace
 await page.reload();
@@ -77,7 +93,7 @@ const s2 = await page.evaluate(async () => {
   const fut2 = await store.get('ws', 'ws_future');
   return { v: w.dataVersion, pre: !!pre && pre.ws.dataVersion === undefined, ro: st.isReadOnly(), futName: fut2.name, futField: fut2.futureField, migs: st.S.migrations.map(m => m.status + ':' + m.id + ':' + m.error), keys: Object.keys(w).length, dv: w.dataVersion, wid: w.id };
 });
-ok(s2.v === 5 && s2.pre, 'start-up migrates stored workspaces and keeps the copy from before');
+ok(s2.v === 6 && s2.pre, 'start-up migrates stored workspaces and keeps the copy from before');
 ok(s2.ro && s2.futName === 'From the future' && s2.futField === 1, 'a newer workspace opens read-only and is never saved over');
 await page.evaluate(() => { location.hash = '#/backup'; });
 ok(await page.waitForSelector('#panel-backup >> text=Data versions and migrations', { timeout: 8000 }).then(() => true, () => false), 'Backup & restore explains data versions');

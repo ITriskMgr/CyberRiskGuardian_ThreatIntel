@@ -1,6 +1,9 @@
 // Test harness of CyberRiskGuardian Desktop — the only one (1.9.0: the lane harnesses of tests-new were merged here).
 // Every path and port comes from the environment, with defaults relative to this repository, so the suites run the
 // same on a workstation and in CI:
+//   CRG_PORT      shorthand for parallel runs (several checkouts at once): sets the defaults of CRG_URL
+//                 (http://127.0.0.1:$CRG_PORT/), CRG_TMP ($TMPDIR/crg-desktop-tests-$CRG_PORT), CRG_MOCK_GITHUB_PORT
+//                 ($CRG_PORT+100) and CRG_EMBED_PORT ($CRG_PORT+1000). Unset: the defaults below, unchanged.
 //   CRG_URL       the running app and helper (default http://127.0.0.1:8099/)
 //   CRG_APP_DIR   the application folder (default ../app)
 //   CRG_TMP       scratch folder for the run (default $TMPDIR/crg-desktop-tests, outside the repository: the helper refuses
@@ -9,8 +12,8 @@
 //   CRG_AI_MOCK   the helper's canned-answer folder (default $CRG_TMP/mock, a copy of ./mock made by serve.sh and
 //                 here: suites rewrite consultant.txt and the helper writes _last.json there, never in the repository)
 //   CRG_AI_MOCK_SRC  the canned answers in the repository (default ./mock) · CRG_SHARED_REGISTRY ($CRG_TMP/shared-registry)
-//   CRGO_HOME     a CRGO checkout (default ../../CyberRiskGuardian-Ontology-0.11.0); 1.9.0 targets CRGO 0.11.0
-//   CRGO_RELEASE  the release the suites expect that checkout to be (default 0.11.0; 0.10.1 still runs the 0.10 contracts)
+//   CRGO_HOME     a CRGO checkout (default ../../CyberRiskGuardian-Ontology-0.11.1); 1.9.2 targets CRGO 0.11.1 (1.9.0: 0.11.0)
+//   CRGO_RELEASE  the release the suites expect that checkout to be (default 0.11.1; 0.10.1 still runs the 0.10 contracts)
 //   CRG_MOCK_GITHUB_PORT  port of the mock GitHub API used by t29 (default 8199)
 //   CRG_EMBED_PORT        port of the mock local embedding endpoint used by t44 (default 8115)
 // serve.sh starts the helper with the same values (it reads them the same way).
@@ -21,22 +24,23 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 export const TESTS = path.dirname(fileURLToPath(import.meta.url));
 const env = (k, d) => process.env[k] || d;
-export const URL = env('CRG_URL', 'http://127.0.0.1:8099/');
+const CRG_PORT = Number(process.env.CRG_PORT) || 0;
+export const URL = env('CRG_URL', `http://127.0.0.1:${CRG_PORT || 8099}/`);
 export const PORT = Number(new globalThis.URL(URL).port || 80);
 export const APP = path.resolve(env('CRG_APP_DIR', path.join(TESTS, '..', 'app')));
-export const TMP = path.resolve(env('CRG_TMP', path.join(os.tmpdir(), 'crg-desktop-tests')));
+export const TMP = path.resolve(env('CRG_TMP', path.join(os.tmpdir(), CRG_PORT ? `crg-desktop-tests-${CRG_PORT}` : 'crg-desktop-tests')));
 export const FEEDS = path.resolve(env('CRG_FEEDS_DIR', path.join(TMP, 'feeds')));
 export const ORG = path.resolve(env('CRG_ORG_DIR', path.join(TMP, 'orggraphs')));
 export const KEYS = path.resolve(env('CRG_KEYS_DIR', path.join(TMP, 'keys')));
 export const MOCK_SRC = path.resolve(env('CRG_AI_MOCK_SRC', path.join(TESTS, 'mock')));
 export const MOCK = path.resolve(env('CRG_AI_MOCK', path.join(TMP, 'mock')));
 export const SHARED = path.resolve(env('CRG_SHARED_REGISTRY', path.join(TMP, 'shared-registry')));
-export const CRGO = path.resolve(env('CRGO_HOME', path.join(TESTS, '..', '..', 'CyberRiskGuardian-Ontology-0.11.0')));
+export const CRGO = path.resolve(env('CRGO_HOME', path.join(TESTS, '..', '..', 'CyberRiskGuardian-Ontology-0.11.1')));
 /** The CRGO release the suites expect at CRGO_HOME, and whether it has the 0.11 terms (scenario patterns, CIS v8.1, crgo-iam). */
-export const CRGO_RELEASE = env('CRGO_RELEASE', '0.11.0');
+export const CRGO_RELEASE = env('CRGO_RELEASE', '0.11.1');
 export const CRGO_011 = CRGO_RELEASE.split('.').map(Number).reduce((a, x) => a * 1000 + x, 0) >= 11000;
-export const MOCK_GITHUB_PORT = Number(env('CRG_MOCK_GITHUB_PORT', '8199'));
-export const EMBED_PORT = Number(env('CRG_EMBED_PORT', '8115'));
+export const MOCK_GITHUB_PORT = Number(env('CRG_MOCK_GITHUB_PORT', String(CRG_PORT ? CRG_PORT + 100 : 8199)));
+export const EMBED_PORT = Number(env('CRG_EMBED_PORT', String(CRG_PORT ? CRG_PORT + 1000 : 8115)));
 export const FIXTURES = path.join(TESTS, 'fixtures');
 fs.mkdirSync(TMP, { recursive: true });
 // Suites write into the mock folder (consultant.txt) and the helper writes _last.json there: never the repository's.
@@ -109,10 +113,23 @@ export async function medibec(page) {
  *  page.waitForFunction with an async predicate: Playwright treats the Promise an async predicate returns as truthy and resolves at once. */
 export async function waitInPage(page, fn, arg, { timeout = 10000, every = 100 } = {}) {
   const end = Date.now() + timeout;
-  while (!(await page.evaluate(fn, arg))) {
+  for (;;) {
+    // 1.9.2 (t35 flake): an evaluation cut by a reload the application started (reopen(), B4) is retried, not thrown
+    let v; try { v = await page.evaluate(fn, arg); } catch (e) { if (!/context was destroyed|navigation|Target closed|detached/i.test(String(e))) throw e; v = false; }
+    if (v) return;
     if (Date.now() > end) throw new Error('waitInPage: condition not met within ' + timeout + ' ms: ' + String(fn).slice(0, 120));
     await page.waitForTimeout(every);
   }
+}
+/** Click a control whose handler ends in reopen() (create / switch / restore / delete a workspace — 1.9.1 B4 reloads the
+ *  page) and come back once the new page has a workspace open: the load event is awaited before anything is evaluated,
+ *  so no evaluation lands in the window between the handler's select() and its location.reload() (the t35 flake). */
+export async function clickAndReopen(page, selector, { timeout = 20000 } = {}) {
+  const loaded = page.waitForEvent('load', { timeout }).catch(() => null);
+  await page.click(selector);
+  await loaded;
+  await waitReady(page, timeout);
+  await page.waitForFunction(() => !![...document.querySelectorAll('main > section')].find(s => !s.hidden)?.querySelector('h1'), null, { timeout, polling: 200 }).catch(() => {});
 }
 /** Go to a route inside the page (no reload) and let it render. */
 export async function goto(page, hash, ms = 600) { await page.evaluate(h => { location.hash = h; }, hash); await page.waitForTimeout(ms); }

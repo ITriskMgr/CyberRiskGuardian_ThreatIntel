@@ -44,12 +44,21 @@ export function riskFromScenario(s, ws = S.ws) {
 export const score = x => (x?.l || 0) * (x?.i || 0);
 export const level = n => n >= 15 ? ['Very high', 'bad'] : n >= 10 ? ['High', 'bad'] : n >= 5 ? ['Medium', 'warn'] : ['Low', 'good'];
 
-/** CRG metrics of a risk = sum over its scenarios (verified engine). */
+/** 1.9.2 (item 10, NV-037) — the scenario ids a risk links that no longer exist in the workspace. */
+export function missingScenarios(r, ws = S.ws) {
+  const have = new Set((ws?.assessment?.SCEN || []).map(s => s.id));
+  return (r.scenarios || []).filter(id => !have.has(id));
+}
+/** Risks linked to a scenario (before it is deleted: the warning names them). */
+export const risksLinkedTo = (scenId, ws = S.ws) => (ws?.risks || []).filter(r => (r.scenarios || []).includes(scenId));
+/** CRG metrics of a risk = sum over its scenarios (verified engine). A link to a deleted scenario is reported in
+ *  `missing` (and flagged on the screen), never silently dropped (1.9.2, item 10). */
 export function crgOf(r, R) {
   const rows = R.rows.filter(x => (r.scenarios || []).includes(x.id));
+  const missing = (r.scenarios || []).filter(id => !R.rows.some(x => x.id === id) && !(R.errors || []).some(e => e.id === id));
   if (!rows.length) return null;
   const est = rows.reduce((t, x) => t + x.est, 0), tol = rows.reduce((t, x) => t + x.tol, 0), res = rows.reduce((t, x) => t + x.res, 0);
-  return { est, tol, res, ratio: res / tol, cls: CRG.classify(res / tol), n: rows.length };
+  return { est, tol, res, ratio: res / tol, cls: CRG.classify(res / tol), n: rows.length, missing };
 }
 export function log(r, what) { (r.history ||= []).push({ date: today(), what }); }
 

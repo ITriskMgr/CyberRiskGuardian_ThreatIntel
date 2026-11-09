@@ -77,6 +77,11 @@ def main():
 
     check("service worker cache", "sw.js", r'const CACHE = "crg-desktop-([\d.]+)"')
     check("helper", "serve.py", r'VERSION = "([\d.]+)"')
+    # 1.9.2 (NV-068) — the helper's module docstring once said "version 1.4.0" for five releases: it may not carry a
+    # version literal at all (VERSION below is the one place).
+    doc = re.search(r'"""([\s\S]*?)"""', read("serve.py"))
+    if doc and re.search(r"\b[Vv]ersion\s+\d+\.\d+\.\d+\b", doc.group(1)):   # "(version 1.4.0)" — release notes such as "1.9.0: keychain" are fine
+        bad.append("  helper docstring            serve.py: the module docstring carries a version literal; name VERSION instead")
     check("sidebar footer", "index.html", r'v([\d.]+) Beta')
     # The Security Policy Writer has a version of its own: the module (js/version.js) and its engine in the
     # helper (crg_writer/__init__.py) must agree.
@@ -85,6 +90,16 @@ def main():
     found.append(("Security Policy Writer", wv.group(1) if wv else None))
     if not wv or not ev or wv.group(1) != ev.group(1):
         bad.append(f"  Security Policy Writer      js/version.js says {wv and wv.group(1)!r}, crg_writer/__init__.py says {ev and ev.group(1)!r}")
+    # 1.9.2 (NV-W01) — the Writer tree is pinned by its content hash beside WRITER_VERSION (tools/writer_tree_hash.py);
+    # a changed engine without a recorded hash (and a version bump) fails the build.
+    sys.path.insert(0, str(ROOT / "tools"))
+    import writer_tree_hash as WTH
+    got = WTH.tree_hash(ROOT / "crg_writer")
+    rec = WTH.recorded()
+    found.append(("Writer tree hash", (rec or "")[:16] + ("…" if rec else "")))
+    if rec != got:
+        bad.append(f"  Writer tree hash            crg_writer/ hashes to {got[:16]}…, js/version.js records {(rec or 'nothing')[:16]}… "
+                   "(python3 tools/writer_tree_hash.py --write after a deliberate change)")
 
     # 1.9.0 — the plugin has a version of its own too: plugin.json and every marketplace entry that lists the
     # plugin must agree (AGENTS.md: bump both). Checked when the repository files are present.

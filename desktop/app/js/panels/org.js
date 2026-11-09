@@ -12,6 +12,36 @@ import * as users from '../users.js';
 import { tr } from '../i18n.js';
 import * as IU from './importui.js';
 import * as RESET from '../reset.js';
+import * as TEACH from '../teaching.js';
+import { retypeNumbers } from '../migrate192/ws2.js';   // 1.9.2 review (L2)
+import * as store from '../store.js';
+
+/* 1.9.2 (items 4–5, NV-036) — a workspace that is already here (same id, or the same bundled teaching case under another
+   id) is never added twice without asking: Replace the copy here · Keep both · Skip. Resolves null when the dialog
+   is closed without a choice (treated as Skip). */
+function duplicateChoice(existing, incomingName, { teaching = false, importing = false } = {}) {
+  return new Promise(resolve => {
+    let answered = false; const pick = v => { answered = true; m.close(); resolve(v); };
+    const m = modal(tr(teaching ? 'This teaching case is already here' : 'This workspace is already here'),
+      el('p', 'note', tr(teaching ? 'A copy of the teaching case {0} is already on this computer: “{1}”. Choose what to do with the one you are adding.'
+        : 'A workspace with the same identity is already on this computer: “{1}”. Choose what to do with the one you are adding.').replace('{0}', TEACH.CASE_LABEL[TEACH.inferCase(existing)] || existing.name).replace('{1}', existing.name)),
+      el('ul', 'small', el('li', null, el('b', null, importing ? 'Update the one here' : 'Replace'), ' — ', tr('the copy here is overwritten by the one you are adding (its documents, snapshot and history are replaced).')),
+        el('li', null, el('b', null, 'Keep both'), ' — ', tr(importing ? 'the one you are adding is created beside it, named “… copy”, under its own id.' : 'the one you are adding is created beside it, under its own id.')),
+        el('li', null, el('b', null, 'Skip'), ' — ', tr('nothing is added; the copy here stays as it is.'))),
+      el('div', 'btnrow', { style: { marginTop: '12px' } },
+        el('button', { class: 'btn danger', onclick: () => pick('replace') }, importing ? 'Update the one here' : 'Replace the copy here'),
+        el('button', { class: 'btn', onclick: () => pick('keep') }, 'Keep both'),
+        el('button', { class: 'btn ghost', onclick: () => pick('skip') }, 'Skip')));
+    m.back.onclose = () => { if (!answered) resolve(null); };
+  });
+}
+/** Replace an existing workspace by the incoming one: same id, old document text and blobs removed first. */
+async function replaceWorkspace(existing, ws) {
+  for (const d of (existing.docs || [])) { if (!(ws.docs || []).some(x => x.id === d.id)) await delDoc(d.id); }
+  for (const k of ['snap:', 'base:']) await store.del('blob', k + existing.id).catch(() => {});
+  const oldId = ws.id; ws.id = existing.id;
+  if (!ws.crgo?.base || ws.crgo.base === MIG.blankCrgo(oldId).base) ws.crgo = MIG.blankCrgo(ws.id);
+}
 
 let tab = 'profile';
 export const DOC_CATS = ['Business case', 'Organization profile', 'Asset inventory / CMDB extract', 'Network or architecture notes', 'Policy or standard',
@@ -58,8 +88,20 @@ export function leaveProfile() {
 export const isDirty = () => dirty;
 window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
+/** 1.9.2 (NV-017) — the appetite must be strictly between 0 and 1 (the engine refuses anything else); outside the book's
+ *  anchors 0.1–0.9 it is saved with a warning. Returns { ok, message, kind }. */
+export function appetiteCheck(v) {
+  const a = Number(v);
+  if (v === '' || v === null || v === undefined || !Number.isFinite(a)) return { ok: false, kind: 'bad', message: tr('The risk appetite is missing: enter a value strictly between 0 and 1 (0.1–0.9 on the book’s anchors).') };
+  if (a <= 0 || a >= 1) return { ok: false, kind: 'bad', message: tr('The risk appetite must be strictly between 0 and 1: {0} is refused. Use the book’s anchors (0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high).').replace('{0}', a) };
+  if (a < 0.1 || a > 0.9) return { ok: true, kind: 'warn', message: tr('Appetite {0} is outside the book’s anchors (0.1–0.9): justify it in the rationale — Management decision required.').replace('{0}', a) };
+  return { ok: true, kind: 'good', message: '' };
+}
 function saveDraft() {
   const ws = S.ws; if (!D || D.wsId !== ws.id) return;
+  const ac = appetiteCheck(D.assessment.APPETITE);
+  if (!ac.ok) { toast(ac.message, 'bad'); document.getElementById('org-appetite')?.focus(); return; }
+  if (ac.kind === 'warn') toast(ac.message, 'warn');
   ws.name = D.name; ws.org = D.org; ws.appetite_rationale = D.appetite_rationale;
   Object.assign(ws.assessment, D.assessment);
   Object.assign(ws.budget, D.budget);
@@ -121,6 +163,12 @@ function profile(body, arg, sec) {
     F('Incident history', B(o, 'incidents', { rows: 3 }), null, 'incidents'),
   )));
 
+  // 1.9.2 (NV-035, Process step 3) — what the assessment covers, what it leaves out, and the perspectives it takes
+  body.append(card(el('h2', null, 'Scope, exclusions and perspectives'), el('div', 'grid g3',
+    F('<b>Scope</b>', B(o, 'scope', { rows: 3, placeholder: 'What the assessment covers — sites, systems, processes, suppliers, the period' }), 'Process step 3. What is in.', 'scope'),
+    F('<b>Exclusions</b>', B(o, 'exclusions', { rows: 3, placeholder: 'What is deliberately left out, and why — or “none”' }), 'What is out, and why; write “none” when nothing is left out.', 'exclusions'),
+    F('<b>Risk perspectives</b>', B(o, 'perspectives', { rows: 3, placeholder: 'Operational, financial, regulatory, reputational, privacy, safety…' }), 'The kinds of consequence the scenarios are judged on.', 'perspectives'))));
+
   const regs = el('div', 'chips');
   const drawRegs = () => regs.replaceChildren(...o.regulations.map((r, i) => chip(r, { onRemove: () => { o.regulations.splice(i, 1); markDirty(); drawRegs(); } })));
   drawRegs();
@@ -131,10 +179,13 @@ function profile(body, arg, sec) {
     el('datalist', { id: 'reg-list' }, ...['Quebec Law 25', 'PIPEDA', 'PHIPA (Ontario)', 'GDPR', 'HIPAA', 'PCI DSS', 'SOX', 'NIS2', 'DORA', 'OSFI B-13', 'ISO/IEC 27001', 'NIST CSF 2.0', 'SOC 2'].map(x => el('option', { value: x })))));
 
   // appetite + budget
-  const appIn = B(a, 'APPETITE', { type: 'number', step: 0.05, min: 0.1, max: 0.9 });
+  const appIn = B(a, 'APPETITE', { type: 'number', step: 0.05, min: 0.1, max: 0.9, id: 'org-appetite', 'aria-describedby': 'org-appetite-check' });
+  const appMsg = el('div', { class: 'small', id: 'org-appetite-check', role: 'status' });
+  const appCheck = () => { const c = appetiteCheck(appIn.value); appMsg.textContent = c.message || ''; appMsg.style.color = c.kind === 'bad' ? 'var(--bad)' : c.kind === 'warn' ? 'var(--warn)' : ''; appMsg.style.fontWeight = c.kind === 'bad' ? '700' : ''; appIn.setAttribute('aria-invalid', String(!c.ok)); };
+  appIn.addEventListener('input', appCheck);
   const factorIn = B(a, 'FACTOR', { type: 'number', step: 100, min: 1 });
   body.append(card(el('h2', null, 'Risk appetite and budget'), el('div', 'grid g4',
-    F('<b>Risk appetite</b> (0.1–0.9)', appIn, '0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high', 'appetite'),
+    F('<b>Risk appetite</b> (0.1–0.9)', el('div', null, appIn, appMsg), '0.1–0.2 very risk-averse · 0.3 low · 0.5 neutral · 0.7 high · 0.8–0.9 very high. Strictly between 0 and 1; outside 0.1–0.9 needs a rationale.', 'appetite'),
     F('Multiplication factor', factorIn, 'Constant across scenarios (default 1,000)'),
     F('Currency', B(a, 'CURRENCY'), null, 'currency'),
     F('<b>Total IT budget</b> (incl. salaries)', B(b, 'it_budget', { type: 'number', step: 100000 }), null, 'it_budget'),
@@ -145,6 +196,10 @@ function profile(body, arg, sec) {
   appetiteHelper(a, appIn, markDirty)));
   if (auto === 'profile') { auto = null; const c = autoCrown; autoCrown = false; setTimeout(() => extractProfile(sec, { chain: c }), 50); }
 }
+
+/** 1.9.2 (NV-097) — start the profile extraction from elsewhere (the Process page's step-2 card): opens Profile & appetite
+ *  and runs the same dialog as its “Extract from documents…” button. */
+export function openProfileExtraction({ crown = false } = {}) { auto = 'profile'; autoCrown = crown; tab = 'profile'; goOrRedraw('org/profile'); }
 
 /* ---------------- extraction dialogs ---------------- */
 async function chooseMethod(title, intro, task) {
@@ -176,7 +231,7 @@ export async function extractProfile(sec, { chain = false } = {}) {
       const cp = await X.corpus(ws);
       const out = await aiui.request('extract_profile', { text: cp.text, web: ch.web, fictional: ws.kind !== 'organization' }, { title: tr('Profile extraction — what will be sent') });
       if (!out) return chain ? extractCrown(sec) : toImport();
-      res = X.parseProfile(out.text); res.method = 'ai'; res.model = out.model; res.sources = out.sources; res.entryId = out.entryId;
+      res = X.parseProfile(out.text, cp.text); res.method = 'ai'; res.model = out.model; res.sources = out.sources; res.entryId = out.entryId;
     }
   } catch (e) { toast(tr('Extraction failed: ') + (e.message || e), 'bad'); return; }
   reviewProfile(sec, res, chain);
@@ -187,21 +242,25 @@ function reviewProfile(sec, res, chain) {
   if (!D || D.wsId !== ws.id) D = newDraft(ws);
   const rows = X.FIELDS.map(([k, l]) => {
     const p = res.fields[k], cur = X.getField(D, k);
-    return { k, l, p, cur, take: p.tag !== 'UNKNOWN' && (X.isEmpty(cur) || (['appetite', 'currency'].includes(k) && !D.org.prov?.[k] && !D.appetite_rationale)), val: Array.isArray(p.value) ? p.value.join('; ') : p.value };
+    // 1.9.2 (X-3 / NV-008): a value set aside by the quote check (FACT without its quote, or instruction-like text) is never pre-ticked
+    return { k, l, p, cur, take: p.tag !== 'UNKNOWN' && !p.flagged && (X.isEmpty(cur) || (['appetite', 'currency'].includes(k) && !D.org.prov?.[k] && !D.appetite_rationale)), val: Array.isArray(p.value) ? p.value.join('; ') : p.value };
   });
+  const flaggedN = rows.filter(r => r.p.flagged).length;
   const fmt = v => Array.isArray(v) ? v.join('; ') : (v ?? '');
   const t = table([
     { key: 'take', label: '', sortable: false, cls: 'cb', render: r => { const c = el('input', { type: 'checkbox', checked: r.take, disabled: r.p.tag === 'UNKNOWN' && !r.val }); c.addEventListener('change', () => { r.take = c.checked; }); return c; } },
     { key: 'l', label: 'Field', render: r => el('b', null, tr(r.l)) },
     { key: 'cur', label: 'Current value', render: r => el('div', { class: 'small', 'data-noi18n': '' }, String(fmt(r.cur)).slice(0, 160) || '—') },
     { key: 'val', label: 'Proposed value (editable)', sortable: false, render: r => { const i = el(String(r.val).length > 60 ? 'textarea' : 'input', { value: r.val, rows: 2 }); if (i.tagName === 'TEXTAREA') i.value = r.val; i.addEventListener('input', () => { r.val = i.value; r.edited = true; if (i.value.trim()) { r.take = true; } }); return i; } },
-    { key: 'tag', label: 'Tag', render: r => el('span', { class: 'pill tag-' + r.p.tag + ' ' + X.TAG_KIND[r.p.tag], title: X.TAG_HELP[r.p.tag] }, r.p.tag) },
+    { key: 'tag', label: 'Tag', render: r => el('span', null, el('span', { class: 'pill tag-' + r.p.tag + ' ' + X.TAG_KIND[r.p.tag], title: X.TAG_HELP[r.p.tag] }, r.p.tag), r.p.flagged ? el('span', { class: 'pill warn', title: (r.p.notes || []).join('; '), style: { marginLeft: '4px' } }, tr('check')) : null) },
     { key: 'src', label: 'Source', render: r => el('div', { class: 'small', 'data-noi18n': '' }, /^https?:/.test(r.p.source) ? el('a', { href: r.p.source, target: '_blank', rel: 'noopener noreferrer' }, r.p.source.slice(0, 80)) : r.p.source || '—', r.p.notes.length ? el('div', 'muted', r.p.notes.join('; ')) : null) },
   ], rows, { class: 'compact' });
   const counts = Object.fromEntries(X.TAGS.map(tg => [tg, rows.filter(r => r.p.tag === tg).length]));
   const m = modal(tr('Review the extracted profile'),
     el('p', 'note', tr(res.method === 'ai' ? 'Proposed by AI' : 'Proposed by rules (no AI)') + (res.model ? ' · ' + res.model : '') + ' — ' + tr('Analytical estimate — validation required.') + ' ' + tr('Ticked values go into the form; you then Save or Cancel.')),
-    el('div', 'chips', ...X.TAGS.map(tg => el('span', { class: 'pill tag-' + tg + ' ' + X.TAG_KIND[tg], title: X.TAG_HELP[tg] }, `${tg} ${counts[tg]}`))),
+    el('div', 'chips', ...X.TAGS.map(tg => el('span', { class: 'pill tag-' + tg + ' ' + X.TAG_KIND[tg], title: X.TAG_HELP[tg] }, `${tg} ${counts[tg]}`)),
+      flaggedN ? el('span', 'pill warn', tr('{0} set aside — quote not found or instruction-like text; left unticked').replace('{0}', flaggedN)) : null,
+      res.truncated ? el('span', 'pill warn', tr('answer truncated — first items kept')) : null),
     el('div', 'tablewrap', { style: { marginTop: '10px', maxHeight: '55vh', overflow: 'auto' } }, t),
     res.gaps?.length ? el('details', null, el('summary', null, tr('Information still to collect') + ` (${res.gaps.length})`), el('ul', { class: 'small', 'data-noi18n': '' }, ...res.gaps.map(g => el('li', null, g)))) : null,
     res.sources?.length ? el('details', null, el('summary', null, tr('Web pages consulted') + ` (${res.sources.length})`), el('ul', 'small', ...res.sources.map(s => el('li', null, el('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer' }, s.title || s.url))))) : null,
@@ -268,12 +327,12 @@ export async function extractCrown(sec) {
       const cp = await X.corpus(ws);
       const out = await aiui.request('extract_crown', { text: cp.text, profile: X.brief(ws) }, { title: tr('Crown-jewel extraction — what will be sent') });
       if (!out) return toImport();
-      list = X.parseCrown(out.text); meta = { model: out.model, entryId: out.entryId };
+      list = X.parseCrown(out.text, cp.text); meta = { model: out.model, entryId: out.entryId };
     }
   } catch (e) { toast(tr('Extraction failed: ') + (e.message || e), 'bad'); return; }
   const A = ws.assessment;
   const exists = n => (A.CROWN || []).some(r => (r[1] || '').toLowerCase() === n.toLowerCase());
-  const rows = list.map(r => Object.assign(r, { take: !exists(r.name) }));
+  const rows = list.map(r => Object.assign(r, { take: !exists(r.name) && !r.flagged }));   // 1.9.2: set-aside proposals are never pre-ticked
   const m = modal(tr('Review the proposed crown jewels'),
     el('p', 'note', tr(ch.method === 'ai' ? 'Proposed by AI' : 'Proposed by rules (no AI)') + (meta.model ? ' · ' + meta.model : '') + ' — ' + tr('Analytical estimate — validation required.')),
     rows.length ? el('div', 'tablewrap', { style: { maxHeight: '55vh', overflow: 'auto' } }, table([
@@ -282,7 +341,7 @@ export async function extractCrown(sec) {
       { key: 'role', label: 'Role in the mission', render: r => el('div', { class: 'small', 'data-noi18n': '' }, r.role || '—') },
       { key: 'cia', label: 'C · I · A', render: r => [r.c, r.i, r.a].map(x => x || '—').join(' · ') },
       { key: 'dep', label: 'Dependencies · suppliers', render: r => el('div', { class: 'small', 'data-noi18n': '' }, [r.dependencies, r.suppliers].filter(Boolean).join(' · ') || '—') },
-      { key: 'tag', label: 'Tag', render: r => el('span', { class: 'pill tag-' + r.tag + ' ' + X.TAG_KIND[r.tag], title: (X.TAG_HELP[r.tag] || '') + (r.source ? ' — ' + r.source : '') }, r.tag) },
+      { key: 'tag', label: 'Tag', render: r => el('span', null, el('span', { class: 'pill tag-' + r.tag + ' ' + X.TAG_KIND[r.tag], title: (X.TAG_HELP[r.tag] || '') + (r.source ? ' — ' + r.source : '') }, r.tag), r.flagged ? el('span', { class: 'pill warn', title: (r.notes || []).join('; '), style: { marginLeft: '4px' } }, tr('check')) : null) },
     ], rows, { class: 'compact' })) : el('div', 'empty-state', el('b', null, 'Nothing found'), 'No crown-jewel candidate in the documents.'),
     el('div', 'btnrow', { style: { marginTop: '12px' } },
       el('button', { class: 'btn', disabled: !rows.length, onclick: () => {
@@ -293,7 +352,8 @@ export async function extractCrown(sec) {
         }
         if (meta.entryId) AI.decide(meta.entryId, n ? 'accepted' : 'rejected', `${n} crown jewel(s) added`);
         if (n) X.markExtracted(ws, 'Crown jewels');
-        touch(); m.close(); toast(n + ' ' + tr('crown jewel(s) added')); if (!toImport()) { tab = 'crown'; go('org/crown'); }
+        touch(); m.close(); toast(n + ' ' + tr('crown jewel(s) added'));
+        if (!toImport()) { tab = 'crown'; goOrRedraw('org/crown'); }   // 1.9.2 (NV-039, T2): the tab is redrawn at once, also when it is already open
       } }, 'Add ticked crown jewels'),
       el('button', { class: 'btn ghost', onclick: () => { m.close(); if (meta.entryId) AI.decide(meta.entryId, 'rejected', 'cancelled'); toImport(); } }, 'Cancel')));
 }
@@ -327,7 +387,7 @@ function crown(body, arg, sec) {
   const LV = ['', 'Low', 'Medium', 'High', 'Very high'];
   const t = el('table', 'grid compact');
   const draw = () => {
-    t.replaceChildren(el('thead', null, el('tr', null, ...CJ_COLS.map(c => el('th', null, c)), el('th', null, 'Provenance'), el('th'))));
+    t.replaceChildren(el('thead', null, el('tr', null, ...CJ_COLS.map(c => el('th', null, c)), el('th', null, 'Provenance'), el('th', null, el('span', 'sr-only', 'Actions')))));
     const tb = el('tbody');
     a.CROWN.forEach((r, i) => {
       const tr = el('tr');
@@ -526,8 +586,20 @@ function workspaces(body, arg, sec) {
   const doCreate = async (data) => {
     const fromFile = !!data && !isEx(from.value) && from.value !== 'current';
     const nm = name.value.trim() || (kind.value === 'classroom' ? 'Classroom case' : 'New organization');
-    let ws;
-    if (isEx(from.value)) { ws = exampleWorkspace(from.value); ws.id = uid('ws'); ws.crgo = MIG.blankCrgo(ws.id); if (name.value.trim()) ws.name = nm; ws.kind = kind.value; }
+    let ws, replacing = null;
+    if (isEx(from.value)) {
+      ws = exampleWorkspace(from.value); ws.kind = kind.value; if (name.value.trim()) ws.name = nm;
+      // 1.9.2 (item 4): a bundled case gets its fixed id when free; a copy already here is recognised and asked about
+      const fixed = TEACH.FIXED_ID(from.value);
+      const twin = S.list.find(x => x.id === fixed) || S.list.find(x => TEACH.sameCase(x, ws));
+      if (twin && kind.value === 'example') {
+        const ch = await duplicateChoice(twin, ws.name, { teaching: true });
+        if (!ch || ch === 'skip') { msg.replaceChildren(banner('warn', 'Nothing added', tr('The teaching case already here was kept.'))); return; }
+        if (ch === 'replace') replacing = twin;
+      }
+      ws.id = replacing ? replacing.id : (S.list.some(x => x.id === fixed) || kind.value !== 'example') ? uid('ws') : fixed;
+      ws.crgo = MIG.blankCrgo(ws.id);
+    }
     else if (from.value === 'current') {
       ws = JSON.parse(JSON.stringify(S.ws)); ws.id = uid('ws'); ws.name = nm; ws.kind = kind.value; ws.snapshot = null;
       for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, await docText(d.id)); d.id = nid; }
@@ -540,17 +612,33 @@ function workspaces(body, arg, sec) {
         const r = MIG.migrateWorkspace(data, { fill: migrate });
         if (r.status === 'newer') throw new Error(tr('This file was written by a newer release of the application (data version {0}; this one reads up to {1}). Update the application to open it.').replace('{0}', r.from).replace('{1}', MIG.DATA_VERSION));
         if (r.status === 'failed') throw new Error(tr('The file could not be brought to this release: {0}').replace('{0}', r.error));
-        ws = r.ws; ws.id = uid('ws'); ws.snapshot = null; if (name.value.trim()) ws.name = nm;
+        ws = r.ws; ws.snapshot = null; if (name.value.trim()) ws.name = nm;
+        // 1.9.2 (item 5): the same workspace (same id) or the same teaching case already here → Replace / Keep both / Skip
+        const existing = S.list.find(x => x.id === ws.id) || S.list.find(x => TEACH.sameCase(x, ws));
+        if (existing) {
+          const ch = await duplicateChoice(existing, ws.name, { teaching: !!TEACH.inferCase(ws), importing: true });
+          if (!ch || ch === 'skip') { msg.replaceChildren(banner('warn', 'Nothing imported', tr('The copy already here was kept.'))); return; }
+          if (ch === 'replace') replacing = existing; else { ws.id = uid('ws'); ws.name = (name.value.trim() ? nm : ws.name) + ' ' + tr('copy'); }   // item 5: Keep both → “… copy”
+        } else if (!TEACH.inferCase(ws) || !TEACH.isFixedId(ws.id)) ws.id = uid('ws');   // a new identity on this computer; a bundled case keeps its fixed id
         ws.crgo = MIG.blankCrgo(ws.id);
         for (const d of ws.docs) { const nid = uid('doc'); await setDocText(nid, texts[d.id] || ''); d.id = nid; }
       }
-      else if (Array.isArray(data.SCEN)) { ws = newWorkspace({ name: nm, kind: kind.value, assessment: Object.assign({ INITIATIVES: [], KRIS: [], EVIDENCE: [], CANDIDATES: [], CROWN: [] }, data) }); if (data.ORGANIZATION) ws.org.name = data.ORGANIZATION; }
+      else if (Array.isArray(data.SCEN)) {
+        ws = newWorkspace({ name: nm, kind: kind.value, assessment: Object.assign({ INITIATIVES: [], KRIS: [], EVIDENCE: [], CANDIDATES: [], CROWN: [] }, data) }); if (data.ORGANIZATION) ws.org.name = data.ORGANIZATION;
+        // 1.9.2 review (L2): a plain assessment file is stamped data version 6 and never meets the 5 → 6 sub-steps, so the typing
+        // rule (X-2) is applied here: numeric text ("0.7", APPETITE "0.3", FACTOR "1000") becomes the number it spells, same figures
+        const NUMERIC = /^\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?\s*$/i;
+        for (const k of ['APPETITE', 'FACTOR']) if (typeof ws.assessment[k] === 'string' && NUMERIC.test(ws.assessment[k])) ws.assessment[k] = Number(ws.assessment[k]);
+        const fixed = retypeNumbers(ws);
+        if (fixed.length) (ws.revisionLog ||= []).push({ date: today(), scenario: '—', parameter: 'typing', from: 'text', to: 'number', what: `${fixed.length} numeric text value(s) retyped as numbers at import (same figures): ${fixed.slice(0, 12).join(', ')}${fixed.length > 12 ? ', …' : ''}` });
+      }
       else throw new Error('Not a CyberRiskGuardian workspace or assessment file (no SCEN array).');
     } else ws = newWorkspace({ name: nm, kind: kind.value });
     if (edu.checked) ws.kind = 'classroom';
     if (ws.kind === 'classroom' && !ws.classroom) ws.classroom = { course: '', case_title: '', team: '', members: '', instructor: '', due: '', notes: '' };
     if (edu.checked) { ws.classroom.educational = true; ws.educational = true; }
-    if (S.list.some(w => w.name === ws.name)) ws.name += ' (imported ' + today() + ')';
+    if (replacing) { await replaceWorkspace(replacing, ws); S.list = S.list.filter(x => x.id !== replacing.id); }
+    else if (S.list.some(w => w.name === ws.name)) ws.name += ' (imported ' + today() + ')';
     migrate(ws);
     await create(ws);
     /* 1.5.6 — a teaching case that came out of a file is a case being handed out, so the state in the
@@ -589,15 +677,18 @@ function workspaces(body, arg, sec) {
     el('div', 'grid g3', field('<b>Name</b>', name), field('Type', kind), field('Start from', from)),
     opt(edu, el('b', null, 'Educational case used for training purposes'), 'Sets the classroom type; deliverables are labelled fictional.'),
     el('div', { style: { marginTop: '12px' } }, docDrop),
-    el('div', { style: { marginTop: '8px' } },
+    // 1.9.2 (NV-097, item 11) — the four options are all extractions, named as such and grouped under one heading
+    el('div', { style: { marginTop: '8px' }, id: 'new-ws-extract' },
+      el('div', 'small', { style: { margin: '6px 0 4px' } }, el('b', null, 'Extract from the documents (each asks AI or Rules only first)'),
+        el('div', 'muted', 'All four are extraction options. With AI off, leave all four unticked and fill Profile & appetite and Crown jewels yourself; you can start any extraction later from Organization → Organization profile (Profile & appetite → Extract from documents…, Crown jewels, Import from documents). Even a ticked option sends nothing before you choose AI (with a preview) or Rules only (offline).')),
       opt(exP, el('b', null, 'Extract the profile & appetite from these documents after creation'), 'AI (with a preview of what is sent) or rules only; you review every value before saving.'),
       opt(exC, el('b', null, 'Then extract the crown jewels'), 'Proposes crown jewels from the same documents; you choose which to add.'),
-      opt(exM, el('b', null, 'Then import more from the documents'), 'Information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, risks, budget, KRIs, roles, classroom — you choose the targets and review each proposal.'),
+      opt(exM, el('b', null, 'Then extract more from the documents (Import from documents)'), 'Information assets, BIA, third parties, existing controls, compliance, incidents, weaknesses, candidate scenarios, risks, budget, KRIs, roles, classroom — you choose the targets and review each proposal.'),
       opt(exW, el('b', null, 'Also extract policy facts for the Security Policy Writer'), 'Classification levels, MFA scope, review cycles, approvers, backup, vulnerability and log rules stated in the documents — each with its quote, proposed in Security Policy Writer → Documents & facts. Read on this computer, without AI.')),
     el('div', 'btnrow', { style: { marginTop: '12px' } }, el('button', { class: 'btn', onclick: () => from.value === 'import' ? fileIn.click() : doCreate().catch(e => msg.replaceChildren(banner('bad', 'Could not create', String(e.message || e)))) }, 'Create workspace'), fileIn), msg));
 
   const t = el('table');
-  t.append(el('thead', null, el('tr', null, ...['Workspace', 'Type', 'Organization', 'Scenarios', 'Modified', ''].map(h => el('th', null, h)))));
+  t.append(el('thead', null, el('tr', null, ...['Workspace', 'Type', 'Organization', 'Scenarios', 'Modified'].map(h => el('th', null, h)), el('th', null, el('span', 'sr-only', 'Actions')))));
   const tb = el('tbody');
   for (const w of S.list) {
     const cur = w.id === S.ws.id;

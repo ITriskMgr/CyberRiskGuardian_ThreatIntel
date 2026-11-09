@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: CC-BY-NC-4.0
 # Copyright (c) 2026 Marc-André Léger
-"""CyberRiskGuardian Desktop — local server and download helper (version 1.4.0).
+"""CyberRiskGuardian Desktop — local server and download helper (the version is VERSION below, checked by tools/version_check.py).
 
 Serves the app folder on 127.0.0.1 (loopback only) exactly like `python3 -m http.server`, and adds a
 small helper API used by Vulnerabilities → Online sources:
@@ -49,6 +49,7 @@ import uuid
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crg_feeds  # noqa: E402  (same folder)
 import crgo_client  # noqa: E402  (1.5.7 — the ontology, reached as an MCP server)
+import crg_signing  # noqa: E402  (1.9.2 — minisign verification of release downloads)
 try:                    # 1.7.0 — the Security Policy Writer engine (standard library only, crg_writer/)
     import crg_writer  # noqa: E402
     from crg_writer import api as writer_api  # noqa: E402
@@ -56,7 +57,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.9.1"
+VERSION = "1.9.2"
 # 1.9.0 — a random token made at each start. The page reads it from /api/session (same origin only) and sends it
 # with every /api/* call, next to X-CRG; the helper also checks Host and Origin. See Handler._guard.
 TOKEN = secrets.token_urlsafe(32)
@@ -81,8 +82,21 @@ FEEDS = _feeds_dir()
 MANIFEST = os.path.join(FEEDS, "manifest.json")
 UA = f"CyberRiskGuardian-Desktop/{VERSION} (+https://github.com/ITriskMgr/CyberRiskGuardian)"
 
-# Fixed source list. CRG_FEED_BASE lets the test-suite point every source at a local mock server.
-_BASE = os.environ.get("CRG_FEED_BASE")
+# Fixed source list. CRG_SOURCES_BASE (alias CRG_FEED_BASE) lets the test-suite point every source at a local mock
+# server — loopback only (1.9.2, NV-091): any other host is ignored, so the variable can never redirect a real download.
+def _sources_base():
+    base = os.environ.get("CRG_SOURCES_BASE") or os.environ.get("CRG_FEED_BASE") or ""
+    if not base:
+        return None
+    u = urllib.parse.urlsplit(base)
+    host = (u.hostname or "").lower()
+    if u.scheme != "http" or host not in ("127.0.0.1", "localhost", "::1"):
+        sys.stderr.write(f"helper: CRG_SOURCES_BASE ignored — {base!r} is not plain http to this machine (loopback only)\n")
+        return None
+    return base.rstrip("/")
+
+
+_BASE = _sources_base()
 SOURCES = {
     "kev": [_BASE + "/kev.json"] if _BASE else [
         "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json",
@@ -285,8 +299,13 @@ def ai_provider(pid, cfg):
         raise RuntimeError(f"Unknown AI provider '{pid}'. Choose one in Settings → AI.")
     return p
 
-AI_DEFAULT_MODEL = {"claude": "claude-sonnet-5", "local": ""}
-MAX_AI_BYTES = 400_000          # a workspace excerpt, not a database dump
+MAX_AI_BYTES = 400_000          # a workspace excerpt, not a database dump (system + prompt, measured in bytes — 1.9.2, NV-055)
+MAX_AI_TOKENS = 64_000          # 1.9.2 (NV-055): the most output tokens one request may ask for
+MODEL_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,159}$")   # 1.9.2 (NV-055): a model name, not free text
+
+
+class AiRequestTooLarge(ValueError):
+    """1.9.2 (NV-055): answered 413, not 502."""
 
 # 1.5.3 — routing policy, mirror of DEFAULT_POLICY in js/ai.js. The browser decides where a request should
 # go; the helper checks the same policy before calling anything, so a feature set to "local only" (by
@@ -294,15 +313,19 @@ MAX_AI_BYTES = 400_000          # a workspace excerpt, not a database dump
 # api.anthropic.com, whatever a page asks for.
 AI_DEFAULT_POLICY = {
     "remote_allowed": True, "web_search": True,
+    # 1.9.2 (NV-019): the legacy tasks "chat" and "analyst" are gone — they reached a remote provider while every feature
+    # of Settings → AI was set to local. tools/ai_policy_check.py fails the build when this map and js/ai.js FEATURES differ.
     "tasks": {"link_vulns": "local", "extract_profile": "workspace", "extract_crown": "workspace",
-              "scenarios": "workspace", "analyst": "workspace", "critique": "workspace",
-              "briefing": "workspace", "chat": "workspace",
+              "scenarios": "workspace", "critique": "workspace",
+              "briefing": "workspace",
               "extract_sensitive": "local", "extract_more": "workspace", "simulation_pack": "workspace",
               "writer_facts": "workspace", "writer_tailor": "workspace",
               "causal_chain": "local", "isp_draft": "workspace", "compliance_assess": "workspace",
               "consultant": "local",
               # 1.9.0 - AI forecasting: both carry the CVE register or the treatment portfolio -> local by default
-              "exploit_forecast": "local", "mitigation_optimizer": "local"},
+              "exploit_forecast": "local", "mitigation_optimizer": "local",
+              # 1.9.2 (C5) - screening scores proposed for review (js/screenai.js)
+              "screening_scores": "workspace"},
 }
 # 1.9.0 — the tasks the application sends. The policy is decided on the task, so the task is checked rather
 # than trusted: it must be one of these, and the TASK line of the prompt must name the same one.
@@ -464,6 +487,8 @@ def _key_hosts_at_save(name, cfg):
         if p.get("key") == name:
             host = urllib.parse.urlsplit(_ai_base(cfg, pid)).hostname
             return [host] if host else []
+    if name == "nvd":                                   # 1.9.2 (NV-058)
+        return [urllib.parse.urlsplit(SOURCES["nvd"]).hostname or "services.nvd.nist.gov"]
     hosts = set()
     for src in crg_feeds.sources(cfg):
         if src.get("key") == name:
@@ -535,7 +560,15 @@ def ai_models(provider, cfg):
     """Ask the endpoint what it serves. Nothing is hardcoded, and a provider whose list endpoint is
     unavailable is not a dead end: Settings always lets the model be typed in."""
     p = ai_provider(provider, cfg)
-    key = _ai_key(cfg, provider)
+    key = _ai_key(cfg, provider)                       # raises when the endpoint moved away from the key's host — before any mock
+    mock = os.environ.get("CRG_AI_MOCK")
+    if mock:                                            # test suite only: "<mock>/models.json" is the endpoint's list
+        try:
+            with open(os.path.join(mock, "models.json"), encoding="utf-8") as fh:
+                items = json.load(fh)
+            return [{"id": m["id"], "name": m.get("name") or m["id"]} for m in items if isinstance(m, dict) and m.get("id")]
+        except (OSError, ValueError):
+            raise RuntimeError("The mock endpoint offers no model list.") from None
     proto = p.get("protocol")
     if _ai_requires_key(p) and not key:
         raise RuntimeError(f"No API key is stored for {p['label']}. Add one in Settings \u2192 AI.")
@@ -558,33 +591,79 @@ def ai_models(provider, cfg):
     return out
 
 
+# 1.9.2 (NV-033 / X-9): the stop reason of every provider path, and what it means for the answer. A cut-off answer is
+# returned with truncated=True (the page says so and may still salvage complete items); an answer with no text — an
+# HTTP 200 with empty content, every token spent on reasoning — is an error, never a success.
+TRUNCATED_MSG = "The answer was cut off; raise the limit or narrow the request."
+EMPTY_MSG = "The model returned no text (the answer was empty); try again, raise the limit or choose another model."
+STOP_TRUNCATED = {"max_tokens", "length", "max_output_tokens"}
+# OpenAI-compatible reasoning models count their reasoning against `max_completion_tokens` and reject `max_tokens`;
+# local servers and older endpoints know only `max_tokens`. Providers off this machine get the newer name first,
+# providers on this machine the older one; a complaint about the name flips it once.
+MAX_COMPLETION_FIRST = {"openai", "azure", "github"}
+
+
+def _finish(text, stop, usage_out, max_tokens):
+    """truncated / empty flags from the stop reason, the text and the usage."""
+    stop = str(stop or "")
+    text = text or ""
+    truncated = stop in STOP_TRUNCATED or (usage_out is not None and max_tokens and int(usage_out) >= int(max_tokens))
+    empty = not text.strip()
+    return {"stop_reason": stop, "truncated": bool(truncated), "empty": bool(empty)}
+
+
+def _check_request(body):
+    """1.9.2 (NV-055): size (system + prompt, bytes), token budget and model name — before the mock branch too."""
+    system = str(body.get("system") or "")
+    prompt = str(body.get("prompt") or "")
+    size = len(system.encode("utf-8")) + len(prompt.encode("utf-8"))
+    if size > MAX_AI_BYTES:
+        raise AiRequestTooLarge(f"The request is larger than the {MAX_AI_BYTES // 1000} kB limit for one call "
+                                f"({size // 1000} kB with the instructions). Narrow what you are sending.")
+    try:
+        max_tokens = int(body.get("max_tokens") or 4000)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("max_tokens must be a number.") from exc
+    if max_tokens < 1:
+        raise ValueError("max_tokens must be at least 1.")
+    max_tokens = min(max_tokens, MAX_AI_TOKENS)
+    model = body.get("model")
+    if model is not None and model != "" and not (isinstance(model, str) and MODEL_ID.match(model)):
+        raise ValueError("The model name is not valid: letters, digits and . _ : / @ - only, at most 160 characters.")
+    return system, prompt, max_tokens, (model or "")
+
+
 def ai_complete(provider, cfg, body):
-    """One request to the chosen provider. Returns {text, model, provider, usage}."""
+    """One request to the chosen provider. Returns {text, model, provider, usage, stop_reason, truncated, empty}."""
+    system, prompt, max_tokens, model_req = _check_request(body)
     mock = os.environ.get("CRG_AI_MOCK")
     if mock:                                            # test suite only: canned answers from a folder
-        task = re.search(r"TASK:\s*([a-z_]+)", str(body.get("prompt") or ""))
-        name = (task.group(1) if task else "default") + ".txt"
-        try:                                            # 1.5.7 - the suite checks what was actually sent
+        task = re.search(r"TASK:\s*([a-z_]+)", prompt)
+        base_name = task.group(1) if task else "default"
+        try:                                            # 1.5.7 - the suite checks what was actually sent; 1.9.2 (NV-084): the full payload
             with open(os.path.join(mock, "_last.json"), "w", encoding="utf-8") as fh:
-                json.dump({k: body.get(k) for k in ("system", "prompt", "temperature", "task")}, fh)
+                json.dump({"system": system, "prompt": prompt, "temperature": body.get("temperature"), "task": body.get("task"),
+                           "model": model_req or _ai_model(cfg, provider) or "mock-model", "max_tokens": max_tokens,
+                           "web_search": bool(body.get("web_search")), "provider": provider}, fh)
         except OSError:
             pass
         try:
-            with open(os.path.join(mock, name), encoding="utf-8") as fh:
+            with open(os.path.join(mock, base_name + ".txt"), encoding="utf-8") as fh:
                 text = fh.read()
         except OSError:
             text = "Mock answer."
+        stop = "end_turn"
+        try:                                            # 1.9.2 (NV-033): "<task>.stop" names the stop reason to simulate
+            with open(os.path.join(mock, base_name + ".stop"), encoding="utf-8") as fh:
+                stop = fh.read().strip() or stop
+        except OSError:
+            pass
+        usage = {"in": len(prompt) // 4, "out": len(text) // 4}
         return {"text": text, "model": "mock-model", "provider": provider, "sources": [{"url": "https://example.org/source", "title": "Mock source"}] if body.get("web_search") else [],
-                "usage": {"in": len(str(body.get("prompt") or "")) // 4, "out": len(text) // 4}}
+                "usage": usage, **_finish(text, stop, usage["out"] if stop in STOP_TRUNCATED else None, max_tokens)}
     p = ai_provider(provider, cfg)
     key = _ai_key(cfg, provider)
-    system = str(body.get("system") or "")
-    prompt = str(body.get("prompt") or "")
-    if len(prompt.encode("utf-8")) > MAX_AI_BYTES:
-        raise RuntimeError(f"The request is larger than the {MAX_AI_BYTES // 1000} kB limit for one call. "
-                           "Narrow what you are sending.")
-    model = body.get("model") or _ai_model(cfg, provider)
-    max_tokens = int(body.get("max_tokens") or 4000)
+    model = model_req or _ai_model(cfg, provider)
     # Newer Claude models reject `temperature` outright, so it is sent only when a caller asks for it.
     temperature = None if body.get("temperature") is None else float(body["temperature"])
     proto = p.get("protocol")
@@ -612,7 +691,8 @@ def ai_complete(provider, cfg, body):
                     sources.append({"url": c["url"], "title": c.get("title") or ""})
         usage = out.get("usage") or {}
         return {"text": text, "model": out.get("model") or model, "provider": provider, "sources": sources[:30],
-                "usage": {"in": usage.get("input_tokens"), "out": usage.get("output_tokens")}}
+                "usage": {"in": usage.get("input_tokens"), "out": usage.get("output_tokens")},
+                **_finish(text, out.get("stop_reason"), usage.get("output_tokens"), max_tokens)}
 
     # openai and azure share the chat-completions body; only the URL and the auth header differ.
     if proto == "azure":
@@ -626,27 +706,29 @@ def ai_complete(provider, cfg, body):
                                "the list comes from the endpoint itself, or type the name.")
         url = base + "/chat/completions"
     msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
-    # `max_tokens` is the long-standing field and `max_completion_tokens` the newer one; sending both
-    # is refused by some endpoints, so the newer name is used only where it is known to be required.
-    payload = {"model": model, "max_tokens": max_tokens, "messages": msgs}
+    first = "max_completion_tokens" if (provider in MAX_COMPLETION_FIRST and not p.get("local")) else "max_tokens"
+    other = "max_tokens" if first == "max_completion_tokens" else "max_completion_tokens"
+    payload = {"model": model, first: max_tokens, "messages": msgs}
     if temperature is not None:
         payload["temperature"] = temperature
     try:
         out = _post_json(url, payload, _ai_headers(p, key, cfg))
     except RuntimeError as exc:
-        # Some endpoints now reject `max_tokens` by name and ask for `max_completion_tokens`. Retry once
-        # on exactly that complaint rather than making every provider carry a flag for it.
-        if "max_completion_tokens" in str(exc):
-            payload.pop("max_tokens", None)
-            payload["max_completion_tokens"] = max_tokens
+        # The endpoint knows the other name for the token budget: retry once on exactly that complaint.
+        if first in str(exc) or other in str(exc):
+            payload.pop(first, None)
+            payload[other] = max_tokens
             out = _post_json(url, payload, _ai_headers(p, key, cfg))
         else:
             raise
     choice = (out.get("choices") or [{}])[0]
     text = ((choice.get("message") or {}).get("content")) or choice.get("text") or ""
+    if not isinstance(text, str):                       # some servers return content as a list of parts
+        text = "".join(part.get("text", "") for part in text if isinstance(part, dict))
     usage = out.get("usage") or {}
     return {"text": text, "model": out.get("model") or model, "provider": provider,
-            "usage": {"in": usage.get("prompt_tokens"), "out": usage.get("completion_tokens")}}
+            "usage": {"in": usage.get("prompt_tokens"), "out": usage.get("completion_tokens")},
+            **_finish(text, choice.get("finish_reason"), usage.get("completion_tokens"), max_tokens)}
 
 
 # ---------------------------------------------------------------- embeddings (1.9.0, Virtual consultant)
@@ -766,7 +848,16 @@ def _nvd_compact(item):
 def run_nvd(job, params, ev):
     p = params
     mode = p.get("mode", "range")
+    # 1.9.2 (NV-058): the NVD API key lives in the key store (Settings → AI → keys, name "nvd"), bound to NVD's host;
+    # it is read here and never kept in the browser. A key passed with the request (older pages) is still honoured.
     key = p.get("api_key") or ""
+    if not key:
+        try:
+            keys = crg_feeds.load_keys(FEEDS)
+            if "nvd" in keys and crg_feeds.host_allowed(SOURCES["nvd"], crg_feeds.key_hosts("nvd") or ["services.nvd.nist.gov"]):
+                key = keys.get("nvd", "")
+        except Exception as exc:                        # noqa: BLE001
+            sys.stderr.write(f"helper: the NVD key could not be read: {exc}\n")
     delay = 0.7 if key else 6.5                         # NVD: 50 req/30 s with a key, 5 req/30 s without
     headers = {"apiKey": key} if key else {}
     if mode == "full":
@@ -852,6 +943,22 @@ UPDATE_URL = os.environ.get("CRG_UPDATE_URL") or f"https://api.github.com/repos/
 # Only a release carrying the desktop ZIP counts; the same repository also publishes plugin releases.
 DESKTOP_ASSET = re.compile(r"^CyberRiskGuardian_Desktop_v(\d+\.\d+\.\d+)[A-Za-z0-9._-]*\.zip$")
 UPDATE_UA = "CyberRiskGuardian-Desktop-update-check"
+# 1.9.2 (NV-086) — signed releases. When the author publishes a minisign public key, its text goes here (pinned in the
+# build, like the release repository above); a release then carries "<zip name>.minisig" beside the ZIP and the download
+# is kept only if that signature verifies (crg_signing.py). Empty: the SHA-256 check alone applies and the result says so.
+# CRG_UPDATE_PUBKEY (a file path or the key text) overrides it for the test suite.
+UPDATE_MINISIGN_PUBKEY = ""
+
+
+def _update_pubkey():
+    env = os.environ.get("CRG_UPDATE_PUBKEY") or ""
+    if env and os.path.isfile(env):
+        try:
+            with open(env, encoding="utf-8") as fh:
+                return fh.read()
+        except OSError:
+            return ""
+    return env or UPDATE_MINISIGN_PUBKEY
 UPDATE_DOWNLOAD_HOSTS = ("https://github.com/" + UPDATE_REPO + "/releases/download/",
                          "https://objects.githubusercontent.com/", "https://release-assets.githubusercontent.com/")
 _update_cache = {}
@@ -906,10 +1013,14 @@ def update_check():
     # `shasum -a 256 <zip>` or `sha256sum <zip>`). Without it the download is kept but marked unverified.
     sums = next((a for a in data.get("assets") or [] if str(a.get("name", "")) == asset["name"] + ".sha256"), None)
     res["asset"]["checksum"] = bool(sums)
+    # 1.9.2 (NV-086): "<zip name>.minisig" beside the ZIP, checked against the pinned public key when there is one
+    sig = next((a for a in data.get("assets") or [] if str(a.get("name", "")) == asset["name"] + ".minisig"), None)
+    res["asset"]["signature"] = bool(sig)
+    res["asset"]["signing_key"] = bool(_update_pubkey().strip())
     _update_cache.clear()
     if asset:
         _update_cache.update(name=asset["name"], url=asset.get("browser_download_url") or "", latest=res["latest"],
-                             sha_url=(sums or {}).get("browser_download_url") or "")
+                             sha_url=(sums or {}).get("browser_download_url") or "", sig_url=(sig or {}).get("browser_download_url") or "")
     return res
 
 
@@ -932,7 +1043,8 @@ def run_update(job, params, ev):
         raise RuntimeError("Check for updates first: no release asset is known.")
     url, name = _update_cache["url"], os.path.basename(_update_cache["name"])
     sha_url = _update_cache.get("sha_url") or ""
-    if not _update_url_ok(url) or (sha_url and not _update_url_ok(sha_url)):
+    sig_url = _update_cache.get("sig_url") or ""
+    if not _update_url_ok(url) or (sha_url and not _update_url_ok(sha_url)) or (sig_url and not _update_url_ok(sig_url)):
         raise RuntimeError("The release asset is not on the expected GitHub address; nothing was downloaded.")
     if not SAFE.match(name) or not name.lower().endswith(".zip"):
         raise RuntimeError("Unexpected asset name.")
@@ -951,8 +1063,18 @@ def run_update(job, params, ev):
             raise RuntimeError("The SHA-256 checksum of the download does not match the one published with the release; "
                                "the file was not kept. Download it again later, or from the release page.")
         verified = True
+    # 1.9.2 (NV-086): the minisign signature, when the release carries one and a public key is pinned. An invalid
+    # signature refuses the file; a missing key or signature is reported, never silently passed.
+    sig_text = _update_get(sig_url, 60).decode("utf-8", "replace") if sig_url else ""
+    if sig_url:
+        _update(job, message="Checking the minisign signature published with the release…", progress=0.95)
+    signature = crg_signing.check(data, sig_text, _update_pubkey())
+    # 1.9.2 review (M6): with a pinned key, "no-signature" is a refusal too (an unsigned release never downgrades to SHA-256 only)
+    if signature["status"] in ("invalid", "malformed", "no-signature"):
+        raise RuntimeError(signature["detail"])
     path = _write(job, name, data)
-    return name, {"records": len(data), "path": path, "version": _update_cache.get("latest"), "sha256": digest, "verified": verified}
+    return name, {"records": len(data), "path": path, "version": _update_cache.get("latest"), "sha256": digest, "verified": verified,
+                  "signature": signature["status"], "signature_detail": signature["detail"]}
 
 
 RUNNERS = {"kev": run_kev, "epss": run_epss, "nvd": run_nvd, "feeds": run_feeds, "update": run_update}
@@ -967,27 +1089,87 @@ def _safe_join(base, *parts):
     return p
 
 
+# The file names the application itself produces (Publish & share, Risk Registry, briefings). Nothing else is written
+# through /api/publish (1.9.2, NV-060): a configuration name or a project file can never be created or replaced here.
+PUBLISH_PREFIXES = {"registry": ("crg-registry-", "crg-registry2-"), "briefing": ("briefing-", "triage-profile.json")}
+PUBLISH_TARGETS = ("registry", "briefing")
+
+
+def _app_made(path):
+    """True when the existing file reads as one this application wrote: a JSON package with a crg-… schema or our generator,
+    a Markdown report of ours, or a CSV of ours. Anything else is somebody else's file and is never overwritten."""
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as fh:
+            head = fh.read(4000)
+    except OSError:
+        return False
+    if path.endswith(".json"):
+        # 1.9.2 review (L4): a JSON file is ours only when it parses and its top-level "schema" is one of ours ("crg-…");
+        # a mention of the product's name in somebody else's file is not a claim on it
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as fh:
+                doc = json.load(fh)
+        except (OSError, ValueError):
+            return False
+        return isinstance(doc, dict) and isinstance(doc.get("schema"), str) and doc["schema"].startswith("crg-")
+    if path.endswith(".md"):
+        return head.lstrip().startswith(("# Risk registry", "# Registre des risques", "# Weekly threat briefing", "# Threat briefing", "# Briefing", "# Veille", "### Management summary", "### Sommaire", "# CyberRiskGuardian"))
+    if path.endswith(".csv"):
+        return head.startswith(("id,", "\ufeffid,", "cve,", "scenario", "risk"))
+    return False
+
+
 def publish(name, content, target):
     """Write a registry package to the shared registry folder or the outbox, or a briefing to the
-    feeds folder. Registry packages are anonymized in the app before they get here."""
+    feeds folder. Registry packages are anonymized in the app before they get here.
+    1.9.2 (NV-060): only the application's own name prefixes, only the known targets, and never over a file the
+    application did not create."""
+    if target not in PUBLISH_TARGETS:
+        raise ValueError(f"unknown publish target {target!r} (registry or briefing)")
     if not SAFE.match(name or "") or not name.endswith((".json", ".md", ".csv")):
         raise ValueError("bad file name")
+    if not name.startswith(PUBLISH_PREFIXES[target]):
+        raise ValueError(f"the name {name!r} is not one this application publishes for {target} ({', '.join(PUBLISH_PREFIXES[target])}…)")
     cfg = crg_feeds.load_config(FEEDS)
     local = os.path.expanduser((cfg.get("links") or {}).get("registry_local_dir") or "")
     if target == "briefing":
         # Briefings are not registry packages: they stay in the feeds folder, where the scheduled task
         # can find them, and never in the outbox that gets uploaded to the shared registry.
         folder = os.path.join(FEEDS, "briefings")
-    elif target == "registry" and local:
+    elif local:
         folder = registry_folder("shared")
     else:
         folder = os.path.join(FEEDS, "registry-outbox")
     os.makedirs(folder, exist_ok=True)
     path = _safe_join(folder, name)
+    ours = _published_record()
+    replaced = os.path.lexists(path)
+    if replaced and (os.path.islink(path) or not os.path.isfile(path) or not (path in ours or _app_made(path))):
+        raise ValueError(f"{name} exists in {folder} and was not created by this application: choose another name or remove it yourself")
     with open(path + ".part", "w", encoding="utf-8") as fh:
         fh.write(content)
     os.replace(path + ".part", path)
-    return {"path": path, "folder": folder, "outbox": folder.endswith("registry-outbox")}
+    ours[path] = {"sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(), "written": _now(), "target": target}
+    _published_save(ours)
+    return {"path": path, "folder": folder, "outbox": folder.endswith("registry-outbox"), "replaced": replaced}
+
+
+def _published_record():
+    """The files this helper wrote through /api/publish (path → sha256, date, target): the record that lets it tell its own
+    files from somebody else's when a name is reused. Kept in the feeds folder; a missing or unreadable record is empty."""
+    try:
+        with open(os.path.join(FEEDS, "published.json"), encoding="utf-8") as fh:
+            d = json.load(fh)
+        return d.get("files", {}) if isinstance(d, dict) and isinstance(d.get("files"), dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _published_save(files):
+    try:
+        crg_feeds._write_json(os.path.join(FEEDS, "published.json"), {"schema": "crg-published/1", "files": files})
+    except OSError:
+        pass
 
 
 # ---------------- 1.5.8 — CRGO dss/v1: the organisation graph of a workspace ----------------
@@ -1169,6 +1351,12 @@ def validate_config(new, old):
         bad = registry_dir_problem(d)
         if bad:
             raise ValueError(bad)
+    # 1.9.2 (NV-059): the organisation-graph folder receives files the application writes too — the same rule applies
+    g = (new.get("links") or {}).get("org_graph_dir") or ""
+    if g and g != ((old.get("links") or {}).get("org_graph_dir") or ""):
+        bad = registry_dir_problem(g)
+        if bad:
+            raise ValueError(bad.replace("The shared registry folder", "The organisation-graph folder"))
 
 
 def registry_files():
@@ -1238,7 +1426,7 @@ def start_job(source, params):
             name, info = RUNNERS[source](job, dict(params), ev)
             _update(job, status="done", progress=1.0, file=name, finished=_now(),
                     message=f"Saved {name} in {FEEDS}" if source == "update" else f"Saved {name} in Downloads/CyberRiskGuardian-feeds",
-                    **{k: v for k, v in info.items() if k in ("records", "score_date", "catalog_version", "path", "version", "sha256", "verified")})
+                    **{k: v for k, v in info.items() if k in ("records", "score_date", "catalog_version", "path", "version", "sha256", "verified", "signature", "signature_detail")})
         except InterruptedError:
             _update(job, status="cancelled", message="Cancelled.", finished=_now())
         except Exception as exc:                        # noqa: BLE001
@@ -1281,7 +1469,7 @@ def list_files():
     out = []
     for f in sorted(os.listdir(FEEDS)):
         p = os.path.join(FEEDS, f)
-        if (f.startswith(".") or f.endswith((".part", ".tmp")) or f in ("manifest.json", "feeds-digest.json", "suggested-sources.json")
+        if (f.startswith(".") or f.endswith((".part", ".tmp")) or f in ("manifest.json", "feeds-digest.json", "suggested-sources.json", "published.json")
                 or f.startswith("crg-") or not os.path.isfile(p)):            # 1.4.0 settings and feed state are not catalogue files
             continue
         kind = "kev" if f.startswith("kev") or f.startswith("known_exploited") else "epss" if f.startswith("epss") else "nvd" if f.startswith("nvd") else "release" if f.lower().endswith(".zip") else "other"
@@ -1294,6 +1482,9 @@ def list_files():
 class Handler(http.server.SimpleHTTPRequestHandler):
     # 1.9.0 — the bundled fonts: a fixed type, whatever the system's MIME table says (Windows reads it from the registry)
     extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map, ".woff2": "font/woff2"}
+    # 1.9.2 (NV-043): a connection that sends nothing for 30 s is closed — half-open connections and a declared body that
+    # never arrives no longer hold a thread for good (the AI call itself has its own, longer timeout on the outbound side)
+    timeout = 30
 
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
@@ -1439,7 +1630,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if m:
             name = m.group(1)
             p = os.path.join(FEEDS, name)
-            if not os.path.isfile(p) or os.path.dirname(os.path.abspath(p)) != os.path.abspath(FEEDS):
+            # 1.9.2 (NV-057): only the catalogue files list_files() shows are served — never crg-* settings, state or a key file
+            if name not in {f["name"] for f in list_files()} or not os.path.isfile(p) or os.path.dirname(os.path.abspath(p)) != os.path.abspath(FEEDS):
                 return self._json(404, {"error": "not found"})
             with open(p, "rb") as fh:
                 data = fh.read()
@@ -1490,12 +1682,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if not self.path.startswith("/api/"):
                 self._json(404, {"error": "unknown endpoint"})
             return
-        n = int(self.headers.get("Content-Length") or 0)
+        # 1.9.2 (NV-043): a non-numeric or negative Content-Length is a bad request, not an exception or a read to EOF
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            return self._json(400, {"error": "bad Content-Length"})
+        if n < 0:
+            return self._json(400, {"error": "bad Content-Length"})
         if n > 100 * 1024 * 1024:
             return self._json(413, {"error": "request too large"})
         try:
-            body = json.loads(self.rfile.read(n) or b"{}")
+            raw = self.rfile.read(n) if n else b""
+        except (socket.timeout, TimeoutError, OSError):
+            return self._json(408, {"error": "the request body did not arrive in time"})
+        try:
+            body = json.loads(raw or b"{}")
         except Exception:                               # noqa: BLE001
+            return self._json(400, {"error": "bad json"})
+        if not isinstance(body, dict):
             return self._json(400, {"error": "bad json"})
         path = urllib.parse.urlparse(self.path).path
         if path == "/api/quit":                         # 1.5.2 — Exit button: stop after answering
@@ -1547,8 +1751,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             try:
                 out = ai_complete(provider, cfg, body)
                 sys.stderr.write(f"helper: ai {provider} {out.get('model')} "
-                                 f"in={out['usage'].get('in')} out={out['usage'].get('out')}\n")
+                                 f"in={out['usage'].get('in')} out={out['usage'].get('out')} stop={out.get('stop_reason') or '-'}"
+                                 f"{' TRUNCATED' if out.get('truncated') else ''}{' EMPTY' if out.get('empty') else ''}\n")
+                if out.get("empty"):                    # 1.9.2 (NV-033): no text is an error, whatever the HTTP status was
+                    return self._json(502, {"error": EMPTY_MSG + (f" (stop reason: {out['stop_reason']})" if out.get("stop_reason") else ""),
+                                            "empty": True, "stop_reason": out.get("stop_reason"), "usage": out.get("usage"), "model": out.get("model")})
+                if out.get("truncated"):
+                    out["warning"] = TRUNCATED_MSG
                 return self._json(200, out)
+            except AiRequestTooLarge as exc:            # 1.9.2 (NV-055)
+                return self._json(413, {"error": str(exc)})
+            except ValueError as exc:
+                return self._json(400, {"error": str(exc)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(502, {"error": str(exc)})
         if path == "/api/embed":                       # 1.9.0 — Virtual consultant: local embeddings only
@@ -1570,6 +1784,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             provs = ai_providers(cfg)
             if provider not in provs:
                 return self._json(400, {"error": "unknown provider"})
+            # 1.9.2 (NV-019): the connectivity test is a request too — it respects "remote AI off" and the local-endpoint check
+            refused = ai_check_policy(provider, cfg, {"task": "test", "prompt": AI_TEST_PROMPT, "system": AI_TEST_SYSTEM})
+            if refused:
+                return self._json(403, {"ok": False, "provider": provider, "error": refused, "label": provs[provider]["label"]})
             try:
                 out = ai_test(provider, cfg)
             except Exception as exc:                    # noqa: BLE001
@@ -1616,7 +1834,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             try:
                 return self._json(200, publish(body.get("name"), body.get("content") or "", body.get("target") or "registry"))
             except Exception as exc:                    # noqa: BLE001
-                return self._json(400, {"error": str(exc)})
+                return self._json(409 if "was not created by this application" in str(exc) else 400, {"error": str(exc)})
         m = re.match(r"^/api/jobs/([a-f0-9]+)/cancel$", path)
         if m:
             ev = cancel_flags.get(m.group(1))

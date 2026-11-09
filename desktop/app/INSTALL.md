@@ -1,8 +1,8 @@
-# CyberRiskGuardian Desktop 1.9.1 Beta (1.9.x) — Installation
+# CyberRiskGuardian Desktop 1.9.2 Beta (1.9.x) — Installation
 
 **English below · [Français plus bas](#français)**
 
-Version 1.9.1 (beta) — for teaching, exploration and method validation. Validate every result before it
+Version 1.9.2 (beta) — for teaching, exploration and method validation. Validate every result before it
 supports a real decision. © 2026 Marc-André Léger · proprietary licence, free for students and non-profit organisations. Who
 needs which licence: **Help → About & versions → Licence** in the application, or `LICENSE` and the `licences` folder.
 
@@ -25,7 +25,7 @@ is never reachable from your network, even while it is running.
 
 ## 2. Unpack
 
-Unzip **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip`** anywhere you can write — your Documents folder
+Unzip **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip`** anywhere you can write — your Documents folder
 is fine. Keep the folder intact: the application loads its own files by relative path.
 
 ## 3. Start it
@@ -47,7 +47,7 @@ fetches them. **Control-C** stops it.
 By hand, if you prefer:
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.9.1-beta
+cd CyberRiskGuardian_Desktop_v1.9.2-beta
 python3 serve.py 8099
 ```
 
@@ -62,7 +62,7 @@ another port.
 
 ## 4. Check the engine before trusting a number
 
-The bottom of the left menu must show `© Marc-André Léger · ✓ Engine verified`. Click it (or open
+The bottom of the left menu must show `© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified`. Click it (or open
 **Help → About & versions**) to see the totals behind it:
 
 ```
@@ -149,11 +149,11 @@ like, and the scheduled task reports that the upload step was skipped.
 ### 5.3 The CyberRiskGuardian Ontology — optional
 
 The application ships with a snapshot of the ontology and needs nothing more. To query the ontology
-through **its own MCP server** — the one Claude uses — install **CRGO 0.11.0** (tag `v0.11.0`, approved by the CRGO author on
+through **its own MCP server** — the one Claude uses — install **CRGO 0.11.1** (tag `v0.11.1`, the 8 November 2026 patch of 0.11.0, approved by the CRGO author on
 2026-11-02) and let the helper find it:
 
 ```
-git clone --branch v0.11.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.0
+git clone --branch v0.11.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.1
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -193,13 +193,26 @@ You get a windowed application with its own icon that starts without a terminal 
 After replacing the folder with a newer version, serve it once with the launcher so the installed
 application picks up the new files.
 
-## 7. Upgrading from 1.8.x, 1.7.x (or an earlier copy)
+## 7. Upgrading from 1.9.x, 1.8.x, 1.7.x (or an earlier copy)
+
+**From 1.9.0 or 1.9.1:** unzip 1.9.2 beside the old folder and start it with its own launcher (the launcher now asks
+before stopping a copy that is already running). At first start each workspace moves once to **data version 6**
+(journalled in Backup & restore → Migration journal). The migration is one-way: a workspace saved by 1.9.2 opens
+**read-only** in 1.9.1 — export a backup first if you may need to go back. It changes no number except the one written
+exception of release 1.9.2 (a recommendation approved before 1.9.2 whose reductions were frozen at 0 while one of its own
+measures was in force is recomputed; the frozen figure is kept beside the new one, labelled; any other frozen 0 is kept
+as approved and listed for review). A scenario created before 1.9.2 from a row that carried a score and no vector keeps
+computing on that score (its placeholder vector is cleared, journalled) and step 10 asks you to confirm the score. The
+quality review now fails QC-32 for a likelihood calibrated from the threat context without vulnerability-register
+evidence, and QC-02 for a scenario decision without a named decision-maker: complete the evidence or the name. Duplicate
+copies of the teaching cases created by earlier restores or imports are not merged: delete the extra ones by hand under
+Organization → Workspaces.
 
 **From 1.8.x:** the steps below are the same. At first start each workspace is brought to data version 5 once
 (journalled in Backup & restore → Migration journal; no number changes). The offline copy of the ontology is rebuilt
-from CRGO 0.11.0 (tag v0.11.0: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
+from CRGO 0.11 (tag v0.11.1: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
 and 42001, CCSPA). The page and the helper now share a token made at each
-start, so start 1.9.1 with its own launcher and close any tab still open on the previous version. API keys stored in the
+start, so start 1.9.2 with its own launcher and close any tab still open on the previous version. API keys stored in the
 feeds folder are moved once to the macOS keychain or `~/.cyberriskguardian` (Windows shows a warning). **Ontology · CRGO**
 is now under **Organization**; the AI assistant is now the **Virtual consultant** (Tools, and the **Consultant** button of the
 top bar). The two new modules, **Identity & access management (IAM/PAM)** and **Configuration management**, are off until you
@@ -216,13 +229,13 @@ same either way:
 1. **Export anything you would hate to lose first** — Backup & restore → *Make a backup* → *Download backup*,
    which writes one file holding every workspace. Your workspaces live in the browser, not in the folder,
    so unzipping a new version does not touch them; a backup is for the day something else does.
-2. Unzip 1.9.1 into a **new** folder beside the old one. Do not unzip over the old folder.
+2. Unzip 1.9.2 into a **new** folder beside the old one. Do not unzip over the old folder.
 3. **Stop the old server** if its terminal window is still open (Control-C). The launchers detect an
    earlier copy on the same port, stop it and say so, but an old window left running is the usual
    reason a browser keeps showing the previous version.
 4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
    8099 — and your workspaces are there.
-5. **Help → About & versions** must read `1.9.1 beta` and `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, and the footer ✓ Engine verified
+5. **Help → About & versions** must read `1.9.2 beta` and `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, and the footer ✓ Engine verified
    (1.7.x read 84,491 / 41,104: the MediBec reference changed because S2 and S8 now use AV:L, as the textbook does).
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
@@ -258,7 +271,7 @@ read-only and never saved over.
 **8.1 `start.command` opens in a text editor instead of running (macOS).**
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.9.1-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.9.2-beta
 chmod +x start.command start.sh
 ```
 
@@ -300,7 +313,7 @@ To start a teaching case over, or to clear or delete a workspace, use **Organiza
 
 # Français
 
-Version 1.9.1 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
+Version 1.9.2 (bêta) — destinée à l’enseignement, à l’exploration et à la validation de la méthode.
 Validez chaque résultat avant qu’il n’appuie une décision réelle. © 2026 Marc-André Léger ·
 licence propriétaire, gratuite pour les étudiants et les organismes sans but lucratif. Quelle licence
 s’applique : **Aide → À propos et versions → Licence** dans l’application, ou `LICENSE` et le dossier `licences`.
@@ -321,7 +334,7 @@ fonctionne.
 
 ## 2. Décompresser
 
-Décompressez **`CyberRiskGuardian_Desktop_v1.9.1-beta.zip`** à un endroit où vous avez le droit
+Décompressez **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip`** à un endroit où vous avez le droit
 d’écrire ; votre dossier Documents convient. Gardez le dossier intact : l’application charge ses
 propres fichiers par chemin relatif.
 
@@ -345,7 +358,7 @@ téléchargez des sources de menace, l’assistant qui va les chercher. **Contr�
 À la main, si vous préférez :
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.9.1-beta
+cd CyberRiskGuardian_Desktop_v1.9.2-beta
 python3 serve.py 8099
 ```
 
@@ -361,7 +374,7 @@ puis ouvrez `http://localhost:8099/`. Le port est un argument positionnel :
 
 ## 4. Vérifier le moteur avant de vous fier à un chiffre
 
-Le bas du menu de gauche doit afficher `© Marc-André Léger · ✓ Moteur vérifié`. Cliquez dessus (ou ouvrez
+Le bas du menu de gauche doit afficher `© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié`. Cliquez dessus (ou ouvrez
 **Aide → À propos et versions**) pour voir les totaux qu’il résume (les nombres gardent le même format dans
 toutes les langues) :
 
@@ -456,11 +469,11 @@ déposer où vous voulez, et la tâche planifiée signale que l’étape de tél
 
 L’application est livrée avec un instantané de l’ontologie et n’a besoin de rien d’autre. Pour
 interroger l’ontologie au moyen de **son propre serveur MCP** — celui qu’utilise Claude —, installez
-**CRGO 0.11.0** (étiquette `v0.11.0`, approuvée par l’auteur de CRGO le 2 novembre 2026) et laissez l’assistant
+**CRGO 0.11.1** (étiquette `v0.11.1`, correctif du 8 novembre 2026 de la version 0.11.0 approuvée par l’auteur de CRGO le 2 novembre 2026) et laissez l’assistant
 local le trouver :
 
 ```
-git clone --branch v0.11.0 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.0
+git clone --branch v0.11.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.1
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -502,13 +515,28 @@ Vous obtenez une application en fenêtre, avec sa propre icône, qui démarre sa
 fonctionne hors ligne. Après avoir remplacé le dossier par une version plus récente, servez-la une
 fois avec le lanceur pour que l’application installée reprenne les nouveaux fichiers.
 
-## 7. Passer de la 1.8.x, de la 1.7.x (ou d’une copie antérieure) à la 1.9.1
+## 7. Passer de la 1.9.x, de la 1.8.x, de la 1.7.x (ou d’une copie antérieure) à la 1.9.2
+
+**Depuis la 1.9.0 ou la 1.9.1 :** décompressez la 1.9.2 à côté de l’ancien dossier et démarrez-la avec son propre lanceur (le
+lanceur demande maintenant avant d’arrêter une copie déjà en cours). Au premier démarrage, chaque espace de travail passe
+une fois à la **version de données 6** (consigné dans Sauvegarde et restauration → Journal de migration). La migration est
+à sens unique : un espace de travail enregistré par la 1.9.2 s’ouvre **en lecture seule** dans la 1.9.1 — exportez d’abord
+une sauvegarde si vous pourriez devoir revenir en arrière. Aucun nombre ne change, à l’exception écrite de la version 1.9.2
+(une recommandation approuvée avant la 1.9.2 dont les réductions étaient figées à 0 alors qu’une de ses propres mesures
+était en vigueur est recalculée; le chiffre figé est conservé à côté du nouveau, étiqueté; tout autre 0 figé est conservé
+tel qu’approuvé et énuméré pour examen). Un scénario créé avant la 1.9.2 à partir d’une ligne qui portait un score sans
+vecteur continue de calculer sur ce score (son vecteur de remplacement est effacé, consigné au journal) et l’étape 10 vous
+demande de confirmer le score. La revue de qualité échoue maintenant au contrôle QC-32 pour une probabilité calibrée à
+partir du contexte de menace sans élément probant du registre des vulnérabilités, et au contrôle QC-02 pour une décision
+de scénario sans décideur nommé : complétez l’élément probant ou le nom. Les doublons des cas d’enseignement créés par des
+restaurations ou importations antérieures ne sont pas fusionnés : supprimez les copies en trop à la main dans
+Organisation → Espaces de travail.
 
 **Depuis la 1.8.x :** les étapes ci-dessous sont les mêmes. Au premier démarrage, chaque espace de travail passe une fois à
 la version de données 5 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). L’exemplaire hors ligne de l’ontologie est reconstruit à partir de
-CRGO 0.11.0 (étiquette v0.11.0 : modèles de scénarios, mesures de protection des CIS Controls v8.1 avec les libellés propres à CRGO,
+CRGO 0.11 (étiquette v0.11.1 : modèles de scénarios, mesures de protection des CIS Controls v8.1 avec les libellés propres à CRGO,
 listes OWASP, ISO/IEC 27701 et 42001, Loi sur la protection des cybersystèmes essentiels). La page et l’assistant
-local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.1 avec son propre lanceur et fermez tout onglet
+local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.2 avec son propre lanceur et fermez tout onglet
 encore ouvert sur la version précédente. Les clés d’API rangées dans le dossier des flux sont déplacées une fois vers le
 trousseau macOS ou `~/.cyberriskguardian` (Windows affiche un avertissement). **Ontologie · CRGO** se trouve maintenant
 sous **Organisation**; l’assistant IA devient le **Consultant virtuel** (Outils, et le bouton **Consultant** de la barre
@@ -527,7 +555,7 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    sauvegarde* → *Télécharger la sauvegarde*, qui écrit un seul fichier contenant tous les espaces
    de travail. Vos espaces de travail résident dans le navigateur et non dans le dossier : décompresser
    une nouvelle version ne les touche pas. Une sauvegarde sert pour le jour où autre chose les touchera.
-2. Décompressez la 1.9.1 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
+2. Décompressez la 1.9.2 dans un **nouveau** dossier, à côté de l’ancien. Ne décompressez pas
    par-dessus l’ancien dossier.
 3. **Arrêtez l’ancien serveur** si sa fenêtre de terminal est encore ouverte (Contrôle-C). Les
    lanceurs détectent une copie antérieure sur le même port, l’arrêtent et vous le disent, mais une
@@ -535,7 +563,7 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    d’afficher la version précédente.
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
-5. **Aide → À propos et versions** doit afficher `1.9.1 beta` et
+5. **Aide → À propos et versions** doit afficher `1.9.2 beta` et
    `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, et le pied de page ✓ Moteur vérifié (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
    parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
@@ -577,7 +605,7 @@ récente s’ouvre en lecture seule et n’est jamais écrasé.
 **8.1 `start.command` s’ouvre dans un éditeur de texte au lieu de s’exécuter (macOS).**
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.1-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.2-beta
 chmod +x start.command start.sh
 ```
 

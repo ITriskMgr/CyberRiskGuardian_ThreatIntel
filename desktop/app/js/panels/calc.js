@@ -1,10 +1,11 @@
 /* Risk calculator — portfolio table (include/exclude each scenario) and the full single-scenario calculation.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, go, val, select, money } from '../util.js';
+import { el, n0, n1, n2, pct, kpi, banner, card, pill, pillFor, field, toast, go, val, select, money, today } from '../util.js';
 import { techName } from '../ontology.js';
 import { S, touch, compute, setIncluded, scen, blankScenario, nextScenarioId, PARAMS } from '../state.js';
 import { tr } from '../i18n.js';
+import { appetiteCheck } from './org.js';   // 1.9.2 review (M2): the same appetite rule as the profile
 
 let whatIf = { appetite: null, factor: null };
 let loaded = null;   // scenario id loaded in the single calculator
@@ -24,7 +25,12 @@ export function render(sec, arg) {
   sec.append(card(el('div', 'row',
     el('div', { style: { width: '150px' } }, field('<b>Appetite</b>', appIn)),
     el('div', { style: { width: '150px' } }, field('Factor', facIn)),
-    el('button', { class: 'btn ghost', onclick: () => { a.APPETITE = Number(appIn.value); a.FACTOR = Number(facIn.value); whatIf = { appetite: null, factor: null }; touch(); toast('Saved as the workspace appetite and factor'); portfolio(portBox, sec); } }, 'Save as workspace values'),
+    el('button', { class: 'btn ghost', onclick: () => {
+      // 1.9.2 review (M2, NV-017): the calculator's save obeys the profile's rule — appetite strictly in (0, 1), warned outside 0.1–0.9; factor > 0
+      const ac = appetiteCheck(appIn.value); if (!ac.ok) { toast(ac.message, 'bad'); appIn.focus(); return; }
+      const f = Number(facIn.value); if (facIn.value === '' || !Number.isFinite(f) || f <= 0) { toast(tr('The factor must be a number greater than 0 (the method holds it at 1,000).'), 'bad'); facIn.focus(); return; }
+      if (ac.kind === 'warn') toast(ac.message, 'warn');
+      a.APPETITE = Number(appIn.value); a.FACTOR = f; whatIf = { appetite: null, factor: null }; touch(); toast('Saved as the workspace appetite and factor'); portfolio(portBox, sec); } }, 'Save as workspace values'),
     el('button', { class: 'btn ghost', onclick: () => { whatIf = { appetite: null, factor: null }; appIn.value = a.APPETITE; facIn.value = a.FACTOR; portfolio(portBox, sec); } }, 'Reset'),
   ), el('div', 'note', 'Changing appetite or factor here is a what-if: totals update instantly but nothing is saved until you choose to.')), portBox);
   portfolio(portBox, sec);
@@ -40,11 +46,16 @@ function portfolio(box, sec) {
   box.replaceChildren();
   if (whatIf.appetite !== null || whatIf.factor !== null) box.append(banner('warn', 'What-if values in use', `Appetite ${R.appetite}, factor ${n0(R.factor)} — not saved.`));
   const k = el('div', 'grid g5');
-  k.append(kpi('Included', `${R.inc.length} / ${R.rows.length}`, 'scenarios in totals'), kpi('Estimated', n0(R.totals.est)), kpi('Tolerated', n0(R.totals.tol)),
-    kpi('Residual', n0(R.totals.res), R.totals.est ? `−${Math.round(100 - R.totals.res / R.totals.est * 100)}% after treatment` : ''),
+  const N = x => R.rows.length ? n0(x) : '—';   // 1.9.2 (NV-054): "—" on a blank workspace
+  k.append(kpi('Included', R.rows.length ? `${n0(R.inc.length)} / ${n0(R.rows.length)}` : '—', 'scenarios in totals'), kpi('Estimated', N(R.totals.est)), kpi('Tolerated', N(R.totals.tol)),
+    kpi('Residual', N(R.totals.res), R.totals.est ? `−${pct(1 - R.totals.res / R.totals.est, 0)} after treatment` : ''),
     kpi('Portfolio Res/Tol', R.totals.tol ? n2(R.totals.res / R.totals.tol) : '—', R.totals.tol ? CRG.classify(R.totals.res / R.totals.tol) : '', R.totals.tol ? pillFor(CRG.classify(R.totals.res / R.totals.tol)) : ''));
   box.append(k);
   if (R.errors.length) box.append(banner('bad', 'Not calculable', R.errors.map(e => e.id + ': ' + e.error).join(' · ')));
+  // the vector wins (X-1): a stored score that disagrees with its vector is flagged here, on the risk card, in the register and in the exports
+  const flagged = R.rows.filter(r => CRG.cvssCheck(r.s).agree === false);
+  if (flagged.length) box.append(banner('warn', tr('{0} scenario(s) carry a stored CVSS score that disagrees with its vector').replace('{0}', flagged.length),
+    tr('The vector\'s score is used. Correct or clear the stored score in the Scenario editor: ') + flagged.map(r => { const c = CRG.cvssCheck(r.s); return `${r.id} (${n2(c.stored)} ≠ ${n2(c.computed)})`; }).join(', ')));
 
   // filters (search, status, source, technique, owner) — they choose what is SHOWN; the checkboxes choose what is INCLUDED
   const srcOf = r => (r.s.threat_source || '—').split(/[.(;,]/)[0].trim() || '—';
@@ -77,7 +88,7 @@ function portfolio(box, sec) {
       c.addEventListener('change', () => { setIncluded(r.id, c.checked); portfolio(box, sec); });
       const tr = el('tr', (r.inc ? '' : 'off ') + (loaded === r.id ? 'sel ' : '') + 'click',
         el('td', 'cb', c), el('td', 'mono', r.id), el('td', null, el('a', { href: '#/scenario/' + r.id }, (r.name || '').slice(0, 70)), el('div', 'small muted', srcOf(r))),
-        el('td', 'num', n2(val(r.s.params.PbA))), el('td', 'num', n2(val(r.s.params.Pbx))), el('td', 'num', r.cvss.toFixed(1)),
+        el('td', 'num', n2(val(r.s.params.PbA))), el('td', 'num', n2(val(r.s.params.Pbx))), el('td', 'num', n1(r.cvss), CRG.cvssCheck(r.s).agree === false ? el('span', { class: 'pill warn', title: r.warnings.join('; '), style: { marginLeft: '4px' } }, 'stored score ≠ vector') : null),
         el('td', 'num', n0(r.est)), el('td', 'num', n0(r.tol)), el('td', 'num', n0(r.mit)), el('td', 'num', n0(r.res)), el('td', 'num', n2(r.ratio)),
         el('td', null, pill(r.cls, pillFor(r.cls))), el('td', 'num', r.cost ? money(r.cost) : '—'));
       tr.addEventListener('click', e => { if (e.target.closest('input,a')) return; loaded = r.id; singleCalc(document.getElementById('single-calc')); drawTable(); document.getElementById('single-calc').scrollIntoView({ behavior: 'smooth' }); });
@@ -116,7 +127,7 @@ function singleCalc(box) {
   const s = scen(loaded);
   const p = s ? Object.fromEntries(PARAMS.map(k => [k, val(s.params[k])])) : { PbA: 0.7, Pbx: 0.6, De: 0.6, Dm: 0.8, Th: 0.5, Mu: 0.65 };
   const num = (id, v, step = 0.05, min = 0, max = 1) => el('input', { type: 'number', id, step, min, max, value: v });
-  const cvssVal = s ? (s.cvss_score ?? s.cvss) : 9.4;
+  const cvssVal = s ? (s.cvss || s.cvss_score) : 9.4;   // the vector wins: it is what the calculator loads
   const ins = {
     PbA: num('p-PbA', p.PbA), Pbx: num('p-Pbx', p.Pbx), De: num('p-De', p.De), Dm: num('p-Dm', p.Dm), Th: num('p-Th', p.Th, 0.05, 0.05), Mu: num('p-Mu', p.Mu),
     app: num('p-app', a.APPETITE, 0.05, 0.1, 0.9), factor: num('p-factor', a.FACTOR, 100, 1, 1e9), redp: num('p-redp', s ? s.red_p : 0.65), redi: num('p-redi', s ? s.red_i : 0.7),
@@ -126,6 +137,7 @@ function singleCalc(box) {
   box.replaceChildren(card(
     s ? el('div', 'note', { style: { marginTop: 0, marginBottom: '10px' } }, 'Loaded from ', el('a', { href: '#/scenario/' + s.id }, s.id + ' — ' + s.name), '. Changes here are a sandbox until you save them back.')
       : el('div', 'note', { style: { marginTop: 0, marginBottom: '10px' } }, 'Ad-hoc calculation. Click a row above to load a scenario.'),
+    s && CRG.cvssCheck(s).agree === false ? banner('warn', 'The stored CVSS score disagrees with its vector', tr('Stored {0}, the vector scores {1}. The vector\'s score is used; correct or clear the stored score.').replace('{0}', n2(CRG.cvssCheck(s).stored)).replace('{1}', n2(CRG.cvssCheck(s).computed))) : null,
     el('div', 'grid g3',
       field('<b>Pb(A)</b> threat present', ins.PbA), field('<b>Pb(ψ,A)</b> exploitation', ins.Pbx), field('<b>δe</b> expected damage', ins.De),
       field('<b>δm</b> maximum damage', ins.Dm), field('<b>θ</b> resilience <span class="mono">(0,1]</span>', ins.Th), field('<b>μ(E)</b> organizational criticality', ins.Mu)),
@@ -148,8 +160,13 @@ function saveBack(s, ins) {
   const cv = ins.cvss.value.trim();
   // 1.8.0 — a blank CVSS is "CVSS required", never 0: nothing is saved until a vector or a score is given.
   if (!cv) throw new Error(tr('CVSS required — provide a CVSS v4.0 vector or score'));
-  if (/^CVSS:4\.0\//i.test(cv)) { s.cvss = cv; delete s.cvss_score; }
-  else { const n = Number(cv.replace(',', '.')); if (!Number.isFinite(n) || n < 0 || n > 10) throw new Error(tr('CVSS score must be a number from 0.0 to 10.0')); s.cvss_score = n; }
+  if (/^CVSS:4\.0\//i.test(cv)) { CVSS4.parse(cv); if (s.cvss_score !== undefined) (s.revisions ||= []).push({ date: today(), cvss_score: s.cvss_score, what: tr('CVSS score override {0} cleared: the typed vector {1} scores {2} (the vector wins)').replace('{0}', String(s.cvss_score)).replace('{1}', cv).replace('{2}', n2(CVSS4.score(cv))) }); s.cvss = cv; delete s.cvss_score; }
+  else {
+    const n = Number(cv.replace(',', '.')); if (!Number.isFinite(n) || n < 0 || n > 10) throw new Error(tr('CVSS score must be a number from 0.0 to 10.0'));
+    // a plain score replaces the vector on purpose (the vector would otherwise win and flag the score); the change is recorded
+    if (s.cvss) { (s.revisions ||= []).push({ date: today(), what: tr('CVSS vector {0} replaced by the score {1} in the risk calculator').replace('{0}', s.cvss).replace('{1}', String(n)) }); delete s.cvss; }
+    s.cvss_score = n;
+  }
   touch();
 }
 
@@ -164,6 +181,8 @@ function run(ins, out) {
   try { r = CRG.calc(s, g('app'), g('factor')); sens = CRG.sensitivity(s, 0.10, g('app'), g('factor')); }
   catch (e) { out.append(banner('bad', 'Cannot calculate', String(e.message || e))); return; }
   const cls = CRG.classify(r.ratio);
+  if (r.warnings && r.warnings.some(w => /disagrees/.test(w))) out.append(banner('warn', 'The stored CVSS score disagrees with its vector', r.warnings.filter(w => /disagrees/.test(w)).join('; ')));
+  if (!Number.isFinite(r.ratio)) out.append(banner('', 'Tolerated risk is 0', 'Pb(A), Pb(ψ,A), μ(E) or CVSS is 0, so the tolerated risk is 0 and the risk-to-tolerance ratio is undefined. The scenario is not applicable to the tolerance test; check whether these inputs are what you meant.'));
   const k = el('div', 'grid g4');
   const rk = el('div', 'kpi'); rk.append(el('div', 'k', 'Risk-to-tolerance ratio'));
   const rv = el('div', 'v'); rv.append(n2(r.ratio) + ' ', pill(cls, pillFor(cls))); rk.append(rv);
@@ -183,7 +202,7 @@ Tolerated = ${g('PbA')} × ${g('Pbx')} × ${n2(r.cvss)} × ${g('app')} × ${g('M
 Mitigated = ${n2(r.est)} × ${g('redp')} × ${g('redi')} = ${n2(r.mit)}
 Residual  = ${n2(r.est)} − ${n2(r.mit)} = ${n2(r.res)}
 Ratio     = ${n2(r.res)} ÷ ${n2(r.tol)} = ${n2(r.ratio)}` +
-    (cost > 0 ? `\nCost-effectiveness = ((${n2(r.est)} − ${n2(r.res)}) ÷ ${n0(cost)}) × 1000 = ${n2((r.est - r.res) / cost * 1000)} risk units removed per $1,000` : '');
+    (cost > 0 ? '\n' + tr('Cost-effectiveness = (({0} − {1}) ÷ {2}) × 1000 = {3} risk units removed per $1,000').replace('{0}', n2(r.est)).replace('{1}', n2(r.res)).replace('{2}', n0(cost)).replace('{3}', n2((r.est - r.res) / cost * 1000)) : '');   // 1.9.2 (NV-046): translated as a line of its own
   c.append(pre);
   if (r.mit > r.est) c.append(banner('bad', 'Mitigation exceeds estimated risk', 'The reduction estimates are wrong. Revise them rather than reporting a negative or absolute-valued residual.'));
   c.append(el('div', 'note', 'Risk units are not dollars. They are relative decision-support indicators.'));

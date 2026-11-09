@@ -4,17 +4,17 @@
 # CRG_UPDATE_URL, when set, points the update check at the mock GitHub API (t29).
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
-URL="${CRG_URL:-http://127.0.0.1:8099/}"
+URL="${CRG_URL:-http://127.0.0.1:${CRG_PORT:-8099}/}"   # CRG_PORT: shorthand for parallel runs (lib.mjs)
 PORT="$(python3 -c "import sys,urllib.parse as u;print(u.urlsplit(sys.argv[1]).port or 80)" "$URL")"
 APP="${CRG_APP_DIR:-$HERE/../app}"
-TMPD="${CRG_TMP:-${TMPDIR:-/tmp}/crg-desktop-tests}"   # outside the repository (lib.mjs: os.tmpdir())
+TMPD="${CRG_TMP:-${TMPDIR:-/tmp}/crg-desktop-tests${CRG_PORT:+-$CRG_PORT}}"   # outside the repository (lib.mjs: os.tmpdir())
 export CRG_FEEDS_DIR="${CRG_FEEDS_DIR:-$TMPD/feeds}"
 export CRG_ORG_DIR="${CRG_ORG_DIR:-$TMPD/orggraphs}"
 export CRG_KEYS_DIR="${CRG_KEYS_DIR:-$TMPD/keys}"
 # Canned AI answers: the helper reads (and writes _last.json into) a scratch copy, never the repository's mock/.
 MOCK_SRC="${CRG_AI_MOCK_SRC:-$HERE/mock}"
 export CRG_AI_MOCK="${CRG_AI_MOCK:-$TMPD/mock}"
-export CRGO_HOME="${CRGO_HOME:-$HERE/../../CyberRiskGuardian-Ontology-0.11.0}"
+export CRGO_HOME="${CRGO_HOME:-$HERE/../../CyberRiskGuardian-Ontology-0.11.1}"
 LOG="${CRG_SERVE_LOG:-$TMPD/serve-$PORT.log}"
 mkdir -p "$TMPD" "$CRG_FEEDS_DIR" "$CRG_ORG_DIR" "$CRG_AI_MOCK"
 if [ "$(cd "$CRG_AI_MOCK" && pwd)" = "$(cd "$MOCK_SRC" && pwd)" ]; then
