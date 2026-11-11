@@ -4,6 +4,6 @@
   "type": "module",
   "description": "Browser suites (Playwright) and helper tests of CyberRiskGuardian Desktop. See README in run_all.sh.",
   "scripts": { "test": "bash run_all.sh" },
-  "devDependencies": { "playwright": "1.63.0" },
+  "devDependencies": { "playwright": "1.65.0" },
   "license": "CC-BY-NC-4.0"
 }
