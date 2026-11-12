@@ -85,6 +85,7 @@ jobs:
           python tools/anchor_check.py
           python tools/i18n_coverage.py fr --strict
           python tools/csp_check.py
+          python tools/route_code_check.py
           # IPC.CRGO is filled from CRGO 0.11 (bundled 0.11.1): no placeholder may come back, every identifier must exist in CRGO
           python tools/crgo_tbd_check.py --release --crgo "$CRGO_HOME"
       - name: Engine regression (MediBec 84,305 / 41,023), CRGO bridge and SSVC tables

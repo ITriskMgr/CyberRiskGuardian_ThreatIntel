@@ -69,6 +69,7 @@ const VERSION_LABEL = `${VERSION_NUM} Beta (${VERSION_SERIES})`;
 const FOOT_VERSION = `v${VERSION_NUM} Beta`;
 import * as A11Y from './a11y.js';
 import * as WINLOCK from './winlock.js';
+import * as SCREEN from './screencodes.js';
 import * as HELPMENU from './helpmenu.js';
 import { leaveProfile } from './panels/org.js';
 import { hfetch } from './helper.js';
@@ -168,6 +169,7 @@ function route() {
   const panelChanged = !!current && current.name !== name;
   const tabHadFocus = !panelChanged && document.activeElement?.getAttribute('role') === 'tab' && $('panel-' + name).contains(document.activeElement);
   current = { name, arg };
+  drawScreenCode();
   chat.setScreen(name);
   draw();
   $('main').scrollTop = 0;
@@ -175,6 +177,12 @@ function route() {
   // (which redraws the screen) puts the focus back on the tab that is now selected.
   if (panelChanged) A11Y.focusHeading($('panel-' + name));
   else if (tabHadFocus) $('panel-' + name).querySelector('[role="tab"][aria-selected="true"]')?.focus();
+}
+/* 1.9.3 (T7): the stable screen code, as a faint token at the foot of the page (js/screencodes.js) */
+function drawScreenCode() {
+  let t = document.getElementById('screen-code');
+  if (!t) { t = document.createElement('div'); t.id = 'screen-code'; t.className = 'screen-code'; t.setAttribute('aria-hidden', 'true'); t.setAttribute('data-noi18n', ''); document.body.append(t); }
+  t.textContent = SCREEN.codeOf(current.name, current.arg);
 }
 function draw() {
   if (!current || !S.ws) return;

@@ -553,8 +553,9 @@ function secopsBuilder(top, drawGrid) {
           sd.informs.length ? el('span', { 'data-noi18n': '' }, ' — ' + sd.informs.map(i => i.why).join('; ')) : null),
         sd.notes.length && !sd.masked ? el('div', 'small muted', { 'data-noi18n': '' }, sd.notes.join(' ')) : null,
         ev,
-        sc && !sd.masked ? el('div', 'btnrow', { style: { marginTop: '4px' } }, el('button', { class: 'btn sm ghost', onclick: () => {
+        sc && !sd.masked ? el('div', 'btnrow', { style: { marginTop: '4px' } }, el('button', { class: 'btn sm ghost', onclick: e => {
           const raw = res.seeds.find(x => x.id === sd.id); const n = SEED.attachEvidence(sc, raw); touch();
+          e.currentTarget.disabled = true; e.currentTarget.textContent = tr('Evidence recorded ✓');   // 1.9.3: the button shows the new state at once
           toast(n ? `${n} evidence link(s) recorded on ${sc.id} — no parameter changed` : `Already recorded on ${sc.id}`);
         } }, `Record the evidence on ${sc.id}`)) : null));
   });

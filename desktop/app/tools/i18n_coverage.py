@@ -22,7 +22,7 @@ import html as htmlmod, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = [os.path.join(ROOT, 'js'), os.path.join(ROOT, 'js', 'panels')]
-SKIP_FILES = {'i18n.js', 'cvss4.js', 'crg.js', 'sample.js', 'threat.js', 'xlsx.js', 'snapgen.js', 'ontology.js', 'feedparse.js'}
+SKIP_FILES = {'i18n.js', 'cvss4.js', 'crg.js', 'sample.js', 'threat.js', 'xlsx.js', 'snapgen.js', 'ontology.js', 'feedparse.js', 'screencodes.js'}
 
 
 def tokens(src):
