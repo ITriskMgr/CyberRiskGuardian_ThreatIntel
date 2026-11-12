@@ -90,7 +90,7 @@ vous acceptez parviennent au moteur.
 | Un navigateur à jour | Chrome ou Edge pour l'application installable. Safari et Firefox l'exécutent dans un onglet. |
 | Python 3 | Uniquement pour servir le dossier localement. macOS et la plupart des distributions Linux l'ont déjà. Sous Windows, installez-le à partir de [python.org](https://www.python.org/downloads/) et cochez **Add python.exe to PATH**. |
 | Environ 16 Mo d'espace disque | Plus vos espaces de travail et tout instantané que vous chargez. L'instantané d'exemple fourni fait environ 1,5 Mo, l'instantané de l'ontologie environ 6,5 Mo et le paquet de simulation pour l'enseignement environ 0,1 Mo ; un instantané complet des menaces produit par `threat_snapshot.py` fait 8 Mo ou plus. |
-| *Facultatif :* l'Ontologie CyberRiskGuardian 0.11.1 (étiquette v0.11.1) | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
+| *Facultatif :* l'Ontologie CyberRiskGuardian 0.11.2 (étiquette v0.11.2) | Pour interroger l'ontologie au moyen de son propre serveur MCP plutôt que de l'instantané livré avec l'application : un dossier `CyberRiskGuardian-Ontology` et un Python doté des paquets `mcp`, `pyoxigraph`, `rdflib` et `jsonschema`. Section 3.5. |
 
 Aucun compte, clé de licence, programme d'installation ni droit d'administrateur n'est requis. Rien
 n'est écrit à l'extérieur du dossier et du stockage propre à votre navigateur.
@@ -185,21 +185,21 @@ L'application est livrée avec un instantané de l'Ontologie CyberRiskGuardian e
 de plus. Pour interroger l'ontologie au moyen de son propre serveur MCP — le classement de référence,
 le contexte de l'organisation, le renvoi des résultats, ainsi que les contextes de la conformité et des
 opérations de sécurité —, l'assistant local doit trouver **CRGO v0.10.0 ou une version ultérieure** ; cette
-version de l'application est conçue pour **CRGO 0.11.1** :
+version de l'application est conçue pour **CRGO 0.11.2** :
 
 1. **Si le serveur `crgo-ontology` est enregistré dans Claude sur cet ordinateur** (Claude pour
    ordinateur → Settings → Developer → Edit Config), l'assistant local réutilise la même commande, avec
-   le même Python. Faites pointer ses `args` vers le `pipeline/mcp/crgo_server.py` d'un clone 0.11.1.
+   le même Python. Faites pointer ses `args` vers le `pipeline/mcp/crgo_server.py` d'un clone 0.11.2.
 2. **Si un dossier `CyberRiskGuardian-Ontology` se trouve près du dossier de l'application** — par
    exemple, tous deux dans `CyberRiskGuardian_ThreatIntel` —, il est trouvé automatiquement et démarré
    avec le Python qui exécute l'assistant local. Les clones versionnés comme
-   `CyberRiskGuardian-Ontology-0.11.1` sont privilégiés, **le plus récent en premier**. Ce Python a
+   `CyberRiskGuardian-Ontology-0.11.2` sont privilégiés, **le plus récent en premier**. Ce Python a
    besoin de `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`.
 3. **Sinon**, indiquez l'interpréteur Python et le chemin de `pipeline/mcp/crgo_server.py` dans
    **Ontologie · CRGO → Connexion → Où se trouve l'ontologie**, puis **Enregistrer**.
 
 ```
-git clone --branch v0.11.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.1
+git clone --branch v0.11.2 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.2
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -208,12 +208,12 @@ les contrats qu'elle prend en charge : la détermination des scénarios fonctio
 version, le lien avec l'organisation (dss/v1) exige v0.9.1 ou une version ultérieure, et les contextes
 de la conformité et des opérations de sécurité (compliance/v1, secops/v1) exigent v0.10.0. L'onglet
 démarre le serveur sur demande ; le premier démarrage construit son magasin de données, en dix à vingt
-secondes environ. Section 7.2.4. Cette version est conçue pour **CRGO 0.11.1** (étiquette `v0.11.1`) : ses nouveaux
+secondes environ. Section 7.2.4. Cette version est conçue pour **CRGO 0.11.2** (étiquette `v0.11.2`) : ses nouveaux
 termes (registres d'identité et de configuration, les six modèles de scénarios, les CIS Controls v8.1 avec les libellés
 propres à CRGO, les listes OWASP, ISO/IEC 27701 et 42001, la Loi sur la protection des cybersystèmes essentiels)
 ont été approuvés par l'auteur de CRGO le 2 novembre 2026, et l'onglet Connexion le précise. Les valeurs CIS v8.1
 que CRGO signale pour révision ont été acceptées telles quelles et restent marquées *non vérifiées*. L'instantané
-livré avec l'application est CRGO 0.11.1.
+livré avec l'application est CRGO 0.11.2.
 
 ---
 
@@ -348,9 +348,9 @@ multiutilisateur, chaque étape indique aussi qui est Responsable (R) et Approba
 | 2 | Décrire le contexte et identifier les joyaux de la couronne — chaque joyau avec son responsable et ses exigences C/I/D | Au moins 8 des 12 champs de contexte sont remplis, et il y a au moins 3 joyaux de la couronne ou 5 actifs informationnels. | Profil et appétence, Joyaux de la couronne, Actifs informationnels, Mesures de protection existantes, Maturité et résilience |
 | 3 | Définir la portée, l’horizon et le contexte de menace | Le périmètre, les exclusions et les perspectives de risque sont rédigés (Profil et appétence), la période d'évaluation est indiquée, un instantané du contexte de menace est chargé et le registre des vulnérabilités contient au moins une entrée. | Profil et appétence, Contexte de menace, Vulnérabilités · CVE/CWE, Menaces · ATT&CK, Flux de menaces et réseaux sociaux |
 | 4 | Fixer l’appétence pour le risque et les critères d’importance | L’appétence est strictement entre 0 et 1 avec une justification, le budget TI est saisi et les critères d’importance sont rédigés. | Profil et appétence, Budget |
-| 5 | Générer les scénarios candidats | Constituez une liste d'au moins 20 scénarios candidats dans Filtrage des scénarios. Rédigez-les là, ou générez-les dans Scénarios en lot et envoyez les lignes cochées. Les scénarios déjà au registre ne comptent qu'une fois ajoutés comme candidats. La carte de la prochaine étape lit *20 candidats dans Filtrage des scénarios — n maintenant* et énumère les trois façons dans l'ordre, chacune avec son bouton : (1) Scénarios en lot → générer ou rédiger des lignes → *Ajouter les lignes cochées comme candidats au filtrage* ; (2) Filtrage des scénarios → *Ajouter un candidat* ; (3) *Ajouter des scénarios du registre comme candidats*. Les candidats distincts sont comptés (environ 25 à 40 pour un portefeuille de dix ; 20 correspond à la version rapide des laboratoires). | Scénarios en lot, Filtrage des scénarios, Ontologie · CRGO |
-| 6 | Filtrer les candidats | Chaque candidat a ses douze notes et une décision. | Filtrage des scénarios |
-| 7 | Sélectionner les scénarios les plus importants | Au moins une famille est retenue, chaque sélection fondée sur le jugement a sa justification et chaque exclusion signalée est examinée. | Familles, Schémas de pondération, Matrice de couverture, Portefeuille final |
+| 5 | Générer les scénarios candidats | Constituez une liste d'au moins 20 scénarios candidats dans Des candidats aux scénarios. Rédigez-les là, ou générez-les dans Scénarios en lot et envoyez les lignes cochées. Les scénarios déjà au registre ne comptent qu'une fois ajoutés comme candidats. La carte de la prochaine étape lit *20 candidats dans Des candidats aux scénarios — n maintenant* et énumère les trois façons dans l'ordre, chacune avec son bouton : (1) Scénarios en lot → générer ou rédiger des lignes → *Ajouter les lignes cochées comme candidats au filtrage* ; (2) Des candidats aux scénarios → *Ajouter un candidat* ; (3) *Ajouter des scénarios du registre comme candidats*. Les candidats distincts sont comptés (environ 25 à 40 pour un portefeuille de dix ; 20 correspond à la version rapide des laboratoires). | Scénarios en lot, Des candidats aux scénarios, Ontologie · CRGO |
+| 6 | Filtrer les candidats | Chaque candidat a ses douze notes et une décision. | Des candidats aux scénarios |
+| 7 | Sélectionner les scénarios les plus importants | Au moins une famille est retenue, chaque sélection fondée sur le jugement a sa justification et chaque exclusion signalée est examinée. | Sélectionner, Créer les scénarios |
 | 8 | Développer chaque scénario retenu en chaîne causale | Au moins 10 scénarios dans le registre, et chaque scénario inclus est une chaîne causale complète — énoncé, source de menace, événement déclencheur, vulnérabilités, actifs touchés et conséquences (parties prenantes, contrôles existants et séquence d'événements listés comme facultatifs). | Registre des scénarios, Éditeur de scénarios, Suggérer des liens de vulnérabilité |
 | 9 | Estimer les six paramètres | 80 % des paramètres des scénarios inclus sont estimés : une justification qui n'est pas le texte provisoire écrit à la création, les éléments probants sur lesquels elle repose (E1, E2…) et un niveau de confiance. | Éditeur de scénarios, Prévisions |
 | 10 | Noter la faiblesse représentative avec le CVSS v4.0 | Chaque scénario inclus a un score CVSS valide saisi par l'analyste (un vecteur, ou un score par équivalence) — pas le vecteur par défaut d'un nouveau scénario — et chaque score par équivalence a toutes ses justifications. Un vecteur venu d'un modèle de lot ou d'un candidat bloque l'étape jusqu'à ce que l'analyste le confirme (un clic sur la carte Processus, consigné dans les révisions du scénario) ou le change. Un scénario créé à partir d'une ligne qui portait un score sans vecteur (registre des CVE avec un score non v4, a priori de l'ontologie, ligne du Registre des risques ou d'un CSV) calcule sur ce score stocké et bloque l'étape de la même façon jusqu'à ce que l'analyste confirme le score ou saisisse le vecteur de base v4.0 de la faiblesse réelle. | CVSS v4.0, Éditeur de scénarios |
@@ -373,7 +373,7 @@ Les étapes conservent leurs identifiants dans la matrice RACI du mode multiutil
 2. **Résolvez d'abord les valeurs UNKNOWN.** Les valeurs extraites sont étiquetées FACT, INFERENCE, ASSUMPTION, EXTERNAL ou UNKNOWN. Les éléments UNKNOWN sont les renseignements qui restent à recueillir; les valeurs ASSUMPTION et EXTERNAL doivent être validées par l'organisation.
 3. **Numéroter chaque source dans le registre des éléments probants.** Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est qualifié d’hypothèse. Le matériel d’exercice est un élément probant indicatif à valider, jamais un incident confirmé.
 4. **Filtrer sur douze critères, puis regrouper.** Notez chaque candidat de 1 à 5 sur les douze critères avec une justification d’une ligne. Le total sur 60 est une aide au filtrage ; les indicateurs d’escalade gardent en vue les scénarios graves mais improbables, et les familles empêchent une seule technique de dominer.
-5. **Générer 25 à 40, filtrer, en garder 10.** Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20 ; 20 correspond à la version rapide des laboratoires), filtrez-les dans Filtrage des scénarios et gardez les 10 plus importants dans le registre. Dix est un point de départ ; le nombre augmente avec la maturité de l’organisation.
+5. **Générer 25 à 40, filtrer, en garder 10.** Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20 ; 20 correspond à la version rapide des laboratoires), filtrez-les dans Des candidats aux scénarios et gardez les 10 plus importants dans le registre. Dix est un point de départ ; le nombre augmente avec la maturité de l’organisation.
 6. **Consulter l'ontologie avant d'écrire à partir de zéro.** L'ontologie CyberRiskGuardian contient des scénarios déjà reliés à ATT&CK, à des faiblesses, à des contrôles et à des obligations de la Loi 25 du Québec. Demandez-lui les scénarios qui conviennent à l'organisation, gardez ceux qui sont pertinents et écrivez les autres vous-même.
 7. **Rédigez des chaînes causales, pas des noms de menaces.** Source de menace → faiblesse → actif → événement → conséquence. « Rançongiciel » à lui seul n'est pas un scénario. L'IA peut ébaucher la chaîne ; vous l'acceptez champ par champ.
 8. **Consignez ce qui vous protège déjà, puis mesurez la résilience qui en résulte.** Une analyse sans relevé des contrôles existants doit deviner θ. Inventoriez ce qui est en vigueur, notez-le selon les six capacités qui définissent θ, et laissez les deux instruments diverger ouvertement.
@@ -446,19 +446,21 @@ Chaque fait organisationnel cite un numéro E ; ce qui ne peut être cité est q
 
 Notez chaque candidat de 1 à 5 sur les douze critères avec une justification d’une ligne. Le total sur 60 est une aide au filtrage ; les indicateurs d’escalade gardent en vue les scénarios graves mais improbables, et les familles empêchent une seule technique de dominer.
 
-*Où :* Évaluation des risques → Filtrage des scénarios
+*Où :* Évaluation des risques → Des candidats aux scénarios
 
-1. « Candidats et notes » : pour chaque candidat, donnez les douze notes, la justification, les indicateurs d’escalade, la confiance de sélection et une décision (Retenir, Regrouper, Examiner, Reporter).
-2. « Familles » : groupez les variantes d’une même exposition, nommez chaque famille avec son énoncé causal plus fort et cochez les familles retenues pour le portefeuille.
-3. « Schémas de pondération » : lisez les rangs selon les pondérations égale, axée sur l’impact, axée sur l’élément probant et axée sur la décision ; écrivez pourquoi chaque famille « retenue par jugement » est conservée, et examinez chaque candidat signalé pour « examen explicite ».
-4. « Matrice de couverture » et « Liste de surveillance et plan » : cherchez les angles morts, donnez à chaque candidat surveillé son déclencheur de promotion et planifiez comment chaque scénario retenu sera validé, par qui et pour quand.
-5. « Portefeuille final » : répondez aux six questions « pourquoi ce scénario ? », puis « Créer le scénario » dans le registre pour chaque famille retenue pas encore liée.
+L’écran compte quatre étapes, de gauche à droite : ① Candidats, ② Filtrer, ③ Sélectionner, ④ Créer les scénarios.
+
+1. « Filtrer » : pour chaque candidat, donnez les douze notes, la justification, les indicateurs d’escalade, la confiance de sélection et une décision (Retenir, Regrouper, Examiner, Reporter) ; regroupez les variantes d’une même exposition en familles, ou confirmez un candidat comme unique.
+2. « Sélectionner » : cochez les familles et les candidats uniques à développer, lisez leurs rangs selon les quatre schémas de pondération, vérifiez la matrice de couverture et écrivez pourquoi chaque élément « retenu par jugement » est conservé.
+3. « Créer les scénarios » : répondez aux six questions « pourquoi ce scénario ? », créez les scénarios au registre en un clic et donnez à chaque candidat écarté sa place dans la liste de surveillance.
+
+<!-- 1.9.3: screening walkthrough completed after W2b/W3 -->
 
 *Terminé quand :* Les étapes 6 et 7 du processus indiquent Terminé : chaque candidat est noté et a une décision, et chaque jugement et chaque exclusion signalée est expliqué.
 
 #### 5. Générer 25 à 40, filtrer, en garder 10
 
-Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20 ; 20 correspond à la version rapide des laboratoires), filtrez-les dans Filtrage des scénarios et gardez les 10 plus importants dans le registre. Dix est un point de départ ; le nombre augmente avec la maturité de l’organisation.
+Dans Scénarios en lot, générez environ 25 à 40 candidats (jamais moins de 20 ; 20 correspond à la version rapide des laboratoires), filtrez-les dans Des candidats aux scénarios et gardez les 10 plus importants dans le registre. Dix est un point de départ ; le nombre augmente avec la maturité de l’organisation.
 
 *Où :* Scénarios en lot
 
@@ -1621,7 +1623,7 @@ Pour tout scénario, **Trouver des scénarios semblables dans l'ontologie** cher
 l'aide des techniques ATT&CK du scénario et des mots de son nom — *Lien* en rattache un, ce qui donne
 au scénario ses clés d'ontologie — et **Contrôles pour ses techniques** énumère, technique par
 technique, les contrôles que l'ontologie lui associe le plus souvent : une liste de départ pour
-Atténuation des risques, et non une évaluation de l'organisation. **Patron de scénario (CRGO 0.11.1)**
+Atténuation des risques, et non une évaluation de l'organisation. **Patron de scénario (CRGO 0.11.2)**
 affiche le patron que suit le scénario, ses thèmes et les liens du patron, et permet de choisir l'un des six ou
 *Aucun patron de scénario* ; le graphe de l'organisation l'enregistre comme *a pour patron de scénario*
 (CRGO_0001478). Un patron est une classification, jamais un élément probant ni un paramètre.
@@ -1707,7 +1709,7 @@ des révisions.
 correspond à la version rapide des laboratoires). Un bandeau au-dessus de la grille dit où en est l'étape 5 du
 Processus (*n candidats distincts sur 20 au filtrage*) : les lignes de la grille sont une ébauche et ne comptent
 pour rien tant qu'elles ne sont pas des candidats. **Ajouter les lignes cochées comme candidats au filtrage**
-envoie les lignes cochées au Filtrage des scénarios (section 7.3.7) avec la stratégie qui les a produites et,
+envoie les lignes cochées à Des candidats aux scénarios (section 7.3.7) avec la stratégie qui les a produites et,
 comme **ébauche** du candidat, tout ce que porte la ligne — les six paramètres, le vecteur, les liens ATT&CK,
 CWE et CVE, la chaîne —, de sorte que rien n'est perdu quand le candidat devient plus tard un scénario. Une
 ligne identique à un candidat existant (même nom, source de menace et actifs) est sautée et le message dit
@@ -1757,7 +1759,7 @@ La répartition repose sur un **germe** ; le germe est affiché et conservé av
 cité dans un rapport peut être reconstitué. *Varier les modèles et les actifs* peut être décoché pour
 obtenir le classement strict.
 
-### 7.3.7 Filtrage des scénarios {#screening}
+### 7.3.7 Des candidats aux scénarios {#screening}
 
 Les étapes 5 à 7 du Processus, telles que les décrit le chapitre 5 du manuel : des candidats filtrés sur
 douze critères, regroupés en familles, mis à l'épreuve selon quatre schémas de pondération, vérifiés pour la
@@ -1799,7 +1801,7 @@ requise*, l'appel figure au journal d'IA et l'exportation CSV du filtrage porte 
 acheminée comme *Estimations des notes de filtrage* (Paramètres → IA — locale et distante) ; désactivée, les
 boutons disparaissent. Aucune formule, aucun critère ni aucune pondération ne change.
 
-**Candidats et notes.** **Score** ouvre la fiche d'un candidat : les douze critères notés de 1 (très
+**Filtrer.** **Score** ouvre la fiche d'un candidat : les douze critères notés de 1 (très
 faible) à 5 (très élevé) — criticité d'affaires, criticité de l'actif, pertinence de la menace, exposition ou
 vulnérabilité, impact potentiel, réglementaire et juridique, résilience opérationnelle, dépendance et
 concentration, force de l’élément probant (5 = élément probant organisationnel direct, 1 = hypothèse seulement), vélocité
@@ -1823,7 +1825,7 @@ direction requise**.
 conséquences, contrôles, responsables ou décisions de traitement diffèrent sensiblement. Cochez **Retenue
 pour le portefeuille** pour les familles du portefeuille final.
 
-**Schémas de pondération.** Chaque famille prend la note pondérée la plus élevée de ses membres, de sorte que
+**Sélectionner : schémas de pondération.** Chaque famille prend la note pondérée la plus élevée de ses membres, de sorte que
 les variantes ne s'additionnent pas. Les rangs selon les schémas **égal**, **axé sur l'impact**, **axé sur la
 élément probant** et **axé sur la décision** sont présentés côte à côte. Une famille retenue qui n'est pas parmi les
 dix premières dans chaque schéma est **retenue par jugement** : écrivez pourquoi. Un candidat non retenu qui
@@ -1835,11 +1837,11 @@ infrastructure, terminaux, TO/IdO/dispositifs médicaux, vie privée, fraude et 
 d'affaires, résilience, IA et sécurité des personnes. Une lacune est une question à trancher, pas un quota à
 remplir.
 
-**Liste de surveillance et plan.** Les candidats écartés mais encore importants, chacun avec son déclencheur
+**Créer les scénarios : liste de surveillance et plan.** Les candidats écartés mais encore importants, chacun avec son déclencheur
 de promotion et son responsable, et le **plan de collecte des éléments probants** : comment chaque scénario retenu sera
 validé, par qui et pour quand.
 
-**Portefeuille final.** Pour chaque famille retenue, les six questions **« pourquoi ce scénario ? »** et
+**Créer les scénarios : le portefeuille final.** Pour chaque famille retenue, les six questions **« pourquoi ce scénario ? »** et
 **Créer le scénario**, qui l'ajoute au registre avec l'énoncé regroupé de la famille et **tout ce que porte son
 membre le mieux noté** : la chaîne causale (source de menace, vulnérabilités, actifs), les six paramètres avec
 leur justification et leur confiance là où le candidat les avait, le vecteur CVSS, les liens ATT&CK, CWE et
@@ -2962,8 +2964,8 @@ l'organisation.
 
 L'alignement ontologique de ces enregistrements (populations de comptes, populations de rôles privilégiés,
 ensembles de comptes d'urgence, campagnes, règles de séparation, constats d'identité et de privilèges et les
-indicateurs) suit CRGO 0.11.1, dont tous les termes sont approuvés; la vue d'ensemble l'indique (*Alignement ontologique :
-identifiants CRGO 0.11.1, tous approuvés par le responsable du projet CRGO*).
+indicateurs) suit CRGO 0.11.2, dont tous les termes sont approuvés; la vue d'ensemble l'indique (*Alignement ontologique :
+identifiants CRGO 0.11.2, tous approuvés par le responsable du projet CRGO*).
 
 ### 7.5.7 Gestion de la configuration {#cm}
 
@@ -4872,7 +4874,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
     éléments probants et des exceptions aux politiques : son journal indique les étapes jusqu'à la version 5, les
     éléments probants se trouvent dans **Registres partagés → Éléments probants**, les exceptions dans **Registres partagés
     → Exceptions**, et ses valeurs numériques sont inchangées.
-41. **Ontologie · CRGO → Connexion** nomme CRGO v0.11.1 et indique qu'il s'agit d'une version approuvée ; *Lien avec l'organisation* → *Construire le
+41. **Ontologie · CRGO → Connexion** nomme CRGO v0.11.2 et indique qu'il s'agit d'une version approuvée ; *Lien avec l'organisation* → *Construire le
     graphe de l'organisation* sur MediBec affiche **mêmes totaux que cette application** ; *Lire le
     contexte* de S1 ne donne aucune cote de risque ; *Envoyer les résultats cochés sous forme de
     propositions* affiche **proposé** dans le journal ; **Lire les deux contextes** renvoie les contextes
@@ -4913,7 +4915,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 51. **Registre des éléments probants** sur MediBec énumère E1 à E12 avec leur type ; **Cité dans** montre
     les paramètres qui citent chacune.
-52. **Filtrage des scénarios** affiche 45 candidats, C01 à 52 / 60 et C02 à 56 ; **Schémas de pondération**
+52. **Des candidats aux scénarios** affiche 45 candidats, C01 à 52 / 60 et C02 à 56 ; **Sélectionner**
     montre P05 *Retenu par jugement* et C31 *Examen explicite* ; **Matrice de couverture** montre *Fraude /
     compromission de courriel d'affaires* non couverte.
 53. **CVSS v4.0 → Par équivalence (faiblesse non technique)** ouvert depuis un scénario : enregistrez sans
@@ -4995,8 +4997,8 @@ puis copiez-le ici. L'autovérification détectera une divergence, mais seulemen
 | Importer des documents ne lit qu'un seul document | Les documents qui viennent d'être ajoutés sont les seuls sélectionnés par défaut. | Cochez les autres, ou *Sélectionner tous les documents*. |
 | Bandeau rouge `moteur DIVERGENT` | Le moteur est en désaccord avec les totaux de référence. | Arrêtez. Restaurez une copie propre. |
 | *Cet espace de travail est ouvert en lecture seule* | Il a été écrit par une application plus récente, ou sa migration a échoué. | Sauvegarde et restauration → Versions des données et migrations en indique la raison ; ouvrez-le avec l'application plus récente, ou envoyez l'erreur au soutien technique. Rien n'a été modifié. |
-| *Lien avec l'organisation* indique que le contrat n'est pas disponible | L'ontologie trouvée est antérieure à v0.9.1. | Clonez CRGO 0.11.1 (section 3.5) et faites pointer le serveur vers celui-ci. |
-| Les contextes de conformité et d'opérations de sécurité indiquent qu'ils exigent CRGO v0.10.0 | L'ontologie trouvée est plus ancienne. | Clonez CRGO 0.11.1 à côté de l'application (le clone le plus récent est trouvé en premier), ou faites pointer `crgo-ontology` dans Claude vers celui-ci. |
+| *Lien avec l'organisation* indique que le contrat n'est pas disponible | L'ontologie trouvée est antérieure à v0.9.1. | Clonez CRGO 0.11.2 (section 3.5) et faites pointer le serveur vers celui-ci. |
+| Les contextes de conformité et d'opérations de sécurité indiquent qu'ils exigent CRGO v0.10.0 | L'ontologie trouvée est plus ancienne. | Clonez CRGO 0.11.2 à côté de l'application (le clone le plus récent est trouvé en premier), ou faites pointer `crgo-ontology` dans Claude vers celui-ci. |
 | Un renvoi est refusé avec `UNKNOWN_SUBJECT` ou `INPUT_UNKNOWN` | Des scénarios ont été ajoutés, renommés ou exclus depuis la construction du graphe. | *Reconstruire le graphe de l'organisation*, puis envoyez de nouveau. |
 | *Le dossier du graphe de l'organisation se trouve dans un dépôt git* | Le dossier confidentiel choisi se trouve dans un dépôt. | Choisissez un dossier situé hors de tout dépôt (Lien avec l'organisation → *Enregistrer le dossier*). |
 | Une trousse de simulation affiche des erreurs et ne peut pas être importée | Elle cite des scénarios ou des joyaux de la couronne que cet espace de travail ne contient pas. | Importez-la dans un espace de travail de son cas (pour MediBec, l'exemple ou une copie de celui-ci). |
