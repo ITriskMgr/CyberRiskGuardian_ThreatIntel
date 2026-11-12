@@ -41,10 +41,10 @@ const M = await page.evaluate(async (fx) => {
   const s = self.CRG.run(self.CRG_SAMPLE); out.medibec = [Math.round(s.totals.est), Math.round(s.totals.res)];
   return out;
 }, fx);
-ok(M.dv === 6, 'DATA_VERSION is 6');
+ok(M.dv === 7, 'DATA_VERSION is 7');
 ok(M.known && M.group && M.factory && Array.isArray(M.factory.conversations) && M.factory.retrieval === 'lexical', 'consultant is a known field, in a reset group, blank in new workspaces');
-for (const p of M.per) ok(p.status === 'migrated' && p.to === 6 && p.c && Array.isArray(p.c.conversations) && p.step4, `${p.app}: migrated to 6 with the consultant record, journalled`);
-ok(M.v3.status === 'migrated' && M.v3.from === 3 && M.v3.steps.join() === '3→4,4→5,5→6' && /Virtual consultant/.test(M.v3.title), 'a data-version-3 workspace takes the steps 3 → 4, 4 → 5 and 5 → 6 ' + M.v3.steps);
+for (const p of M.per) ok(p.status === 'migrated' && p.to === 7 && p.c && Array.isArray(p.c.conversations) && p.step4, `${p.app}: migrated to 7 with the consultant record, journalled`);
+ok(M.v3.status === 'migrated' && M.v3.from === 3 && M.v3.steps.join() === '3→4,4→5,5→6,6→7' && /Virtual consultant/.test(M.v3.title), 'a data-version-3 workspace takes the steps 3 → 4, 4 → 5 and 5 → 6 and 6 → 7 ' + M.v3.steps);
 ok(M.v3.untouched && M.v3.same && M.v3.again === 'current', 'the original is untouched, engine totals unchanged, migrating twice changes nothing');
 ok(M.partial.n === 1 && M.partial.mode === 'lexical', 'a partial record keeps its conversations and gains the missing keys');
 ok(M.lane.has === '{"rows":[]}' && /Lane test/.test(M.lane.title) && M.lane.factory === '{"rows":[]}', 'a sub-step appended by another lane joins the same 3 → 4 step');

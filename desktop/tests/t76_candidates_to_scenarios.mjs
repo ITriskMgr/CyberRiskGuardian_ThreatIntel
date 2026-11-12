@@ -10,6 +10,7 @@ await page.evaluate(async () => { const st = await import('/js/state.js'); const
 await goto(page, '#/screening/candidates', 900);
 const z = await page.evaluate(() => ({ strip: document.querySelector('#scr-strip')?.textContent || '', next: document.querySelector('#scr-next')?.textContent || '', tabs: [...document.querySelectorAll('#panel-screening [role=tab]')].map(b => b.textContent.trim()),
   h1: document.querySelector('#panel-screening h1')?.textContent }));
+z.tabs = z.tabs.map(t => t.replace(/\u200b/g, ''));
 ok(/^0 candidates · 0 scored · 0 families \+ 0 unique · 0 selected · 0 created/.test(z.strip), 'empty workspace: strip at zero: ' + z.strip.slice(0, 90));
 ok(/Add candidates/.test(z.next), 'empty workspace: the one next action is “Add candidates”');
 ok(z.h1.startsWith('From candidates to scenarios') && z.tabs.join('|') === '① Candidates|② Screen|③ Select|④ Create scenarios', 'renamed screen with four numbered stages: ' + z.tabs.join('|'));

@@ -58,7 +58,7 @@ const r = await page.evaluate(async () => {
   // field, migration and reset group
   out.known = M.KNOWN_FIELDS.includes('ssvc') && 'ssvc' in st.newWorkspace() && st.newWorkspace().ssvc.tree === 'deployer';
   const entry = M.STEP4.find(x => x.field === 'ssvc');
-  out.step = !!entry && entry.group === 'CONTEXT' && entry.blank().tree === 'deployer' && Array.isArray(entry.blank().review) && M.DATA_VERSION === 6;
+  out.step = !!entry && entry.group === 'CONTEXT' && entry.blank().tree === 'deployer' && Array.isArray(entry.blank().review) && M.DATA_VERSION === 7;
   const v3 = st.newWorkspace({ name: 'v3' }); delete v3.ssvc; v3.dataVersion = 3;
   const mr = M.migrateWorkspace(JSON.parse(JSON.stringify(v3)), { fill: st.migrate });
   out.mig = mr.status === 'migrated' && mr.ws.ssvc?.tree === 'deployer' && Array.isArray(mr.ws.ssvc.review) && /SSVC/.test(JSON.stringify(mr.ws.migrationLog));
