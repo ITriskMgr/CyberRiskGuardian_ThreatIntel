@@ -55,11 +55,9 @@ export const CODES = {
   'backup': 'SCR-44',
   'settings': 'SCR-45',
   'screening/candidates': 'SCR-46',
-  'screening/families': 'SCR-47',
-  'screening/weights': 'SCR-48',
-  'screening/coverage': 'SCR-49',
-  'screening/watch': 'SCR-50',
-  'screening/final': 'SCR-51',
+  'screening/screen': 'SCR-47',   // 1.9.3: stage ② Screen (was screening/families); SCR-49, SCR-50 retired with the old tabs
+  'screening/select': 'SCR-48',   // 1.9.3: stage ③ Select (was screening/weights)
+  'screening/create': 'SCR-51',   // 1.9.3: stage ④ Create scenarios (was screening/final)
   'isms/overview': 'SCR-52',
   'isms/exceptions': 'SCR-53',
   'isp/overview': 'SCR-54',
