@@ -1,4 +1,4 @@
-// CRGO 0.11.x (approved; 0.11.1, tag v0.11.1, since 1.9.2) in the application, against the real ontology at CRGO_HOME: the snapshot's release and status,
+// CRGO 0.11.x (approved; 0.11.2, tag v0.11.2, since 1.9.3; 1.9.2: 0.11.1) in the application, against the real ontology at CRGO_HOME: the snapshot's release and status,
 // the six scenario patterns end to end (batch archetype → register → organisation graph 'has scenario pattern'), the AI
 // answer path, the scenario editor, CIS v8.1 safeguards with CRGO labels, applicability with technologies in use
 // (browser port = CRGO's evaluator), and the consultant's citations. Skipped when CRGO_RELEASE is older than 0.11.

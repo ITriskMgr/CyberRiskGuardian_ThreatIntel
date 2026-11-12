@@ -33,7 +33,9 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   // 1.9.2 — data version 6: the sub-step lists of the workstreams
   "js/receffect.js", "js/screenai.js", "js/migrate192.js", "js/migrate193.js", "js/migrate192/ws1.js", "js/migrate192/ws2.js", "js/migrate192/ws3.js", "js/migrate192/ws4.js", "js/migrate192/ws5.js", "js/migrate192/review.js",
   // 1.9.2 — the edition switch (D3)
-  "js/edition.js"
+  "js/edition.js",
+  // 1.9.3 — CRGO 0.11.2: candidate grouping and scenario validation offline (library-proposal/v1)
+  "js/crgo_group.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

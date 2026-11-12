@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: CC-BY-NC-4.0
 # Copyright (c) 2026 Marc-André Léger
 """CyberRiskGuardian <-> CRGO bridge: data contract dss/v1 (CRGO >= 0.9.1) and the read contracts compliance/v1 and
-secops/v1 (CRGO >= 0.10.0). Pinned release: 0.11.1 (tag v0.11.1, 2026-11-08, the patch of 0.11.0 approved by
-the CRGO author on 2026-11-02). Contracts are unchanged since 0.10.0.
+secops/v1 (CRGO >= 0.10.0). Pinned release: 0.11.2 (tag v0.11.2, 2026-11-12, the patch
+of 0.11.1 that adds contract library-proposal/v1; 0.11.1 was the 2026-11-08 patch of 0.11.0, approved by the CRGO author on
+2026-11-02). The contracts used here are unchanged since 0.10.0.
 
 CRGO (CyberRiskGuardian Ontology) states facts, links and their review status. It never computes risk:
 every number written back here comes from this skill's crg_calc.py, run on the exact assessment file.
@@ -59,7 +60,7 @@ PLUGIN_JSON = os.path.join(HERE, "..", "..", "..", ".claude-plugin", "plugin.jso
 REFERENCE_NS = "https://w3id.org/crgo/"
 VANN = "http://purl.org/vocab/vann/preferredNamespaceUri"
 MIN_READ_RELEASE = "0.10.0"   # compliance/v1 and secops/v1; dss/v1 needs 0.9.1
-PINNED_RELEASE = "0.11.1"   # the CRGO release this plugin pins (plugin 1.7.2; 1.7.0 pinned 0.11.0); documents report it as ontologyRelease
+PINNED_RELEASE = "0.11.2"   # the CRGO release this plugin pins (desktop 1.9.3; plugin 1.7.2 pinned 0.11.1, 1.7.0 0.11.0); documents report it as ontologyRelease
 PLACEHOLDER = re.compile(r"^\s*(tbd|unknown|n/?a|todo|-|\?)?\s*$", re.I)
 
 KINDS = {  # assessmentKind -> (crg_calc key, unit)

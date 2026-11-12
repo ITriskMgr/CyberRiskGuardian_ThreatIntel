@@ -17,6 +17,7 @@
      transfers approved.
    1.9.2 (QC-31, ws3): likelihoods calibrated from the threat context rest on a current (≤ 90 days) snapshot.
    1.9.2 review (QC-32, H3): every likelihood calibrated from the threat context rests on exposure evidence (threat-intel rule 2).
+   1.9.3 (QC-33, W2): scenarios validated against the ontology (attention only, never fail: findings never block anything).
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, table, kpi, n0, go, today } from '../util.js';
@@ -174,7 +175,31 @@ export function checks(ws = S.ws) {
   add('QC-32', 'Every likelihood calibrated from the threat context rests on exposure evidence', ug.length ? 'fail' : 'pass',
     ug.length ? tr('{0} threat_basis entry(ies) have no exposure evidence (the CVE is not confirmed in the vulnerability register): {1}. Record the exposure in the register and re-run the join, or revert the parameter and keep the intelligence on the watch list — Information gap — organizational validation required.').replace('{0}', ug.length).replace('{1}', ug.map(x => `${x.scenario} · ${x.cve}`).join(', '))
       : fresh.n ? tr('Every threat_basis entry names the vulnerability-register evidence of the exposure.') : tr('No likelihood is calibrated from the threat context.'), 'threat');
+  // 1.9.3 (W2, spec 4.2; QC-27 was taken) — validation against the ontology gives findings, never a block: attention at most
+  const ov = ontologyValidation(inc);
+  add('QC-33', 'Scenarios validated against the ontology', ov.never.length || ov.open.length ? 'warn' : 'pass',
+    !inc.length ? tr('No scenario is included yet.')
+      : [ov.never.length ? tr('Never validated against the ontology: {0}. Scenario editor → Ontology · CRGO → Validate against the ontology.').replace('{0}', ov.never.join(', ')) : '',
+        ov.open.length ? tr('Open findings not dismissed: {0}. Edit the field, or dismiss the finding once it is seen.').replace('{0}', ov.open.map(x => `${x.id} (${x.n})`).join(', ')) : '']
+        .filter(Boolean).join(' ') || tr('Every included scenario was validated against the ontology; no open finding is left.'), 'scenario');
   return out;
+}
+
+/** 1.9.3 — QC-33: included scenarios never validated against the ontology, and those with open findings. Reads
+ *  scenario.ontologyFindings ([{code, detail, state, by, at, severity?}], created empty by the 1.9.3 migration) defensively:
+ *  an empty or missing list = never validated (a validation always records at least its match finding); a finding is open
+ *  unless dismissed or resolved, and counts when its code is not one of the information-only codes. */
+const ONTO_INFO = new Set(['LIBRARY_MATCH', 'THEME_MATCH_ONLY', 'CWE_NO_REFERENCE']);
+export function ontologyValidation(scens) {
+  const never = [], open = [];
+  for (const s of scens || []) {
+    const F = Array.isArray(s.ontologyFindings) ? s.ontologyFindings : [];
+    if (!F.length) { never.push(s.id); continue; }
+    const n = F.filter(f => f && typeof f === 'object' && !['dismissed', 'resolved', 'fixed', 'done'].includes(String(f.state || 'open').toLowerCase())
+      && (f.severity ? f.severity === 'attention' : !ONTO_INFO.has(f.code))).length;
+    if (n) open.push({ id: s.id, n });
+  }
+  return { never, open };
 }
 PROC.registerQc(checks);   // 1.9.2 (NV-018) — the report step requires no failed check
 

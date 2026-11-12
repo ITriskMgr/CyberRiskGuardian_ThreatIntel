@@ -48,7 +48,7 @@ ok(R.n <= 8 && R.numbered && Object.values(R.per).every(v => v <= 3), 'at most 8
 ok(R.mode === 'lexical', 'lexical retrieval by default');
 ok(R.book.length && R.book.every(c => /^Textbook v2\.51b, Chapter \d+ — .+/.test(c)), 'textbook cited "Chapter N — section" ' + R.book[0]);
 ok(R.bookCh.some(id => id.startsWith('book:ch04.md')), 'the risk-appetite question finds chapter 4 ' + R.bookCh.join(','));
-ok(R.crgo.length && R.crgo.every(c => /^CRGO \S+ \(release 0\.11\.1, (bundled snapshot|live server)\)$/.test(c)), 'ontology cited by identifier and release (0.11.1 approved: no term cited as proposed) ' + R.crgo[0]);
+ok(R.crgo.length && R.crgo.every(c => /^CRGO \S+ \(release 0\.11\.2, (bundled snapshot|live server)\)$/.test(c)), 'ontology cited by identifier and release (0.11.2 approved: no term cited as proposed) ' + R.crgo[0]);
 ok(R.cat.some(c => /ATT&CK.*T1566/.test(c)), 'catalogues cited by identifier ' + R.cat[0]);
 ok(R.sel === 'ws:scen:S3', 'the selected scenario is the first passage on its own screen');
 ok(R.counts.book > 1000 && R.counts.crgo > 1000 && R.counts.catalogue > 1000 && R.counts.workspace > 10, 'every bundled source is indexed ' + JSON.stringify(R.counts));
