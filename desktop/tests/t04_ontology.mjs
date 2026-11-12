@@ -12,9 +12,9 @@ await page.waitForSelector('h2:has-text("Suggested scenarios")', { timeout: 6000
 ok(await page.isVisible('#panel-ontology .pill:has-text("MCP server")'), 'answered by the MCP server');
 const n = await page.$$eval('#panel-ontology table tbody tr', r => r.length);
 ok(n > 3, 'several suggestions: ' + n);
-await page.click('button:has-text("Add ticked to Batch scenarios")');
-const r = await page.evaluate(async () => { const st = await import('/js/state.js'); const d = st.S.ws.batchDraft.filter(x => x.crgo); return { n: d.length, first: d.find(x => x.crgo.basis) || d[0] }; });
-ok(r.n > 0, 'rows added to the batch grid');
+await page.click('button:has-text("Add ticked to Candidates")');
+const r = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const d = SC.candidates(st.S.ws).map(c => ({ name: c.name, ...SC.rec(c.id, st.S.ws).draft })).filter(x => x.crgo).map(x => ({ ...x, rat: Object.fromEntries(Object.entries(x.params).map(([k, p]) => [k, p.rat])) })); return { n: d.length, first: d.find(x => x.crgo.basis) || d[0] }; });
+ok(r.n > 0, 'rows added to the candidates (ontology rows land in ① with their draft)');
 ok(r.first && /\[CRGO\]$/.test(r.first.name) && r.first.crgo.id && r.first.rat.PbA.includes(r.first.crgo.id), 'row carries ontology id and labelled priors');
 ok(r.first && r.first.crgo.controls.some(c => /^(ISO22|CSF2|NIST-53):/.test(c)), 'controls in catalogue notation');
 // snapshot fallback gives the same kind of answer
@@ -46,17 +46,14 @@ await page.fill('input[placeholder="T1566"]', 'T1486');
 await page.click('.card:has-text("Controls for a technique") button:has-text("Show")');
 await page.waitForSelector('text=library scenarios use this technique', { timeout: 30000 });
 ok(true, 'explore: controls for technique');
-// committing the grid keeps the ontology link on the scenario
+// creating from the candidates keeps the ontology link on the scenario
 const kept = await page.evaluate(async () => {
-  const st = await import('/js/state.js');
-  st.S.ws.batchDraft.forEach(d => { d.pick = !!d.crgo; });
-  location.hash = '#/batch'; await new Promise(r => setTimeout(r, 700));
-  const btn = [...document.querySelectorAll('#panel-batch button')].find(b => /to the register/.test(b.textContent));
-  if (!btn) return 'no button';
-  btn.click(); await new Promise(r => setTimeout(r, 500));
-  const s = st.S.ws.assessment.SCEN.filter(x => x.crgo);
-  return { n: s.length, origin: s[0]?.origin, pba: s[0]?.params.PbA };
+  const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const ws = st.S.ws;
+  for (const c of SC.candidates(ws)) { if (SC.rec(c.id, ws).draft?.crgo) { SC.markUnique(c.id, 'T04', ws); SC.setSelected(SC.analysis(ws).units.find(u => u.id === c.id), true, ws); } }
+  SC.createSelected(ws, { by: 'T04' });
+  const s = ws.assessment.SCEN.filter(x => x.crgo);
+  return { n: s.length, origin: SC.originText(s[0]), pba: s[0]?.params.PbA };
 });
-ok(kept.n > 0 && /Ontology/.test(kept.origin), 'register scenario keeps the ontology link ' + JSON.stringify(kept));
+ok(kept.n > 0 && /crgo/.test(kept.origin), 'register scenario keeps the ontology link ' + JSON.stringify(kept));
 ok(errors.length === 0, 'no console error: ' + errors.join(' | '));
 await browser.close(); done('t04 ontology');

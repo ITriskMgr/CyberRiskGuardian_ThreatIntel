@@ -54,11 +54,11 @@ await page.click('button:has-text("Read the shared folder")'); await page.waitFo
 const mod = await page.evaluate(async () => { const RH = await import('/js/rhub.js'); return RH.search({ moderated: true }).length; });
 ok(mod === 1, 'one moderated card visible through the curated package: ' + mod);
 // use a card in the workspace
-const before = await page.evaluate(async () => (await import('/js/state.js')).S.ws.batchDraft?.length || 0);
+const before = await page.evaluate(async () => (await import('/js/state.js')).S.ws.assessment.CANDIDATES.length);
 await page.click('#panel-registry table tbody td.cb input >> nth=0');
 await page.click('button:has-text("Use ticked cards in this workspace")');
-const after = await page.evaluate(async () => { const d = (await import('/js/state.js')).S.ws.batchDraft; return { n: d.length, last: d[d.length - 1] }; });
-ok(after.n === before + 1 && /\[Registry\]$/.test(after.last.name) && after.last.rat.PbA.includes('another organization'), 'card goes to the Batch grid, labelled');
+const after = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const ws = st.S.ws, C = SC.candidates(ws), c = C[C.length - 1], d = SC.rec(c.id, ws).draft; return { n: C.length, last: { name: c.name, rat: { PbA: d.params.PbA.rat } } }; });
+ok(after.n === before + 1 && /\[Registry\]$/.test(after.last.name) && after.last.rat.PbA.includes('another organization'), 'card goes to the candidates, labelled');
 // withdrawal
 await page.evaluate(() => { location.hash = '#/registry/mine'; }); await page.waitForSelector('#panel-registry button:has-text("Withdraw")');
 page.once('dialog', d => d.accept());

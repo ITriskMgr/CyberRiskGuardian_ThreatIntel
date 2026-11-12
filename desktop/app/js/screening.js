@@ -17,6 +17,7 @@ import { S, blankScenario, nextScenarioId, PARAMS } from './state.js';
 import { today } from './util.js';
 import * as MK from './markers.js';
 import { tr } from './i18n.js';
+import * as MAT from './maturity.js';
 
 export const CRITERIA = [
   ['BC', 'Business criticality', 'Does the scenario threaten an important objective or critical process?'],
@@ -57,9 +58,11 @@ export const CATEGORIES = ['Confidentiality', 'Integrity', 'Availability', 'Iden
 /** The six "why this scenario?" questions. */
 export const WHY = ['Why is it relevant to this organization?', 'What organizational evidence supports it?', 'Which asset or objective does it threaten?',
   'Which weakness or condition does it exploit?', 'What material consequence could it cause?', 'Why was it selected over the strongest candidates left out?'];
+export const WHY_KEYS = ['relevance', 'evidence', 'asset', 'weakness', 'consequence', 'over_left_out'];   // index-for-index with WHY
 export const TOP = 10;
+export const PARAMS_SHOWN = PARAMS;
 
-const blank = () => ({ cands: {}, families: [], watch: [], plan: [], updated: null });
+const blank = () => ({ cands: {}, families: [], watch: [], plan: [], updated: null, themeGap: [] });
 export const state = (ws = S.ws) => (ws.screening ||= blank());
 export const candidates = (ws = S.ws) => (ws.assessment.CANDIDATES || []).map(r => ({ id: r[0], name: r[1] || '', source: r[2] || '', vuln: r[3] || '', assets: r[4] || '', consequence: r[5] || '', ref: r[6] || '', status: r[7] || '', note: r[8] || '', row: r }));
 export function rec(id, ws = S.ws) {
@@ -67,6 +70,8 @@ export function rec(id, ws = S.ws) {
   const r = (C[id] ||= {});
   if (!Array.isArray(r.scores) || r.scores.length !== 12) r.scores = Array.from({ length: 12 }, (_, i) => (Array.isArray(r.scores) ? r.scores[i] ?? null : null));
   r.flags ||= []; r.strategy ||= []; r.rat ??= ''; r.conf ??= ''; r.disp ??= ''; r.target ??= ''; r.basis ??= '';
+  // 1.9.3 (data version 7): unique {by, at}; ontologyMatch {crgoId, cluster, score, source} (W2); proposals[] marks (W3); ontologyFindings[] (W2)
+  r.unique ??= null; r.aiGap ??= null; if (!Array.isArray(r.why)) r.why = []; r.ontologyMatch ??= null; if (!Array.isArray(r.proposals)) r.proposals = []; if (!Array.isArray(r.ontologyFindings)) r.ontologyFindings = [];
   return r;
 }
 const valid = x => Number.isInteger(x) && x >= 1 && x <= 5;
@@ -103,7 +108,7 @@ export function analysis(ws = S.ws) {
   const inFam = new Set(fam.flatMap(f => f.members || []));
   const units = [
     ...fam.map(f => ({ kind: 'family', id: f.id, name: f.name || f.id, selected: !!f.selected, f, members: (f.members || []).filter(m => C[m]) })),
-    ...list.filter(c => !inFam.has(c.id)).map(c => ({ kind: 'cand', id: c.id, name: c.name, selected: C[c.id]?.disp === 'Select', members: [c.id] })),
+    ...list.filter(c => !inFam.has(c.id)).map(c => ({ kind: 'cand', id: c.id, name: c.name, selected: C[c.id]?.disp === 'Select', unique: !!C[c.id]?.unique, members: [c.id] })),
   ];
   for (const u of units) {
     u.score = {}; u.rank = {};
@@ -137,7 +142,8 @@ export function analysis(ws = S.ws) {
   const scored = scoredCount(ws);
   const totals = list.map(c => ({ id: c.id, total: total(C[c.id]) })).filter(x => x.total !== null);
   const distinct = new Set(list.map(dupKey)).size;   // 1.9.2 (NV-034) — duplicates are counted once
-  return { list, units, selected, judgmentMissing, flaggedOut, flaggedUnreviewed, coverage, gaps: CATEGORIES.filter(c => !coverage[c].length),
+  const progress = progressOf(ws, { list, units, scored, distinct });
+  return { list, units, selected, progress, judgmentMissing, flaggedOut, flaggedUnreviewed, coverage, gaps: CATEGORIES.filter(c => !coverage[c].length),
     strategies: [...strategies], scored, totals, distinct, guidance: countGuidance(distinct) };
 }
 
@@ -301,4 +307,164 @@ export function csvRows(ws = S.ws) {
   return [head, ...a.list.map(c => { const r = C[c.id] || {}; const sc = r.scores || [];
     return [c.id, c.name, ...CRITERIA.map((_, i) => sc[i] ?? ''), total(r) ?? '', ...SCHEMES.map(([, , w]) => weighted(r, w) ?? ''), (r.flags || []).join(' '), r.conf || '', r.disp || '',
       familyOf(c.id, ws)?.id || r.target || '', (r.strategy || []).join(' '), r.rat || '', r.exclReview || '', aiMark(r)]; })];
+}
+
+
+/* ---------------- 1.9.3 (W1) — From candidates to scenarios: families, unique candidates, progress, one-click creation ---------------- */
+
+/** W2 fills this: the ontology cluster a candidate belongs to ({ id, members: [candidate ids] }), or null while the ontology
+ *  grouping has not run. Until then it only reads the match W2 will store on the candidate (rec.ontologyMatch.cluster): candidates
+ *  that name the same cluster form it. While it returns null, condition (1) of "unique" is satisfied. */
+export function ontologyCluster(candidate, ws = S.ws) {
+  const cl = state(ws).cands[candidate?.id]?.ontologyMatch?.cluster;
+  if (!cl) return null;
+  return { id: cl, members: candidates(ws).filter(c => state(ws).cands[c.id]?.ontologyMatch?.cluster === cl).map(c => c.id) };
+}
+/** W3 fills this: the accepted AI grouping proposals that put the candidate with other candidates ([{ id, with: [ids] }]). */
+export function acceptedGroupings(candidate, ws = S.ws) { return []; }   // eslint-disable-line no-unused-vars
+
+const candById = (id, ws) => candidates(ws).find(c => c.id === id) || null;
+/** Why a candidate cannot be marked unique now, or null (the three conditions of spec 3.4: (1) and (2) here, (3) is the click). */
+export function uniqueBlock(id, ws = S.ws) {
+  const c = candById(id, ws); if (!c) return 'No such candidate.';
+  if (familyOf(id, ws)) return `${id} is a member of a family.`;
+  const cl = ontologyCluster(c, ws);
+  // only cluster mates still outside a family block it: mates already grouped (by the analyst or an accepted proposal) cannot deadlock a split
+  const others = cl ? (cl.members || []).filter(m => m !== id && !familyOf(m, ws)) : [];
+  if (others.length) return `The ontology puts ${id} in a cluster with ${others.join(', ')}: group them in a family, or reject the match first.`;
+  const g = (acceptedGroupings(c, ws) || []).filter(x => (x.with || []).some(m => m !== id));
+  if (g.length) return `An accepted proposal groups ${id} with ${[...new Set(g.flatMap(x => x.with))].filter(m => m !== id).join(', ')}.`;
+  return null;
+}
+/** Mark a candidate unique, recorded { by, at }. Returns the reason when refused, else null. */
+export function markUnique(id, by = '', ws = S.ws) {
+  const why = uniqueBlock(id, ws); if (why) return why;
+  rec(id, ws).unique = { by: by || '', at: new Date().toISOString() }; return null;
+}
+export function clearUnique(id, ws = S.ws) { rec(id, ws).unique = null; }
+export const isUnique = (id, ws = S.ws) => !!state(ws).cands[id]?.unique && !familyOf(id, ws);
+/** In a family, or confirmed unique. */
+export const grouped = (id, ws = S.ws) => !!familyOf(id, ws) || isUnique(id, ws);
+/** A candidate that still needs grouping: in no family, not confirmed unique, and not set aside (disposition Defer or Consider
+ *  stays out of the selection until the analyst changes it — decision recorded in the 1.9.3 report). */
+export function needsGroup(id, ws = S.ws) {
+  if (grouped(id, ws)) return false;
+  const d = state(ws).cands[id]?.disp; return d !== 'Defer' && d !== 'Consider';
+}
+export const ungroupedList = (ws = S.ws) => candidates(ws).filter(c => needsGroup(c.id, ws));
+
+/** Merge candidates into a new or an existing family; a unique candidate loses its mark. target = { family: 'P03' } or { name, statement }. */
+export function mergeInto(ids, target, ws = S.ws) {
+  const st = state(ws), have = new Set(candidates(ws).map(c => c.id));
+  ids = [...new Set(ids)].filter(i => have.has(i));
+  let f = target?.family ? st.families.find(x => x.id === target.family) : null;
+  if (!f) {
+    if (target?.family) return null;
+    f = { id: nextFamilyId(ws), name: target?.name || '', statement: target?.statement || '', members: [], selected: false, rationale: '', judgment: '', coverage: [], scenarios: [] };
+    if (!f.name && ids.length) f.name = candById(ids[0], ws)?.name || '';
+    st.families.push(f);
+  } else if (target?.statement) f.statement = target.statement;
+  for (const g of st.families) if (g !== f) g.members = (g.members || []).filter(m => !ids.includes(m));
+  for (const i of ids) { if (!f.members.includes(i)) f.members.push(i); rec(i, ws).unique = null; }
+  return f;
+}
+export function leaveFamily(id, ws = S.ws) { for (const g of state(ws).families) g.members = (g.members || []).filter(m => m !== id); }
+
+/** The scenario a family or a candidate has already produced (the creation marker), or null. */
+export function createdScenario(unit, ws = S.ws) {
+  const SC = ws.assessment.SCEN || [];
+  if (unit.kind === 'family') { const f = unit.f || state(ws).families.find(x => x.id === unit.id); return SC.find(s => (f?.scenarios || []).includes(s.id)) || null; }
+  const r = state(ws).cands[unit.id]; return (r?.scenario && SC.find(s => s.id === r.scenario)) || null;
+}
+/** What ③ may select: a family, or a unique candidate. A candidate selected before 1.9.3 that is neither is reported, not created. */
+export function isSelectable(unit, ws = S.ws) { return unit.kind === 'family' || isUnique(unit.id, ws); }
+/** Select or deselect a unit. Returns the reason when refused. */
+export function setSelected(unit, on, ws = S.ws) {
+  if (on && !isSelectable(unit, ws)) return 'Group or mark unique first';
+  if (unit.kind === 'family') { const f = state(ws).families.find(x => x.id === unit.id); if (f) f.selected = !!on; }
+  else { const r = rec(unit.id, ws); r.disp = on ? 'Select' : (r.disp === 'Select' ? '' : r.disp); }
+  return null;
+}
+/** The six "why" answers of a unit (a family: f.why; a unique candidate: its score record). */
+export function whyOf(unit, ws = S.ws) { const o = unit.kind === 'family' ? state(ws).families.find(x => x.id === unit.id) : rec(unit.id, ws); return (o.why ||= []); }
+export const whyComplete = (unit, ws = S.ws) => WHY.every((_, i) => String(whyOf(unit, ws)[i] || '').trim());
+
+/** The number of scenarios to select: ten, or what Maturity & resilience suggests (set by the panel through setTargetSource). */
+export function target(ws = S.ws) { try { const n = Number(MAT.scenarioGuidance(ws).n); return Number.isInteger(n) && n > 0 ? n : TOP; } catch { return TOP; } }
+
+/** The units ③ and ④ work with: selected, selectable. */
+export function selectedUnits(ws = S.ws, A = null) {
+  const units = (A || analysis(ws)).units;
+  return units.filter(u => u.selected && isSelectable(u, ws));
+}
+export function progressOf(ws = S.ws, pre = null) {
+  const list = pre?.list || candidates(ws), st = state(ws);
+  const units = pre?.units || analysis(ws).units;
+  const distinct = pre?.distinct ?? distinctCount(ws), scored = pre?.scored ?? scoredCount(ws);
+  const fams = st.families.filter(f => (f.members || []).length).length;
+  const inFam = new Set(st.families.flatMap(f => f.members || []));
+  const uniq = list.filter(c => !inFam.has(c.id) && st.cands[c.id]?.unique).length;
+  const ungrouped = list.filter(c => needsGroup(c.id, ws)).length;
+  const sel = units.filter(u => u.selected && isSelectable(u, ws));
+  const created = units.filter(u => createdScenario(u, ws)).length;
+  const toCreate = sel.filter(u => !createdScenario(u, ws)).length;
+  const tgt = target(ws), unscored = list.length - scored;
+  let next;
+  if (distinct < 20) next = { id: 'add', label: 'Add candidates', route: list.length ? 'screening/candidates' : 'batch' };
+  else if (unscored > 0) next = { id: 'score', label: 'Score the {0} unscored', n: unscored, route: 'screening/screen' };
+  else if (ungrouped > 0) next = { id: 'group', label: 'Group the {0} ungrouped', n: ungrouped, route: 'screening/screen' };
+  else if (sel.length < tgt) next = { id: 'select', label: 'Select {0} more', n: tgt - sel.length, route: 'screening/select' };
+  else if (toCreate > 0) next = { id: 'create', label: 'Create the {0} scenarios', n: toCreate, route: 'screening/create' };
+  else next = { id: 'develop', label: 'Develop the scenarios (step 8)', route: 'scenario' };
+  return { candidates: distinct, all: list.length, scored, families: fams, unique: uniq, ungrouped, selected: sel.length, created, toCreate, target: tgt, next };
+}
+
+/** Review line of ④ for one selected unit: the starting values the scenario will inherit (the 1.9.2 rule, scenarioFromCandidate). */
+export function previewScenario(unit, ws = S.ws) {
+  const f = unit.kind === 'family' ? state(ws).families.find(x => x.id === unit.id) : null;
+  const c = f ? bestMember(f, ws) : candById(unit.id, ws);
+  const s = scenarioFromCandidate(c, ws, { family: f });
+  return { s, best: c, family: f };
+}
+/** Create the scenarios of the selected units that have none (idempotent: a unit with a scenario in the register is skipped).
+ *  Each scenario gets origin = { candidateIds, familyId, scores, why, ontologyMatch, createdBy, createdAt, text }. */
+export function createSelected(ws = S.ws, { by = '' } = {}) {
+  const made = [];
+  for (const u of selectedUnits(ws)) {
+    if (createdScenario(u, ws)) continue;
+    const f = u.kind === 'family' ? state(ws).families.find(x => x.id === u.id) : null;
+    const best = f ? bestMember(f, ws) : candById(u.id, ws);
+    if (!best) continue;
+    const s = scenarioFromCandidate(best, ws, { family: f });
+    const ids = f ? (f.members || []).slice() : [u.id];
+    const C = state(ws).cands;
+    s.origin = { candidateIds: ids, familyId: f ? f.id : null, scores: Object.fromEntries(ids.map(i => [i, { scores: (C[i]?.scores || []).slice(), total: total(C[i]), ai: C[i]?.ai ? { by: C[i].ai.by || '', date: C[i].ai.date || '', model: C[i].ai.model || '' } : null }])),
+      why: (whyOf(u, ws) || []).slice(), ontologyMatch: ids.map(i => C[i]?.ontologyMatch).find(Boolean) || null, createdBy: by || '', createdAt: new Date().toISOString(), text: s.origin };
+    s.ontologyFindings = []; s.ontoProposal = null;
+    ws.assessment.SCEN.push(s);
+    if (f) (f.scenarios ||= []).push(s.id);
+    rec(best.id, ws).scenario = s.id;
+    made.push({ id: s.id, unit: u.id, best: best.id });
+  }
+  return made;
+}
+/** Candidates that are not selected: the watch list ("promotion trigger" empty and highlighted). Returns the entries. */
+export function watchCandidates(ws = S.ws, A = null) {
+  const st = state(ws), a = A || analysis(ws), selM = new Set(selectedUnits(ws, a).flatMap(u => u.members));
+  return a.list.filter(c => !selM.has(c.id)).map(c => ({ c, entry: (st.watch || []).find(w => w.id === c.id) || null }));
+}
+/** The text of a scenario's origin, whatever its shape (a string before 1.9.3, an object for scenarios created from the screening). */
+export const originText = s => (typeof s?.origin === 'string' ? s.origin : s?.origin?.text || '');
+
+/** 1.9.3 (W1) — rows from any generator (Batch, ontology, Risk Registry, documents) become candidates in ① with their draft and origin tag.
+ *  A row identical to an existing candidate (name, source, assets) is skipped. Returns { ids, dup }. */
+export function addRowsAsCandidates(rows, { strategyOf = null, ws = S.ws } = {}) {
+  const ids = []; let dup = 0;
+  for (const r of rows) {
+    const o = { name: r.name || '', source: r.threat_source || '', assets: r.assets || r.asset || '' };
+    if (hasDuplicate(o, ws)) { dup++; continue; }
+    ids.push(addCandidate({ ...o, vuln: Array.isArray(r.vulns) ? r.vulns.join('; ') : (r.vulns || ''), consequence: r.statement || '', ref: r.pattern || '', status: 'Candidate',
+      note: r.cvss_note || '', strategy: strategyOf ? strategyOf(r) : [], draft: draftFromRow(r) }, ws));
+  }
+  return { ids, dup };
 }

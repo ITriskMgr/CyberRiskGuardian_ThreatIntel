@@ -197,7 +197,7 @@ ok(N.n2.value === '' && N.n2.tag === 'UNKNOWN' && N.n3 === 'plain text' && N.n4 
 ok(N.bad.length === 0, '#18: rules-only extraction writes no "[object Object]": ' + N.bad.join(','));
 ok(N.size === '' && N.region === '' && N.context === '' && N.crown === '', '#18 repair on load: the literal is cleared from Size, Region, Context and a crown-jewel cell');
 ok(N.prov?.tag === 'UNKNOWN' && N.prov?.repaired === true, '#18 repair on load: the provenance of a cleared field is UNKNOWN and marked repaired');
-ok(N.noted && N.v === 6, '#18 repair on load: journalled in the migration log, data version 6: ' + N.noted);
+ok(N.noted && N.v === 7, '#18 repair on load: journalled in the migration log, data version 7: ' + N.noted);
 ok(N.again === 'current', 'repair is idempotent (a second migration changes nothing)');
 ok(N.est === 84305, 'the MediBec total is unchanged by the migration: ' + N.est);
 

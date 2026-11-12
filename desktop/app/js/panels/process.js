@@ -22,6 +22,7 @@ import { GUIDELINES } from '../guidelines.js';
 import * as AVL from '../avl.js';
 import { toast } from '../util.js';
 import * as DETAIL from '../detail.js';
+import * as SCRP from './screening.js';
 import * as WIZ from '../setupwizard.js';
 import { detailSwitch } from './settings_more.js';
 export { GUIDELINES };
@@ -100,13 +101,15 @@ function nextBand(nx, total, sec) {
           el('div', null, el('b', null, 'Where: '), g.where)))) : null);
   }
   const extra = s.id === 'context' ? step2Extraction(ws) : null;   // 1.9.2 (NV-097)
+  // 1.9.3 (W1) — steps 5 to 7: the progress strip of From candidates to scenarios, with its one next action
+  const strip = ['generate', 'screen', 'select'].includes(s.id) ? SCRP.progressStrip(ws) : null;
   return el('section', { class: 'next-step', 'aria-labelledby': 'next-step-title' },
     el('div', null,
       el('div', 'eyebrow', s.n === 'R' ? tr('Next step · the report') : tr('Next step · {0} of {1}').replace('{0}', s.n).replace('{1}', total)),
       el('h2', { id: 'next-step-title' }, s.title),
       el('p', null, s.purpose),
       list || el('p', 'small', el('b', null, 'Done when: '), s.done),
-      extra, who, more),
+      strip, extra, who, more),
     el('div', 'btnrow',
       extra ? el('button', { class: 'btn primary', id: 'next-step-extract', 'data-ro-ok': '', onclick: () => import('./org.js').then(O => O.openProfileExtraction()) }, 'Extract from documents…') : null,
       el('button', { class: extra ? 'btn ghost' : 'btn primary', id: 'next-step-go', 'data-ro-ok': '', onclick: () => openScreen(target[0], s.id) },

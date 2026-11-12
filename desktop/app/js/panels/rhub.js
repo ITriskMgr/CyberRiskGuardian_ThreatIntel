@@ -9,6 +9,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, chip, toast, banner, table, kpi, n0, go, field, select, download, today } from '../util.js';
+import * as SCR from '../screening.js';
 import { S, touch } from '../state.js';
 import * as RH from '../rhub.js';
 import * as A from '../anon.js';
@@ -89,11 +90,12 @@ async function browse(body, sec) {
     rows.length ? el('div', 'btnrow', { style: { marginTop: '10px' } },
       el('button', { class: 'btn', onclick: () => {
         const p = rows.filter(x => x.pick); if (!p.length) { toast(tr('Tick at least one card'), 'bad'); return; }
-        ws.batchDraft ||= []; for (const x of p) ws.batchDraft.push(RH.toBatchRow(x.c));
-        users.audit('registry cards to batch', String(p.length), ws); touch('batch');
-        toast(`${p.length} ${tr('card(s) added to the Batch scenarios grid — re-estimate them for this organization')}`, 'good');
+        // 1.9.3 (W1) — the ticked cards become candidates (their draft and origin kept) in From candidates to scenarios → Candidates
+        const { ids, dup } = SCR.addRowsAsCandidates(p.map(x => RH.toBatchRow(x.c)), { strategyOf: () => ['GL'], ws });
+        users.audit('registry cards to candidates', String(ids.length), ws); touch('batch');
+        toast(`${ids.length} ${tr('card(s) added to Candidates — re-estimate them for this organization')}` + (dup ? ' · ' + tr('{0} identical to existing candidates skipped').replace('{0}', dup) : ''), ids.length ? 'good' : 'warn');
       } }, 'Use ticked cards in this workspace'),
-      el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('batch') }, 'Open Batch scenarios'),
+      el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('screening/candidates') }, 'Open Candidates'),
       el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => download(`risk-registry-extract-${today()}.json`, JSON.stringify(RH.pack(rows.map(x => x.c), { kind: 'extract' }), null, 1), 'application/json') }, 'Download these cards')) : null),
     detail);
 }

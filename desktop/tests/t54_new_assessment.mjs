@@ -47,12 +47,12 @@ const r1 = await page.evaluate(async () => {
 });
 ok(r1.stepBefore === 'partial' && /3 row\(s\) wait in the Batch grid/.test(r1.part), 'step 5 is partial with rows waiting in the grid ' + r1.part.slice(0, 90));
 const ways = await page.evaluate(async () => { const st = await import('/js/state.js'); const P = await import('/js/process.js'); const ws = st.S.ws; ws.batchDraft = []; const p = P.partsOf(P.STEP.generate, ws)[0]; const fix0 = p.fix[0]; ws.assessment.CANDIDATES.push(['C99', 'x', '', '', '', '', '', 'Candidate', '']); const fix1 = P.partsOf(P.STEP.generate, ws)[0].fix[0]; ws.assessment.CANDIDATES.pop(); ws.batchDraft = window.__draft || ws.batchDraft; return { what: p.what, hint: p.hint, ways: p.ways.map(w => w[1]), fix0, fix1 }; });
-ok(ways.what === '20 candidates in Scenario screening' && /^0 now/.test(ways.hint) && ways.ways.join('|') === 'Batch scenarios|Scenario screening|Add scenarios from the register as candidates', 'the step-5 check reads “20 candidates in Scenario screening — n now” and lists the three ways in order (C4) ' + JSON.stringify(ways));
-ok(ways.fix0 === 'batch' && ways.fix1 === 'screening', 'its primary button opens Batch scenarios when there is no candidate, Scenario screening otherwise');
+ok(ways.what === '20 candidates in From candidates to scenarios' && /^0 now/.test(ways.hint) && ways.ways.join('|') === 'Batch scenarios|From candidates to scenarios|Add scenarios from the register as candidates', 'the step-5 check reads “20 candidates in Scenario screening — n now” and lists the three ways in order (C4) ' + JSON.stringify(ways));
+ok(ways.fix0 === 'batch' && ways.fix1 === 'screening/candidates', 'its primary button opens Batch scenarios when there is no candidate, Scenario screening otherwise');
 await page.evaluate(async () => { const st = await import('/js/state.js'); const row = (name, asset) => ({ pick: true, name: name + ' — ' + asset, statement: 'A cybercriminal uses phishing, exploiting push-based MFA, to affect ' + asset + ', resulting in data theft.', threat_source: 'Cybercriminal', assets: asset, vulns: 'push-based MFA without phishing resistance', attack: ['T1566.002', 'T1621'], cwe: ['CWE-308'], params: { PbA: 0.8, Pbx: 0.5, De: 0.5, Dm: 0.8, Th: 0.45, Mu: 0.8 }, cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:A/VC:H/VI:H/VA:N/SC:H/SI:L/SA:L', cvss_score: null, cvss_note: '', red_p: 0, red_i: 0, owner: '', pattern: 'phish', cves: [], rat: {} });
   st.S.ws.batchDraft = [row('Credential phishing and MFA bypass', 'TMS'), row('Credential phishing and MFA bypass', 'TMS'), row('Credential phishing and MFA bypass', 'WMS')]; st.touch(); });
 await goto(page, '#/batch', 900);
-ok(await page.isVisible('#panel-batch >> text=These rows are not candidates yet — tick them and click Add the ticked rows as screening candidates'), 'the Batch grid says its rows are not candidates yet (C4 banner)');
+ok(await page.isVisible('#panel-batch >> text=These rows are not candidates yet — tick them and click Send the ticked rows to Candidates'), 'the Batch grid says its rows are not candidates yet (C4 banner)');
 await page.click('#batch-to-screening'); await page.waitForTimeout(900);
 const r2 = await page.evaluate(async () => {
   const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const P = await import('/js/process.js');
@@ -71,8 +71,11 @@ await score(0);
 ok(await page.isVisible('#scr-editor >> text=Draft carried from the candidate'), 'the score card says what the draft carries');
 ok(!(await page.isVisible('#scr-create')), 'no Create the scenario before the disposition Select');
 await page.selectOption('#scr-disp', 'Select'); await page.waitForTimeout(200);
-await score(0); await page.waitForSelector('#scr-create');
-await page.click('#scr-create'); await page.waitForTimeout(900);
+// 1.9.3: a stand-alone candidate is marked unique, selected, and created from ④ Create scenarios (one click)
+await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const ws = st.S.ws; const id = ws.assessment.CANDIDATES[0][0];
+  SC.rec(id, ws).disp = ''; SC.markUnique(id, 'Analyst T54', ws); SC.setSelected(SC.analysis(ws).units.find(u => u.id === id), true, ws); st.touch(); });
+await goto(page, '#/screening/create', 800);
+await page.click('#scr-create-all'); await page.waitForSelector('#scr-open-first'); await page.click('#scr-open-first'); await page.waitForTimeout(900);
 const r3 = await page.evaluate(async () => {
   const st = await import('/js/state.js'); const P = await import('/js/process.js'); const SC = await import('/js/screening.js');
   const ws = st.S.ws, s = ws.assessment.SCEN[0], C = ws.assessment.CANDIDATES[0];

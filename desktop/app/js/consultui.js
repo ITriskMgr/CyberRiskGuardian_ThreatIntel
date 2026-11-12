@@ -86,8 +86,8 @@ export function answerNode(m, { onChange = () => {} } = {}) {
   const props = m.proposals?.scenarios || [];
   if (props.length && !m.sent) box.append(el('div', 'btnrow', el('button', { class: 'btn sm', 'data-ro-ok': '', onclick: () => {
     const n = CONS.toCandidates(props, { model: m.model, entryId: m.logId });
-    m.sent = true; toast(tr('{0} candidate(s) added to Scenario screening → Candidates & scores for review').replace('{0}', n)); onChange();
-  } }, tr('Send {0} proposed scenario(s) to Scenario screening for review').replace('{0}', props.length))));
+    m.sent = true; toast(tr('{0} candidate(s) added to From candidates to scenarios → Candidates for review').replace('{0}', n)); onChange();
+  } }, tr('Send {0} proposed scenario(s) to Candidates for review').replace('{0}', props.length))));
   const verdict = m.decision ? pill(m.decision === 'rejected' ? 'not useful' : 'useful', m.decision === 'rejected' ? 'bad' : 'good') : null;
   box.append(el('div', 'small muted consult-meta',
     el('span', { 'data-noi18n': '' }, `${m.model || ''} · ${AI.where(m.provider)}`), ' · ', tr('retrieval') + ' ' + tr(m.mode || 'lexical'), ' ',

@@ -44,7 +44,7 @@ function link(i, extraClass = '') {
 
 function subGroup(i) {
   const id = 'sub:' + i.panel, shut = collapsed.has(id);
-  const box = h('div', { class: 'navsub' + (shut ? ' shut' : ''), 'data-sub': i.panel });
+  const box = h('div', { class: 'navsub' + (shut ? ' shut' : ''), 'data-sub': i.panel, 'data-aliases': (i.aliases || []).join('|') });   // 1.9.3 — the former label stays a search alias for one release
   const items = h('div', { class: 'subitems', id: 'subitems-' + i.panel, role: 'group' }, ...i.tabs.map(t => link(t, 'sub')));
   items.hidden = shut;
   const tog = h('button', { type: 'button', class: 'subtoggle', 'aria-expanded': String(!shut), 'aria-controls': 'subitems-' + i.panel, title: i.label }, chev());

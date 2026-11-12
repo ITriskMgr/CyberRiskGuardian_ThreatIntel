@@ -5,7 +5,7 @@
 import { open, ok, done, goto, medibec } from './lib.mjs';
 const { browser, page, errors } = await open('#/process');
 await medibec(page);
-const candidates = async () => { await goto(page, '#/process', 300); await goto(page, '#/screening/candidates', 900); };
+const candidates = async (stage = 'screen') => { await goto(page, '#/process', 300); await goto(page, '#/screening/' + stage, 900); };   // 1.9.3: scoring and the AI buttons are in ② Screen, the register button in ① Candidates
 
 /* ---------------- C1: the register's scenarios as candidates ---------------- */
 const c1 = await page.evaluate(async () => {
@@ -24,8 +24,8 @@ const c1 = await page.evaluate(async () => {
 });
 ok(c1.offered === 8 && c1.offered2 === 7, 'the register scenarios not yet linked to a candidate or a family are offered (8; 7 once a row names ' + c1.first + ' as its ref)');
 ok(c1.ids.length === 2 && c1.row.ref === c1.want && c1.row.status === 'In the register' && c1.link === c1.want && c1.row.name.length > 5 && c1.after === 5 && c1.n === 47, 'two register scenarios became candidates, linked to their scenario; the register itself is untouched ' + JSON.stringify(c1.row));
-await candidates();
-ok(await page.isVisible('#scr-from-register') && /\(5\)/.test(await page.textContent('#scr-from-register')), 'Candidates & scores has the button “Add scenarios from the register as candidates (5)”');
+await candidates('candidates');
+ok(await page.isVisible('#scr-from-register') && /\(5\)/.test(await page.textContent('#scr-from-register')), '① Candidates has the button “Add scenarios from the register as candidates (5)”');
 // the tick list: untick one, add the rest
 await page.click('#scr-from-register'); await page.waitForSelector('#reg-add');
 const nPicks = await page.$$eval('.modal .reg-pick', cbs => cbs.length);
@@ -110,7 +110,7 @@ ok(/AV:L/.test(fam.cvss) && fam.vs === 'pattern' && fam.attack.sort().join() ===
 await page.evaluate(async () => { const AI = await import('/js/ai.js'); const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const a = AI.settings(st.S.ws); a.acknowledged = new Date().toISOString(); a.confidential = false;
   const r = SC.rec('C01', st.S.ws); r.flags = ['S']; r.scores = Array(12).fill(null); r.rat = ''; delete r.ai; st.touch(); });
 await candidates();
-ok(/Estimate all unscored with AI \(\d+\)/.test(await page.textContent('#scr-ai')), 'Candidates & scores has “Estimate all unscored with AI (n)”');
+ok(/Estimate all unscored with AI \(\d+\)/.test(await page.textContent('#scr-ai')), '① Candidates has “Estimate all unscored with AI (n)”');
 await page.click('#scr-ai');
 await page.waitForSelector('.modal textarea', { timeout: 15000 });
 const payload = await page.$eval('.modal textarea >> nth=1', t => t.value);
