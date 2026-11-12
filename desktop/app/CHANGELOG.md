@@ -1,5 +1,9 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## 1.9.3 Beta — unreleased
+
+In progress.
+
 ## 1.9.2 Beta — 8 November 2026
 
 One release for the whole backlog (author decision D4 of 8 November 2026): the decided items 1–23 and C1, C2, C4, C5 of

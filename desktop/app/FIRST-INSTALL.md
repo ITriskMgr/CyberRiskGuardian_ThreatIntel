@@ -1,4 +1,4 @@
-# CyberRiskGuardian Desktop 1.9.2 Beta — First-time installation
+# CyberRiskGuardian Desktop 1.9.3 Beta — First-time installation
 
 **English below · [Français plus bas](#français)**
 
@@ -41,15 +41,15 @@ the application is never reachable from your network.
 
 ## 2. Download, check and unpack
 
-1. From the release page, download **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip`** and the file beside
-   it, **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256`**.
+1. From the release page, download **`CyberRiskGuardian_Desktop_v1.9.3-beta.zip`** and the file beside
+   it, **`CyberRiskGuardian_Desktop_v1.9.3-beta.zip.sha256`**.
 2. **Check that the ZIP is the one that was published.** It is a security tool; start as you mean to go
    on. In a terminal, in the folder holding both files:
 
    | System | Command |
    |---|---|
-   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256` → must print `OK` |
-   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.2-beta.zip -Algorithm SHA256` → the hash must equal the one in the `.sha256` file |
+   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.3-beta.zip.sha256` → must print `OK` |
+   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.3-beta.zip -Algorithm SHA256` → the hash must equal the one in the `.sha256` file |
 
    If it does not match, do not open the ZIP: download it again.
 3. Unzip it **somewhere you can write and that you back up** — your Documents folder is fine. Keep the
@@ -87,7 +87,7 @@ the questions; you can skip them for now.
 The bottom of the left menu must show:
 
 ```
-© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified
+© Marc-André Léger · v1.9.3 Beta · ✓ Engine verified
 ```
 
 At every start the application recomputes its bundled teaching cases — MediBec (30 scenarios, English
@@ -120,7 +120,7 @@ using AI still need the helper: start the launcher when you need them.
 **6.1 `start.command` opens in a text editor instead of running (macOS).** In a terminal:
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.9.2-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.9.3-beta
 chmod +x start.command start.sh
 ```
 
@@ -192,15 +192,15 @@ serveur local n’écoute que sur `127.0.0.1` : l’application n’est jamais a
 
 ## 2. Télécharger, vérifier et décompresser
 
-1. Sur la page de la version, téléchargez **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip`** et le fichier
-   qui l’accompagne, **`CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256`**.
+1. Sur la page de la version, téléchargez **`CyberRiskGuardian_Desktop_v1.9.3-beta.zip`** et le fichier
+   qui l’accompagne, **`CyberRiskGuardian_Desktop_v1.9.3-beta.zip.sha256`**.
 2. **Vérifiez que le ZIP est bien celui qui a été publié.** C’est un outil de sécurité : autant
    commencer comme il se doit. Dans un terminal, dans le dossier qui contient les deux fichiers :
 
    | Système | Commande |
    |---|---|
-   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.2-beta.zip.sha256` → doit afficher `OK` |
-   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.2-beta.zip -Algorithm SHA256` → l’empreinte doit être identique à celle du fichier `.sha256` |
+   | macOS, Linux | `shasum -a 256 -c CyberRiskGuardian_Desktop_v1.9.3-beta.zip.sha256` → doit afficher `OK` |
+   | Windows (PowerShell) | `Get-FileHash .\CyberRiskGuardian_Desktop_v1.9.3-beta.zip -Algorithm SHA256` → l’empreinte doit être identique à celle du fichier `.sha256` |
 
    Si elle ne concorde pas, n’ouvrez pas le ZIP : téléchargez-le de nouveau.
 3. Décompressez-le **à un endroit où vous pouvez écrire et que vous sauvegardez** — votre dossier
@@ -241,14 +241,14 @@ pratique** — la section 5 du Document 2 explique les questions; vous pouvez le
 Le bas du menu de gauche doit afficher :
 
 ```
-© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié
+© Marc-André Léger · v1.9.3 Beta · ✓ Moteur vérifié
 ```
 
 À chaque démarrage, l’application recalcule ses cas pédagogiques fournis — MediBec (30 scénarios, en
 anglais et en français) et CanaRetail (en anglais et en français) — et compare les totaux à ceux de
 l’implémentation de référence. S’ils concordent, le moteur de votre navigateur est d’accord avec la
 référence. Cliquez sur cette ligne (ou **Aide → À propos et versions**) pour voir les totaux : **MediBec
-84,305 / 41,023 · CanaRetail 27,526 / 16,049** (les nombres gardent le même format dans les deux langues).
+84 305 / 41 023 · CanaRetail 27 526 / 16 049** (en français, les nombres s’affichent au format français).
 
 | Le bas du menu affiche | Ce que cela signifie | Quoi faire |
 |---|---|---|
@@ -278,7 +278,7 @@ lanceur lorsque vous en avez besoin.
 terminal :
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.2-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.3-beta
 chmod +x start.command start.sh
 ```
 
