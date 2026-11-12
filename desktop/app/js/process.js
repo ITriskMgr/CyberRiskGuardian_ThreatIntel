@@ -107,9 +107,11 @@ export const STEPS = [
     inputs: 'The candidates and the evidence register.',
     done: 'Every candidate has its twelve scores and a disposition.',
     screens: [['screening', 'Scenario screening']],
-    parts: ws => { const n = cands(ws).length, sc = SCR.scoredCount(ws); return [{ what: 'Every candidate is scored and has a disposition', ok: n > 0 && sc === n, fix: ['screening', 'Scenario screening'], hint: `${sc} of ${n}. ` + tr('Candidates & scores → Score opens the card: twelve scores, a rationale, the flags and a disposition. “Propose scores with AI” drafts them for review; a duplicate gets the disposition Consolidate.') }]; },
+    parts: ws => { const n = cands(ws).length, sc = SCR.scoredCount(ws), dp = SCR.dispositionCount(ws); return [
+      { what: 'Every candidate has its twelve scores', ok: n > 0 && sc === n, fix: ['screening', 'Scenario screening'], hint: `${sc} of ${n}. ` + tr('Scores proposed by AI count once you have accepted them. Candidates & scores → Score opens the card: twelve scores, a rationale, the flags and a disposition. “Estimate with AI” drafts them for review.') },
+      { what: 'Every candidate has a disposition', ok: n > 0 && dp === n, fix: ['screening', 'Scenario screening'], hint: `${dp} of ${n}. ` + tr('The disposition stays your decision, also for AI-scored candidates: Select, Consolidate (a duplicate gets Consolidate), Consider (explicit review) or Defer.') }]; },
     tips: ['Candidates & scores → Score: twelve criteria 1 (very low) to 5 (very high), a one-line rationale, the escalation flags, the selection confidence and a disposition — Select, Consolidate (a variant of another candidate), Consider (explicit review) or Defer.', '“Estimate with AI” drafts the scores of one candidate, “Estimate all unscored” the whole list; proposals count only once you accept them, and evidence strength above 2 needs a cited evidence ID.', 'Escalation flags protect severe but improbable scenarios: excluding a flagged scenario is a management decision.', 'Do not rank on CVSS.'],
-    status(ws) { const n = cands(ws).length, sc = SCR.scoredCount(ws); return n && sc === n ? 'done' : sc > 0 ? 'partial' : 'todo'; } },
+    status(ws) { const n = cands(ws).length, sc = SCR.scoredCount(ws), dp = SCR.dispositionCount(ws); return n && sc === n && dp === n ? 'done' : sc > 0 || dp > 0 ? 'partial' : 'todo'; } },
   { id: 'select', n: 7, g: 'scenarios', title: 'Select the most material scenarios',
     purpose: 'Variants consolidated into families, the selection tested under four weighting schemes, a coverage matrix, a watch list with promotion triggers — and the final portfolio, normally ten.',
     inputs: 'The screened candidates.',

@@ -43,10 +43,11 @@ export function render(sec, arg) {
   sec.replaceChildren(el('h1', null, 'Scenario screening'));
   sec.append(el('div', 'grid g5',
     kpi('Candidates', `${n0(A.distinct)} / 20`, tr(A.guidance.kind === 'good' ? 'distinct · enough for ten' : A.guidance.kind === 'warn' ? 'distinct · quick lab version' : 'distinct · too few') + (A.list.length > A.distinct ? ' · ' + tr('{0} duplicate(s)').replace('{0}', A.list.length - A.distinct) : ''), A.guidance.kind),
-    kpi('Scored', `${A.scored} / ${A.list.length}`, tr('twelve criteria and a disposition'), A.list.length && A.scored === A.list.length ? 'good' : 'warn'),
+    kpi('Scored', `${A.scored} / ${A.list.length}`, tr('twelve criteria (accepted AI scores count) · {0} with a disposition').replace('{0}', SC.dispositionCount(ws)), A.list.length && A.scored === A.list.length ? 'good' : 'warn'),
     kpi('Strategies used', n0(A.strategies.length), A.strategies.map(stratLabel).map(tr).join(', ') || tr('none recorded'), A.strategies.length >= 3 ? 'good' : 'warn'),
     kpi('Families selected', n0(A.selected.length), tr('normally ten'), A.selected.length === 10 ? 'good' : A.selected.length ? 'warn' : ''),
-    kpi('Need attention', n0(A.judgmentMissing.length + A.flaggedUnreviewed.length), tr('judgments without rationale, flagged exclusions not reviewed'), A.judgmentMissing.length + A.flaggedUnreviewed.length ? 'bad' : 'good')));
+    kpi('Need attention', n0(A.judgmentMissing.length + A.flaggedUnreviewed.length), tr('{0} judgment(s) without rationale · {1} flagged exclusion(s) not reviewed').replace('{0}', A.judgmentMissing.length).replace('{1}', A.flaggedUnreviewed.length), A.judgmentMissing.length + A.flaggedUnreviewed.length ? 'bad' : 'good')));
+  if (A.judgmentMissing.length + A.flaggedUnreviewed.length) sec.append(attention(sec, A));
   sec.append(banner(A.guidance.kind === 'good' ? 'good' : A.guidance.kind, 'Candidate count', A.guidance.text));
   if (A.list.length && A.strategies.length < 3) sec.append(el('p', 'note', 'A good candidate population uses at least three of the five generation strategies: top-down, bottom-up, threat-driven, dependency-driven and localized generic.'));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
@@ -54,6 +55,25 @@ export function render(sec, arg) {
   sec.append(st);
   const body = el('div'); sec.append(body);
   ({ candidates, families, weights, coverage, watch, final }[view] || candidates)(body, sec, A, ws);
+}
+
+/* 1.9.3 (T6) — what “Need attention” counts, in plain words, with a button to each item. Two method rules, neither about AI:
+   (1) a family or candidate that is selected but not in the top ten under every weighting scheme is “selected by judgment”: the
+       analyst writes why it holds (a family: Weighting schemes → Selected by judgment — say why; a candidate: its rationale);
+   (2) an escalation-flagged candidate that is left out of the selection (not selected, not consolidated) needs an explicit,
+       recorded review — or a place on the watch list — because excluding a flagged scenario is a management decision.
+   An accepted AI rationale counts as the rationale of a candidate; it is not a review of an exclusion, which stays a human act. */
+function attention(sec, A) {
+  const jump = (v, id) => () => { view = v; open = id || null; history.replaceState(null, '', '#/screening/' + v); render(sec); };
+  const list = (items, mk) => el('ul', 'sai-attn', ...items.slice(0, 60).map(mk));
+  const parts = [];
+  if (A.judgmentMissing.length) parts.push(el('div', null, el('h3', null, tr('Selected by judgment, without a rationale ({0})').replace('{0}', A.judgmentMissing.length)),
+    el('p', 'small', tr('These are selected for the portfolio although they are not in the top ten under every weighting scheme. The method asks you to write why the selection holds. A family: write it under Weighting schemes → “Selected by judgment — say why”. A candidate selected on its own: write its rationale on its score card (an accepted AI rationale counts).')),
+    list(A.judgmentMissing, u => el('li', null, el('b', null, u.id), ' ', String(u.name || '').slice(0, 70), ' ', el('button', { class: 'btn xs ghost', onclick: u.kind === 'family' ? jump('weights') : jump('candidates', u.id) }, tr(u.kind === 'family' ? 'Write the rationale' : 'Open the score card'))))));
+  if (A.flaggedUnreviewed.length) parts.push(el('div', null, el('h3', null, tr('Flagged, left out and not reviewed ({0})').replace('{0}', A.flaggedUnreviewed.length)),
+    el('p', 'small', tr('These candidates carry an escalation flag (set by you or added by an accepted AI proposal) but are not in a selected family and have no disposition Select or Consolidate. Excluding a flagged scenario is a management decision that must be recorded: on the score card, write who reviewed the exclusion, when and why — or add the candidate to the watch list (Watch list & plan). Selecting it or consolidating it into a family also clears it.')),
+    list(A.flaggedUnreviewed, c => el('li', null, el('b', null, c.id), ' ', String(c.name || '').slice(0, 70), ' ', el('button', { class: 'btn xs ghost', onclick: jump('candidates', c.id) }, tr('Open the score card'))))));
+  return card(el('h2', null, tr('What “Need attention” counts')), ...parts);
 }
 
 /* ---------------- candidates & scores ---------------- */

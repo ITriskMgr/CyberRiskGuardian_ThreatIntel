@@ -118,7 +118,7 @@ ok(/TASK: screening_scores/.test(payload) && /Evidence register \(cite these IDs
 ok(!/C37 \|/.test(payload), 'only the unscored candidates are sent (C37, already scored, is not)');
 await page.click('.modal .btnrow .btn:not(.ghost)');
 await page.waitForSelector('#sai-apply', { timeout: 15000 });
-const review = await page.evaluate(() => ({ rows: document.querySelectorAll('.modal tbody tr').length, selects: document.querySelectorAll('.modal .sai-score').length, cited: [...document.querySelectorAll('.modal tbody tr')].map(tr => tr.textContent).some(t => /E4, E6/.test(t)) }));
+const review = await page.evaluate(() => ({ rows: document.querySelectorAll('.modal .sai-card').length, selects: document.querySelectorAll('.modal .sai-score').length, cited: [...document.querySelectorAll('.modal .sai-card')].map(tr => tr.textContent).some(t => /E4, E6/.test(t)) }));
 ok(review.rows === 1 && review.selects === 12 && review.cited, 'the review panel shows the one known unscored candidate (C99 dropped), editable criterion by criterion, with the evidence it cites');
 // edit one criterion before accepting; acceptance needs a name
 await page.evaluate(() => { const s = [...document.querySelectorAll('.modal .sai-score')][0]; s.value = '4'; s.dispatchEvent(new Event('change')); });
@@ -139,7 +139,7 @@ ok(await page.isVisible('#scr-ai-one'), 'the score card has â€œEstimate with AIâ
 // a candidate the analyst scored: the proposal goes beside the card, never over the scores; EV capped at 2 without a cited ID
 await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr')].find(tr => tr.textContent.startsWith('C37')).querySelector('button').click(); }); await page.waitForTimeout(400);
 await page.click('#scr-ai-one'); await page.waitForSelector('.modal textarea', { timeout: 15000 }); await page.click('.modal .btnrow .btn:not(.ghost)'); await page.waitForSelector('#sai-apply', { timeout: 15000 });
-const kept = await page.evaluate(() => [...document.querySelectorAll('.modal tbody tr')].map(tr => tr.textContent).join(' '));
+const kept = await page.evaluate(() => [...document.querySelectorAll('.modal .sai-card')].map(tr => tr.textContent).join(' '));
 ok(/your scores kept \(18\)/.test(kept) && /EV capped at 2/.test(kept), 'the review says the analyst\u2019s scores are kept and that EV is capped at 2 without a cited evidence ID');
 await page.fill('#sai-by', 'Reviewer T56'); await page.click('#sai-apply'); await page.waitForTimeout(600);
 const c37 = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const r = SC.rec('C37', st.S.ws); return { total: SC.total(r), ai: !!r.ai, prop: r.aiProposal && { ev: r.aiProposal.scores[8], capped: r.aiProposal.capped }, csv: SC.csvRows(st.S.ws).find(row => row[0] === 'C37').at(-1) }; });

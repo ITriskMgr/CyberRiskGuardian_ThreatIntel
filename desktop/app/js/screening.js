@@ -73,9 +73,17 @@ const valid = x => Number.isInteger(x) && x >= 1 && x <= 5;
 export const complete = r => !!r && Array.isArray(r.scores) && r.scores.length === 12 && r.scores.every(valid);
 export const total = r => complete(r) ? r.scores.reduce((a, b) => a + b, 0) : null;
 export const weighted = (r, w) => complete(r) ? r.scores.reduce((a, x, i) => a + x * w[i], 0) : null;
+/** Candidates with their twelve scores — the analyst's own or AI-proposed and ACCEPTED (an unaccepted proposal is never written to the card).
+ *  1.9.3 (T5): this no longer also demands a disposition — the disposition stays the analyst's decision and is counted on its own
+ *  (dispositionCount), so accepting the AI's scores of all candidates reads 40 / 40 instead of 0 / 40. */
 export function scoredCount(ws = S.ws) {
   const C = state(ws).cands;
-  return candidates(ws).filter(c => complete(C[c.id]) && C[c.id].disp).length;
+  return candidates(ws).filter(c => complete(C[c.id])).length;
+}
+/** Candidates that have a disposition (Select, Consolidate, Consider, Defer). */
+export function dispositionCount(ws = S.ws) {
+  const C = state(ws).cands;
+  return candidates(ws).filter(c => C[c.id]?.disp).length;
 }
 export const familyOf = (id, ws = S.ws) => state(ws).families.find(f => (f.members || []).includes(id)) || null;
 
