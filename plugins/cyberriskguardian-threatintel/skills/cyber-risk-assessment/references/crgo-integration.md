@@ -1,4 +1,4 @@
-# CRGO integration (CyberRiskGuardian Ontology 0.11.1, contracts dss/v1, compliance/v1, secops/v1)
+# CRGO integration (CyberRiskGuardian Ontology 0.11.2, contracts dss/v1, compliance/v1, secops/v1)
 
 CyberRiskGuardian v1.4.0. © 2026 Marc-André Léger. CC BY-NC 4.0. Proof of concept: validate every output
 before organizational use.
@@ -13,11 +13,11 @@ factor of 1,000 and the MediBec regression (84,305 / 41,023) are unchanged by CR
 
 | Item | Value |
 |---|---|
-| Release | pinned release **0.11.1** (documents report `ontologyRelease: "0.11.1"`; cite "CRGO v0.11.1 (ontology release 0.11.1)"). Check out tag `v0.11.1`: its new terms (crgo-iam registers, scenario patterns, CIS v8.1, OWASP lists, ISO/IEC 27701 and 42001, CCSPA) were approved by the CRGO author on 2026-11-02; CIS v8.1 values flagged `REVIEW:` were accepted as delivered and stay unverified. The contracts are unchanged since 0.10.0; 0.10.1 still works. Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
-| Location | `$CRGO_HOME` — set it to your clone, whatever its folder name (for example `~/GitHub/CyberRiskGuardian-Ontology` on a Mac). Default when unset: `<repository>/CyberRiskGuardian-Ontology-0.11.1/` (git-ignored). Set `CRGO_HOME` in the shell that starts Claude Code (e.g. `export CRGO_HOME=…` in `~/.zshrc`): `.mcp.json` expands it when the server starts. |
+| Release | pinned release **0.11.2** (documents report `ontologyRelease: "0.11.2"`; cite "CRGO v0.11.2 (ontology release 0.11.2)"). Check out tag `v0.11.2` (0.11.2 adds contract library-proposal/v1 for the desktop application and no term; the 0.11 terms (crgo-iam registers, scenario patterns, CIS v8.1, OWASP lists, ISO/IEC 27701 and 42001, CCSPA) were approved by the CRGO author on 2026-11-02; CIS v8.1 values flagged `REVIEW:` were accepted as delivered and stay unverified. The contracts are unchanged since 0.10.0; 0.10.1 still works. Minimum for dss/v1 (`graph`, `context`, `submit`): **v0.9.1** (v0.9.0 lacks the bridge fix; its documents report `"0.9.0"`). `compliance` and `secops` need v0.10.0 and stop with a clear message (exit 4) on an older checkout. |
+| Location | `$CRGO_HOME` — set it to your clone, whatever its folder name (for example `~/GitHub/CyberRiskGuardian-Ontology` on a Mac). Default when unset: `<repository>/CyberRiskGuardian-Ontology-0.11.2/` (git-ignored). Set `CRGO_HOME` in the shell that starts Claude Code (e.g. `export CRGO_HOME=…` in `~/.zshrc`): `.mcp.json` expands it when the server starts. |
 | Requirements | `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema` |
-| Project `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.1}/pipeline/mcp/crgo_server.py` |
-| Plugin `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.1}/pipeline/mcp/crgo_server.py` |
+| Project `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.2}/pipeline/mcp/crgo_server.py` |
+| Plugin `.mcp.json` | `python3 ${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.2}/pipeline/mcp/crgo_server.py` |
 | First call | builds a local store in about 10 s |
 | Licence | CRGO is CC BY-NC 4.0, a separate work by the same author; it is not redistributed here |
 
@@ -68,7 +68,7 @@ Record the evidence period, validity date and custodian. Flag stale or out-of-sc
 ## Workflow with `scripts/crgo_contract.py`
 
 ```bash
-CRGO=${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.1}
+CRGO=${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.2}
 S=plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts
 
 # 1. organisation graph (crg2rdf.py + this skill's crg_calc.py); refuses bases under https://w3id.org/crgo/

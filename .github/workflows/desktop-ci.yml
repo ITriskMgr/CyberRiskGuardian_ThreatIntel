@@ -1,5 +1,5 @@
 # CyberRiskGuardian Desktop — gates, helper tests, engine regression and the browser suites (1.9.0).
-# Runs the application exactly as the launcher does (python3 serve.py), against CRGO 0.11.1 (tag v0.11.1), with canned AI answers
+# Runs the application exactly as the launcher does (python3 serve.py), against CRGO 0.11.2 (tag v0.11.2), with canned AI answers
 # (desktop/tests/mock, copied to $CRG_TMP/mock for the run) — no key, no model and no network beyond the checkouts and the installs below.
 name: desktop-ci
 on:
@@ -20,10 +20,10 @@ jobs:
     timeout-minutes: 75
     env:
       # The CRGO ref the suites run against
-      CRGO_REF: v0.11.1
-      CRGO_RELEASE: "0.11.1"
+      CRGO_REF: v0.11.2
+      CRGO_RELEASE: "0.11.2"
       CRG_URL: http://127.0.0.1:8101/
-      CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.11.1
+      CRGO_HOME: ${{ github.workspace }}/CyberRiskGuardian-Ontology-0.11.2
       CRG_MOCK_GITHUB_PORT: "8199"
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
@@ -39,7 +39,7 @@ jobs:
         with:
           repository: ITriskMgr/CyberRiskGuardian-Ontology
           ref: ${{ env.CRGO_REF }}
-          path: CyberRiskGuardian-Ontology-0.11.1
+          path: CyberRiskGuardian-Ontology-0.11.2
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
@@ -86,7 +86,7 @@ jobs:
           python tools/i18n_coverage.py fr --strict
           python tools/csp_check.py
           python tools/route_code_check.py
-          # IPC.CRGO is filled from CRGO 0.11 (bundled 0.11.1): no placeholder may come back, every identifier must exist in CRGO
+          # IPC.CRGO is filled from CRGO 0.11 (bundled 0.11.2): no placeholder may come back, every identifier must exist in CRGO
           python tools/crgo_tbd_check.py --release --crgo "$CRGO_HOME"
       - name: Engine regression (MediBec 84,305 / 41,023), CRGO bridge and SSVC tables
         working-directory: plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts

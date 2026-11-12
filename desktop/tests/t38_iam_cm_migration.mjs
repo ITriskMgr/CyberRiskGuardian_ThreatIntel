@@ -153,7 +153,7 @@ let rel = 0, relOut = ''; try { relOut = execSync(`python3 ${APP}/tools/crgo_tbd
 ok(rel === 0 && /every CRGO identifier is filled/.test(relOut), (CRGO_011 ? 'release gate: no CRGO_TBD left, every identifier defined in CRGO ' : 'release gate: no CRGO_TBD left ') + relOut.trim().replace(/\n/g, ' · '));
 const map = await page.evaluate(async () => { const I = await import('/js/iam.js'); const C = await import('/js/cm.js'); return { rel: I.CRGO_RELEASE + C.CRGO_RELEASE, pending: I.crgoPending().length + C.crgoPending().length, proposed: I.crgoProposed().length + C.crgoProposed().length,
   acc: I.CRGO.AccountPopulation.iri, kri: C.CRGO['CRG-24'].iri, k25: C.CRGO['CRG-25'].iri, drift: C.CRGO['drift:unknown'].iri, iamDrift: 'drift:unknown' in I.CRGO, cmAcc: 'AccountPopulation' in C.CRGO }; });
-ok(map.rel === '0.11.10.11.1' && map.pending === 0 && map.proposed === 0 && map.acc === 'https://w3id.org/crgo/CRGO_0001384' && map.kri === 'https://w3id.org/crgo/CRGO_0001476'
-  && map.k25 === 'https://w3id.org/crgo/CRGO_0001475' && map.drift === 'https://w3id.org/crgo/CRGO_0001460' && !map.iamDrift && !map.cmAcc, 'IAM.CRGO and CM.CRGO cite CRGO 0.11.1, every term approved, each its own concepts ' + JSON.stringify(map));
+ok(map.rel === '0.11.20.11.2' && map.pending === 0 && map.proposed === 0 && map.acc === 'https://w3id.org/crgo/CRGO_0001384' && map.kri === 'https://w3id.org/crgo/CRGO_0001476'
+  && map.k25 === 'https://w3id.org/crgo/CRGO_0001475' && map.drift === 'https://w3id.org/crgo/CRGO_0001460' && !map.iamDrift && !map.cmAcc, 'IAM.CRGO and CM.CRGO cite CRGO 0.11.2, every term approved, each its own concepts ' + JSON.stringify(map));
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
 await browser.close(); done('t38 iam cm migration');

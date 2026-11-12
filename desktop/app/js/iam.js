@@ -32,7 +32,7 @@ const isNum = v => C.isNum(v), sum = (r, f) => C.sum(r, f), monthsBefore = (d, m
 const CRGO_NS = 'https://w3id.org/crgo/';
 const T = (n, sup, status = 'approved') => ({ iri: CRGO_NS + n, sup, status });
 /** The CRGO release the identifiers come from. */
-export const CRGO_RELEASE = '0.11.1';   // 1.9.2: bundled release (identifiers unchanged since 0.11.0)
+export const CRGO_RELEASE = '0.11.2';   // 1.9.3: bundled release (1.9.2: 0.11.1; identifiers unchanged since 0.11.0)
 export const CRGO = {
   AccountPopulation: T('CRGO_0001384', 'CRGO_0000528'),             // account population ⊑ population
   PrivilegedRolePopulation: T('CRGO_0001386', 'CRGO_0000528'),      // privileged role holder population ⊑ population
