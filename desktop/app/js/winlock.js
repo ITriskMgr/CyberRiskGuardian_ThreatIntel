@@ -147,7 +147,9 @@ async function onStolen() {
   store.freeze();                       // from here on nothing is written from this window
   try { (await import('./prefs.js')).freeze?.(); } catch { /* preferences module not loaded */ }   // M5: preferences stop writing too
   post({ type: 'frozen' });
-  if (releaseFn) { try { releaseFn(); } catch { /* released */ } releaseFn = null; }
+  // M5 (1.9.2 rule, binding): the frozen window keeps the lock until the taker has really stolen it, so a takeover that is
+  // waiting for the confirmation (or for the person's decision) is never overtaken by this window re-grabbing a released
+  // lock and recovering. The recovery queue below sits behind the held lock and fires only once it is gone.
   overlay('taken');
   waitFree(() => { markRetake(); store.unfreeze(); location.reload(); }, { settle: 1500 });   // the new holder closed or crashed: this window recovers
 }
