@@ -11,6 +11,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, chip, toast, banner, table, kpi, n0, go, field, select } from '../util.js';
+import * as SCR from '../screening.js';
 import { S, touch } from '../state.js';
 import * as C from '../crgo.js';
 import { HS, loadConfig, saveConfig } from '../helper.js';
@@ -136,13 +137,14 @@ function drawResults(box, V) {
     el('div', 'btnrow', el('button', { class: 'btn', disabled: !rows.length, onclick: () => {
       const sel = rows.filter(x => x.pick);
       if (!sel.length) { toast(tr('Tick at least one scenario'), 'bad'); return; }
-      ws.batchDraft ||= [];
-      for (const x of sel) ws.batchDraft.push(C.toBatchRow(x.s, { usePriors: opts.usePriors }));
-      users.audit('ontology scenarios to batch', `${sel.length} (${last.via})`, ws);
+      // 1.9.3 (W1) — the ticked scenarios become candidates in From candidates to scenarios → Candidates, with their draft and origin
+      const { ids, dup } = SCR.addRowsAsCandidates(sel.map(x => C.toBatchRow(x.s, { usePriors: opts.usePriors })), { strategyOf: () => ['GL'], ws });
+      users.audit('ontology scenarios to candidates', `${ids.length} (${last.via})`, ws);
       touch('batch');
-      toast(`${sel.length} ${tr('scenario(s) added to the Batch scenarios grid')}`, 'good');
+      toast(`${ids.length} ${tr('scenario(s) added to Candidates')}` + (dup ? ' · ' + tr('{0} identical to existing candidates skipped').replace('{0}', dup) : ''), ids.length ? 'good' : 'warn');
       drawResults(box, V);
-    } }, 'Add ticked to Batch scenarios'), el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('batch') }, 'Open Batch scenarios')),
+    } }, 'Add ticked to Candidates'), el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('screening/candidates') }, 'Open Candidates'),
+      el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('batch') }, 'Open Batch scenarios')),
     el('p', 'small muted', r.caveat || C.MARK)), detail);
 }
 

@@ -149,8 +149,10 @@ export function render(sec, arg) {
 
   P.chain.append(card(el('h2', null, 'Identification'), el('div', 'grid g3',
     field('<b>Name</b>', T('name', 0)), field('Library reference / candidate ID', T('ref', 0)), field('Risk owner', T('owner', 0)),
-    field('Implementation horizon', T('horizon', 0, { placeholder: 'e.g. 0-6 months' })), field('Stakeholders', T('stakeholders', 0)), field('Origin', el('input', { value: s.origin || 'imported', readOnly: true })),
+    field('Implementation horizon', T('horizon', 0, { placeholder: 'e.g. 0-6 months' })), field('Stakeholders', T('stakeholders', 0)), field('Origin', el('input', { value: (typeof s.origin === 'string' ? s.origin : s.origin?.text) || 'imported', readOnly: true })),
   ), field('<b>Scenario statement</b> — threat source → vulnerability → asset/process → event → consequence', T('statement', 3))));
+  // 1.9.3 (W1) — read only: where a scenario created by From candidates to scenarios came from
+  if (s.origin && typeof s.origin === 'object') P.chain.append(fromScreeningCard(s.origin));
 
   /* 1.5.5 — guideline 4 is the laborious part of the methodology: a statement plus eight structured
      fields, for every scenario. The draft button fills them from what the scenario already holds, and
@@ -310,6 +312,20 @@ const str = v => String(v == null ? '' : v).trim();
 const lines = v => (Array.isArray(v) ? v : String(v || '').split('\n')).map(x => str(x)).filter(Boolean);
 const shown = v => Array.isArray(v) ? v.join('\n') : str(v);
 const isEmpty = v => (Array.isArray(v) ? v.length === 0 : !str(v));
+
+/** 1.9.3 (W1) — the From screening card: the candidates, the family, the scores, the six answers and who created it, when. Read only. */
+function fromScreeningCard(o) {
+  const ids = o.candidateIds || [], sc = o.scores || {};
+  const line = (k, v) => el('div', 'small', el('b', null, tr(k) + ': '), v);
+  return card({ class: 'card', id: 'scen-from-screening' }, el('h2', null, tr('From screening')),
+    o.reconstructed ? el('p', 'note', tr('Rebuilt from the family that lists this scenario when the data was upgraded to 1.9.3; the creator and date were not recorded then.')) : null,
+    line('Candidates', ids.join(', ') || '—'), line('Family', o.familyId || tr('none (unique candidate)')),
+    line('Scores (/60)', ids.map(i => `${i} ${sc[i]?.total ?? '—'}${sc[i]?.ai ? ' (' + tr('AI-proposed, accepted by {0} on {1}').replace('{0}', sc[i].ai.by || '—').replace('{1}', sc[i].ai.date || '') + ')' : ''}`).join(' · ') || '—'),
+    o.ontologyMatch ? line('Ontology match', [o.ontologyMatch.crgoId, o.ontologyMatch.cluster, o.ontologyMatch.source].filter(Boolean).join(' · ')) : null,
+    line('Created by', (o.createdBy || '—') + (o.createdAt ? ' · ' + String(o.createdAt).slice(0, 10) : '')),
+    (o.why || []).some(x => String(x || '').trim()) ? el('details', null, el('summary', { class: 'small' }, tr('The six “why this scenario?” answers')),
+      el('ol', 'small', ...(o.why || []).filter(x => String(x || '').trim()).map(x => el('li', { 'data-noi18n': '' }, x)))) : null);
+}
 
 async function draftChain(s, sec, box, btn) {
   const ws = S.ws;

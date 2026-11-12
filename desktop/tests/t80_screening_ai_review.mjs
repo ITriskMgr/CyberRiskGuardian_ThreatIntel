@@ -22,7 +22,7 @@ fs.writeFileSync(MOCK + '/screening_scores.txt', JSON.stringify({ scores: ids.ma
 ok(N >= 40, 'at least 40 candidates to score (' + N + ')');
 
 const review = async () => {   // candidates → Estimate all unscored → preview → send → review panel
-  await goto(page, '#/screening/candidates', 900);
+  await goto(page, '#/screening/screen', 900);
   await page.click('#scr-ai'); await page.waitForSelector('.modal textarea', { timeout: 15000 });
   await page.click('.modal .btnrow .btn:not(.ghost)');
   await page.waitForSelector('#sai-apply', { timeout: 20000 });

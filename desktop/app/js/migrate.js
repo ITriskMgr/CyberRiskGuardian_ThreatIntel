@@ -45,6 +45,9 @@
         1.9.0 build opens a split workspace read-only instead of saving over it.
      6  1.9.2 — one step made of sub-steps (STEP6, js/migrate192.js), one list per 1.9.2 workstream
         (js/migrate192/ws1.js … ws5.js), in the STEP4 format: workspace fields and load-time repairs.
+     7  1.9.3 — From candidates to scenarios (STEP7, js/migrate193.js): the optional fields of the candidate records, the
+        families and the scenarios (unique, ontologyMatch, proposals, ontologyFindings, whyDraft, whyMark, themeGap, origin,
+        ontoProposal), created empty; a scenario's origin is rebuilt only where a family lists it. No top-level field.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { VERSION } from './version.js';
@@ -53,7 +56,8 @@ import * as MK from './markers.js';
 import * as IAM from './iam.js';
 import * as CM from './cm.js';
 import { STEP6, fieldsV6 } from './migrate192.js';
-export { STEP6, fieldsV6 };
+import STEP7 from './migrate193.js';
+export { STEP6, fieldsV6, STEP7 };
 
 /** MediBec S2 and S8: the earlier (AV:N) vector → the current (AV:L) one. The single copy of these constants
     (1.9.0): avl.js re-exports them and the Quality review (QC-26) reads them from there. */
@@ -62,7 +66,7 @@ export const AVL_VECTORS = Object.freeze({
   S8: Object.freeze({ from: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L', to: 'CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:L/SC:H/SI:L/SA:L' }),
 });
 
-export const DATA_VERSION = 6;
+export const DATA_VERSION = 7;
 
 /* ---------------- the 1.9.0 records (data version 4) ----------------
    Data version 4 is ONE migration step made of sub-steps, one per piece of 1.9.0 work that adds a
@@ -185,10 +189,11 @@ export const blankSoar = () => ({ cases: [], playbooks: [], gates: [], approvals
 
 /** Scenario screening (book ch05): scores, flags, families, watch list and evidence plan. */
 export const blankScreening = () => ({
-  cands: {},                    // candidate id → { scores[12], rat, flags[], conf, basis, disp, target, strategy[], exclReview }
+  cands: {},                    // candidate id → { scores[12], rat, flags[], conf, basis, disp, target, strategy[], exclReview, unique, ontologyMatch, proposals[], ontologyFindings[] }
   families: [],                 // { id, name, statement, members[], selected, rationale, judgment, coverage[], scenario }
   watch: [],                    // { id, trigger, owner }
   plan: [],                     // evidence-collection plan: { activity, scenarios, owner, due }
+  themeGap: [],                 // 1.9.3 — themes without a library scenario (W2)
   updated: null,
 });
 /** Management summary (book ch06): what the screen cannot compute — the decisions asked and the limitations. */
@@ -396,6 +401,11 @@ export const MIGRATIONS = [
       // a workspace that already holds every version-6 field (built by the 1.9.2 factory, data version left at 5) is journalled too
       if (!n) note('no change to the workspace: the data version is recorded');
     },
+  },
+  {
+    from: 6, to: 7, release: '1.9.3',
+    get title() { return 'Data version 6 → 7: ' + STEP7.map(s => s.title).join('; '); },
+    up(w, note) { for (const s of STEP7) s.up(w, note); },
   },
 ];
 

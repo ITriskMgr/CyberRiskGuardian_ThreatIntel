@@ -2,7 +2,9 @@
    CSV, or blank rows; review them in a grid; add the selected ones to the register.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, n0, card, banner, field, select, toast, go, parseCSV, toCSV, download, today, chip } from '../util.js';
+import { el, n0, card, banner, field, select, toast, go, parseCSV, toCSV, download, today, chip, modal } from '../util.js';
+import * as users from '../users.js';
+import * as LOG from '../logs.js';
 import { S, touch, nextScenarioId, blankScenario, PARAMS, PARAM_LABEL } from '../state.js';
 import { THREAT_SOURCES, CONSEQUENCES, techName, tech, cwe as cweInfo, searchTech, searchCwe, techniquesForCwe, TACTICS, KB, parents, subtechniques } from '../ontology.js';
 import { classify as ladder } from '../../threat.js';
@@ -332,36 +334,49 @@ function renderGrid(box, redraw) {
   const picked = rows.filter(r => r.pick);
   // 1.9.2 (C4) — where this grid stands in step 5: rows here count for nothing until they are screening candidates
   const nC = SCR.distinctCount(S.ws);
-  box.append(banner(nC >= 20 ? 'good' : 'warn', tr('These rows are not candidates yet — tick them and click Add the ticked rows as screening candidates'),
-    tr('Process step 5 counts the candidates of Scenario screening: {0} of 20 now. The rows below are a draft; “Add the ticked rows as screening candidates” makes them candidates (a row identical to an existing candidate is skipped). “Add … to the register” bypasses the screening: use it for scenarios already selected.').replace('{0}', nC)));
+  box.append(banner(nC >= 20 ? 'good' : 'warn', tr('These rows are not candidates yet — tick them and click Send the ticked rows to Candidates'),
+    tr('Process step 5 counts the candidates of From candidates to scenarios: {0} of 20 now. The rows below are a draft; “Send the ticked rows to Candidates” makes them candidates and keeps the full draft (a row identical to an existing candidate is skipped). “Advanced — skip screening” bypasses the screening: use it for scenarios already selected.').replace('{0}', nC)));
   box.append(card(el('h2', null, `Review grid — ${rows.length} candidates, ${picked.length} selected`),
     el('div', 'tablewrap', t),
     el('div', 'btnrow', { style: { marginTop: '12px' } },
-      el('button', { class: 'btn', disabled: !picked.length, onclick: () => commit(redraw) }, `Add ${picked.length} selected to the register`),
-      el('button', { class: 'btn ghost', id: 'batch-to-screening', disabled: !picked.length, onclick: () => toScreening(redraw) }, 'Add the ticked rows as screening candidates'),
+      el('button', { class: 'btn', id: 'batch-to-screening', disabled: !picked.length, onclick: () => toScreening(redraw) }, 'Send the ticked rows to Candidates'),
       el('button', { class: 'btn ghost', onclick: () => { S.ws.batchDraft = rows.filter(r => !r.pick); touch(); redraw(); } }, 'Discard selected'),
       el('button', { class: 'btn ghost danger', onclick: () => { if (window.confirm('Clear the whole grid?')) { S.ws.batchDraft = []; touch(); redraw(); } } }, 'Clear grid')),
-    el('p', 'note', 'Tip: generate about 25 to 40 candidates for a portfolio of ten (never fewer than 20; 20 is the quick lab version), screen them in Scenario screening, then develop the 10 most material. Duplicates are consolidated into families during screening.')));
+    el('details', { class: 'skip-screening', id: 'batch-skip' }, el('summary', { class: 'small' }, tr('Advanced — skip screening')),
+      el('p', 'note', tr('For scenarios that are already selected. The rows go straight to the Scenario register and do not count as candidates.')),
+      el('button', { class: 'btn ghost', id: 'batch-add-register', disabled: !picked.length, onclick: () => skipScreening(redraw) }, `Add ${picked.length} selected to the register`)),
+    el('p', 'note', 'Tip: generate about 25 to 40 candidates for a portfolio of ten (never fewer than 20; 20 is the quick lab version), screen them in From candidates to scenarios, then develop the 10 most material. Duplicates are consolidated into families during screening.')));
 }
 
 /* 1.8.0 — the grid feeds the screening: the ticked rows become candidates (assessment.CANDIDATES), each with
    its one-sentence causal chain, the strategy that produced it, and no score yet. */
 const STRATEGY_OF = { gen: 'BU', ai: 'TD', attack: 'TH', cve: 'TH', cwe: 'BU', secops: 'BU', csv: 'GL', blank: '' };
 function toScreening(redraw) {
-  const rows = draft(), keep = [], ids = [];
-  let dup = 0;
-  for (const r of rows) {
-    if (!r.pick) { keep.push(r); continue; }
-    const o = { name: r.name || '', source: r.threat_source || '', assets: r.assets || '' };
-    if (SCR.hasDuplicate(o, S.ws)) { dup++; continue; }   // 1.9.2 (NV-034) — the same candidate is not added twice
-    // 1.9.2 (decided item 20) — the row's parameters, vector, links and chain travel with the candidate as its draft
-    ids.push(SCR.addCandidate({ ...o, vuln: Array.isArray(r.vulns) ? r.vulns.join('; ') : (r.vulns || ''), consequence: r.statement || '', ref: r.pattern || '', status: 'Candidate',
-      note: r.cvss_note || '', strategy: r.pattern ? [r.pattern.startsWith('custom-') ? 'TH' : 'BU'] : (STRATEGY_OF[mode] ? [STRATEGY_OF[mode]] : []), draft: SCR.draftFromRow(r) }));
-  }
+  const rows = draft(), keep = rows.filter(r => !r.pick), pick = rows.filter(r => r.pick);
+  const { ids, dup } = SCR.addRowsAsCandidates(pick, { strategyOf: r => (r.pattern ? [r.pattern.startsWith('custom-') ? 'TH' : 'BU'] : (STRATEGY_OF[mode] ? [STRATEGY_OF[mode]] : [])) });
+  // a row identical to an existing candidate is skipped and leaves the grid (as before); the others are candidates now
   S.ws.batchDraft = keep; touch(); redraw();
   const now = SCR.distinctCount(S.ws);
-  toast((dup ? tr('{0} candidate(s) added to the screening; {1} identical to existing candidates skipped').replace('{0}', ids.length).replace('{1}', dup) : tr('{0} candidate(s) added to the screening').replace('{0}', ids.length)) + ' — ' + tr('{0} of 20 for Process step 5').replace('{0}', now), ids.length ? 'good' : 'warn');
+  toast((dup ? tr('{0} candidate(s) sent to Candidates; {1} identical to existing candidates skipped').replace('{0}', ids.length).replace('{1}', dup) : tr('{0} candidate(s) sent to Candidates').replace('{0}', ids.length)) + ' — ' + tr('{0} of 20 for Process step 5').replace('{0}', now), ids.length ? 'good' : 'warn');
   go('screening/candidates');
+}
+
+/* 1.9.3 (W1) — “Advanced — skip screening”: the ticked rows go straight to the Scenario register. Never the main exit: a confirmation
+   says what is skipped, and an audit-log entry {who, when, rowIds, action:'skip-screening'} records it. */
+function skipScreening(redraw) {
+  const rows = draft().filter(r => r.pick); if (!rows.length) return;
+  const m = modal(tr('Skip the screening?'),
+    el('p', null, tr('These rows will go straight to the Scenario register. They will not count as candidates for step 5 and skip the screening and selection of steps 6–7.')),
+    el('div', 'btnrow', { style: { marginTop: '12px' } },
+      el('button', { class: 'btn danger', id: 'skip-confirm', onclick: () => {
+        const who = users.name() || tr('single-user mode'), when = new Date().toISOString().slice(0, 19);
+        const rowIds = rows.map(r => (r.rid ||= 'row-' + Math.random().toString(36).slice(2, 8)));
+        const e = { at: when, user: who, action: 'skip-screening', detail: JSON.stringify({ who, when, rowIds, action: 'skip-screening' }), who, when, rowIds };
+        (S.ws.userAudit ||= []).unshift(e); S.ws.userAudit = S.ws.userAudit.slice(0, 2000);
+        LOG.data('rows added to the register without screening', rowIds.join(', '), `${rows.length} — ${tr('by')} ${who}`, S.ws.name);
+        m.close(); commit(redraw);
+      } }, tr('Skip the screening and add to the register')),
+      el('button', { class: 'btn ghost', onclick: () => m.close() }, tr('Cancel'))));
 }
 
 function commit(redraw) {

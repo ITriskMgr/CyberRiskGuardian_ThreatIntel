@@ -133,7 +133,7 @@ ok(mu.asAdmin && !mu.asStudent && mu.unchanged, 'multi-user: only an administrat
 /* ---------- nothing else changes ---------- */
 const eng = await page.evaluate(() => document.getElementById('engine-state').textContent);
 ok(/84,305 \/ 41,023/.test(eng), 'the engine reference is unchanged: ' + eng);
-ok(!/DATA_VERSION = 7/.test(readFileSync(new globalThis.URL('../app/js/migrate.js', import.meta.url), 'utf8')), 'no workspace data version beyond 6 (1.9.2)');
+ok(!/DATA_VERSION = 8/.test(readFileSync(new globalThis.URL('../app/js/migrate.js', import.meta.url), 'utf8')), 'no workspace data version beyond 7 (1.9.3)');
 
 ok(errors.filter(e => !/net::ERR|Failed to load resource/.test(e)).length === 0, 'no console error: ' + errors.join(' | '));
 await browser.close(); done('t52 next step and level of detail');
