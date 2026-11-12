@@ -34,8 +34,10 @@ decisions for C7 and C6. Every earlier binding decision still holds (`DECISIONS-
   between two windows. If the other window gives up, use *Use it here*.
 
 ### Tester fixes (T6)
-- The T6 flag ("selected by judgment, no rationale, not reviewed") follows the rule recorded with its regression test; the
-  screen explains it in English and French.
+- **"Need attention" counts two things, named in plain words on the screen** (EN/FR): judgments without a rationale, and
+  flagged exclusions not yet reviewed; each item links to its row. **An accepted AI rationale counts as a rationale** for a
+  candidate selected by judgment (it keeps the marker *Analytical estimate — validation required*); **a family selected by
+  judgment still needs its own written judgment.** Regression test: t80.
 
 ## Author decisions for C7 (one path from candidate to scenario), 12 November 2026, binding
 
