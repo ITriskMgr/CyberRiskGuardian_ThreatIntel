@@ -149,11 +149,11 @@ like, and the scheduled task reports that the upload step was skipped.
 ### 5.3 The CyberRiskGuardian Ontology — optional
 
 The application ships with a snapshot of the ontology and needs nothing more. To query the ontology
-through **its own MCP server** — the one Claude uses — install **CRGO 0.11.1** (tag `v0.11.1`, the 8 November 2026 patch of 0.11.0, approved by the CRGO author on
+through **its own MCP server** — the one Claude uses — install **CRGO 0.11.2** (tag `v0.11.2`, the 12 November 2026 patch of 0.11.0, approved by the CRGO author on
 2026-11-02) and let the helper find it:
 
 ```
-git clone --branch v0.11.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.1
+git clone --branch v0.11.2 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.2
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -210,7 +210,7 @@ Organization → Workspaces.
 
 **From 1.8.x:** the steps below are the same. At first start each workspace is brought to data version 5 once
 (journalled in Backup & restore → Migration journal; no number changes). The offline copy of the ontology is rebuilt
-from CRGO 0.11 (tag v0.11.1: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
+from CRGO 0.11 (tag v0.11.2: scenario patterns, CIS Controls v8.1 safeguards with CRGO's own labels, OWASP lists, ISO/IEC 27701
 and 42001, CCSPA). The page and the helper now share a token made at each
 start, so start 1.9.3 with its own launcher and close any tab still open on the previous version. API keys stored in the
 feeds folder are moved once to the macOS keychain or `~/.cyberriskguardian` (Windows shows a warning). **Ontology · CRGO**
@@ -469,11 +469,11 @@ déposer où vous voulez, et la tâche planifiée signale que l’étape de tél
 
 L’application est livrée avec un instantané de l’ontologie et n’a besoin de rien d’autre. Pour
 interroger l’ontologie au moyen de **son propre serveur MCP** — celui qu’utilise Claude —, installez
-**CRGO 0.11.1** (étiquette `v0.11.1`, correctif du 8 novembre 2026 de la version 0.11.0 approuvée par l’auteur de CRGO le 2 novembre 2026) et laissez l’assistant
+**CRGO 0.11.2** (étiquette `v0.11.2`, correctif du 12 novembre 2026 de la version 0.11.0 approuvée par l’auteur de CRGO le 2 novembre 2026) et laissez l’assistant
 local le trouver :
 
 ```
-git clone --branch v0.11.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.1
+git clone --branch v0.11.2 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.2
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -534,7 +534,7 @@ Organisation → Espaces de travail.
 
 **Depuis la 1.8.x :** les étapes ci-dessous sont les mêmes. Au premier démarrage, chaque espace de travail passe une fois à
 la version de données 5 (consigné dans Sauvegarde et restauration → Journal de migration; aucun nombre ne change). L’exemplaire hors ligne de l’ontologie est reconstruit à partir de
-CRGO 0.11 (étiquette v0.11.1 : modèles de scénarios, mesures de protection des CIS Controls v8.1 avec les libellés propres à CRGO,
+CRGO 0.11 (étiquette v0.11.2 : modèles de scénarios, mesures de protection des CIS Controls v8.1 avec les libellés propres à CRGO,
 listes OWASP, ISO/IEC 27701 et 42001, Loi sur la protection des cybersystèmes essentiels). La page et l’assistant
 local partagent maintenant un jeton créé à chaque démarrage : démarrez la 1.9.3 avec son propre lanceur et fermez tout onglet
 encore ouvert sur la version précédente. Les clés d’API rangées dans le dossier des flux sont déplacées une fois vers le

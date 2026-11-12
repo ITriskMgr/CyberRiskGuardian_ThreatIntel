@@ -2,7 +2,57 @@
 
 ## 1.9.3 Beta — unreleased
 
-In progress.
+Tester fixes T1–T10 of the 1.9.2 test round, one path from candidate to scenario (C7, Process steps 5–8) and the
+AI-proposed families (C6), with **CRGO 0.11.2** alongside. **No formula changed**: MediBec **84,305 / 41,023** and
+CanaRetail **27,526 / 16,049** are unchanged in every engine. Workspaces move to **data version 7** (one step 6 → 7,
+journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
+
+### Must-read release notes
+- **Data version 7, one-way.** At first start each workspace is brought to data version 7 once (Backup & restore →
+  Migration journal). A workspace saved by 1.9.3 opens **read-only** in 1.9.2 and earlier: export a backup before
+  upgrading if you may need to go back. The step adds only the optional fields of the candidate, family and scenario
+  records used by *From candidates to scenarios*; no organization's numbers change.
+- **The screening screen is now *From candidates to scenarios*** (*Des candidats aux scénarios*), four stages:
+  ① Candidates · ② Screen · ③ Select · ④ Create scenarios. The old tab addresses still open the stage their content moved to.
+- **Two windows on one workspace.** The window opened second asks; the first shows a passive lock screen, *Opened in
+  another window — Use it here*. A window that was taken over **keeps its lock until the other window actually takes
+  over** (no timed release, so the two windows cannot race for it). If the other window gives up, use *Use it here* in the
+  window you want to work in.
+
+### Tester fixes
+- **T1 — window lock recovery.** The lock prompt appears only in the window opened second; *Use it here* takes the lock
+  and re-renders; the lock is released on close and on a crash (heartbeat); the installed-app path is covered.
+- **T2 — KPI and destination pill wrap** instead of overflowing at 1280 px, English and French.
+- **T3–T6 — AI score review in the screening.** The review panel no longer runs beyond the viewport; the panel and the tiles
+  re-render after *Accept*; accepted scores are written where the *Scored* tile and Process step 6 read them (40 AI-scored
+  candidates reproduce *Scored 40/40*); the "selected by judgment, no rationale" flag follows the rule recorded in
+  `DECISIONS-1.9.3.md`, and the screen explains it in English and French.
+- **T7 — screen codes and Copy diagnostics.** Every route has a stable code (`SCR-nn`) in one registry, shown in Help →
+  Help on this screen and as a faint footer token; **Copy diagnostics** copies the version, code, route and data version —
+  no workspace content. New gate `route_code_check`.
+- **T8–T10 — regression tests** for the crown-jewel re-render after *Add ticked crown jewels*, the Crown jewels header
+  alignment and *Start the import*; plus a generic suite checking that every accept / add / apply action re-renders its
+  screen and tiles.
+
+### Ontology
+- **CRGO 0.11.2 pinned** (tag `v0.11.2`, 12 November 2026: patch of 0.11.1 adding the contract `library-proposal/v1`); the
+  bundled snapshot is `crg-crgo-snapshot/3`. dss/v1 still works from v0.9.1; compliance/v1 and secops/v1 from 0.10.0.
+- **Ontology proposals store.** A scenario with no ontology match is flagged as a theme gap and can be proposed to the
+  ontology (*Add to the ontology*); proposals are kept in the installation's store and reviewed in **Proposals** by the
+  administrator of the installation; contributions for the CRGO repository are exported as JSON. Without the helper, *Add to
+  the ontology* and *Proposals* are disabled. Approved proposals stay local unless *Make public* is ticked; Classroom
+  workspaces cannot propose.
+- **Setting *Folder for ontology proposals*** (Settings → Links & shared folders): where contribution files are written.
+  Proposals themselves always live in the installation store.
+
+### From candidates to scenarios (C7) and AI-proposed families (C6)
+- **One path from candidate to scenario (C7).** The ontology groups candidates into families; a candidate is unique only
+  when no other candidate shares its ontology cluster, no accepted AI match exists and you confirm it; all selected items
+  become scenarios in one click after a review list; ontology validation reports findings only (Edit, Delete) and never
+  blocks creation. Batch *Add … selected to the register* stays under *Advanced — skip screening*, journalled.
+- **AI-proposed families (C6) — in progress.** *Propose families with AI* (feature *Screening family proposals*), requests
+  in sequential batches with a payload preview each, review before acceptance, nothing written until accepted. To be
+  finalized before release.
 
 ## 1.9.2 Beta — 8 November 2026
 
