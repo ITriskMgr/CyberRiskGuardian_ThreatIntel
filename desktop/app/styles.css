@@ -301,6 +301,9 @@ label .pill { margin-left: 4px; font-size: 11px; padding: 1px 7px; vertical-alig
 .pill.tag-EXTERNAL { background: var(--surface-3); color: var(--ink); }
 .pill.tag-UNKNOWN { background: var(--bad-bg); color: var(--bad); }
 .kpi .pill { white-space: normal; }
+/* 1.9.3 (T2): a long destination (host name, endpoint) wraps inside its tile instead of overflowing the box */
+.kpi, .kpi .k, .kpi .v, .kpi .s { min-width: 0; overflow-wrap: anywhere; }
+.grid > .kpi { min-width: 0; }
 .badge { font-size: 11px; background: var(--surface-3); color: var(--muted); border: 1px solid transparent; border-radius: 999px; padding: 0 7px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px;
@@ -734,6 +737,10 @@ body.winlocked > nav, body.winlocked > .mainwrap { filter: blur(2px); pointer-ev
 .winlock h1 { font-size: 24px; margin: 0 0 10px; }
 .winlock p { color: var(--muted); margin: 0 0 18px; }
 .winlock .btnrow { justify-content: center; }
+/* 1.9.3 (T7): the faint screen-code token at the foot of the page */
+.screen-code { position: fixed; right: 10px; bottom: 4px; z-index: 5; font: 600 10px/1 var(--mono); letter-spacing: .4px; color: var(--muted); opacity: .45; pointer-events: none; user-select: all; }
+.screen-code:empty { display: none; }
+@media print { .screen-code { display: none !important; } }
 @media print { .support-code, .skip-link { display: none !important; } }
 /* 1.9.3 (T3) — screening score proposals: one stacked card per candidate, the twelve criteria wrap */
 .sai-list { display: flex; flex-direction: column; gap: 10px; max-width: 100%; }

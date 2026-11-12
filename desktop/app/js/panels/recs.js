@@ -122,7 +122,7 @@ function shared(body) {
     el('div', null, el('div', null, initiatives().length ? tr('{0} measure(s) have no initiative yet. An initiative is what Budget, Recommendations and the Excel export fund; a shared control is counted once across the scenarios it addresses.').replace('{0}', pending.length)
         : tr('No initiative yet: this screen ranks initiatives shared across scenarios, so it has nothing to show. Create them from the measures of Risk mitigation — one initiative per measure, carrying its scenarios, owner and costs — or from a measure’s “→ Initiative”.')),
       el('div', 'btnrow', { style: { marginTop: '8px' } },
-        pending.length ? el('button', { class: 'btn sm', id: 'shared-create-inits', onclick: () => { const ids = pending.map(m => K.toInitiative(m)); touch(); toast(tr('{0} initiative(s) created from the measures').replace('{0}', ids.length)); } }, tr('Create initiatives from the measures ({0})').replace('{0}', pending.length)) : null,
+        pending.length ? el('button', { class: 'btn sm', id: 'shared-create-inits', onclick: () => { const ids = pending.map(m => K.toInitiative(m)); touch('redraw'); toast(tr('{0} initiative(s) created from the measures').replace('{0}', ids.length)); } }, tr('Create initiatives from the measures ({0})').replace('{0}', pending.length)) : null,
         el('button', { class: 'btn sm ghost', onclick: () => go('mitigation') }, 'Open Risk mitigation')))));
   const its = initiatives().map(i => {
     const sc = i.scenarios.filter(x => inc.has(x));
