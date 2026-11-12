@@ -114,7 +114,7 @@ exacte que vous utilisez, et non dans le dossier ; le même port les retrouve d
 sont pas non plus dans le dossier ; elles se trouvent dans le trousseau de session de macOS, ou dans
 `~/.cyberriskguardian/crg-keys.json` sous Windows et Linux, et `feeds-dir.txt` reporte le chemin des flux. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos et versions** n'affiche pas
-`1.9.2 beta`.
+`1.9.3 beta`.
 
 ### 3.2 Le démarrer
 
@@ -222,7 +222,7 @@ livré avec l'application est CRGO 0.11.1.
 Le bas du menu de gauche doit afficher (une ligne, fixée sous le menu, qui défile seul) :
 
 ```
-© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié
+© Marc-André Léger · v1.9.3 Beta · ✓ Moteur vérifié
 ```
 
 Cliquez dessus, ou ouvrez **Aide → À propos et versions**, pour voir les totaux qu'il résume :
@@ -733,7 +733,7 @@ Le menu latéral compte onze sections, dans cet ordre : **Démarrer · Organisa
 risques · Menaces et vulnérabilités · Gouvernance · Gestion de la conformité · Gestion de l'audit ·
 Opérations de sécurité · Registre partagé des risques · Outils · Paramètres**. Ce chapitre le suit écran
 par écran. **Aide** est le bouton de la barre supérieure (section 7.12). Le nom et le logo de
-l'application restent en haut du menu, et le pied de page — **© Marc-André Léger · v1.9.2 Beta · ✓ Moteur vérifié**, qui
+l'application restent en haut du menu, et le pied de page — **© Marc-André Léger · v1.9.3 Beta · ✓ Moteur vérifié**, qui
 ouvre **Aide → À propos et versions** — en bas; seul le menu entre les deux défile, dans le menu complet, le
 rail et le tiroir.
 
@@ -4381,7 +4381,7 @@ conversationnel ne modifie jamais les données.
 
 ### 7.12.3.1 Code de soutien sur chaque écran {#support-code}
 
-Le titre de chaque écran se termine par un petit code comme **`ORG-CROWN · 1.9.2`** : l’écran, son onglet et
+Le titre de chaque écran se termine par un petit code comme **`ORG-CROWN · 1.9.3`** : l’écran, son onglet et
 la version que vous utilisez. Cliquez dessus pour le copier et citez-le quand vous signalez un problème — il
 indique exactement où vous étiez. Il est construit à partir de l’adresse, jamais tapé à la main, et il n’est
 pas traduit.
@@ -4844,7 +4844,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 34. **Aide → Pas à pas** → une fenêtre distincte avec les dix-neuf étapes, le rapport et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos et versions** indique `1.9.2 beta` et `moteur vérifié · 84,305 / 41,023` ;
+35. **Aide → À propos et versions** indique `1.9.3 beta` et `moteur vérifié · 84,305 / 41,023` ;
     **Licence** nomme la licence propriétaire, les quatre fichiers de licence, cyberriskguardian.ca et
     sales@cyberriskguardian.ca ; **Vérifier maintenant** sous *Mises à jour* répond (une version plus
     récente, la dernière version, ou pourquoi elle ne peut le dire).

@@ -104,7 +104,7 @@ workspaces are kept by the browser for the exact address you use, not in the fol
 finds them. Your API keys are not in the folder either; they are in the macOS login keychain, or in
 `~/.cyberriskguardian/crg-keys.json` on Windows and Linux, and `feeds-dir.txt` carries the feeds path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About & versions** does not read
-`1.9.2 beta`.
+`1.9.3 beta`.
 
 ### 3.2 Start it
 
@@ -204,7 +204,7 @@ application is CRGO 0.11.1.
 The bottom of the left menu must show (one line with the version, pinned below the menu, which scrolls on its own):
 
 ```
-© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified
+© Marc-André Léger · v1.9.3 Beta · ✓ Engine verified
 ```
 
 Click it, or open **Help → About & versions**, to see the totals behind it:
@@ -705,7 +705,7 @@ The side menu has eleven sections, in this order: **Start · Organization · Ris
 vulnerabilities · Governance · Compliance management · Audit management · Security operations · Risk
 Registry · Tools · Settings**. This chapter follows it screen by screen. **Help** is the button in the top bar
 (section 7.12). The application's name and logo stay at the top of the menu and the footer —
-**© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified**, which opens **Help → About & versions** — at its bottom; only the
+**© Marc-André Léger · v1.9.3 Beta · ✓ Engine verified**, which opens **Help → About & versions** — at its bottom; only the
 menu between them scrolls, in the full menu, the rail and the drawer.
 
 **Finding your way in the menu.**
@@ -3886,7 +3886,7 @@ history. The chatbot never changes data.
 
 ### 7.12.3.1 Support code on every screen {#support-code}
 
-Each screen's title ends with a small code such as **`ORG-CROWN · 1.9.2`**: the screen, its tab and the
+Each screen's title ends with a small code such as **`ORG-CROWN · 1.9.3`**: the screen, its tab and the
 version you are running. Click it to copy it, and quote it when you report a problem — it tells support
 exactly where you were. It is built from the address, never typed by hand, and it is not translated.
 
@@ -4298,7 +4298,7 @@ None of this is legal advice.
     **84,305 / 41,023** and your workspace, its policies and its requirements are present.
 34. **Help → Step by step** → a separate window with the nineteen steps, the report and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About & versions** reads `1.9.2 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
+35. **Help → About & versions** reads `1.9.3 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
     the proprietary licence, the four licence files, cyberriskguardian.ca and sales@cyberriskguardian.ca;
     **Check now** under *Updates* answers (a newer release, the latest release, or why it could not tell).
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM

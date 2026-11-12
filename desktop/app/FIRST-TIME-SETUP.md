@@ -1,4 +1,4 @@
-# CyberRiskGuardian Desktop 1.9.2 Beta — First-time setup
+# CyberRiskGuardian Desktop 1.9.3 Beta — First-time setup
 
 **English below · [Français plus bas](#français)**
 
@@ -146,7 +146,7 @@ Choose **one** of the two routes, in **Settings → AI — local & remote**.
 **Route A — a model on this computer (recommended first).** Nothing leaves your machine.
 
 1. Install a local model server — **Ollama** or **LM Studio** — and download a model of your choice
-   with it.
+   with it. **Size matters:** the test campaign found about **30B parameters on a machine with at least 48 GB of memory** to be the usable minimum. Smaller models run, but **Settings → AI — local & remote → Which AI model for which feature** shows a quality warning on the Virtual consultant, the exploitation forecast and the CVE link features, with one-click **Route to ‹remote provider›** or **Switch off**; nothing is re-routed by itself.
 2. In **Providers**, open the card of that server (*on this machine*), click **List models**, choose
    the model, and click **Test this provider** (it sends a few tokens and no workspace data).
 3. The **Virtual consultant** is routed to the local model by default; so are the most sensitive tasks.
@@ -243,8 +243,8 @@ screen* — and the **?** beside the title of every screen. Licences and questio
 # Français
 
 **Document 2 de 2.** Commencez ici une fois le **Document 1 — Première installation** terminé et le bas du
-menu de gauche affichant **✓ Moteur vérifié** (cliquez dessus pour voir les totaux : MediBec 84,305 /
-41,023 · CanaRetail 27,526 / 16,049).
+menu de gauche affichant **✓ Moteur vérifié** (cliquez dessus pour voir les totaux : MediBec 84 305 /
+41 023 · CanaRetail 27 526 / 16 049).
 
 Ce guide prépare l’application au travail réel, dans l’ordre : où vont les fichiers, la recherche de mises
 à jour, les sauvegardes, les règles à fixer avant d’entrer des données d’une vraie organisation, les
@@ -394,7 +394,7 @@ Choisissez **une** des deux voies, sous **Paramètres → IA — locale et dista
 **Voie A — un modèle sur cet ordinateur (recommandée d’abord).** Rien ne quitte votre machine.
 
 1. Installez un serveur de modèles local — **Ollama** ou **LM Studio** — et téléchargez-y un modèle de
-   votre choix.
+   votre choix. **La taille compte :** la campagne de tests a établi le minimum utilisable à environ **30 milliards de paramètres (30B) sur une machine d’au moins 48 Go de mémoire**. Un modèle plus petit fonctionne, mais **Paramètres → IA — locale et distante → Quel modèle d'IA pour quelle fonction** affiche un avertissement de qualité sur le Consultant virtuel, la prévision d’exploitation et les liens CVE, avec **Acheminer vers ‹fournisseur distant›** ou **Désactiver** en un clic; rien n’est réacheminé de lui-même.
 2. Sous **Fournisseurs**, ouvrez la fiche de ce serveur (*sur cette machine*), cliquez sur **Lister les
    modèles**, choisissez le modèle et cliquez sur **Tester ce fournisseur** (il envoie quelques jetons et
    aucune donnée d’espace de travail).
