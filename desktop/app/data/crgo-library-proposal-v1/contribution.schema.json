@@ -1,0 +1,269 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://w3id.org/crgo/contracts/library-proposal/v1/contribution.schema.json",
+ "title": "Public contribution file for ITriskMgr/CyberRiskGuardian-Ontology (library-proposal/v1)",
+ "description": "One scenario in the shape of a data/library/authored_scenarios.json entry (plus cwe), status proposed until the CRGO project owner approves it. Never parameters, estimates, figures or organisation names.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "schema",
+  "for",
+  "crgo_release",
+  "status",
+  "action",
+  "key",
+  "scenario",
+  "provenance"
+ ],
+ "properties": {
+  "schema": {
+   "const": "crgo-contribution/1"
+  },
+  "for": {
+   "const": "ITriskMgr/CyberRiskGuardian-Ontology"
+  },
+  "crgo_release": {
+   "type": "string",
+   "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+  },
+  "status": {
+   "const": "proposed"
+  },
+  "action": {
+   "enum": [
+    "add",
+    "withdraw"
+   ]
+  },
+  "key": {
+   "type": "string",
+   "pattern": "^CONTRIB-LOC-[0-9a-f]{10}$"
+  },
+  "scenario": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "name",
+    "statement",
+    "theme",
+    "asset_categories",
+    "threat_source_types",
+    "impact_dimensions",
+    "weaknesses",
+    "attack",
+    "csf2",
+    "sp80053r5",
+    "iso27002",
+    "loi25",
+    "cwe"
+   ],
+   "properties": {
+    "name": {
+     "type": "string",
+     "minLength": 3,
+     "maxLength": 300
+    },
+    "statement": {
+     "type": "string",
+     "minLength": 10,
+     "maxLength": 4000
+    },
+    "asset_categories": {
+     "type": "array",
+     "maxItems": 10,
+     "uniqueItems": true,
+     "items": {
+      "type": "string",
+      "pattern": "^Cat[A-Za-z]{1,30}$"
+     }
+    },
+    "threat_source_types": {
+     "type": "array",
+     "maxItems": 4,
+     "uniqueItems": true,
+     "items": {
+      "type": "string",
+      "pattern": "^Src[A-Za-z]{1,30}$"
+     }
+    },
+    "impact_dimensions": {
+     "type": "array",
+     "maxItems": 10,
+     "uniqueItems": true,
+     "items": {
+      "type": "string",
+      "pattern": "^Dim[A-Za-z]{1,30}$"
+     }
+    },
+    "weaknesses": {
+     "type": "array",
+     "maxItems": 20,
+     "items": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 300
+     }
+    },
+    "cwe": {
+     "type": "array",
+     "maxItems": 50,
+     "items": {
+      "type": "array",
+      "prefixItems": [
+       {
+        "type": "string",
+        "pattern": "^CWE-[0-9]{1,6}$"
+       },
+       {
+        "enum": [
+         "H",
+         "M",
+         "L"
+        ]
+       }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+     }
+    },
+    "csf2": {
+     "type": "array",
+     "maxItems": 50,
+     "items": {
+      "type": "array",
+      "prefixItems": [
+       {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,40}$"
+       },
+       {
+        "enum": [
+         "H",
+         "M",
+         "L"
+        ]
+       }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+     }
+    },
+    "sp80053r5": {
+     "type": "array",
+     "maxItems": 50,
+     "items": {
+      "type": "array",
+      "prefixItems": [
+       {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,40}$"
+       },
+       {
+        "enum": [
+         "H",
+         "M",
+         "L"
+        ]
+       }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+     }
+    },
+    "iso27002": {
+     "type": "array",
+     "maxItems": 50,
+     "items": {
+      "type": "array",
+      "prefixItems": [
+       {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,40}$"
+       },
+       {
+        "enum": [
+         "H",
+         "M",
+         "L"
+        ]
+       }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+     }
+    },
+    "loi25": {
+     "type": "array",
+     "maxItems": 50,
+     "items": {
+      "type": "array",
+      "prefixItems": [
+       {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,60}$"
+       },
+       {
+        "enum": [
+         "H",
+         "M",
+         "L"
+        ]
+       }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+     }
+    },
+    "theme": {
+     "type": "string",
+     "pattern": "^Theme[A-Za-z]{1,30}$"
+    },
+    "attack": {
+     "type": "array",
+     "maxItems": 50,
+     "items": {
+      "type": "array",
+      "prefixItems": [
+       {
+        "type": "string",
+        "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+       },
+       {
+        "enum": [
+         "H",
+         "M",
+         "L"
+        ]
+       }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+     }
+    }
+   }
+  },
+  "provenance": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "tool",
+    "anonymized",
+    "submitted_on"
+   ],
+   "properties": {
+    "tool": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 100
+    },
+    "anonymized": {
+     "const": true
+    },
+    "submitted_on": {
+     "type": "string",
+     "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+   }
+  }
+ }
+}

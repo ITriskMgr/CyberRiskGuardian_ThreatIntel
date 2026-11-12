@@ -1,0 +1,230 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://w3id.org/crgo/contracts/library-proposal/v1/proposal.schema.json",
+ "title": "Library-scenario proposal for crgo_propose_library_scenario (library-proposal/v1)",
+ "description": "A scenario proposed for this installation's ontology, in CRGO terms. Never risk parameters, estimates or organisation figures (additionalProperties false). anonymized must be true: the caller has run its anonymiser.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "name",
+  "statement",
+  "themes",
+  "proposed_by",
+  "proposed_on",
+  "anonymized"
+ ],
+ "properties": {
+  "name": {
+   "type": "string",
+   "minLength": 3,
+   "maxLength": 300
+  },
+  "statement": {
+   "type": "string",
+   "minLength": 10,
+   "maxLength": 4000
+  },
+  "themes": {
+   "type": "array",
+   "minItems": 1,
+   "maxItems": 3,
+   "uniqueItems": true,
+   "items": {
+    "type": "string",
+    "pattern": "^Theme[A-Za-z]{1,30}$"
+   }
+  },
+  "asset_categories": {
+   "type": "array",
+   "maxItems": 10,
+   "uniqueItems": true,
+   "items": {
+    "type": "string",
+    "pattern": "^Cat[A-Za-z]{1,30}$"
+   }
+  },
+  "threat_source_types": {
+   "type": "array",
+   "maxItems": 4,
+   "uniqueItems": true,
+   "items": {
+    "type": "string",
+    "pattern": "^Src[A-Za-z]{1,30}$"
+   }
+  },
+  "impact_dimensions": {
+   "type": "array",
+   "maxItems": 10,
+   "uniqueItems": true,
+   "items": {
+    "type": "string",
+    "pattern": "^Dim[A-Za-z]{1,30}$"
+   }
+  },
+  "weaknesses": {
+   "type": "array",
+   "maxItems": 20,
+   "items": {
+    "type": "string",
+    "minLength": 3,
+    "maxLength": 300
+   }
+  },
+  "techniques": {
+   "type": "array",
+   "maxItems": 50,
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "string",
+      "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+     },
+     {
+      "enum": [
+       "H",
+       "M",
+       "L"
+      ]
+     }
+    ],
+    "minItems": 2,
+    "maxItems": 2
+   }
+  },
+  "cwe": {
+   "type": "array",
+   "maxItems": 50,
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "string",
+      "pattern": "^CWE-[0-9]{1,6}$"
+     },
+     {
+      "enum": [
+       "H",
+       "M",
+       "L"
+      ]
+     }
+    ],
+    "minItems": 2,
+    "maxItems": 2
+   }
+  },
+  "csf2": {
+   "type": "array",
+   "maxItems": 50,
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,40}$"
+     },
+     {
+      "enum": [
+       "H",
+       "M",
+       "L"
+      ]
+     }
+    ],
+    "minItems": 2,
+    "maxItems": 2
+   }
+  },
+  "sp80053r5": {
+   "type": "array",
+   "maxItems": 50,
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,40}$"
+     },
+     {
+      "enum": [
+       "H",
+       "M",
+       "L"
+      ]
+     }
+    ],
+    "minItems": 2,
+    "maxItems": 2
+   }
+  },
+  "iso27002": {
+   "type": "array",
+   "maxItems": 50,
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,40}$"
+     },
+     {
+      "enum": [
+       "H",
+       "M",
+       "L"
+      ]
+     }
+    ],
+    "minItems": 2,
+    "maxItems": 2
+   }
+  },
+  "loi25": {
+   "type": "array",
+   "maxItems": 50,
+   "items": {
+    "type": "array",
+    "prefixItems": [
+     {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.\\-() ]{0,60}$"
+     },
+     {
+      "enum": [
+       "H",
+       "M",
+       "L"
+      ]
+     }
+    ],
+    "minItems": 2,
+    "maxItems": 2
+   }
+  },
+  "proposed_by": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 200
+  },
+  "proposed_on": {
+   "type": "string",
+   "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+  },
+  "anonymized": {
+   "const": true
+  },
+  "source_refs": {
+   "type": "array",
+   "maxItems": 200,
+   "items": {
+    "type": "string",
+    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:\\-]{0,39}$"
+   }
+  },
+  "public": {
+   "type": "boolean",
+   "description": "The proposer ticked 'Make public' (intent only; the contribution file is written by crgo_export_contribution after approval)."
+  }
+ }
+}

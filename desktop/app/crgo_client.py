@@ -33,7 +33,14 @@ import threading
 import time
 
 TOOLS = ("crgo_sweep", "crgo_identify", "crgo_scenario", "crgo_controls_for_technique",
-         "crgo_scenarios_for_control", "crgo_list_values")
+         "crgo_scenarios_for_control", "crgo_list_values",
+         # 1.9.3 — CRGO 0.11.2, contract library-proposal/v1: read-only grouping and validation (the helper adds store_dir)
+         "crgo_group_candidates", "crgo_validate_scenario")
+GROUPING_TOOLS = ("crgo_group_candidates", "crgo_validate_scenario")
+# 1.9.3 — the five write tools of library-proposal/v1: helper-only (/api/crgo/proposals/*), with the installation's store
+PROPOSAL_TOOLS = ("crgo_propose_library_scenario", "crgo_list_proposals", "crgo_approve_proposal", "crgo_reject_proposal",
+                  "crgo_export_contribution")
+MIN_GROUPING = (0, 11, 2)
 # 1.5.8 — the dss/v1 contract (CRGO 0.9.x). They are not callable through /api/crgo/call: the helper calls
 # them itself, with the workspace's own graph files and after its own checks (status proposed, model version).
 CONTRACT_TOOLS = ("crgo_risk_context", "crgo_submit_assessment", "crgo_compliance_context", "crgo_secops_context")
@@ -246,8 +253,12 @@ class Client:
 
     # -- calls ------------------------------------------------------------------------------------
     def call(self, spec, tool, args, timeout=120, contract=False):
-        if tool not in TOOLS and not (contract and tool in CONTRACT_TOOLS):
+        if tool not in TOOLS and not (contract and (tool in CONTRACT_TOOLS or tool in PROPOSAL_TOOLS)):
             raise ValueError("unknown ontology tool")
+        if tool in GROUPING_TOOLS or tool in PROPOSAL_TOOLS:     # 1.9.3 — an older CRGO has no such tool: say so, never call
+            rel = release(home_of(spec))
+            if not rel.get("groupingUsable"):
+                raise RuntimeError(rel.get("groupingProblem") or "%s needs CRGO v0.11.2." % tool)
         if tool in VIEW_TOOLS:
             rel = release(home_of(spec))
             if not rel.get("viewsUsable"):
@@ -294,7 +305,7 @@ def home_of(spec):
 def release(home):
     """{tag, ontology, contract, bridge}: the release in CRGO's CHANGELOG, the ontology release in src/build.py,
     whether the dss/v1 contract is present, and whether its bridge declares the organisation base (0.9.1)."""
-    out = {"tag": None, "ontology": None, "contract": False, "bridge": False, "views": False, "viewsUsable": False,
+    out = {"tag": None, "ontology": None, "contract": False, "bridge": False, "views": False, "viewsUsable": False, "grouping": False, "groupingUsable": False,
            "viewsProblem": "No CRGO folder: the compliance and security-operations contexts need CRGO v0.10.0."}
     if not home:
         return out
@@ -321,6 +332,12 @@ def release(home):
     out["views"] = all(os.path.isfile(os.path.join(home, "contracts", c, "v1", "README.md")) for c in ("compliance", "secops"))
     out["viewsUsable"] = out["views"] and v >= MIN_VIEWS
     out.pop("viewsProblem", None)
+    # 1.9.3 — contract library-proposal/v1 (grouping, validation, proposals): CRGO 0.11.2
+    out["grouping"] = os.path.isfile(os.path.join(home, "contracts", "library-proposal", "v1", "README.md"))
+    out["groupingUsable"] = out["grouping"] and v >= MIN_GROUPING
+    if not out["groupingUsable"]:
+        out["groupingProblem"] = ("This CRGO (%s) has no library-proposal/v1 contract: grouping, validation and proposals need CRGO v0.11.2; "
+                                  "the application uses its own snapshot and files instead." % (out["tag"] or "unknown"))
     if not out["viewsUsable"]:
         out["viewsProblem"] = ("This CRGO (%s) has no compliance/v1 or secops/v1 contract: the compliance and security-operations contexts need "
                                "CRGO v0.10.0. The dss/v1 contract and scenario identification still work." % (out["tag"] or "unknown"))

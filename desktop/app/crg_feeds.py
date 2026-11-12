@@ -138,6 +138,7 @@ DEFAULT_CONFIG = {
         "registry_local_dir": "",           # e.g. a Google Drive for desktop folder synced with drive_registry
         "drive_feeds_local_dir": "",        # e.g. a Google Drive for desktop folder synced with drive_feeds
         "controls_list": "",                # your own control list, if you keep one in Google Sheets
+        "ontology_proposals_dir": "",       # 1.9.3 — Folder for ontology proposals: contribution files (never inside the CRGO folder)
         "nvd_api": "https://services.nvd.nist.gov/rest/json/cves/2.0",
         "kev": "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json",
         "epss": "https://epss.empiricalsecurity.com/epss_scores-{date}.csv.gz",
