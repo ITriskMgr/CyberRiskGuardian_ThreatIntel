@@ -10,8 +10,12 @@
 //    non-administrator in multi-user mode; approved additions served to the browser and used by grouping on both paths;
 //    contribution file only in the Folder for ontology proposals (message when unset);
 //  · QC-33 is attention at most, never fail.
-// Part 2 (the W2 screens) is added by the UI workstream.
-import { open, ok, done, CRGO, ORG, TMP, FIXTURES, CRGO_RELEASE, URL, apiHeaders } from './lib.mjs';
+// Part 2 (the W2 screens, W2b): ② Group with the ontology on MediBec (snapshot) with the review panel, accept/edit/reject, marks and
+//  ontologyMatch, theme gap; ④ findings (states, Dismiss, Delete with audit, revoked-technique successor journalled), Create never
+//  blocked, findings copied to the scenarios; Scenario editor Validate; QC-33 attention never fail; Add to the ontology preview
+//  anonymized without parameters, Make public off/on; Ontology · CRGO → Proposals (approver required, reject with reason, export:
+//  folder empty → message, folder set → file); non-admin in multi-user cannot approve; hidden in example and classroom workspaces.
+import { open, ok, done, medibec, goto as goto0, CRGO, ORG, TMP, FIXTURES, CRGO_RELEASE, URL, apiHeaders } from './lib.mjs';
 import fs from 'fs';
 import path from 'path';
 
@@ -22,6 +26,8 @@ fs.rmSync(path.join(ORG, '_installation'), { recursive: true, force: true });   
 const OUT = path.join(TMP, 'ontology-proposals'); fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT, { recursive: true });
 
 const { browser, page, errors } = await open('#/process');
+// going to the hash the page is already on does not redraw the screen: pass through #/process first
+const goto = async (pg, h, ms = 600) => { if (await pg.evaluate(x => location.hash === x, h)) await goto0(pg, '#/process', 300); await goto0(pg, h, Math.max(ms, 900)); };
 
 /* ---------------- 1. golden replay in the browser (snapshot path) ---------------- */
 const g1 = await page.evaluate(async golden => {
@@ -191,6 +197,273 @@ const qc = await page.evaluate(async () => {
 ok(qc.v.never.join() === 'S1,S2' && qc.v.open.length === 1 && qc.v.open[0].id === 'S3', 'QC-33: never validated, open findings; dismissed and info findings do not count ' + JSON.stringify(qc.v));
 ok(Object.values(qc.out).every(c => c && c.state !== 'fail'), 'QC-33 never fails (example cases: ' + Object.values(qc.out).map(c => c?.state).join(', ') + ')');
 
-ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
+
+/* =====================================================================================================================
+   Part 2 — the screens (W2b)
+   ===================================================================================================================== */
+page.on('dialog', d => d.accept());
+const OUT2 = path.join(TMP, 'ontology-proposals-ui'); fs.rmSync(OUT2, { recursive: true, force: true }); fs.mkdirSync(OUT2, { recursive: true });
+const show = (hash, ms = 900) => goto(page, hash, ms);
+const setServer = async on => page.evaluate(async on => { const H = await import('/js/helper.js'); await H.loadConfig(); H.HS.config.ontology = { ...(H.HS.config.ontology || {}), enabled: on }; await H.saveConfig(); }, on);
+const setFolder = async dir => page.evaluate(async dir => { const H = await import('/js/helper.js'); await H.loadConfig(); H.HS.config.links = { ...(H.HS.config.links || {}), ontology_proposals_dir: dir }; await H.saveConfig(); }, dir);
+
+/* ---------------- 7. ② Group with the ontology on MediBec (snapshot path) ---------------- */
+await medibec(page);
+// the analyst completes the CRGO terms of each candidate (here from the golden mapping): they go into the kept draft, where toDescriptor reads them
+const filled = await page.evaluate(async golden => {
+  const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const ws = st.S.ws; const M = golden.medibec_mapping;
+  const amap = M.assets, byFirst = {}; for (const k of Object.keys(amap)) { const w = k.split(' ')[0]; if (!(w in byFirst)) byFirst[w] = amap[k]; }
+  let n = 0; SC.state(ws).families = []; SC.state(ws).themeGap = [];   // the teaching case arrives pre-screened: start from ungrouped candidates
+  for (const c of SC.candidates(ws)) {
+    const r = SC.rec(c.id, ws); r.draft = r.draft || {};
+    const cats = []; for (const part of String(c.assets).split(/[\/;]/).map(x => x.trim()).filter(Boolean)) { const hit = part.startsWith('CJ') ? byFirst[part] : amap[part]; for (const x of hit || []) if (!cats.includes(x)) cats.push(x); }
+    const ts = M.threat_sources[c.source] || M.threat_sources['(any other source)'] || [];
+    r.unique = null; r.ontologyMatch = null;
+    r.draft.crgo = { asset_categories: cats, threat_source_types: ts.slice() }; r.draft.attack = (M.techniques[c.id] || []).slice(); n++;
+  }
+  st.touch(); return n;
+}, golden);
+ok(filled === 45, 'the CRGO terms of the 45 MediBec candidates are completed in their drafts');
+await setServer(false);                                   // the snapshot path
+await goto(page, '#/screening/screen', 1200);
+ok(await page.isVisible('#scr-grouping-slot #scr-onto-group') && /Group with the ontology/.test(await page.textContent('#scr-onto-group')), '② has the Group with the ontology button in the grouping slot');
+await page.click('#scr-onto-group'); await page.waitForSelector('#scr-onto-panel .prop-item', { timeout: 20000 });
+const gp = await page.evaluate(() => ({ kinds: [...document.querySelectorAll('#scr-onto-panel .prop-item')].map(x => x.dataset.kind), keys: [...document.querySelectorAll('#scr-onto-panel .prop-item')].map(x => x.dataset.key),
+  src: document.querySelector('#scr-onto-panel .prop-source')?.textContent || '', gaps: document.querySelector('#scr-onto-gaps')?.textContent || '' }));
+const exp0 = golden.cases[0].expected;
+ok(/snapshot/.test(gp.src) && /CRGO 0\.11\.2/.test(gp.src), 'the panel shows the path (snapshot) and the CRGO release: ' + gp.src.slice(0, 80));
+ok(gp.keys.length === exp0.groups.length && gp.keys.join() === exp0.groups.map(g => g.cluster_id).join(), 'the 45 candidates give the golden groups (' + gp.keys.length + ' proposals: ' + ['family', 'unique', 'own'].map(k => gp.kinds.filter(x => x === k).length + ' ' + k).join(', ') + ')');
+ok(gp.kinds.includes('family') && gp.kinds.includes('unique') && (exp0.theme_gaps.length === 0 || /Theme gaps/.test(gp.gaps)), 'family, unique and own proposals shown; theme gaps listed: ' + gp.gaps.slice(0, 80));
+const before = await page.evaluate(async () => { const SC = await import('/js/screening.js'); const st = await import('/js/state.js'); return { fams: SC.state(st.S.ws).families.length, uniq: SC.candidates(st.S.ws).filter(c => SC.rec(c.id, st.S.ws).unique).length, match: Object.values(SC.state(st.S.ws).cands).filter(r => r.ontologyMatch).length }; });
+// reject one: nothing changes
+const rejKey = await page.evaluate(() => document.querySelector('#scr-onto-panel .prop-item[data-kind=own]')?.dataset.key || document.querySelector('#scr-onto-panel .prop-item:last-child')?.dataset.key);
+await page.click(`#scr-onto-panel .prop-item[data-key="${rejKey}"] [data-act=reject]`);
+const after0 = await page.evaluate(async () => { const SC = await import('/js/screening.js'); const st = await import('/js/state.js'); return { fams: SC.state(st.S.ws).families.length, match: Object.values(SC.state(st.S.ws).cands).filter(r => r.ontologyMatch).length }; });
+ok(after0.fams === before.fams && after0.match === before.match && !await page.isVisible(`#scr-onto-panel .prop-item[data-key="${rejKey}"]`), 'Reject drops the proposal and changes nothing in the workspace');
+// accept one family as proposed, edited name
+const famKey = gp.keys[gp.kinds.indexOf('family')];
+await page.click(`#scr-onto-panel .prop-item[data-key="${famKey}"] [data-act=edit]`);
+await page.fill(`#scr-onto-panel .prop-item[data-key="${famKey}"] .prop-edit input:not([type=checkbox])`, 'Edited family name (t77)');
+await page.click(`#scr-onto-panel .prop-item[data-key="${famKey}"] [data-act=accept-edited]`);
+await page.waitForTimeout(500);
+const accFam = await page.evaluate(async famKey => {
+  const SC = await import('/js/screening.js'); const st = await import('/js/state.js'); const ws = st.S.ws, S = SC.state(ws);
+  const f = S.families.find(x => x.name === 'Edited family name (t77)');
+  return f ? { id: f.id, members: f.members, mark: f.ontoMark, mm: f.memberMarks, om: f.members.map(m => S.cands[m].ontologyMatch), shown: document.body.textContent.includes('Ontology-proposed, accepted by'), statement: f.statement } : null;
+}, famKey);
+ok(accFam && accFam.members.length >= 2 && accFam.mark?.source === 'ontology' && accFam.mark.cluster === famKey, 'accepted family created: ' + JSON.stringify(accFam?.members) + ' mark ' + JSON.stringify(accFam?.mark));
+ok(accFam && accFam.members.every(m => accFam.mm[m]?.source === 'ontology' && accFam.mm[m].by && accFam.mm[m].at), 'every member carries {by, at, source: ontology}');
+ok(accFam && accFam.om.every(o => o && o.source === 'snapshot' && o.release === '0.11.2' && ((o.crgoId && o.cluster === famKey) || (o.gap && o.theme))), 'rec.ontologyMatch = {crgoId, cluster, source: snapshot, release} (or the theme gap) on every member');
+ok(accFam && accFam.statement && /\w/.test(accFam.statement), 'the family starts from the cluster representative statement');
+await show('#/screening/screen', 800);
+await page.waitForSelector('.scr-family', { timeout: 15000 });
+ok(await page.evaluate(() => [...document.querySelectorAll('.scr-family .onto-mark')].some(x => /Ontology-proposed, accepted by .* on \d{4}-\d\d-\d\d/.test(x.textContent))), '② shows “Ontology-proposed, accepted by ‹name› on ‹date›” on the family');
+// accept one unique (or own) candidate
+await page.click('#scr-onto-group'); await page.waitForSelector('#scr-onto-panel .prop-item', { timeout: 20000 });
+const uniKey = await page.evaluate(() => { const it = document.querySelector('#scr-onto-panel .prop-item[data-kind=unique]:not(:has(.prop-blocked))') || document.querySelector('#scr-onto-panel .prop-item[data-kind=own]:not(:has(.prop-blocked))'); return it ? it.dataset.key + '|' + it.dataset.kind : null; });
+const [uk, ukind] = uniKey.split('|');
+await page.click(`#scr-onto-panel .prop-item[data-key="${uk}"] [data-act=accept]`); await page.waitForTimeout(500);
+const accU = await page.evaluate(async () => { const SC = await import('/js/screening.js'); const st = await import('/js/state.js'); const ws = st.S.ws, S = SC.state(ws);
+  const c = SC.candidates(ws).find(x => S.cands[x.id].unique?.source === 'ontology'); const r = c && S.cands[c.id];
+  return c ? { id: c.id, unique: r.unique, om: r.ontologyMatch, gap: S.themeGap.slice(), fam: SC.familyOf(c.id, ws) } : null; });
+ok(accU && accU.unique.by && accU.unique.at && accU.unique.source === 'ontology' && !accU.fam, `accepted ${ukind}: ${accU?.id} marked unique by the ontology, recorded {by, at}`);
+ok(accU && accU.om && (ukind === 'own' ? accU.om.gap === true && accU.gap.includes(accU.om.theme) : accU.om.cluster === uk && accU.om.crgoId), 'ontologyMatch stored (' + JSON.stringify(accU?.om) + ')');
+await show('#/screening/screen', 800);
+ok(await page.evaluate(() => [...document.querySelectorAll('#scr-group [data-mark=ontology]')].some(x => /Ontology-proposed, accepted by/.test(x.textContent))), '② shows the ontology mark on the unique candidate');
+// a theme gap is shown (own scenarios card) when an own proposal has been accepted
+const ownKey = await page.evaluate(() => document.querySelector('#scr-onto-panel .prop-item[data-kind=own]:not(:has(.prop-blocked))')?.dataset.key || null);
+if (ownKey) {
+  await page.click(`#scr-onto-panel .prop-item[data-key="${ownKey}"] [data-act=accept]`); await page.waitForTimeout(400);
+  const own = await page.evaluate(async () => { const SC = await import('/js/screening.js'); const st = await import('/js/state.js'); return { gaps: SC.state(st.S.ws).themeGap.slice() }; });
+  await show('#/screening/screen', 800);
+  ok(own.gaps.length > 0 && await page.isVisible('#scr-own .onto-gap') && /Theme gap/.test(await page.textContent('#scr-own')), 'an own scenario is flagged “Theme gap” in ② with its themes in ws.screening.themeGap: ' + own.gaps.join(','));
+  ok(await page.evaluate(() => !!document.querySelector('#scr-own .onto-gap .onto-gap-reason')), 'in the MediBec example workspace the flag says why Add to the ontology is hidden');
+} else ok(true, 'SKIP own proposal: none left');
+await setServer(true);
+
+/* ---------------- 8. Add to the ontology is hidden in example and classroom workspaces ---------------- */
+const hid = await page.evaluate(async () => {
+  const PR = await import('/js/ontoprop.js'); const st = await import('/js/state.js');
+  const ws = st.S.ws, el = PR.gapFlag({ kind: 'scenario', s: ws.assessment.SCEN[0] }, ws, { theme: 'ThemeX' });
+  return { kind: ws.kind, reason: PR.blockedReason(ws), classroom: PR.blockedReason({ kind: 'classroom' }), normal: PR.blockedReason({ kind: 'user' }), hasBtn: !!el.querySelector('[data-act=add-ontology]'), text: el.textContent };
+});
+ok(hid.kind === 'example' && /Example workspaces/.test(hid.reason) && !hid.hasBtn && /cannot propose/.test(hid.text), 'MediBec (example): no Add to the ontology button, the flag says why');
+ok(/Classroom workspaces cannot propose/.test(hid.classroom) && hid.normal === null, 'classroom workspaces are blocked, ordinary ones are not');
+
+/* ---------------- 9. a working workspace: ④ findings, actions, creation not blocked ---------------- */
+await page.evaluate(async () => { const st = await import('/js/state.js'); const w = st.newWorkspace({ name: 'Ontology review (t77)' }); w.org.name = 'Acme Clinic'; await st.create(w); });
+await show('#/screening/create', 1000);
+const mk = await page.evaluate(async () => {
+  const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const ws = st.S.ws;
+  const defs = [
+    ['Phishing of staff leading to ransomware', 'Cybercriminal', ['T1562', 'T1566'], ['CWE-79']],
+    ['Odd technique used against the portal', 'Cybercriminal', ['T9999'], []],
+    ['Zebra herd stampede on the datacentre roof of Acme Clinic', 'Wildlife', [], []],
+    ['Backup failure after a power cut', 'Environment', [], []],
+    ['Second zebra herd stampede at Acme Clinic', 'Wildlife', [], []]];
+  const ids = defs.map(([name, source, attack, cwe]) => SC.addCandidate({ name, source, assets: 'Datacentre', vuln: 'weak control', consequence: 'Outage at Acme Clinic', draft: { statement: name + ': an event at Acme Clinic leads to an outage of the clinical systems.', attack, cwe, cves: [], params: {}, vulns: ['weak control'] } }, ws));
+  for (const id of ids) { SC.markUnique(id, 'Tester', ws); SC.rec(id, ws).scores = Array(12).fill(3); }
+  const A = SC.analysis(ws);
+  for (const id of ids) { const u = A.units.find(x => x.id === id); SC.setSelected(u, true, ws); }
+  for (const u of SC.selectedUnits(ws, SC.analysis(ws))) { const w = SC.whyOf(u, ws); for (let i = 0; i < 6; i++) w[i] = 'why ' + i; }
+  st.touch(); return ids;
+});
+await show('#/screening/create', 800);
+await page.waitForFunction(() => document.querySelectorAll('.scr-finding-slot .onto-findings').length === 5, null, { timeout: 20000 });
+const f4 = await page.evaluate(ids => Object.fromEntries(ids.map(id => { const e = document.querySelector(`.onto-findings[data-for="${id}"]`); return [id, { state: e?.dataset.state, text: e?.textContent || '', acts: [...(e?.querySelectorAll('[data-act]') || [])].map(b => b.dataset.act) }]; })), mk);
+ok(f4[mk[0]].state === 'attention' && /T1562 is revoked/.test(f4[mk[0]].text) && f4[mk[0]].acts.includes('replace') && f4[mk[0]].acts.includes('edit') && f4[mk[0]].acts.includes('delete') && f4[mk[0]].acts.includes('dismiss'), '④ revoked technique: needs attention, reason in the interface text, Replace/Edit/Delete/Dismiss');
+ok(/T9999/.test(f4[mk[1]].text) && f4[mk[1]].state && /T9999 is not in CRGO/.test(f4[mk[1]].text), '④ unknown technique flagged');
+ok(f4[mk[2]].state === 'outside' && /Theme gap/.test(f4[mk[2]].text) && /Add to the ontology/.test(f4[mk[2]].text), '④ no match: “outside the ontology”, theme-gap flag with Add to the ontology');
+// Edit opens the field
+await page.click(`.onto-findings[data-for="${mk[1]}"] [data-act=edit]`); await page.waitForSelector('#onto-edit-done');
+ok(await page.evaluate(() => !!document.querySelector('.modal [data-edit=techniques]')), 'Edit opens the technique field');
+await page.fill('.modal [data-edit=techniques]', 'T1190'); await page.press('.modal [data-edit=techniques]', 'Tab');
+await page.click('#onto-edit-done'); await page.waitForTimeout(900);
+ok(await page.evaluate(async id => (await import('/js/screening.js')).rec(id).draft.attack.join() === 'T1190', mk[1]) , 'the edited technique is kept in the candidate draft');
+// Dismiss records by/at
+await page.waitForFunction(id => !!document.querySelector(`.onto-findings[data-for="${id}"]`), mk[0]);
+const nA = await page.evaluate(id => document.querySelectorAll(`.onto-findings[data-for="${id}"] .onto-finding`).length, mk[0]);
+await page.click(`.onto-findings[data-for="${mk[0]}"] .onto-finding[data-code=TECHNIQUE_REVOKED] [data-act=dismiss]`); await page.waitForTimeout(700);
+const dm = await page.evaluate(async id => { const SC = await import('/js/screening.js'); const f = SC.rec(id).ontologyFindings.find(x => x.code === 'TECHNIQUE_REVOKED'); return { f, shown: document.querySelector(`.onto-findings[data-for="${id}"]`).textContent }; }, mk[0]);
+ok(dm.f.state === 'dismissed' && dm.f.by && /^\d{4}-\d\d-\d\dT/.test(dm.f.at) && /Seen by/.test(dm.shown), 'Dismiss records by/at and shows “Seen by …”');
+// revoked technique: successor applied and journalled (use a fresh finding)
+await page.evaluate(async id => { const SC = await import('/js/screening.js'); const f = SC.rec(id).ontologyFindings.find(x => x.code === 'TECHNIQUE_REVOKED'); f.state = 'open'; f.by = f.at = ''; const st = await import('/js/state.js'); st.touch(); }, mk[0]);
+await show('#/screening/create', 900);
+await page.waitForSelector(`.onto-findings[data-for="${mk[0]}"] [data-act=replace]`);
+await page.click(`.onto-findings[data-for="${mk[0]}"] [data-act=replace]`); await page.waitForTimeout(1200);
+const rp = await page.evaluate(async id => { const SC = await import('/js/screening.js'); const st = await import('/js/state.js'); const r = SC.rec(id);
+  return { attack: r.draft.attack, audit: (st.S.ws.userAudit || []).find(a => a.action === 'revoked ATT&CK technique replaced'), still: r.ontologyFindings.some(f => f.code === 'TECHNIQUE_REVOKED') }; }, mk[0]);
+ok(rp.attack.includes('T1685') && !rp.attack.includes('T1562') && rp.audit && /T1562 → T1685/.test(rp.audit.detail) && !rp.still, 'one click replaces T1562 by T1685, journalled in the audit log, and the finding is gone after revalidation');
+// Delete: confirmation, audit-log entry; a candidate
+const delId = mk[4];
+await page.click(`.onto-findings[data-for="${delId}"] [data-act=gap-delete]`); await page.waitForTimeout(800);
+const dl = await page.evaluate(async id => { const SC = await import('/js/screening.js'); const st = await import('/js/state.js');
+  return { gone: !SC.candidates(st.S.ws).some(c => c.id === id), audit: (st.S.ws.userAudit || []).find(a => a.action === 'candidate removed' && a.detail.includes(id)) }; }, delId);
+ok(dl.gone && dl.audit, 'Delete removes the candidate and writes an audit-log entry naming it: ' + dl.audit?.detail);
+// Create is not blocked by findings; the findings travel to the scenarios
+await show('#/screening/create', 900);
+const dis0 = await page.evaluate(() => document.querySelector('#scr-create-all').disabled);
+await page.click('#scr-create-all'); await page.waitForSelector('#scr-open-first', { timeout: 20000 });
+const cr = await page.evaluate(async mk => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const SCEN = st.S.ws.assessment.SCEN;
+  return { n: SCEN.length, f: SCEN.map(s => [s.id, s.origin.candidateIds[0], (s.ontologyFindings || []).length, (s.ontologyFindings || []).some(x => x.state === 'open' && x.severity === 'attention')]) }; }, mk);
+ok(!dis0 && cr.n === 4 && cr.f.every(x => x[2] > 0), 'Create the 4 scenarios is enabled with open findings and the scenarios carry their findings: ' + JSON.stringify(cr.f));
+await page.click('#scr-summary-close').catch(() => {});
+const qc2 = await page.evaluate(async () => { const st = await import('/js/state.js'); const QC = await import('/js/panels/qc.js'); return QC.checks(st.S.ws).find(x => x.id === 'QC-33'); });
+ok(qc2 && qc2.state === 'warn', 'QC-33 shows attention with open findings (never fail): ' + qc2?.state);
+
+/* ---------------- 10. Scenario editor: Validate against the ontology ---------------- */
+const sOdd = cr.f.find(x => x[1] === mk[1])[0], sZebra = cr.f.find(x => x[1] === mk[2])[0];
+await page.evaluate(async sid => { const st = await import('/js/state.js'); const s = st.S.ws.assessment.SCEN.find(x => x.id === sid); s.attack = [...s.attack, 'T1562']; s.ontologyFindings = []; st.touch(); }, sOdd);
+await page.evaluate(() => { try { localStorage.setItem('crg-scen-tab:local', 'onto'); } catch {} });
+await goto(page, `#/scenario/${sOdd}/onto`, 1200);
+ok(await page.isVisible('#scen-validate') && /Not validated against the ontology yet/.test(await page.textContent('#scen-onto-findings')), 'the Ontology · CRGO card has Validate against the ontology and says it was not validated yet');
+await page.click('#scen-validate'); await page.waitForSelector('#scen-onto-findings .onto-findings', { timeout: 15000 });
+ok(await page.isVisible('#scen-onto-findings [data-code=TECHNIQUE_REVOKED] [data-act=replace]'), 'the card lists the revoked technique with the one-click successor');
+await page.click('#scen-onto-findings [data-code=TECHNIQUE_REVOKED] [data-act=replace]'); await page.waitForTimeout(1200);
+const rv = await page.evaluate(async sid => { const st = await import('/js/state.js'); const s = st.S.ws.assessment.SCEN.find(x => x.id === sid); return { attack: s.attack, rev: (s.revisions || []).map(r => r.what) }; }, sOdd);
+ok(rv.attack.includes('T1685') && !rv.attack.includes('T1562') && rv.rev.some(w => /T1562.*T1685/.test(w)), 'Replace on the scenario: revision-log entry ' + rv.rev.slice(-1)[0]?.slice(0, 80));
+const qc3 = await page.evaluate(async () => { const st = await import('/js/state.js'); const QC = await import('/js/panels/qc.js'); return QC.checks(st.S.ws).find(x => x.id === 'QC-33').state; });
+ok(qc3 !== 'fail', 'QC-33 after the editor validation: ' + qc3);
+// scenario Delete from the findings list: confirmation + audit entry (use the zebra scenario's twin: duplicate, then delete)
+await page.evaluate(async sid => { const st = await import('/js/state.js'); const s = JSON.parse(JSON.stringify(st.S.ws.assessment.SCEN.find(x => x.id === sid))); s.id = 'S99'; s.name = 'Disposable (t77)'; st.S.ws.assessment.SCEN.push(s); st.touch(); }, sZebra);
+await goto(page, '#/scenario/S99/onto', 900);
+await page.click('#scen-validate'); await page.waitForSelector('#scen-onto-findings .onto-findings [data-act=gap-delete]', { timeout: 15000 });
+await page.click('#scen-onto-findings [data-act=gap-delete]'); await page.waitForTimeout(900);
+ok(await page.evaluate(async () => { const st = await import('/js/state.js'); return !st.S.ws.assessment.SCEN.some(s => s.id === 'S99') && (st.S.ws.userAudit || []).some(a => a.action === 'scenario deleted' && /S99/.test(a.detail)); }), 'Delete on a scenario: removed, audit-log entry');
+
+/* ---------------- 11. Add to the ontology: preview anonymized, no parameters, Make public ---------------- */
+await goto(page, `#/scenario/${sZebra}/onto`, 1000);
+await page.click('#scen-validate'); await page.waitForSelector('#scen-onto-findings [data-act=add-ontology]', { timeout: 15000 });
+await page.click('#scen-onto-findings [data-act=add-ontology]'); await page.waitForSelector('#onto-prop-json', { timeout: 15000 });
+const pv = await page.evaluate(() => ({ json: document.querySelector('#onto-prop-json').textContent, pubInfo: !document.querySelector('#onto-prop-public-info').hidden, pubTicked: document.querySelector('#onto-prop-public').checked, by: document.querySelector('#onto-prop-by').value }));
+const pj = JSON.parse(pv.json);
+ok(!/Acme/.test(pv.json) && /Organization A/.test(pv.json), 'preview anonymized: the organisation name is replaced ' + pj.statement.slice(0, 80));
+ok(!/PbA|Pbx|"De"|"Dm"|estimates|params|cvss|owner|Th"|Mu"/.test(pv.json) && pj.anonymized === true && !('public' in pj) && pj.themes.length >= 1, 'preview carries no parameter, estimate or figure; anonymized: true; no public flag');
+ok(!pv.pubTicked && !pv.pubInfo, 'Make public is unticked by default and the warning is hidden');
+await page.check('#onto-prop-public'); await page.waitForTimeout(500);
+const pb = await page.evaluate(() => ({ info: !document.querySelector('#onto-prop-public-info').hidden, text: document.querySelector('#onto-prop-public-info').textContent, json: JSON.parse(document.querySelector('#onto-prop-json').textContent), left: !!document.querySelector('#onto-prop-leftovers') }));
+ok(pb.info && /leave this installation/.test(pb.text) && pb.json.public === true && pb.left, 'Make public ticked: warning that the text leaves the installation, public: true, leftover list shown');
+// an unanonymised term typed back in is caught on the way out (the edited text is anonymized again) and listed as leftover when not replaceable
+await page.fill('#onto-prop-extra', 'zebra'); await page.press('#onto-prop-extra', 'Tab'); await page.waitForTimeout(700);
+ok(!/zebra/i.test(await page.textContent('#onto-prop-json')), 'an additional term is removed by the re-run anonymizer');
+await page.fill('#onto-prop-extra', ''); await page.press('#onto-prop-extra', 'Tab'); await page.waitForTimeout(500);
+await page.uncheck('#onto-prop-public'); await page.waitForTimeout(500);
+await page.fill('#onto-prop-by', 'Prop Analyst');
+await page.click('#onto-prop-send'); await page.waitForTimeout(1500);
+const sp = await page.evaluate(async sid => { const st = await import('/js/state.js'); const s = st.S.ws.assessment.SCEN.find(x => x.id === sid); return s.ontoProposal; }, sZebra);
+ok(sp && sp.state === 'proposed' && /^LOC-/.test(sp.id) && sp.makePublic === false, 'Propose: scenario.ontoProposal = proposed ' + JSON.stringify(sp));
+await goto(page, `#/scenario/${sZebra}/onto`, 900);
+ok(/Proposed/.test(await page.textContent('#scen-onto-findings .onto-gap')) , 'the flag shows the status Proposed');
+// a second own scenario proposed with Make public, from Node-side API calls (a public one, a rejected one)
+const extra = await page.evaluate(async () => {
+  const C = await import('/js/crgo.js'); const mkp = (name, pub) => ({ name, statement: 'A generic event on the datacentre roof leads to an outage of the clinical systems.', themes: ['ThemeOther'], proposed_by: 'Prop Analyst', proposed_on: '2026-11-12', anonymized: true, ...(pub ? { public: true } : {}) });
+  const pubP = await C.proposals.propose(mkp('Public candidate scenario (t77)', true)), rejP = await C.proposals.propose(mkp('Rejected candidate scenario (t77)', false));
+  const locP = await C.proposals.propose({ ...mkp('Local only candidate scenario (t77)', false), statement: 'A local-only event on the datacentre roof leads to an outage of the clinical systems.' });
+  return { pub: pubP.id, rej: rejP.id, loc: locP.id, errs: [pubP, rejP, locP].filter(x => x.error).map(x => x.message) };
+});
+ok(!extra.errs.length, 'three more proposals made for the Proposals tab ' + extra.errs.join(';'));
+
+/* ---------------- 12. Ontology · CRGO → Proposals ---------------- */
+await setFolder('');
+await goto(page, '#/ontology/proposals', 1500);
+ok(await page.evaluate(() => document.querySelector('#panel-ontology [role=tab][aria-selected=true]')?.textContent.trim() === 'Proposals') && await page.isVisible(`[data-act=preview][data-id="${sp.id}"]`), 'the Proposals tab lists the proposals with Preview');
+ok(/not set/.test(await page.textContent('#prop-folder')) && /Folder for ontology proposals/.test(await page.textContent('#prop-folder')), 'the tab says the Folder for ontology proposals is not set and where to set it');
+await page.click(`[data-act=preview][data-id="${sp.id}"]`); await page.waitForTimeout(500);
+ok(/Organization A/.test(await page.textContent('.modal')) && !/Acme/.test(await page.textContent('.modal')), 'Preview shows the stored (anonymized) proposal');
+await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+// Approve needs an approver name
+await page.click(`[data-act=approve][data-id="${sp.id}"]`); await page.waitForSelector('#prop-approve-ok');
+await page.fill('#prop-approver', ''); await page.click('#prop-approve-ok'); await page.waitForTimeout(500);
+ok(await page.isVisible('#prop-approve-ok') && (await page.evaluate(async id => (await (await import('/js/crgo.js')).proposals.read(id)).status, sp.id)) === 'proposed', 'Approve without an approver name is refused; the proposal stays proposed');
+await page.fill('#prop-approver', 'Admin Person'); await page.click('#prop-approve-ok'); await page.waitForTimeout(1500);
+const ap = await page.evaluate(async id => { const C = await import('/js/crgo.js'); const st = await import('/js/state.js'); const r = await C.proposals.read(id); await (await import('/js/ontoprop.js')).syncStatus(); const s = st.S.ws.assessment.SCEN.find(x => x.ontoProposal?.id === id);
+  return { status: r.status, hist: r.history, audit: (st.S.ws.userAudit || (await import('/js/users.js')).U.audit || []).length, sop: s?.ontoProposal, ulog: (await import('/js/users.js')).U.audit.find(a => a.action === 'ontology proposal approved') }; }, sp.id);
+ok(ap.status === 'approved' && ap.hist.some(h => h.by === 'Admin Person' && h.status === 'approved') && ap.sop?.state === 'approved' && ap.sop.approvedBy === 'Admin Person' && ap.ulog, 'approved with approver and date, the scenario status follows, audit-log entry');
+// Make public off → no export button and no file
+ok(!await page.isVisible(`[data-act=export][data-id="${sp.id}"]`) && fs.readdirSync(OUT2).length === 0, 'Make public unticked: no Export button, nothing written');
+// the approved addition is used by validation: the scenario now matches and the gap clears
+await goto(page, `#/scenario/${sZebra}/onto`, 900);
+await page.click('#scen-validate'); await page.waitForSelector('#scen-onto-findings .onto-findings', { timeout: 15000 }); await page.waitForTimeout(500);
+const gc = await page.evaluate(() => ({ gap: !!document.querySelector('#scen-onto-findings .onto-gap'), text: document.querySelector('#scen-onto-findings').textContent, state: document.querySelector('#scen-onto-findings .onto-findings').dataset.state }));
+ok(!gc.gap && gc.state === 'consistent' && /LOC-/.test(gc.text), 'after approval the scenario matches the local addition and the theme-gap flag is gone: ' + gc.state);
+// reject with a reason
+await goto(page, '#/ontology/proposals', 1200);
+await page.click(`[data-act=reject][data-id="${extra.rej}"]`); await page.waitForSelector('#prop-reject-ok');
+await page.fill('#prop-rejector', 'Admin Person'); await page.click('#prop-reject-ok'); await page.waitForTimeout(400);
+ok(await page.isVisible('#prop-reject-ok'), 'Reject without a reason is refused');
+await page.fill('#prop-reason', 'Too generic for the library'); await page.click('#prop-reject-ok'); await page.waitForTimeout(1200);
+const rj = await page.evaluate(async id => (await (await import('/js/crgo.js')).proposals.read(id)), extra.rej);
+ok(rj.status === 'rejected' && rj.history.some(h => h.status === 'rejected' && h.reason === 'Too generic for the library'), 'Reject records the reason');
+// export: approve the public one with the box ticked and the folder empty → approved, message points to the setting; export button then offers the file
+await page.click(`[data-act=approve][data-id="${extra.pub}"]`); await page.waitForSelector('#prop-approve-ok');
+ok(await page.evaluate(() => document.querySelector('#prop-approve-public').checked), 'at approval Make public is shown ticked for a proposal marked public');
+await page.fill('#prop-approver', 'Admin Person'); await page.click('#prop-approve-ok'); await page.waitForTimeout(1500);
+ok((await page.evaluate(async id => (await (await import('/js/crgo.js')).proposals.read(id)).status, extra.pub)) === 'approved' && fs.readdirSync(OUT2).length === 0, 'Make public ticked, folder empty: approved, no file written');
+await goto(page, '#/ontology/proposals', 1200);
+await page.click(`[data-act=export][data-id="${extra.pub}"]`); await page.waitForSelector('#prop-export-error');
+ok(/Folder for ontology proposals/.test(await page.textContent('#prop-export-error')) && await page.isVisible('#prop-open-settings'), 'export with the folder empty: the message points to Settings → Links & shared folders → Folder for ontology proposals');
+await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await setFolder(OUT2);
+await goto(page, '#/ontology/proposals', 1200);
+await page.click(`[data-act=export][data-id="${extra.pub}"]`); await page.waitForTimeout(1500);
+const files = fs.readdirSync(OUT2);
+const cf2 = files.length ? JSON.parse(fs.readFileSync(path.join(OUT2, files[0]), 'utf8')) : null;
+ok(files.length === 1 && cf2 && cf2.schema === 'crgo-contribution/1' && cf2.key === 'CONTRIB-' + extra.pub && !/Prop Analyst|Admin Person|PbA/.test(JSON.stringify(cf2)), 'folder set: the contribution file is written (' + files[0] + '), no name, no figure');
+await goto(page, '#/ontology/proposals', 1200);
+ok(await page.isVisible(`[data-act=withdraw][data-id="${extra.pub}"]`) && /Public — submitted/.test(await page.textContent(`tr:has([data-id="${extra.pub}"])`)), 'status Public — submitted, with a Withdraw action');
+ok(fs.readdirSync(OUT2).length === 1, 'the local-only and rejected proposals wrote nothing');
+await setFolder('');
+
+/* ---------------- 13. non-admin in multi-user mode cannot approve ---------------- */
+await page.evaluate(async () => { const U = await import('/js/users.js'); U.U.enabled = true; U.U.users = [{ id: 'u-a', name: 'Admin Person', admin: true, raci: {} }, { id: 'u-b', name: 'Plain Analyst', admin: false, raci: {} }]; U.U.current = U.U.users[1]; });
+await goto(page, '#/ontology/proposals', 1200);
+const na = await page.evaluate(id => ({ approve: document.querySelector(`[data-act=approve][data-id="${id}"]`)?.disabled, note: !!document.querySelector('.prop-nonadmin') }), extra.loc);
+ok(na.approve === true && na.note, 'multi-user, non-administrator: Approve is disabled and the tab says it is read only');
+const na2 = await page.evaluate(async id => { const C = await import('/js/crgo.js'); const r = await C.proposals.approve(id, { approver: 'Plain Analyst', date: '2026-11-12' }); return { r, status: (await C.proposals.read(id)).status }; }, extra.loc);
+ok(na2.r.error && na2.r.code === 'FORBIDDEN' && na2.status === 'proposed', 'the helper refuses a non-administrator (FORBIDDEN); nothing written');
+await page.evaluate(async () => { const U = await import('/js/users.js'); U.U.enabled = false; U.U.current = null; U.U.users = []; });
+
+const errs = errors.filter(e => !/status of (502|403)/.test(e));   // 403: the non-administrator's refused approval; 502: the switched-off ontology server
+ok(!errs.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
 await browser.close();
-done('t77 ontology grouping (part 1)');
+done('t77 ontology grouping (parts 1 and 2)');

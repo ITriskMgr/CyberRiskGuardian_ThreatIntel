@@ -440,7 +440,9 @@ export function createSelected(ws = S.ws, { by = '' } = {}) {
     const C = state(ws).cands;
     s.origin = { candidateIds: ids, familyId: f ? f.id : null, scores: Object.fromEntries(ids.map(i => [i, { scores: (C[i]?.scores || []).slice(), total: total(C[i]), ai: C[i]?.ai ? { by: C[i].ai.by || '', date: C[i].ai.date || '', model: C[i].ai.model || '' } : null }])),
       why: (whyOf(u, ws) || []).slice(), ontologyMatch: ids.map(i => C[i]?.ontologyMatch).find(Boolean) || null, createdBy: by || '', createdAt: new Date().toISOString(), text: s.origin };
-    s.ontologyFindings = []; s.ontoProposal = null;
+    // 1.9.3 (W2b): the findings and the ontology proposal the line carried (kept on the candidate that holds the line) go with the scenario
+    const hold = rec(best.id, ws);
+    s.ontologyFindings = JSON.parse(JSON.stringify(hold.ontologyFindings || [])); s.ontoProposal = hold.ontoProposal ? JSON.parse(JSON.stringify(hold.ontoProposal)) : null;
     ws.assessment.SCEN.push(s);
     if (f) (f.scenarios ||= []).push(s.id);
     rec(best.id, ws).scenario = s.id;

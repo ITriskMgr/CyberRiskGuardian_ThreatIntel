@@ -163,6 +163,11 @@ export const CODES = {
   'org/import': 'SCR-154',
   'org/evidence': 'SCR-155',
   'org/workspaces': 'SCR-156',
+  'ontology/suggest': 'SCR-157',
+  'ontology/explore': 'SCR-158',
+  'ontology/link': 'SCR-159',
+  'ontology/connection': 'SCR-160',
+  'ontology/proposals': 'SCR-161',
   // @@END
 };
 

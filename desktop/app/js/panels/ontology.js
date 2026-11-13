@@ -33,7 +33,7 @@ async function loadValues() {
 export const vocabulary = loadValues;
 
 export async function render(sec, arg) {
-  if (['suggest', 'explore', 'link', 'connection'].includes(arg)) view = arg;
+  if (['suggest', 'explore', 'link', 'connection', 'proposals'].includes(arg)) view = arg;
   sec.replaceChildren(el('h1', null, 'Ontology · CRGO'),
     el('p', 'lede', 'The CyberRiskGuardian Ontology: a library of risk scenarios with their ATT&CK techniques, weaknesses, controls (NIST CSF 2.0, SP 800-53, ISO/IEC 27002) and Quebec Law 25 obligations, reached through its own MCP server — the one Claude uses — or, without it, through the snapshot shipped with the application.'),
     banner('warn', 'Calibration priors, not evidence', tr('Ontology values are AI estimates (2023) for a fictitious healthcare organization or instructor values of teaching cases. They are starting points for a discussion with the organization: every value arrives tagged “{0}”.').replace('{0}', tr(C.MARK))));
@@ -41,11 +41,11 @@ export async function render(sec, arg) {
     ' · ', el('a', { href: 'https://itriskmgr.github.io/CyberRiskGuardian-Ontology/map/', target: '_blank', rel: 'noopener noreferrer' }, 'Interactive ontology map'),
     ' · ', el('a', { href: 'https://github.com/ITriskMgr/CyberRiskGuardian-Ontology', target: '_blank', rel: 'noopener noreferrer' }, 'Source on GitHub')));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['suggest', 'Suggest scenarios'], ['explore', 'Explore'], ['link', 'Organisation link'], ['connection', 'Connection']])
+  for (const [k, t] of [['suggest', 'Suggest scenarios'], ['explore', 'Explore'], ['link', 'Organisation link'], ['connection', 'Connection'], ['proposals', 'Proposals']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; go('ontology/' + k); } }, t));
   const body = el('div'); sec.append(st, body);
   const link = async b => (await import('./ontology_link.js')).link(b, () => render(sec, 'link'));
-  try { await ({ suggest, explore, link, connection }[view])(body, sec); }
+  try { await ({ suggest, explore, link, connection, proposals: async (b, sc) => (await import('./ontology_prop.js')).proposals(b, sc) }[view])(body, sec); }
   catch (e) { body.append(banner('bad', 'The ontology could not be read', String(e.message || e))); }
 }
 
