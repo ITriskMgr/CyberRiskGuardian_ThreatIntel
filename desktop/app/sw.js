@@ -37,7 +37,7 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   // 1.9.3 — CRGO 0.11.2: candidate grouping and scenario validation offline (library-proposal/v1)
   "js/crgo_group.js",
   // 1.9.3 (W2b) — grouping review, validation findings, own scenarios and proposals
-  "js/proposalpanel.js", "js/ontogroup.js", "js/ontofind.js", "js/ontoprop.js", "js/panels/ontology_prop.js"
+  "js/proposalpanel.js", "js/familyai.js", "js/familytext.js", "js/familypayload.js", "js/ontogroup.js", "js/ontofind.js", "js/ontoprop.js", "js/panels/ontology_prop.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

@@ -45,7 +45,8 @@ export function bareName(v) {
   return s;
 }
 /** A value of a people field that is not a person: empty, a role only ("IT", "Security team"), or a placeholder. */
-const notAPerson = s => !s || s.length < 3 || !/[a-zà-ÿ]/i.test(s) || s.split(/\s+/).every(w => ROLE_WORDS.test(w)) || /^(person|personne)\s*\d+$/i.test(s) || /^(organization|organisation)\s+[a-z]$/i.test(s);
+// 1.9.3 (W3): a record identifier (C01, P07, CJ8, E6) listed in a "members" field is not a person's name — the family requests need their ids to survive
+const notAPerson = s => !s || s.length < 3 || /^[A-Z]{1,3}-?\d{1,5}$/.test(s) || !/[a-zà-ÿ]/i.test(s) || s.split(/\s+/).every(w => ROLE_WORDS.test(w)) || /^(person|personne)\s*\d+$/i.test(s) || /^(organization|organisation)\s+[a-z]$/i.test(s);
 /** The pieces of a people-field value: "A, B and C" → [A, B, C]. */
 
 let USERS = null;

@@ -55,6 +55,8 @@ export const FEATURES = [
   ['mitigation_optimizer', 'Mitigation optimizer — cost and effect proposals (Forecasts)', 'Initiatives with costs and timing, the scenarios they treat with their reductions and tolerance ratios', 'high', 'local'],
   // 1.9.2 (C5) — screening scores proposed for review (screenai.js)
   ['screening_scores', 'Screening score estimates', 'Organization profile, crown jewels, the evidence register (IDs and titles), a summary of the threat-context snapshot and each candidate’s statement and causal chain', 'medium', 'workspace'],
+  // 1.9.3 (C6, W3) — AI family proposals: grouping, matching and coverage gaps, for review (familyai.js)
+  ['screening_families', 'Screening family proposals', 'Organization profile, crown jewels, the evidence register (IDs and titles), each candidate’s row, kept Batch draft (chain), accepted screening scores and flags, ontology matches, the existing families and the coverage matrix', 'medium', 'workspace'],
 ];
 export const MODES = [['workspace', 'Workspace provider'], ['local', 'Local model only'], ['remote', 'Remote provider'], ['off', 'Off']];
 export const DEFAULT_POLICY = { remote_allowed: true, web_search: true, tasks: Object.fromEntries(FEATURES.map(f => [f[0], f[4]])) };
