@@ -16,6 +16,7 @@ decisions for C7 and C6. Every earlier binding decision still holds (`DECISIONS-
 - **Contributions are exported as JSON.**
 - **The folder setting *Folder for ontology proposals* is used only for contribution files** (not for the proposals).
 - **Admin check relies on the user object sent by the page** (the helper does not authenticate users itself).
+  Reviewed: acceptable for 1.9.3 — only the app's own page can reach the helper (session token, Host and Origin checks), and multi-user mode is not a security boundary (users and roles live in browser storage, see users.js). In multi-user mode the approver name is pre-filled read-only.
 - **Writer `CRGO_RELEASE` constant not bumped** (the Writer's own pin is unchanged by the 0.11.2 patch).
 - **CRGO 0.11.2 and snapshot `crg-crgo-snapshot/3`** are the pin of this release.
 

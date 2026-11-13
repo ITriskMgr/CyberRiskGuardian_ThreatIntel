@@ -158,6 +158,8 @@ const pr = await page.evaluate(async ({ golden, OUT }) => {
   out.noFolder = await C.proposals.exportContribution(out.prop1.id);
   H.HS.config.links = { ...(H.HS.config.links || {}), ontology_proposals_dir: OUT }; await H.saveConfig();
   out.notApproved = await C.proposals.exportContribution('LOC-0000000000');
+  out.refusedPrivate = await C.proposals.exportContribution(out.prop1.id, { date: '2026-11-12' });   // review M1: not marked public
+  await C.proposals.setPublic(out.prop1.id, null, '2026-11-12');
   out.exp = await C.proposals.exportContribution(out.prop1.id, { date: '2026-11-12' });
   out.read = await C.proposals.read(out.prop1.id);
   out.listAfter = await C.proposals.list();
@@ -179,6 +181,7 @@ ok(pr.extSame, 'the local extension written by server and files = the golden loc
 ok(pr.withLocal.n === 3 && pr.withLocal.snap && (pr.withLocal.via !== 'mcp' || pr.withLocal.mcp), 'approved additions take part in grouping: snapshot path' + (pr.withLocal.via === 'mcp' ? ' and MCP path' : '') + ' = golden');
 ok(pr.noFolder.error && pr.noFolder.code === 'NO_FOLDER' && /Folder for ontology proposals/.test(pr.noFolder.message), 'no folder set: the message points to the setting');
 ok(pr.notApproved.error, 'export of an unknown or unapproved proposal refused');
+ok(pr.refusedPrivate.error && pr.refusedPrivate.code === 'NOT_PUBLIC', 'M1: export refused (NOT_PUBLIC) until the proposal is marked public');
 const cf = pr.exp.path && fs.existsSync(pr.exp.path) ? JSON.parse(fs.readFileSync(pr.exp.path, 'utf8')) : null;
 ok(cf && path.dirname(pr.exp.path) === fs.realpathSync(OUT) && cf.schema === 'crgo-contribution/1' && cf.status === 'proposed' && cf.key === 'CONTRIB-' + pr.prop1.id
   && !/PbA|estimates|proposed_by|Admin/.test(JSON.stringify(cf)), 'contribution file in the Folder for ontology proposals, status proposed, no figure and no name');
@@ -453,6 +456,52 @@ await goto(page, '#/ontology/proposals', 1200);
 ok(await page.isVisible(`[data-act=withdraw][data-id="${extra.pub}"]`) && /Public — submitted/.test(await page.textContent(`tr:has([data-id="${extra.pub}"])`)), 'status Public — submitted, with a Withdraw action');
 ok(fs.readdirSync(OUT2).length === 1, 'the local-only and rejected proposals wrote nothing');
 await setFolder('');
+
+/* ---------------- 12b. review M1 / m1: Make public at approval re-runs the anonymizer; export refused without it ---------------- */
+await setFolder(OUT2);
+for (const f of fs.readdirSync(OUT2)) fs.rmSync(path.join(OUT2, f));
+const rv12 = await page.evaluate(async () => {
+  const C = await import('/js/crgo.js');
+  const mk = (name, pub) => ({ name, statement: 'On 2026-03-14 a failure of the imaging archive led to an outage of the clinical systems.', themes: ['ThemeOther'], proposed_by: 'Prop Analyst', proposed_on: '2026-11-12', anonymized: true, ...(pub ? { public: true } : {}) });
+  const a = await C.proposals.propose(mk('Review M1 scenario one (t77)', false)), b = await C.proposals.propose(mk('Review M1 scenario two (t77)', false));
+  const again = await C.proposals.propose(mk('Review M1 scenario two (t77)', true));        // m1: the same text again, now with Make public
+  const l = await C.proposals.list();
+  return { a: a.id, b: b.id, againExisting: again.existing, againId: again.id, pubB: l.proposals.find(x => x.id === b.id)?.public, pubA: l.proposals.find(x => x.id === a.id)?.public || '' };
+});
+ok(rv12.againExisting && rv12.againId === rv12.b && rv12.pubB === 'requested' && rv12.pubA === '', 'm1: proposing the same text again with Make public records the request on the stored proposal (list: requested)');
+// the helper refuses a contribution file for an approved proposal that was never marked public (server side, no UI)
+const nf = await page.evaluate(async id => { const C = await import('/js/crgo.js'); const ap = await C.proposals.approve(id, { approver: 'Admin Person', date: '2026-11-12' }); return { ap, ex: await C.proposals.exportContribution(id, { action: 'add', date: '2026-11-12' }) }; }, rv12.a);
+ok(!nf.ap.error && nf.ex.error && nf.ex.code === 'NOT_PUBLIC' && fs.readdirSync(OUT2).length === 0, 'M1: export of an approved proposal not marked public is refused (NOT_PUBLIC); no file written');
+// approval dialog: ticking Make public shows the re-anonymized text and leftovers; Approve needs the confirmation
+await goto(page, '#/ontology/proposals', 1500);
+// a proposal made without Make public, approved with the box ticked
+const loc2 = await page.evaluate(async () => { const C = await import('/js/crgo.js'); const r = await C.proposals.propose({ name: 'Review M1 scenario three (t77)', statement: 'On 2026-03-15 a failure of the lab archive led to an outage of the clinical systems.', themes: ['ThemeOther'], proposed_by: 'Prop Analyst', proposed_on: '2026-11-12', anonymized: true }); return r.id; });
+await goto(page, '#/ontology/proposals', 1500);
+await page.click(`[data-act=approve][data-id="${loc2}"]`); await page.waitForSelector('#prop-approve-ok');
+ok(!(await page.evaluate(() => document.querySelector('#prop-approve-public').checked)) && await page.evaluate(() => document.querySelector('#prop-review').hidden), 'M1: Make public is unticked at approval and the review is hidden');
+await page.check('#prop-approve-public'); await page.waitForSelector('#prop-review-confirm', { timeout: 8000 });
+const rvw12 = await page.evaluate(() => ({ text: document.querySelector('#prop-review-text').textContent, left: !!document.querySelector('#prop-review-leftovers'), vis: !document.querySelector('#prop-review').hidden }));
+ok(rvw12.vis && rvw12.left && !/2026-03-15/.test(rvw12.text), 'M1: ticking Make public at approval shows the text anonymized again (dates replaced) with the leftover list: ' + rvw12.text.slice(0, 80));
+await page.fill('#prop-approver', 'Admin Person'); await page.click('#prop-approve-ok'); await page.waitForTimeout(800);
+ok(await page.isVisible('#prop-approve-ok') && (await page.evaluate(async id => (await (await import('/js/crgo.js')).proposals.read(id)).status, loc2)) === 'proposed' && fs.readdirSync(OUT2).length === 0, 'M1: Approve with Make public is refused until the reviewed text is confirmed; nothing written');
+await page.check('#prop-review-confirm'); await page.click('#prop-approve-ok'); await page.waitForTimeout(2000);
+const m1 = await page.evaluate(async id => { const r = await (await import('/js/crgo.js')).proposals.read(id); return { status: r.status, pub: r.proposal.public, stmt: r.proposal.statement, hist: r.history }; }, loc2);
+const cf3 = fs.readdirSync(OUT2).map(f => fs.readFileSync(path.join(OUT2, f), 'utf8')).join('');
+ok(m1.status === 'approved' && m1.pub === true && m1.hist.some(h => h.public === 'submitted') && /crgo-contribution\/1/.test(cf3) && !/2026-03-15/.test(cf3) && !/2026-03-15/.test(m1.stmt), 'M1: after the confirmed review the proposal is marked public, approved, and the contribution file holds the re-anonymized text only');
+// m3: crgo_scenario never takes a store_dir from the page; the installation's own is injected, so an approved LOC- id opens
+const sc = await fetch(URL.replace(/\/$/, '') + '/api/crgo/call', { method: 'POST', headers: await apiHeaders({ 'Content-Type': 'application/json' }),
+  body: JSON.stringify({ tool: 'crgo_scenario', args: { scenario_id: loc2, store_dir: path.join(TMP, 'not-the-store') } }) }).then(async r => ({ status: r.status, body: await r.json() }));
+if (sc.status === 200) ok(sc.body.result && (sc.body.result.id === loc2 || JSON.stringify(sc.body.result).includes(loc2)) && !sc.body.result.error, 'm3: crgo_scenario opens the approved LOC- id although the page sent another store_dir');
+else console.log('skip m3 (ontology server not available): ' + sc.status);
+await setFolder('');
+
+// n1: proposal and approval dates are the local day (UTC is already tomorrow after 19:00 in Montréal)
+const n1 = await page.evaluate(async () => {
+  const P = await import('/js/ontoprop.js'), Real = Date;
+  class Fake extends Real { constructor(...a) { super(...(a.length ? a : [2026, 10, 13, 2, 30])); } getFullYear() { return 2026; } getMonth() { return 10; } getDate() { return 12; } toISOString() { return '2026-11-13T02:30:00.000Z'; } }
+  globalThis.Date = Fake; try { return P.today(); } finally { globalThis.Date = Real; }
+});
+ok(n1 === '2026-11-12', 'n1: the proposal and approval date is the local day, not the UTC day (' + n1 + ')');
 
 /* ---------------- 13. non-admin in multi-user mode cannot approve ---------------- */
 await page.evaluate(async () => { const U = await import('/js/users.js'); U.U.enabled = true; U.U.users = [{ id: 'u-a', name: 'Admin Person', admin: true, raci: {} }, { id: 'u-b', name: 'Plain Analyst', admin: false, raci: {} }]; U.U.current = U.U.users[1]; });

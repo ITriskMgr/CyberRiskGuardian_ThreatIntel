@@ -36,7 +36,7 @@ import { KEY, cmp, flat, pad2, uniq, clip, markers, seedIndex, gapCategories, ma
 export const MAX_BATCH = 40;          // candidates per request (A, B)
 export const enabled = () => (AI.policy().tasks?.[KEY] || 'workspace') !== 'off';
 
-export { KEY, clip, markers, gapCategories };
+export { KEY, clip, markers, gapCategories, acceptItem };   // acceptItem: for the test suites
 /* ---------------- small helpers ---------------- */
 const lang = () => (document.documentElement.lang === 'fr' ? 'fr' : 'en');
 void lang;
@@ -500,7 +500,7 @@ function acceptItem(run, it, edits, ws) {
     }
     case 'rename': {
       const f = SC.state(ws).families.find(x => x.id === it.ref.id); if (!f) return 'The family no longer exists.';
-      f.name = edits.name?.replace(new RegExp('^' + f.id + ':\\s*'), '') || it.ref.name; f.statement = edits.statement || it.ref.statement; finishWrite(ws);
+      f.name = edits.name?.replace(new RegExp('^' + f.id + ':\\s*'), '') || it.ref.name; f.statement = edits.statement || it.ref.statement; f.aiMark = mk; finishWrite(ws);
       logAccept(ws, 'family renamed by an accepted AI suggestion', f.id, f.name); return null;
     }
     case 'tick': {

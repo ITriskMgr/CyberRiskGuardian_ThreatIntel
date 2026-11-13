@@ -48,7 +48,7 @@ async function tryLock({ steal = false } = {}) {
     return new Promise(resolve => {
       const p = navigator.locks.request(NAME, { ifAvailable: !steal, steal }, lock => {
         if (!lock) { resolve(false); return; }
-        held = true; heldSince = Date.now(); resolve(true);
+        held = true; heldSince = Date.now(); clearRetakeBy(); resolve(true);
         return new Promise(r => { releaseFn = r; });
       });
       // A stolen lock rejects the holder's request with an AbortError: the holder learns of the takeover even
@@ -88,6 +88,8 @@ function waitFree(onFree, { settle = 0 } = {}) {
     const rearm = () => { if (!ac.signal.aborted) waitFree(onFree, { settle }); };
     navigator.locks.request(NAME, { signal: ac.signal }, () => {
       if (ac.signal.aborted) return undefined;
+      const wait = retakeByOther();
+      if (wait) { setTimeout(rearm, wait + 200); return undefined; }   // another window is taking the lock back: leave the gap to it
       mine = true; held = true; heldSince = Date.now(); waitAbort = null;
       // `settle`: a window that has just been taken over from queues while the taker is still stealing the lock; it is
       // free only if the lock is still ours after the taker had its chance
@@ -103,6 +105,14 @@ function waitFree(onFree, { settle = 0 } = {}) {
   }, 1500);
 }
 const RETAKE = 'crg-winlock-retake';
+/* Take-back (1.9.3 review m2): the window that takes the lock back reloads, and the lock is free while it does. A marker (window id +
+   time) tells the window it took the lock from not to recover into that gap; the marker is cleared once the taker holds the lock again. */
+const RETAKE_BY = 'crg-winlock-retake-by', RETAKE_BY_MS = 15000;
+const TAB = (() => { try { return sessionStorage.getItem('crg-winlock-tab') || (sessionStorage.setItem('crg-winlock-tab', ID), ID); } catch { return ID; } })();   // survives the reload
+const markRetakeBy = () => { try { localStorage.setItem(RETAKE_BY, JSON.stringify({ id: TAB, at: Date.now() })); } catch { /* ignore */ } };
+const clearRetakeBy = () => { try { const c = JSON.parse(localStorage.getItem(RETAKE_BY) || 'null'); if (c?.id === TAB) localStorage.removeItem(RETAKE_BY); } catch { /* ignore */ } };
+/** Milliseconds left of another window's take-back marker (0 when none). */
+const retakeByOther = () => { try { const c = JSON.parse(localStorage.getItem(RETAKE_BY) || 'null'); return c && c.id !== TAB ? Math.max(0, RETAKE_BY_MS - (Date.now() - c.at)) : 0; } catch { return 0; } };
 const retaking = () => { try { return Date.now() - Number(sessionStorage.getItem(RETAKE) || 0) < 10000; } catch { return false; } };
 const markRetake = () => { try { sessionStorage.setItem(RETAKE, String(Date.now())); } catch { /* ignore */ } };
 
@@ -199,7 +209,7 @@ function screen(kind) {
       });
       const { acked } = await takeOver({ onWait });
       lastTakeover = { acked, at: Date.now() };
-      if (kind === 'taken') { markRetake(); store.unfreeze(); location.reload(); return; }   // reload: the data may have changed in the other window
+      if (kind === 'taken') { markRetake(); markRetakeBy(); store.unfreeze(); location.reload(); return; }   // reload: the data may have changed in the other window
       dismiss();
       acquireResolve?.(true); acquireResolve = null;
     });

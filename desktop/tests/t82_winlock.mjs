@@ -58,9 +58,16 @@ async function scenario(label, opts) {
   ok(await B.evaluate(async s => (await import('/js/state.js')).S.ws.org.notes === s, stamp), `${label}: B sees what A had typed`);
 
   /* A takes it back */
+  await B.evaluate(() => { window.__noReload = 1; });
   await A.click('#winlock-use');
   ok(await waitFor(async () => (await lockInfo(B)).kind === 'taken', 25000), `${label}: B becomes the passive screen when A takes it back`);
   ok(await waitFor(() => usable(A, 'assets'), 25000), `${label}: A is fully usable again after "Use it here" (re-rendered, unlocked)`);
+  /* review m2: B must not recover into the gap while A reloads, nor end on the modal prompt */
+  await B.waitForTimeout(3500);
+  const b2 = await lockInfo(B);
+  ok(b2.kind === 'taken' && b2.role === 'status' && b2.modal === null, `${label}: 3.5 s after the take-back B is still on the passive screen, not the modal prompt (${b2.kind}/${b2.role})`);
+  ok(await B.evaluate(() => window.__noReload === 1), `${label}: B was not reloaded by the take-back (no needless recovery)`);
+  ok(await usable(A, 'assets'), `${label}: A still holds the lock after B's recovery window`);
 
   /* close A (the holder): B, passive, recovers by itself */
   await A.close({ runBeforeUnload: false });

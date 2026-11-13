@@ -403,6 +403,36 @@ def reject(store_dir, proposal_id_, approver, date, reason):
     return {"id": pid, "status": "rejected", "path": path}
 
 
+def mark_public(store_dir, proposal_id_, date, texts=None):
+    """Record that the proposal is meant for the public ontology (1.9.3 review M1/m1; helper-only, not a CRGO tool). `texts` =
+    {name, statement, weaknesses} re-anonymized with every option (dates included) and confirmed by the administrator: they replace
+    the stored text. Without a recorded public request, export_contribution refuses action 'add'."""
+    store, pid = store_path(store_dir), _pid(proposal_id_)
+    date = _date(date)
+    doc, path = _load(store, pid)
+    if doc["status"] not in ("proposed", "approved"):
+        raise ProposalError("STATUS_NOT_PROPOSED", "proposal %s is %s: it cannot be made public." % (pid, doc["status"]))
+    prop = doc["proposal"]
+    new = dict(prop)
+    if isinstance(texts, dict):
+        t = _nfc(texts)
+        for k in ("name", "statement"):
+            if isinstance(t.get(k), str) and t[k]: new[k] = t[k]
+        if isinstance(t.get("weaknesses"), list):
+            if t["weaknesses"]: new["weaknesses"] = t["weaknesses"]
+            else: new.pop("weaknesses", None)
+    new["public"] = True
+    errs = validate_doc(new, "proposal.schema.json")
+    if errs:
+        raise ProposalError("SCHEMA_INVALID", "The proposal does not conform to library-proposal/v1.", errs)
+    last = [h["public"] for h in doc["history"] if "public" in h]
+    doc["proposal"] = new
+    if texts or not prop.get("public") or not last or last[-1] == "withdrawn":
+        doc["history"].append({"public": "requested", "on": date})
+    _write(path, doc)
+    return {"id": pid, "status": doc["status"], "public": last[-1] if last and last[-1] == "submitted" else "requested"}
+
+
 def contribution(doc, action, date, tool, release):
     p = doc["proposal"]
     return {"schema": "crgo-contribution/1", "for": "ITriskMgr/CyberRiskGuardian-Ontology", "crgo_release": release, "status": "proposed",
@@ -432,6 +462,8 @@ def export_contribution(store_dir, proposal_id_, out_dir, action="add", date="",
     doc, path = _load(store, pid)
     if doc["status"] != "approved":
         raise ProposalError("STATUS_NOT_PROPOSED", "only an approved proposal can be made public (%s is %s)." % (pid, doc["status"]))
+    if action == "add" and doc["proposal"].get("public") is not True:
+        raise ProposalError("NOT_PUBLIC", "proposal %s was not marked Make public (the text was not re-anonymized for the public ontology)." % pid)
     c = contribution(doc, action, date, tool, ref.release)
     errs = validate_doc(c, "contribution.schema.json")
     if errs:

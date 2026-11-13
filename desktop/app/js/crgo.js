@@ -142,7 +142,7 @@ async function who() {
 async function proposalsCall(op, body) {
   await helper.probe().catch(() => {});
   if (!helper.HS.helper) return { error: true, code: 'NO_HELPER', message: NO_HELPER };
-  if (/^(propose|approve|reject|export-contribution)$/.test(op)) {
+  if (/^(propose|set-public|approve|reject|export-contribution)$/.test(op)) {
     const LOG = await import('./logs.js'); LOG.data?.('written by the helper', '/api/crgo/proposals/' + op, '');
   }
   const r = await helper.hfetch('/api/crgo/proposals/' + op, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, user: await who() }) });
@@ -164,6 +164,8 @@ export const proposals = {
   list: (status = '') => proposalsCall('list', { status }),
   /** The whole stored document {schema, id, status, crgo_release, proposal, history} (preview). */
   read: id => proposalsCall('read', { proposal_id: id }),
+  /** Make public confirmed at approval: texts = {name, statement, weaknesses} re-anonymized with every option → {id, status, public}. Helper-only. */
+  setPublic: (id, texts, date = '') => proposalsCall('set-public', { proposal_id: id, texts, date }),
   /** → {id, status: 'approved', path, local_extension, primary_theme, cluster}; refreshes the local additions. */
   approve: async (id, { approver = '', date = '' } = {}) => {
     const out = await proposalsCall('approve', { proposal_id: id, approver, date });
