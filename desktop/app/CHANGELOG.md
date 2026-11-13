@@ -20,26 +20,29 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   window you want to work in.
 
 ### Tester fixes
-- **T1 — window lock recovery.** The lock prompt appears only in the window opened second; *Use it here* takes the lock
-  and re-renders; the lock is released on close and on a crash (heartbeat); the installed-app path is covered.
-- **T2 — KPI and destination pill wrap** instead of overflowing at 1280 px, English and French.
-- **T3–T6 — AI score review in the screening.** The review panel no longer runs beyond the viewport; the panel and the tiles
-  re-render after *Accept*; accepted scores are written where the *Scored* tile and Process step 6 read them (40 AI-scored
-  candidates reproduce *Scored 40/40*); the "selected by judgment, no rationale" flag follows the rule recorded in
-  `DECISIONS-1.9.3.md`, and the screen explains it in English and French.
+- **T1 — window lock recovery.** The lock prompt appears only in the window opened second; *Use it here* takes the lock,
+  removes the whole overlay and re-renders; the first window shows a passive lock screen; waiting windows queue for the lock
+  and recover when the holder closes or crashes (a taken-over window keeps its lock until the other really takes it).
+- **T2 — AI preview *Destination* and KPI tiles wrap.** A long destination (host name, endpoint) wraps inside its tile
+  instead of overflowing at 1280 px, English and French.
+- **T3–T6 — AI score review in the screening.** The review cards are stacked so the panel stays within the screen; the panel
+  and the tiles re-render after *Accept*; the *Scored* tile and Process step 6 count the accepted AI scores; the *Need
+  attention* card names its two counts in plain words (judgments without a rationale, flagged exclusions not reviewed) and
+  follows the rule recorded in `DECISIONS-1.9.3.md` (T6), in English and French.
 - **T7 — screen codes and Copy diagnostics.** Every route has a stable code (`SCR-nn`) in one registry, shown in Help →
   Help on this screen and as a faint footer token; **Copy diagnostics** copies the version, code, route and data version —
   no workspace content. New gate `route_code_check`.
-- **T8–T10 — regression tests** for the crown-jewel re-render after *Add ticked crown jewels*, the Crown jewels header
-  alignment and *Start the import*; plus a generic suite checking that every accept / add / apply action re-renders its
-  screen and tiles.
+- **T8–T10 — fixes and regression tests** for the crown-jewel table showing its rows at once after *Add ticked crown
+  jewels*, the Crown jewels header aligned with its cells, and *Start the import* in a new workspace; plus a generic suite
+  checking that accept / add / apply actions re-render their screen and tiles.
 
 ### Ontology
 - **CRGO 0.11.2 pinned** (tag `v0.11.2`, 12 November 2026: patch of 0.11.1 adding the contract `library-proposal/v1`); the
   bundled snapshot is `crg-crgo-snapshot/3`. dss/v1 still works from v0.9.1; compliance/v1 and secops/v1 from 0.10.0.
 - **Ontology proposals store.** A scenario with no ontology match is flagged as a theme gap and can be proposed to the
   ontology (*Add to the ontology*); proposals are kept in the installation's store and reviewed in **Proposals** by the
-  administrator of the installation; contributions for the CRGO repository are exported as JSON. Without the helper, *Add to
+  administrator of the installation; a contribution file for the CRGO repository is written when *Make public* is ticked
+  at approval (or exported later). Without the helper, *Add to
   the ontology* and *Proposals* are disabled. Approved proposals stay local unless *Make public* is ticked; Classroom
   workspaces cannot propose.
 - **Setting *Folder for ontology proposals*** (Settings → Links & shared folders): where contribution files are written.
@@ -50,9 +53,20 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   when no other candidate shares its ontology cluster, no accepted AI match exists and you confirm it; all selected items
   become scenarios in one click after a review list; ontology validation reports findings only (Edit, Delete) and never
   blocks creation. Batch *Add … selected to the register* stays under *Advanced — skip screening*, journalled.
-- **AI-proposed families (C6) — in progress.** *Propose families with AI* (feature *Screening family proposals*), requests
-  in sequential batches with a payload preview each, review before acceptance, nothing written until accepted. To be
-  finalized before release.
+- **AI-proposed families (C6).** *Propose families with AI* (feature *Screening family proposals*): Part A proposes families
+  for all candidates and drafts the six "why this scenario?" answers of each new family; Part B matches candidates to
+  families (all, or one with *Propose a family*); Part C (*Propose families for missing categories*) ticks, proposes a family
+  or proposes a new candidate for a coverage gap, which lands in Candidates as *[AI — coverage gap]*, unscored. Requests go
+  in sequential batches of at most 40, each with its own payload preview; one review panel (Accept, Edit, Reject) opens after
+  the last batch; nothing is written until accepted; the why drafts wait until accepted at Select. Switched off in Settings →
+  AI, the ontology grouping stays.
+
+### Other changes
+- **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
+  try no longer misses near midnight.
+- **The anonymizer no longer treats record ids** such as C01 (in the *members* fields) as person names.
+- **Batch *Add … selected to the register* requires a confirmation** (*Skip the screening?*), and the use is written in the
+  audit log.
 
 ## 1.9.2 Beta — 8 November 2026
 

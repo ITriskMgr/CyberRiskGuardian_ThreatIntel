@@ -426,7 +426,26 @@ The screen has four stages, left to right: ① Candidates, ② Screen, ③ Selec
 2. “Select”: tick the families and unique candidates to develop, read their ranks under the four weighting schemes, check the coverage matrix, and write why each item “selected by judgment” is kept.
 3. “Create scenarios”: answer the six “why this scenario?” questions, create the scenarios in the register in one click, and give each candidate left out its place on the watch list.
 
-<!-- 1.9.3: screening walkthrough completed after W2b/W3 -->
+*Group the variants (stage ②).* Two ways help you, both optional and both only proposals:
+
+1. “Group with the ontology” (no AI, nothing leaves the computer): candidates that fall in the same cluster of the CyberRiskGuardian Ontology are proposed as a family; a candidate alone in its cluster is proposed as unique; a candidate no ontology scenario matches is flagged as a theme gap. Complete the CRGO terms of a candidate (asset category, threat source type, themes) in its score card to sharpen the result. In “The ontology proposes”, “Accept”, “Edit” then accept, or “Reject” each proposal; nothing changes until you accept, and an accepted item records who accepted it and when.
+2. “Propose families with AI” (preview before sending; Settings → AI — local & remote can switch it off). Part A proposes families for all the candidates and drafts the six “why this scenario?” answers of each new family. Part B (“Propose a family” on one candidate, or on all) matches candidates to the existing families; a candidate is moved only by its own accepted suggestion, shown beside its current family. Part C (“Propose families for missing categories”) looks at the coverage matrix: it ticks a category an accepted family already covers, proposes a family, or proposes a new candidate, which lands in ① Candidates as “[AI — coverage gap]”, unscored. The AI sees every candidate in batches of at most 40, each batch with its own preview and its own answer; the review opens once, after the last batch. Accept, edit then accept, or reject each item. AI proposes grouping and drafts, never scores, parameters or the selection, and everything it proposes is an Analytical estimate — validation required.
+
+*Unique.* A candidate with no variant is marked unique (“Mark as unique”; “Unmark” to undo). “Unique” means three things: no other candidate in its ontology cluster still outside a family, no accepted AI match that groups it with another candidate, and you confirm it. If the first two do not hold, the button is replaced by the reason (group them in a family, or reject the match first). A candidate can be selected at stage ③ only if it is in a family or unique.
+
+*Read the ontology findings.* “Validate against the ontology” (or the validation that runs when you create) checks a line for revoked or unknown ATT&CK techniques, weaknesses and CRGO terms. A finding offers “Edit” (the field it concerns), “Delete” (the candidate, one at a time for a family line) and “Dismiss”. Findings never block: you can create the scenario with a finding open.
+
+*Close a theme gap.* A candidate that no ontology scenario matches is listed under “Own scenarios — theme gaps” and, at ③, under “Gaps the ontology does not cover”. Keep it as an own scenario, or click “Add to the ontology”: the dialog shows the exact text that would be added (names replaced, no parameters, estimates, CVSS, owners or amounts). Untick “Make public” and the proposal stays in this installation’s ontology; tick it only if the text may go to the public ontology. Then “Propose”.
+
+*Where:* Ontology · CRGO → “Proposals”
+
+1. Only the administrator of the installation (the one person, in single-user mode) can approve or reject a proposal: “Approve” (nothing enters the ontology without it) or “Reject” with a reason. Once approved, grouping and validation use the scenario and the theme gap clears at the next validation.
+2. A proposal marked “Make public” stays local until it is approved; approving with “Make public” ticked writes the contribution file for the public ontology into the “Folder for ontology proposals” (Settings → Links & shared folders). The file leaves the computer only when you send it.
+3. These actions need the local helper (the launcher). Without it “Add to the ontology” and the Proposals tab are disabled and say so.
+
+*Select, then create (stages ③ and ④).* At ③ tick the families and unique candidates to develop; a draft “why” from the AI waits until you click “Use the draft (fills the empty answers)” or “Replace all six answers” (or “Discard the draft”) in the six “why this scenario?” questions. At ④ read what each scenario inherits and click “Create the … scenarios”: all the selected items become scenarios in one click, and a second click creates nothing more.
+
+*Already-selected scenarios.* In Batch scenarios, “Advanced — skip screening” sends the ticked rows straight to the Scenario register. They do not count as candidates for step 5 and skip the screening and selection of steps 6–7; a confirmation (“Skip the screening?”) says so, and the action is written in the audit log. Use it only for scenarios you have already screened elsewhere.
 
 *Done when:* Process steps 6 and 7 show Done: every candidate is scored and has a disposition, and every judgment and flagged exclusion is explained.
 
