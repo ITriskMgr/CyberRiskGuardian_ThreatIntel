@@ -91,7 +91,11 @@ const reg = await page.evaluate(async () => {
 });
 await page.waitForTimeout(800);
 ok(await page.locator('#panel-batch >> text=Pattern: Prompt injection in agent workflows (CRGO_0001393)').count() > 0, 'batch grid shows the row\'s CRGO pattern');
+// 1.9.3 decision C7-1: the batch exit to the register sits under "Advanced — skip screening", with a warning and a confirmation
+await page.click('#panel-batch details#batch-skip > summary');
+ok(await page.locator('#panel-batch #batch-skip >> text=do not count as candidates').count() > 0, 'skip-screening section shows its warning');
 await page.click('#panel-batch button:has-text("Add 3 selected to the register")');
+await page.click('#skip-confirm');
 await page.waitForTimeout(400);
 const after = await page.evaluate(async () => { const st = await import('/js/state.js'); return st.S.ws.assessment.SCEN.map(s => [s.name, s.scenPattern ?? null]); });
 ok(JSON.stringify(after) === JSON.stringify([['Prompt injection row', 'CRGO_0001393'], ['Invented pattern row', null], ['Plain row', null]]), 'register: the pattern travels with the scenario; an unknown identifier is dropped ' + JSON.stringify(after));

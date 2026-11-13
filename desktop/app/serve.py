@@ -811,7 +811,8 @@ def run_kev(job, params, ev):
 
 
 def run_epss(job, params, ev):
-    date = params.get("date") or (dt.date.today() - dt.timedelta(days=1)).isoformat()
+    # EPSS files are dated in UTC (score_date …+0000): derive "yesterday" in UTC, not local time
+    date = params.get("date") or (dt.datetime.now(dt.timezone.utc).date() - dt.timedelta(days=1)).isoformat()
     tries = int(params.get("back_days", 5))
     start = dt.date.fromisoformat(date)
     last = None
