@@ -3,6 +3,17 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
 
+## 1.7.3 — with Desktop 1.9.3 Beta — 13 November 2026
+
+Plugin patch shipped with CyberRiskGuardian Desktop 1.9.3 Beta. **No formula change: MediBec 84,305 / 41,023 and CanaRetail
+27,526 / 16,049 unchanged.**
+
+### Changed
+- **CRGO 0.11.2.** The plugin pins CRGO 0.11.2 (`crgo_contract.PINNED_RELEASE`, the MCP server path
+  `CyberRiskGuardian-Ontology-0.11.2` in `.mcp.json`, the skill and its CRGO references). 0.11.2 adds the
+  `library-proposal/v1` contract used by the desktop; the dss/v1, compliance/v1 and secops/v1 contracts the plugin uses are
+  unchanged. The contract self-test expects 0.11.2.
+
 ## 1.7.2 — with Desktop 1.9.2 Beta — 8 November 2026
 
 Plugin patch shipped with CyberRiskGuardian Desktop 1.9.2 Beta (test campaign of 8 November 2026, spec v6 §5). **No formula

@@ -1,6 +1,6 @@
 # NOTICE — CyberRiskGuardian with Threat Live-feed (plugin `cyberriskguardian-threatintel`)
 
-**CyberRiskGuardian with Threat Live-feed** 1.7.2 — © 2026 Marc-André Léger.
+**CyberRiskGuardian with Threat Live-feed** 1.7.3 — © 2026 Marc-André Léger.
 Licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
 The full text is in `LICENSE` (this folder) and at https://creativecommons.org/licenses/by-nc/4.0/legalcode.
 

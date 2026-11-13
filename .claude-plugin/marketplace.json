@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "CyberRiskGuardian with Threat Live-feed: scenario-driven cybersecurity risk assessment aligned with the textbook Introduction to Cybersecurity Governance (3rd ed., v2.51).",
-    "version": "1.7.2"
+    "version": "1.7.3"
   },
   "plugins": [
     {
       "name": "cyberriskguardian-threatintel",
       "source": "./plugins/cyberriskguardian-threatintel",
       "description": "CyberRiskGuardian with Threat Live-feed — scenario-driven cybersecurity risk assessment with dated, exposure-gated threat-intelligence calibration.",
-      "version": "1.7.2",
+      "version": "1.7.3",
       "license": "CC-BY-NC-4.0",
       "category": "security"
     }

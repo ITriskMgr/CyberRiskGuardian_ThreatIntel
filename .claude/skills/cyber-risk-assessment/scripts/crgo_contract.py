@@ -60,7 +60,7 @@ PLUGIN_JSON = os.path.join(HERE, "..", "..", "..", ".claude-plugin", "plugin.jso
 REFERENCE_NS = "https://w3id.org/crgo/"
 VANN = "http://purl.org/vocab/vann/preferredNamespaceUri"
 MIN_READ_RELEASE = "0.10.0"   # compliance/v1 and secops/v1; dss/v1 needs 0.9.1
-PINNED_RELEASE = "0.11.2"   # the CRGO release this plugin pins (desktop 1.9.3; plugin 1.7.2 pinned 0.11.1, 1.7.0 0.11.0); documents report it as ontologyRelease
+PINNED_RELEASE = "0.11.2"   # the CRGO release this plugin pins (desktop 1.9.3, plugin 1.7.3; plugin 1.7.2 pinned 0.11.1, 1.7.0 0.11.0); documents report it as ontologyRelease
 PLACEHOLDER = re.compile(r"^\s*(tbd|unknown|n/?a|todo|-|\?)?\s*$", re.I)
 
 KINDS = {  # assessmentKind -> (crg_calc key, unit)
