@@ -216,6 +216,17 @@ the thread, available in English and French.
    check, and its first button opens the screen where the next thing is done. **Help → Step by step** opens
    beside it; **Print the checklist** gives you a paper list to tick. For a first real assessment, the quick
    version is enough: 20 candidate scenarios, ten selected.
+   **One path from candidate to scenario.** Candidates (Batch scenarios → **Send the ticked rows to Candidates**, or
+   added by hand) are screened in **Risk assessment → From candidates to scenarios**, in four stages:
+   **Candidates**, **Screen**, **Select**, **Create scenarios**. The ontology helps, never decides: **Group with
+   the ontology** proposes families from the CyberRiskGuardian Ontology (no AI, nothing leaves the computer), it
+   flags a candidate that no ontology scenario matches as a theme gap (which you can propose to the ontology with
+   **Add to the ontology**, anonymized, for the administrator to approve), and it validates each line when you create. A candidate is
+   unique only when no other candidate shares its ontology cluster, no accepted AI match exists and you confirm
+   it. **Propose families with AI** is optional, previewed and reviewed before anything is written. **Create the
+   … scenarios** then creates every selected item in one click. **Advanced — skip screening** in Batch scenarios
+   is for scenarios already selected; it asks for a confirmation. The details are in the user guide, *Generate
+   25 to 40, screen, keep 10*.
 4. Before you rely on a number: every estimate has a rationale and a confidence level; anything not
    documented carries **Analytical estimate — validation required** or **Information gap — organizational
    validation required**.
@@ -475,6 +486,18 @@ des paiements comme fil conducteur, en français et en anglais.
    suivante. **Aide → Pas à pas** s’ouvre à côté; **Imprimer la liste de contrôle** vous donne une liste
    papier à cocher. Pour une première analyse réelle, la version rapide suffit : 20 scénarios candidats,
    dix retenus.
+   **Un seul chemin du candidat au scénario.** Les candidats (Scénarios en lot → **Envoyer les lignes cochées vers
+   Candidats**, ou ajoutés à la main) sont filtrés dans **Évaluation des risques → Des candidats aux scénarios**,
+   en quatre étapes : **Candidats**, **Filtrer**, **Sélectionner**, **Créer les scénarios**. L’ontologie aide, ne décide
+   jamais : **Regrouper avec l’ontologie** propose des familles à partir de l’ontologie CyberRiskGuardian (sans IA,
+   rien ne quitte l’ordinateur), signale comme thème sans scénario un candidat qu’aucun scénario de l’ontologie ne
+   couvre (que vous pouvez proposer à l’ontologie par **Ajouter à l’ontologie**, anonymisé, pour approbation par
+   l’administrateur) et valide chaque ligne à la création. Un candidat est unique seulement si aucun autre candidat ne partage son
+   regroupement dans l’ontologie, si aucune association acceptée de l’IA n’existe et si vous le confirmez.
+   **Proposer des familles avec l’IA** est facultatif, avec aperçu et revue avant toute écriture. **Créer les …
+   scénarios** crée ensuite tous les éléments sélectionnés en un clic. **Avancé — sauter le filtrage** dans
+   Scénarios en lot sert aux scénarios déjà sélectionnés; il demande une confirmation. Les détails sont dans le guide
+   d’utilisation, *Générer 25 à 40, filtrer, en garder 10*.
 4. Avant de vous fier à un nombre : chaque estimation a une justification et un niveau de confiance; ce
    qui n’est pas documenté porte **Estimation analytique — validation requise** ou **Lacune
    d’information — validation organisationnelle requise**.
