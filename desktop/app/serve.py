@@ -1209,7 +1209,7 @@ def _confidential(d):
     cfg = crg_feeds.load_config(FEEDS)
     home = crgo_client.home_of(crgo_client.resolve(cfg, ROOT)) or ""
     for forbidden in (ROOT, home):
-        if forbidden and (d + os.sep).startswith(os.path.abspath(forbidden) + os.sep):
+        if forbidden and (os.path.realpath(d) + os.sep).startswith(os.path.realpath(forbidden) + os.sep):
             raise ValueError("The organisation graph folder may not be inside the application or the ontology folder: %s" % d)
     probe = d
     while True:
@@ -1279,16 +1279,30 @@ def _grouping_spec():
 
 
 def crgo_proposals(op, body):
+    """See _crgo_proposals_run. A repeated proposal of identical text that now asks for Make public records the request on the
+    stored proposal (review m1), so the page and the administrator's list show the same state."""
+    code, out = _crgo_proposals_run(op, body)
+    prop = body.get("proposal") if isinstance(body.get("proposal"), dict) else {}
+    if op == "propose" and code == 200 and out.get("existing") and prop.get("public") is True and out.get("status") in ("proposed", "approved"):
+        try:
+            store = crgo_store()
+            out = {**out, **crgo_local.mark_public(store, out["id"], str(prop.get("proposed_on") or ""))}
+        except (crgo_local.ProposalError, ValueError, TypeError, KeyError, OSError):
+            pass
+    return code, out
+
+
+def _crgo_proposals_run(op, body):
     """/api/crgo/proposals/<op>: the CRGO server's write tools with store_dir = this installation's store, or — when the
     server is not available — the same files written by crgo_local.py. Approve, reject and export are for an
     administrator (multi-user mode; with one person, that person). Returns (HTTP status, document)."""
-    if op not in PROPOSAL_OPS and op != "read":
+    if op not in PROPOSAL_OPS and op not in ("read", "set-public"):
         return 404, {"error": True, "code": "UNKNOWN", "message": "unknown proposal operation"}
     who = body.get("user") or {}
-    if op in ADMIN_OPS and who.get("multi") and not who.get("admin"):
+    if op in ADMIN_OPS + ("set-public",) and who.get("multi") and not who.get("admin"):
         return 403, {"error": True, "code": "FORBIDDEN", "message": "Only an administrator can approve, reject or make public an ontology proposal."}
     try:
-        store = crgo_store(create=op in ("propose", "approve", "reject", "export-contribution"))
+        store = crgo_store(create=op in ("propose", "approve", "reject", "export-contribution", "set-public"))
     except ValueError as exc:
         return 200, {"error": True, "code": "INVALID_ARGUMENT", "message": str(exc)}
     if store is None:                                   # nothing proposed yet on this installation
@@ -1298,6 +1312,11 @@ def crgo_proposals(op, body):
     if op == "read":                                    # the whole document, for the preview (files only; same on both paths)
         try:
             return 200, crgo_local.read_proposal(store, body.get("proposal_id"))
+        except crgo_local.ProposalError as e:
+            return 200, e.document()
+    if op == "set-public":                              # helper-only: the confirmed public re-anonymization (review M1)
+        try:
+            return 200, {**crgo_local.mark_public(store, body.get("proposal_id"), str(body.get("date") or ""), body.get("texts")), "via": "files"}
         except crgo_local.ProposalError as e:
             return 200, e.document()
     approver = str(body.get("approver") or who.get("name") or "").strip()
@@ -1318,6 +1337,13 @@ def crgo_proposals(op, body):
                 return 200, err
             args.update(out_dir=out, action=str(body.get("action") or "add"), date=str(body.get("date") or ""),
                         tool="CyberRiskGuardian Desktop %s" % VERSION)
+            if args["action"] == "add":                 # also on the MCP path: only a proposal marked public after the confirmed preview
+                try:
+                    if crgo_local.read_proposal(store, args["proposal_id"])["proposal"].get("public") is not True:
+                        return 200, {"error": True, "code": "NOT_PUBLIC", "via": "files",
+                                     "message": "This proposal was not marked Make public with the anonymizer review: tick Make public when approving it."}
+                except crgo_local.ProposalError as e:
+                    return 200, e.document()
     spec, why = _grouping_spec()
     if spec is not None:
         try:
@@ -1964,7 +1990,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(200, out)
             except Exception as exc:                    # noqa: BLE001
                 return self._json(200, {"error": True, "code": "HELPER", "message": str(exc)})
-        m = re.match(r"^/api/crgo/proposals/(propose|list|read|approve|reject|export-contribution)$", path)
+        m = re.match(r"^/api/crgo/proposals/(propose|list|read|set-public|approve|reject|export-contribution)$", path)
         if m:                                           # 1.9.3 — library-proposal/v1: server tools or the same files
             code, out = crgo_proposals(m.group(1), body if isinstance(body, dict) else {})
             return self._json(code, out)
@@ -1978,7 +2004,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     return self._json(200, {"ok": True, "info": info, "source": spec.get("source")})
                 t0 = time.time()
                 tool, args = str(body.get("tool") or ""), dict(body.get("args") or {})
-                if tool in crgo_client.GROUPING_TOOLS:   # 1.9.3 — the installation's approved additions take part; never a path from the page
+                if tool in crgo_client.GROUPING_TOOLS or tool == "crgo_scenario":   # 1.9.3 — the installation's approved additions take part; never a path from the page
                     args.pop("store_dir", None)
                     try:
                         store = crgo_store()

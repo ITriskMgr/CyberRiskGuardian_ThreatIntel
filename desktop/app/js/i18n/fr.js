@@ -13978,5 +13978,9 @@ export default {
 "why drafts": "ébauches des réponses",
 "batch": "lot",
 "unique": "unique",
+"Text for the public ontology": "Texte pour l’ontologie publique",
+"The text was run through the anonymizer again with every option, including dates. It leaves this installation when you send the contribution file.": "Le texte est repassé dans l’anonymiseur avec toutes les options, dates comprises. Il quitte cette installation quand vous envoyez le fichier de contribution.",
+"I have reviewed this text and confirm that it may leave this installation": "J’ai relu ce texte et je confirme qu’il peut quitter cette installation",
+"Review the text for the public ontology and confirm it first": "Relisez d’abord le texte destiné à l’ontologie publique et confirmez-le",
 "by": "par",
 };

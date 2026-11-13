@@ -13,7 +13,7 @@ import * as users from '../users.js';
 import { HS, loadConfig } from '../helper.js';
 import { tr } from '../i18n.js';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = P.today;
 export const isAdmin = () => !users.active() || !!users.me()?.admin;
 const STATUS = { proposed: 'Proposed', approved: 'Approved — local', rejected: 'Rejected' };
 const kindOf = s => s === 'approved' ? 'good' : s === 'rejected' ? 'bad' : 'warn';
@@ -69,26 +69,52 @@ async function preview(id) {
 }
 
 function approve(p, ws, folder, redraw) {
-  const by = el('input', { value: users.name() || '', id: 'prop-approver', 'aria-label': tr('Approver') });
-  const pub = el('input', { type: 'checkbox', id: 'prop-approve-public', checked: p.public === 'requested', style: { width: 'auto' } });
+  const multi = users.active();
+  const by = el('input', { value: users.name() || '', id: 'prop-approver', 'aria-label': tr('Approver'), readOnly: multi });   // multi-user: the recorded approver is the signed-in user
+  const requested = p.public === 'requested';
+  const pub = el('input', { type: 'checkbox', id: 'prop-approve-public', checked: requested, style: { width: 'auto' } });
+  // Make public ticked here (the proposer did not ask for it): the text is re-anonymized with every option and its leftovers are
+  // shown; the administrator confirms before anything is written for the public ontology (review M1, spec §4.3)
+  const rev = el('div', { id: 'prop-review', hidden: true });
+  const ok = el('input', { type: 'checkbox', id: 'prop-review-confirm', style: { width: 'auto' } });
+  let review = null;
+  const showReview = async () => {
+    rev.hidden = !pub.checked || requested; ok.checked = false;
+    if (rev.hidden || review) return;
+    const d = await C.proposals.read(p.id);
+    if (d.error) { toast(tr(d.message || d.code), 'bad'); pub.checked = false; rev.hidden = true; return; }
+    review = P.publicReview(d.proposal || {}, ws);
+    const l = review.left;
+    rev.replaceChildren(banner('warn', tr('Text for the public ontology'), tr('The text was run through the anonymizer again with every option, including dates. It leaves this installation when you send the contribution file.')),
+      el('h3', { 'data-noi18n': '' }, review.texts.name), el('p', { 'data-noi18n': '', id: 'prop-review-text' }, review.texts.statement),
+      (review.texts.weaknesses || []).length ? el('p', { class: 'small', 'data-noi18n': '' }, review.texts.weaknesses.join(' · ')) : null,
+      el('div', { class: 'small', id: 'prop-review-leftovers' }, el('b', null, tr('Leftover workspace terms') + ': '), l.terms.length ? l.terms.join(', ') : tr('none'),
+        l.pairs.length || l.acronyms.length ? el('div', { class: 'muted' }, tr('Name-like words the anonymizer could not attribute') + ': ' + [...l.pairs, ...l.acronyms].join(', ')) : null),
+      el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' } }, ok, el('span', null, tr('I have reviewed this text and confirm that it may leave this installation'))));
+  };
+  pub.addEventListener('change', showReview);
   const m = modal(tr('Approve {0}').replace('{0}', p.id),
     el('p', { class: 'small', 'data-noi18n': '' }, p.name),
     el('p', { class: 'note' }, tr('The scenario joins this installation’s ontology: grouping and validation use it from now on, and the theme-gap flag clears at the next validation.')),
     field('Approver (name and role)', by),
     el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center' } }, pub, el('b', null, tr('Make public')), el('span', { class: 'small muted' }, tr('Ticked: the contribution file for the public ontology is written now, into the Folder for ontology proposals.'))),
+    rev,
     el('div', { class: 'btnrow', style: { marginTop: '10px' } }, el('button', { class: 'btn', id: 'prop-approve-ok', onclick: async e => {
       if (!by.value.trim()) { toast(tr('Say who approves it'), 'bad'); by.focus(); return; }
+      if (pub.checked && !requested && !(review && ok.checked)) { toast(tr('Review the text for the public ontology and confirm it first'), 'bad'); return; }
       e.target.disabled = true;
       const r = await C.proposals.approve(p.id, { approver: by.value.trim(), date: today() });
       if (r.error) { e.target.disabled = false; toast(tr(r.message || r.code), 'bad'); return; }
       let msg = tr('Approved {0}: it is now part of this installation’s ontology.').replace('{0}', p.id), kind = 'good';
-      if (pub.checked) { const x = await C.proposals.exportContribution(p.id, { action: 'add', date: today() }); if (x.error) { msg += ' ' + tr(x.message || x.code); kind = 'warn'; } else msg += ' ' + tr('Contribution file written: {0}').replace('{0}', x.path); }
+      let go_ = pub.checked;
+      if (go_ && !requested) { const y = await C.proposals.setPublic(p.id, review.texts, today()); if (y.error) { msg += ' ' + tr(y.message || y.code); kind = 'warn'; go_ = false; } }
+      if (go_) { const x = await C.proposals.exportContribution(p.id, { action: 'add', date: today() }); if (x.error) { msg += ' ' + tr(x.message || x.code); kind = 'warn'; } else msg += ' ' + tr('Contribution file written: {0}').replace('{0}', x.path); }
       await P.syncStatus(ws).catch(() => {});
       m.close(); toast(msg, kind); redraw();
     } }, tr('Approve')), el('button', { class: 'btn ghost', onclick: () => m.close() }, tr('Cancel'))));
 }
 function reject(p, ws, redraw) {
-  const by = el('input', { value: users.name() || '', id: 'prop-rejector', 'aria-label': tr('Approver') });
+  const by = el('input', { value: users.name() || '', id: 'prop-rejector', 'aria-label': tr('Approver'), readOnly: users.active() });
   const why = el('textarea', { rows: 3, id: 'prop-reason', 'aria-label': tr('Reason') });
   const m = modal(tr('Reject {0}').replace('{0}', p.id), el('p', { class: 'small', 'data-noi18n': '' }, p.name),
     field('Approver (name and role)', by), field('Reason (required)', why),

@@ -61,6 +61,11 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   the last batch; nothing is written until accepted; the why drafts wait until accepted at Select. Switched off in Settings →
   AI, the ontology grouping stays.
 
+### Known issues
+
+- Changing the *organisation graph folder* setting leaves the proposals made earlier (and the approved additions) in the previous
+  folder: move the `_installation` folder with it, or set the folder back.
+
 ### Other changes
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
   try no longer misses near midnight.

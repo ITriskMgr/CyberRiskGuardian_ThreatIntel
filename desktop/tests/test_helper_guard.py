@@ -85,6 +85,14 @@ class OntologyCommand(unittest.TestCase):
             serve.validate_config({"ontology": {"command": "/bin/sh", "args": [self.script]}}, {})
 
 
+class ConfidentialFolderSymlink(unittest.TestCase):
+    def test_symlink_into_the_application_is_refused(self):   # review n5: realpath, not abspath
+        link = os.path.join(tempfile.mkdtemp(prefix="lnk-", dir=_TMP), "org")
+        os.symlink(serve.ROOT, link)
+        with self.assertRaises(ValueError):
+            serve._confidential(os.path.join(link, "_installation", "crgo-local"))
+
+
 class RegistryFolder(unittest.TestCase):
     def test_problem(self):
         home = os.path.expanduser("~")

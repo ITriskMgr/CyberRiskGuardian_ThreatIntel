@@ -22,7 +22,8 @@ import * as GR from './ontogroup.js';
 import * as FD from './ontofind.js';
 import { tr } from './i18n.js';
 
-const today = () => new Date().toISOString().slice(0, 10);
+/** Local yyyy-mm-dd (not UTC: after 19:00 in Montréal UTC is already tomorrow). */
+export const today = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
 const who = () => users.name() || '';
 
 /** Why this workspace cannot propose to the ontology, or null. Decision 11: classroom workspaces (until the Classroom build adds an
@@ -100,6 +101,14 @@ export function finalize(p, src, { by, pub }) {
   if (pub) o.public = true;
   return o;
 }
+/** Make public at approval (review M1): the stored proposal text goes through the anonymizer again with every option (dates
+ *  included) and the leftovers are listed for the administrator to confirm. → { texts: {name, statement, weaknesses}, left } */
+export function publicReview(stored, ws = S.ws, extra = '') {
+  const opts = anonOpts(true, extra), ctx = A.context(ws, opts);
+  const t = A.walk({ name: stored.name || '', statement: stored.statement || '', weaknesses: stored.weaknesses || [] }, ctx, opts);
+  const texts = { name: t.name, statement: t.statement, weaknesses: t.weaknesses || [] };
+  return { texts, left: leftovers(texts, ctx) };
+}
 /** Workspace terms still present in the proposal text (replacement table) and name-like pairs the anonymizer could not attribute. */
 export function leftovers(p, ctx) {
   const text = [p.name, p.statement, ...(p.weaknesses || [])].join('\n');
@@ -117,7 +126,7 @@ export async function syncStatus(ws = S.ws) {
   const l = await C.proposals.list(); if (l.error) return false;
   const by = new Map((l.proposals || []).map(p => [p.id, p]));
   let changed = false;
-  const upd = op => { const p = op?.id && by.get(op.id); if (!p) return; const n = { state: p.status, public: p.public || '', approvedBy: p.decided_by || '', approvedAt: p.decided_on || '' };
+  const upd = op => { const p = op?.id && by.get(op.id); if (!p) return; const n = { state: p.status, public: p.public || '', makePublic: !!p.public, approvedBy: p.decided_by || '', approvedAt: p.decided_on || '' };
     for (const [k, v] of Object.entries(n)) if (op[k] !== v) { op[k] = v; changed = true; } };
   for (const s of ws.assessment.SCEN || []) upd(s.ontoProposal);
   for (const r of Object.values(SC.state(ws).cands || {})) upd(r?.ontoProposal);

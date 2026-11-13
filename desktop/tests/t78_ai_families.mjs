@@ -94,6 +94,15 @@ const n01 = s1.fams.find(f => f.name.startsWith('Ransomware with data theft'));
 ok(n01 && n01.aiMark?.request === 'A' && n01.aiMark.key === 'N01' && n01.aiMark.by !== undefined && n01.mm.length === 7, 'A: an accepted family carries aiMark {request, key} and a member mark per member ' + JSON.stringify(n01?.aiMark));
 ok(n01.whyDraft?.answers.length === 6 && n01.whyDraft.answers.every(a => /Analytical estimate — validation required|Information gap — organizational/.test(a)) && n01.cov.includes('Ransomware / destructive') && n01.covMarks.length >= 5, 'A: the six why drafts carry the marker; coverage ticks are marked');
 ok(s1.fams.find(f => f.id === 'P01').members.join() === 'C01,C20,C23,C30,C41' && !s1.fams.find(f => f.id === 'P01').aiMark, 'A: the analyst’s family P01 is untouched');
+const rn = await page.evaluate(async () => {   // review n3: an accepted AI rename sets the family's AI mark
+  const st = await import('/js/state.js'), SC = await import('/js/screening.js'), F = await import('/js/familyai.js');
+  const f = SC.state(st.S.ws).families.find(x => x.id === 'P01'), keep = { name: f.name, statement: f.statement, aiMark: f.aiMark || null };
+  const r = F.newRun('A', st.S.ws, {}); r.renames.push({ id: 'P01', name: 'P01: Renamed by the AI (t78)', statement: f.statement, reason: 'r', conf: 'M', entryId: 'e', model: 'm', batch: 1 });
+  const it = F.itemsOf(r, st.S.ws).find(x => x.kind === 'rename'); const err = F.acceptItem(r, it, {}, st.S.ws);
+  const out = { err, name: f.name, mark: f.aiMark && { request: f.aiMark.request, by: f.aiMark.by } };
+  Object.assign(f, keep); return out;
+});
+ok(!rn.err && /Renamed by the AI/.test(rn.name) && rn.mark?.request === 'A', 'n3: an accepted AI rename sets the family aiMark ' + JSON.stringify(rn));
 ok(s1.uniques.length === 8 && s1.uniques.every(u => u[1]) && s1.fams.find(f => f.members.includes('C24'))?.aiMark?.key === 'N08', 'A: accepted unique candidates carry the AI mark; C24 and C37 (cluster mates outside a family) stay blocked and C24 joined N08 by its accepted move (' + s1.uniques.length + ')');
 const lg = await logOf();
 ok(lg.length === 2 && lg.every(e => e[0] === 'accepted'), 'A: both log entries decided "accepted" ' + JSON.stringify(lg));
