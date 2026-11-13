@@ -22,10 +22,10 @@
            examples/medibec/source/medibec30.json      # doit afficher 84 305 / 41 023
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crg_calc.py   # ALL PASSED
    ```
-   Avec une copie de CRGO 0.11.1 (étiquette v0.11.1 ; v0.9.1 suffit pour dss/v1) :
+   Avec une copie de CRGO 0.11.2 (étiquette v0.11.2 ; v0.9.1 suffit pour dss/v1) :
    ```bash
    python3 plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_crgo_contract.py \
-           --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.1}   # tous les contrôles doivent passer
+           --crgo ${CRGO_HOME:-CyberRiskGuardian-Ontology-0.11.2}   # tous les contrôles doivent passer
    ```
 4. Vérifiez qu'aucun appel réseau n'existe dans le chemin de calcul (voir `BOOTSTRAP.md`).
 5. `bash scripts/sync-project-config.sh`

@@ -27,6 +27,7 @@ import { blankMeasure } from './catalog.js';
 import * as K from './catalog.js';
 import * as SG from './safeguards.js';
 import { blankRisk } from './registry.js';
+import * as SCR from './screening.js';
 import { today, uid } from './util.js';
 
 const TAGS = ['FACT', 'INFERENCE', 'ASSUMPTION', 'EXTERNAL', 'UNKNOWN'];
@@ -274,23 +275,22 @@ export const SECTIONS = [
       }
       return n;
     } },
-  { id: 'scenarios', s: false, label: 'Candidate scenarios', route: 'batch', value: 'High',
-    what: 'Causal chains the documents describe or imply. They land in the Batch scenarios grid marked [Docs], with default parameters at Low confidence.',
+  { id: 'scenarios', s: false, label: 'Candidate scenarios', route: 'screening/candidates', value: 'High',
+    what: 'Causal chains the documents describe or imply. They land in From candidates to scenarios → Candidates marked [Docs], with default parameters at Low confidence.',
     shape: '{"items":[{"name":"","statement":"<threat source → weakness → asset → event → consequence>","threat_source":"","asset":"","event":"","consequence":"","weakness":"","attack":["T1566"],"tag":"","source":""}]}',
     cols: [['name', 'Scenario', true], ['statement', 'Causal chain', true], ['threat_source', 'Threat source', true], ['asset', 'Asset', true]],
     rules: null,
     apply(items, ws) {
-      ws.batchDraft ||= []; let n = 0;
+      const rows = [];   // 1.9.3 (W1) — candidates in From candidates to scenarios → Candidates, with their draft and the origin 'docs'
       for (const it of items) {
-        ws.batchDraft.push({ pick: true, ai: true, docs: true, name: str(it.name || 'Scenario from documents', 100) + ' [Docs]', statement: str(it.statement, 600), threat_source: str(it.threat_source, 120), assets: str(it.asset, 160),
+        rows.push({ pick: true, ai: true, docs: true, name: str(it.name || 'Scenario from documents', 100) + ' [Docs]', statement: str(it.statement, 600), threat_source: str(it.threat_source, 120), assets: str(it.asset, 160),
           vulns: str(it.weakness, 200), attack: list(it.attack).filter(t => /^T\d{4}/.test(t)), cwe: [], cves: [],
           params: Object.fromEntries(PARAMS.map(k => [k, 0.5])), cvss: 'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N', cvss_score: null,
           cvss_note: 'Default vector — set it in the scenario editor.', red_p: 0, red_i: 0, owner: '', pattern: 'docs',   // 1.9.2 (NV-001): no treatment yet
           rat: Object.fromEntries(PARAMS.map(k => [k, `Default — scenario taken from the documents (${it.tag || 'INFERENCE'}: ${str(it.source, 120)}). Analytical estimate, validation required.`])),
           conf: Object.fromEntries(PARAMS.map(k => [k, 'Low'])), prov: prov(it) });
-        n++;
       }
-      return n;
+      return SCR.addRowsAsCandidates(rows, { strategyOf: () => ['BU'], ws }).ids.length;
     } },
   { id: 'evidence', s: false, label: 'Parameter evidence', route: 'scenario', value: 'Medium',
     what: 'For each scenario parameter, the sentences that support a value — added to Evidence and Rationale, never as a number.',

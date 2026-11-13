@@ -75,7 +75,8 @@ const r = await page.evaluate(async ({ fx, pre }) => {
     const fin = (ipc.findings || []).every(f => JSON.stringify(byId(CM.REGISTER_KEYS.includes(f.register) ? w.cm.findings : w.iam.findings, f.id)) === JSON.stringify(f))
       && w.iam.findings.length + w.cm.findings.length === ipc.findings.length;
     // the step itself leaves the assessment deep-equal (the shape repair run after it completes empty scenario fields, as for every workspace)
-    const assessment = JSON.stringify(M.migrateWorkspace(JSON.parse(orig), { fill: null }).ws.assessment) === JSON.stringify(w0.assessment);
+    // (1.9.3: the data-version-7 step adds the scenarios' empty ontologyFindings / ontoProposal and an origin record where a family lists the scenario — removed here, nothing else may differ)
+    const assessment = (() => { const a = M.migrateWorkspace(JSON.parse(orig), { fill: null }).ws.assessment; for (const sc of a.SCEN || []) { delete sc.ontologyFindings; delete sc.ontoProposal; if (sc.origin && typeof sc.origin === 'object') { if (sc.origin.text) sc.origin = sc.origin.text; else delete sc.origin; } } return JSON.stringify(a) === JSON.stringify(w0.assessment); })();
     const again = M.migrateWorkspace(JSON.parse(JSON.stringify(w)), { fill: st.migrate }).status;
     const w2 = JSON.parse(JSON.stringify(w)); M.splitIpc5(w2); const idem = JSON.stringify(w2) === JSON.stringify(w);
     // a pre-split record that would lose a row makes the step fail and leaves the original untouched
@@ -97,7 +98,7 @@ const r = await page.evaluate(async ({ fx, pre }) => {
 ok(r.factoryEqualsKnown, 'KNOWN_FIELDS equals the factory');
 ok(r.inFactory, 'newWorkspace has two separate empty records, iam and cm, and no ipc');
 ok(!r.knownWithoutGroup.length && r.inContext, 'every field in a reset group; iam and cm in CONTEXT ' + r.knownWithoutGroup);
-ok(r.dataVersion === 6, 'DATA_VERSION is 6');
+ok(r.dataVersion === 7, 'DATA_VERSION is 7');
 ok(r.step4 === 'consultant:ASSESSMENT,iam:CONTEXT,cm:CONTEXT,ssvc:CONTEXT', 'STEP4 has the iam and cm entries in place of ipc ' + r.step4);
 for (const p of r.per) {
   ok(p.origUntouched && p.assessment && p.totals && p.dyn, `${p.app}: original untouched, assessment equal (evidence only appended${p.seeded ? ', teaching case seeded' : ''}), engine totals and asset scores equal`);
@@ -114,16 +115,16 @@ ok(r.medibec.ev === 15 && r.medibec.fi === 'IF-01IR-02E13,IF-02IR-04E13,IF-03IR-
   'MediBec seeded per module: E13–E14 identity, E15 configuration, IF-01–IF-05 as before, nothing accepted, 84,305 / 41,023 ' + JSON.stringify(r.medibec));
 ok(r.newer === 'newer', 'a newer workspace opens read-only');
 const mi = r.missing;
-ok(mi.status === 'migrated' && mi.to === 6 && mi.findings === 5 && mi.ir04 === '' && mi.ir07 === '' && mi.ir08 === 'S5' && mi.ir02 === 'S1+S5+S20' && !mi.accepted,
+ok(mi.status === 'migrated' && mi.to === 7 && mi.findings === 5 && mi.ir04 === '' && mi.ir07 === '' && mi.ir08 === 'S5' && mi.ir02 === 'S1+S5+S20' && !mi.accepted,
   'review M1: a MediBec copy without S27/S28 migrates, the samples keep their five findings and leave out the missing links ' + JSON.stringify(mi));
 ok(mi.journal === 3, 'review M1: each left-out link is journalled in the migration log (' + mi.journal + ')');
 ok(mi.strictThrows, 'review M1: applySample stays strict outside the seed (an explicit load still refuses a missing scenario)');
 ok(mi.cana.status === 'migrated' && mi.cana.proposals === 0 && mi.cana.journal, 'review M1: a CanaRetail copy without S10 migrates, its sample proposal is left out and journalled ' + JSON.stringify(mi.cana));
-ok(r.full.to === 6 && r.full.steps === '3→4,4→5,5→6' && r.full.cm && !r.full.ipc && r.full.journal && r.full.drift === 2 && r.full.ref, 'the 1.8.2 fixture reaches data version 6 through the STEP4 cm sub-step ' + JSON.stringify(r.full));
+ok(r.full.to === 7 && r.full.steps === '3→4,4→5,5→6,6→7' && r.full.cm && !r.full.ipc && r.full.journal && r.full.drift === 2 && r.full.ref, 'the 1.8.2 fixture reaches data version 6 through the STEP4 cm sub-step ' + JSON.stringify(r.full));
 // data version 4 → 5
 ok(r.split.length === 2, 'two pre-split workspaces in the fixture');
 for (const s of r.split) {
-  ok(s.from === 4 && s.status === 'migrated' && s.to === 6 && s.steps === '4→5,5→6' && !s.ipc, `${s.name}: data version 4 → 5 in one step (then 5 → 6), the ipc record removed`);
+  ok(s.from === 4 && s.status === 'migrated' && s.to === 7 && s.steps === '4→5,5→6,6→7' && !s.ipc, `${s.name}: data version 4 → 5 in one step (then 5 → 6 → 7), the ipc record removed`);
   ok(s.lossless && s.fin, `${s.name}: every row and finding moved unchanged, identifiers kept`);
   ok(s.assessment && s.totals && s.untouched && s.original, `${s.name}: assessment and engine totals unchanged; the original kept for the copy from before ` + JSON.stringify([s.assessment, s.totals, s.untouched, s.original]));
   ok(s.again === 'current' && s.idem, `${s.name}: idempotent (a second run changes nothing)`);
@@ -146,14 +147,14 @@ const stored = await page.evaluate(async pre => { const store = await import('/j
 await reload(page);
 const s2 = await page.evaluate(async id => { const store = await import('/js/store.js'); const w = await store.get('ws', id); const p = await store.get('blob', 'premig:' + id);
   return { v: w.dataVersion, ipc: 'ipc' in w, iam: w.iam?.accounts?.length, cm: w.cm?.baselines?.length, pre: !!p && p.ws?.dataVersion === 4 && !!p.ws?.ipc, log: (w.migrationLog || []).at(-1)?.steps?.map(s => s.to).join() }; }, stored);
-ok(s2.v === 6 && !s2.ipc && s2.iam === 2 && s2.cm === 1 && s2.pre && s2.log === '5,6', 'start-up splits a stored pre-split workspace, journals it and keeps the copy from before ' + JSON.stringify(s2));
+ok(s2.v === 7 && !s2.ipc && s2.iam === 2 && s2.cm === 1 && s2.pre && s2.log === '5,6,7', 'start-up splits a stored pre-split workspace, journals it and keeps the copy from before ' + JSON.stringify(s2));
 await page.evaluate(async id => { const store = await import('/js/store.js'); await store.del?.('ws', id); await store.del?.('blob', 'premig:' + id); }, stored).catch(() => {});
 // 1.9.0 — IAM.CRGO and CM.CRGO are filled from CRGO 0.11.0: the release gate passes and every identifier is defined in the CRGO checkout
 let rel = 0, relOut = ''; try { relOut = execSync(`python3 ${APP}/tools/crgo_tbd_check.py --release${CRGO_011 ? ' --crgo ' + CRGO : ''}`, { stdio: 'pipe' }).toString(); } catch (e) { rel = e.status; relOut = String(e.stdout || e); }
 ok(rel === 0 && /every CRGO identifier is filled/.test(relOut), (CRGO_011 ? 'release gate: no CRGO_TBD left, every identifier defined in CRGO ' : 'release gate: no CRGO_TBD left ') + relOut.trim().replace(/\n/g, ' · '));
 const map = await page.evaluate(async () => { const I = await import('/js/iam.js'); const C = await import('/js/cm.js'); return { rel: I.CRGO_RELEASE + C.CRGO_RELEASE, pending: I.crgoPending().length + C.crgoPending().length, proposed: I.crgoProposed().length + C.crgoProposed().length,
   acc: I.CRGO.AccountPopulation.iri, kri: C.CRGO['CRG-24'].iri, k25: C.CRGO['CRG-25'].iri, drift: C.CRGO['drift:unknown'].iri, iamDrift: 'drift:unknown' in I.CRGO, cmAcc: 'AccountPopulation' in C.CRGO }; });
-ok(map.rel === '0.11.10.11.1' && map.pending === 0 && map.proposed === 0 && map.acc === 'https://w3id.org/crgo/CRGO_0001384' && map.kri === 'https://w3id.org/crgo/CRGO_0001476'
-  && map.k25 === 'https://w3id.org/crgo/CRGO_0001475' && map.drift === 'https://w3id.org/crgo/CRGO_0001460' && !map.iamDrift && !map.cmAcc, 'IAM.CRGO and CM.CRGO cite CRGO 0.11.1, every term approved, each its own concepts ' + JSON.stringify(map));
+ok(map.rel === '0.11.20.11.2' && map.pending === 0 && map.proposed === 0 && map.acc === 'https://w3id.org/crgo/CRGO_0001384' && map.kri === 'https://w3id.org/crgo/CRGO_0001476'
+  && map.k25 === 'https://w3id.org/crgo/CRGO_0001475' && map.drift === 'https://w3id.org/crgo/CRGO_0001460' && !map.iamDrift && !map.cmAcc, 'IAM.CRGO and CM.CRGO cite CRGO 0.11.2, every term approved, each its own concepts ' + JSON.stringify(map));
 ok(!errors.length, 'no console errors ' + errors.join(' | ').slice(0, 300));
 await browser.close(); done('t38 iam cm migration');

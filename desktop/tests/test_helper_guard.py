@@ -85,6 +85,14 @@ class OntologyCommand(unittest.TestCase):
             serve.validate_config({"ontology": {"command": "/bin/sh", "args": [self.script]}}, {})
 
 
+class ConfidentialFolderSymlink(unittest.TestCase):
+    def test_symlink_into_the_application_is_refused(self):   # review n5: realpath, not abspath
+        link = os.path.join(tempfile.mkdtemp(prefix="lnk-", dir=_TMP), "org")
+        os.symlink(serve.ROOT, link)
+        with self.assertRaises(ValueError):
+            serve._confidential(os.path.join(link, "_installation", "crgo-local"))
+
+
 class RegistryFolder(unittest.TestCase):
     def test_problem(self):
         home = os.path.expanduser("~")
@@ -256,6 +264,35 @@ class FolderAndFiles(unittest.TestCase):
         d = tempfile.mkdtemp(prefix="crg-org-")
         serve.validate_config({"links": {"org_graph_dir": d}}, {})
 
+    def test_ontology_proposals_dir_validated(self):
+        """1.9.3 (W2): the Folder for ontology proposals follows the shared-folder rule, must exist, and is never the CRGO folder."""
+        home = os.path.expanduser("~")
+        with self.assertRaises(ValueError):
+            serve.validate_config({"links": {"ontology_proposals_dir": os.path.join(home, ".config")}}, {})
+        with self.assertRaises(ValueError):
+            serve.validate_config({"links": {"ontology_proposals_dir": "/nonexistent/crgo-proposals"}}, {})
+        crgo = os.environ.get("CRGO_HOME")
+        if crgo and os.path.isdir(crgo):
+            self.assertIn("CRGO folder", serve.proposals_dir_problem(crgo))
+        d = tempfile.mkdtemp(prefix="crg-onto-")
+        serve.validate_config({"links": {"ontology_proposals_dir": d}}, {})
+
+    def test_proposal_admin_only_and_file_path(self):
+        """1.9.3 (W2): approve/reject/export refused to a non-administrator in multi-user mode; the file path writes the store."""
+        code, out = serve.crgo_proposals("approve", {"proposal_id": "LOC-0123456789", "user": {"name": "A", "admin": False, "multi": True}})
+        self.assertEqual((code, out["code"]), (403, "FORBIDDEN"))
+        import crgo_local as L
+        d = tempfile.mkdtemp(prefix="crg-store-")
+        p = {"name": "Quillon ledger forged by a payroll robot", "statement": "A payroll robot forges entries in the Quillon ledger.",
+             "themes": ["ThemeIntegrity"], "asset_categories": ["CatApplication"], "techniques": [["T1565", "M"]],
+             "proposed_by": "A", "proposed_on": "2026-11-12", "anonymized": True}
+        r = L.propose(p, d)
+        self.assertTrue(r["id"].startswith("LOC-"))
+        self.assertEqual(L.approve(d, r["id"], "Admin", "2026-11-12")["status"], "approved")
+        self.assertEqual(L.load_local(d)[0]["id"], r["id"])
+        with self.assertRaises(L.ProposalError):
+            L.propose(dict(p, estimates={"PbA": 0.3}), d)
+
     def test_files_endpoint_serves_catalogue_only(self):
         """1.9.2 (NV-057): list_files() hides crg-* and state files; the /api/files/<name> rule follows that list."""
         os.makedirs(serve.FEEDS, exist_ok=True)
@@ -384,7 +421,7 @@ class WriterEngine(unittest.TestCase):
         self.assertEqual(A.op_answer({"code": "PARAM-PWD-ROTATION", "value": "90", "status": "answered"})["param"], True)
         with self.assertRaises(A.ApiError):
             A.op_answer({"code": "PARAM-PWD-ROTATION", "value": " ", "status": "answered"})
-        self.assertEqual(A.op_meta({})["crgo"], "v0.11.1")
+        self.assertEqual(A.op_meta({})["crgo"], "v0.11.2")
         self.assertEqual(A.op_meta({})["version"], "0.1.1")
         self.assertIn("ai_text", A.OPS)
 

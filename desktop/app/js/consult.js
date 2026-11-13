@@ -561,7 +561,7 @@ export function citeAsEvidence(conv, ws = S.ws, nextId) {
   return id;
 }
 
-/** Candidate scenarios proposed by an answer → the screening's candidates (Scenario screening → Candidates & scores), unscored.
+/** Candidate scenarios proposed by an answer → the screening's candidates (From candidates to scenarios → Candidates), unscored.
  *  1.9.2 (decided item 7 / C3): array rows, as the screening and the workbook read them, with the proposal kept as the
  *  candidate's draft (parameters, chain, techniques), so promotion carries it; the AI log entry stays `pending` until the
  *  analyst scores or promotes a candidate — sending to review is not acceptance. */
@@ -580,6 +580,6 @@ export function toCandidates(list, out, ws = S.ws) {
     n++;
   }
   touch();
-  if (out.entryId || out.logId) AI.decide(out.entryId || out.logId, 'pending', `${n} candidate(s) sent to Scenario screening for review${ids.length ? ' (' + ids.join(', ') + ')' : ''}`);
+  if (out.entryId || out.logId) AI.decide(out.entryId || out.logId, 'pending', `${n} candidate(s) sent to Candidates for review${ids.length ? ' (' + ids.join(', ') + ')' : ''}`);
   return n;
 }

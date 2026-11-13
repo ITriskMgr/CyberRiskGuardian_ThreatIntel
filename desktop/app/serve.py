@@ -50,6 +50,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crg_feeds  # noqa: E402  (same folder)
 import crgo_client  # noqa: E402  (1.5.7 — the ontology, reached as an MCP server)
 import crg_signing  # noqa: E402  (1.9.2 — minisign verification of release downloads)
+import crgo_local  # noqa: E402  (1.9.3 — ontology proposals in files when the CRGO server is not running)
 try:                    # 1.7.0 — the Security Policy Writer engine (standard library only, crg_writer/)
     import crg_writer  # noqa: E402
     from crg_writer import api as writer_api  # noqa: E402
@@ -57,7 +58,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.9.2"
+VERSION = "1.9.3"
 # 1.9.0 — a random token made at each start. The page reads it from /api/session (same origin only) and sends it
 # with every /api/* call, next to X-CRG; the helper also checks Host and Origin. See Handler._guard.
 TOKEN = secrets.token_urlsafe(32)
@@ -325,7 +326,9 @@ AI_DEFAULT_POLICY = {
               # 1.9.0 - AI forecasting: both carry the CVE register or the treatment portfolio -> local by default
               "exploit_forecast": "local", "mitigation_optimizer": "local",
               # 1.9.2 (C5) - screening scores proposed for review (js/screenai.js)
-              "screening_scores": "workspace"},
+              "screening_scores": "workspace",
+              # 1.9.3 (C6) - AI family proposals (js/familyai.js)
+              "screening_families": "workspace"},
 }
 # 1.9.0 — the tasks the application sends. The policy is decided on the task, so the task is checked rather
 # than trusted: it must be one of these, and the TASK line of the prompt must name the same one.
@@ -808,7 +811,8 @@ def run_kev(job, params, ev):
 
 
 def run_epss(job, params, ev):
-    date = params.get("date") or (dt.date.today() - dt.timedelta(days=1)).isoformat()
+    # EPSS files are dated in UTC (score_date …+0000): derive "yesterday" in UTC, not local time
+    date = params.get("date") or (dt.datetime.now(dt.timezone.utc).date() - dt.timedelta(days=1)).isoformat()
     tries = int(params.get("back_days", 5))
     start = dt.date.fromisoformat(date)
     last = None
@@ -1174,20 +1178,38 @@ def _published_save(files):
 
 # ---------------- 1.5.8 — CRGO dss/v1: the organisation graph of a workspace ----------------
 
+def org_root():
+    """The organisation root: CRG_ORG_DIR, else links.org_graph_dir in crg-config.json, else ~/CyberRiskGuardian-confidential/crgo."""
+    cfg = crg_feeds.load_config(FEEDS)
+    root = os.environ.get("CRG_ORG_DIR") or (cfg.get("links") or {}).get("org_graph_dir") or os.path.join("~", "CyberRiskGuardian-confidential", "crgo")
+    return os.path.abspath(os.path.expanduser(root))
+
+
 def org_dir(ws_id):
     """Where a workspace's organisation graph lives: CRG_ORG_DIR, else links.org_graph_dir in crg-config.json,
     else ~/CyberRiskGuardian-confidential/crgo — one sub-folder per workspace. Never inside a git repository,
     the application folder or the ontology folder: these files describe a client and stay with its deliverables."""
-    cfg = crg_feeds.load_config(FEEDS)
-    root = os.environ.get("CRG_ORG_DIR") or (cfg.get("links") or {}).get("org_graph_dir") or os.path.join("~", "CyberRiskGuardian-confidential", "crgo")
-    root = os.path.abspath(os.path.expanduser(root))
     wid = re.sub(r"[^A-Za-z0-9_-]", "", str(ws_id or ""))
     if not wid:
         raise ValueError("No workspace identifier.")
-    d = os.path.join(root, wid)
+    return _confidential(os.path.join(org_root(), wid))
+
+
+def crgo_store(create=False):
+    """1.9.3 — this installation's ontology store (library-proposal/v1 store_dir): <org root>/_installation/crgo-local/,
+    with the organisation graphs' rules (never in the application, the ontology folder or a git repository). Installation
+    level: workspace resets keep it. Created on demand (create=True); None when absent and not created."""
+    d = _confidential(os.path.join(org_root(), "_installation", "crgo-local"))
+    if create:
+        os.makedirs(d, exist_ok=True)
+    return d if os.path.isdir(d) else None
+
+
+def _confidential(d):
+    cfg = crg_feeds.load_config(FEEDS)
     home = crgo_client.home_of(crgo_client.resolve(cfg, ROOT)) or ""
     for forbidden in (ROOT, home):
-        if forbidden and (d + os.sep).startswith(os.path.abspath(forbidden) + os.sep):
+        if forbidden and (os.path.realpath(d) + os.sep).startswith(os.path.realpath(forbidden) + os.sep):
             raise ValueError("The organisation graph folder may not be inside the application or the ontology folder: %s" % d)
     probe = d
     while True:
@@ -1209,6 +1231,154 @@ def crgo_spec():
         raise RuntimeError(bad)
     rel = crgo_client.release(crgo_client.home_of(spec))
     return spec, rel
+
+
+# ---------------- 1.9.3 — ontology proposals (CRGO 0.11.2, contract library-proposal/v1) ----------------
+PROPOSAL_OPS = {"propose": "crgo_propose_library_scenario", "list": "crgo_list_proposals", "approve": "crgo_approve_proposal",
+                "reject": "crgo_reject_proposal", "export-contribution": "crgo_export_contribution"}
+ADMIN_OPS = ("approve", "reject", "export-contribution")
+NO_OUT_DIR = ("No folder for ontology proposals is set: choose one in Settings → Links & shared folders → "
+              "Folder for ontology proposals. The contribution file is written there; nothing is sent anywhere.")
+
+
+def proposals_dir_problem(path):
+    """Why `path` may not be the Folder for ontology proposals ('' when it may): the shared-folder rules, and never
+    inside the CRGO folder (REPOSITORY_PATH in CRGO's terms)."""
+    d = os.path.expanduser(str(path or ""))
+    if not os.path.isdir(d):
+        return f"The folder for ontology proposals {path} does not exist on this computer."
+    bad = registry_dir_problem(d)
+    if bad:
+        return bad.replace("The shared registry folder", "The folder for ontology proposals")
+    home = crgo_client.home_of(crgo_client.resolve(crg_feeds.load_config(FEEDS), ROOT)) or ""
+    real = os.path.realpath(d)
+    if home and (real + os.sep).startswith(os.path.realpath(home) + os.sep):
+        return "The folder for ontology proposals may not be inside the CRGO folder: contributions are files the CRGO project owner receives."
+    return ""
+
+
+def proposals_out_dir():
+    d = ((crg_feeds.load_config(FEEDS).get("links") or {}).get("ontology_proposals_dir") or "").strip()
+    if not d:
+        return None, {"error": True, "code": "NO_FOLDER", "message": NO_OUT_DIR}
+    bad = proposals_dir_problem(d)
+    if bad:
+        return None, {"error": True, "code": "REPOSITORY_PATH" if "CRGO folder" in bad else "INVALID_ARGUMENT", "message": bad}
+    return os.path.realpath(os.path.expanduser(d)), None
+
+
+def _grouping_spec():
+    """(spec, None) when the CRGO server can run the library-proposal/v1 tools, else (None, why)."""
+    try:
+        spec, rel = crgo_spec()
+    except Exception as exc:                            # noqa: BLE001
+        return None, str(exc)
+    if not rel.get("groupingUsable"):
+        return None, rel.get("groupingProblem") or "CRGO v0.11.2 is needed."
+    return spec, None
+
+
+def crgo_proposals(op, body):
+    """See _crgo_proposals_run. A repeated proposal of identical text that now asks for Make public records the request on the
+    stored proposal (review m1), so the page and the administrator's list show the same state."""
+    code, out = _crgo_proposals_run(op, body)
+    prop = body.get("proposal") if isinstance(body.get("proposal"), dict) else {}
+    if op == "propose" and code == 200 and out.get("existing") and prop.get("public") is True and out.get("status") in ("proposed", "approved"):
+        try:
+            store = crgo_store()
+            out = {**out, **crgo_local.mark_public(store, out["id"], str(prop.get("proposed_on") or ""))}
+        except (crgo_local.ProposalError, ValueError, TypeError, KeyError, OSError):
+            pass
+    return code, out
+
+
+def _crgo_proposals_run(op, body):
+    """/api/crgo/proposals/<op>: the CRGO server's write tools with store_dir = this installation's store, or — when the
+    server is not available — the same files written by crgo_local.py. Approve, reject and export are for an
+    administrator (multi-user mode; with one person, that person). Returns (HTTP status, document)."""
+    if op not in PROPOSAL_OPS and op not in ("read", "set-public"):
+        return 404, {"error": True, "code": "UNKNOWN", "message": "unknown proposal operation"}
+    who = body.get("user") or {}
+    if op in ADMIN_OPS + ("set-public",) and who.get("multi") and not who.get("admin"):
+        return 403, {"error": True, "code": "FORBIDDEN", "message": "Only an administrator can approve, reject or make public an ontology proposal."}
+    try:
+        store = crgo_store(create=op in ("propose", "approve", "reject", "export-contribution", "set-public"))
+    except ValueError as exc:
+        return 200, {"error": True, "code": "INVALID_ARGUMENT", "message": str(exc)}
+    if store is None:                                   # nothing proposed yet on this installation
+        if op == "list":
+            return 200, {"proposals": [], "count": 0, "via": "files"}
+        return 200, {"error": True, "code": "UNKNOWN_ID", "message": "unknown proposal: %s" % body.get("proposal_id"), "via": "files"}
+    if op == "read":                                    # the whole document, for the preview (files only; same on both paths)
+        try:
+            return 200, crgo_local.read_proposal(store, body.get("proposal_id"))
+        except crgo_local.ProposalError as e:
+            return 200, e.document()
+    if op == "set-public":                              # helper-only: the confirmed public re-anonymization (review M1)
+        try:
+            return 200, {**crgo_local.mark_public(store, body.get("proposal_id"), str(body.get("date") or ""), body.get("texts")), "via": "files"}
+        except crgo_local.ProposalError as e:
+            return 200, e.document()
+    approver = str(body.get("approver") or who.get("name") or "").strip()
+    args = {"store_dir": store}
+    if op == "propose":
+        args["proposal"] = body.get("proposal")
+    elif op == "list":
+        args["status"] = str(body.get("status") or "")
+    else:
+        args["proposal_id"] = str(body.get("proposal_id") or "")
+        if op in ("approve", "reject"):
+            args.update(approver=approver, date=str(body.get("date") or ""))
+        if op == "reject":
+            args["reason"] = body.get("reason") or ""
+        if op == "export-contribution":
+            out, err = proposals_out_dir()
+            if err:
+                return 200, err
+            args.update(out_dir=out, action=str(body.get("action") or "add"), date=str(body.get("date") or ""),
+                        tool="CyberRiskGuardian Desktop %s" % VERSION)
+            if args["action"] == "add":                 # also on the MCP path: only a proposal marked public after the confirmed preview
+                try:
+                    if crgo_local.read_proposal(store, args["proposal_id"])["proposal"].get("public") is not True:
+                        return 200, {"error": True, "code": "NOT_PUBLIC", "via": "files",
+                                     "message": "This proposal was not marked Make public with the anonymizer review: tick Make public when approving it."}
+                except crgo_local.ProposalError as e:
+                    return 200, e.document()
+    spec, why = _grouping_spec()
+    if spec is not None:
+        try:
+            res = crgo_client.CLIENT.call(spec, PROPOSAL_OPS[op], args, contract=True)
+            if isinstance(res, dict):
+                return 200, {**res, "via": "mcp"}
+        except Exception as exc:                        # noqa: BLE001 — server unavailable: the same files, written here
+            why = str(exc)
+    fn = {"propose": lambda: crgo_local.propose(args["proposal"], store),
+          "list": lambda: crgo_local.list_proposals(store, args["status"]),
+          "approve": lambda: crgo_local.approve(store, args["proposal_id"], args["approver"], args["date"]),
+          "reject": lambda: crgo_local.reject(store, args["proposal_id"], args["approver"], args["date"], args["reason"]),
+          "export-contribution": lambda: crgo_local.export_contribution(store, args["proposal_id"], args["out_dir"], args["action"],
+                                                                        args["date"], args["tool"])}[op]
+    try:
+        res = fn()
+    except crgo_local.ProposalError as e:
+        res = e.document()
+    except (ValueError, TypeError, KeyError) as e:
+        res = {"error": True, "code": "INVALID_ARGUMENT", "message": "%s: %s" % (type(e).__name__, str(e)[:300])}
+    return 200, {**res, "via": "files", "why": why}
+
+
+def crgo_local_extension():
+    """This installation's approved additions (approved/crgo-local-extension.json), for the browser's offline port."""
+    try:
+        store = crgo_store()
+    except ValueError as exc:
+        return {"schema": "crgo-local-extension/1", "scenarios": [], "problem": str(exc)}
+    path = os.path.join(store, crgo_local.EXTENSION) if store else None
+    if not path or not os.path.isfile(path):
+        return {"schema": "crgo-local-extension/1", "scenarios": [], "present": False}
+    with open(path, encoding="utf-8") as fh:
+        doc = json.load(fh)
+    return {**doc, "present": True}
 
 
 def crgo_bridge(op, req):
@@ -1357,6 +1527,12 @@ def validate_config(new, old):
         bad = registry_dir_problem(g)
         if bad:
             raise ValueError(bad.replace("The shared registry folder", "The organisation-graph folder"))
+    # 1.9.3 — the Folder for ontology proposals (contribution files): the same rule, and never inside the CRGO folder
+    p = (new.get("links") or {}).get("ontology_proposals_dir") or ""
+    if p and p != ((old.get("links") or {}).get("ontology_proposals_dir") or ""):
+        bad = proposals_dir_problem(p)
+        if bad:
+            raise ValueError(bad)
 
 
 def registry_files():
@@ -1601,6 +1777,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     return self._json(200, {"name": name, "content": json.load(fh)})
             except Exception as exc:                    # noqa: BLE001
                 return self._json(404, {"error": str(exc)})
+        if path == "/api/crgo/local-extension":         # 1.9.3 — approved ontology additions, for the offline port
+            return self._json(200, crgo_local_extension())
         if path == "/api/crgo/status":                  # 1.5.7 — where the ontology server is, and whether it runs
             return self._json(200, crgo_client.status(crg_feeds.load_config(FEEDS), ROOT))
         if path in ("/api/discovery", "/api/outbox"):
@@ -1812,6 +1990,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(200, out)
             except Exception as exc:                    # noqa: BLE001
                 return self._json(200, {"error": True, "code": "HELPER", "message": str(exc)})
+        m = re.match(r"^/api/crgo/proposals/(propose|list|read|set-public|approve|reject|export-contribution)$", path)
+        if m:                                           # 1.9.3 — library-proposal/v1: server tools or the same files
+            code, out = crgo_proposals(m.group(1), body if isinstance(body, dict) else {})
+            return self._json(code, out)
         if path in ("/api/crgo/call", "/api/crgo/restart"):   # 1.5.7 — read-only ontology tools
             cfg = crg_feeds.load_config(FEEDS)
             spec = crgo_client.resolve(cfg, ROOT)
@@ -1821,7 +2003,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     info = crgo_client.CLIENT.start(spec)
                     return self._json(200, {"ok": True, "info": info, "source": spec.get("source")})
                 t0 = time.time()
-                out = crgo_client.CLIENT.call(spec, str(body.get("tool") or ""), body.get("args") or {})
+                tool, args = str(body.get("tool") or ""), dict(body.get("args") or {})
+                if tool in crgo_client.GROUPING_TOOLS or tool == "crgo_scenario":   # 1.9.3 — the installation's approved additions take part; never a path from the page
+                    args.pop("store_dir", None)
+                    try:
+                        store = crgo_store()
+                    except ValueError:
+                        store = None
+                    if store:
+                        args["store_dir"] = store
+                out = crgo_client.CLIENT.call(spec, tool, args)
                 sys.stderr.write(f"helper: crgo {body.get('tool')} {time.time() - t0:.1f}s\n")
                 return self._json(200, {"result": out, "via": "mcp", "source": spec.get("source"),
                                         "server": (crgo_client.CLIENT.info or {}).get("server")})

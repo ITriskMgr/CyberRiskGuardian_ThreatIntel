@@ -16,8 +16,11 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import * as helper from './helper.js';
+import * as CG from './crgo_group.js';
 
-export const TOOLS = ['crgo_sweep', 'crgo_identify', 'crgo_scenario', 'crgo_controls_for_technique', 'crgo_scenarios_for_control', 'crgo_list_values'];
+export const TOOLS = ['crgo_sweep', 'crgo_identify', 'crgo_scenario', 'crgo_controls_for_technique', 'crgo_scenarios_for_control', 'crgo_list_values',
+  'crgo_group_candidates', 'crgo_validate_scenario'];   // 1.9.3 — CRGO 0.11.2, contract library-proposal/v1 (js/crgo_group.js offline)
+const GROUPING_TOOLS = ['crgo_group_candidates', 'crgo_validate_scenario'];
 export const FRAMEWORKS = [['csf2', 'NIST CSF 2.0'], ['sp800-53r5', 'NIST SP 800-53 r5'], ['iso27002-2022', 'ISO/IEC 27002:2022']];
 export const MARK = 'Analytical estimate — validation required.';
 export const RISK_UNIT = 'CRG risk units (factor 1000, appetite 0.30): relative, comparable across scenarios, not a 0–1 score';
@@ -59,8 +62,121 @@ export async function call(tool, args = {}, { prefer = 'auto' } = {}) {
   }
   const snap = await snapshot();
   state.via = 'snapshot';
-  return { result: LOCAL[tool](args, snap), via: 'snapshot', why, version: snap.release || snap.version, built: snap.built };
+  const local = GROUPING_TOOLS.includes(tool) ? await localExtension() : undefined;
+  return { result: LOCAL[tool](args, snap, local), via: 'snapshot', why, version: snap.release || snap.version, built: snap.built };
 }
+
+/* ---------------- 1.9.3 — grouping, validation and proposals (CRGO 0.11.2, contract library-proposal/v1) ----------------
+   The same README shapes whichever way the ontology is reached: the MCP server through the helper (the helper adds this
+   installation's store, so approved additions take part), or js/crgo_group.js over the snapshot plus the approved
+   additions the helper serves (cached here for when the helper is not running). Nothing leaves the computer. */
+const LOCAL_CACHE = 'crgo:local-extension';
+let LOCALX = null;
+/** This installation's approved ontology additions (export-shaped local records); [] when none. */
+export async function localExtension({ refresh = false } = {}) {
+  if (LOCALX && !refresh) return LOCALX;
+  const store = await import('./store.js');
+  await helper.probe().catch(() => {});
+  if (helper.HS.helper) {
+    try {
+      const doc = await helper.apiJson('/api/crgo/local-extension');
+      LOCALX = Array.isArray(doc.scenarios) ? doc.scenarios : [];
+      await store.put('blob', LOCAL_CACHE, { at: new Date().toISOString(), scenarios: LOCALX }).catch(() => {});
+      return LOCALX;
+    } catch { /* fall through to the cached copy */ }
+  }
+  const cached = await store.get('blob', LOCAL_CACHE).catch(() => null);
+  LOCALX = Array.isArray(cached?.scenarios) ? cached.scenarios : [];
+  return LOCALX;
+}
+const shaped = out => ({ ...out.result, via: out.via, ...(out.why ? { why: out.why } : {}) });
+/** Group candidate descriptors (CG.toDescriptor) — crgo-grouping/1. Resolves to the README result plus `via`
+ *  ('mcp' | 'snapshot') and `why` (when the server could not be used); an error document ({error, code, message}) for a bad shape. */
+export async function group(candidates, { minConfidence = 'M', prefer = 'auto' } = {}) {
+  return shaped(await call('crgo_group_candidates', { candidates, min_confidence: minConfidence }, { prefer }));
+}
+/** Validate one scenario descriptor — crgo-validation/1 (findings only, never an error for unknown vocabulary). */
+export async function validate(scenario, { minConfidence = 'M', prefer = 'auto' } = {}) {
+  return shaped(await call('crgo_validate_scenario', { scenario, min_confidence: minConfidence }, { prefer }));
+}
+/** Can grouping and validation run? The server needs CRGO ≥ 0.11.2; the snapshot needs schema crg-crgo-snapshot/3. */
+export async function groupingUsable() {
+  const snap = await snapshot().catch(() => null);
+  const snapOk = CG.usable(snap);
+  const st = await status().catch(() => ({}));
+  const mcp = !!(st.helper && st.usable && st.release?.groupingUsable);
+  return { usable: mcp || snapOk, mcp, snapshot: snapOk, release: snap?.release || null, serverRelease: st.release?.tag || null,
+    problem: mcp || snapOk ? '' : 'Grouping with the ontology needs CRGO 0.11.2: neither the ontology server nor the snapshot of this installation carries it.' };
+}
+/** 1.9.3 — the interface wording of each validation finding (CRGO's `message` is English by contract; the screens show this,
+ *  translated, by `code`). {0}, {1}: the values CRGO put into its message, in order. */
+export const FINDING_TEXT = {
+  LIBRARY_MATCH: 'Matches CRGO scenario {0} ({1}).',
+  THEME_MATCH_ONLY: 'No CRGO scenario matches; scenarios of the theme {0} share a technique or an asset category (theme gap: own scenario).',
+  OUTSIDE_ONTOLOGY: 'Outside the ontology: no CRGO scenario matches and no scenario of the theme {0} shares a technique or an asset category (own scenario).',
+  TECHNIQUE_UNKNOWN: 'ATT&CK technique {0} is not in CRGO.',
+  TECHNIQUE_REVOKED: 'ATT&CK technique {0} is revoked; its successor is {1}.',
+  TECHNIQUE_DEPRECATED: 'ATT&CK technique {0} is deprecated and has no successor.',
+  CWE_UNKNOWN: '{0} is not in the CWE list CRGO holds.',
+  CWE_TECHNIQUE_UNLINKED: 'No technique of the scenario is linked to {0} or its parent weaknesses (expected one of: {1}).',
+  CWE_NO_REFERENCE: 'CRGO has no technique reference for {0} or its parent weaknesses: consistency cannot be judged.',
+  ASSET_CATEGORY_UNKNOWN: 'Asset category {0} is not in the CRGO vocabulary.',
+  THREAT_SOURCE_TYPE_UNKNOWN: 'Threat source type {0} is not in the CRGO vocabulary.',
+  THEME_UNKNOWN: 'Theme {0} is not in the CRGO vocabulary.',
+  CRGO_ID_UNKNOWN: 'CRGO scenario {0} is unknown.',
+};
+/** A finding in the interface language: findingText(f, tr) with tr from i18n.js (identity by default). Unknown code → CRGO's message. */
+export function findingText(f, tr = s => s) {
+  const tpl = CG.MESSAGES[f?.code], key = FINDING_TEXT[f?.code];
+  if (!tpl || !key) return String(f?.message || '');
+  const rx = new RegExp('^' + tpl.split('%s').map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('(.*?)') + '$', 's');
+  const m = rx.exec(String(f.message || ''));
+  if (!m) return String(f.message || '');
+  return m.slice(1).reduce((t, v, i) => t.split('{' + i + '}').join(v), tr(key));
+}
+export const NO_HELPER = 'Ontology proposals need the local helper (the launcher): without it nothing can be written on this computer. Start the application with its launcher, then try again.';
+async function who() {
+  const U = await import('./users.js');
+  return { name: U.name() || '', admin: !U.active() || !!U.me()?.admin, multi: U.active() };
+}
+async function proposalsCall(op, body) {
+  await helper.probe().catch(() => {});
+  if (!helper.HS.helper) return { error: true, code: 'NO_HELPER', message: NO_HELPER };
+  if (/^(propose|set-public|approve|reject|export-contribution)$/.test(op)) {
+    const LOG = await import('./logs.js'); LOG.data?.('written by the helper', '/api/crgo/proposals/' + op, '');
+  }
+  const r = await helper.hfetch('/api/crgo/proposals/' + op, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, user: await who() }) });
+  const out = await r.json().catch(() => ({ error: true, code: 'HELPER', message: r.statusText }));
+  if (!out.error && /^(approve|reject|export-contribution)$/.test(op)) {
+    const U = await import('./users.js');
+    U.audit(op === 'approve' ? 'ontology proposal approved' : op === 'reject' ? 'ontology proposal rejected' : 'ontology contribution file written',
+      [out.id, body.action || '', body.reason || ''].filter(Boolean).join(' — '));
+  }
+  return out;
+}
+/** Ontology proposals (helper only; disabled without it: {error, code: 'NO_HELPER'}). Shapes: CRGO's README (library-proposal/v1)
+ *  plus `via` ('mcp' | 'files'). approve / reject / exportContribution: administrators only in multi-user mode (FORBIDDEN). */
+export const proposals = {
+  available: async () => { await helper.probe().catch(() => {}); return !!helper.HS.helper; },
+  /** proposal: proposal.schema.json (anonymized: true, proposed_by, proposed_on, no figures) → {id, status, path, existing}. */
+  propose: proposal => proposalsCall('propose', { proposal }),
+  /** status '' | 'proposed' | 'approved' | 'rejected' → {proposals: [...], count}. */
+  list: (status = '') => proposalsCall('list', { status }),
+  /** The whole stored document {schema, id, status, crgo_release, proposal, history} (preview). */
+  read: id => proposalsCall('read', { proposal_id: id }),
+  /** Make public confirmed at approval: texts = {name, statement, weaknesses} re-anonymized with every option → {id, status, public}. Helper-only. */
+  setPublic: (id, texts, date = '') => proposalsCall('set-public', { proposal_id: id, texts, date }),
+  /** → {id, status: 'approved', path, local_extension, primary_theme, cluster}; refreshes the local additions. */
+  approve: async (id, { approver = '', date = '' } = {}) => {
+    const out = await proposalsCall('approve', { proposal_id: id, approver, date });
+    if (!out.error) await localExtension({ refresh: true }).catch(() => {});
+    return out;
+  },
+  /** reason required → {id, status: 'rejected', path}. */
+  reject: (id, reason, { approver = '', date = '' } = {}) => proposalsCall('reject', { proposal_id: id, reason, approver, date }),
+  /** Approved proposals only; action 'add' | 'withdraw' → {id, action, path} in the Folder for ontology proposals (NO_FOLDER when unset). */
+  exportContribution: (id, { action = 'add', date = '' } = {}) => proposalsCall('export-contribution', { proposal_id: id, action, date }),
+};
 
 /* ---------------- the workspace as an ontology profile ---------------- */
 const TYPE_CAT = { hardware: 'CatEndpoint', server: 'CatInfrastructure', network: 'CatNetwork', application: 'CatApplication', data: 'CatInformation',
@@ -167,6 +283,8 @@ const caseKey = s => s.kind === 'case scenario' ? s.id.split('/')[0] : null;
 const allowed = (s, cases, holdout) => s.kind === 'library scenario' || (cases && !(holdout || []).includes(caseKey(s)) && !(holdout || []).some(h => caseKey(s) === h || caseKey(s)?.startsWith(h + '-')));
 
 export const LOCAL = {
+  crgo_group_candidates: (a, snap, local) => CG.groupTool(a, snap, local || []),
+  crgo_validate_scenario: (a, snap, local) => CG.validateTool(a, snap, local || []),
   crgo_list_values({ kind }, snap) {
     if (kind === 'sector') return [...new Set(snap.scenarios.map(s => s.sector).filter(Boolean))].sort().map(k => ({ key: k, label: k }));
     return (snap.values || {})[kind] || [];
@@ -295,8 +413,11 @@ export function toBatchRow(s, { usePriors = true } = {}) {
   }
   const tech = (s.attack_techniques || []).map(t => t.id).filter(t => /^T\d{4}/.test(t));
   return { pick: true, crgoRow: true, name: (s.name || s.id) + ' [CRGO]', statement: s.statement || s.name || '', threat_source: (s.threat_source_types || []).map(t => t.label || t).join(', '),
-    assets: (s.asset_categories || []).map(a => a.label || a).join('; '), vulns: (s.weaknesses || []).map(w => w.id + (w.title ? ' ' + w.title : '')).join('; '),
-    attack: tech, cwe: (s.weaknesses || []).map(w => w.id).filter(w => /^CWE-/.test(w)), cves: [],
+    // 1.9.3 — snapshot weaknesses are plain text and CWE ids are in s.cwe ({id, title, confidence, status}); until 1.9.2 the CWE
+    // was read from weaknesses, so it never reached the row and vulns read "undefined" (W5 survey §7.3)
+    assets: (s.asset_categories || []).map(a => a.label || a).join('; '),
+    vulns: (s.weaknesses || []).map(w => typeof w === 'string' ? w : (w.id || '') + (w.title ? ' ' + w.title : '')).filter(Boolean).join('; '),
+    attack: tech, cwe: [...new Set((s.cwe || []).map(w => (typeof w === 'string' ? w : w.id) || '').filter(w => /^CWE-\d+$/.test(w)))], cves: [],
     params, rat, conf, cvss: '', cvss_score: P?.cvss ?? null, cvss_note: P?.cvss != null ? `CVSS input ${P.cvss} from the ontology prior — replace with the vector of the actual weakness.` : 'Set the CVSS in the scenario editor.',
     red_p: P?.red_p ?? 0, red_i: P?.red_i ?? 0, owner: '', pattern: 'crgo',   // 1.9.2 (NV-001): a missing reduction is 0
     crgo: { id: s.id, kind: s.kind, sector: s.sector, themes: (s.themes || []).map(t => t.key), asset_categories: (s.asset_categories || []).map(a => a.key || a.label || a),

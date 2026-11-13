@@ -81,7 +81,7 @@ engine. AI, feeds, the ontology and the registry *propose*; only values you acce
 | A current browser | Chrome or Edge for the installable app. Safari and Firefox run it in a tab. |
 | Python 3 | Only to serve the folder locally. macOS and most Linux distributions already have it. On Windows, install it from [python.org](https://www.python.org/downloads/) and tick **Add python.exe to PATH**. |
 | About 16 MB of disk | Plus your workspaces and any snapshot you load. The bundled example snapshot is about 1.5 MB, the ontology snapshot about 6.5 MB and the simulation pack for teaching about 0.1 MB; a full threat snapshot from `threat_snapshot.py` is 8 MB or more. |
-| *Optional:* the CyberRiskGuardian Ontology 0.11.1 (tag v0.11.1) | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
+| *Optional:* the CyberRiskGuardian Ontology 0.11.2 (tag v0.11.2) | To query the ontology through its own MCP server rather than the snapshot shipped with the application: a `CyberRiskGuardian-Ontology` folder and a Python with the `mcp`, `pyoxigraph`, `rdflib` and `jsonschema` packages. Section 3.5. |
 
 No account, licence key, installer or administrator rights are required. Nothing is written outside
 the folder and your browser's own storage.
@@ -104,7 +104,7 @@ workspaces are kept by the browser for the exact address you use, not in the fol
 finds them. Your API keys are not in the folder either; they are in the macOS login keychain, or in
 `~/.cyberriskguardian/crg-keys.json` on Windows and Linux, and `feeds-dir.txt` carries the feeds path over. The launchers detect an earlier copy still serving
 the port, stop it and say so; reload the page once if **Help → About & versions** does not read
-`1.9.2 beta`.
+`1.9.3 beta`.
 
 ### 3.2 Start it
 
@@ -170,20 +170,20 @@ with a newer version, serve it once more so the installed app picks up the new c
 The application ships with a snapshot of the CyberRiskGuardian Ontology and works without anything
 more. To query the ontology through its own MCP server — the reference ranking, the organisation
 context, write-back, and the compliance and security-operations contexts — the helper needs to find
-**CRGO v0.10.0 or later**; this release is built for **CRGO 0.11.1**:
+**CRGO v0.10.0 or later**; this release is built for **CRGO 0.11.2**:
 
 1. **If the `crgo-ontology` server is registered in Claude on this computer** (Claude desktop →
    Settings → Developer → Edit Config), the helper reuses the same command, with the same Python. Point
-   its `args` at the `pipeline/mcp/crgo_server.py` of a 0.11.1 clone.
+   its `args` at the `pipeline/mcp/crgo_server.py` of a 0.11.2 clone.
 2. **If a `CyberRiskGuardian-Ontology` folder sits near the application folder** — for example both
    inside `CyberRiskGuardian_ThreatIntel` — it is found automatically and started with the Python that
-   runs the helper. Versioned clones such as `CyberRiskGuardian-Ontology-0.11.1` are preferred, **newest
+   runs the helper. Versioned clones such as `CyberRiskGuardian-Ontology-0.11.2` are preferred, **newest
    first**. That Python needs `pip install "mcp>=1.2" pyoxigraph rdflib jsonschema`.
 3. **Otherwise**, give the Python interpreter and the path of `pipeline/mcp/crgo_server.py` in
    **Ontology · CRGO → Connection → Where the ontology is**, then **Save**.
 
 ```
-git clone --branch v0.11.1 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.1
+git clone --branch v0.11.2 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology.git CyberRiskGuardian-Ontology-0.11.2
 pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 ```
 
@@ -191,11 +191,11 @@ pip install "mcp>=1.2" pyoxigraph rdflib jsonschema
 contracts it supports: scenario identification works with any release, the organisation link (dss/v1)
 needs v0.9.1 or later, and the compliance and security-operations contexts (compliance/v1, secops/v1)
 need v0.10.0. It starts the server on request; the first start builds its store, about ten to twenty
-seconds. Section 7.2.4. This release is built for **CRGO 0.11.1** (tag `v0.11.1`): its new terms (identity and
+seconds. Section 7.2.4. This release is built for **CRGO 0.11.2** (tag `v0.11.2`): its new terms (identity and
 configuration registers, the six scenario patterns, CIS Controls v8.1 with CRGO's own labels, the OWASP lists, ISO/IEC 27701
 and 42001, the CCSPA) were approved by the CRGO author on 2 November 2026, and the Connection tab says so. The CIS v8.1
 values CRGO flags for review were accepted as delivered and stay marked *unverified*. The snapshot shipped with the
-application is CRGO 0.11.1.
+application is CRGO 0.11.2.
 
 ---
 
@@ -204,7 +204,7 @@ application is CRGO 0.11.1.
 The bottom of the left menu must show (one line with the version, pinned below the menu, which scrolls on its own):
 
 ```
-© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified
+© Marc-André Léger · v1.9.3 Beta · ✓ Engine verified
 ```
 
 Click it, or open **Help → About & versions**, to see the totals behind it:
@@ -320,9 +320,9 @@ happens. In multi-user mode each step also shows who is Responsible and Accounta
 | 2 | Describe the context and identify the crown jewels — every crown jewel with its owner and its C/I/A requirements | At least 8 of the 12 context fields are filled, and there are at least 3 crown jewels or 5 information assets. | Profile & appetite, Crown jewels, Information assets, Existing safeguards, Maturity & resilience |
 | 3 | Define the scope, the horizon and the threat context | The scope, the exclusions and the risk perspectives are written (Profile & appetite), the assessment period is stated, a threat-context snapshot is loaded and the vulnerability register holds at least one entry. | Profile & appetite, Threat context, Vulnerabilities · CVE/CWE, Threats · ATT&CK, Threat feeds & social |
 | 4 | Set the risk appetite and the materiality criteria | The appetite is strictly between 0 and 1 with a rationale, the IT budget is entered and the materiality criteria are written. | Profile & appetite, Budget |
-| 5 | Generate candidate scenarios | Build a list of at least 20 candidate scenarios in Scenario screening. Write them there, or generate them in Batch scenarios and send the ticked rows. Scenarios already in the register count only once you add them as candidates. The next-step card reads *20 candidates in Scenario screening — n now* and lists the three ways in order, each with its button: (1) Batch scenarios → generate or write rows → *Add the ticked rows as screening candidates*; (2) Scenario screening → *Add a candidate*; (3) *Add scenarios from the register as candidates*. Distinct candidates are counted (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). | Batch scenarios, Scenario screening, Ontology · CRGO |
-| 6 | Screen the candidates | Every candidate has its twelve scores and a disposition. | Scenario screening |
-| 7 | Select the most material scenarios | At least one family is selected, every judgment-based selection has its rationale, and every flagged exclusion is reviewed. | Families, Weighting schemes, Coverage matrix, Final portfolio |
+| 5 | Generate candidate scenarios | Build a list of at least 20 candidate scenarios in From candidates to scenarios. Write them there, or generate them in Batch scenarios and send the ticked rows. Scenarios already in the register count only once you add them as candidates. The next-step card reads *20 candidates in From candidates to scenarios — n now* and lists the three ways in order, each with its button: (1) Batch scenarios → generate or write rows → *Add the ticked rows as screening candidates*; (2) From candidates to scenarios → *Add a candidate*; (3) *Add scenarios from the register as candidates*. Distinct candidates are counted (about 25 to 40 for a portfolio of ten; 20 is the quick lab version). | Batch scenarios, From candidates to scenarios, Ontology · CRGO |
+| 6 | Screen the candidates | Every candidate has its twelve scores and a disposition. | From candidates to scenarios |
+| 7 | Select the most material scenarios | At least one family is selected, every judgment-based selection has its rationale, and every flagged exclusion is reviewed. | Select, Create scenarios |
 | 8 | Develop each selected scenario as a causal chain | At least 10 scenarios in the register, and every included scenario is a complete causal chain — statement, threat source, initiating event, vulnerabilities, affected assets and consequences (stakeholders, existing controls and the event sequence listed as optional). | Scenario register, Scenario editor, Suggest vulnerability links |
 | 9 | Estimate the six parameters | 80% of the parameters of the included scenarios are estimated: a rationale that is not the placeholder written at creation, the evidence it rests on (E1, E2…) and a confidence level. | Scenario editor, Forecasts |
 | 10 | Score the representative weakness with CVSS v4.0 | Every included scenario has a valid CVSS score entered by the analyst (a vector, or a score by equivalency) — not the default vector a new scenario starts with — and every score by equivalency has all its justifications. A vector that came with a batch pattern or a candidate blocks the step until the analyst confirms it (one click on the Process card, recorded in the scenario's revisions) or changes it. A scenario created from a row that carried a score and no vector (CVE register with a non-v4 score, ontology prior, Risk Registry or CSV row) computes on that stored score and blocks the step the same way until the analyst confirms the score or enters the v4.0 Base vector of the actual weakness. | CVSS v4.0, Scenario editor |
@@ -345,7 +345,7 @@ The steps keep their identifiers in the RACI matrix of multi-user mode: a step a
 2. **Resolve the UNKNOWN values first.** Extracted values are tagged FACT, INFERENCE, ASSUMPTION, EXTERNAL or UNKNOWN. UNKNOWN items are the information still to collect; ASSUMPTION and EXTERNAL values need validation by the organization.
 3. **Number every source in the evidence register.** Every organizational fact cites an E-number; anything that cannot be cited is labelled as an assumption. Exercise material is indicative evidence to validate, never a confirmed incident.
 4. **Screen on twelve criteria, then consolidate.** Score every candidate 1 to 5 on the twelve criteria with a one-line rationale. The total out of 60 is a screening aid; escalation flags keep severe but improbable scenarios in view, and families stop one technique from dominating.
-5. **Generate 25 to 40, screen, keep 10.** In Batch scenarios generate about 25 to 40 candidates (never fewer than 20; 20 is the quick lab version), screen them in Scenario screening, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
+5. **Generate 25 to 40, screen, keep 10.** In Batch scenarios generate about 25 to 40 candidates (never fewer than 20; 20 is the quick lab version), screen them in From candidates to scenarios, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
 6. **Look in the ontology before writing from scratch.** The CyberRiskGuardian Ontology holds scenarios already linked to ATT&CK, weaknesses, controls and Quebec Law 25 obligations. Ask it for the scenarios that fit the organization, keep the relevant ones, and write the rest yourself.
 7. **Write causal chains, not threat names.** Threat source → weakness → asset → event → consequence. “Ransomware” alone is not a scenario. AI can draft the chain; you accept it field by field.
 8. **Record what already protects you, then measure the resilience it adds up to.** An assessment with no record of existing controls has to guess at θ. Inventory what is in force, score it against the six capabilities θ is defined as, and let the two instruments disagree in the open.
@@ -418,19 +418,40 @@ Every organizational fact cites an E-number; anything that cannot be cited is la
 
 Score every candidate 1 to 5 on the twelve criteria with a one-line rationale. The total out of 60 is a screening aid; escalation flags keep severe but improbable scenarios in view, and families stop one technique from dominating.
 
-*Where:* Risk assessment → Scenario screening
+*Where:* Risk assessment → From candidates to scenarios
 
-1. “Candidates & scores”: for each candidate give the twelve scores, the rationale, the escalation flags, the selection confidence and a disposition (Select, Consolidate, Consider, Defer).
-2. “Families”: group the variants of the same exposure, name each family with its stronger causal statement and tick the families selected for the portfolio.
-3. “Weighting schemes”: read the ranks under equal, impact-led, evidence-led and decision-led weights; write why each family “selected by judgment” is kept, and review each candidate flagged for “explicit review”.
-4. “Coverage matrix” and “Watch list & plan”: check for blind spots, give each watched candidate its promotion trigger, and plan how each selected scenario will be validated, by whom and by when.
-5. “Final portfolio”: answer the six “why this scenario?” questions, then “Create the scenario” in the register for each selected family not yet linked.
+The screen has four stages, left to right: ① Candidates, ② Screen, ③ Select, ④ Create scenarios.
+
+1. “Screen”: for each candidate give the twelve scores, the rationale, the escalation flags, the selection confidence and a disposition (Select, Consolidate, Consider, Defer); group the variants of the same exposure into families, or confirm a candidate as unique.
+2. “Select”: tick the families and unique candidates to develop, read their ranks under the four weighting schemes, check the coverage matrix, and write why each item “selected by judgment” is kept.
+3. “Create scenarios”: answer the six “why this scenario?” questions, create the scenarios in the register in one click, and give each candidate left out its place on the watch list.
+
+*Group the variants (stage ②).* Two ways help you, both optional and both only proposals:
+
+1. “Group with the ontology” (no AI, nothing leaves the computer): candidates that fall in the same cluster of the CyberRiskGuardian Ontology are proposed as a family; a candidate alone in its cluster is proposed as unique; a candidate no ontology scenario matches is flagged as a theme gap. Complete the CRGO terms of a candidate (asset category, threat source type, themes) in its score card to sharpen the result. In “The ontology proposes”, “Accept”, “Edit” then accept, or “Reject” each proposal; nothing changes until you accept, and an accepted item records who accepted it and when.
+2. “Propose families with AI” (preview before sending; Settings → AI — local & remote can switch it off). Part A proposes families for all the candidates and drafts the six “why this scenario?” answers of each new family. Part B (“Propose a family” on one candidate, or on all) matches candidates to the existing families; a candidate is moved only by its own accepted suggestion, shown beside its current family. Part C (“Propose families for missing categories”) looks at the coverage matrix: it ticks a category an accepted family already covers, proposes a family, or proposes a new candidate, which lands in ① Candidates as “[AI — coverage gap]”, unscored. The AI sees every candidate in batches of at most 40, each batch with its own preview and its own answer; the review opens once, after the last batch. Accept, edit then accept, or reject each item. AI proposes grouping and drafts, never scores, parameters or the selection, and everything it proposes is an Analytical estimate — validation required.
+
+*Unique.* A candidate with no variant is marked unique (“Mark as unique”; “Unmark” to undo). “Unique” means three things: no other candidate in its ontology cluster still outside a family, no accepted AI match that groups it with another candidate, and you confirm it. If the first two do not hold, the button is replaced by the reason (group them in a family, or reject the match first). A candidate can be selected at stage ③ only if it is in a family or unique.
+
+*Read the ontology findings.* “Validate against the ontology” (or the validation that runs when you create) checks a line for revoked or unknown ATT&CK techniques, weaknesses and CRGO terms. A finding offers “Edit” (the field it concerns), “Delete” (the candidate, one at a time for a family line) and “Dismiss”. Findings never block: you can create the scenario with a finding open.
+
+*Close a theme gap.* A candidate that no ontology scenario matches is listed under “Own scenarios — theme gaps” and, at ③, under “Gaps the ontology does not cover”. Keep it as an own scenario, or click “Add to the ontology”: the dialog shows the exact text that would be added (names replaced, no parameters, estimates, CVSS, owners or amounts). Untick “Make public” and the proposal stays in this installation’s ontology; tick it only if the text may go to the public ontology. Then “Propose”.
+
+*Where:* Ontology · CRGO → “Proposals”
+
+1. Only the administrator of the installation (the one person, in single-user mode) can approve or reject a proposal: “Approve” (nothing enters the ontology without it) or “Reject” with a reason. Once approved, grouping and validation use the scenario and the theme gap clears at the next validation.
+2. A proposal marked “Make public” stays local until it is approved; approving with “Make public” ticked writes the contribution file for the public ontology into the “Folder for ontology proposals” (Settings → Links & shared folders). The file leaves the computer only when you send it.
+3. These actions need the local helper (the launcher). Without it “Add to the ontology” and the Proposals tab are disabled and say so.
+
+*Select, then create (stages ③ and ④).* At ③ tick the families and unique candidates to develop; a draft “why” from the AI waits until you click “Use the draft (fills the empty answers)” or “Replace all six answers” (or “Discard the draft”) in the six “why this scenario?” questions. At ④ read what each scenario inherits and click “Create the … scenarios”: all the selected items become scenarios in one click, and a second click creates nothing more.
+
+*Already-selected scenarios.* In Batch scenarios, “Advanced — skip screening” sends the ticked rows straight to the Scenario register. They do not count as candidates for step 5 and skip the screening and selection of steps 6–7; a confirmation (“Skip the screening?”) says so, and the action is written in the audit log. Use it only for scenarios you have already screened elsewhere.
 
 *Done when:* Process steps 6 and 7 show Done: every candidate is scored and has a disposition, and every judgment and flagged exclusion is explained.
 
 #### 5. Generate 25 to 40, screen, keep 10
 
-In Batch scenarios generate about 25 to 40 candidates (never fewer than 20; 20 is the quick lab version), screen them in Scenario screening, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
+In Batch scenarios generate about 25 to 40 candidates (never fewer than 20; 20 is the quick lab version), screen them in From candidates to scenarios, and keep the 10 most material in the register. Ten is where to start; the number rises with the organization’s maturity.
 
 *Where:* Batch scenarios
 
@@ -705,7 +726,7 @@ The side menu has eleven sections, in this order: **Start · Organization · Ris
 vulnerabilities · Governance · Compliance management · Audit management · Security operations · Risk
 Registry · Tools · Settings**. This chapter follows it screen by screen. **Help** is the button in the top bar
 (section 7.12). The application's name and logo stay at the top of the menu and the footer —
-**© Marc-André Léger · v1.9.2 Beta · ✓ Engine verified**, which opens **Help → About & versions** — at its bottom; only the
+**© Marc-André Léger · v1.9.3 Beta · ✓ Engine verified**, which opens **Help → About & versions** — at its bottom; only the
 menu between them scrolls, in the full menu, the rail and the drawer.
 
 **Finding your way in the menu.**
@@ -1472,7 +1493,7 @@ it and the Quebec Law 25 obligations it can trigger. For any scenario, **Find si
 scenarios** searches the ontology by the scenario's ATT&CK techniques and the words of its name — *Link*
 attaches one, which gives the scenario its ontology keys — and **Controls for its techniques** lists,
 technique by technique, the controls the ontology most often associates with it: a starting list for
-Risk mitigation, not an assessment of the organization. **Scenario pattern (CRGO 0.11.1)** shows the
+Risk mitigation, not an assessment of the organization. **Scenario pattern (CRGO 0.11.2)** shows the
 pattern the scenario follows, its themes and pattern links, and lets you choose one of the six or *No scenario
 pattern*; the organisation graph records it as *has scenario pattern* (CRGO_0001478). A pattern is a
 classification, never evidence and never a parameter.
@@ -1543,7 +1564,7 @@ proposals, journalled in the scenario's revisions and the revision log.
 **How many, and then what.** About 25 to 40 candidates for a portfolio of ten, never fewer than 20 (20 is the
 quick lab version). A banner above the grid says where Process step 5 stands (*n of 20 distinct candidates in
 the screening*): the rows of the grid are a draft and count for nothing until they are candidates. **Add the
-ticked rows as screening candidates** sends the ticked rows to Scenario screening (section 7.3.7) with the
+ticked rows as screening candidates** sends the ticked rows to From candidates to scenarios (section 7.3.7) with the
 strategy that produced them and, as the candidate's **draft**, everything the row carries — the six
 parameters, the vector, the ATT&CK, CWE and CVE links, the chain — so that nothing is lost when the candidate
 is later created as a scenario. A row identical to an existing candidate (same name, threat source and
@@ -1586,7 +1607,7 @@ The spread is **seeded**, the seed is shown and kept with the workspace, and *Re
 one. The same seed reproduces the same candidates, so a set cited in a report can be re-derived.
 *Vary the patterns and assets* can be unticked for the strict ranking.
 
-### 7.3.7 Scenario screening {#screening}
+### 7.3.7 From candidates to scenarios {#screening}
 
 Process steps 5 to 7, as chapter 5 of the book describes them: candidates screened on twelve criteria,
 consolidated into families, tested under four weighting schemes, checked for coverage, and the final
@@ -1622,7 +1643,7 @@ disposition stays yours. Acceptance is recorded with the name of the person acce
 is routed as *Screening score estimates* (Settings → AI — local & remote); switched off, the buttons disappear.
 No formula, criterion or weighting changes.
 
-**Candidates & scores.** **Score** opens a candidate's card: the twelve criteria scored 1 (very low) to 5
+**Screen.** **Score** opens a candidate's card: the twelve criteria scored 1 (very low) to 5
 (very high) — business criticality, asset criticality, threat relevance, exposure or vulnerability,
 potential impact, regulatory and legal, operational resilience, dependency and concentration, evidence
 strength (5 = direct organizational evidence, 1 = assumption only), risk velocity, control uncertainty and
@@ -1643,7 +1664,7 @@ causal statement; two candidates stay separate when their assets, threat actors,
 owners or treatment decisions differ materially. Tick **Selected for the portfolio** for the families of the
 final portfolio.
 
-**Weighting schemes.** Each family takes the highest weighted score of its members, so variants do not add
+**Select: weighting schemes.** Each family takes the highest weighted score of its members, so variants do not add
 up. The ranks under the **equal**, **impact-led**, **evidence-led** and **decision-led** schemes are shown
 side by side. A family selected but not in the top ten under every scheme is **selected by judgment**: write
 why. A candidate not selected that ranks in the top ten under some scheme needs an **explicit review**.
@@ -1653,10 +1674,10 @@ availability, identity, ransomware, cloud and SaaS, third parties, insiders, app
 infrastructure, endpoints, OT/IoT/medical devices, privacy, fraud and BEC, resilience, AI and safety. A gap is a
 question to answer, not a quota to fill.
 
-**Watch list & plan.** The candidates left out but still material, each with its promotion trigger and owner,
+**Create scenarios: watch list and plan.** The candidates left out but still material, each with its promotion trigger and owner,
 and the **evidence-collection plan**: how each selected scenario will be validated, by whom and by when.
 
-**Final portfolio.** For each selected family, the six **"why this scenario?"** questions and **Create the
+**Create scenarios: the final portfolio.** For each selected family, the six **"why this scenario?"** questions and **Create the
 scenario**, which adds it to the register with the family's consolidated statement and **everything its
 best-scored member carries**: the causal chain (threat source, vulnerabilities, assets), the six parameters
 with their rationale and confidence where the candidate had them, the CVSS vector, the ATT&CK, CWE and CVE
@@ -2652,7 +2673,7 @@ applicability depends on the organization's legal context.
 
 The ontology alignment of these records (account populations, privileged-role populations, emergency
 account sets, campaigns, segregation rules, identity and privilege findings and the indicators) follows CRGO
-0.11.1, whose terms are all approved; the overview says so (*Ontology alignment: CRGO 0.11.1 identifiers, all
+0.11.2, whose terms are all approved; the overview says so (*Ontology alignment: CRGO 0.11.2 identifiers, all
 approved by the CRGO project owner*).
 
 ### 7.5.7 Configuration management {#cm}
@@ -3886,7 +3907,7 @@ history. The chatbot never changes data.
 
 ### 7.12.3.1 Support code on every screen {#support-code}
 
-Each screen's title ends with a small code such as **`ORG-CROWN · 1.9.2`**: the screen, its tab and the
+Each screen's title ends with a small code such as **`ORG-CROWN · 1.9.3`**: the screen, its tab and the
 version you are running. Click it to copy it, and quote it when you report a problem — it tells support
 exactly where you were. It is built from the address, never typed by hand, and it is not translated.
 
@@ -4298,7 +4319,7 @@ None of this is legal advice.
     **84,305 / 41,023** and your workspace, its policies and its requirements are present.
 34. **Help → Step by step** → a separate window with the nineteen steps, the report and the guidelines; **Help → User guide**
     → this guide with a table of contents; switch the interface to **FR** and reopen it: the French guide.
-35. **Help → About & versions** reads `1.9.2 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
+35. **Help → About & versions** reads `1.9.3 beta` and `engine verified · 84,305 / 41,023`; **Licence** names
     the proprietary licence, the four licence files, cyberriskguardian.ca and sales@cyberriskguardian.ca;
     **Check now** under *Updates* answers (a newer release, the latest release, or why it could not tell).
 36. Switch the interface to **FR**: the Ontology, Risk Registry, ISP management, Compliance management, SIEM
@@ -4322,7 +4343,7 @@ None of this is legal advice.
     held evidence records and policy exceptions: its journal shows the steps to version 5, the evidence is in
     **Shared registers → Evidence**, the exceptions in **Shared registers → Exceptions**, and its numbers are
     unchanged.
-41. **Ontology · CRGO → Connection** names CRGO v0.11.1 and says it is an approved release; *Organisation link* → *Build the organisation graph*
+41. **Ontology · CRGO → Connection** names CRGO v0.11.2 and says it is an approved release; *Organisation link* → *Build the organisation graph*
     on MediBec shows **same totals**; *Read the context* of S1 gives no risk score; *Send the ticked results as
     proposals* shows **proposed** in the journal; **Read both contexts** returns the compliance and
     security-operations contexts.
@@ -4357,7 +4378,7 @@ None of this is legal advice.
 
 51. **Evidence register** on MediBec lists E1 to E12 with their type; **Cited in** shows the parameters that
     cite each one.
-52. **Scenario screening** shows 45 candidates, C01 at 52 / 60 and C02 at 56; **Weighting schemes** shows P05
+52. **From candidates to scenarios** shows 45 candidates, C01 at 52 / 60 and C02 at 56; **Select** shows P05
     *Selected by judgment* and C31 *Explicit review*; **Coverage matrix** shows *Fraud / BEC* not covered.
 53. **CVSS v4.0 → By equivalency (non-technical weakness)** opened from a scenario: save without justifying
     every metric — the toast lists the missing ones and the Quality review fails QC-22.
@@ -4437,8 +4458,8 @@ copy it here. The self-check will catch a mismatch, but only after the fact.
 | Import from documents reads only one document | The documents just added are the only ones selected by default. | Tick the others, or *Select all documents*. |
 | Red `engine DIVERGES` banner | Engine disagrees with the reference totals. | Stop. Restore a clean copy. |
 | *This workspace is open read-only* | It was written by a newer release, or its migration failed. | Backup & restore → Data versions and migrations says which; open it with the newer release, or send the error to support. Nothing was changed. |
-| *Organisation link* says the contract is not available | The ontology found is older than v0.9.1. | Clone CRGO 0.11.1 (section 3.5) and point the server at it. |
-| The compliance and security-operations contexts say they need CRGO v0.10.0 | The ontology found is older. | Clone CRGO 0.11.1 beside the application (it is found newest first), or point `crgo-ontology` in Claude at it. |
+| *Organisation link* says the contract is not available | The ontology found is older than v0.9.1. | Clone CRGO 0.11.2 (section 3.5) and point the server at it. |
+| The compliance and security-operations contexts say they need CRGO v0.10.0 | The ontology found is older. | Clone CRGO 0.11.2 beside the application (it is found newest first), or point `crgo-ontology` in Claude at it. |
 | A write-back is refused with `UNKNOWN_SUBJECT` or `INPUT_UNKNOWN` | Scenarios were added, renamed or excluded since the graph was built. | *Rebuild the organisation graph*, then send again. |
 | *The organisation graph folder is inside a git repository* | The confidential folder chosen is in a repository. | Choose a folder outside any repository (Organisation link → *Save the folder*). |
 | A simulation pack shows errors and cannot be imported | It cites scenarios or crown jewels this workspace does not have. | Import it into a workspace of its case (for MediBec, the example or a copy of it). |

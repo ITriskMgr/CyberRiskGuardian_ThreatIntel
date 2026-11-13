@@ -1,13 +1,13 @@
 /* CyberRiskGuardian Desktop — offline cache. Bump CACHE when any file changes.
    Network-first since 1.1.1: when the app is being served, the served files always win, so a new
    version shows at once; the cache is used only when no server is running (installed app offline). */
-const CACHE = "crg-desktop-1.9.2";
+const CACHE = "crg-desktop-1.9.3";
 const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.js", "sample.js", "medibec.js", "kb.js",
   "canaretail.js", "medibec-fr.js",
   "js/app.js", "js/version.js", "js/nav.js", "js/util.js", "js/store.js", "js/state.js", "js/ontology.js", "js/picker.js", "js/extract.js", "js/snapgen.js",
   "js/charts.js", "js/kri.js", "js/xlsx.js", "js/exportx.js",
   "js/helper.js", "js/catalog.js", "js/recommend.js", "js/backup.js", "js/forecast.js", "js/ai.js", "js/triage.js", "js/feedparse.js", "js/anon.js", "js/data/anon-words.js", "js/registry.js", "js/assets.js", "js/data/controls.js", "js/data/sources.js", "js/data/methods.js", "js/data/chapters.js", "js/chapterhelp.js", "js/frameworks.js",
-  "js/prefs.js", "js/detail.js", "js/helpmenu.js", "js/whyscreen.js", "js/a11y.js", "js/winlock.js", "js/teaching.js", "js/setupwizard.js", "js/i18n.js", "js/i18n/fr.js", "js/users.js", "js/process.js", "js/aiui.js", "js/extractor.js", "js/help.js", "js/chat.js", "js/linker.js", "js/importer.js", "USER-GUIDE.md", "USER-GUIDE.fr.md",
+  "js/prefs.js", "js/detail.js", "js/helpmenu.js", "js/whyscreen.js", "js/a11y.js", "js/winlock.js", "js/screencodes.js", "js/teaching.js", "js/setupwizard.js", "js/i18n.js", "js/i18n/fr.js", "js/users.js", "js/process.js", "js/aiui.js", "js/extractor.js", "js/help.js", "js/chat.js", "js/linker.js", "js/importer.js", "USER-GUIDE.md", "USER-GUIDE.fr.md",
   "js/panels/org.js", "js/panels/dashboard.js", "js/panels/register.js", "js/panels/scenario.js", "js/panels/batch.js",
   "js/panels/calc.js", "js/panels/recs.js", "js/panels/threats.js", "js/panels/vulns.js", "js/panels/threatctx.js",
   "js/panels/cvss.js", "js/panels/budget.js", "js/panels/export.js", "js/panels/online.js",
@@ -31,9 +31,13 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "fonts/sora-latin-500-normal.woff2", "fonts/sora-latin-600-normal.woff2", "fonts/sora-latin-700-normal.woff2",
   "fonts/atkinson-hyperlegible-latin-400-normal.woff2", "fonts/atkinson-hyperlegible-latin-400-italic.woff2", "fonts/atkinson-hyperlegible-latin-700-normal.woff2", "js/tabkeys.js",
   // 1.9.2 — data version 6: the sub-step lists of the workstreams
-  "js/receffect.js", "js/screenai.js", "js/migrate192.js", "js/migrate192/ws1.js", "js/migrate192/ws2.js", "js/migrate192/ws3.js", "js/migrate192/ws4.js", "js/migrate192/ws5.js", "js/migrate192/review.js",
+  "js/receffect.js", "js/screenai.js", "js/migrate192.js", "js/migrate193.js", "js/migrate192/ws1.js", "js/migrate192/ws2.js", "js/migrate192/ws3.js", "js/migrate192/ws4.js", "js/migrate192/ws5.js", "js/migrate192/review.js",
   // 1.9.2 — the edition switch (D3)
-  "js/edition.js"
+  "js/edition.js",
+  // 1.9.3 — CRGO 0.11.2: candidate grouping and scenario validation offline (library-proposal/v1)
+  "js/crgo_group.js",
+  // 1.9.3 (W2b) — grouping review, validation findings, own scenarios and proposals
+  "js/proposalpanel.js", "js/familyai.js", "js/familytext.js", "js/familypayload.js", "js/ontogroup.js", "js/ontofind.js", "js/ontoprop.js", "js/panels/ontology_prop.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

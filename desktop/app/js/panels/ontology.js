@@ -11,6 +11,7 @@
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
 import { el, card, pill, chip, toast, banner, table, kpi, n0, go, field, select } from '../util.js';
+import * as SCR from '../screening.js';
 import { S, touch } from '../state.js';
 import * as C from '../crgo.js';
 import { HS, loadConfig, saveConfig } from '../helper.js';
@@ -32,7 +33,7 @@ async function loadValues() {
 export const vocabulary = loadValues;
 
 export async function render(sec, arg) {
-  if (['suggest', 'explore', 'link', 'connection'].includes(arg)) view = arg;
+  if (['suggest', 'explore', 'link', 'connection', 'proposals'].includes(arg)) view = arg;
   sec.replaceChildren(el('h1', null, 'Ontology · CRGO'),
     el('p', 'lede', 'The CyberRiskGuardian Ontology: a library of risk scenarios with their ATT&CK techniques, weaknesses, controls (NIST CSF 2.0, SP 800-53, ISO/IEC 27002) and Quebec Law 25 obligations, reached through its own MCP server — the one Claude uses — or, without it, through the snapshot shipped with the application.'),
     banner('warn', 'Calibration priors, not evidence', tr('Ontology values are AI estimates (2023) for a fictitious healthcare organization or instructor values of teaching cases. They are starting points for a discussion with the organization: every value arrives tagged “{0}”.').replace('{0}', tr(C.MARK))));
@@ -40,11 +41,11 @@ export async function render(sec, arg) {
     ' · ', el('a', { href: 'https://itriskmgr.github.io/CyberRiskGuardian-Ontology/map/', target: '_blank', rel: 'noopener noreferrer' }, 'Interactive ontology map'),
     ' · ', el('a', { href: 'https://github.com/ITriskMgr/CyberRiskGuardian-Ontology', target: '_blank', rel: 'noopener noreferrer' }, 'Source on GitHub')));
   const st = el('div', { class: 'subtabs', role: 'tablist' });
-  for (const [k, t] of [['suggest', 'Suggest scenarios'], ['explore', 'Explore'], ['link', 'Organisation link'], ['connection', 'Connection']])
+  for (const [k, t] of [['suggest', 'Suggest scenarios'], ['explore', 'Explore'], ['link', 'Organisation link'], ['connection', 'Connection'], ['proposals', 'Proposals']])
     st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => { view = k; go('ontology/' + k); } }, t));
   const body = el('div'); sec.append(st, body);
   const link = async b => (await import('./ontology_link.js')).link(b, () => render(sec, 'link'));
-  try { await ({ suggest, explore, link, connection }[view])(body, sec); }
+  try { await ({ suggest, explore, link, connection, proposals: async (b, sc) => (await import('./ontology_prop.js')).proposals(b, sc) }[view])(body, sec); }
   catch (e) { body.append(banner('bad', 'The ontology could not be read', String(e.message || e))); }
 }
 
@@ -136,13 +137,14 @@ function drawResults(box, V) {
     el('div', 'btnrow', el('button', { class: 'btn', disabled: !rows.length, onclick: () => {
       const sel = rows.filter(x => x.pick);
       if (!sel.length) { toast(tr('Tick at least one scenario'), 'bad'); return; }
-      ws.batchDraft ||= [];
-      for (const x of sel) ws.batchDraft.push(C.toBatchRow(x.s, { usePriors: opts.usePriors }));
-      users.audit('ontology scenarios to batch', `${sel.length} (${last.via})`, ws);
+      // 1.9.3 (W1) — the ticked scenarios become candidates in From candidates to scenarios → Candidates, with their draft and origin
+      const { ids, dup } = SCR.addRowsAsCandidates(sel.map(x => C.toBatchRow(x.s, { usePriors: opts.usePriors })), { strategyOf: () => ['GL'], ws });
+      users.audit('ontology scenarios to candidates', `${ids.length} (${last.via})`, ws);
       touch('batch');
-      toast(`${sel.length} ${tr('scenario(s) added to the Batch scenarios grid')}`, 'good');
+      toast(`${ids.length} ${tr('scenario(s) added to Candidates')}` + (dup ? ' · ' + tr('{0} identical to existing candidates skipped').replace('{0}', dup) : ''), ids.length ? 'good' : 'warn');
       drawResults(box, V);
-    } }, 'Add ticked to Batch scenarios'), el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('batch') }, 'Open Batch scenarios')),
+    } }, 'Add ticked to Candidates'), el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('screening/candidates') }, 'Open Candidates'),
+      el('button', { class: 'btn ghost', 'data-ro-ok': '', onclick: () => go('batch') }, 'Open Batch scenarios')),
     el('p', 'small muted', r.caveat || C.MARK)), detail);
 }
 

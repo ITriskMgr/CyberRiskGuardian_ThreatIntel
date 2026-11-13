@@ -31,17 +31,20 @@ ok(/Joyaux de la couronne/.test(pr.card) && /Importer des documents/.test(pr.car
 await page.evaluate(async () => { const st = await import('/js/state.js'); st.S.ws.org = Object.assign(st.S.ws.org, { context: 'c', mission: 'm', services: 's', processes: 'p', systems: 'sy', cloud: 'cl', suppliers: 'su', sensitive: 'se', regulations: ['Loi 25'] }); st.S.ws.assessment.CROWN = [['CJ1', 'TMS', 'r', 'COO', 'High', 'High', 'High'], ['CJ2', 'WMS', 'r', 'COO', 'High', 'High', 'High'], ['CJ3', 'ERP', 'r', 'CFO', 'High', 'High', 'High']]; st.S.ws.org.scope = 's'; st.S.ws.org.exclusions = 'aucune'; st.S.ws.org.perspectives = 'p'; st.S.ws.assessment.EVIDENCE = [['E1', 'x']]; st.S.ws.snapshot = { name: 'x' }; st.S.ws.vulns = [{ id: 'CVE-2024-3400', kind: 'CVE' }]; st.S.ws.appetite_rationale = 'r'; st.S.ws.budget.it_budget = 1000000; st.S.ws.org.materiality = 'm'; st.touch(); });
 await goto(page, '#/batch', 600); await goto(page, '#/process', 1200);
 const s5 = await text('.next-step');
-ok(/Générer des scénarios candidats|Générer les scénarios candidats/.test(s5) && /20 candidats dans Filtrage des scénarios/.test(s5) && /1 maintenant/.test(s5) && /1 ligne\(s\) attendent dans la grille/.test(s5) && /Ajouter des scénarios du registre comme candidats/.test(s5), 'the step-5 card counts the candidates and names the three ways, in French ' + s5.replace(/\s+/g, ' ').slice(0, 160));
+ok(/Générer des scénarios candidats|Générer les scénarios candidats/.test(s5) && /20 candidats dans Des candidats aux scénarios/.test(s5) && /1 maintenant/.test(s5) && /1 ligne\(s\) attendent dans la grille/.test(s5) && /Ajouter des scénarios du registre comme candidats/.test(s5), 'the step-5 card counts the candidates and names the three ways, in French ' + s5.replace(/\s+/g, ' ').slice(0, 160));
 ok(!/candidates in Scenario|Batch grid|Generate or write/.test(s5), 'no English left on the step-5 card');
 await goto(page, '#/batch', 1000);
 const bb = await page.evaluate(() => [...document.querySelectorAll('#panel-batch .banner')].map(b => b.textContent).join(' | '));
-ok(/Ces lignes ne sont pas encore des candidats/.test(bb) && /1 sur 20 maintenant/.test(bb), 'the Batch banner reads in French: ' + bb.slice(0, 80));
+ok(/Ces lignes ne sont pas encore des candidats/.test(bb) && /1 sur 20 pour l’instant/.test(bb), 'the Batch banner reads in French: ' + bb.slice(0, 80));
 
 /* ---------------- Candidates & scores ---------------- */
 await goto(page, '#/screening/candidates', 1000);
+await goto(page, '#/screening/screen', 800);
 const sc = await page.$$eval('#panel-screening button', bs => bs.map(b => b.textContent));
+await goto(page, '#/screening/candidates', 800);
+sc.push(...await page.$$eval('#panel-screening button', bs => bs.map(b => b.textContent)));
 ok(sc.some(b => /^Ajouter des scénarios du registre comme candidats \(1\)$/.test(b)) && sc.some(b => /^Estimer tous les non notés avec l’IA \(1\)$/.test(b)), 'C1 and C5 buttons in French ' + sc.filter(b => /registre|IA/.test(b)).join(' · '));
-ok(/distincts · trop peu/.test(await text('#panel-screening')), 'the candidate KPI says « distincts »');
+ok(/Trop peu de candidats : 1/.test(await text('#panel-screening')), 'the candidate count tile says « Trop peu de candidats »');
 await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr button')][0].click(); }); await page.waitForTimeout(500);
 ok(await page.isVisible('#scr-remove') && (await text('#scr-remove')) === 'Retirer', 'the Remove button reads « Retirer »');
 

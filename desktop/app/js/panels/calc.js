@@ -148,7 +148,7 @@ function singleCalc(box) {
       el('button', { class: 'btn', id: 'risk-run', onclick: () => run(ins, out) }, 'Calculate'),
       s ? el('button', { class: 'btn ghost', onclick: () => { try { saveBack(s, ins); toast('Saved to ' + s.id); } catch (e) { toast(e.message, 'bad'); } } }, 'Save values to ' + s.id) : null,
       // 1.8.0 — Process step 15: the sensitivity cases of this scenario were read and their consequence noted
-      s ? el('button', { class: 'btn ghost', id: 'sens-record', onclick: () => { const L = (a.SENS_IDS ||= []); if (!L.includes(s.id)) L.push(s.id); touch(); toast(tr('Sensitivity review recorded for {0}').replace('{0}', s.id)); } },
+      s ? el('button', { class: 'btn ghost', id: 'sens-record', onclick: e => { const L = (a.SENS_IDS ||= []); if (!L.includes(s.id)) L.push(s.id); touch(); e.currentTarget.textContent = tr('Sensitivity reviewed ✓'); toast(tr('Sensitivity review recorded for {0}').replace('{0}', s.id)); } },
         (a.SENS_IDS || []).includes(s.id) ? tr('Sensitivity reviewed ✓') : 'Record the sensitivity review') : null,
       el('button', { class: 'btn ghost', onclick: () => { const n = blankScenario(nextScenarioId()); n.name = s ? s.name + ' (variant)' : 'Calculator scenario'; try { saveBack(n, ins); } catch (e) { toast(e.message, 'bad'); return; } a.SCEN.push(n); touch(); toast('Created ' + n.id); go('scenario/' + n.id); } }, 'Save as new scenario'))), out);
   run(ins, out);

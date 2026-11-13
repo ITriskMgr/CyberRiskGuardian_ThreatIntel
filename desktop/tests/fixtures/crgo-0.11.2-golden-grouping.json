@@ -1,0 +1,5238 @@
+{
+ "algorithms": [
+  "crgo-grouping/1",
+  "crgo-validation/1"
+ ],
+ "cases": [
+  {
+   "expected": {
+    "algorithm": "crgo-grouping/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "groups": [
+     {
+      "cluster_id": "GRP-a6c2fee29c",
+      "kind": "family",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeCrypto",
+        "ref": "C03",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       },
+       {
+        "match": null,
+        "primary_theme": "ThemeCrypto",
+        "ref": "C34",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeCrypto"
+     },
+     {
+      "cluster_id": "LIB-F0113",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0113",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAccess",
+        "ref": "C15",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0113",
+       "name": "Email Account Compromise",
+       "source": "library",
+       "statement": "An employee's email account gets compromised due to a weak password or successful phishing attack. The attacker gains control of the account, uses it to send malicious emails containing malware or requesting sensitive information from other staff members. This compromise could result in further data breaches, infected systems, or financial loss.",
+       "themes": [
+        "ThemeAccess"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0122",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0122",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAccess",
+        "ref": "C26",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0122",
+       "name": "Stolen Administrative Credentials",
+       "source": "library",
+       "statement": "Cybercriminals successfully steal administrative credentials from a hospital staff member, allowing them extensive privileges to move laterally within the network, access critical systems, and manipulate patient data.",
+       "themes": [
+        "ThemeAccess"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0196",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0196",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAppSec",
+        "ref": "C05",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0196",
+       "name": "API key exposure in code repositories",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeAppSec"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0270",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0259",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAppSec",
+        "ref": "C18",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0270",
+       "name": "Pharming Attack Redirecting Website Traffic",
+       "source": "library",
+       "statement": "Attackers manipulate the hospital's DNS records, redirecting website visitors to a fraudulent website that closely resembles the hospital's legitimate site. This facilitates the collection of users' personal and payment information.",
+       "themes": [
+        "ThemeNetwork",
+        "ThemeAppSec"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0358",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0359",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeCloud",
+        "ref": "C04",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0358",
+       "name": "Cloud Service Misconfiguration",
+       "source": "library",
+       "statement": "Misconfiguration of cloud-based storage or services containing patient data exposes sensitive information to unauthorized access. The misconfiguration may result from human error or lack of proper security practices, leaving the hospital's data vulnerable to potential breaches.",
+       "themes": [
+        "ThemeCloud"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0673",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0673",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeDoS",
+        "ref": "C10",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0673",
+       "name": "DDoS attack against medical imagery systems disrupting diagnostic procedures",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeDoS"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1066",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1066",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeIntegrity",
+        "ref": "C12",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1066",
+       "name": "Manipulation of financial records for embezzlement",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeInsider",
+        "ThemeIntegrity"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1194",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1194",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "C09",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1194",
+       "name": "Exploitation of vulnerabilities in medical devices connected to the network",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeMedicalIoT"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1198",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1214",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "C43",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1198",
+       "name": "IoT Device Compromise",
+       "source": "library",
+       "statement": "An attacker exploits a vulnerability in the hospital's internet-connected medical devices, gaining control over them. This allows the attacker to manipulate device settings, potentially causing harm to patients or disrupting operations.",
+       "themes": [
+        "ThemeMedicalIoT"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1319",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1319",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeNetwork",
+        "ref": "C06",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1319",
+       "name": "Unsecured Network - Patient Wi-Fi Network Compromise",
+       "source": "library",
+       "statement": "Hackers exploit the hospital's unsecured patient Wi-Fi network to intercept communication, launch attacks against connected devices, or gain access to patient data, compromising patient privacy and potentially exposing them to identity theft.",
+       "themes": [
+        "ThemeNetwork"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1455",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1455",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "C22",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1455",
+       "name": "Inclusion of malware in third-party libraries used in the hospital's mobile applications",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeRansomware",
+        "ThemeThirdParty"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1464",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1464",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "C27",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1464",
+       "name": "Malware-infected External Media",
+       "source": "library",
+       "statement": "An employee connects an infected external storage device, such as a USB drive, to hospital systems, unknowingly introducing malware onto the network. The malware can spread throughout the infrastructure, causing disruption and compromising data.",
+       "themes": [
+        "ThemeRansomware"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1468",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1468",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "C02",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1468",
+       "name": "Ransomware Attack on Hospital Systems",
+       "source": "library",
+       "statement": "A staff member unknowingly opens a malicious email attachment, leading to a ransomware infection that encrypts critical hospital systems, hindering patient care and demanding a ransom payment for data decryption.",
+       "themes": [
+        "ThemeRansomware"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1550",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1550",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C30",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1550",
+       "name": "Vishing attack on HR department to gain employee credentials",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeSocialEng"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1602",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1603",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C01",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1602",
+       "name": "Phishing Attack: Credential Harvesting",
+       "source": "library",
+       "statement": "Hospital staff members receive seemingly legitimate emails appearing to be from a trusted source, enticing them to click on malicious links. Unbeknownst to the staff, their credentials are harvested, allowing the attacker to gain access to multiple systems and perform unauthorized activities, such as modifying patient records or stealing sensitive data.",
+       "themes": [
+        "ThemeSocialEng"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1692",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1692",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeThirdParty",
+        "ref": "C13",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1692",
+       "name": "Vendor Compromise",
+       "source": "library",
+       "statement": "A vendor, who provides IT support or software services to the hospital, suffers a cyber breach. The attacker then pivots from the vendor's compromised systems to gain access to the hospital's network, potentially exposing patient data or compromising critical systems.",
+       "themes": [
+        "ThemeThirdParty"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1795",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1789",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeVulnMgmt",
+        "ref": "C07",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1795",
+       "name": "Exploitation of Unpatched CRM Software",
+       "source": "library",
+       "statement": "The hospital's customer relationship management (CRM) software has unpatched vulnerabilities. Attackers exploit these vulnerabilities to gain unauthorized access, manipulate patient records, or extract sensitive customer information.",
+       "themes": [
+        "ThemeVulnMgmt"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1814",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1814",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeIntegrity",
+        "ref": "C32",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1814",
+       "name": "Interception or tampering of clinical messages (HL7, DICOM) between systems",
+       "source": "library",
+       "statement": "An attacker with a foothold on the internal network or a partner link intercepts or alters unencrypted HL7 messages or DICOM transfers between clinical systems (EHR, laboratory, imaging, interface engine), exposing patient data or changing results, orders or images used for care.",
+       "themes": [
+        "ThemeIntegrity"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "GRP-133d22d985",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C24",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-22b5894e02",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeInsider",
+        "ref": "C11",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeInsider"
+     },
+     {
+      "cluster_id": "GRP-5a816f1339",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeCrypto",
+        "ref": "C37",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeCrypto"
+     },
+     {
+      "cluster_id": "GRP-60178813d7",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeEndpoint",
+        "ref": "C36",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeEndpoint"
+     },
+     {
+      "cluster_id": "GRP-625808357a",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C38",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-6b4406af15",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C41",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-813ee86cf9",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemePhysical",
+        "ref": "C39",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemePhysical"
+     },
+     {
+      "cluster_id": "GRP-937e831e2a",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeVulnMgmt",
+        "ref": "C35",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeVulnMgmt"
+     },
+     {
+      "cluster_id": "GRP-a39ed58c5b",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C33",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeSocialEng"
+     },
+     {
+      "cluster_id": "GRP-a539dc09c0",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C19",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-aa2a2112a5",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeEmerging",
+        "ref": "C42",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeEmerging"
+     },
+     {
+      "cluster_id": "GRP-aa482ed186",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeCloud",
+        "ref": "C17",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeCloud"
+     },
+     {
+      "cluster_id": "GRP-abb23d0d25",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C21",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-acade632f7",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C08",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-ae44923efe",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C25",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-ba9d0f8031",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C31",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-c9c1dd0d52",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeAccess",
+        "ref": "C20",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeAccess"
+     },
+     {
+      "cluster_id": "GRP-d5d6039294",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C40",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-e1d53e4f41",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDoS",
+        "ref": "C16",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDoS"
+     },
+     {
+      "cluster_id": "GRP-e377a9bf71",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C23",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeSocialEng"
+     },
+     {
+      "cluster_id": "GRP-ebca3449f7",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C28",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-efe2ca6af3",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C29",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-f3dea8a412",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeNetwork",
+        "ref": "C45",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeNetwork"
+     },
+     {
+      "cluster_id": "GRP-fafc221218",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeContinuity",
+        "ref": "C14",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeContinuity"
+     },
+     {
+      "cluster_id": "GRP-ff9039536d",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C44",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "min_confidence": "M",
+    "release": "0.11.2",
+    "theme_gaps": [
+     "ThemeAccess",
+     "ThemeCloud",
+     "ThemeContinuity",
+     "ThemeCrypto",
+     "ThemeDataBreach",
+     "ThemeDoS",
+     "ThemeEmerging",
+     "ThemeEndpoint",
+     "ThemeInsider",
+     "ThemeNetwork",
+     "ThemeOther",
+     "ThemePhysical",
+     "ThemeSocialEng",
+     "ThemeVulnMgmt"
+    ],
+    "unknown_techniques": []
+   },
+   "id": "medibec-45",
+   "input": [
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Phishing-led compromise of clinic administrator credentials",
+     "ref": "C01",
+     "techniques": [
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation",
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Ransomware encrypting EHR support systems, shared folders and scheduling",
+     "ref": "C02",
+     "techniques": [
+      "T1486"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Backup environment compromised before encryption, recovery fails",
+     "ref": "C03",
+     "techniques": [
+      "T1490",
+      "T1486"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatCloud",
+      "CatInformation"
+     ],
+     "name": "Cloud medical-image transfer storage exposed or accessed externally",
+     "ref": "C04",
+     "techniques": [
+      "T1530"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation",
+      "CatCloud"
+     ],
+     "name": "API key committed to a code repository enables data access",
+     "ref": "C05",
+     "techniques": [
+      "T1552"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNetwork"
+     ],
+     "name": "Clinic Wi-Fi compromise or rogue access point",
+     "ref": "C06",
+     "techniques": [
+      "T1557"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Exploitation of unpatched internet-facing or end-of-life systems",
+     "ref": "C07",
+     "techniques": [
+      "T1190"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Intrusion goes undetected because monitoring and triage are insufficient",
+     "ref": "C08",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatOTIoT"
+     ],
+     "name": "Connected medical device used as network foothold",
+     "ref": "C09",
+     "techniques": [
+      "T1210"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "DDoS against patient-facing online services",
+     "ref": "C10",
+     "techniques": [
+      "T1498"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Staff member exports health or billing records for unauthorized purposes",
+     "ref": "C11",
+     "techniques": [
+      "T1005"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Alteration of patient, medication or billing records",
+     "ref": "C12",
+     "techniques": [
+      "T1565"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation",
+      "CatOTIoT"
+     ],
+     "name": "Compromise of a vendor with remote access to MediBec systems",
+     "ref": "C13",
+     "techniques": [
+      "T1199",
+      "T1133"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Untested incident response plan causes poor coordination",
+     "ref": "C14",
+     "threat_source_types": []
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Over-privileged service account (ehr-sync-svc) abused for mass extraction",
+     "ref": "C15",
+     "techniques": [
+      "T1078"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Montreal data centre or WAN outage isolates all clinics",
+     "ref": "C16",
+     "threat_source_types": [
+      "SrcAccidental",
+      "SrcEnvironmental"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatInformation"
+     ],
+     "name": "Unmanaged copies on local clinic storage units exposed",
+     "ref": "C17",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Business e-mail compromise diverts billing payments",
+     "ref": "C18",
+     "techniques": [
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint"
+     ],
+     "name": "Lost or stolen tablet or handheld with patient data",
+     "ref": "C19",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity"
+     ],
+     "name": "MFA push-fatigue bypass of remote access",
+     "ref": "C20",
+     "techniques": [
+      "T1621"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Authorization flaw in patient portal exposes other patients' records",
+     "ref": "C21",
+     "techniques": [
+      "T1190"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint",
+      "CatInfrastructure"
+     ],
+     "name": "Trojanized software update from a supplier",
+     "ref": "C22",
+     "techniques": [
+      "T1195"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatCloud",
+      "CatInformation"
+     ],
+     "name": "Cloud tenant takeover via token theft or consent phishing",
+     "ref": "C23",
+     "techniques": [
+      "T1528",
+      "T1550"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Misdirected e-mail/fax or wrong-patient disclosure",
+     "ref": "C24",
+     "threat_source_types": [
+      "SrcAccidental"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNetwork"
+     ],
+     "name": "Teleconsultation or clinical messaging intercepted",
+     "ref": "C25",
+     "techniques": [
+      "T1557"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Exposed admin interfaces attacked with stuffed/default credentials",
+     "ref": "C26",
+     "techniques": [
+      "T1110",
+      "T1078"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatOTIoT"
+     ],
+     "name": "Malware on patient-supplied imaging media",
+     "ref": "C27",
+     "techniques": [
+      "T1091"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint",
+      "CatInformation"
+     ],
+     "name": "Data left on disposed devices and leased equipment",
+     "ref": "C28",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Patient data pasted into public generative-AI tools",
+     "ref": "C29",
+     "threat_source_types": [
+      "SrcAccidental"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity"
+     ],
+     "name": "Help-desk vishing leads to MFA reset",
+     "ref": "C30",
+     "techniques": [
+      "T1566.004"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Malicious or departing IT admin sabotage",
+     "ref": "C31",
+     "techniques": [
+      "T1485"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "Interception/tampering of HL7/DICOM traffic",
+     "ref": "C32",
+     "techniques": [
+      "T1557"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Look-alike domains and smishing targeting patients",
+     "ref": "C33",
+     "techniques": [
+      "T1583.001",
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Mass encryption of hypervisors",
+     "ref": "C34",
+     "techniques": [
+      "T1486"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity"
+     ],
+     "name": "Active Directory misconfiguration enables domain takeover",
+     "ref": "C35",
+     "techniques": [
+      "T1558.003",
+      "T1484"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint"
+     ],
+     "name": "End-of-support workstation operating systems in clinics",
+     "ref": "C36",
+     "techniques": [
+      "T1203"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatCloud"
+     ],
+     "name": "Cryptomining on cloud or server resources",
+     "ref": "C37",
+     "techniques": [
+      "T1496"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "Skimming on online payment page",
+     "ref": "C38",
+     "techniques": [
+      "T1059.007"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatFacility",
+      "CatInfrastructure"
+     ],
+     "name": "Physical intrusion into clinic server closet",
+     "ref": "C39",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Insufficient logs to prove breach scope",
+     "ref": "C40",
+     "threat_source_types": []
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "Clinician mailbox compromise used to harvest PHI",
+     "ref": "C41",
+     "techniques": [
+      "T1114",
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "AI scribe SaaS mishandles recordings",
+     "ref": "C42",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNetwork"
+     ],
+     "name": "Building IoT or CCTV used as foothold",
+     "ref": "C43",
+     "techniques": [
+      "T1210"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInformation"
+     ],
+     "name": "Excessive data retention amplifies breach size",
+     "ref": "C44",
+     "threat_source_types": []
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Firewall single point of failure",
+     "ref": "C45",
+     "threat_source_types": [
+      "SrcAccidental",
+      "SrcAdversarial"
+     ]
+    }
+   ],
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_group_candidates"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-grouping/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "groups": [
+     {
+      "cluster_id": "GRP-a6c2fee29c",
+      "kind": "family",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeCrypto",
+        "ref": "C03",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       },
+       {
+        "match": null,
+        "primary_theme": "ThemeCrypto",
+        "ref": "C34",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeCrypto"
+     },
+     {
+      "cluster_id": "LIB-F0113",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0113",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAccess",
+        "ref": "C15",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0113",
+       "name": "Email Account Compromise",
+       "source": "library",
+       "statement": "An employee's email account gets compromised due to a weak password or successful phishing attack. The attacker gains control of the account, uses it to send malicious emails containing malware or requesting sensitive information from other staff members. This compromise could result in further data breaches, infected systems, or financial loss.",
+       "themes": [
+        "ThemeAccess"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0122",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0122",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAccess",
+        "ref": "C26",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0122",
+       "name": "Stolen Administrative Credentials",
+       "source": "library",
+       "statement": "Cybercriminals successfully steal administrative credentials from a hospital staff member, allowing them extensive privileges to move laterally within the network, access critical systems, and manipulate patient data.",
+       "themes": [
+        "ThemeAccess"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0196",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0196",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAppSec",
+        "ref": "C05",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0196",
+       "name": "API key exposure in code repositories",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeAppSec"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0270",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0259",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeAppSec",
+        "ref": "C18",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0270",
+       "name": "Pharming Attack Redirecting Website Traffic",
+       "source": "library",
+       "statement": "Attackers manipulate the hospital's DNS records, redirecting website visitors to a fraudulent website that closely resembles the hospital's legitimate site. This facilitates the collection of users' personal and payment information.",
+       "themes": [
+        "ThemeNetwork",
+        "ThemeAppSec"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0358",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0359",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeCloud",
+        "ref": "C04",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0358",
+       "name": "Cloud Service Misconfiguration",
+       "source": "library",
+       "statement": "Misconfiguration of cloud-based storage or services containing patient data exposes sensitive information to unauthorized access. The misconfiguration may result from human error or lack of proper security practices, leaving the hospital's data vulnerable to potential breaches.",
+       "themes": [
+        "ThemeCloud"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0673",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0673",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeDoS",
+        "ref": "C10",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0673",
+       "name": "DDoS attack against medical imagery systems disrupting diagnostic procedures",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeDoS"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F0887",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F0887",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeInsider",
+        "ref": "C11",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F0887",
+       "name": "A temporary staff member accessing and copying patient health records",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeDataBreach",
+        "ThemeInsider"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1066",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1066",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeIntegrity",
+        "ref": "C12",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1066",
+       "name": "Manipulation of financial records for embezzlement",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeInsider",
+        "ThemeIntegrity"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1194",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1194",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "C09",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1194",
+       "name": "Exploitation of vulnerabilities in medical devices connected to the network",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeMedicalIoT"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1198",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1214",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "C43",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1198",
+       "name": "IoT Device Compromise",
+       "source": "library",
+       "statement": "An attacker exploits a vulnerability in the hospital's internet-connected medical devices, gaining control over them. This allows the attacker to manipulate device settings, potentially causing harm to patients or disrupting operations.",
+       "themes": [
+        "ThemeMedicalIoT"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1319",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1319",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeNetwork",
+        "ref": "C06",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1319",
+       "name": "Unsecured Network - Patient Wi-Fi Network Compromise",
+       "source": "library",
+       "statement": "Hackers exploit the hospital's unsecured patient Wi-Fi network to intercept communication, launch attacks against connected devices, or gain access to patient data, compromising patient privacy and potentially exposing them to identity theft.",
+       "themes": [
+        "ThemeNetwork"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1455",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1455",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "C22",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1455",
+       "name": "Inclusion of malware in third-party libraries used in the hospital's mobile applications",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeRansomware",
+        "ThemeThirdParty"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1464",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1464",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "C27",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1464",
+       "name": "Malware-infected External Media",
+       "source": "library",
+       "statement": "An employee connects an infected external storage device, such as a USB drive, to hospital systems, unknowingly introducing malware onto the network. The malware can spread throughout the infrastructure, causing disruption and compromising data.",
+       "themes": [
+        "ThemeRansomware"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1468",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1468",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "C02",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1468",
+       "name": "Ransomware Attack on Hospital Systems",
+       "source": "library",
+       "statement": "A staff member unknowingly opens a malicious email attachment, leading to a ransomware infection that encrypts critical hospital systems, hindering patient care and demanding a ransom payment for data decryption.",
+       "themes": [
+        "ThemeRansomware"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1550",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1550",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C30",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1550",
+       "name": "Vishing attack on HR department to gain employee credentials",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeSocialEng"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1602",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1603",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C01",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1602",
+       "name": "Phishing Attack: Credential Harvesting",
+       "source": "library",
+       "statement": "Hospital staff members receive seemingly legitimate emails appearing to be from a trusted source, enticing them to click on malicious links. Unbeknownst to the staff, their credentials are harvested, allowing the attacker to gain access to multiple systems and perform unauthorized activities, such as modifying patient records or stealing sensitive data.",
+       "themes": [
+        "ThemeSocialEng"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1692",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1692",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeThirdParty",
+        "ref": "C13",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1692",
+       "name": "Vendor Compromise",
+       "source": "library",
+       "statement": "A vendor, who provides IT support or software services to the hospital, suffers a cyber breach. The attacker then pivots from the vendor's compromised systems to gain access to the hospital's network, potentially exposing patient data or compromising critical systems.",
+       "themes": [
+        "ThemeThirdParty"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1795",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1789",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeVulnMgmt",
+        "ref": "C07",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1795",
+       "name": "Exploitation of Unpatched CRM Software",
+       "source": "library",
+       "statement": "The hospital's customer relationship management (CRM) software has unpatched vulnerabilities. Attackers exploit these vulnerabilities to gain unauthorized access, manipulate patient records, or extract sensitive customer information.",
+       "themes": [
+        "ThemeVulnMgmt"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1814",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1814",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeIntegrity",
+        "ref": "C32",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1814",
+       "name": "Interception or tampering of clinical messages (HL7, DICOM) between systems",
+       "source": "library",
+       "statement": "An attacker with a foothold on the internal network or a partner link intercepts or alters unencrypted HL7 messages or DICOM transfers between clinical systems (EHR, laboratory, imaging, interface engine), exposing patient data or changing results, orders or images used for care.",
+       "themes": [
+        "ThemeIntegrity"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "GRP-133d22d985",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C24",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-5a816f1339",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeCrypto",
+        "ref": "C37",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeCrypto"
+     },
+     {
+      "cluster_id": "GRP-60178813d7",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeEndpoint",
+        "ref": "C36",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeEndpoint"
+     },
+     {
+      "cluster_id": "GRP-625808357a",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C38",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-6b4406af15",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C41",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-813ee86cf9",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemePhysical",
+        "ref": "C39",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemePhysical"
+     },
+     {
+      "cluster_id": "GRP-937e831e2a",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeVulnMgmt",
+        "ref": "C35",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeVulnMgmt"
+     },
+     {
+      "cluster_id": "GRP-a39ed58c5b",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C33",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeSocialEng"
+     },
+     {
+      "cluster_id": "GRP-a539dc09c0",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C19",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-aa2a2112a5",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeEmerging",
+        "ref": "C42",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeEmerging"
+     },
+     {
+      "cluster_id": "GRP-aa482ed186",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeCloud",
+        "ref": "C17",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeCloud"
+     },
+     {
+      "cluster_id": "GRP-abb23d0d25",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C21",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-acade632f7",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C08",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-ae44923efe",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C25",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-ba9d0f8031",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C31",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-c9c1dd0d52",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeAccess",
+        "ref": "C20",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeAccess"
+     },
+     {
+      "cluster_id": "GRP-d5d6039294",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C40",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-e1d53e4f41",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDoS",
+        "ref": "C16",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDoS"
+     },
+     {
+      "cluster_id": "GRP-e377a9bf71",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeSocialEng",
+        "ref": "C23",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeSocialEng"
+     },
+     {
+      "cluster_id": "GRP-ebca3449f7",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "C28",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-efe2ca6af3",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C29",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     },
+     {
+      "cluster_id": "GRP-f3dea8a412",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeNetwork",
+        "ref": "C45",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeNetwork"
+     },
+     {
+      "cluster_id": "GRP-fafc221218",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeContinuity",
+        "ref": "C14",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeContinuity"
+     },
+     {
+      "cluster_id": "GRP-ff9039536d",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeDataBreach",
+        "ref": "C44",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeDataBreach"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "min_confidence": "L",
+    "release": "0.11.2",
+    "theme_gaps": [
+     "ThemeAccess",
+     "ThemeCloud",
+     "ThemeContinuity",
+     "ThemeCrypto",
+     "ThemeDataBreach",
+     "ThemeDoS",
+     "ThemeEmerging",
+     "ThemeEndpoint",
+     "ThemeNetwork",
+     "ThemeOther",
+     "ThemePhysical",
+     "ThemeSocialEng",
+     "ThemeVulnMgmt"
+    ],
+    "unknown_techniques": []
+   },
+   "id": "medibec-45-confidence-L",
+   "input": [
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Phishing-led compromise of clinic administrator credentials",
+     "ref": "C01",
+     "techniques": [
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation",
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Ransomware encrypting EHR support systems, shared folders and scheduling",
+     "ref": "C02",
+     "techniques": [
+      "T1486"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Backup environment compromised before encryption, recovery fails",
+     "ref": "C03",
+     "techniques": [
+      "T1490",
+      "T1486"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatCloud",
+      "CatInformation"
+     ],
+     "name": "Cloud medical-image transfer storage exposed or accessed externally",
+     "ref": "C04",
+     "techniques": [
+      "T1530"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation",
+      "CatCloud"
+     ],
+     "name": "API key committed to a code repository enables data access",
+     "ref": "C05",
+     "techniques": [
+      "T1552"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNetwork"
+     ],
+     "name": "Clinic Wi-Fi compromise or rogue access point",
+     "ref": "C06",
+     "techniques": [
+      "T1557"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Exploitation of unpatched internet-facing or end-of-life systems",
+     "ref": "C07",
+     "techniques": [
+      "T1190"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Intrusion goes undetected because monitoring and triage are insufficient",
+     "ref": "C08",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatOTIoT"
+     ],
+     "name": "Connected medical device used as network foothold",
+     "ref": "C09",
+     "techniques": [
+      "T1210"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "DDoS against patient-facing online services",
+     "ref": "C10",
+     "techniques": [
+      "T1498"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Staff member exports health or billing records for unauthorized purposes",
+     "ref": "C11",
+     "techniques": [
+      "T1005"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Alteration of patient, medication or billing records",
+     "ref": "C12",
+     "techniques": [
+      "T1565"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation",
+      "CatOTIoT"
+     ],
+     "name": "Compromise of a vendor with remote access to MediBec systems",
+     "ref": "C13",
+     "techniques": [
+      "T1199",
+      "T1133"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Untested incident response plan causes poor coordination",
+     "ref": "C14",
+     "threat_source_types": []
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Over-privileged service account (ehr-sync-svc) abused for mass extraction",
+     "ref": "C15",
+     "techniques": [
+      "T1078"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Montreal data centre or WAN outage isolates all clinics",
+     "ref": "C16",
+     "threat_source_types": [
+      "SrcAccidental",
+      "SrcEnvironmental"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatInformation"
+     ],
+     "name": "Unmanaged copies on local clinic storage units exposed",
+     "ref": "C17",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Business e-mail compromise diverts billing payments",
+     "ref": "C18",
+     "techniques": [
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint"
+     ],
+     "name": "Lost or stolen tablet or handheld with patient data",
+     "ref": "C19",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity"
+     ],
+     "name": "MFA push-fatigue bypass of remote access",
+     "ref": "C20",
+     "techniques": [
+      "T1621"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Authorization flaw in patient portal exposes other patients' records",
+     "ref": "C21",
+     "techniques": [
+      "T1190"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint",
+      "CatInfrastructure"
+     ],
+     "name": "Trojanized software update from a supplier",
+     "ref": "C22",
+     "techniques": [
+      "T1195"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatCloud",
+      "CatInformation"
+     ],
+     "name": "Cloud tenant takeover via token theft or consent phishing",
+     "ref": "C23",
+     "techniques": [
+      "T1528",
+      "T1550"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Misdirected e-mail/fax or wrong-patient disclosure",
+     "ref": "C24",
+     "threat_source_types": [
+      "SrcAccidental"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNetwork"
+     ],
+     "name": "Teleconsultation or clinical messaging intercepted",
+     "ref": "C25",
+     "techniques": [
+      "T1557"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Exposed admin interfaces attacked with stuffed/default credentials",
+     "ref": "C26",
+     "techniques": [
+      "T1110",
+      "T1078"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatOTIoT"
+     ],
+     "name": "Malware on patient-supplied imaging media",
+     "ref": "C27",
+     "techniques": [
+      "T1091"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint",
+      "CatInformation"
+     ],
+     "name": "Data left on disposed devices and leased equipment",
+     "ref": "C28",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "Patient data pasted into public generative-AI tools",
+     "ref": "C29",
+     "threat_source_types": [
+      "SrcAccidental"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity"
+     ],
+     "name": "Help-desk vishing leads to MFA reset",
+     "ref": "C30",
+     "techniques": [
+      "T1566.004"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity",
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Malicious or departing IT admin sabotage",
+     "ref": "C31",
+     "techniques": [
+      "T1485"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "Interception/tampering of HL7/DICOM traffic",
+     "ref": "C32",
+     "techniques": [
+      "T1557"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Look-alike domains and smishing targeting patients",
+     "ref": "C33",
+     "techniques": [
+      "T1583.001",
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Mass encryption of hypervisors",
+     "ref": "C34",
+     "techniques": [
+      "T1486"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatIdentity"
+     ],
+     "name": "Active Directory misconfiguration enables domain takeover",
+     "ref": "C35",
+     "techniques": [
+      "T1558.003",
+      "T1484"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatEndpoint"
+     ],
+     "name": "End-of-support workstation operating systems in clinics",
+     "ref": "C36",
+     "techniques": [
+      "T1203"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatCloud"
+     ],
+     "name": "Cryptomining on cloud or server resources",
+     "ref": "C37",
+     "techniques": [
+      "T1496"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "Skimming on online payment page",
+     "ref": "C38",
+     "techniques": [
+      "T1059.007"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatFacility",
+      "CatInfrastructure"
+     ],
+     "name": "Physical intrusion into clinic server closet",
+     "ref": "C39",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [],
+     "name": "Insufficient logs to prove breach scope",
+     "ref": "C40",
+     "threat_source_types": []
+    },
+    {
+     "asset_categories": [
+      "CatApplication"
+     ],
+     "name": "Clinician mailbox compromise used to harvest PHI",
+     "ref": "C41",
+     "techniques": [
+      "T1114",
+      "T1566"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatApplication",
+      "CatInformation"
+     ],
+     "name": "AI scribe SaaS mishandles recordings",
+     "ref": "C42",
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNetwork"
+     ],
+     "name": "Building IoT or CCTV used as foothold",
+     "ref": "C43",
+     "techniques": [
+      "T1210"
+     ],
+     "threat_source_types": [
+      "SrcAdversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatInformation"
+     ],
+     "name": "Excessive data retention amplifies breach size",
+     "ref": "C44",
+     "threat_source_types": []
+    },
+    {
+     "asset_categories": [
+      "CatInfrastructure",
+      "CatNetwork"
+     ],
+     "name": "Firewall single point of failure",
+     "ref": "C45",
+     "threat_source_types": [
+      "SrcAccidental",
+      "SrcAdversarial"
+     ]
+    }
+   ],
+   "local": false,
+   "min_confidence": "L",
+   "tool": "crgo_group_candidates"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-grouping/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "groups": [
+     {
+      "cluster_id": "LIB-F1166",
+      "kind": "family",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1166",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "S-GAP-1",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       },
+       {
+        "match": {
+         "id": "LIB-F1166",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "S-GAP-2",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1166",
+       "name": "Man-in-the-Middle attack targeting IoT device communications",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeMedicalIoT"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1353",
+      "kind": "family",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1353",
+         "rule": "kept"
+        },
+        "primary_theme": "ThemeNetwork",
+        "ref": "S-KEPT-CASE",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       },
+       {
+        "match": {
+         "id": "LIB-F1353",
+         "rule": "kept"
+        },
+        "primary_theme": "ThemeOther",
+        "ref": "S-KEPT-LIB",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1353",
+       "name": "Firewall rule misconfigurations",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeNetwork"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1582",
+      "kind": "family",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1587",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "S-BADID",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       },
+       {
+        "match": {
+         "id": "LIB-F1582",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "S-NFC",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1582",
+       "name": "Phishing Attack on Healthcare Staff",
+       "source": "library",
+       "statement": "An employee at the organisation receives an email disguised as an internal IT department communication. The email asks the employee to click on a link to update their login credentials for the hospital's healthcare information system. Unaware that it is a phishing email, the employee enters their credentials, providing unauthorized access to the attacker who can now access patient records and sensitive medical information.",
+       "themes": [
+        "ThemeSocialEng"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1468",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1468",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "S-UNKNOWN",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1468",
+       "name": "Ransomware Attack on Hospital Systems",
+       "source": "library",
+       "statement": "A staff member unknowingly opens a malicious email attachment, leading to a ransomware infection that encrypts critical hospital systems, hindering patient care and demanding a ransom payment for data decryption.",
+       "themes": [
+        "ThemeRansomware"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "GRP-08e07e30fe",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "S-OWN",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-2c52b541c1",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeRansomware",
+        "ref": "S-REVOKED",
+        "replaced_techniques": {
+         "T1562": "T1685"
+        },
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeRansomware"
+     },
+     {
+      "cluster_id": "GRP-a25e39cb0a",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeIntegrity",
+        "ref": "S-TIE-1",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeIntegrity"
+     },
+     {
+      "cluster_id": "GRP-c8bf2ce57a",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeIntegrity",
+        "ref": "S-TIE-2",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeIntegrity"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "min_confidence": "M",
+    "release": "0.11.2",
+    "theme_gaps": [
+     "ThemeIntegrity",
+     "ThemeOther",
+     "ThemeRansomware"
+    ],
+    "unknown_crgo_ids": [
+     "LIB-F999999"
+    ],
+    "unknown_techniques": [
+     "T9999"
+    ],
+    "unknown_values": {
+     "asset_categories": [
+      "CatNope"
+     ],
+     "cwe": [
+      "CWE-0"
+     ],
+     "themes": [
+      "ThemeNope"
+     ],
+     "threat_source_types": [
+      "SrcMartian"
+     ]
+    }
+   },
+   "id": "synthetic-edge-cases",
+   "input": [
+    {
+     "asset_categories": [
+      "CatEndpoint"
+     ],
+     "name": "Attackers disable endpoint security tools before deploying ransomware",
+     "ref": "S-REVOKED",
+     "techniques": [
+      "T1562",
+      "T1486"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNope",
+      "infrastructure"
+     ],
+     "cwe": [
+      "CWE-0",
+      "79"
+     ],
+     "name": "Ransomware encrypts the file servers",
+     "ref": "S-UNKNOWN",
+     "techniques": [
+      "T9999",
+      "t1486"
+     ],
+     "themes": [
+      "ThemeNope"
+     ],
+     "threat_source_types": [
+      "SrcMartian",
+      "adversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatOTIoT"
+     ],
+     "name": "Zorblax telemetry relay hijacked by rogue drones",
+     "ref": "S-GAP-1",
+     "techniques": [
+      "T1557"
+     ],
+     "themes": [
+      "ThemeMedicalIoT"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatOTIoT"
+     ],
+     "name": "Frobnicated telemetry relay of the yard",
+     "ref": "S-GAP-2",
+     "techniques": [
+      "T1557.002"
+     ],
+     "themes": [
+      "ThemeMedicalIoT"
+     ]
+    },
+    {
+     "name": "Wibble wobble glorp",
+     "ref": "S-OWN",
+     "statement": "Wibble wobble glorp snark."
+    },
+    {
+     "name": "Quillon ledger forged by payroll robot",
+     "ref": "S-TIE-1",
+     "themes": [
+      "ThemeIntegrity"
+     ]
+    },
+    {
+     "name": "Quillon ledger forged by a payroll robot",
+     "ref": "S-TIE-2",
+     "themes": [
+      "ThemeIntegrity"
+     ]
+    },
+    {
+     "crgo_id": "LIB-F1353",
+     "name": "Anything at all",
+     "ref": "S-KEPT-LIB"
+    },
+    {
+     "crgo_id": "ACRB/ACRB-A1",
+     "name": "Our firewall case",
+     "ref": "S-KEPT-CASE"
+    },
+    {
+     "crgo_id": "LIB-F999999",
+     "name": "Phishing of clinic staff credentials",
+     "ref": "S-BADID"
+    },
+    {
+     "name": "Phishing attack on healthcare staff   réseau",
+     "ref": "S-NFC",
+     "statement": "Café staff are phished."
+    }
+   ],
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_group_candidates"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-grouping/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "groups": [
+     {
+      "cluster_id": "LIB-F1353",
+      "kind": "family",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1353",
+         "rule": "kept"
+        },
+        "primary_theme": "ThemeNetwork",
+        "ref": "S-KEPT-CASE",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       },
+       {
+        "match": {
+         "id": "LIB-F1353",
+         "rule": "kept"
+        },
+        "primary_theme": "ThemeOther",
+        "ref": "S-KEPT-LIB",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1353",
+       "name": "Firewall rule misconfigurations",
+       "source": "library",
+       "statement": null,
+       "themes": [
+        "ThemeNetwork"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1582",
+      "kind": "family",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1587",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "S-BADID",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       },
+       {
+        "match": {
+         "id": "LIB-F1582",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeSocialEng",
+        "ref": "S-NFC",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1582",
+       "name": "Phishing Attack on Healthcare Staff",
+       "source": "library",
+       "statement": "An employee at the organisation receives an email disguised as an internal IT department communication. The email asks the employee to click on a link to update their login credentials for the hospital's healthcare information system. Unaware that it is a phishing email, the employee enters their credentials, providing unauthorized access to the attacker who can now access patient records and sensitive medical information.",
+       "themes": [
+        "ThemeSocialEng"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LOC-7a5b80210c",
+      "kind": "family",
+      "members": [
+       {
+        "match": {
+         "id": "LOC-7a5b80210c",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "S-GAP-1",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       },
+       {
+        "match": {
+         "id": "LOC-7a5b80210c",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeMedicalIoT",
+        "ref": "S-GAP-2",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       }
+      ],
+      "representative": {
+       "id": "LOC-7a5b80210c",
+       "name": "Zorblax telemetry relay hijacked by a rogue drone fleet",
+       "source": "local",
+       "statement": "A rogue drone fleet hijacks the Zorblax telemetry relay of the organisation's logistics yard, sending false positions to dispatch.",
+       "themes": [
+        "ThemeMedicalIoT"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LOC-9e352c2fc1",
+      "kind": "family",
+      "members": [
+       {
+        "match": {
+         "id": "LOC-9e352c2fc1",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeIntegrity",
+        "ref": "S-TIE-1",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       },
+       {
+        "match": {
+         "id": "LOC-9e352c2fc1",
+         "rule": "near_duplicate"
+        },
+        "primary_theme": "ThemeIntegrity",
+        "ref": "S-TIE-2",
+        "replaced_techniques": {},
+        "theme_inferred": false
+       }
+      ],
+      "representative": {
+       "id": "LOC-9e352c2fc1",
+       "name": "Quillon ledger forged by a payroll robot",
+       "source": "local",
+       "statement": "A payroll robot forges entries in the Quillon ledger so that payments go to accounts it controls.",
+       "themes": [
+        "ThemeIntegrity"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "LIB-F1468",
+      "kind": "unique",
+      "members": [
+       {
+        "match": {
+         "id": "LIB-F1468",
+         "rule": "theme_technique_asset"
+        },
+        "primary_theme": "ThemeRansomware",
+        "ref": "S-UNKNOWN",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": {
+       "id": "LIB-F1468",
+       "name": "Ransomware Attack on Hospital Systems",
+       "source": "library",
+       "statement": "A staff member unknowingly opens a malicious email attachment, leading to a ransomware infection that encrypts critical hospital systems, hindering patient care and demanding a ransom payment for data decryption.",
+       "themes": [
+        "ThemeRansomware"
+       ]
+      },
+      "theme_gap": null
+     },
+     {
+      "cluster_id": "GRP-08e07e30fe",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeOther",
+        "ref": "S-OWN",
+        "replaced_techniques": {},
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeOther"
+     },
+     {
+      "cluster_id": "GRP-2c52b541c1",
+      "kind": "own",
+      "members": [
+       {
+        "match": null,
+        "primary_theme": "ThemeRansomware",
+        "ref": "S-REVOKED",
+        "replaced_techniques": {
+         "T1562": "T1685"
+        },
+        "theme_inferred": true
+       }
+      ],
+      "representative": null,
+      "theme_gap": "ThemeRansomware"
+     }
+    ],
+    "local": {
+     "count": 3,
+     "sha256": "7afaf23ab34331e0ea936867f0d0eaf8d8ea69861ab52897bfce4cf957b4f631"
+    },
+    "min_confidence": "M",
+    "release": "0.11.2",
+    "theme_gaps": [
+     "ThemeOther",
+     "ThemeRansomware"
+    ],
+    "unknown_crgo_ids": [
+     "LIB-F999999"
+    ],
+    "unknown_techniques": [
+     "T9999"
+    ],
+    "unknown_values": {
+     "asset_categories": [
+      "CatNope"
+     ],
+     "cwe": [
+      "CWE-0"
+     ],
+     "themes": [
+      "ThemeNope"
+     ],
+     "threat_source_types": [
+      "SrcMartian"
+     ]
+    }
+   },
+   "id": "synthetic-edge-cases-with-local",
+   "input": [
+    {
+     "asset_categories": [
+      "CatEndpoint"
+     ],
+     "name": "Attackers disable endpoint security tools before deploying ransomware",
+     "ref": "S-REVOKED",
+     "techniques": [
+      "T1562",
+      "T1486"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatNope",
+      "infrastructure"
+     ],
+     "cwe": [
+      "CWE-0",
+      "79"
+     ],
+     "name": "Ransomware encrypts the file servers",
+     "ref": "S-UNKNOWN",
+     "techniques": [
+      "T9999",
+      "t1486"
+     ],
+     "themes": [
+      "ThemeNope"
+     ],
+     "threat_source_types": [
+      "SrcMartian",
+      "adversarial"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatOTIoT"
+     ],
+     "name": "Zorblax telemetry relay hijacked by rogue drones",
+     "ref": "S-GAP-1",
+     "techniques": [
+      "T1557"
+     ],
+     "themes": [
+      "ThemeMedicalIoT"
+     ]
+    },
+    {
+     "asset_categories": [
+      "CatOTIoT"
+     ],
+     "name": "Frobnicated telemetry relay of the yard",
+     "ref": "S-GAP-2",
+     "techniques": [
+      "T1557.002"
+     ],
+     "themes": [
+      "ThemeMedicalIoT"
+     ]
+    },
+    {
+     "name": "Wibble wobble glorp",
+     "ref": "S-OWN",
+     "statement": "Wibble wobble glorp snark."
+    },
+    {
+     "name": "Quillon ledger forged by payroll robot",
+     "ref": "S-TIE-1",
+     "themes": [
+      "ThemeIntegrity"
+     ]
+    },
+    {
+     "name": "Quillon ledger forged by a payroll robot",
+     "ref": "S-TIE-2",
+     "themes": [
+      "ThemeIntegrity"
+     ]
+    },
+    {
+     "crgo_id": "LIB-F1353",
+     "name": "Anything at all",
+     "ref": "S-KEPT-LIB"
+    },
+    {
+     "crgo_id": "ACRB/ACRB-A1",
+     "name": "Our firewall case",
+     "ref": "S-KEPT-CASE"
+    },
+    {
+     "crgo_id": "LIB-F999999",
+     "name": "Phishing of clinic staff credentials",
+     "ref": "S-BADID"
+    },
+    {
+     "name": "Phishing attack on healthcare staff   réseau",
+     "ref": "S-NFC",
+     "statement": "Café staff are phished."
+    }
+   ],
+   "local": true,
+   "min_confidence": "M",
+   "tool": "crgo_group_candidates"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [
+      {
+       "id": "PR.DS-11",
+       "scenarios": 17,
+       "title": "Backups of data are created, protected, maintained, and tested"
+      },
+      {
+       "id": "DE.CM-09",
+       "scenarios": 16,
+       "title": "Computing hardware and software, runtime environments, and their data are monitored to find potentially adverse events"
+      },
+      {
+       "id": "RC.RP-01",
+       "scenarios": 12,
+       "title": "The recovery portion of the incident response plan is executed once initiated from the incident response process"
+      },
+      {
+       "id": "RS.MI-01",
+       "scenarios": 9,
+       "title": "Incidents are contained"
+      },
+      {
+       "id": "PR.AT-01",
+       "scenarios": 5,
+       "title": "Personnel are provided with awareness and training so that they possess the knowledge and skills to perform general tasks with cybersecurity risks in mind"
+      },
+      {
+       "id": "DE.CM-01",
+       "scenarios": 4,
+       "title": "Networks and network services are monitored to find potentially adverse events"
+      },
+      {
+       "id": "PR.AA-05",
+       "scenarios": 4,
+       "title": "Access permissions, entitlements, and authorizations are defined in a policy, managed, enforced, and reviewed, and incorporate the principles of least privilege and separation of duties"
+      },
+      {
+       "id": "PR.IR-03",
+       "scenarios": 3,
+       "title": "Mechanisms are implemented to achieve resilience requirements in normal and adverse situations"
+      },
+      {
+       "id": "RS.MA-01",
+       "scenarios": 3,
+       "title": "The incident response plan is executed in coordination with relevant third parties once an incident is declared"
+      },
+      {
+       "id": "PR.PS-01",
+       "scenarios": 2,
+       "title": "Configuration management practices are established and applied"
+      }
+     ],
+     "iso27002-2022": [
+      {
+       "id": "8.13",
+       "scenarios": 16,
+       "title": "Information backup"
+      },
+      {
+       "id": "8.7",
+       "scenarios": 15,
+       "title": "Protection against malware"
+      },
+      {
+       "id": "5.26",
+       "scenarios": 10,
+       "title": "Response to information security incidents"
+      },
+      {
+       "id": "8.16",
+       "scenarios": 6,
+       "title": "Monitoring activities"
+      },
+      {
+       "id": "6.3",
+       "scenarios": 5,
+       "title": "Information security awareness, education and training"
+      },
+      {
+       "id": "5.30",
+       "scenarios": 3,
+       "title": "ICT readiness for business continuity"
+      },
+      {
+       "id": "5.29",
+       "scenarios": 2,
+       "title": "Information security during disruption"
+      },
+      {
+       "id": "5.7",
+       "scenarios": 2,
+       "title": "Threat intelligence"
+      },
+      {
+       "id": "8.15",
+       "scenarios": 2,
+       "title": "Logging"
+      },
+      {
+       "id": "8.2",
+       "scenarios": 2,
+       "title": "Privileged access rights"
+      }
+     ],
+     "sp800-53r5": [
+      {
+       "id": "CP-9",
+       "scenarios": 16,
+       "title": "System Backup"
+      },
+      {
+       "id": "IR-4",
+       "scenarios": 14,
+       "title": "Incident Handling"
+      },
+      {
+       "id": "SI-3",
+       "scenarios": 14,
+       "title": "Malicious Code Protection"
+      },
+      {
+       "id": "CP-10",
+       "scenarios": 12,
+       "title": "System Recovery and Reconstitution"
+      },
+      {
+       "id": "AT-2",
+       "scenarios": 5,
+       "title": "Literacy Training and Awareness"
+      },
+      {
+       "id": "SI-4",
+       "scenarios": 5,
+       "title": "System Monitoring"
+      },
+      {
+       "id": "AC-6",
+       "scenarios": 3,
+       "title": "Least Privilege"
+      },
+      {
+       "id": "AU-6",
+       "scenarios": 2,
+       "title": "Audit Record Review, Analysis, and Reporting"
+      },
+      {
+       "id": "AU-9",
+       "scenarios": 2,
+       "title": "Protection of Audit Information"
+      },
+      {
+       "id": "CM-5",
+       "scenarios": 2,
+       "title": "Access Restrictions for Change"
+      }
+     ]
+    },
+    "controls_basis": "techniques",
+    "findings": [
+     {
+      "code": "THEME_MATCH_ONLY",
+      "field": "themes",
+      "message": "No CRGO scenario matches; scenarios of the theme ThemeRansomware share a technique or an asset category (theme gap: own scenario).",
+      "severity": "info",
+      "value": "ThemeRansomware"
+     },
+     {
+      "code": "TECHNIQUE_REVOKED",
+      "field": "techniques",
+      "message": "ATT&CK technique T1562 is revoked; its successor is T1685.",
+      "severity": "attention",
+      "suggestion": "T1685",
+      "value": "T1562"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": null,
+    "min_confidence": "M",
+    "obligations": [
+     {
+      "id": "P-39.1 s. 10",
+      "scenarios": 13,
+      "title": "Security measures proportionate to the sensitivity of personal information"
+     },
+     {
+      "id": "P-39.1 s. 3.7",
+      "scenarios": 7,
+      "title": "Assessment of the risk of serious injury"
+     },
+     {
+      "id": "P-39.1 s. 3.5 (1st para.)",
+      "scenarios": 6,
+      "title": "Reasonable measures after a confidentiality incident"
+     },
+     {
+      "id": "P-39.1 s. 3.8",
+      "scenarios": 5,
+      "title": "Register of confidentiality incidents"
+     },
+     {
+      "id": "P-39.1 s. 3.5 (2nd para.)",
+      "scenarios": 3,
+      "title": "Notification of the Commission and persons concerned (risk of serious injury)"
+     }
+    ],
+    "primary_theme": "ThemeRansomware",
+    "release": "0.11.2",
+    "replaced_techniques": {
+     "T1562": "T1685"
+    },
+    "state": "needs_attention",
+    "theme_gap": "ThemeRansomware",
+    "theme_inferred": true
+   },
+   "id": "validate-v-revoked",
+   "input": {
+    "asset_categories": [
+     "CatEndpoint"
+    ],
+    "name": "Attackers disable endpoint security tools before deploying ransomware",
+    "techniques": [
+     "T1562",
+     "T1486"
+    ]
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [
+      {
+       "confidence": "H",
+       "id": "PR.AA-03",
+       "status": "approved",
+       "title": "Users, services, and hardware are authenticated"
+      },
+      {
+       "confidence": "H",
+       "id": "PR.AT-01",
+       "status": "approved",
+       "title": "Personnel are provided with awareness and training so that they possess the knowledge and skills to perform general tasks with cybersecurity risks in mind"
+      },
+      {
+       "confidence": "M",
+       "id": "DE.CM-03",
+       "status": "approved",
+       "title": "Personnel activity and technology usage are monitored to find potentially adverse events"
+      },
+      {
+       "confidence": "M",
+       "id": "RS.MI-01",
+       "status": "approved",
+       "title": "Incidents are contained"
+      }
+     ],
+     "iso27002-2022": [
+      {
+       "confidence": "H",
+       "id": "6.3",
+       "status": "approved",
+       "title": "Information security awareness, education and training"
+      },
+      {
+       "confidence": "H",
+       "id": "8.5",
+       "status": "approved",
+       "title": "Secure authentication"
+      },
+      {
+       "confidence": "M",
+       "id": "8.16",
+       "status": "approved",
+       "title": "Monitoring activities"
+      },
+      {
+       "confidence": "M",
+       "id": "8.23",
+       "status": "approved",
+       "title": "Web filtering"
+      }
+     ],
+     "sp800-53r5": [
+      {
+       "confidence": "H",
+       "id": "AT-2",
+       "status": "approved",
+       "title": "Literacy Training and Awareness"
+      },
+      {
+       "confidence": "H",
+       "id": "IA-2",
+       "status": "approved",
+       "title": "Identification and Authentication (Organizational Users)"
+      },
+      {
+       "confidence": "M",
+       "id": "SI-4",
+       "status": "approved",
+       "title": "System Monitoring"
+      },
+      {
+       "confidence": "M",
+       "id": "SI-8",
+       "status": "approved",
+       "title": "Spam Protection"
+      }
+     ]
+    },
+    "controls_basis": "match",
+    "findings": [
+     {
+      "code": "LIBRARY_MATCH",
+      "field": "match",
+      "message": "Matches CRGO scenario LIB-F1587 (near_duplicate).",
+      "severity": "info",
+      "value": "LIB-F1587"
+     },
+     {
+      "code": "CWE_TECHNIQUE_UNLINKED",
+      "field": "cwe",
+      "message": "No technique of the scenario is linked to CWE-89 or its parent weaknesses (expected one of: T1005, T1027, T1055, T1059, T1068, T1082, T1105, T1106, T1136, T1190 ...).",
+      "severity": "attention",
+      "value": "CWE-89"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": {
+     "cluster_id": "LIB-F1582",
+     "id": "LIB-F1587",
+     "rule": "near_duplicate"
+    },
+    "min_confidence": "M",
+    "obligations": [],
+    "primary_theme": "ThemeSocialEng",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "needs_attention",
+    "theme_gap": null,
+    "theme_inferred": true
+   },
+   "id": "validate-v-cwe-unlinked",
+   "input": {
+    "asset_categories": [
+     "CatIdentity"
+    ],
+    "cwe": [
+     "CWE-89"
+    ],
+    "name": "Phishing of clinic staff credentials",
+    "techniques": [
+     "T1566"
+    ]
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [
+      {
+       "confidence": "H",
+       "id": "ID.RA-01",
+       "status": "approved",
+       "title": "Vulnerabilities in assets are identified, validated, and recorded"
+      },
+      {
+       "confidence": "H",
+       "id": "PR.PS-02",
+       "status": "approved",
+       "title": "Software is maintained, replaced, and removed commensurate with risk"
+      }
+     ],
+     "iso27002-2022": [
+      {
+       "confidence": "H",
+       "id": "8.8",
+       "status": "approved",
+       "title": "Management of technical vulnerabilities"
+      }
+     ],
+     "sp800-53r5": [
+      {
+       "confidence": "H",
+       "id": "RA-5",
+       "status": "approved",
+       "title": "Vulnerability Monitoring and Scanning"
+      },
+      {
+       "confidence": "H",
+       "id": "SI-2",
+       "status": "approved",
+       "title": "Flaw Remediation"
+      },
+      {
+       "confidence": "M",
+       "id": "SC-7",
+       "status": "approved",
+       "title": "Boundary Protection"
+      },
+      {
+       "confidence": "M",
+       "id": "SI-4",
+       "status": "approved",
+       "title": "System Monitoring"
+      }
+     ]
+    },
+    "controls_basis": "match",
+    "findings": [
+     {
+      "code": "LIBRARY_MATCH",
+      "field": "match",
+      "message": "Matches CRGO scenario LIB-F0266 (theme_technique_asset).",
+      "severity": "info",
+      "value": "LIB-F0266"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": {
+     "cluster_id": "LIB-F0266",
+     "id": "LIB-F0266",
+     "rule": "theme_technique_asset"
+    },
+    "min_confidence": "M",
+    "obligations": [
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.5 (1st para.)",
+      "status": "approved",
+      "title": "Reasonable measures after a confidentiality incident"
+     },
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.5 (2nd para.)",
+      "status": "approved",
+      "title": "Notification of the Commission and persons concerned (risk of serious injury)"
+     },
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.7",
+      "status": "approved",
+      "title": "Assessment of the risk of serious injury"
+     },
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.8",
+      "status": "approved",
+      "title": "Register of confidentiality incidents"
+     },
+     {
+      "confidence": "M",
+      "id": "P-39.1 s. 10",
+      "status": "approved",
+      "title": "Security measures proportionate to the sensitivity of personal information"
+     }
+    ],
+    "primary_theme": "ThemeAppSec",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "consistent",
+    "theme_gap": null,
+    "theme_inferred": true
+   },
+   "id": "validate-v-cwe-consistent",
+   "input": {
+    "asset_categories": [
+     "CatApplication"
+    ],
+    "cwe": [
+     "CWE-79"
+    ],
+    "name": "Cross-site scripting in the patient portal",
+    "techniques": [
+     "T1190"
+    ]
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [
+      {
+       "confidence": "H",
+       "id": "ID.RA-01",
+       "status": "approved",
+       "title": "Vulnerabilities in assets are identified, validated, and recorded"
+      },
+      {
+       "confidence": "H",
+       "id": "PR.PS-02",
+       "status": "approved",
+       "title": "Software is maintained, replaced, and removed commensurate with risk"
+      }
+     ],
+     "iso27002-2022": [
+      {
+       "confidence": "H",
+       "id": "8.8",
+       "status": "approved",
+       "title": "Management of technical vulnerabilities"
+      }
+     ],
+     "sp800-53r5": [
+      {
+       "confidence": "H",
+       "id": "RA-5",
+       "status": "approved",
+       "title": "Vulnerability Monitoring and Scanning"
+      },
+      {
+       "confidence": "H",
+       "id": "SI-2",
+       "status": "approved",
+       "title": "Flaw Remediation"
+      },
+      {
+       "confidence": "M",
+       "id": "SC-7",
+       "status": "approved",
+       "title": "Boundary Protection"
+      },
+      {
+       "confidence": "M",
+       "id": "SI-4",
+       "status": "approved",
+       "title": "System Monitoring"
+      }
+     ]
+    },
+    "controls_basis": "match",
+    "findings": [
+     {
+      "code": "LIBRARY_MATCH",
+      "field": "match",
+      "message": "Matches CRGO scenario LIB-F0266 (theme_technique_asset).",
+      "severity": "info",
+      "value": "LIB-F0266"
+     },
+     {
+      "code": "CWE_NO_REFERENCE",
+      "field": "cwe",
+      "message": "CRGO has no technique reference for CWE-1037 or its parent weaknesses: consistency cannot be judged.",
+      "severity": "info",
+      "value": "CWE-1037"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": {
+     "cluster_id": "LIB-F0266",
+     "id": "LIB-F0266",
+     "rule": "theme_technique_asset"
+    },
+    "min_confidence": "M",
+    "obligations": [
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.5 (1st para.)",
+      "status": "approved",
+      "title": "Reasonable measures after a confidentiality incident"
+     },
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.5 (2nd para.)",
+      "status": "approved",
+      "title": "Notification of the Commission and persons concerned (risk of serious injury)"
+     },
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.7",
+      "status": "approved",
+      "title": "Assessment of the risk of serious injury"
+     },
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.8",
+      "status": "approved",
+      "title": "Register of confidentiality incidents"
+     },
+     {
+      "confidence": "M",
+      "id": "P-39.1 s. 10",
+      "status": "approved",
+      "title": "Security measures proportionate to the sensitivity of personal information"
+     }
+    ],
+    "primary_theme": "ThemeAppSec",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "consistent",
+    "theme_gap": null,
+    "theme_inferred": true
+   },
+   "id": "validate-v-cwe-no-reference",
+   "input": {
+    "asset_categories": [
+     "CatApplication"
+    ],
+    "cwe": [
+     "CWE-1037"
+    ],
+    "name": "Cross-site scripting in the patient portal",
+    "techniques": [
+     "T1190"
+    ]
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [],
+     "iso27002-2022": [],
+     "sp800-53r5": []
+    },
+    "controls_basis": "none",
+    "findings": [
+     {
+      "code": "OUTSIDE_ONTOLOGY",
+      "field": "themes",
+      "message": "Outside the ontology: no CRGO scenario matches and no scenario of the theme ThemeOther shares a technique or an asset category (own scenario).",
+      "severity": "attention",
+      "value": "ThemeOther"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": null,
+    "min_confidence": "M",
+    "obligations": [],
+    "primary_theme": "ThemeOther",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "outside_ontology",
+    "theme_gap": "ThemeOther",
+    "theme_inferred": true
+   },
+   "id": "validate-v-outside",
+   "input": {
+    "name": "Wibble wobble glorp",
+    "statement": "Wibble wobble glorp snark."
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [
+      {
+       "confidence": "H",
+       "id": "DE.CM-01",
+       "status": "approved",
+       "title": "Networks and network services are monitored to find potentially adverse events"
+      },
+      {
+       "confidence": "M",
+       "id": "DE.AE-02",
+       "status": "approved",
+       "title": "Potentially adverse events are analyzed to better understand associated activities"
+      },
+      {
+       "confidence": "M",
+       "id": "PR.DS-01",
+       "status": "approved",
+       "title": "The confidentiality, integrity, and availability of data-at-rest are protected"
+      }
+     ],
+     "iso27002-2022": [
+      {
+       "confidence": "H",
+       "id": "8.12",
+       "status": "approved",
+       "title": "Data leakage prevention"
+      },
+      {
+       "confidence": "H",
+       "id": "8.16",
+       "status": "approved",
+       "title": "Monitoring activities"
+      }
+     ],
+     "sp800-53r5": [
+      {
+       "confidence": "H",
+       "id": "SI-4",
+       "status": "approved",
+       "title": "System Monitoring"
+      },
+      {
+       "confidence": "M",
+       "id": "AC-4",
+       "status": "approved",
+       "title": "Information Flow Enforcement"
+      },
+      {
+       "confidence": "M",
+       "id": "SC-7",
+       "status": "approved",
+       "title": "Boundary Protection"
+      }
+     ]
+    },
+    "controls_basis": "match",
+    "findings": [
+     {
+      "code": "LIBRARY_MATCH",
+      "field": "match",
+      "message": "Matches CRGO scenario LIB-F0650 (theme_technique_asset).",
+      "severity": "info",
+      "value": "LIB-F0650"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": {
+     "cluster_id": "LIB-F0650",
+     "id": "LIB-F0650",
+     "rule": "theme_technique_asset"
+    },
+    "min_confidence": "M",
+    "obligations": [
+     {
+      "confidence": "H",
+      "id": "P-39.1 s. 3.5 (2nd para.)",
+      "status": "approved",
+      "title": "Notification of the Commission and persons concerned (risk of serious injury)"
+     },
+     {
+      "confidence": "M",
+      "id": "P-39.1 s. 10",
+      "status": "approved",
+      "title": "Security measures proportionate to the sensitivity of personal information"
+     },
+     {
+      "confidence": "M",
+      "id": "P-39.1 s. 3.7",
+      "status": "approved",
+      "title": "Assessment of the risk of serious injury"
+     },
+     {
+      "confidence": "M",
+      "id": "P-39.1 s. 3.8",
+      "status": "approved",
+      "title": "Register of confidentiality incidents"
+     }
+    ],
+    "primary_theme": "ThemeDataBreach",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "consistent",
+    "theme_gap": null,
+    "theme_inferred": true
+   },
+   "id": "validate-v-facet-match",
+   "input": {
+    "asset_categories": [
+     "CatInformation"
+    ],
+    "name": "Glorp exfiltration of patient records",
+    "techniques": [
+     "T1048"
+    ]
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [],
+     "iso27002-2022": [],
+     "sp800-53r5": []
+    },
+    "controls_basis": "none",
+    "findings": [
+     {
+      "code": "OUTSIDE_ONTOLOGY",
+      "field": "themes",
+      "message": "Outside the ontology: no CRGO scenario matches and no scenario of the theme ThemeRansomware shares a technique or an asset category (own scenario).",
+      "severity": "attention",
+      "value": "ThemeRansomware"
+     },
+     {
+      "code": "TECHNIQUE_UNKNOWN",
+      "field": "techniques",
+      "message": "ATT&CK technique T9999 is not in CRGO.",
+      "severity": "attention",
+      "value": "T9999"
+     },
+     {
+      "code": "CWE_UNKNOWN",
+      "field": "cwe",
+      "message": "CWE-0 is not in the CWE list CRGO holds.",
+      "severity": "attention",
+      "value": "CWE-0"
+     },
+     {
+      "code": "ASSET_CATEGORY_UNKNOWN",
+      "field": "asset_categories",
+      "message": "Asset category CatNope is not in the CRGO vocabulary.",
+      "severity": "attention",
+      "value": "CatNope"
+     },
+     {
+      "code": "THREAT_SOURCE_TYPE_UNKNOWN",
+      "field": "threat_source_types",
+      "message": "Threat source type SrcMartian is not in the CRGO vocabulary.",
+      "severity": "attention",
+      "value": "SrcMartian"
+     },
+     {
+      "code": "THEME_UNKNOWN",
+      "field": "themes",
+      "message": "Theme ThemeNope is not in the CRGO vocabulary.",
+      "severity": "attention",
+      "value": "ThemeNope"
+     },
+     {
+      "code": "CRGO_ID_UNKNOWN",
+      "field": "crgo_id",
+      "message": "CRGO scenario LIB-F999999 is unknown.",
+      "severity": "attention",
+      "value": "LIB-F999999"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": null,
+    "min_confidence": "M",
+    "obligations": [],
+    "primary_theme": "ThemeRansomware",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "outside_ontology",
+    "theme_gap": "ThemeRansomware",
+    "theme_inferred": true
+   },
+   "id": "validate-v-unknown-vocab",
+   "input": {
+    "asset_categories": [
+     "CatNope"
+    ],
+    "crgo_id": "LIB-F999999",
+    "cwe": [
+     "CWE-0"
+    ],
+    "name": "Ransomware encrypts the file servers",
+    "techniques": [
+     "T9999"
+    ],
+    "themes": [
+     "ThemeNope"
+    ],
+    "threat_source_types": [
+     "SrcMartian"
+    ]
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [
+      {
+       "confidence": "H",
+       "id": "PR.IR-01",
+       "status": "approved",
+       "title": "Networks and environments are protected from unauthorized logical access and usage"
+      },
+      {
+       "confidence": "H",
+       "id": "PR.PS-01",
+       "status": "approved",
+       "title": "Configuration management practices are established and applied"
+      },
+      {
+       "confidence": "M",
+       "id": "ID.RA-07",
+       "status": "approved",
+       "title": "Changes and exceptions are managed, assessed for risk impact, recorded, and tracked"
+      }
+     ],
+     "iso27002-2022": [
+      {
+       "confidence": "H",
+       "id": "8.20",
+       "status": "approved",
+       "title": "Networks security"
+      },
+      {
+       "confidence": "H",
+       "id": "8.9",
+       "status": "approved",
+       "title": "Configuration management"
+      },
+      {
+       "confidence": "M",
+       "id": "8.32",
+       "status": "approved",
+       "title": "Change management"
+      }
+     ],
+     "sp800-53r5": [
+      {
+       "confidence": "H",
+       "id": "CM-6",
+       "status": "approved",
+       "title": "Configuration Settings"
+      },
+      {
+       "confidence": "H",
+       "id": "SC-7",
+       "status": "approved",
+       "title": "Boundary Protection"
+      },
+      {
+       "confidence": "M",
+       "id": "CM-3",
+       "status": "approved",
+       "title": "Configuration Change Control"
+      }
+     ]
+    },
+    "controls_basis": "match",
+    "findings": [
+     {
+      "code": "LIBRARY_MATCH",
+      "field": "match",
+      "message": "Matches CRGO scenario LIB-F1353 (kept).",
+      "severity": "info",
+      "value": "LIB-F1353"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": {
+     "cluster_id": "LIB-F1353",
+     "id": "LIB-F1353",
+     "rule": "kept"
+    },
+    "min_confidence": "M",
+    "obligations": [],
+    "primary_theme": "ThemeNetwork",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "consistent",
+    "theme_gap": null,
+    "theme_inferred": true
+   },
+   "id": "validate-v-kept-case",
+   "input": {
+    "crgo_id": "ACRB/ACRB-A1",
+    "name": "Our firewall case"
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [],
+     "iso27002-2022": [],
+     "sp800-53r5": []
+    },
+    "controls_basis": "match",
+    "findings": [
+     {
+      "code": "LIBRARY_MATCH",
+      "field": "match",
+      "message": "Matches CRGO scenario LOC-7a5b80210c (near_duplicate).",
+      "severity": "info",
+      "value": "LOC-7a5b80210c"
+     }
+    ],
+    "local": {
+     "count": 3,
+     "sha256": "7afaf23ab34331e0ea936867f0d0eaf8d8ea69861ab52897bfce4cf957b4f631"
+    },
+    "match": {
+     "cluster_id": "LOC-7a5b80210c",
+     "id": "LOC-7a5b80210c",
+     "rule": "near_duplicate"
+    },
+    "min_confidence": "M",
+    "obligations": [],
+    "primary_theme": "ThemeMedicalIoT",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "consistent",
+    "theme_gap": null,
+    "theme_inferred": false
+   },
+   "id": "validate-v-local",
+   "input": {
+    "asset_categories": [
+     "CatOTIoT"
+    ],
+    "name": "Zorblax telemetry relay hijacked by rogue drones",
+    "techniques": [
+     "T1557"
+    ],
+    "themes": [
+     "ThemeMedicalIoT"
+    ]
+   },
+   "local": true,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  },
+  {
+   "expected": {
+    "algorithm": "crgo-validation/1",
+    "caveat": "Ontology-proposed grouping and findings: suggestions for the analyst, who accepts, edits or rejects them. Library values are calibration priors, not organisational evidence: label them 'Analytical estimate — validation required'.",
+    "controls": {
+     "csf2": [
+      {
+       "confidence": "H",
+       "id": "PR.DS-02",
+       "status": "approved",
+       "title": "The confidentiality, integrity, and availability of data-in-transit are protected"
+      },
+      {
+       "confidence": "M",
+       "id": "DE.CM-01",
+       "status": "approved",
+       "title": "Networks and network services are monitored to find potentially adverse events"
+      },
+      {
+       "confidence": "M",
+       "id": "PR.AA-03",
+       "status": "approved",
+       "title": "Users, services, and hardware are authenticated"
+      }
+     ],
+     "iso27002-2022": [
+      {
+       "confidence": "H",
+       "id": "8.24",
+       "status": "approved",
+       "title": "Use of cryptography"
+      },
+      {
+       "confidence": "M",
+       "id": "5.14",
+       "status": "approved",
+       "title": "Information transfer"
+      },
+      {
+       "confidence": "M",
+       "id": "8.20",
+       "status": "approved",
+       "title": "Networks security"
+      }
+     ],
+     "sp800-53r5": [
+      {
+       "confidence": "H",
+       "id": "SC-8",
+       "status": "approved",
+       "title": "Transmission Confidentiality and Integrity"
+      },
+      {
+       "confidence": "M",
+       "id": "IA-3",
+       "status": "approved",
+       "title": "Device Identification and Authentication"
+      },
+      {
+       "confidence": "M",
+       "id": "SC-23",
+       "status": "approved",
+       "title": "Session Authenticity"
+      }
+     ]
+    },
+    "controls_basis": "match",
+    "findings": [
+     {
+      "code": "LIBRARY_MATCH",
+      "field": "match",
+      "message": "Matches CRGO scenario LIB-F1166 (theme_technique_asset).",
+      "severity": "info",
+      "value": "LIB-F1166"
+     }
+    ],
+    "local": {
+     "count": 0,
+     "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "match": {
+     "cluster_id": "LIB-F1166",
+     "id": "LIB-F1166",
+     "rule": "theme_technique_asset"
+    },
+    "min_confidence": "M",
+    "obligations": [],
+    "primary_theme": "ThemeMedicalIoT",
+    "release": "0.11.2",
+    "replaced_techniques": {},
+    "state": "consistent",
+    "theme_gap": null,
+    "theme_inferred": false
+   },
+   "id": "validate-v-local-without-local",
+   "input": {
+    "asset_categories": [
+     "CatOTIoT"
+    ],
+    "name": "Zorblax telemetry relay hijacked by rogue drones",
+    "techniques": [
+     "T1557"
+    ],
+    "themes": [
+     "ThemeMedicalIoT"
+    ]
+   },
+   "local": false,
+   "min_confidence": "M",
+   "tool": "crgo_validate_scenario"
+  }
+ ],
+ "data_fingerprint": "59f8779bf7c447620dc72901cb3fc2ce103e37c5cf8a9e53c949c2649ed06926",
+ "data_fingerprint_note": "sha256 of the canonical JSON of {grouping: the export's grouping block, records: sorted [id, cluster, primary_theme] of every scenario}; equal on the snapshot when it carries the same data",
+ "how_to_replay": "For each case, call the tool (or its offline port) with input (a list of candidates, or one scenario), min_confidence, and the local records local_extension.scenarios when local is true (else none); the result must deep-equal expected.",
+ "local_extension": {
+  "release_built_against": "0.11.2",
+  "scenarios": [
+   {
+    "approved_by": "Admin",
+    "approved_on": "2026-11-12",
+    "asset_categories": [
+     "OT, IoT and connected devices"
+    ],
+    "attack_techniques": [
+     {
+      "confidence": "M",
+      "id": "T1557",
+      "status": "proposed",
+      "title": "Adversary-in-the-Middle"
+     }
+    ],
+    "cluster": "LOC-7a5b80210c",
+    "controls": {
+     "csf2": [],
+     "iso27002-2022": [],
+     "sp800-53r5": []
+    },
+    "cwe": [],
+    "id": "LOC-7a5b80210c",
+    "impact_dimensions": [],
+    "kind": "local scenario",
+    "name": "Zorblax telemetry relay hijacked by a rogue drone fleet",
+    "obligations": [],
+    "primary_theme": "ThemeMedicalIoT",
+    "source": "local",
+    "statement": "A rogue drone fleet hijacks the Zorblax telemetry relay of the organisation's logistics yard, sending false positions to dispatch.",
+    "themes": [
+     {
+      "key": "ThemeMedicalIoT",
+      "label": "IoT, OT and medical devices"
+     }
+    ],
+    "threat_source_types": [
+     "adversarial"
+    ],
+    "weaknesses": []
+   },
+   {
+    "approved_by": "Admin",
+    "approved_on": "2026-11-12",
+    "asset_categories": [
+     "applications and software"
+    ],
+    "attack_techniques": [
+     {
+      "confidence": "M",
+      "id": "T1565",
+      "status": "proposed",
+      "title": "Data Manipulation"
+     }
+    ],
+    "cluster": "LOC-9e352c2fc1",
+    "controls": {
+     "csf2": [],
+     "iso27002-2022": [],
+     "sp800-53r5": []
+    },
+    "cwe": [],
+    "id": "LOC-9e352c2fc1",
+    "impact_dimensions": [],
+    "kind": "local scenario",
+    "name": "Quillon ledger forged by a payroll robot",
+    "obligations": [],
+    "primary_theme": "ThemeIntegrity",
+    "source": "local",
+    "statement": "A payroll robot forges entries in the Quillon ledger so that payments go to accounts it controls.",
+    "themes": [
+     {
+      "key": "ThemeIntegrity",
+      "label": "data integrity and manipulation"
+     }
+    ],
+    "threat_source_types": [
+     "adversarial"
+    ],
+    "weaknesses": []
+   },
+   {
+    "approved_by": "Admin",
+    "approved_on": "2026-11-12",
+    "asset_categories": [
+     "applications and software"
+    ],
+    "attack_techniques": [
+     {
+      "confidence": "H",
+      "id": "T1565",
+      "status": "proposed",
+      "title": "Data Manipulation"
+     }
+    ],
+    "cluster": "LOC-9e352c2fc1",
+    "controls": {
+     "csf2": [],
+     "iso27002-2022": [],
+     "sp800-53r5": []
+    },
+    "cwe": [],
+    "id": "LOC-a06b32d4d1",
+    "impact_dimensions": [],
+    "kind": "local scenario",
+    "name": "Quillon ledger forged by a payroll robot",
+    "obligations": [],
+    "primary_theme": "ThemeIntegrity",
+    "source": "local",
+    "statement": "A payroll robot alters Quillon ledger balances overnight; the second wording of the same scenario.",
+    "themes": [
+     {
+      "key": "ThemeIntegrity",
+      "label": "data integrity and manipulation"
+     }
+    ],
+    "threat_source_types": [
+     "adversarial"
+    ],
+    "weaknesses": []
+   }
+  ],
+  "schema": "crgo-local-extension/1"
+ },
+ "local_proposals": [
+  {
+   "anonymized": true,
+   "asset_categories": [
+    "CatOTIoT"
+   ],
+   "name": "Zorblax telemetry relay hijacked by a rogue drone fleet",
+   "proposed_by": "Analyst A",
+   "proposed_on": "2026-11-12",
+   "statement": "A rogue drone fleet hijacks the Zorblax telemetry relay of the organisation's logistics yard, sending false positions to dispatch.",
+   "techniques": [
+    [
+     "T1557",
+     "M"
+    ]
+   ],
+   "themes": [
+    "ThemeMedicalIoT"
+   ],
+   "threat_source_types": [
+    "SrcAdversarial"
+   ]
+  },
+  {
+   "anonymized": true,
+   "asset_categories": [
+    "CatApplication"
+   ],
+   "name": "Quillon ledger forged by a payroll robot",
+   "proposed_by": "Analyst A",
+   "proposed_on": "2026-11-12",
+   "statement": "A payroll robot forges entries in the Quillon ledger so that payments go to accounts it controls.",
+   "techniques": [
+    [
+     "T1565",
+     "M"
+    ]
+   ],
+   "themes": [
+    "ThemeIntegrity"
+   ],
+   "threat_source_types": [
+    "SrcAdversarial"
+   ]
+  },
+  {
+   "anonymized": true,
+   "asset_categories": [
+    "CatApplication"
+   ],
+   "name": "Quillon ledger forged by a payroll robot",
+   "proposed_by": "Analyst B",
+   "proposed_on": "2026-11-12",
+   "statement": "A payroll robot alters Quillon ledger balances overnight; the second wording of the same scenario.",
+   "techniques": [
+    [
+     "T1565",
+     "H"
+    ]
+   ],
+   "themes": [
+    "ThemeIntegrity"
+   ],
+   "threat_source_types": [
+    "SrcAdversarial"
+   ]
+  }
+ ],
+ "medibec_mapping": {
+  "assets": {
+   "All": [],
+   "All data": [
+    "CatInformation"
+   ],
+   "CJ1 (EHR and clinical record data)": [
+    "CatApplication",
+    "CatInformation"
+   ],
+   "CJ2 (radiology, laboratory, pharmacy systems)": [
+    "CatApplication"
+   ],
+   "CJ3 (scheduling and patient online services)": [
+    "CatApplication"
+   ],
+   "CJ4 (billing and administrative systems)": [
+    "CatApplication",
+    "CatInformation"
+   ],
+   "CJ5 (identity, remote access and cloud access)": [
+    "CatIdentity"
+   ],
+   "CJ6 (data centre, WAN and backups)": [
+    "CatInfrastructure",
+    "CatNetwork"
+   ],
+   "CJ7 (cloud storage for image transfer)": [
+    "CatCloud",
+    "CatInformation"
+   ],
+   "CJ8 (connected medical equipment and IoT)": [
+    "CatOTIoT"
+   ],
+   "Clinic LAN": [
+    "CatNetwork"
+   ],
+   "Clinic equipment": [
+    "CatFacility",
+    "CatInfrastructure"
+   ],
+   "Clinic storage": [
+    "CatInfrastructure",
+    "CatInformation"
+   ],
+   "Cloud": [
+    "CatCloud"
+   ],
+   "Communications": [
+    "CatNetwork"
+   ],
+   "Endpoints": [
+    "CatEndpoint"
+   ],
+   "Mail": [
+    "CatApplication"
+   ],
+   "Many hosts": [
+    "CatEndpoint",
+    "CatInfrastructure"
+   ],
+   "Online payments": [
+    "CatApplication"
+   ],
+   "Patient trust": [],
+   "Retired assets": [
+    "CatEndpoint",
+    "CatInformation"
+   ]
+  },
+  "note": "Analyst mapping of the MediBec screening's free text to CRGO vocabulary, for this test only; themes left empty (inferred).",
+  "techniques": {
+   "C01": [
+    "T1566"
+   ],
+   "C02": [
+    "T1486"
+   ],
+   "C03": [
+    "T1490",
+    "T1486"
+   ],
+   "C04": [
+    "T1530"
+   ],
+   "C05": [
+    "T1552"
+   ],
+   "C06": [
+    "T1557"
+   ],
+   "C07": [
+    "T1190"
+   ],
+   "C09": [
+    "T1210"
+   ],
+   "C10": [
+    "T1498"
+   ],
+   "C11": [
+    "T1005"
+   ],
+   "C12": [
+    "T1565"
+   ],
+   "C13": [
+    "T1199",
+    "T1133"
+   ],
+   "C15": [
+    "T1078"
+   ],
+   "C18": [
+    "T1566"
+   ],
+   "C20": [
+    "T1621"
+   ],
+   "C21": [
+    "T1190"
+   ],
+   "C22": [
+    "T1195"
+   ],
+   "C23": [
+    "T1528",
+    "T1550"
+   ],
+   "C25": [
+    "T1557"
+   ],
+   "C26": [
+    "T1110",
+    "T1078"
+   ],
+   "C27": [
+    "T1091"
+   ],
+   "C30": [
+    "T1566.004"
+   ],
+   "C31": [
+    "T1485"
+   ],
+   "C32": [
+    "T1557"
+   ],
+   "C33": [
+    "T1583.001",
+    "T1566"
+   ],
+   "C34": [
+    "T1486"
+   ],
+   "C35": [
+    "T1558.003",
+    "T1484"
+   ],
+   "C36": [
+    "T1203"
+   ],
+   "C37": [
+    "T1496"
+   ],
+   "C38": [
+    "T1059.007"
+   ],
+   "C41": [
+    "T1114",
+    "T1566"
+   ],
+   "C43": [
+    "T1210"
+   ]
+  },
+  "threat_sources": {
+   "(any other source)": [
+    "SrcAdversarial"
+   ],
+   "Accidental / attacker": [
+    "SrcAccidental",
+    "SrcAdversarial"
+   ],
+   "Accidental / environmental": [
+    "SrcAccidental",
+    "SrcEnvironmental"
+   ],
+   "Any incident": [],
+   "N/A (amplifier)": [],
+   "Negligent insider": [
+    "SrcAccidental"
+   ],
+   "Well-intentioned insider": [
+    "SrcAccidental"
+   ]
+  }
+ },
+ "medibec_source": "CyberRiskGuardian examples/medibec/source/data.py CANDIDATES (fictional teaching case): ref, name, threat source, assets",
+ "release": "0.11.2",
+ "schema": "crgo-grouping-golden/1"
+}

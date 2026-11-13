@@ -76,7 +76,7 @@ export function open(onDone) {
       radios('wiz-exp', EXPERIENCE, ans.experience, v => { ans.experience = v; })),
     ...QUESTIONS.map(q => el('fieldset', { class: 'wiz-q', 'data-q': q.id }, el('legend', null, q.q),
       radios('wiz-' + q.id, yn, ans[q.id], v => { ans[q.id] = v; }))),
-    el('p', 'small muted', 'The method’s own modules — Cybersecurity management, Shared registers, Quality review, the ontology and Scenario screening — stay on: risk decisions and the method use them.'),
+    el('p', 'small muted', 'The method’s own modules — Cybersecurity management, Shared registers, Quality review, the ontology and From candidates to scenarios — stay on: risk decisions and the method use them.'),
     el('div', 'btnrow', { style: { marginTop: '12px' } },
       el('button', { class: 'btn', id: 'wiz-apply', onclick: async () => {
         const changed = await applyAnswers(ans); m.close();

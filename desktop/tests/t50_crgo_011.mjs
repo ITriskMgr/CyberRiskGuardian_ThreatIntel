@@ -1,4 +1,4 @@
-// CRGO 0.11.x (approved; 0.11.1, tag v0.11.1, since 1.9.2) in the application, against the real ontology at CRGO_HOME: the snapshot's release and status,
+// CRGO 0.11.x (approved; 0.11.2, tag v0.11.2, since 1.9.3; 1.9.2: 0.11.1) in the application, against the real ontology at CRGO_HOME: the snapshot's release and status,
 // the six scenario patterns end to end (batch archetype → register → organisation graph 'has scenario pattern'), the AI
 // answer path, the scenario editor, CIS v8.1 safeguards with CRGO labels, applicability with technologies in use
 // (browser port = CRGO's evaluator), and the consultant's citations. Skipped when CRGO_RELEASE is older than 0.11.
@@ -91,7 +91,11 @@ const reg = await page.evaluate(async () => {
 });
 await page.waitForTimeout(800);
 ok(await page.locator('#panel-batch >> text=Pattern: Prompt injection in agent workflows (CRGO_0001393)').count() > 0, 'batch grid shows the row\'s CRGO pattern');
+// 1.9.3 decision C7-1: the batch exit to the register sits under "Advanced — skip screening", with a warning and a confirmation
+await page.click('#panel-batch details#batch-skip > summary');
+ok(await page.locator('#panel-batch #batch-skip >> text=do not count as candidates').count() > 0, 'skip-screening section shows its warning');
 await page.click('#panel-batch button:has-text("Add 3 selected to the register")');
+await page.click('#skip-confirm');
 await page.waitForTimeout(400);
 const after = await page.evaluate(async () => { const st = await import('/js/state.js'); return st.S.ws.assessment.SCEN.map(s => [s.name, s.scenPattern ?? null]); });
 ok(JSON.stringify(after) === JSON.stringify([['Prompt injection row', 'CRGO_0001393'], ['Invented pattern row', null], ['Plain row', null]]), 'register: the pattern travels with the scenario; an unknown identifier is dropped ' + JSON.stringify(after));

@@ -11,6 +11,8 @@ import * as AI from '../ai.js';
 import * as aiui from '../aiui.js';
 import { today } from '../util.js';
 import * as CRGO from '../crgo.js';
+import * as FD from '../ontofind.js';
+import * as GRP from '../ontogroup.js';
 import { tr } from '../i18n.js';
 import * as SEED from '../secops_seed.js';
 import { statusAt, TLP_RESTRICTED } from '../siem.js';
@@ -28,6 +30,26 @@ const TABS = [['chain', 'Causal chain'], ['quant', 'Quantification'], ['cvss', '
   ['links', 'Links & evidence'], ['onto', 'Ontology · CRGO']];
 let pendingTab = null;
 const MOVE = { ArrowRight: 1, ArrowLeft: -1, Home: 'first', End: 'last' };
+/** Delete a scenario with the confirmation that names its links (shared by the Delete button and the ontology review). Returns true when deleted. */
+export function deleteScenario(s, { stay = false } = {}) {
+  const a = S.ws.assessment;
+      // 1.9.2 (item 10, NV-037): the risks of the Risk register that link this scenario are named before it goes
+      const linked = (S.ws.risks || []).filter(r => (r.scenarios || []).includes(s.id));
+      let warn = linked.length ? '\n\n' + tr('{0} risk(s) link this scenario: {1}. They will show the link as deleted until you unlink them or link another scenario.').replace('{0}', linked.length).replace('{1}', linked.map(r => r.id).join(', ')) : '';
+      // 1.9.2 review (L6): measures, recommendations and KRIs that reference the scenario are named too, and unlinked on deletion
+      const meas = (S.ws.measures || []).filter(m => (m.scen || []).includes(s.id));
+      const recs = (S.ws.recommendations || []).filter(r => (r.scenarios || []).includes(s.id));
+      const kris = (a.KRIS || []).filter(k => String(k[2] || '').split(/[,;\s]+/).includes(s.id));
+      if (meas.length || recs.length || kris.length) warn += '\n\n' + tr('Also linked and unlinked on deletion: {0} measure(s) ({1}), {2} recommendation(s) ({3}), {4} KRI(s) ({5}). An approved recommendation keeps its frozen figures; its history records the removal.')
+        .replace('{0}', meas.length).replace('{1}', meas.map(m => m.id).join(', ') || '—').replace('{2}', recs.length).replace('{3}', recs.map(r => r.code || r.id).join(', ') || '—').replace('{4}', kris.length).replace('{5}', kris.map(k => k[0]).join(', ') || '—');
+      if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?` + warn)) return false;
+      for (const r of linked) (r.history ||= []).push({ date: today(), what: `Linked scenario ${s.id} deleted — link flagged until Unlink` });   // item 10: logged in each risk's history
+      for (const m of meas) { m.scen = m.scen.filter(x => x !== s.id); if (m.eff) delete m.eff[s.id]; }
+      for (const r of recs) { r.scenarios = r.scenarios.filter(x => x !== s.id); (r.history ||= []).unshift({ at: new Date().toISOString(), action: 'unlinked', from: s.id, to: '', by: users.name() || '', note: `Scenario ${s.id} deleted by the analyst: removed from this recommendation (frozen figures, if any, unchanged)` }); }
+      for (const k of kris) k[2] = String(k[2] || '').split(/[,;\s]+/).filter(x => x && x !== s.id).join(', ');
+      a.SCEN.splice(a.SCEN.indexOf(s), 1); for (const i of a.INITIATIVES) if (Array.isArray(i[3])) i[3] = i[3].filter(x => x !== s.id);
+      S.ws.excluded = S.ws.excluded.filter(x => x !== s.id); delete S.ws.decisions[s.id]; users.audit('scenario deleted', `${s.id} ${s.name}`, S.ws); touch(); toast('Deleted ' + s.id); if (!stay) go('register'); return true;
+}
 /** Open the editor on a given tab next time it is drawn (Process step 8 → chain, 9 → quant, 10 → cvss). */
 export function requestTab(t) { pendingTab = t; }
 const tabKey = () => 'crg-scen-tab:' + (users.me()?.id || 'local');   // per person, on this computer
@@ -91,24 +113,7 @@ export function render(sec, arg) {
   ), el('div', 'btnrow', { style: { marginTop: '12px' } },
     el('label', { style: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: 0, marginRight: 'auto', color: 'var(--ink)', fontSize: '13.5px' } }, inc, 'Include in totals'),
     el('button', { class: 'btn ghost sm', onclick: () => { const c = JSON.parse(JSON.stringify(s)); c.id = nextScenarioId(); c.name = (c.name || '') + ' (copy)'; a.SCEN.splice(idx + 1, 0, c); touch(); go('scenario/' + c.id); } }, 'Duplicate'),
-    el('button', { class: 'btn ghost sm danger', onclick: () => {
-      // 1.9.2 (item 10, NV-037): the risks of the Risk register that link this scenario are named before it goes
-      const linked = (S.ws.risks || []).filter(r => (r.scenarios || []).includes(s.id));
-      let warn = linked.length ? '\n\n' + tr('{0} risk(s) link this scenario: {1}. They will show the link as deleted until you unlink them or link another scenario.').replace('{0}', linked.length).replace('{1}', linked.map(r => r.id).join(', ')) : '';
-      // 1.9.2 review (L6): measures, recommendations and KRIs that reference the scenario are named too, and unlinked on deletion
-      const meas = (S.ws.measures || []).filter(m => (m.scen || []).includes(s.id));
-      const recs = (S.ws.recommendations || []).filter(r => (r.scenarios || []).includes(s.id));
-      const kris = (a.KRIS || []).filter(k => String(k[2] || '').split(/[,;\s]+/).includes(s.id));
-      if (meas.length || recs.length || kris.length) warn += '\n\n' + tr('Also linked and unlinked on deletion: {0} measure(s) ({1}), {2} recommendation(s) ({3}), {4} KRI(s) ({5}). An approved recommendation keeps its frozen figures; its history records the removal.')
-        .replace('{0}', meas.length).replace('{1}', meas.map(m => m.id).join(', ') || '—').replace('{2}', recs.length).replace('{3}', recs.map(r => r.code || r.id).join(', ') || '—').replace('{4}', kris.length).replace('{5}', kris.map(k => k[0]).join(', ') || '—');
-      if (!window.confirm(`Delete scenario ${s.id} — ${s.name}?` + warn)) return;
-      for (const r of linked) (r.history ||= []).push({ date: today(), what: `Linked scenario ${s.id} deleted — link flagged until Unlink` });   // item 10: logged in each risk's history
-      for (const m of meas) { m.scen = m.scen.filter(x => x !== s.id); if (m.eff) delete m.eff[s.id]; }
-      for (const r of recs) { r.scenarios = r.scenarios.filter(x => x !== s.id); (r.history ||= []).unshift({ at: new Date().toISOString(), action: 'unlinked', from: s.id, to: '', by: users.name() || '', note: `Scenario ${s.id} deleted by the analyst: removed from this recommendation (frozen figures, if any, unchanged)` }); }
-      for (const k of kris) k[2] = String(k[2] || '').split(/[,;\s]+/).filter(x => x && x !== s.id).join(', ');
-      a.SCEN.splice(idx, 1); for (const i of a.INITIATIVES) if (Array.isArray(i[3])) i[3] = i[3].filter(x => x !== s.id);
-      S.ws.excluded = S.ws.excluded.filter(x => x !== s.id); delete S.ws.decisions[s.id]; touch(); toast('Deleted ' + s.id); go('register');
-    } }, 'Delete'))));
+    el('button', { class: 'btn ghost sm danger', onclick: () => { deleteScenario(s); } }, 'Delete'))));
 
   // the tabs
   const P = Object.fromEntries(TABS.map(([k]) => [k, el('div', { class: 'scen-panel', role: 'tabpanel', id: 'scen-panel-' + k, 'aria-labelledby': 'scen-tab-' + k, tabindex: '0' })]));
@@ -149,8 +154,10 @@ export function render(sec, arg) {
 
   P.chain.append(card(el('h2', null, 'Identification'), el('div', 'grid g3',
     field('<b>Name</b>', T('name', 0)), field('Library reference / candidate ID', T('ref', 0)), field('Risk owner', T('owner', 0)),
-    field('Implementation horizon', T('horizon', 0, { placeholder: 'e.g. 0-6 months' })), field('Stakeholders', T('stakeholders', 0)), field('Origin', el('input', { value: s.origin || 'imported', readOnly: true })),
+    field('Implementation horizon', T('horizon', 0, { placeholder: 'e.g. 0-6 months' })), field('Stakeholders', T('stakeholders', 0)), field('Origin', el('input', { value: (typeof s.origin === 'string' ? s.origin : s.origin?.text) || 'imported', readOnly: true })),
   ), field('<b>Scenario statement</b> — threat source → vulnerability → asset/process → event → consequence', T('statement', 3))));
+  // 1.9.3 (W1) — read only: where a scenario created by From candidates to scenarios came from
+  if (s.origin && typeof s.origin === 'object') P.chain.append(fromScreeningCard(s.origin));
 
   /* 1.5.5 — guideline 4 is the laborious part of the methodology: a statement plus eight structured
      fields, for every scenario. The draft button fills them from what the scenario already holds, and
@@ -311,6 +318,20 @@ const lines = v => (Array.isArray(v) ? v : String(v || '').split('\n')).map(x =>
 const shown = v => Array.isArray(v) ? v.join('\n') : str(v);
 const isEmpty = v => (Array.isArray(v) ? v.length === 0 : !str(v));
 
+/** 1.9.3 (W1) — the From screening card: the candidates, the family, the scores, the six answers and who created it, when. Read only. */
+function fromScreeningCard(o) {
+  const ids = o.candidateIds || [], sc = o.scores || {};
+  const line = (k, v) => el('div', 'small', el('b', null, tr(k) + ': '), v);
+  return card({ class: 'card', id: 'scen-from-screening' }, el('h2', null, tr('From screening')),
+    o.reconstructed ? el('p', 'note', tr('Rebuilt from the family that lists this scenario when the data was upgraded to 1.9.3; the creator and date were not recorded then.')) : null,
+    line('Candidates', ids.join(', ') || '—'), line('Family', o.familyId || tr('none (unique candidate)')),
+    line('Scores (/60)', ids.map(i => `${i} ${sc[i]?.total ?? '—'}${sc[i]?.ai ? ' (' + tr('AI-proposed, accepted by {0} on {1}').replace('{0}', sc[i].ai.by || '—').replace('{1}', sc[i].ai.date || '') + ')' : ''}`).join(' · ') || '—'),
+    o.ontologyMatch ? line('Ontology match', [o.ontologyMatch.crgoId, o.ontologyMatch.cluster, o.ontologyMatch.source].filter(Boolean).join(' · ')) : null,
+    line('Created by', (o.createdBy || '—') + (o.createdAt ? ' · ' + String(o.createdAt).slice(0, 10) : '')),
+    (o.why || []).some(x => String(x || '').trim()) ? el('details', null, el('summary', { class: 'small' }, tr('The six “why this scenario?” answers')),
+      el('ol', 'small', ...(o.why || []).filter(x => String(x || '').trim()).map(x => el('li', { 'data-noi18n': '' }, x)))) : null);
+}
+
 async function draftChain(s, sec, box, btn) {
   const ws = S.ws;
   box.replaceChildren(el('p', 'note', 'Checking where this request may go…'));
@@ -446,7 +467,7 @@ function ontologyCard(s, sec) {
   const out = el('div');
   const c = s.crgo;
   const body = [el('h2', null, 'Ontology · CRGO')];
-  if (c) body.push(el('p', 'small', 'Imported from ', el('span', { class: 'mono', 'data-noi18n': '' }, c.id), c.basis ? ` · ${c.basis}` : '', c.imported ? ` · ${c.imported}` : ''),
+  if (c) body.push(c.id ? el('p', 'small', 'Imported from ', el('span', { class: 'mono', 'data-noi18n': '' }, c.id), c.basis ? ` · ${c.basis}` : '', c.imported ? ` · ${c.imported}` : '') : el('p', 'small', tr('CRGO terms completed by the analyst')),
     el('div', 'chips', ...(c.themes || []).map(t => chip(t)), ...(c.asset_categories || []).map(t => chip(t)), ...(c.threat_source_types || []).map(t => chip(t))),
     (c.controls || []).length ? el('div', { style: { marginTop: '8px' } }, el('b', null, 'Controls the ontology links to it: '), el('span', { class: 'small mono', 'data-noi18n': '' }, c.controls.join(', '))) : null,
     (c.obligations || []).length ? el('div', { style: { marginTop: '6px' } }, el('b', null, 'Quebec Law 25 obligations: '), el('ul', 'small', ...c.obligations.map(o => el('li', { 'data-noi18n': '' }, o)))) : null);
@@ -496,8 +517,34 @@ function ontologyCard(s, sec) {
       out.replaceChildren(d.error ? el('div', null, LK.errorBox(d), localEvidence(s, D)) : LK.contextView(d));
       if (!d.error) touch();
     } }, 'Organisation context and control evidence')));
-  body.push(obligationsEditor(s), lifeEvidence(s));
+  body.push(termsBlock(s), validateBlock(s, sec), obligationsEditor(s), lifeEvidence(s));
   return card(...body, out);
+}
+
+/** 1.9.3 (W2b) — the CRGO terms of the scenario (themes, asset categories, threat source types), editable: the field a finding points to. */
+function termsBlock(s) {
+  const host = el('div', { id: 'scen-terms-host' }, el('span', { class: 'small muted' }, tr('Asking the ontology…')));
+  GRP.vocabulary().then(V => {
+    const cur = s.crgo || {}, t = Object.fromEntries(GRP.TERM_FIELDS.map(([f]) => [f, [...(cur[f] || [])]]));
+    host.replaceChildren(GRP.termsEditor(t, V, () => { s.crgo = { ...(s.crgo || {}), ...Object.fromEntries(Object.entries(t).map(([k, v]) => [k, v.slice()])) }; touch(); }));
+  }).catch(() => host.replaceChildren(el('span', { class: 'small muted' }, tr('The ontology vocabulary could not be read.'))));
+  return el('details', { id: 'scen-terms', style: { marginTop: '8px' } }, el('summary', { class: 'small' }, el('b', null, tr('CRGO terms (asset categories, threat source types, themes)'))), host);
+}
+/** 1.9.3 (W2b) — Validate against the ontology: findings only, never blocking; Edit, Delete, Dismiss; QC-33 reads the result. */
+function validateBlock(s, sec) {
+  const o = { kind: 'scenario', s }, ws = S.ws, box = el('div', { id: 'scen-onto-findings' });
+  const draw = () => {
+    if (!S.ws.assessment.SCEN.includes(s)) { go('register'); return; }
+    box.replaceChildren(s.ontologyFindings?.length ? FD.findingsView(o, ws, { result: FD.lastOf(o, ws), onChange: draw }) : el('p', { class: 'small muted' }, tr('Not validated against the ontology yet.')));
+  };
+  const btn = el('button', { class: 'btn sm', id: 'scen-validate', 'data-ro-ok': '', onclick: async () => {
+    btn.disabled = true;
+    try { const r = await FD.validate(o, ws); if (r.error) { box.replaceChildren(banner('warn', tr('The ontology could not validate this scenario'), tr(r.message || r.code))); return; } draw(); }
+    catch (e) { box.replaceChildren(banner('warn', tr('The ontology could not validate this scenario'), String(e.message || e))); }
+    finally { btn.disabled = false; }
+  } }, tr('Validate against the ontology'));
+  draw();
+  return el('div', { style: { marginTop: '8px' } }, el('div', { class: 'btnrow' }, btn, el('span', { class: 'small muted' }, tr('Findings never block anything. The ontology never changes a parameter or a score.'))), box);
 }
 
 /** Loi 25 and other provisions this scenario can trigger, by CRGO notation (e.g. "P-39.1 s. 10"). */

@@ -22,7 +22,9 @@ import html as htmlmod, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = [os.path.join(ROOT, 'js'), os.path.join(ROOT, 'js', 'panels')]
-SKIP_FILES = {'i18n.js', 'cvss4.js', 'crg.js', 'sample.js', 'threat.js', 'xlsx.js', 'snapgen.js', 'ontology.js', 'feedparse.js'}
+SKIP_FILES = {'i18n.js', 'cvss4.js', 'crg.js', 'sample.js', 'threat.js', 'xlsx.js', 'snapgen.js', 'ontology.js', 'feedparse.js', 'screencodes.js',
+              'crgo_group.js',
+              'familypayload.js', 'familytext.js'}   # 1.9.3 (W3): the payload sent to the model is English by contract   # 1.9.3: CRGO's contract messages (English by contract; the screens show crgo.js findingText)
 
 
 def tokens(src):

@@ -12,6 +12,7 @@ import * as i18n from './i18n.js';
 import * as CH from './chapterhelp.js';
 import { WHY } from './whyscreen.js';
 import { VERSION } from './version.js';
+import { codeOf, routeKey, diagnostics } from './screencodes.js';
 
 /* 1.9.2 (NV-080, T1) — a support code on every screen: SCREEN-TAB · version (e.g. "ORG-CROWN · 1.9.2"), drawn in the
    screen's title line beside the "?" and copied to the clipboard on a click, so a tester or a user can name exactly
@@ -198,6 +199,14 @@ export function decorate(sec, panel, arg, mod) {
     const a = document.createElement('a'); a.href = guideHref(e.g); a.target = 'crg-guide'; a.rel = 'noopener'; a.textContent = tr('Open this section of the user guide') + ' ↗';
     a.addEventListener('click', ev => { if (ev.metaKey || ev.ctrlKey || ev.shiftKey) return; const w = window.open(a.href, 'crg-guide', 'popup=yes,width=1040,height=920,noopener'); if (w) ev.preventDefault(); });
     p.append(a); box.append(p);
+    // 1.9.3 (T7): the stable screen code and the diagnostics text
+    const sc = document.createElement('p'); sc.className = 'small screencode-line';
+    const lab = document.createElement('span'); lab.textContent = tr('Screen code') + ': ';
+    const cd = document.createElement('b'); cd.className = 'screencode'; cd.setAttribute('data-noi18n', ''); cd.textContent = codeOf(panel, arg) + ' · ' + routeKey(panel, arg);
+    const cp = document.createElement('button'); cp.type = 'button'; cp.className = 'btn ghost sm'; cp.id = 'copy-diagnostics'; cp.textContent = tr('Copy diagnostics'); cp.style.marginLeft = '10px';
+    cp.title = tr('Copies the version, screen code, route, data version and engine status — no workspace content');
+    cp.addEventListener('click', async () => { const txt = await diagnostics(panel, arg); window.__lastDiagnostics = txt; try { await navigator.clipboard.writeText(txt); cp.textContent = tr('Copied'); } catch { cp.textContent = tr('Copy failed'); } setTimeout(() => { cp.textContent = tr('Copy diagnostics'); }, 1500); });
+    sc.append(lab, cd, cp); box.append(sc);
     const anchor = sec.querySelector(':scope > .paneldesc') || h1;
     anchor.after(box); b.setAttribute('aria-expanded', 'true'); x.focus();
   });

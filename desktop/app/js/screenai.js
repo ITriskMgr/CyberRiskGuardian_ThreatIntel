@@ -18,7 +18,7 @@
    provider; the helper's policy knows the same id). When the feature is switched off, the buttons are hidden.
    No change to formulas, criteria or weighting. © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
-import { el, banner, table, toast, modal, pill, select, field } from './util.js';
+import { el, banner, toast, modal, pill, select, field } from './util.js';
 import { S, touch } from './state.js';
 import { tr } from './i18n.js';
 import * as AI from './ai.js';
@@ -139,26 +139,30 @@ export async function propose(ws = S.ws, { filter = '', ids = null, unscoredOnly
   try { props = parse(out.text, ws, list.map(c => c.id)); } catch (e) { toast(tr('The answer was not machine-readable: ') + e.message, 'bad'); AI.decide(out.entryId, 'rejected', 'unreadable answer'); return 0; }
   if (!props.length) { toast(tr('The answer named no known candidate.'), 'bad'); AI.decide(out.entryId, 'rejected', 'no known candidate'); return 0; }
   return new Promise(resolve => {
+    let settled = false;
     const picks = new Map(props.map(p => [p.id, true]));
     const names = Object.fromEntries(list.map(c => [c.id, c.name]));
-    const rows = table([
-      { key: 'pick', label: '', sortable: false, render: p => { const cb = el('input', { type: 'checkbox', checked: true, 'aria-label': tr('Accept {0}').replace('{0}', p.id), class: 'sai-pick' }); cb.addEventListener('change', () => picks.set(p.id, cb.checked)); return cb; } },
-      { key: 'id', label: 'ID', render: p => el('b', null, p.id) },
-      { key: 'name', label: 'Candidate', render: p => el('span', { class: 'small', 'data-noi18n': '' }, names[p.id] || '') },
-      // each criterion is editable before acceptance
-      ...SC.CRITERIA.map(([k], i) => ({ key: k, label: k, num: true, sortable: false, render: p => { const s = select([['', '·'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']], p.scores[i] == null ? '' : String(p.scores[i]), { 'aria-label': `${p.id} ${k}`, class: 'sai-score', style: { width: '52px' } });
-        if (i === EV_INDEX && p.capped) s.title = tr('capped at {0}: no evidence ID cited').replace('{0}', EV_CAP);
-        s.addEventListener('change', () => { p.scores[i] = s.value ? Number(s.value) : null; }); return s; } })),
-      { key: 'flags', label: 'Flags', render: p => p.flags.join(' ') },
-      { key: 'ev', label: 'Evidence cited', render: p => p.cited.length ? el('span', { 'data-noi18n': '' }, p.cited.join(', ')) : p.capped ? pill(tr('none — EV capped at {0}').replace('{0}', EV_CAP), 'warn') : el('span', 'muted', '—') },
-      { key: 'cur', label: 'Now', render: p => SC.complete(C[p.id]) && !C[p.id].ai ? pill(tr('your scores kept ({0}) — proposal beside them').replace('{0}', SC.total(C[p.id])), 'warn') : C[p.id]?.ai ? pill(tr('AI-proposed, accepted'), '') : el('span', 'muted', tr('unscored')) },
-      { key: 'why', label: 'Rationale', render: p => el('span', { class: 'small', 'data-noi18n': '' }, p.rationale) },
-    ], props, { class: 'compact' });
+    // 1.9.3 (T3) — one stacked card per candidate (no 2,300 px wide table whose scroll bar sits below forty rows): the twelve criteria
+    // wrap in a grid, so nothing of the review panel extends beyond the window at 1280 or 1600 px
+    const rows = el('div', { class: 'sai-list' }, ...props.map(p => {
+      const cb = el('input', { type: 'checkbox', checked: true, 'aria-label': tr('Accept {0}').replace('{0}', p.id), class: 'sai-pick' });
+      cb.addEventListener('change', () => picks.set(p.id, cb.checked));
+      const cur = SC.complete(C[p.id]) && !C[p.id].ai ? pill(tr('your scores kept ({0}) — proposal beside them').replace('{0}', SC.total(C[p.id])), 'warn') : C[p.id]?.ai ? pill(tr('AI-proposed, accepted'), '') : el('span', 'muted', tr('unscored'));
+      const ev = p.cited.length ? el('span', { 'data-noi18n': '' }, p.cited.join(', ')) : p.capped ? pill(tr('none — EV capped at {0}').replace('{0}', EV_CAP), 'warn') : el('span', 'muted', '—');
+      return el('div', { class: 'sai-card', 'data-id': p.id },
+        el('div', 'sai-head', cb, el('b', null, p.id), el('span', { class: 'small', 'data-noi18n': '' }, names[p.id] || ''), cur),
+        el('div', 'sai-grid', ...SC.CRITERIA.map(([k], i) => { const s = select([['', '·'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']], p.scores[i] == null ? '' : String(p.scores[i]), { 'aria-label': `${p.id} ${k}`, class: 'sai-score', style: { width: '56px' } });
+          if (i === EV_INDEX && p.capped) s.title = tr('capped at {0}: no evidence ID cited').replace('{0}', EV_CAP);
+          s.addEventListener('change', () => { p.scores[i] = s.value ? Number(s.value) : null; });
+          return el('label', { class: 'sai-crit', title: tr(SC.CRITERIA[i][1]) }, el('span', 'small', k), s); })),
+        el('div', 'small', el('b', null, tr('Flags'), ': '), p.flags.join(' ') || '—', ' · ', el('b', null, tr('Evidence cited'), ': '), ev),
+        el('div', { class: 'small', 'data-noi18n': '' }, p.rationale));
+    }));
     const by = el('input', { placeholder: 'Accepted by (name, required)', value: users.name(), id: 'sai-by', style: { maxWidth: '240px' } });
     const msg = el('div');
     const m = modal(tr('Screening scores proposed by AI — review before accepting'),
       banner('warn', MK.ESTIMATE, tr('Proposed by {0}. Only accepted scores count. Edit any criterion first; evidence strength above {1} needs an evidence ID cited in the rationale; escalation flags are only added, never removed; your own scores are never overwritten — a proposal for a candidate you scored is kept beside its card. The disposition stays yours.').replace('{0}', out.model || 'AI').replace('{1}', EV_CAP)),
-      el('div', 'tablewrap', rows),
+      rows,
       el('div', 'row', { style: { marginTop: '10px', alignItems: 'end', gap: '8px' } }, field('<b>Accepted by</b>', by),
         el('button', { class: 'btn', id: 'sai-apply', onclick: () => {
           if (!by.value.trim()) { msg.replaceChildren(banner('bad', 'Name required', 'Acceptance is recorded with the name of the person who accepts.')); by.focus(); return; }
@@ -166,11 +170,11 @@ export async function propose(ws = S.ws, { filter = '', ids = null, unscoredOnly
           const r = apply(chosen, ws, { model: out.model, entryId: out.entryId, by: by.value.trim() });
           AI.decide(out.entryId, r.applied.length || r.beside.length ? 'accepted' : 'rejected', `${r.applied.length} card(s) accepted, ${r.beside.length} proposal(s) kept beside the analyst’s scores, by ${by.value.trim()}`);
           LOG.data('screening scores proposed by AI accepted', [...r.applied, ...r.beside].join(', '), `${out.model || ''} — ${tr('by')} ${by.value.trim()}`, ws.name);
-          touch(); m.close();
+          touch(); settled = true; m.close();   // 1.9.3 (T4): m.close() fires onclose → resolve(0) first; settle before closing so the screen re-renders
           toast(tr('{0} card(s) accepted, {1} proposal(s) kept beside your scores').replace('{0}', r.applied.length).replace('{1}', r.beside.length), r.applied.length + r.beside.length ? 'good' : 'warn');
           resolve(r.applied.length + r.beside.length); } }, 'Accept the ticked proposals'),
         el('button', { class: 'btn ghost', onclick: () => { AI.decide(out.entryId, 'rejected', 'proposals dismissed'); m.close(); resolve(0); } }, 'Dismiss')),
       msg);
-    m.back.onclose = () => resolve(0);
+    m.back.onclose = () => { if (!settled) resolve(0); };
   });
 }

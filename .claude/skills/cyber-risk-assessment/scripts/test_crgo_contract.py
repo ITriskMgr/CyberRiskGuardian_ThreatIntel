@@ -3,7 +3,7 @@
 # Copyright (c) 2026 Marc-André Léger
 """Regression and acceptance checks for the CRGO bridge (crgo_contract.py): dss/v1, compliance/v1 and secops/v1.
 
-    python3 test_crgo_contract.py --crgo PATH/TO/CyberRiskGuardian-Ontology-0.11.1 [--assessment medibec30.json]
+    python3 test_crgo_contract.py --crgo PATH/TO/CyberRiskGuardian-Ontology-0.11.2 [--assessment medibec30.json]
 
 Checks: the MediBec regression (84,305 / 41,023) with crg_calc.py; graph -> context of S1 (schema-valid) ->
 residual-risk write-back stored as proposed; status 'approved' and modelVersion 'TBD' refused
@@ -13,7 +13,7 @@ Nordelle sample); with CRGO >= 0.10.0, the acceptance tests of the 0.10.0 brief 
 files: compliance and secops as of 2026-10-12 (gaps reported as gaps, never as compliance; approval gap flagged
 without calling the action authorised or not), no validated coverage before 2026-06-10, contract errors returned
 verbatim and never retried, and a clear refusal on an older CRGO checkout. Every document must report the
-ontologyRelease the plugin pins (crgo_contract.PINNED_RELEASE, 0.11.1), and CRGO's own contract examples must carry it. Everything is written to a temporary folder outside the repository and removed afterwards.
+ontologyRelease the plugin pins (crgo_contract.PINNED_RELEASE, 0.11.2), and CRGO's own contract examples must carry it. Everything is written to a temporary folder outside the repository and removed afterwards.
 Prints PASS/FAIL per check and exits non-zero on any failure. MediBec and Nordelle are fictional.
 """
 import argparse, copy, hashlib, json, os, re, shutil, subprocess, sys, tempfile
@@ -184,13 +184,13 @@ def read_contracts(cc, crgo, nd, tmp):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--crgo", default=os.environ.get("CRGO_HOME") or os.path.join(REPO, "CyberRiskGuardian-Ontology-0.11.1"))
+    ap.add_argument("--crgo", default=os.environ.get("CRGO_HOME") or os.path.join(REPO, "CyberRiskGuardian-Ontology-0.11.2"))
     ap.add_argument("--assessment", default=os.path.join(REPO, "examples", "medibec", "source", "medibec30.json"))
     ap.add_argument("--keep", action="store_true", help="keep the temporary folder")
     a = ap.parse_args()
     crgo = os.path.abspath(a.crgo)
     if not os.path.isfile(os.path.join(crgo, "pipeline", "contracts", "dss.py")):
-        sys.exit("CRGO not found at %s: pass --crgo or set CRGO_HOME (release 0.11.1)." % crgo)
+        sys.exit("CRGO not found at %s: pass --crgo or set CRGO_HOME (release 0.11.2)." % crgo)
     sys.path.insert(0, HERE)
     import crg_calc
     import crgo_contract as cc

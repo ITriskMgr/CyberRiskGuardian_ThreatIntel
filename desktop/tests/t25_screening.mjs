@@ -27,12 +27,12 @@ ok(r.guidance === 'good' && r.strat === 5, '45 candidates and five strategies');
 ok(r.g15 === 'bad' && r.g22 === 'warn' && r.g30 === 'good', 'candidate guidance: <20 too few, 20–24 lab version, 25–40 recommended');
 ok(r.s5 === 'done' && r.s6 === 'done' && r.s7 === 'done' && r.jm === 0 && r.fu === 0, 'Process steps 5, 6 and 7 done on the teaching case');
 // the screens
-for (const t of ['candidates', 'families', 'weights', 'coverage', 'watch', 'final']) {
+for (const t of ['candidates', 'screen', 'select', 'create', 'families', 'weights', 'coverage', 'watch', 'final']) {
   await page.evaluate(h => { location.hash = '#/screening/' + h; }, t); await page.waitForTimeout(500);
   const bad = await page.evaluate(() => [...document.querySelectorAll('#panel-screening .banner')].some(b => /raised an error/.test(b.textContent)));
   ok(!bad, 'screening tab renders: ' + t);
 }
-await page.evaluate(() => { location.hash = '#/screening/weights'; }); await page.waitForTimeout(500);
+await page.evaluate(() => { location.hash = '#/screening/select'; }); await page.waitForTimeout(500);
 ok(await page.isVisible('#panel-screening >> text=Selected by judgment') && await page.isVisible('#panel-screening >> text=Explicit review'), 'weighting tab shows the two flags');
 // a new flagged candidate left out without review fails the quality review
 await page.evaluate(() => { location.hash = '#/screening/candidates'; }); await page.waitForTimeout(400);
@@ -59,10 +59,10 @@ await page.click('#batch-to-screening'); await page.waitForTimeout(800);
 const b2 = await page.evaluate(async () => { const st = await import('/js/state.js'); const c = st.S.ws.assessment.CANDIDATES.at(-1); return { n: st.S.ws.assessment.CANDIDATES.length, name: c[1], strat: st.S.ws.screening.cands[c[0]].strategy, hash: location.hash }; });
 ok(b2.n === b + 1 && b2.name === 'Test batch row' && b2.strat.includes('BU') && /screening/.test(b2.hash), 'Batch → Add the ticked rows as screening candidates ' + JSON.stringify(b2));
 // a family promoted to the register
-await page.evaluate(async () => { const st = await import('/js/state.js'); const f = st.S.ws.screening.families.find(x => x.id === 'P10'); f.scenarios = []; st.touch(); location.hash = '#/screening/final'; });
+await page.evaluate(async () => { const st = await import('/js/state.js'); const f = st.S.ws.screening.families.find(x => x.id === 'P10'); f.scenarios = []; st.touch(); location.hash = '#/screening/create'; });
 await page.waitForTimeout(600);
 const before = await page.evaluate(async () => (await import('/js/state.js')).S.ws.assessment.SCEN.length);
-await page.click('#panel-screening .card:has-text("P10") button:has-text("Create the scenario")'); await page.waitForTimeout(700);
+await page.click('#scr-create-all'); await page.waitForSelector('#scr-open-first'); await page.click('#scr-open-first'); await page.waitForTimeout(700);
 const pr = await page.evaluate(async () => { const st = await import('/js/state.js'); const s = st.S.ws.assessment.SCEN.at(-1); return { n: st.S.ws.assessment.SCEN.length, ref: s.ref, hash: location.hash, rat: s.params.PbA.rat }; });
 ok(pr.n === before + 1 && /^P10/.test(pr.ref) && /#\/scenario\//.test(pr.hash) && /Analytical estimate — validation required/.test(pr.rat), 'Create the scenario adds the family to the register with the estimate marker');
 // CSV export rows

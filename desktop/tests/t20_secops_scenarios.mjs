@@ -161,7 +161,7 @@ await page.click('#panel-batch button:has-text("Create 2 draft candidate(s)")');
 const dr = await page.evaluate(async () => { const ws = (await import('/js/state.js')).S.ws; return { draft: ws.batchDraft.map(r => ({ secops: r.secops, ev: r.secopsEv?.length, name: r.name })), scen: ws.assessment.SCEN.length, grid: /2 SIEM\/SOAR evidence link|1 SIEM\/SOAR evidence link/.test(document.querySelector('#panel-batch').textContent) }; });
 ok(dr.draft.length === 2 && dr.draft.every(r => r.secops && r.ev >= 1) && dr.scen === 2, 'two drafts in the grid, the register untouched ' + JSON.stringify(dr));
 ok(dr.grid, 'grid shows the evidence links');
-await page.click('#panel-batch button:has-text("Add 2 selected to the register")'); await page.waitForTimeout(500);
+await page.click('#batch-skip summary'); await page.click('#batch-add-register'); await page.click('#skip-confirm'); await page.waitForTimeout(500);
 const com = await page.evaluate(async () => { const ws = (await import('/js/state.js')).S.ws; return ws.assessment.SCEN.slice(2).map(s => ({ id: s.id, origin: s.origin, secops: s.secops, bg: s.background, ev: s.threat_event, rat: s.params.PbA.rat })); });
 ok(com.length === 2 && com.every(s => /From security operations/.test(s.origin) && s.secops?.length >= 1 && /validation required/.test(s.bg) && s.ev && /Placeholder/.test(s.rat)), 'added only on explicit commit, with s.secops links and provenance ' + JSON.stringify(com).slice(0, 300));
 

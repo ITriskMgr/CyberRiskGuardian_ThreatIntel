@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""build_crgo.py — the offline snapshots of the CyberRiskGuardian Ontology (1.5.8, CRGO 0.9.x; CRGO 0.11.0 in 1.9.0; CRGO 0.11.1 in 1.9.2).
+"""build_crgo.py — the offline snapshots of the CyberRiskGuardian Ontology (1.5.8, CRGO 0.9.x; CRGO 0.11.0 in 1.9.0; CRGO 0.11.1 in 1.9.2;
+CRGO 0.11.2 in 1.9.3).
 
 Writes two files beside the application, from a CRGO checkout (v0.9.1 or later):
 
@@ -23,6 +24,11 @@ project owner's approval), otherwise "approved". CRGO 0.11.0 was approved by its
 2026-11-02; the CIS v8.1 values flagged REVIEW: were accepted as delivered and stay marked unverified.
 1.9.2 bundles the 0.11.1 patch (2026-11-08: input validation, write-back path, CIS v8.1 coverage, FR-2/FR-3 label
 terminology; no term added, removed or deprecated).
+1.9.3 bundles the 0.11.2 patch (2026-11-12: contract library-proposal/v1, no term changed). The snapshot schema becomes
+crg-crgo-snapshot/3: it copies the export's top-level "grouping" block as is (ATT&CK active / replaced / deprecated,
+CWE ids, hierarchy and technique references, theme rules, stop words), and every scenario keeps "cluster" and
+"primary_theme" (static near-duplicate clusters computed once by CRGO). The browser port js/crgo_group.js reads them and
+never recomputes a library cluster. Readers of /2 keep working: nothing was removed.
 
 The application uses these when the ontology's MCP server cannot be reached, and says so on every result.
 Needs rdflib and pyoxigraph (as CRGO itself does). Takes about four minutes (the store is built first).
@@ -233,13 +239,16 @@ def main(onto):
             s["exploitation_evidence"] = [[x["id"], x["kev_vulnerabilities"], x["known_ransomware_use"], x["epss_median"], x["epss_max"]]
                                           for k in ("by_technique", "by_weakness") for x in full["exploitation_evidence"].get(k, [])]
         n += 1
-    out = {"schema": "crg-crgo-snapshot/2", "title": d.get("title"), "version": d.get("version"), "release": tag, "ontologyRelease": onto_rel,
+    grouping = d.get("grouping")                         # 1.9.3 (CRGO 0.11.2): copied as is, never strip()ped (no iri/caveat keys)
+    out = {"schema": "crg-crgo-snapshot/3" if grouping else "crg-crgo-snapshot/2", "title": d.get("title"), "version": d.get("version"), "release": tag, "ontologyRelease": onto_rel,
            "status": status, "statusNote": STATUS_NOTE[status] % tag,
            "licence": d.get("licence"), "caveat": d.get("caveat"), "built": dt.date.today().isoformat(), "values": d.get("values"),
            "legal": legal(onto), "notes": notes, "titles": titles,
            "rows": {"countermeasures_d3fend": ["id", "confidence", "for_techniques"], "other_regimes": "regime: [ids]; titles in titles[regime]",
                     "exploitation_evidence": ["id", "kev_vulnerabilities", "known_ransomware_use", "epss_median", "epss_max"]},
            "scenarios": scen}
+    if grouping:
+        out["grouping"] = grouping
     if os.path.isfile(os.path.join(onto, "ontology", "vocab", "cis81.ttl")):
         out["v011"] = v011(onto)
     dst = os.path.join(ROOT, "data", "crgo-snapshot.json")
@@ -249,7 +258,12 @@ def main(onto):
         v = out["v011"]
         print(f"crgo 0.11: {len(v['patterns'])} scenario patterns, CIS v8.1 {len(v['cis81']['controls'])} controls / {len(v['cis81']['safeguards'])} safeguards "
               f"({sum(s['unverified'] for s in v['cis81']['safeguards'])} unverified), OWASP {sum(len(x) for x in v['owasp'].values())} entries")
-    print(f"crgo snapshot: CRGO {tag} ({status}; ontology {onto_rel}), {len(scen)} scenarios ({n} with 0.9 detail), {os.path.getsize(dst):,} bytes -> {dst}")
+    if grouping:
+        clusters = {s.get("cluster") for s in scen if s.get("kind") == "library scenario" and s.get("cluster")}
+        print(f"crgo 0.11.2 grouping: {sum(1 for s in scen if s.get('cluster'))} scenarios with a cluster ({len(clusters)} library clusters), "
+              f"ATT&CK {len(grouping['attack']['active'])} active / {len(grouping['attack']['replaced'])} replaced / {len(grouping['attack']['deprecated'])} deprecated, "
+              f"{len(grouping['cwe_ids'])} CWE ids, CWE references for {len(grouping['cwe_techniques'])}, {len(grouping['theme_rules'])} theme rules")
+    print(f"crgo snapshot: {out['schema']}, CRGO {tag} ({status}; ontology {onto_rel}), {len(scen)} scenarios ({n} with 0.9 detail), {os.path.getsize(dst):,} bytes -> {dst}")
     a = assurance(onto)
     a.update({"schema": "crg-crgo-assurance/1", "release": tag, "ontologyRelease": onto_rel, "built": out["built"], "status": status, "statusNote": out["statusNote"],
               "note": "NIST SP 800-53A Rev. 5 objectives and methods (public domain, NIST) and CRGO's illustrative work programmes (CC BY-NC 4.0). "

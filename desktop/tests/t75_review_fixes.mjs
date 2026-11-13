@@ -335,8 +335,9 @@ const l5 = await page.evaluate(async () => {
   const rowVec = { ...row, name: 'CSV numeric vector cell', cvss: '6.1', cvss_score: null };
   ws.batchDraft = [row, row0, rowVec]; st.touch();
   location.hash = '#/register'; await new Promise(r => setTimeout(r, 500)); location.hash = '#/batch'; await new Promise(r => setTimeout(r, 900));
-  const btn = [...document.querySelectorAll('main section:not([hidden]) button')].find(b => /Add \d+ selected to the register/.test(b.textContent));
-  btn.click(); await new Promise(r => setTimeout(r, 600));
+  document.querySelector('#batch-skip summary').click(); await new Promise(r => setTimeout(r, 100));
+  document.querySelector('#batch-add-register').click(); await new Promise(r => setTimeout(r, 300));
+  document.querySelector('#skip-confirm').click(); await new Promise(r => setTimeout(r, 600));
   const added = ws.assessment.SCEN.slice(n0);
   const out = added.map(s => { let c = null, e = null; try { c = window.CRG.calc(s, 0.3, 1000); } catch (x) { e = String(x.message || x); } return { name: s.name, vec: s.cvss, score: s.cvss_score, vs: s.vector_source, cvss: c?.cvss ?? null, src: c?.cvss_source ?? e }; });
   ws.assessment.SCEN.splice(n0); ws.batchDraft = []; st.touch();

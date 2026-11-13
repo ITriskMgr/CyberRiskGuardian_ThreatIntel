@@ -1,0 +1,784 @@
+{
+ "algorithm": "crgo-grouping/1",
+ "release": "0.11.2",
+ "local": {
+  "count": 0,
+  "sha256": ""
+ },
+ "groups": [
+  {
+   "cluster_id": "LIB-F0001",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F0001",
+    "name": "APTs tailored to circumvent specific intrusion detection systems",
+    "statement": "",
+    "themes": [
+     "ThemeAPT"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C08",
+     "match": {
+      "id": "LIB-F0001",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C40",
+     "match": {
+      "id": "LIB-F0001",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0144",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F0144",
+    "name": "Unauthenticated access through VPN by exploiting vulnerabilities",
+    "statement": "",
+    "themes": [
+     "ThemeAccess",
+     "ThemeNetwork"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C07",
+     "match": {
+      "id": "LIB-F0144",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C26",
+     "match": {
+      "id": "LIB-F0144",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0145",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F0145",
+    "name": "Inadequate multi-factor authentication for VPN access",
+    "statement": "",
+    "themes": [
+     "ThemeAccess",
+     "ThemeNetwork"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C01",
+     "match": {
+      "id": "LIB-F0145",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C20",
+     "match": {
+      "id": "LIB-F0145",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C30",
+     "match": {
+      "id": "LIB-F0145",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C41",
+     "match": {
+      "id": "LIB-F0145",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0495",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F0495",
+    "name": "Data leakage via physical media",
+    "statement": "",
+    "themes": [
+     "ThemeDataBreach"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C19",
+     "match": {
+      "id": "LIB-F0495",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C28",
+     "match": {
+      "id": "LIB-F0495",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0549",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F0549",
+    "name": "Unauthorized IoT devices transmitting confidential data outside the network",
+    "statement": "",
+    "themes": [
+     "ThemeDataBreach",
+     "ThemeMedicalIoT"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C09",
+     "match": {
+      "id": "LIB-F0549",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C43",
+     "match": {
+      "id": "LIB-F0549",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0613",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F0613",
+    "name": "Data Breach via Misconfigured Cloud Storage",
+    "statement": "The hospital unknowingly misconfigures access permissions on a cloud storage platform where patient data is stored. As a result, sensitive medical records become publicly accessible, leading to a data breach and violating patient privacy regulations.",
+    "themes": [
+     "ThemeCloud",
+     "ThemeDataBreach"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C04",
+     "match": {
+      "id": "LIB-F0613",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C37",
+     "match": {
+      "id": "LIB-F0613",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0640",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F0640",
+    "name": "Data Breach of Personal Health Information",
+    "statement": "A malicious insider steals patient health records from one of the hospital's healthcare information systems and sells them on the dark web, compromising the privacy and confidentiality of patients.",
+    "themes": [
+     "ThemeDataBreach",
+     "ThemeInsider"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C11",
+     "match": {
+      "id": "LIB-F0640",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C15",
+     "match": {
+      "id": "LIB-F0640",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C24",
+     "match": {
+      "id": "LIB-F0640",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F1436",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F1436",
+    "name": "A combined phishing and ransomware attack targeting healthcare information systems",
+    "statement": "",
+    "themes": [
+     "ThemeRansomware"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C02",
+     "match": {
+      "id": "LIB-F1436",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C34",
+     "match": {
+      "id": "LIB-F1436",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C35",
+     "match": {
+      "id": "LIB-F1436",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F1768",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F1768",
+    "name": "Single point of failure in redundant network configurations",
+    "statement": "",
+    "themes": [
+     "ThemeContinuity",
+     "ThemeVulnMgmt"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C16",
+     "match": {
+      "id": "LIB-F1768",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C45",
+     "match": {
+      "id": "LIB-F1768",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F1813",
+   "kind": "family",
+   "representative": {
+    "id": "LIB-F1813",
+    "name": "Disclosure of confidential or personal data through staff use of generative-AI tools",
+    "statement": "Staff paste patient, client or other confidential information into public generative-AI tools to summarise, translate or draft documents; the data leaves the organisation's control, may be retained or used for training by the provider, and the disclosure is neither logged nor authorised.",
+    "themes": [
+     "ThemeEmerging"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C29",
+     "match": {
+      "id": "LIB-F1813",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    },
+    {
+     "ref": "C42",
+     "match": {
+      "id": "LIB-F1813",
+      "rule": "theme_technique_asset"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0110",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0110",
+    "name": "Unauthorized Access to Hospital Wi-Fi Network",
+    "statement": "An attacker gains unauthorized access to the hospital's Wi-Fi network, allowing them to intercept and manipulate network traffic, conduct man-in-the-middle attacks, or deploy malware onto employee devices.",
+    "themes": [
+     "ThemeAccess",
+     "ThemeNetwork"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C06",
+     "match": {
+      "id": "LIB-F0110",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0136",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0136",
+    "name": "Exploitation of Weak Remote Access Controls",
+    "statement": "An unauthorized individual successfully exploits weak remote access controls, such as weak passwords or unpatched remote access software, gaining remote access to the hospital's critical systems and potentially causing significant damage.",
+    "themes": [
+     "ThemeAccess",
+     "ThemeNetwork"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C13",
+     "match": {
+      "id": "LIB-F0136",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0170",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0170",
+    "name": "Compromise of software update mechanisms",
+    "statement": "",
+    "themes": [
+     "ThemeThirdParty",
+     "ThemeAppSec"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C22",
+     "match": {
+      "id": "LIB-F0170",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0196",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0196",
+    "name": "API key exposure in code repositories",
+    "statement": "",
+    "themes": [
+     "ThemeAppSec"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C05",
+     "match": {
+      "id": "LIB-F0196",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0216",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0216",
+    "name": "Skimming attacks on point-of-sale terminals",
+    "statement": "",
+    "themes": [
+     "ThemePhysical",
+     "ThemeAppSec"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C38",
+     "match": {
+      "id": "LIB-F0216",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0342",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0342",
+    "name": "Inadequate data retention policies",
+    "statement": "",
+    "themes": [
+     "ThemeCloud",
+     "ThemeCompliance"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C44",
+     "match": {
+      "id": "LIB-F0342",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0441",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0441",
+    "name": "Inadequate Data Backup and Recovery",
+    "statement": "Due to insufficient backup procedures, a ransomware attack paralyzes the hospital's systems, including critical healthcare information. The inability to recover data swiftly leads to delays in patient care, financial losses, and potential loss of patient trust.",
+    "themes": [
+     "ThemeRansomware",
+     "ThemeContinuity"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C03",
+     "match": {
+      "id": "LIB-F0441",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0597",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0597",
+    "name": "Physical Security Breach - Unauthorized Access",
+    "statement": "An unauthorized individual gains physical access to restricted IT areas within the hospital, enabling them to tamper with network equipment, steal sensitive data, or compromise the integrity of critical systems.",
+    "themes": [
+     "ThemeDataBreach",
+     "ThemePhysical"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C39",
+     "match": {
+      "id": "LIB-F0597",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F0671",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F0671",
+    "name": "DDoS attack rendering the hospital’s website inaccessible",
+    "statement": "",
+    "themes": [
+     "ThemeDoS"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C10",
+     "match": {
+      "id": "LIB-F0671",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F1437",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F1437",
+    "name": "Unpreparedness for specific cyber incidents like ransomware attacks",
+    "statement": "",
+    "themes": [
+     "ThemeRansomware",
+     "ThemeContinuity"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C14",
+     "match": {
+      "id": "LIB-F1437",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F1612",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F1612",
+    "name": "Business Email Compromise (BEC) Scam",
+    "statement": "Hospital executives receive fraudulent emails appearing to be from a trusted vendor or partner, tricking them into authorizing large financial transactions or diverting funds to the fraudster's account.",
+    "themes": [
+     "ThemeSocialEng"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C18",
+     "match": {
+      "id": "LIB-F1612",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "LIB-F1814",
+   "kind": "unique",
+   "representative": {
+    "id": "LIB-F1814",
+    "name": "Interception or tampering of clinical messages (HL7, DICOM) between systems",
+    "statement": "An attacker with a foothold on the internal network or a partner link intercepts or alters unencrypted HL7 messages or DICOM transfers between clinical systems (EHR, laboratory, imaging, interface engine), exposing patient data or changing results, orders or images used for care.",
+    "themes": [
+     "ThemeIntegrity"
+    ],
+    "source": "library"
+   },
+   "members": [
+    {
+     "ref": "C32",
+     "match": {
+      "id": "LIB-F1814",
+      "rule": "near_duplicate"
+     },
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-2fbe87fe5a",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C27",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-60178813d7",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C36",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-a39ed58c5b",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C33",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-aa482ed186",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C17",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-abb23d0d25",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C21",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-ae44923efe",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C25",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-ba9d0f8031",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C31",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-e377a9bf71",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C23",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  },
+  {
+   "cluster_id": "GRP-fa70213c8a",
+   "kind": "own",
+   "representative": null,
+   "members": [
+    {
+     "ref": "C12",
+     "match": null,
+     "replaced_techniques": {}
+    }
+   ],
+   "theme_gap": null
+  }
+ ],
+ "theme_gaps": [],
+ "unknown_techniques": [],
+ "caveat": "TEST FIXTURE for t78 (W3 design, 2026-11-12): a plausible crgo-grouping/1 output for the 45 MediBec candidates, written by hand to keep the mock answers deterministic. Not the output of CRGO; replace by the real W2 output only if the mocks are regenerated."
+}

@@ -7,7 +7,7 @@
     },
     "crgo-ontology": {
       "command": "python3",
-      "args": ["${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.1}/pipeline/mcp/crgo_server.py"],
+      "args": ["${CRGO_HOME:-./CyberRiskGuardian-Ontology-0.11.2}/pipeline/mcp/crgo_server.py"],
       "env": {}
     }
   }

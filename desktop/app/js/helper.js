@@ -38,7 +38,7 @@ export async function api(path, opts = {}) {
 }
 export const apiJson = async (path, opts) => (await api(path, opts)).json();
 /* Requests that write on this computer are recorded in the data log (the path only — never the body). */
-const WRITES = /^\/api\/(config|keys|outbox|registry|crgo\/(graph|submit)|save|write|docs|files|briefing|sim)/;
+const WRITES = /^\/api\/(config|keys|outbox|registry|crgo\/(graph|submit|proposals\/(propose|approve|reject|export-contribution))|save|write|docs|files|briefing|sim)/;
 export const post = (path, body) => {
   if (WRITES.test(path)) LOG.data(path.startsWith('/api/keys') ? 'key stored by the helper' : 'written by the helper', path, path.startsWith('/api/keys') ? String(body?.name || '') : '');
   return apiJson(path, { method: 'POST', body: JSON.stringify(body || {}) });
@@ -61,6 +61,7 @@ export const DEFAULT_LINKS = {
   drive_registry: '',
   registry_local_dir: '', drive_feeds_local_dir: '',
   controls_list: '',
+  ontology_proposals_dir: '',   // 1.9.3 — Folder for ontology proposals (contribution files; empty by default)
   nvd_api: 'https://services.nvd.nist.gov/rest/json/cves/2.0',
   kev: 'https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json',
   epss: 'https://epss.empiricalsecurity.com/epss_scores-{date}.csv.gz',
@@ -74,15 +75,17 @@ export const LINK_EXAMPLE = {
   registry_local_dir: '~/Library/CloudStorage/GoogleDrive-…/My Drive/CRG registry',
   drive_feeds_local_dir: '~/Library/CloudStorage/GoogleDrive-…/My Drive/CRG feeds',
   controls_list: 'https://docs.google.com/spreadsheets/d/…',
+  ontology_proposals_dir: '~/Documents/CRGO contributions',
 };
 /** The links a person has to provide themselves; the rest are public endpoints with sane defaults. */
-export const LINK_YOURS = ['drive_feeds', 'drive_registry', 'registry_local_dir', 'drive_feeds_local_dir', 'controls_list'];
+export const LINK_YOURS = ['drive_feeds', 'drive_registry', 'registry_local_dir', 'drive_feeds_local_dir', 'controls_list', 'ontology_proposals_dir'];
 export const LINK_LABEL = {
   drive_feeds: ['Google Drive — Feeds folder (yours)', 'A folder in your own Drive where the scheduled task copies the feed digest and the summaries it writes. Optional: leave it empty and nothing is uploaded.'],
   drive_registry: ['Google Drive — Risk registry folder (yours)', 'A folder in your own Drive where you share published, anonymized risk and scenario registries. Optional: Publish downloads the file anyway.'],
   registry_local_dir: ['Local folder synced with the registry (optional)', 'A Google Drive for desktop path, e.g. ~/Library/CloudStorage/GoogleDrive-…/My Drive/Registry. When set, Publish writes there directly; otherwise packages wait in the outbox and the scheduled task uploads them.'],
   drive_feeds_local_dir: ['Local folder synced with the Feeds folder (optional)', 'Google Drive for desktop path of the Feeds folder, for reference by the scheduled task.'],
   controls_list: ['Controls list (Google Sheets, yours)', 'Your own control list, if you keep one. The catalogues bundled with the application do not need it.'],
+  ontology_proposals_dir: ['Folder for ontology proposals', 'A folder on this computer where the application writes the contribution files of approved ontology additions you choose to make public, for the CRGO project owner. Nothing is sent anywhere. Never inside the CRGO folder.'],
   nvd_api: ['NVD CVE API 2.0', 'Used by Vulnerabilities → Online sources.'],
   kev: ['CISA KEV catalogue', 'Used by Online sources and the snapshot generator.'],
   epss: ['FIRST EPSS daily file', '{date} is replaced by the score date.'],
