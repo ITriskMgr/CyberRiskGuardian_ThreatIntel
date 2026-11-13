@@ -128,7 +128,7 @@ await page.fill('#sai-by', 'Reviewer T56'); await page.click('#sai-apply'); awai
 const c5 = await page.evaluate(async () => {
   const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const AI = await import('/js/ai.js');
   const ws = st.S.ws, r1 = SC.rec('C01', ws);
-  return { s1: r1.scores, ev: r1.scores[8], flags: r1.flags, rat: r1.rat.slice(0, 20), ai: r1.ai && { model: r1.ai.model, by: r1.ai.by, cited: r1.ai.cited }, total: SC.total(r1), log: AI.log(ws)[0].task + ':' + AI.log(ws)[0].decision, csv: SC.csvRows(ws).find(row => row[0] === 'C01').at(-1) };
+  return { s1: r1.scores, ev: r1.scores[8], flags: r1.flags, rat: r1.rat.slice(0, 20), ai: r1.ai && { model: r1.ai.model, by: r1.ai.by, cited: r1.ai.cited }, total: SC.total(r1), log: AI.log(ws)[0].task + ':' + AI.log(ws)[0].decision, csv: SC.csvRows(ws).find(row => row[0] === 'C01').at(-2) };
 });
 ok(c5.s1[0] === 4 && c5.ev === 5 && c5.total === 52 && c5.ai?.cited?.join() === 'E4,E6', 'the edited criterion is kept (BC 4); EV 5 stands because the rationale cites E4 and E6; total 52 ' + JSON.stringify(c5.s1));
 ok(c5.flags.includes('S') && c5.flags.includes('PV') && c5.flags.includes('ES'), 'flags are only added: the analyst\u2019s S stays, PV and ES join ' + c5.flags.join(' '));
@@ -142,7 +142,7 @@ await page.click('#scr-ai-one'); await page.waitForSelector('.modal textarea', {
 const kept = await page.evaluate(() => [...document.querySelectorAll('.modal .sai-card')].map(tr => tr.textContent).join(' '));
 ok(/your scores kept \(18\)/.test(kept) && /EV capped at 2/.test(kept), 'the review says the analyst\u2019s scores are kept and that EV is capped at 2 without a cited evidence ID');
 await page.fill('#sai-by', 'Reviewer T56'); await page.click('#sai-apply'); await page.waitForTimeout(600);
-const c37 = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const r = SC.rec('C37', st.S.ws); return { total: SC.total(r), ai: !!r.ai, prop: r.aiProposal && { ev: r.aiProposal.scores[8], capped: r.aiProposal.capped }, csv: SC.csvRows(st.S.ws).find(row => row[0] === 'C37').at(-1) }; });
+const c37 = await page.evaluate(async () => { const st = await import('/js/state.js'); const SC = await import('/js/screening.js'); const r = SC.rec('C37', st.S.ws); return { total: SC.total(r), ai: !!r.ai, prop: r.aiProposal && { ev: r.aiProposal.scores[8], capped: r.aiProposal.capped }, csv: SC.csvRows(st.S.ws).find(row => row[0] === 'C37').at(-2) }; });
 ok(c37.total === 18 && !c37.ai && c37.prop?.ev === 2 && c37.prop.capped && /beside the analyst/.test(c37.csv), 'C37 keeps its 18; the proposal sits beside it with EV capped at 2 ' + JSON.stringify(c37));
 await page.evaluate(() => { [...document.querySelectorAll('#panel-screening tbody tr')].find(tr => tr.textContent.startsWith('C37')).querySelector('button').click(); }); await page.waitForTimeout(400);
 ok(await page.isVisible('#scr-editor >> text=AI proposal beside your scores'), 'the card shows the proposal beside the analyst\u2019s scores');

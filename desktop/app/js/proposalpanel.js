@@ -13,7 +13,8 @@
 import { el, card, pill, toast, field, chip } from './util.js';
 import { tr } from './i18n.js';
 
-const KIND = { family: 'Family', unique: 'Unique candidate', own: 'Own scenario — theme gap' };
+const KIND = { family: 'Family', unique: 'Unique candidate', own: 'Own scenario — theme gap',
+  move: 'Move suggestion', rename: 'Rename suggestion', tick: 'Coverage tick', gap: 'New candidate — coverage gap', info: 'Not proposed' };
 
 export function reviewPanel({ id = 'proposal-panel', title, lede = null, source = null, items = [], onAccept, onReject, onAcceptAll = null, empty = 'Nothing to review.' }) {
   const box = el('div', { class: 'card prop-panel', id });
@@ -56,11 +57,11 @@ export function reviewPanel({ id = 'proposal-panel', title, lede = null, source 
         ...(it.badges || []).map(b => pill(tr(b), '')),
         it.done ? pill(tr(it.done), 'good') : null),
       it.statement ? el('div', { class: 'small', 'data-noi18n': '' }, String(it.statement).slice(0, 320)) : null,
-      mem, it.note ? el('div', { class: 'small muted' }, it.note) : null,
+      mem, it.note ? el('div', { class: 'small muted' }, it.note) : null, it.extra || null,
       it.blocked ? el('div', { class: 'small prop-blocked' }, pill(tr('cannot be accepted'), 'bad'), ' ', tr(it.blocked)) : null,
       it.done ? null : el('div', { class: 'btnrow', style: { marginTop: '6px' } },
         el('button', { class: 'btn sm', 'data-act': 'accept', disabled: !!it.blocked, onclick: () => accept(it) }, tr('Accept')),
-        el('button', { class: 'btn sm ghost', 'data-act': 'edit', disabled: !!it.blocked, onclick: () => { edit.hidden = !edit.hidden; } }, tr('Edit')),
+        el('button', { class: 'btn sm ghost', 'data-act': 'edit', disabled: !!it.blocked || it.editable === false, onclick: () => { edit.hidden = !edit.hidden; } }, tr('Edit')),
         el('button', { class: 'btn sm ghost', 'data-act': 'reject', onclick: () => { onReject?.(it); drop(it); } }, tr('Reject'))),
       edit);
   };

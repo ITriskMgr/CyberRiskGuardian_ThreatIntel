@@ -298,15 +298,25 @@ export function scenarioFromCandidate(c, ws = S.ws, { family = null } = {}) {
   return s;
 }
 
+/** 1.9.3 (C6): the mark of an AI family proposal on a candidate — its membership, its unique mark or its coverage-gap origin ('' otherwise). */
+export function aiFamMark(id, ws = S.ws) {
+  const r = state(ws).cands[id], f = familyOf(id, ws), t = m => `AI-proposed, accepted by ${m.by || '—'} on ${String(m.at || '').slice(0, 10)}${m.model ? ' (' + m.model + ')' : ''}`;
+  const m = f?.memberMarks?.[id];
+  if (m?.request) return t(m) + ` [${f.id}, request ${m.request}]`;
+  if (r?.unique?.ai) return t(r.unique.ai) + ' [unique]';
+  if (r?.aiGap?.request) return t(r.aiGap) + ` [coverage gap: ${r.aiGap.category}]`;
+  return '';
+}
+
 /** The screening as CSV rows (header first). */
 export function csvRows(ws = S.ws) {
   const a = analysis(ws), C = state(ws).cands;
-  const head = ['ID', 'Candidate', ...CRITERIA.map(c => c[0]), 'Total (/60)', ...SCHEMES.map(s => 'Weighted - ' + s[1]), 'Escalation flags', 'Confidence', 'Disposition', 'Family / target', 'Strategies', 'Rationale', 'Exclusion review', 'AI scores'];
+  const head = ['ID', 'Candidate', ...CRITERIA.map(c => c[0]), 'Total (/60)', ...SCHEMES.map(s => 'Weighted - ' + s[1]), 'Escalation flags', 'Confidence', 'Disposition', 'Family / target', 'Strategies', 'Rationale', 'Exclusion review', 'AI scores', 'AI families'];
   // 1.9.2 (C5) — the last column marks cards whose scores were proposed by AI and accepted (name, date, model)
   const aiMark = r => r?.ai ? `AI-proposed, accepted by ${r.ai.by || '—'} on ${r.ai.date || ''}${r.ai.model ? ' (' + r.ai.model + ')' : ''}` : r?.aiProposal ? 'AI proposal beside the analyst\u2019s scores (not accepted)' : '';
   return [head, ...a.list.map(c => { const r = C[c.id] || {}; const sc = r.scores || [];
     return [c.id, c.name, ...CRITERIA.map((_, i) => sc[i] ?? ''), total(r) ?? '', ...SCHEMES.map(([, , w]) => weighted(r, w) ?? ''), (r.flags || []).join(' '), r.conf || '', r.disp || '',
-      familyOf(c.id, ws)?.id || r.target || '', (r.strategy || []).join(' '), r.rat || '', r.exclReview || '', aiMark(r)]; })];
+      familyOf(c.id, ws)?.id || r.target || '', (r.strategy || []).join(' '), r.rat || '', r.exclReview || '', aiMark(r), aiFamMark(c.id, ws)]; })];
 }
 
 

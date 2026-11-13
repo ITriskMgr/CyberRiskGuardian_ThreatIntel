@@ -15,6 +15,7 @@ import * as DETAIL from '../detail.js';
 import * as LOG from '../logs.js';
 import * as SAI from '../screenai.js';
 import * as GR from '../ontogroup.js';
+import * as FAI from '../familyai.js';
 import * as FD from '../ontofind.js';
 import * as PR from '../ontoprop.js';
 
@@ -162,6 +163,7 @@ function screenView(body, sec, A, ws) {
       // 1.9.2 (C5) — AI drafts the twelve scores for review; hidden when the feature is switched off
       SAI.enabled() ? el('button', { class: 'btn ghost', id: 'scr-ai', disabled: !unscored, onclick: () => SAI.propose(ws, { filter: filt, unscoredOnly: true }).then(n => { if (n) { changed(); render(sec); } }) },
         tr('Estimate all unscored with AI ({0})').replace('{0}', unscored)) : null,
+      FAI.enabled() ? el('button', { class: 'btn ghost', id: 'scr-fam-b', disabled: !A.list.length, onclick: () => FAI.proposeB(ws, () => { changed(); render(sec); }) }, tr('Propose families for all candidates')) : null,
       el('button', { class: 'btn ghost', onclick: () => download(`scenario-screening-${today()}.csv`, toCSV(SC.csvRows(ws)), 'text/csv') }, 'Export the screening (.csv)')),
     el('p', 'note', 'Scores 1 (very low) to 5 (very high). For evidence strength, 5 means direct organizational evidence and 1 means assumption only; an AI estimate above 2 needs a cited evidence ID, otherwise the screen caps it at 2. Do not rank on CVSS.')));
   if (open && A.list.some(c => c.id === open)) body.append(scorer(sec, A.list.find(c => c.id === open), ws));
@@ -188,8 +190,9 @@ function groupingSection(body, sec, A, ws) {
       el('button', { class: 'btn', id: 'scr-merge', onclick: () => mergeDialog(ws, sec) }, 'Merge into…'),
       el('button', { class: 'btn ghost', id: 'fam-add', onclick: () => { st.families.push({ id: SC.nextFamilyId(ws), name: '', statement: '', members: [], selected: false, rationale: '', judgment: '', coverage: [], scenarios: [] }); changed(); render(sec); } }, 'Add a family')),
     // slot for the ontology grouping and the AI family proposals (W2, W3): empty here
-    el('div', { id: 'scr-grouping-slot' })));
+    el('div', { id: 'scr-grouping-slot' }), el('div', { id: 'scr-ai-fam-slot' })));
   GR.groupSection(body.querySelector('#scr-grouping-slot'), ws, () => render(sec));
+  FAI.section(body.querySelector('#scr-ai-fam-slot'), ws, () => { changed(); render(sec); });
   ownScenarios(body, sec, A, ws);
   familiesList(body, sec, A, ws);
 }
@@ -242,6 +245,7 @@ function familiesList(body, sec, A, ws) {
         f.selected ? pill(tr('Selected'), 'good') : null,
         el('button', { class: 'btn xs ghost danger', onclick: () => { if (!window.confirm(tr('Delete family {0}? Its members stay as candidates.').replace('{0}', f.id))) return; st.families.splice(st.families.indexOf(f), 1); changed(); render(sec); } }, 'Delete')),
       f.ontoMark ? el('div', { class: 'small onto-mark', 'data-mark': 'ontology' }, pill(GR.markText(f.ontoMark), 'good'), ' ', el('span', { class: 'muted', 'data-noi18n': '' }, [f.ontoMark.cluster, f.ontoMark.via === 'mcp' ? 'MCP' : 'snapshot', f.ontoMark.release && 'CRGO ' + f.ontoMark.release].filter(Boolean).join(' · '))) : null,
+      f.aiMark ? el('div', { class: 'small', 'data-mark': 'ai' }, pill(FAI.markText(f.aiMark), 'warn'), ' ', el('span', { class: 'muted', 'data-noi18n': '' }, [f.aiMark.key, f.aiMark.request && 'request ' + f.aiMark.request, f.aiMark.model].filter(Boolean).join(' · '))) : null,
       field('<b>Family</b>', name), field('Consolidated statement', stm), field('Rationale', why),
       el('div', 'small muted', tr('Members'), ': ', ...(f.members || []).map(m => chip(`${m} ${SC.total(C[m]) ?? ''}`, { title: A.list.find(c => c.id === m)?.name || '' })),
         ...(f.members || []).map(m => el('button', { class: 'btn xs ghost', title: tr('Take {0} out of this family').replace('{0}', m), onclick: () => { if (f.selected && (f.members || []).length <= 1) { toast(tr('A selected family keeps at least one member'), 'bad'); return; } SC.leaveFamily(m, ws); changed(); render(sec); } }, '× ' + m))),
@@ -329,6 +333,7 @@ function scorer(sec, c, ws) {
       // 1.9.2 (C5) — AI drafts this candidate's twelve scores; a proposal beside the analyst's scores, never over them
       SAI.enabled() ? el('button', { class: 'btn sm ghost', id: 'scr-ai-one', onclick: () => SAI.propose(ws, { ids: [c.id] }).then(n => { if (n) { changed(); render(sec); } }) }, 'Estimate with AI') : null,
       // 1.9.2 (C2) — a candidate can be removed, with a confirmation and an audit entry; never a member of a selected family
+      FAI.enabled() ? el('button', { class: 'btn sm ghost', id: 'scr-fam-one', onclick: () => FAI.proposeB(ws, () => { changed(); render(sec); }, [c.id]).then(r => { if (r) { toast(tr('Proposal ready in Families and unique candidates')); document.querySelector('#scr-ai-fam-out')?.scrollIntoView?.(); } }) }, tr('Propose a family')) : null,
       el('button', { class: 'btn sm ghost danger', id: 'scr-remove', onclick: () => removeCandidate(c, ws, sec) }, 'Remove'),
       el('button', { class: 'btn sm ghost', onclick: () => { open = null; render(sec); } }, 'Close')),
     draftLine, aiLine, prop,
@@ -378,6 +383,7 @@ function selectView(body, sec, A, ws) {
     const w = SC.whyOf(u, ws), f = u.kind === 'family' ? st.families.find(x => x.id === u.id) : null;
     return el('details', { 'data-why': u.id, open: !SC.whyComplete(u, ws) }, el('summary', { class: 'small' }, el('b', null, u.id), ' ', String(u.name || '').slice(0, 60), ' — ', tr('The six “why this scenario?” questions') + (SC.whyComplete(u, ws) ? ' ✓' : '')),
       f?.statement ? el('p', 'small', f.statement) : null,
+      FAI.whyDraftNode(u, ws, () => render(sec)),
       ...SC.WHY.map((q, i) => { const t = el('textarea', { rows: 1, class: 'scr-why-q' }); t.value = w[i] || ''; t.addEventListener('input', () => { w[i] = t.value; changed(); }); return field(tr(q), t); }));
   })));
 }
