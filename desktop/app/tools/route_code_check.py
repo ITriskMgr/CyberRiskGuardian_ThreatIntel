@@ -41,6 +41,11 @@ def routes():
     org = re.search(r"const tabs = \[(\[.*?\])\];", rd("js/panels/org.js"), re.S)
     for a in re.findall(r"\['(\w+)',", org.group(1)):
         out.append(f"org/{a}")
+    # 1.9.3: the tabs of Ontology · CRGO (suggest, explore, link, connection, proposals)
+    on = re.search(r"for \(const \[k, t\] of \[(\[.*?\])\]\)", rd("js/panels/ontology.js"), re.S)
+    if on:
+        for a in re.findall(r"\['(\w+)',", on.group(1)):
+            out.append(f"ontology/{a}")
     seen, uniq = set(), []
     for r in out:
         if r not in seen:

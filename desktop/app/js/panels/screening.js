@@ -14,6 +14,9 @@ import * as MK from '../markers.js';
 import * as DETAIL from '../detail.js';
 import * as LOG from '../logs.js';
 import * as SAI from '../screenai.js';
+import * as GR from '../ontogroup.js';
+import * as FD from '../ontofind.js';
+import * as PR from '../ontoprop.js';
 
 export const HELP = {
   '': { d: 'Candidates → Screen → Select → Create scenarios: the one path from the first idea to the scenarios of the register (Process steps 5 to 7).', g: 'screening',
@@ -176,7 +179,7 @@ function groupingSection(body, sec, A, ws) {
       { key: 'pick', label: '', sortable: false, render: c => { const cb = el('input', { type: 'checkbox', class: 'scr-pick', 'data-id': c.id, checked: picked.has(c.id), 'aria-label': c.id }); cb.addEventListener('change', () => { cb.checked ? picked.add(c.id) : picked.delete(c.id); }); return cb; } },
       { key: 'id', label: 'ID', render: c => el('b', null, c.id) }, { key: 'name', label: 'Candidate', render: c => el('span', 'small', c.name) },
       { key: 'state', label: 'Status', render: c => { const u = C[c.id]?.unique; return u ? pill(tr('unique'), 'good') : pill(tr(SC.needsGroup(c.id, ws) ? 'ungrouped' : 'set aside'), SC.needsGroup(c.id, ws) ? 'warn' : ''); } },
-      { key: 'u', label: '', sortable: false, render: c => { const u = C[c.id]?.unique; if (u) return el('span', 'small', tr('Marked unique by {0} on {1}').replace('{0}', u.by || '—').replace('{1}', String(u.at || '').slice(0, 10)), ' ', el('button', { class: 'btn xs ghost', onclick: () => { SC.clearUnique(c.id, ws); changed(); render(sec); } }, 'Unmark'));
+      { key: 'u', label: '', sortable: false, render: c => { const u = C[c.id]?.unique; if (u) return el('span', { class: 'small', 'data-mark': u.source || '' }, u.source === 'ontology' ? GR.markText(u) : tr('Marked unique by {0} on {1}').replace('{0}', u.by || '—').replace('{1}', String(u.at || '').slice(0, 10)), ' ', el('button', { class: 'btn xs ghost', onclick: () => { SC.clearUnique(c.id, ws); changed(); render(sec); } }, 'Unmark'));
         const why = SC.uniqueBlock(c.id, ws);
         return why ? el('span', { class: 'small muted scr-unique-why', 'data-id': c.id }, tr(why).slice(0, 160))
           : el('button', { class: 'btn xs ghost scr-unique', 'data-id': c.id, onclick: () => { const r = SC.markUnique(c.id, who(), ws); if (r) { toast(tr(r), 'bad'); return; } LOG.data('candidate marked unique', c.id, `${c.name} — ${tr('by')} ${who()}`, ws.name); changed(); render(sec); } }, 'Mark as unique'); } },
@@ -186,7 +189,19 @@ function groupingSection(body, sec, A, ws) {
       el('button', { class: 'btn ghost', id: 'fam-add', onclick: () => { st.families.push({ id: SC.nextFamilyId(ws), name: '', statement: '', members: [], selected: false, rationale: '', judgment: '', coverage: [], scenarios: [] }); changed(); render(sec); } }, 'Add a family')),
     // slot for the ontology grouping and the AI family proposals (W2, W3): empty here
     el('div', { id: 'scr-grouping-slot' })));
+  GR.groupSection(body.querySelector('#scr-grouping-slot'), ws, () => render(sec));
+  ownScenarios(body, sec, A, ws);
   familiesList(body, sec, A, ws);
+}
+/* Own scenarios (1.9.3, W2b): candidates the ontology does not match, flagged as a theme gap, with Edit, Delete and Add to the ontology. */
+function ownScenarios(body, sec, A, ws) {
+  const gaps = A.list.filter(c => GR.gapOf(c.id, ws) !== null);
+  if (!gaps.length) return;
+  body.append(card({ class: 'card', id: 'scr-own' }, el('h2', null, tr('Own scenarios — theme gaps ({0})').replace('{0}', gaps.length)),
+    el('p', { class: 'note' }, tr('No scenario of the ontology matches these candidates. They can be kept as unique own scenarios; Add to the ontology proposes them, anonymized, for this installation’s ontology.')),
+    ...gaps.map(c => el('div', { class: 'scr-own-row', 'data-id': c.id }, el('b', null, c.id), ' ', el('span', { class: 'small', 'data-noi18n': '' }, c.name),
+        PR.gapFlag({ kind: 'candidate', c }, ws, { theme: GR.gapOf(c.id, ws), onChange: () => render(sec),
+          onEdit: () => { open = c.id; render(sec); }, onDelete: () => removeCandidate(c, ws, sec) })))));
 }
 /* Merge into… — the ticked candidates go to a new family or an existing one; the representative statement is editable. */
 function mergeDialog(ws, sec) {
@@ -222,10 +237,11 @@ function familiesList(body, sec, A, ws) {
     const stm = el('textarea', { rows: 2, placeholder: 'The stronger causal statement that represents the family' }); stm.value = f.statement || ''; stm.addEventListener('input', () => { f.statement = stm.value; changed(); });
     const why = el('textarea', { rows: 2 }); why.value = f.rationale || ''; why.addEventListener('input', () => { f.rationale = why.value; changed(); });
     const best = A.units.find(u => u.kind === 'family' && u.id === f.id);
-    body.append(card({ class: 'card scr-family', 'data-family': f.id }, el('div', 'row', { style: { alignItems: 'center' } }, el('h2', { style: { flex: 1, margin: 0 } }, f.id),
+    body.append(el('div', 'card scr-family', { 'data-family': f.id }, el('div', 'row', { style: { alignItems: 'center' } }, el('h2', { style: { flex: 1, margin: 0 } }, f.id),
         best?.score?.equal != null ? pill(tr('best member {0} / 60').replace('{0}', n0(best.score.equal)), '') : null,
         f.selected ? pill(tr('Selected'), 'good') : null,
         el('button', { class: 'btn xs ghost danger', onclick: () => { if (!window.confirm(tr('Delete family {0}? Its members stay as candidates.').replace('{0}', f.id))) return; st.families.splice(st.families.indexOf(f), 1); changed(); render(sec); } }, 'Delete')),
+      f.ontoMark ? el('div', { class: 'small onto-mark', 'data-mark': 'ontology' }, pill(GR.markText(f.ontoMark), 'good'), ' ', el('span', { class: 'muted', 'data-noi18n': '' }, [f.ontoMark.cluster, f.ontoMark.via === 'mcp' ? 'MCP' : 'snapshot', f.ontoMark.release && 'CRGO ' + f.ontoMark.release].filter(Boolean).join(' · '))) : null,
       field('<b>Family</b>', name), field('Consolidated statement', stm), field('Rationale', why),
       el('div', 'small muted', tr('Members'), ': ', ...(f.members || []).map(m => chip(`${m} ${SC.total(C[m]) ?? ''}`, { title: A.list.find(c => c.id === m)?.name || '' })),
         ...(f.members || []).map(m => el('button', { class: 'btn xs ghost', title: tr('Take {0} out of this family').replace('{0}', m), onclick: () => { if (f.selected && (f.members || []).length <= 1) { toast(tr('A selected family keeps at least one member'), 'bad'); return; } SC.leaveFamily(m, ws); changed(); render(sec); } }, '× ' + m))),
@@ -286,12 +302,21 @@ function scorer(sec, c, ws) {
   famSel.addEventListener('change', () => { for (const f of fams) f.members = (f.members || []).filter(m => m !== c.id); const f = fams.find(x => x.id === famSel.value); if (f) { f.members.push(c.id); r.unique = null; } changed(); render(sec); });
   const basis = el('input', { value: r.basis || '', placeholder: 'e.g. Verified org evidence (E6) + sector' }); basis.addEventListener('input', () => { r.basis = basis.value; changed(); });
   const excl = el('textarea', { rows: 2, placeholder: 'Who reviewed the exclusion of this flagged candidate, when, and why' }); excl.value = r.exclReview || ''; excl.addEventListener('input', () => { r.exclReview = excl.value; changed(); });
+  // 1.9.3 (W2b) — the CRGO terms the grouping uses, completed by the analyst and kept in the draft (where toDescriptor reads them)
+  const termsHost = el('div', { id: 'scr-terms-host' }, el('span', { class: 'small muted' }, tr('Asking the ontology…')));
+  GR.vocabulary().then(V => {
+    const cur = r.draft?.crgo || {}, t = Object.fromEntries(GR.TERM_FIELDS.map(([f]) => [f, [...(cur[f] || [])]]));
+    termsHost.replaceChildren(GR.termsEditor(t, V, () => { r.draft ||= {}; r.draft.crgo = { ...(r.draft.crgo || {}), ...Object.fromEntries(Object.entries(t).map(([k, v]) => [k, v.slice()])) }; changed(); }));
+  }).catch(() => termsHost.replaceChildren(el('span', { class: 'small muted' }, tr('The ontology vocabulary could not be read.'))));
+  const om = r.ontologyMatch;
+  const ontoLine = om ? el('div', { class: 'small', id: 'scr-onto-line' }, om.gap ? pill(tr('Theme gap: {0}').replace('{0}', om.theme || ''), 'warn') : pill(tr('Ontology match'), 'good'), ' ',
+    el('span', { class: 'muted', 'data-noi18n': '' }, [om.crgoId, om.cluster, om.source === 'mcp' ? 'MCP' : om.source, om.release && 'CRGO ' + om.release].filter(Boolean).join(' · '))) : null;
   const fam = SC.familyOf(c.id, ws), linked = r.scenario && ws.assessment.SCEN.find(s => s.id === r.scenario);
   const d = r.draft;
   const draftLine = d ? el('div', 'small muted', tr('Draft carried from the candidate: {0}').replace('{0}', [
       d.params && Object.keys(d.params).length ? tr('{0} parameter(s)').replace('{0}', Object.keys(d.params).length) : '', d.cvss || d.cvss_score != null ? tr('a CVSS vector or score') : '',
       (d.attack || []).length + (d.cwe || []).length + (d.cves || []).length ? tr('{0} ATT&CK / CWE / CVE link(s)').replace('{0}', (d.attack || []).length + (d.cwe || []).length + (d.cves || []).length) : '',
-      d.origin ? tr('origin {0}').replace('{0}', d.origin) : ''].filter(Boolean).join(' · ')), ' — ', tr('they go to the scenario when it is created (Process step 9 then asks for the rationale and evidence).')) : null;
+      d.origin ? tr('origin {0}').replace('{0}', d.origin) : '', ((d.crgo?.themes || []).length + (d.crgo?.asset_categories || []).length + (d.crgo?.threat_source_types || []).length) ? tr('CRGO terms') : ''].filter(Boolean).join(' · ')), ' — ', tr('they go to the scenario when it is created (Process step 9 then asks for the rationale and evidence).')) : null;
   const aiLine = r.ai ? el('div', 'small', pill(tr('AI-proposed, accepted by {0} on {1}').replace('{0}', r.ai.by || '—').replace('{1}', r.ai.date || ''), 'warn'), ' ', el('span', 'muted', { 'data-noi18n': '' }, r.ai.model || ''), ' ', el('span', 'muted', MK.ESTIMATE)) : null;
   // a proposal kept beside the analyst's scores (never written over them)
   const prop = r.aiProposal ? el('div', 'small', el('b', null, tr('AI proposal beside your scores')), ' ', el('span', { 'data-noi18n': '' }, r.aiProposal.scores.map(v => v ?? '·').join(' ') + (r.aiProposal.flags.length ? ' · ' + r.aiProposal.flags.join(' ') : '')), ' — ', el('span', 'muted', { 'data-noi18n': '' }, r.aiProposal.rationale || ''), ' ', el('span', 'muted', `(${r.aiProposal.model || ''}, ${r.aiProposal.date || ''})`), ' ',
@@ -310,6 +335,8 @@ function scorer(sec, c, ws) {
     field('<b>Candidate</b>', name), field('Causal chain (from the candidate row)', chain), grid, field('Rationale', rat),
     el('label', null, el('b', null, 'Escalation flags')), flags,
     el('label', { style: { marginTop: '8px' } }, el('b', null, 'Generation strategies')), strat,
+    el('details', { id: 'scr-terms', style: { marginTop: '8px' } }, el('summary', { class: 'small' }, el('b', null, tr('CRGO terms for grouping with the ontology'))),
+      el('p', { class: 'note' }, tr('Asset category, threat source type and themes in the ontology’s vocabulary. Nothing is guessed from the free text: complete what you know, then use Group with the ontology.')), termsHost), ontoLine,
     el('div', 'grid g4', { style: { marginTop: '8px' } }, field('Selection confidence', conf), field('<b>Disposition</b>', disp), field('Family', famSel), field('Dominant evidence basis', basis)),
     r.flags.length ? field('Exclusion review (flagged candidate)', excl, tr('Leaving out a flagged candidate is a Management decision required.')) : null);
 }
@@ -372,6 +399,12 @@ function coverage(body, sec, A, ws) {
   t.append(tb);
   body.append(card(el('h2', null, 'Coverage matrix'), el('div', 'tablewrap', t),
     A.gaps.length ? el('p', 'note', tr('Not covered: {0}. A gap is a question to answer — is the exposure credible and material here? — not a quota to fill.').replace('{0}', A.gaps.map(tr).join(', '))) : el('p', 'note', 'Every category is covered by at least one selected family.')));
+  // 1.9.3 (W2b): themes the ontology does not cover (own scenarios), as gaps of the ontology — not of the portfolio
+  const og = [...A.list.filter(c => GR.gapOf(c.id, ws) !== null).map(c => [c.id, GR.gapOf(c.id, ws)]),
+    ...(ws.assessment.SCEN || []).filter(x => FD.gapTheme(x.ontologyFindings)).map(x => [x.id, FD.gapTheme(x.ontologyFindings)])];
+  if (og.length) body.append(card({ class: 'card', id: 'scr-onto-gaps-card' }, el('h2', null, tr('Gaps the ontology does not cover')),
+    el('p', { class: 'note' }, tr('Own scenarios: no scenario of the ontology matches them. Add them to the ontology (from the Screen stage, the review or the Scenario editor) to close the gap.')),
+    el('div', { class: 'chips' }, ...og.map(([id, th]) => chip(`${id} · ${th || '—'}`)))));
 }
 
 /* ---------------- ④ Create scenarios ---------------- */
@@ -399,10 +432,13 @@ function createView(body, sec, A, ws) {
       el('button', { class: 'btn primary', id: 'scr-create-all', disabled: !todo.length, onclick: () => createAll(sec, ws) }, tr('Create the {0} scenarios').replace('{0}', todo.length)),
       !todo.length && chosen.length ? el('span', 'small', tr('All selected items are created.')) : null),
     el('p', 'note', 'Creating is never blocked by findings. A second click creates nothing: an item that already has its scenario is skipped. The scenario inherits the parameters and CVSS of the highest-scoring member, the links of all members and the chain fields of the rows and the family; every starting value is an Analytical estimate — validation required.')));
+  FD.fillReview(body.querySelector('#scr-review'), ws, chosen, () => render(sec));
   watchList(body, sec, A, ws);
   planSection(body, sec, A, ws);
 }
-function createAll(sec, ws) {
+async function createAll(sec, ws) {
+  // 1.9.3 (W2b): every line is validated before its scenario exists, so the scenario starts with its findings (they never block)
+  for (const u of SC.selectedUnits(ws)) if (!SC.createdScenario(u, ws) && !FD.holderOf(u, ws).ontologyFindings.length) { try { await FD.validate({ kind: 'unit', u }, ws); } catch { /* findings stay empty: QC-33 reports it */ } }
   const made = SC.createSelected(ws, { by: who() });
   for (const m of made) { LOG.data('scenario created from screening', m.id, m.unit, ws.name); const r = SC.rec(m.best, ws); if (r.ai?.entryId) import('../ai.js').then(AI2 => AI2.decide(r.ai.entryId, 'accepted', `${m.best} created as ${m.id}`)); }
   touch(); changed();
