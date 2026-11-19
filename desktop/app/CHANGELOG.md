@@ -1,6 +1,17 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
-## Unreleased
+## 1.9.5 Beta — 19 November 2026
+
+Classroom and Exercises, the book's October 2026 standards baseline, and French corrections, with **Threat Live-feed
+plugin 1.9.5** alongside. **No formula changed**: MediBec **84,305 / 41,023** and CanaRetail **27,526 / 16,049** are
+unchanged in every engine. Data version stays 7 (no migration). Security Policy Writer 0.1.2. Full suite: 87 suites,
+3,851 checks; CI green on the merged commit.
+
+### Changed — French
+- « amorce » for a security-operations seed (« germe » stays for a random-number seed); « AMF » instead of « MFA »;
+  « probabilité du patron de scénario »; French quotation marks in the mitigation-plan hint.
+- No space before « ; » (Québec usage, author decision), kept by the new FR-5 check of `tools/fr_terms_check.py`.
+
 
 ### Added — Classroom and Exercises (BL-25, BL-26; docs/spec-classroom-exercises.md)
 Work moves as files between the instructor's application and the students' copies; there is no server. The method is
