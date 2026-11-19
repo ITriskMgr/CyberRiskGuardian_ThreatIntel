@@ -88,6 +88,13 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   check now runs in a stand-in home folder, and new tests confirm that a Google Drive or iCloud folder under
   `~/Library/CloudStorage` or `~/Library/Mobile Documents`, also reached through a symbolic link, is accepted as a shared
   folder, while `~/Library/Preferences` and hidden folders are refused. The guard itself is unchanged.
+- **Release signing in one command (BL-08).** `tools/package_desktop.py --sign <secret key>` signs the release ZIP with
+  minisign and verifies the `.minisig` with the application's own verifier against the public key pinned in `serve.py`;
+  it exits 1 if the key is not pinned or the signature does not verify. Tested end to end with a throwaway key pair.
+- **French review export (BL-10).** `tools/fr_review_export.py` writes every French interface string with its English
+  source and source files to a CSV for the native read-through (12,567 strings; 79 using a variant of a method term come
+  first). `docs/AUTHOR-KITS.md` gathers the author's tasks (signing key, launcher check, French read-through, larger local
+  models, CIS request) as ready-to-run steps.
 - **WCAG 2.1 AA on every screen (BL-20).** New suite t84 runs axe-core on all 159 routes of the screen-code registry, in
   English (light) and French (dark), and fails on any WCAG 2.0/2.1/2.2 level A or AA violation or a skipped heading level.
   Fixed for it: disclosure toggles are at least 24 px high (WCAG 2.2, 2.5.8), the Risk Registry preview heading and the

@@ -2,6 +2,7 @@
 """package_desktop.py — build the release zip of CyberRiskGuardian Desktop for one edition (decision D3).
 
     python3 tools/package_desktop.py --edition community|educational|commercial [--out ../dist] [--dry-run]
+                                     [--sign ~/.minisign/crg.key]
 
 What it does
   1. copies desktop/app into a temporary folder (without tests, caches, hidden files and the packaged zips);
@@ -12,6 +13,9 @@ What it does
      paraphrases, never CIS text), until CIS approves the titles in a paid product (the Community and Educational
      editions keep the titles with the CIS notice);
   4. writes CyberRiskGuardian_Desktop_v<version>-<channel>[-<edition>].zip and its .sha256 next to it (PUBLISHING.md §4).
+  5. with --sign, runs `minisign -S` with the author's secret key (kept outside the repository, password-protected) and
+     verifies the result with crg_signing.py against the public key pinned in serve.py (UPDATE_MINISIGN_PUBKEY), so a
+     release is never published with a signature the application would refuse (1.9.3, BL-08).
   The community zip keeps the historical name (no edition suffix), so the update check and its SHA-256 file are unchanged.
   As every release since 1.9.0, the zip unpacks into one folder named like the zip (the guides say
   `cd CyberRiskGuardian_Desktop_v<version>-<channel>`); `.nojekyll` is kept, the launchers keep their execute bit.
@@ -120,11 +124,36 @@ def sha256(path):
     return h.hexdigest()
 
 
+def sign(zpath, name, key):
+    """minisign -S the zip (the tool asks for the key's password), then verify the .minisig with the application's own
+    verifier against the pinned public key: exit 1 when either step fails, so nothing unverifiable is published."""
+    import subprocess
+    if not shutil.which("minisign"):
+        print("minisign is not installed (macOS: brew install minisign) — the zip and its .sha256 are written, not signed")
+        return 1
+    version = name.split("_v", 1)[-1].rsplit(".zip", 1)[0]
+    r = subprocess.run(["minisign", "-S", "-s", key, "-m", zpath, "-t", f"CyberRiskGuardian Desktop {version}"])  # nosec B603 B607
+    if r.returncode:
+        print("minisign failed: no signature written"); return 1
+    sys.path.insert(0, APP)
+    import crg_signing
+    import serve
+    pub = serve._update_pubkey()
+    if not pub:
+        print(f"signed {zpath}.minisig — but serve.py pins no public key yet (UPDATE_MINISIGN_PUBKEY): the application cannot check it")
+        return 1
+    with open(zpath, "rb") as fh, open(zpath + ".minisig", encoding="utf-8") as sg:
+        ok = crg_signing.verify_minisign(fh.read(), sg.read(), pub)
+    print(f"{'verified' if ok else 'DOES NOT VERIFY'}: {zpath}.minisig against the pinned public key")
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--edition", required=True, choices=EDITIONS)
     ap.add_argument("--out", default=os.path.join(APP, "..", "dist"))
     ap.add_argument("--dry-run", action="store_true", help="build the copy and report, write no zip")
+    ap.add_argument("--sign", metavar="SECRET_KEY", help="minisign secret key: also write <zip>.minisig and verify it")
     a = ap.parse_args()
     v, ch = version()
     suffix = "" if a.edition == "community" else "-" + a.edition
@@ -150,6 +179,8 @@ def main():
         digest = sha256(zpath)
         open(zpath + ".sha256", "w", encoding="utf-8").write(f"{digest}  {name}\n")
         print(f"wrote {zpath}\n      {zpath}.sha256 ({digest})")
+        if a.sign:
+            return sign(zpath, name, os.path.expanduser(a.sign))
         return 0
     finally:
         if tmp:
