@@ -4285,7 +4285,7 @@ S3, S4 et S5 au passage. Toutes les personnes sont fictives.
 **En classe (étudiants).** Le déroulement se fait jour par jour : un lundi normal et du bruit de fond
 (le transmetteur des journaux de sauvegarde est déjà muet depuis le 18 septembre), une pièce jointe
 d'hameçonnage ouverte à la clinique de Gatineau le jour 3 et un dossier fermé trop tôt, de la
-persistance, de la fatigue MFA le jour 7 et un dossier de compte dont l'approbation est révoquée avant
+persistance, de la fatigue d’AMF le jour 7 et un dossier de compte dont l'approbation est révoquée avant
 la désactivation du compte, un mouvement latéral vers le DME, la collecte de 48 000 dossiers de
 patients, l'exfiltration — en partie invisible parce que les journaux de lecture des données
 infonuagiques avaient été désactivés —, l'inhibition de la récupération que la télémétrie muette des
