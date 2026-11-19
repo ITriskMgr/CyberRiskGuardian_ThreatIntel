@@ -70,7 +70,7 @@ _REF = [
     (re.compile(r"^ISO 27001:2022 (\d+(?:\.\d+)?)$"), "ISO27001:{0}"),
     (re.compile(r"^NIST CSF 2\.0 ([A-Z]{2}\.[A-Z]{2}(?:-\d{2})?)$"), "CSF2:{0}"),
     (re.compile(r"^CIS v8\.1 (\d+(?:\.\d+)?)$"), "CIS81:{0}"),
-    (re.compile(r"^NIST SP 800-63B$"), "SP800-63B"),
+    (re.compile(r"^NIST SP 800-63B(?:-4)?$"), "SP800-63-4"),
 ]
 
 

@@ -39,7 +39,7 @@ Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with it
 | BL-20 WCAG 2.1 AA | **Done**: t84 on all 159 routes, EN light and FR dark, 0 violations |
 | BL-12 plugin evals | **Done**: first model run ($4.12); two plugin fixes; plugin 1.9.4 (aligned with the desktop) |
 | BL-09 CRGO tag and approvals · BL-14 doc checks | **Done** (verified, nothing to change) |
-| BL-27 book alignment | **Mostly done**: items 1 (errata applied), 4, 6, 7 (French terms and spacing, FR-4 gate), 8, 9, 10, 11 done. Open: item 12 (MCQ self-check, part of the Classroom spec), item 13 (standards baseline in policy templates — catalogues, decided). Word-for-word re-ingest of the published v2.51b **done** (`scripts/update_book_en.py`) |
+| BL-27 book alignment | **Mostly done**: items 1 (errata applied), 4, 6, 7 (French terms and spacing, FR-4 gate), 8, 9, 10, 11 done. Open: item 12 (MCQ self-check, part of the Classroom spec), item 13 (standards baseline — **done**: SSDF catalogue, register entries, template mappings, Writer 0.1.2). Word-for-word re-ingest of the published v2.51b **done** (`scripts/update_book_en.py`) |
 | BL-07 launcher check · BL-08 signing key · BL-10 French read-through · BL-13 larger local models · BL-15 CIS | **Ready for you**: `docs/AUTHOR-KITS.md` (one-command signing, French review CSV) |
 | BL-28 French reference set · BL-27 exact re-ingest | **Done** from the author's plain-text exports: `references/fr/` (29 files, v2.51b FR) and the English set at v2.51b |
 | BL-25 Classroom · BL-26 Exercises and simulations | **Needs a specification session** (no requirements file exists) |

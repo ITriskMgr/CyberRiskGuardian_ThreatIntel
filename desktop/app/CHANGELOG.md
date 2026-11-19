@@ -1,5 +1,26 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## Unreleased
+
+### Added — standards baseline of the book (BL-27 item 13, option A: catalogues)
+The desktop's standards now follow the book's October 2026 baseline. Every edition and date below was checked on
+NIST's own publication pages on 19 November 2026.
+- **SSDF catalogue.** NIST SP 800-218 SSDF 1.1 is a declared catalogue (`frameworks/nist-800-218-ssdf.json`): 4 groups,
+  19 practices, 42 tasks, built from NIST's official SSDF table (public domain; task identifiers and statements only).
+  Revision 1 (SSDF 1.2) is still an initial public draft (17 December 2025), so it is not loaded.
+- **Methods register.** New entries for SP 800-61 Rev. 3 (April 2025, a CSF 2.0 Community Profile), SP 800-63-4 (July
+  2025), SP 800-161 Rev. 1 (with updates as of 1 November 2024), SP 800-218 and FIPS 203, 204 and 205 (13 August
+  2024). ISO/IEC 27001 now reads 2022 with Amd 1:2024.
+- **Policy templates.**
+  - *Secure development*: mapped to SSDF tasks, plus a new statement on third-party components (provenance, SBOM, known
+    vulnerabilities).
+  - *Supplier*: mapped to the SP 800-53 SR family.
+  - *Cryptography*: a new statement on the cryptographic inventory and migration to FIPS 203–205.
+  - *Access control*: a new password statement in line with SP 800-63B-4.
+  - All new text is also in French.
+- **Security Policy Writer 0.1.2.** The password clauses cite NIST SP 800-63B-4, and the CRGO bridge maps the reference
+  to the SP 800-63-4 register entry. Writer tree hash recorded again.
+
 ## 1.9.4 Beta — 19 November 2026
 
 The backlog build after 1.9.3: every open item of the consolidated backlog (`docs/BACKLOG-next-release.md`) that could be

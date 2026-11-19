@@ -128,7 +128,7 @@ async function catalogue() {
     const fw = CC.frameworks[r[0]]; if (!fw) continue;
     docs.push({ id: 'cat:ctl:' + fw.id + ':' + r[1], source: 'catalogue', title: `${fw.short} ${r[1]} ${r[2]}`, text: `${fw.name} ${r[1]} — ${r[2]}${r[3] ? ' (' + r[3] + ')' : ''}. Function: ${r[4] || ''}.`, cite: `${fw.name}, ${r[1]} (identifier and title)` });
   }
-  for (const f of ['frameworks/nist-800-171r3.json', 'frameworks/itsp-10-171.json', 'frameworks/cobit-2019.json']) {
+  for (const f of ['frameworks/nist-800-171r3.json', 'frameworks/itsp-10-171.json', 'frameworks/cobit-2019.json', 'frameworks/nist-800-218-ssdf.json']) {
     try {
       const p = await (await fetch(url(f))).json();
       for (const c of p.controls || []) docs.push({ id: 'cat:fw:' + p.framework.id + ':' + c.id, source: 'catalogue', title: `${p.framework.short} ${c.id} ${c.title}`, text: `${p.framework.name} ${c.id} — ${c.title}. ${c.grp || ''}`, cite: `${p.framework.short}, ${c.id} (identifier and title)` });
