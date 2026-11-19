@@ -3,14 +3,12 @@
 Agent-agnostic instructions for any AI coding or analysis agent working in this repository.
 Claude Code also reads `CLAUDE.md`, which imports this file.
 
-This repository is the **threat-intelligence edition** of CyberRiskGuardian. It derives from
-CyberRiskGuardian v1.1.0 (`ITriskMgr/CyberRiskGuardian`), which remains unchanged and continues
-to be the stable edition. Both may be installed, but **only one should be enabled at a time**:
-their components are namespaced and do not collide, yet two `SessionStart` hooks with
-contradictory guardrails, two MCP servers named `crg-calculator`, and two `cyber-risk-assessment`
-skills with near-identical descriptions make it arbitrary which methodology answers a request.
-Use local or project scope so each edition is enabled only where it is wanted, or
-`claude plugin disable` to switch.
+This repository is the **threat-intelligence edition** of CyberRiskGuardian, and since 19 November 2026 the only
+maintained edition. It derives from CyberRiskGuardian v1.1.0 (`ITriskMgr/CyberRiskGuardian`), the former stable Core
+edition (last release Core plugin 2.2.1), which is **retired**: no longer maintained, kept for history and attribution.
+If the Core plugin is still installed, disable it (`claude plugin disable cyberriskguardian`): two `SessionStart` hooks
+with contradictory guardrails, two MCP servers named `crg-calculator` and two `cyber-risk-assessment` skills would make
+it arbitrary which methodology answers a request.
 
 ## Purpose
 CyberRiskGuardian is an AI-assisted cybersecurity risk assessment method and toolkit. It helps
@@ -170,8 +168,8 @@ Cost-effectiveness = (Estimated − Residual) ÷ cost × 1,000   (risk units rem
 - Edit methodology only under `plugins/cyberriskguardian-threatintel/`, then run
   `scripts/sync-project-config.sh` to refresh `.claude/`.
 - Bump the version in `plugin.json` and `.claude-plugin/marketplace.json` when behaviour changes.
-- Keep this edition's lineage clear: changes that belong to the base method should be offered
-  upstream to `ITriskMgr/CyberRiskGuardian` rather than diverging silently.
+- Keep this edition's lineage clear: it derives from CyberRiskGuardian v1.1.0 (retired Core edition). Method changes
+  are made here; there is no upstream to offer them to.
 - Licence: CC BY-NC 4.0 (see `LICENSE`, `NOTICE.md`); the desktop application has its own licence
   (`desktop/app/LICENSE`). Product site cyberriskguardian.ca; licence enquiries
   sales@cyberriskguardian.ca. Keep attribution to Marc-André Léger in

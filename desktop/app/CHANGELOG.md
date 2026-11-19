@@ -69,6 +69,10 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   are and the screen says so. Regression tests: `test_helper_guard.py` (`InstallationStoreFollowsFolder`).
 
 ### Other changes
+- **Core edition retired (19 November 2026).** `ITriskMgr/CyberRiskGuardian` (Core plugin 2.2.1, the former stable edition)
+  is no longer maintained; Threat Live-feed is the only edition. `AGENTS.md` and `README.md` keep the lineage
+  (derived from v1.1.0, CC BY-NC 4.0 attribution), drop the "enable only one edition" and "offer changes upstream"
+  guidance, and ask users to disable the Core plugin if it is still installed. No behaviour changes, no version bump.
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
   try no longer misses near midnight.
 - **The anonymizer no longer treats record ids** such as C01 (in the *members* fields) as person names.
