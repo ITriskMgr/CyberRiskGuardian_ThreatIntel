@@ -15,10 +15,10 @@ export const SERIES = VERSION.replace(/\.\d+$/, '.x');
 export const LABEL = VERSION + ' ' + CHANNEL;
 /** The Security Policy Writer module: its own version (the helper's crg_writer/__init__.py must agree). */
 export const WRITER_NAME = 'CyberRiskGuardian Security Policy Writer';
-export const WRITER_VERSION = '0.1.1';
+export const WRITER_VERSION = '0.1.2';
 /** 1.9.2 (NV-W01): the content hash of crg_writer/ (tools/writer_tree_hash.py). The desktop copy is canonical (D1):
     version_check.py fails when the tree and this hash differ, and the stand-alone repository's sync script compares it
     before overwriting. Update it with `python3 tools/writer_tree_hash.py --write` after a deliberate change. */
-export const WRITER_TREE_HASH = '97256cbb3bf80d558d9fd390f49afe3cc9c67db54e1a7ddc8eb439c25d9906c2';
+export const WRITER_TREE_HASH = '538ef247bd9efa9dd248362dcf57732f9e58ae408d40b292f8cc01e9e277d7f6';
 /** What a generated file should name as its generator. */
 export const GENERATOR = `CyberRiskGuardian Desktop ${VERSION} (${CHANNEL})`;

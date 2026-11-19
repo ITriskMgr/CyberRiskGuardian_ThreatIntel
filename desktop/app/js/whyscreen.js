@@ -30,6 +30,7 @@ export const WHY = {
   share: 'Why it matters: what leaves this computer is anonymized and checked first; the receiver sees risks, not your organization.',
   ontology: 'Why it matters: the ontology’s scenarios, controls and obligations save work and keep the assessment linked to recognized references.',
   registry: 'Why it matters: risks assessed by similar organizations are a starting point, re-estimated for yours, never taken as they are.',
+  classroom: 'Why it matters: practising the method on a fictional case, with your instructor’s rules and a signed record of your work, is how the 19 steps become a habit before they meet a real organization.',
   isp: 'Why it matters: approved, acknowledged policies are the rules the controls enforce; a policy nobody acknowledged is not in force.',
   writer: 'Why it matters: drafting from the organization’s own documents gives policies that fit it rather than a generic template.',
   isms: 'Why it matters: scope, objectives and management reviews are what make security a managed system rather than a set of projects.',

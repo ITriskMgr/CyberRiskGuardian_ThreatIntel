@@ -6,6 +6,7 @@ The author decided on 8 November 2026:
         « ratio de tolérance » is retired;
   FR-2  « probabilité » everywhere; « vraisemblance » is retired (including the 1–5 scale of the risk register);
   FR-4  « appétence (pour le risque) » everywhere; « appétit » is retired (book v2.51 FR, 1.9.3).
+  FR-5  no space before « ; » (Québec usage; author decision, 19 November 2026).
   FR-3  « éléments probants » everywhere (menus and registers); « preuve(s) » for *evidence* is retired.
 
 This gate reads the French values of js/i18n/fr.js (never the English keys), USER-GUIDE.fr.md, the French half of
@@ -23,6 +24,7 @@ RETIRED = [
     ('FR-1', re.compile(r'\bratios? de tol[ée]rance\b', re.I)),
     ('FR-3', re.compile(r'\bpreuves?\b', re.I)),
     ('FR-4', re.compile(r'\bapp[ée]tits?\b', re.I)),   # 1.9.3: « appétence pour le risque » (book v2.51 FR), never « appétit »
+    ('FR-5', re.compile(r'(?<=[^\s;&`])(?<!\bpar)[ \u00a0\u202f]+;(?=\s|$)')),   # Québec usage (author decision, 19 Nov 2026): no space before « ; »
 ]
 ALLOWED = re.compile(r"\bpreuves? de concept\b|\b(?:fai[st]|faire|font|fasse|faisant|fera|feront|faite?) (?:la )?preuve\b|\bpreuves? à l['’]appui\b|\bpreuve de destruction\b|\bà preuve du contraire\b", re.I)
 
@@ -73,7 +75,7 @@ def main(argv):
     if total:
         print(f'fr_terms_check: FAIL — {total} retired French term(s); apply FR-1…FR-3 (« ratio risque résiduel / risque toléré », « probabilité », « éléments probants »)')
         return 1
-    print('fr_terms_check: OK — no retired French term (FR-1 ratio, FR-2 probabilité, FR-3 éléments probants, FR-4 appétence)')
+    print('fr_terms_check: OK — no retired French term (FR-1 ratio, FR-2 probabilité, FR-3 éléments probants, FR-4 appétence, FR-5 no space before « ; »)')
     return 0
 
 

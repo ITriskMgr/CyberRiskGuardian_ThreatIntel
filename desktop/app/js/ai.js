@@ -28,6 +28,7 @@ import * as K from './catalog.js';
 import * as KRI from './kri.js';
 import { today, uid, toast } from './util.js';
 import * as PAT from './data/scenpatterns.js';
+import * as CL from './classroom.js';
 
 /* ---------------- routing policy (1.5.3) ----------------
    Installation-wide, kept in crg-config.json (ai.policy) so the helper — the only component that sends
@@ -179,6 +180,8 @@ export const featureOf = task => /^extract_s_/.test(task) ? 'extract_sensitive' 
 export function route(task, ws = S.ws) {
   const P = policy(), mode = P.tasks[featureOf(task)] || 'workspace';
   if (mode === 'off') return { provider: null, mode, why: 'This feature is switched off in Settings → AI — local & remote.' };
+  // BL-25/26 (spec Q13): in a workspace started from a classroom pack, AI is off unless the pack allows the feature
+  if (CL.allowedAI(featureOf(task), ws) === false) return { provider: null, mode, why: CL.AI_REFUSED };
   const chosen = settings(ws).provider;
   const provider = mode === 'local' ? (isLocal(chosen) ? chosen : localDefault())
     : mode === 'remote' ? (isLocal(chosen) ? remoteDefault() : chosen) : chosen;

@@ -3935,6 +3935,52 @@ requests ask for French prose.
 
 ---
 
+### 7.13 Classroom {#classroom}
+
+**Classroom** is the student side of a course built on this application. It is in every edition. Your instructor
+hands out **packs**, files they sign with their own key. You import them, work on this computer, and hand in a
+**submission file** on the course page. Nothing goes through a server.
+
+- **My assignments.** Choose **Import a pack…** and pick the `.crgpack` file posted on the course page.
+  - Before anything opens, the application checks the instructor's signature. A pack changed after signing is refused.
+  - The first pack of a course **pins** its key and shows its fingerprint (four groups of four characters). Accept it
+    only if the fingerprint matches the one your instructor posted.
+  - A later pack signed by another key is refused unless your instructor announced a key change. If you confirm a
+    change, it is recorded.
+  - **Start** opens a classroom workspace on the case the pack names (MediBec, CanaRetail or a blank organization).
+    The pack decides which AI features you may use; AI is off unless the pack allows a feature. It also decides
+    whether you may propose to the ontology.
+  - **Submit…** saves a submission file: the full workspace, the named deliverables, the AI-use log and the 19-step
+    progress, with a checksum that shows your instructor whether the file was changed after you saved it.
+  - After the due date, a submission is marked late. It is never refused.
+- **Quiz.** A self-check from the book's 420 review questions, in English or French (the interface language),
+  checked against the book's public answer key. Each answer shows the chapter section to reread. That pointer is
+  chosen by matching words, not stated by the book. A quiz pack sets the chapters, the number of questions and
+  whether answers are shown immediately, after you finish, or not at all.
+- **Exercise.** Tabletop exercises with roles and injects that the facilitator unlocks with codes. Alerts in an
+  exercise are exercise material, never confirmed incidents.
+
+
+#### 7.13.1 The instructor side (Educational edition) {#classroom-instructor}
+
+In the Educational edition, **Settings → Classroom** and three more Classroom tabs build and grade the work.
+
+- **Settings → Classroom.** **Make my instructor key** once; post its fingerprint on your course page. Import the
+  participants export of your LMS (Moodle's columns are recognised in English and French). The roster stays in your
+  confidential folder, next to the organisation graphs, never in a pack.
+- **Classroom → Packs.** Choose the type (assessment steps, quiz or exercise), the course, the due date, the AI
+  features allowed and whether ontology proposals are allowed, then **Sign and export the pack**. An exercise pack also
+  saves the **facilitator sheet** with fresh unlock codes; keep it to yourself.
+- **Classroom → Submissions & grading.** Open the submission files. Each shows whether it was altered after export,
+  whether it is late, and the evidence for grading (19-step progress, quiz scores, exercise timeline, AI proposals
+  accepted). Pick a level per rubric criterion and write a comment; **Export grades (.csv)** writes Moodle's grade
+  import file, one row per student, a team grade going to every member of the team's group.
+- **Classroom → Course packs.** Build the four sample exercises as one signed course pack, or open a colleague's
+  course pack, check its signature and re-sign it under your key.
+
+The sample exercises are public in the repository: for graded work, write your own exercises.
+
+
 ## 8. AI in the application
 
 AI **proposes and explains**; the verified engine calculates; you decide. Nothing an AI produces

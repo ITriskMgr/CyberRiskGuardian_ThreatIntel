@@ -17,6 +17,9 @@
 export const EDITION = 'community';
 /** Whether CIS Controls v8.1 titles and CRGO safeguard labels may be shown (D3: not in the commercial edition). */
 export const CIS_TITLES = EDITION !== 'commercial';
+/** The instructor side of the Classroom (create and sign packs, roster, grading, course packs) is in the Educational
+ *  edition only (Classroom spec Q3); the student side is in every edition. */
+export const INSTRUCTOR = EDITION === 'educational';
 /** What the interface calls the edition. */
 export const EDITION_LABEL = { community: 'Community edition', educational: 'Educational edition', commercial: 'Commercial edition' }[EDITION] || EDITION;
 /** The CIS notice shown with the CIS Controls v8.1 framework in this edition. */

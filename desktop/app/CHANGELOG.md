@@ -1,5 +1,72 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## Unreleased
+
+### Added — Classroom and Exercises (BL-25, BL-26; docs/spec-classroom-exercises.md)
+Work moves as files between the instructor's application and the students' copies; there is no server. The method is
+unchanged: no formula, marker or threat-context rule.
+- **Signed packs.**
+  - The instructor's application signs every assignment, quiz, exercise and course pack with an Ed25519 key in minisign
+    format (`crg_classroom.py`). The secret key is a mode-600 file in `~/.cyberriskguardian/classroom/`, never in a
+    pack or a workspace.
+  - A student's application refuses a pack that was altered after signing.
+  - The first pack of a course pins its key and shows the fingerprint to compare with the one on the course page. A
+    pack signed by another key is refused until the student confirms an announced key change; the confirmation is
+    recorded.
+- **Student side (every edition): Classroom → My assignments, Quiz, Exercise.**
+  - An assessment pack opens a classroom workspace on its case (MediBec, CanaRetail or a blank organization).
+  - AI is off unless the pack lists the feature; ontology proposals are allowed or not per pack. This replaces the
+    blanket refusal of decision 11.
+  - The submission file carries the full workspace, the named deliverables, the AI-use log, the 19-step progress and
+    the quiz or exercise results, with a SHA-256 checksum. A late submission is marked late, never refused.
+- **Quiz.**
+  - The book's 420 review questions in English and French, with the public answer key only; rationales are never
+    shipped. Built by `scripts/build_quiz.py`, which CI checks.
+  - Each answer points to the chapter section to reread. The section is chosen by word overlap, so it is a reading
+    aid, not part of the book.
+- **Exercises.**
+  - Four fictional tabletop exercises, in English and French:
+    - ransomware across MediBec's clinics;
+    - a compromised supplier at CanaRetail;
+    - business email compromise and payment fraud;
+    - cloud storage exposure of personal information (Québec Law 25).
+  - Each has roles, 7–8 injects and debrief questions tied to book chapters.
+  - Injects are sealed in the pack (AES-GCM under a key derived from the unlock code). The codes are made fresh for
+    each pack and appear only on the facilitator sheet.
+  - The team records its decisions with role and time; the after-action report comes in English or French.
+- **Instructor side (Educational edition): Settings → Classroom, and Classroom → Packs, Submissions & grading, Course
+  packs.**
+  - Key and fingerprint.
+  - Roster from Moodle's participants export, in English or French. The roster and the grades are kept in the
+    confidential folder (`<organisation-graph folder>/_installation/classroom/`).
+  - Pack builder and facilitator sheets.
+  - Submissions checked for integrity and lateness, with the objective evidence pre-filled for the grader (never as the
+    grade).
+  - Rubric grading and a Moodle grade CSV.
+  - The four samples as a signed course pack that another instructor can re-sign.
+- **Tests.** `test_classroom.py` (9), t85 student side (19), t86 exercises (17), t87 round trip and instructor side
+  (19), t88 accessibility on 16 Classroom views (EN light, FR dark: no WCAG A/AA violation).
+- **Documentation.** User guide §7.13 and §7.13.1, English and French. French interface strings at 100 %.
+
+### Added — standards baseline of the book (BL-27 item 13, option A: catalogues)
+The desktop's standards now follow the book's October 2026 baseline. Every edition and date below was checked on
+NIST's own publication pages on 19 November 2026.
+- **SSDF catalogue.** NIST SP 800-218 SSDF 1.1 is a declared catalogue (`frameworks/nist-800-218-ssdf.json`): 4 groups,
+  19 practices, 42 tasks, built from NIST's official SSDF table (public domain; task identifiers and statements only).
+  Revision 1 (SSDF 1.2) is still an initial public draft (17 December 2025), so it is not loaded.
+- **Methods register.** New entries for SP 800-61 Rev. 3 (April 2025, a CSF 2.0 Community Profile), SP 800-63-4 (July
+  2025), SP 800-161 Rev. 1 (with updates as of 1 November 2024), SP 800-218 and FIPS 203, 204 and 205 (13 August
+  2024). ISO/IEC 27001 now reads 2022 with Amd 1:2024.
+- **Policy templates.**
+  - *Secure development*: mapped to SSDF tasks, plus a new statement on third-party components (provenance, SBOM, known
+    vulnerabilities).
+  - *Supplier*: mapped to the SP 800-53 SR family.
+  - *Cryptography*: a new statement on the cryptographic inventory and migration to FIPS 203–205.
+  - *Access control*: a new password statement in line with SP 800-63B-4.
+  - All new text is also in French.
+- **Security Policy Writer 0.1.2.** The password clauses cite NIST SP 800-63B-4, and the CRGO bridge maps the reference
+  to the SP 800-63-4 register entry. Writer tree hash recorded again.
+
 ## 1.9.4 Beta — 19 November 2026
 
 The backlog build after 1.9.3: every open item of the consolidated backlog (`docs/BACKLOG-next-release.md`) that could be

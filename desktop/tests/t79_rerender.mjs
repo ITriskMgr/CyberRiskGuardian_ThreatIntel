@@ -34,6 +34,7 @@ const REVIEWED = {
   'rhub.js': 3,         // cards to the Batch grid (touch('batch'), another screen), package download, settings
   'settings_ai.js': 4, 'settings_more.js': 5,   // settings screens: rerender() by another name, prompts
   'threatctx.js': 1, 'writer.js': 3, 'writer_steps.js': 1,   // textarea fill; Writer save() redraws itself
+  'classroom_teach.js': 1,   // Build and sign the course pack: downloads the pack and the facilitator sheets, nothing on screen changes
   'calc.js#save': 0,
 };
 const panels = path.join(APP, 'js/panels');

@@ -20,16 +20,17 @@ import * as users from './users.js';
 import * as LOG from './logs.js';
 import * as GR from './ontogroup.js';
 import * as FD from './ontofind.js';
+import * as CL from './classroom.js';
 import { tr } from './i18n.js';
 
 /** Local yyyy-mm-dd (not UTC: after 19:00 in Montréal UTC is already tomorrow). */
 export const today = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
 const who = () => users.name() || '';
 
-/** Why this workspace cannot propose to the ontology, or null. Decision 11: classroom workspaces (until the Classroom build adds an
- *  instructor control) and the example workspaces (MediBec, CanaRetail). */
+/** Why this workspace cannot propose to the ontology, or null. A classroom workspace proposes only when the pack it was
+ *  started from allows it (BL-25/26, replacing decision 11); one with no pack never does. Example workspaces never do. */
 export function blockedReason(ws = S.ws) {
-  if (ws?.kind === 'classroom') return 'Classroom workspaces cannot propose to the ontology until the Classroom build adds an instructor control.';
+  if (ws?.kind === 'classroom' && !CL.proposalsAllowed(ws)) return 'Your instructor has not allowed ontology proposals for this assignment.';
   if (ws?.kind === 'example') return 'Example workspaces (MediBec, CanaRetail) cannot propose to the ontology.';
   return null;
 }

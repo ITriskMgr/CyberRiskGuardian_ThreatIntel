@@ -57,8 +57,8 @@ const r4 = await page.evaluate(async (pid) => {
     wd: P.wordDiff('a b c', 'a x c').map(x => x.join('')).join('|') };
 }, pid);
 ok(r4.version === '2.0' && r4.inForce === '1.0' && r4.author === 'Carol', 'new draft v2.0 while v1.0 stays in force');
-ok(r4.newId === pid + '.6' && r4.removed === pid + '.5', 'new statement gets a fresh stable id: ' + r4.newId);
-ok(r4.sum.added === 1 && r4.sum.removed === 1 && r4.sum.changed === 2 && r4.sum.same === 2, 'diff summary ' + JSON.stringify(r4.sum));
+ok(r4.newId === pid + '.7' && r4.removed === pid + '.5', 'new statement gets a fresh stable id: ' + r4.newId);
+ok(r4.sum.added === 1 && r4.sum.removed === 1 && r4.sum.changed === 2 && r4.sum.same === 3, 'diff summary ' + JSON.stringify(r4.sum));
 ok(r4.ch?.includes('text') && r4.ch2?.includes('modality'), 'diff detects text and modality changes');
 ok(r4.wd === '=a |-b|+x|= c', 'word diff ' + r4.wd);
 await page.evaluate(() => { location.hash = '#/isp/reviews'; }); await page.waitForTimeout(150);

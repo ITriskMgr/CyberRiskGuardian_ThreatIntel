@@ -168,6 +168,14 @@ export const CODES = {
   'ontology/link': 'SCR-159',
   'ontology/connection': 'SCR-160',
   'ontology/proposals': 'SCR-161',
+  'classroom': 'SCR-162',
+  'classroom/assignments': 'SCR-163',
+  'classroom/quiz': 'SCR-164',
+  'classroom/exercise': 'SCR-165',
+  'classroom/packs': 'SCR-166',
+  'classroom/grading': 'SCR-167',
+  'classroom/course': 'SCR-168',
+  'settings/classroom': 'SCR-169',
   // @@END
 };
 

@@ -458,7 +458,7 @@ class WriterEngine(unittest.TestCase):
         with self.assertRaises(A.ApiError):
             A.op_answer({"code": "PARAM-PWD-ROTATION", "value": " ", "status": "answered"})
         self.assertEqual(A.op_meta({})["crgo"], "v0.11.2")
-        self.assertEqual(A.op_meta({})["version"], "0.1.1")
+        self.assertEqual(A.op_meta({})["version"], "0.1.2")
         self.assertIn("ai_text", A.OPS)
 
     def test_quebec_health_and_crgo_candidates(self):

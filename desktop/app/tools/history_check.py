@@ -13,7 +13,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 REL = re.compile(r"(?<![\w.\-/])v?1\.[0-5]\.(?:\d+|x)(?![\w.])|(?:[Ss]ince|[Uu]ntil|[Bb]efore|[Aa]fter|[Ff]rom|[Rr]elease|[Vv]ersion|[Dd]epuis|[Aa]vant|[Aa]près|[Jj]usqu'(?:à|en)|[Vv]ersion) v?1\.[0-5]\b")
 WORDS = re.compile(r"proof[ -]of[ -]concept|preuve de concept|[Uu]ntil 1\.\d|[Jj]usqu'(?:à|en) 1\.\d|this release added|previous release|earlier release|versions? antérieure", re.I)
 # Contexts where a 1.x number is not an application release: standards, CVSS, OCSF, CRGO tags, TLP…
-ALLOW = re.compile(r"CVSS|OCSF|TLP|STIX|CSF|ISO|NIST|SP 800|ATT&CK|CRGO|ontology|ontologie|Ontology|crg-workspace/1|schema|v1\.|SemVer|1\.0\.0|Loi|GDPR|RGPD|Python|python|Node|TLS|HTTP|SVG|UTF|section|art\.|s\. |§", re.I)
+ALLOW = re.compile(r"CVSS|SSDF|OCSF|TLP|STIX|CSF|ISO|NIST|SP 800|ATT&CK|CRGO|ontology|ontologie|Ontology|crg-workspace/1|schema|v1\.|SemVer|1\.0\.0|Loi|GDPR|RGPD|Python|python|Node|TLS|HTTP|SVG|UTF|section|art\.|s\. |§", re.I)
 
 
 def lines_of(path):

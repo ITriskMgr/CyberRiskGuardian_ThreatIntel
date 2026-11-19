@@ -185,7 +185,7 @@ export async function draftWithAI(template, policy = null) {
   if (!out) return;
   let j; try { j = AI.parseJson(out.text); } catch (e) { toast(String(e.message || e), 'bad'); AI.decide(out.entryId, 'rejected', 'unparseable'); return; }
   const stmts = (j.statements || []).filter(s => s && s.text).map(s => ({ text: String(s.text).slice(0, 800), modality: P.MODALITY.some(m => m[0] === s.modality) ? s.modality : 'must',
-    refs: (s.refs || []).map(String).filter(r => /^(ISO22|CSF2|NIST-53|CIS81):/.test(r)), take: true }));
+    refs: (s.refs || []).map(String).filter(r => /^(ISO22|CSF2|NIST-53|CIS81|SSDF):/.test(r)), take: true }));
   const m = modal(tr('Review the drafted policy'),
     el('p', 'note', tr('Proposed by AI') + (out.model ? ' · ' + out.model : '') + ' — ' + AI.MARK),
     el('div', 'small', el('b', null, 'Purpose: '), noi(j.purpose || '—')), el('div', 'small', el('b', null, 'Scope: '), noi(j.scope || '—')),

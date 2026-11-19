@@ -37,6 +37,20 @@ export function supportCode(sec, panel, arg, version = VERSION) {
 }
 
 export const HELP = {
+  'classroom/assignments': { d: "Packs from your instructor: check the signature, start the work on its case, and save the submission file to hand in.", g: 'classroom',
+    h: ["A pack is signed by your instructor; a changed pack is refused. Compare the fingerprint of the first pack with the one on the course page.", "The submission file carries the workspace, the deliverables, the AI-use log and the 19-step progress, with a checksum. Late work is marked late, never refused."] },
+  'classroom/quiz': { d: "A self-check from the book’s review questions, in English or French, with the section to reread.", g: 'classroom',
+    h: ["Answers are checked against the book’s public answer key. The section pointer is chosen by matching words."] },
+  'classroom/exercise': { d: "A tabletop exercise: roles, injects unlocked with the facilitator’s codes, your decisions and the after-action report.", g: 'classroom',
+    h: ["Alerts and indicators in an exercise are exercise material, never confirmed incidents."] },
+  'classroom/packs': { d: "Build, sign and export assignment, quiz and exercise packs (Educational edition).", g: 'classroom-instructor',
+    h: ["An exercise pack also saves the facilitator sheet with fresh unlock codes. Keep it to yourself."] },
+  'classroom/grading': { d: "Open the submission files, check their integrity, grade them on the rubric and export Moodle’s grade file.", g: 'classroom-instructor',
+    h: ["The evidence shown helps you grade; it is never the grade."] },
+  'classroom/course': { d: "Bundle exercises into a signed course pack, or re-sign a colleague’s course pack under your key.", g: 'classroom-instructor',
+    h: ["The sample exercises are public in the repository: for graded work, write your own."] },
+  'settings/classroom': { d: "Your instructor key and its fingerprint, and the roster imported from your LMS (Educational edition).", g: 'classroom-instructor',
+    h: ["The roster stays in your confidential folder, never in a pack."] },
   process: { d: 'The nineteen steps of a complete risk assessment, then the report and the quality review: where you are, and what to do next.', g: 'process',
     h: ['Each step says what it is for, which screens it uses and when it is done. The badge in the menu shows the next step.', 'Print the checklist to follow an assessment on paper or in a classroom.'] },
   org: { d: 'The organization: mission, services, crown jewels, obligations, risk appetite, workspaces and imports from documents.', g: 'org',

@@ -109,3 +109,27 @@ source is available) ship as one.
 - The four sample exercises play end to end with unlock codes and produce an after-action report.
 - Tests: new browser suites for the round trip, the signing and key pinning, the quiz and an exercise; the existing suite,
   t84 accessibility and all gates green; the label check on the shipped exercise texts.
+
+## 12. Build status (19 November 2026)
+
+| "Done when" item | Status | Where |
+|---|---|---|
+| Packs: sign, verify, refuse on a bad signature or an unannounced key change | Done | `crg_classroom.py`, `test_classroom.py`, t85 |
+| Settings enforced (AI, proposals, reveal) | Done | `js/ai.js` route, `js/ontoprop.js`, Quiz tab; t85, t87 |
+| Round trip: pack → import → work → submit → open, grade, CSV | Done | t87 |
+| Quiz in English and French; no rationale anywhere in the package | Done | `scripts/build_quiz.py`, `js/data/quiz.js`; t85 |
+| Four sample exercises play end to end with unlock codes and an after-action report | Done | `examples/classroom/sample-exercises.json`, `js/exercise.js`; t86 |
+| Tests, t84 accessibility on the new routes, all gates green | Done | t84 (student routes), t88 (instructor screens and working states) |
+| Label check on the shipped exercise texts | Done | `hooks/check_labels.py`: no outdated wording |
+
+Choices made during the build, within the spec:
+- **Instructor side and the source tree.** The instructor side is shown when `js/edition.js` is the Educational
+  edition. The source tree is the Community edition, so the instructor tabs appear only in the Educational package;
+  t87 and t88 draw them directly.
+- **Unlock codes.** Codes are generated fresh each time an exercise pack is built and printed on the facilitator sheet.
+  The shipped sample source holds no code. Its inject texts are public in the repository, so for graded work the
+  instructor writes their own exercises.
+- **Rubrics.** The default rubrics have four criteria for assessments and three for exercises, with five levels. They
+  are a starting point; a pack can carry its own (`content.rubric`).
+- **Roster and grades.** They are kept in the confidential folder used for the organisation graphs, so they move with
+  it.

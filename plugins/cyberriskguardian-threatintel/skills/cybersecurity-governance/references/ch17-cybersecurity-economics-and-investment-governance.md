@@ -72,7 +72,7 @@ A practical way to model cyber risk is in scenario terms, as developed in Chapte
 
 Scenarios are the right unit for investment decisions because they connect technical causes to business harm. A board cannot evaluate a request to "improve endpoint telemetry," but it can evaluate a proposal to reduce the probability that a ransomware intrusion halts order fulfilment for a week. Scenarios also make trade-offs visible. When the same investment reduces risk in several scenarios at once, the scenario view shows its leverage; when an investment affects only a minor scenario, the scenario view shows that too.
 
-The scenario set should be small enough to manage and large enough to be representative. Most organizations find that five to fifteen well-constructed scenarios capture their material exposures. The CyberRiskGuardian approach of Chapters 5 and 6, which screens at least twenty candidate scenarios (typically 25 to 40) down to the ten most material, is a reasonable starting point.
+The scenario set should be small enough to manage and large enough to be representative. Most organizations find that five to fifteen well-constructed scenarios capture their material exposures. The CyberRiskGuardian approach of Chapters 5 and 6, which screens at least twenty candidate scenarios, typically 25 to 40, down to the ten most material, is a reasonable starting point.
 
 ### Single loss expectancy, annual rate of occurrence, and annualized loss expectancy
 
@@ -794,7 +794,7 @@ Choose the best answer. Answers are listed in the appendix "Answers to multiple-
 >
 > C. As an increase in organizational resilience θ for the affected scenario
 >
-> D. As risk transfer, documented with the share of loss covered and the approver
+> D. As risk transfer: a costed line and a management decision, with the share of loss covered and the approver
 
 **20.** An organization has a total IT budget of \$10 million and an approved risk appetite of 0.60. Using the chapter's best-practice benchmark with linear interpolation, what is its appetite-consistent cybersecurity budget?
 

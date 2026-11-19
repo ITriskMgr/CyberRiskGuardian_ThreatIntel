@@ -8,7 +8,7 @@ await page.selectOption('#panel-isp select >> nth=0', 'access');
 await page.click('button:has-text("Create from the template")');
 await page.waitForSelector('#panel-isp >> text=Policy statements');
 let p = await page.evaluate(async () => (await import('/js/isp.js')).isp().policies.at(-1));
-ok(p.title === 'Access control and authentication' && p.status === 'draft' && p.statements.length === 5 && p.statements[0].id === p.id + '.1', 'policy from template');
+ok(p.title === 'Access control and authentication' && p.status === 'draft' && p.statements.length === 6 && p.statements[0].id === p.id + '.1', 'policy from template');
 // life cycle
 page.on('dialog', d => d.accept(/approver|approbateur/i.test(d.message()) ? 'Bob (CISO)' : ''));   // 1.9.2 (NV-020): an approval needs a named approver
 await page.click('#panel-isp button:has-text("Submit for review")'); await page.waitForTimeout(200);
@@ -43,7 +43,7 @@ await page.waitForSelector('text=Import requirements');
 await page.click('button:has-text("Add the Law 25 and R-22.1 obligations")'); await page.waitForTimeout(1500);
 await page.click('button:has-text("Add the published policy statements")'); await page.waitForTimeout(300);
 const R = await page.evaluate(async () => { const st = await import('/js/state.js'); const r = st.S.ws.compliance.requirements; return { n: r.length, law: r.filter(x => /P-39\.1/.test(x.ref)).length, pol: r.filter(x => x.source === 'policy').length }; });
-ok(R.law > 5 && R.pol === 5, 'requirements from the ontology and the policies ' + JSON.stringify(R));
+ok(R.law > 5 && R.pol === 6, 'requirements from the ontology and the policies ' + JSON.stringify(R));
 await page.evaluate(async () => { const st = await import('/js/state.js'); st.S.ws.compliance.soa['ISO22:8.5'] = { status: 'implemented' }; st.S.ws.compliance.soa['ISO22:5.15'] = { status: 'partial' }; location.hash = '#/compliance/ai'; });
 await page.waitForSelector('text=What to assess');
 await page.selectOption('#panel-compliance select >> nth=1', 'Security policies (ISP)');

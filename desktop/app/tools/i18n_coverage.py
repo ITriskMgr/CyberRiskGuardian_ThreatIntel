@@ -24,6 +24,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = [os.path.join(ROOT, 'js'), os.path.join(ROOT, 'js', 'panels')]
 SKIP_FILES = {'i18n.js', 'cvss4.js', 'crg.js', 'sample.js', 'threat.js', 'xlsx.js', 'snapgen.js', 'ontology.js', 'feedparse.js', 'screencodes.js',
               'crgo_group.js',
+              'exercise.js',   # BL-26: the after-action report is written in the exercise's language by the module itself
               'familypayload.js', 'familytext.js'}   # 1.9.3 (W3): the payload sent to the model is English by contract   # 1.9.3: CRGO's contract messages (English by contract; the screens show crgo.js findingText)
 
 
