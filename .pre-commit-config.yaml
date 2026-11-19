@@ -1,0 +1,27 @@
+# Pre-commit hooks (BL-18). Install once per clone:  pip install -r requirements-dev.txt && pre-commit install
+# They run on the files staged for the commit; CI (.github/workflows/quality.yml) runs the same checks on every push.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (errors and bug-prone patterns, ruff.toml)
+        entry: ruff check --force-exclude
+        language: system
+        types: [python]
+      - id: bandit
+        name: bandit (medium and high severity)
+        entry: bandit -q -ll -x node_modules,tests,crg_writer
+        language: system
+        types: [python]
+        exclude: '(^|/)test_[^/]*\.py$'
+      - id: semgrep
+        name: semgrep (CyberRiskGuardian method rules, .semgrep/)
+        entry: semgrep scan --config .semgrep --metrics off --error --quiet
+        language: system
+        pass_filenames: false
+        files: '\.(py|js|json|md)$'
+      - id: label-check
+        name: label check (markers and retired wording in deliverables)
+        entry: python3 plugins/cyberriskguardian-threatintel/hooks/check_labels.py
+        language: system
+        files: '^(deliverables|output|examples/[^/]+/deliverables)/.*\.(md|docx)$'   # reports; workbooks carry the markers in their report

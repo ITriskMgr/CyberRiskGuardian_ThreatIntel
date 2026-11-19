@@ -1,0 +1,5 @@
+# Quality tools (BL-16 to BL-22): exact versions, as CI installs them. Not needed to use the plugin or the desktop app.
+ruff==0.16.9
+bandit==1.9.4
+semgrep==1.186.0
+pre-commit==4.7.0

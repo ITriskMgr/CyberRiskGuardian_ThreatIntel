@@ -978,7 +978,8 @@ def update_check():
     out = {"current": VERSION, "checked": _now(), "source": UPDATE_URL if os.environ.get("CRG_UPDATE_URL") else f"github.com/{UPDATE_REPO}/releases"}
     req = urllib.request.Request(UPDATE_URL, headers={"User-Agent": UPDATE_UA, "Accept": "application/vnd.github+json"})
     try:
-        with urllib.request.urlopen(req, timeout=15, context=_ctx() if UPDATE_URL.startswith("https") else None) as r:
+        # bandit: fixed GitHub releases URL (loopback only in tests)
+        with urllib.request.urlopen(req, timeout=15, context=_ctx() if UPDATE_URL.startswith("https") else None) as r:  # nosec B310
             data = json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         remaining = exc.headers.get("X-RateLimit-Remaining") if exc.headers else None
@@ -1034,7 +1035,8 @@ def _update_url_ok(url):
 
 def _update_get(url, timeout):
     req = urllib.request.Request(url, headers={"User-Agent": UPDATE_UA, "Accept": "application/octet-stream"})
-    with urllib.request.urlopen(req, timeout=timeout, context=_ctx() if url.startswith("https") else None) as r:
+    # bandit: the caller checks the allowed download hosts
+    with urllib.request.urlopen(req, timeout=timeout, context=_ctx() if url.startswith("https") else None) as r:  # nosec B310
         final = r.geturl()
         if not _update_url_ok(final):           # urllib follows redirects: the address it ended on is checked too
             raise RuntimeError("The download was redirected away from GitHub; nothing was kept.")

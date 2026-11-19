@@ -1,0 +1,67 @@
+# Code quality and performance gates (BL-16 to BL-23): ruff, bandit, the CyberRiskGuardian Semgrep rules, the threat-snapshot
+# performance budget and the Lighthouse budget of the desktop application. The behaviour suites run in desktop-ci.yml.
+name: quality
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  static:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install the quality tools (exact versions)
+        run: python -m pip install --quiet -r requirements-dev.txt -r requirements.txt
+      - name: ruff (errors and bug-prone patterns)
+        run: ruff check .
+      - name: bandit (medium and high severity)
+        run: |
+          bandit -q -ll -r desktop/app plugins scripts desktop/tools -x '*/node_modules/*,*/tests/*,*/test_*.py,*/crg_writer/*'
+          # the Writer engine is pinned by a tree hash shared with the stand-alone Writer: its SHA-1 record ids and its
+          # parsing of the user's own Word files are reviewed findings (BL-17)
+          bandit -q -ll -r desktop/app/crg_writer -s B324,B314
+      - name: Semgrep (CyberRiskGuardian method rules)
+        run: semgrep scan --config .semgrep --metrics off --error
+      - name: Threat snapshot performance budget (no network)
+        run: python plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_snapshot_perf.py
+
+  lighthouse:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CRG_URL: http://127.0.0.1:8101/
+    steps:
+      - name: Temp folder outside the checkout
+        run: echo "CRG_TMP=$RUNNER_TEMP/crg-lh" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Install
+        working-directory: desktop/tests
+        run: |
+          python -m pip install --quiet -r ../../requirements.txt
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Start the helper and check the Lighthouse budget
+        working-directory: desktop/tests
+        run: |
+          bash serve.sh
+          bash lighthouse.sh

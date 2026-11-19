@@ -75,7 +75,8 @@ for k in TECH:
 capec_ver=[o for o in c if o['type']=='identity']
 # CWE
 ns={'c':'http://cwe.mitre.org/cwe-7'}
-root=ET.parse('cwec.xml').getroot()
+# bandit: the maintainer's own download of the CWE file
+root=ET.parse('cwec.xml').getroot()  # nosec B314
 CWE={}
 for w in root.find('c:Weaknesses',ns):
     if w.get('Status')=='Deprecated': continue

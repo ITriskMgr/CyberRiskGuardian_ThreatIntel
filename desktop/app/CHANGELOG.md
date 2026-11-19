@@ -88,6 +88,13 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   check now runs in a stand-in home folder, and new tests confirm that a Google Drive or iCloud folder under
   `~/Library/CloudStorage` or `~/Library/Mobile Documents`, also reached through a symbolic link, is accepted as a shared
   folder, while `~/Library/Preferences` and hidden folders are refused. The guard itself is unchanged.
+- **Faster first paint.** The 13 data scripts of the start page load with `defer`: the first content appears about 1.3 s
+  sooner (Lighthouse, simulated desktop: 3.9 s → 2.6 s). Start-up order is unchanged.
+- **Quality gates (BL-16 to BL-23).** `ruff.toml`, bandit (medium and high severity), Semgrep rules for the method
+  (`.semgrep/`: no network in the calculation path, CVSS Base only, product rule for reductions, no retired marker
+  wording), `.pre-commit-config.yaml`, a performance budget for `threat_snapshot.py` (400,000 EPSS rows in about 7 s) and
+  a Lighthouse budget (`desktop/tests/lighthouse.sh`); CI workflow `quality.yml`. The test procedure is written down in
+  `docs/TEST-PROCEDURE.md`.
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
   try no longer misses near midnight.
 - **The anonymizer no longer treats record ids** such as C01 (in the *members* fields) as person names.

@@ -156,7 +156,8 @@ def _ssl_context() -> "ssl.SSLContext | None":
 def _fetch(url: str, timeout: int = 60) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
-        with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as r:
+        # bandit: fixed https catalogue URLs only
+        with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as r:  # nosec B310
             return r.read()
     except urllib.error.URLError as exc:
         if isinstance(getattr(exc, "reason", None), ssl.SSLError) or "CERTIFICATE_VERIFY_FAILED" in str(exc):

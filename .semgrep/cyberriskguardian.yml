@@ -1,0 +1,83 @@
+# Semgrep rules for the CyberRiskGuardian method (BL-21). Run: semgrep scan --config .semgrep --metrics off --error
+rules:
+  - id: crg-no-network-in-calculation-path
+    message: >-
+      The calculation path stays offline and deterministic (threat-intel rule 1): only threat_snapshot.py fetches,
+      and only when an analyst runs it. Remove the network import from this engine file.
+    severity: ERROR
+    languages: [python]
+    paths:
+      include:
+        - "**/scripts/crg_calc.py"
+        - "**/scripts/build_workbook.py"
+        - "**/scripts/budget_calibrator.py"
+        - "**/mcp/crg_server.py"
+        - "**/engine/crg_calc.py"
+    pattern-either:
+      - pattern: import urllib.request
+      - pattern: import requests
+      - pattern: import http.client
+      - pattern: import socket
+      - pattern: from urllib import request
+      - pattern: from urllib.request import $X
+
+  - id: crg-no-network-in-js-engine
+    message: The desktop engines (crg.js, cvss4.js, threat.js) never call the network; data comes from the workspace or a pinned snapshot.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include: ["desktop/app/crg.js", "desktop/app/cvss4.js", "desktop/app/threat.js"]
+    pattern-either:
+      - pattern: fetch(...)
+      - pattern: new XMLHttpRequest()
+      - pattern: new WebSocket(...)
+
+  - id: crg-cvss-threat-metrics-in-vector
+    message: >-
+      CVSS v4.0 Base only: a vector literal carries a Threat metric (E:A, E:P or E:U). Exploitation evidence goes to
+      Pb(ψ,A), never into CVSS, or it counts twice.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["*.py", "*.js", "*.json"]
+      exclude: ["**/test_*.py", "**/tests/**", "**/node_modules/**", "**/fixtures/**", "**/cvss4.js", "**/crg_calc.py", "**/crg.js"]
+    pattern-regex: 'CVSS:4\.0/[A-Z]{2}:[A-Z](/[A-Z]{1,3}:[A-Z])*/E:[APU]\b'
+
+  - id: crg-reductions-added
+    message: >-
+      Several measures on the same lever combine as 1 − ∏(1 − rᵢ) (product rule), never by adding them.
+    severity: ERROR
+    languages: [python]
+    pattern-either:
+      - pattern: sum($X.red_p for $X in $Y)
+      - pattern: sum($X.red_i for $X in $Y)
+      - pattern: sum($X["red_p"] for $X in $Y)
+      - pattern: sum($X["red_i"] for $X in $Y)
+      - pattern: $A.red_p + $B.red_p
+      - pattern: $A.red_i + $B.red_i
+      - pattern: $A["red_p"] + $B["red_p"]
+      - pattern: $A["red_i"] + $B["red_i"]
+
+  - id: crg-reductions-added-js
+    message: >-
+      Several measures on the same lever combine as 1 − ∏(1 − rᵢ) (product rule), never by adding them.
+    severity: ERROR
+    languages: [javascript]
+    pattern-either:
+      - pattern: $A.red_p + $B.red_p
+      - pattern: $A.red_i + $B.red_i
+      - pattern: $A.reduce((...) => $S + $M.red_p, ...)
+      - pattern: $A.reduce((...) => $S + $M.red_i, ...)
+
+  - id: crg-retired-marker-wording
+    message: >-
+      Retired marker wording. Use "Analytical estimate — validation required" and
+      "Information gap — organizational validation required" (AGENTS.md, operating principle 3).
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["*.py", "*.js", "*.md"]
+      exclude: ["**/check_labels.py", "**/label_check*", "**/CHANGELOG.md", "**/DECISIONS-*.md", "**/AGENTS.md", "**/migrate*.js", "**/migrate192/**",
+                "**/tests/**", "**/test_*.py", "**/node_modules/**", "**/evidence-discipline.md", "**/i18n/**", "**/markers.js", "docs/BACKLOG-next-release.md",
+                "**/evals/**", "scripts/build_evals.py"]
+    pattern-regex: '(?<![Rr]etired )(?<!“)(?<!")(Analyst estimate|Evidence gap — organizational input required)'

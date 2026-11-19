@@ -274,10 +274,13 @@ Rung 5 means an **incident**, not a prospective risk: invoke incident response f
    `test_crg_calc.py` must pass.
 4. Confirm `threat_snapshot.py --offline` works with networking disabled, and that no network
    import exists in `crg_calc.py`, `build_workbook.py`, `budget_calibrator.py` or the `crg_risk`
-   MCP path.
+   MCP path (the Semgrep rule `crg-no-network-in-calculation-path` checks this).
 5. With a CRGO 0.11.2 checkout, run `test_crgo_contract.py --crgo <path>`; all checks must pass.
 6. Regenerate the shipped snapshot if it is over 90 days old.
 7. Bump the version (semver) in `plugin.json` and `marketplace.json`.
+8. Run the full [test procedure](docs/TEST-PROCEDURE.md): engine, ontology bridge, desktop gates, behaviour suites,
+   security and code quality (`pre-commit run --all-files`: ruff, bandit, the Semgrep method rules, the label check),
+   performance and smoke.
 
 ## Deliberately excluded
 - Live feeds inside the calculation path.

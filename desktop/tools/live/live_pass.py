@@ -56,7 +56,8 @@ def call(port, path, body=None, token=None, timeout=300):
     if data is not None:
         req.add_header("Content-Type", "application/json")
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        # bandit: the local helper the release check starts (loopback)
+        with urllib.request.urlopen(req, timeout=timeout) as r:  # nosec B310
             return r.status, json.loads(r.read() or b"{}")
     except urllib.error.HTTPError as e:
         try:
