@@ -87,12 +87,9 @@ is confirmed or its threshold changed.
 
 ## BL-15 — CIS approval for titles in the commercial editions (D3)
 
-Until CIS answers, the commercial package carries CIS identifiers only (`package_desktop.py --edition commercial`
-strips the titles and checks it). A request to CIS should say: the product (CyberRiskGuardian Desktop, commercial and
-educational editions), what is shown (the 18 control titles and 153 safeguard identifiers of CIS Controls v8.1, with the
-CIS notice; CRGO's own paraphrases, never CIS text), where (a mapping screen and the Excel export), and that the
-Community edition already carries them under CIS's CC BY-NC-ND terms. **Done when** CIS's written answer is filed and
-`package_desktop.py` keeps or drops the strip accordingly.
+**Closed by author decision (19 November 2026): no request is sent to CIS.** The commercial package keeps showing CIS
+Controls v8.1 by identifier only (`package_desktop.py --edition commercial` strips the titles and checks it). The
+Community and Educational editions keep the titles under CIS's CC BY-NC-ND terms.
 
 ## Already done (checked 19 November 2026)
 
