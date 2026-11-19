@@ -3,6 +3,21 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0 (the Core edition, retired on 19 November 2026).
 
+## Unreleased
+
+### Added
+- **French textbook reference set (BL-28).** `cybersecurity-governance/references/fr/`: the French edition (v2.51b), one
+  file per chapter and section with the English file names, built by `scripts/ingest_book_fr.py` from the book's plain-text
+  export. The skill (2.1.0) reads it for questions in French and cites the French edition.
+
+### Changed
+- **English reference set brought to the published v2.51b text (BL-27).** `scripts/update_book_en.py` aligns each file
+  with the plain-text export and applies only what changed, keeping tables, headings and emphasis: chapters 2, 4, 6 and 17
+  and the appendix *Using CyberRiskGuardian with this book* (risk transfer as a costed line and a management decision;
+  the product rule in every track; Excel model v2-6; desktop-only features marked). Chapter 6 question 14 now carries
+  the published wording. One source line was not applied: chapter 2 has a stray ISO link with a `utm_source=chatgpt.com`
+  tag pasted inside a sentence — an erratum for the book.
+
 ## 1.9.4 — with Desktop 1.9.4 Beta — 19 November 2026
 
 **The plugin now carries the desktop application's version number** (author decision, 19 November 2026): 1.7.3 is followed

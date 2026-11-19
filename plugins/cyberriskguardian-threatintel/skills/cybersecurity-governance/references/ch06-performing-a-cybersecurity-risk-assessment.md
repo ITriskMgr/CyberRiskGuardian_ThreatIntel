@@ -36,7 +36,7 @@ The chapter proceeds in the order an analyst works. It begins with purpose and s
 
 ## From concepts to practice: purpose and standards alignment
 
-A risk assessment is the bridge between the conceptual vocabulary of Chapters 1 to 4 and the decisions of later chapters. It is where threats, vulnerabilities, and impacts stop being abstractions and become a ranked list of scenarios, each with an owner, an estimate, a tolerance test, and a recommended response.
+A risk assessment is the bridge between the conceptual vocabulary of Chapters 1 to 4 and the decisions of later chapters. It is where threats, vulnerabilities, and exposure stop being abstractions and become a ranked list of scenarios, each with an owner, an estimate, a tolerance test, and a recommended response.
 
 ### Why we assess risk
 
@@ -117,7 +117,7 @@ CRG organizes a complete assessment into nineteen numbered steps, followed by th
 
 ### What each edition and the spreadsheet cover
 
-The method is identical in every edition and every tool; what differs is how much of the work the tool automates. The **Community Edition** includes the AI-assisted analyst track, the calculation engine, the Excel model, the MediBec example, and a free teaching package of labs, assessment briefs, and cases. Its Core assistant plugin automates steps 1 to 11 and produces a management summary; the Threat Intel plugin, also Community Edition (CC BY-NC), covers all nineteen steps including treatment and budget calibration; it can indicate obvious treatment directions, but marks them as indicative and uncosted. Students complete steps 12 to 19 themselves, with the Excel model and the labs, which cover treatment, shared controls, sensitivity, KRIs, and the management memorandum. The **Educational** edition, licensed to institutions, adds the full quantitative workflow—costed treatment portfolios with shared-control allocation, sensitivity analysis, the investment portfolio and budget calibration, a KRI catalogue with thresholds, a live-formula workbook, and a full board report—together with installation, customization, and instructor materials.
+The method is identical in every edition and every tool; what differs is how much of the work the tool automates. The **Community Edition** includes the AI-assisted analyst track, the calculation engine, the Excel model, the MediBec example, and a free teaching package of labs, assessment briefs, and cases. Its Core assistant plugin automates steps 1 to 11 and produces a management summary; it can indicate obvious treatment directions, but marks them as indicative and uncosted. The Threat Intel plugin, also part of the Community Edition under the same CC BY-NC licence, covers all nineteen steps, including treatment and budget calibration. Students who work with the Core plugin complete steps 12 to 19 themselves, with the Excel model and the labs, which cover treatment, shared controls, sensitivity, KRIs, and the management memorandum. The **Educational** edition, licensed to institutions, adds the full quantitative workflow—costed treatment portfolios with shared-control allocation, sensitivity analysis, the investment portfolio and budget calibration, a KRI catalogue with thresholds, a live-formula workbook, and a full board report—together with installation, customization, and instructor materials.
 
 The **Excel model** is the most transparent of the tools and the one this chapter describes in detail. It covers the appetite and factor settings (step 4), the parameter sheets and the CVSS column (steps 9 and 10), the calculation of estimated and tolerated risk (step 11), the mitigation sheets and the residual calculation (steps 12 and 14), and the portfolio recommendation and its cost (step 17); the corrected template distributed with this edition adds the risk-to-tolerance bands, a cost-effectiveness column, and the budget calibration (step 18). The evidence register, scenario screening and selection, the sensitivity cases, the KRIs, and the report are prepared outside the workbook or in the application. Prioritization (step 16) is a matter of judgment in every tool.
 
@@ -223,7 +223,7 @@ Because Re − Residual equals the mitigated amount, the indicator reads as "ris
 
 ### Several measures, shared controls, transfer, and avoidance
 
-A scenario is rarely treated by a single control. CRG handles combinations at the level of the **treatment package**: the analyst estimates one probability reduction and one impact reduction for the package as a whole, each between 0 and 1, with a rationale that explains how the measures interrupt the causal chain. Per-control coefficients must not simply be added together. When several measures act on the same lever, CRG combines them with the product rule, 1 − ∏(1 − rᵢ): ten controls credited with 0.06 each give a package reduction of about 0.46, and twenty give about 0.71, never more than 1. The rule builds in diminishing returns and overlap: a second detection tool adds less than the first.
+A scenario is rarely treated by a single control. CRG handles combinations at the level of the **treatment package**: the package has one probability reduction and one impact reduction, each between 0 and 1, with a rationale that explains how the measures interrupt the causal chain. When a package is built from several controls, their coefficients are not added together. CRG combines them with the product rule, 1 − ∏(1 − rᵢ), in every track, separately for probability and for impact: each control removes its share of what the previous controls left. Ten controls credited with 0.06 each therefore combine to 1 − 0.94¹⁰, about 0.46 rather than 0.60, and twenty combine to about 0.71, never more than 1. The rule builds in diminishing returns, but it does not replace judgment about overlap: a second detection tool that acts on the same step of the causal chain as the first deserves a lower coefficient than a control acting on a step nothing else covers.
 
 A **shared control** is one initiative that reduces several scenarios, such as phishing-resistant multifactor authentication, privileged access management, or immutable backups. Its effect is credited in each scenario's package, but its cost is counted **once**. For scenario-level analysis, its cost is split across the scenarios it serves, and an equal split is an acceptable default; the portfolio total, however, comes from the list of initiatives, not from the sum of scenario allocations. A control that already exists cannot be recommended as a new measure: its effect is already reflected in the current Pb(ψ,A) and θ, and claiming it again counts the same reduction twice.
 
@@ -348,7 +348,7 @@ This section describes a reproducible sequence for completing the quantitative s
 
 ### How the workbook is organized
 
-The workbook has three kinds of sheet. The **Analyse (summary)** sheet holds the appetite and multiplication factor cells and one row per scenario, showing the scenario name, the six parameters drawn from the scenario sheets, the CVSS score, estimated and tolerated risk, the package cost and reductions drawn from the mitigation sheets, mitigated and residual risk, the risk-to-tolerance ratio and its band, cost-effectiveness, and a recommendation column. Ten **scenario sheets (S1 to S10)** hold each scenario's number, name, date, and six parameters. Ten **mitigation sheets (M1 to M10)** hold the treatment options for the matching scenario: a few rows for custom measures and a catalogue of predefined controls drawn from ISO/IEC 27002:2022 (93 controls), NIST CSF 2.0 and the eighteen CIS Controls v8.1. The template holds ten scenarios; the application and the Educational edition's workbook builder apply the same formulas to any number.
+The workbook has three kinds of sheet. The **Analyse (summary)** sheet holds the appetite and multiplication factor cells and one row per scenario, showing the scenario name, the six parameters drawn from the scenario sheets, the CVSS score, estimated and tolerated risk, the package cost and reductions drawn from the mitigation sheets, mitigated and residual risk, the risk-to-tolerance ratio and its band, cost-effectiveness, and a recommendation column. Ten **scenario sheets (S1 to S10)** hold each scenario's number, name, date, and six parameters. Ten **mitigation sheets (M1 to M10)** hold the treatment options for the matching scenario: a few rows for custom measures and a catalogue of predefined controls drawn from ISO/IEC 27002:2022 (93 controls), NIST CSF 2.0, and the eighteen CIS Controls v8.1. The template holds ten scenarios; the application and the Educational edition's workbook builder apply the same formulas to any number.
 
 The workbook opens in **manual calculation mode**, because its many formulas would otherwise slow every keystroke. Nothing on the Analyse (summary) sheet is current until the user presses **Calculate Now** (Formulas, then Calculate Now, or F9). Reading numbers before recalculating is the most common source of student error.
 
@@ -378,11 +378,11 @@ Treatment corresponds to the risk treatment activity of ISO/IEC 27005:2022 and c
 
 For a scenario involving macro-enabled documents, for example, a package might combine blocking macros from internet-sourced files (catalogue: ISO/IEC 27002:2022 control 8.7, Protection against malware), endpoint detection and response with 24/7 monitoring, and immutable, isolated backups with tested restoration (ISO/IEC 27002:2022 control 8.13, Information backup). Each measure is chosen because it interrupts a specific step of the causal chain and adds something the organization does not already have.
 
-Then enter the **package-level** probability reduction and impact reduction, each between 0 and 1, with a rationale. If the sheet accumulates per-control coefficients, check the totals: each must stay within 0 to 1, and the package estimate should reflect overlap and diminishing returns. Record shared controls once in the portfolio and allocate their cost across scenarios as described earlier. Record insurance and contract terms as costed transfer lines and decisions, not as reductions.
+Then enter the **package-level** probability reduction and impact reduction, each between 0 and 1, with a rationale. When the package combines several controls, the sheet applies the product rule, 1 − ∏(1 − rᵢ), so the package reductions stay within 0 to 1; check that each individual coefficient is itself between 0 and 1 and that overlapping controls are not credited twice. Record shared controls once in the portfolio and allocate their cost across scenarios as described earlier. Record insurance and contract terms as costed transfer lines and decisions, not as reductions.
 
 ### Step 7: Recalculate and read residual risk, the ratio, and cost-effectiveness
 
-Return to the Analyse (summary) sheet and press Calculate Now again. For each scenario, read the mitigated and residual risk, the risk-to-tolerance ratio and its band, and the cost-effectiveness. In the corrected template, residual risk is computed as Re − Mitigated, the package reductions combine by the product rule 1 − ∏(1 − rᵢ), and a guard flags a coefficient outside 0–1 instead of hiding it; earlier versions summed coefficients and used an absolute value, which made the residual *rise* when the sum exceeded 1. If one or more scenarios remain above tolerance, four options exist: strengthen the package, transfer part of the risk, avoid the activity, or accept the residual formally. Each is a **Management decision required**; the analyst's role is to set out the options and their consequences.
+Return to the Analyse (summary) sheet and press Calculate Now again. For each scenario, read the mitigated and residual risk, the risk-to-tolerance ratio and its band, and the cost-effectiveness. In the corrected template, residual risk is computed as Re − Mitigated, with package reductions combined by the product rule. Because a combined reduction cannot exceed 1, an invalid reduction can come only from a single coefficient entered outside 0 to 1, which the template flags instead of hiding. Earlier versions summed the coefficients and used an absolute value, which made the residual *rise* when the sum exceeded 1. If one or more scenarios remain above tolerance, four options exist: strengthen the package, transfer part of the risk, avoid the activity, or accept the residual formally. Each is a **Management decision required**; the analyst's role is to set out the options and their consequences.
 
 ### Step 8: Recommend the portfolio and calibrate the budget
 
@@ -801,16 +801,16 @@ Choose the best answer. Answers are listed in the appendix "Answers to multiple-
 >
 > D. Mitigated 1,500 and residual 0, because the loss is fully transferred
 
-<!-- v2.51b: question and options rewritten around the product rule (erratum E12); answer letter unchanged (A). Wording reconstructed from the erratum record pending re-ingest of the published v2.51b text. -->
-**14.** An analyst credits twenty controls with a probability reduction of 0.06 each. How does the chapter say they combine into the package's probability reduction?
+<!-- v2.51b: question and options rewritten around the product rule (erratum E12); answer letter unchanged (A). Wording from the published v2.51b text. -->
+**14.** An analyst credits twenty controls with a probability reduction of 0.06 each. How does CyberRiskGuardian combine them into the package's probability reduction?
 
-> A. By the product rule, 1 − ∏(1 − rᵢ): about 0.71 for twenty controls, and never more than 1
+> A. With the product rule, 1 − ∏(1 − rᵢ), giving about 0.71 and never more than 1
 >
-> B. By simple addition: 1.20, which the workbook accepts as entered
+> B. By adding them, giving 1.20, which the workbook then caps at 1
 >
-> C. By addition, capped at 0.99 before the calculation
+> C. By averaging them, so the package keeps a reduction of 0.06
 >
-> D. By taking the single largest coefficient, 0.06, and ignoring the rest
+> D. By keeping only the strongest control, so the package reduction is 0.06
 
 **15.** Two scenarios share the same δe, δm, appetite, and treatment package, but one has Pb(A) = 0.20 and the other Pb(A) = 0.80, all else equal. What does the cancellation property imply?
 
