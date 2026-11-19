@@ -1,6 +1,25 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
-## Unreleased
+## 1.9.5 Beta — 19 November 2026
+
+Classroom and Exercises, the book's October 2026 standards baseline, and French corrections, with **Threat Live-feed
+plugin 1.9.5** alongside. **No formula changed**: MediBec **84,305 / 41,023** and CanaRetail **27,526 / 16,049** are
+unchanged in every engine. Data version stays 7 (no migration). Security Policy Writer 0.1.2. Full suite: 87 suites,
+3,851 checks; CI green on the merged commit.
+
+### Fixed — local thinking models (BL-13)
+- **Thinking models gave empty answers.** Qwen3 and other thinking models running locally (oMLX, LM Studio, llama.cpp,
+  vLLM) used the whole token budget reasoning, and the app reported "the model returned no text".
+  - The helper now asks a local server not to think (`chat_template_kwargs: {"enable_thinking": false}`), and asks again
+    without the field if the server refuses it.
+  - It strips any `<think>…</think>` block before the answer is read.
+  - Found by the local-model test on the author's Mac (32B: 15 of 26 checks failed).
+
+### Changed — French
+- « amorce » for a security-operations seed (« germe » stays for a random-number seed); « AMF » instead of « MFA »;
+  « probabilité du patron de scénario »; French quotation marks in the mitigation-plan hint.
+- No space before « ; » (Québec usage, author decision), kept by the new FR-5 check of `tools/fr_terms_check.py`.
+
 
 ### Added — Classroom and Exercises (BL-25, BL-26; docs/spec-classroom-exercises.md)
 Work moves as files between the instructor's application and the students' copies; there is no server. The method is

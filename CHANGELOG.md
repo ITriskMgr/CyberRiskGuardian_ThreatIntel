@@ -3,7 +3,10 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0 (the Core edition, retired on 19 November 2026).
 
-## Unreleased
+## 1.9.5 — with Desktop 1.9.5 Beta — 19 November 2026
+
+Textbook skill 2.1.0 (English and French at v2.51b). **No formula change.**
+
 
 ### Added
 - **French textbook reference set (BL-28).** `cybersecurity-governance/references/fr/`: the French edition (v2.51b), one

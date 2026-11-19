@@ -18,7 +18,7 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 
 People stay accountable for validation and risk decisions.
 
-Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.9.4**
+Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.9.5**
 (November 2026), aligned with the textbook *Introduction to Cybersecurity Governance for Business Technology
 Management*, 3rd ed., **v2.51**; desktop application **1.9.2 Beta** — see below. Product site:
 [cyberriskguardian.ca](https://cyberriskguardian.ca) · licence enquiries: sales@cyberriskguardian.ca.
@@ -35,7 +35,7 @@ edition (Threat Live-feed) is the only one. The lineage stays recorded here for 
 |---|---|---|
 | Repository | `CyberRiskGuardian` | `CyberRiskGuardian_ThreatIntel` |
 | Plugin id | `cyberriskguardian` | `cyberriskguardian-threatintel` |
-| Version | Core 2.2.1 (retired) | 1.9.4 |
+| Version | Core 2.2.1 (retired) | 1.9.5 |
 | Formulas | identical | identical (package reductions combined with the product rule 1 − ∏(1 − rᵢ)) |
 | MediBec baseline | 84,305 / 41,023 with S2/S8 scored AV:L | **84,305 / 41,023** |
 | Threat calibration | — | snapshot lifecycle, Threat Evidence Ladder, revision log |
