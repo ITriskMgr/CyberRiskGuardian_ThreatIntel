@@ -16,7 +16,7 @@ import { S, compute, initiatives, included, PARAMS, commitments } from './state.
 import { techName, tech, cwe, mitigation } from './ontology.js';
 import { allDefs, autoValues, status } from './kri.js';
 import { suggest, horizonBucket } from './panels/recs.js';
-import { classify as ladder } from '../threat.js';
+import { classify as ladder, splitRevisionLog } from '../threat.js';
 import { val } from './util.js';
 import { combined, effect, control, validCoef } from './catalog.js';
 import { crgOf, level, score } from './registry.js';
@@ -432,7 +432,15 @@ export async function buildWorkbook(opts = {}) {
   const lr0 = 6 + trows.length;
   put(wtc, lr0, 1, tr('Revision log'), B);
   ['Date', 'Scenario', 'Parameter', 'From', 'To', 'Ratio from', 'Ratio to', 'Classification from', 'Classification to', 'Cause', 'Snapshot'].forEach((h, j) => wtc.set(lr0, j, tr(h), HDR));
-  (ws.revisionLog || []).forEach((x, i) => [x.date, x.scenario, x.parameter, x.from, x.to, x.ratioFrom, x.ratioTo, x.clsFrom, x.clsTo, x.cause, x.snapshot].forEach((v, j) => wtc.set(lr0 + 1 + i, j, v, { wrap: true })));
+  // 1.9.3 (BL-06b): this sheet's log holds the threat-driven lines only; the workspace's other revisions follow, apart
+  const RL = splitRevisionLog(ws.revisionLog);
+  RL.threat.forEach((x, i) => [x.date, x.scenario, x.parameter, x.from, x.to, x.ratioFrom, x.ratioTo, x.clsFrom, x.clsTo, x.cause, x.snapshot].forEach((v, j) => wtc.set(lr0 + 1 + i, j, v, { wrap: true })));
+  if (RL.other.length) {
+    const or0 = lr0 + RL.threat.length + 3;
+    put(wtc, or0, 1, tr('Other revisions in this workspace (not caused by the threat landscape)'), B);
+    ['Date', 'Scenario', 'Parameter', 'From', 'To', 'Ratio from', 'Ratio to', 'Classification from', 'Classification to', 'Cause or note'].forEach((h, j) => wtc.set(or0 + 1, j, tr(h), HDR));
+    RL.other.forEach((x, i) => [x.date, x.scenario, x.parameter, x.from, x.to, x.ratioFrom, x.ratioTo, x.clsFrom, x.clsTo, x.cause || x.what].forEach((v, j) => wtc.set(or0 + 2 + i, j, v, { wrap: true })));
+  }
 
   /* Risk register (1.4.0) */
   const wrr = wb.sheet('Risk_Register');

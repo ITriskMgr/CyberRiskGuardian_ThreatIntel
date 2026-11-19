@@ -13985,4 +13985,9 @@ export default {
 "I have reviewed this text and confirm that it may leave this installation": "J’ai relu ce texte et je confirme qu’il peut quitter cette installation",
 "Review the text for the public ontology and confirm it first": "Relisez d’abord le texte destiné à l’ontologie publique et confirmez-le",
 "by": "par",
+"Cause or note": "Cause ou note",
+"No parameter has moved because of the threat landscape in this workspace.": "Aucun paramètre n’a changé en raison du paysage des menaces dans cet espace de travail.",
+"Not caused by the threat landscape: organizational evidence (IAM and configuration management findings), accepted reduction proposals, reviews and data corrections. Listed here so the workspace history stays complete.": "Sans lien avec le paysage des menaces : éléments probants de l’organisation (constats de gestion des identités et des accès et de gestion des configurations), propositions de réduction acceptées, revues et corrections de données. Affichées ici pour que l’historique de l’espace de travail reste complet.",
+"Other revisions in this workspace (not caused by the threat landscape)": "Autres révisions dans cet espace de travail (sans lien avec le paysage des menaces)",
+"Other revisions in this workspace ({0})": "Autres révisions dans cet espace de travail ({0})",
 };

@@ -77,6 +77,12 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   "Settings → AI", "Settings → Sources", "Organization → Risk appetite and budget", "Programmes · SP 800-53A"…); they now
   name the real screen (for example *Organization → Ontology · CRGO → Connection*, *Settings → AI — local & remote*), in
   English and French. `tools/label_check.py` now also checks the menu paths quoted in the helper's and the page's messages.
+- **The threat revision log shows threat-driven lines only (BL-06b).** The workspace keeps one revision log for every kind of
+  change, and Threat context showed all of it as threat revisions. A line such as the D2 review of the default reductions
+  (17 November in a tester's workspace) appeared with "— → —", no classification and no cause. Threat context and the
+  Threat_Context sheet of the Excel export now list the snapshot-driven lines in the revision log and the other lines (IAM and
+  configuration-management findings, accepted reduction proposals, reviews, import corrections) apart, under *Other
+  revisions in this workspace*, with their own values and notes. Nothing is dropped. Regression test: t83.
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
   try no longer misses near midnight.
 - **The anonymizer no longer treats record ids** such as C01 (in the *members* fields) as person names.
