@@ -38,6 +38,7 @@ Effort: S < 1 h · M ½–1 day · L several days · XL a build of its own.
 | BL-05 | Release 1.9.3: date the CHANGELOG, rebuild the Community and commercial packages with SHA-256, tag, then follow `PUBLISHING.md` §4 | Release process | Open | M | Release published; `tools/version_check.py` passes |
 | BL-06 | Review the four Dependabot updates (`actions/checkout` 7.0.1, `setup-node` 7.1.0, `setup-python` 7.1.0, Playwright 1.65.0) | Repository | Open | S | Merged or closed with a reason; CI passes |
 | BL-06a | Wrong menu path in 4 helper messages (`crgo_client.py`): "Settings → Ontology" should read "Organization → Ontology · CRGO → Connection" (EN and FR catalogue) | This session (19 Nov, reported by the author) | Open | S | No message names a menu path that does not exist; `label_check.py` menu-path check extended to helper messages |
+| BL-06b | Threat revision log records an empty `red_p / red_i` row (S1–S12, 2026-11-17, `— → —`, no classification, no cause). The log is for threat-driven `Pb(A)` / `Pb(ψ,A)` changes only; reduction edits and empty rows should not be written there | This session (19 Nov, seen in the author's workspace) | Open: reproduce | M | Only Pb(A)/Pb(ψ,A) changes with snapshot date, before/after ratio and cause are logged; a regression test covers a reduction edit |
 
 ## 2. Author actions (P1, Blocked on the author)
 
