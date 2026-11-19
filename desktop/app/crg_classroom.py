@@ -93,13 +93,15 @@ def instructor_key(create: bool = True) -> dict | None:
         secret, pub = SIG.generate_keypair()
         _write_private(sec_p, secret.hex().encode("ascii"))
         _write_private(pub_p, pub.encode("utf-8"))
-    pub = open(pub_p, encoding="utf-8").read()
+    with open(pub_p, encoding="utf-8") as fh:
+        pub = fh.read()
     created = _dt.datetime.fromtimestamp(os.path.getmtime(pub_p), _dt.timezone.utc).date().isoformat()
     return {"public_key": pub, "fingerprint": fingerprint(pub), "created": created}
 
 
 def _secret() -> bytes:
-    return bytes.fromhex(open(os.path.join(home(), "instructor.key"), encoding="ascii").read().strip())
+    with open(os.path.join(home(), "instructor.key"), encoding="ascii") as fh:
+        return bytes.fromhex(fh.read().strip())
 
 
 # ---------------------------------------------------------------- packs
@@ -149,7 +151,8 @@ def _pins_path() -> str:
 
 def pins() -> dict:
     try:
-        return json.load(open(_pins_path(), encoding="utf-8"))
+        with open(_pins_path(), encoding="utf-8") as fh:
+            return json.load(fh)
     except (OSError, ValueError):
         return {}
 

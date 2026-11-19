@@ -335,7 +335,10 @@ def classroom_op(op, body):
             d = _confidential(os.path.join(org_root(), "_installation", "classroom"))
             f = os.path.join(d, op.split("_")[0] + ".json")
             if op.endswith("_get"):
-                return 200, {"data": json.load(open(f, encoding="utf-8")) if os.path.exists(f) else None, "path": f}
+                if not os.path.exists(f):
+                    return 200, {"data": None, "path": f}
+                with open(f, encoding="utf-8") as fh:
+                    return 200, {"data": json.load(fh), "path": f}
             os.makedirs(d, mode=0o700, exist_ok=True)
             fd = os.open(f + ".tmp", os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with os.fdopen(fd, "w", encoding="utf-8") as fh:

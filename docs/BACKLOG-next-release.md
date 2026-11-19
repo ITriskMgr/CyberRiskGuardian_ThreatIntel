@@ -42,7 +42,7 @@ Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with it
 | BL-27 book alignment | **Mostly done**: items 1 (errata applied), 4, 6, 7 (French terms and spacing, FR-4 gate), 8, 9, 10, 11 done. Open: item 12 (MCQ self-check, part of the Classroom spec), item 13 (standards baseline — **done**: SSDF catalogue, register entries, template mappings, Writer 0.1.2). Word-for-word re-ingest of the published v2.51b **done** (`scripts/update_book_en.py`) |
 | BL-07 launcher check · BL-08 signing key · BL-10 French read-through · BL-13 larger local models · BL-15 CIS | **Ready for you**: `docs/AUTHOR-KITS.md` (one-command signing, French review CSV) |
 | BL-28 French reference set · BL-27 exact re-ingest | **Done** from the author's plain-text exports: `references/fr/` (29 files, v2.51b FR) and the English set at v2.51b |
-| BL-25 Classroom · BL-26 Exercises and simulations | **Needs a specification session** (no requirements file exists) |
+| BL-25 Classroom · BL-26 Exercises and simulations | **Built** to `docs/spec-classroom-exercises.md` (agreed 19 November 2026), milestones 1–6; quiz in English and French |
 | BL-05 release · BL-11 Education screenshots · BL-29 Educator Edition | **You**; §6 Education and Pro items: their GitHub repositories are empty, so the source is not reachable |
 | BL-24 licence activation | Excluded (waits for Paddle) |
 | §6 CRGO NV-C01…C08 | **Done in CRGO 0.11.1** (verified) |
