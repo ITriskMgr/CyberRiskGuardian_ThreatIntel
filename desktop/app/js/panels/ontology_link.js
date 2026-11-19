@@ -58,7 +58,11 @@ export async function link(body, redraw) {
     field(tr('Confidential folder for organisation graphs (on this computer, outside any repository)'), dir),
     el('div', 'btnrow', el('button', { class: 'btn ghost', disabled: !HS.helper, onclick: async () => {
       HS.config.links = { ...(HS.config.links || {}), org_graph_dir: dir.value.trim() };
-      try { await saveConfig(); toast(tr('Saved')); } catch (err) { toast(String(err.message || err), 'bad'); }
+      try {
+        await saveConfig(); toast(tr('Saved'));
+        const m = HS.installationStore;                   // 1.9.3: proposals move with the folder (or the reason they did not)
+        if (m?.notice) gout.replaceChildren(banner(m.moved ? 'good' : 'warn', m.moved ? 'Ontology proposals moved' : 'Ontology proposals not moved', m.notice));
+      } catch (err) { toast(String(err.message || err), 'bad'); }
     } }, 'Save the folder'), el('button', { class: 'btn', onclick: async e => {
       e.target.disabled = true; gout.replaceChildren(el('p', 'note', 'Building the organisation graph… (the first call builds CRGO\'s store, about 10 to 20 seconds)'));
       const r = await D.buildGraph(ws);

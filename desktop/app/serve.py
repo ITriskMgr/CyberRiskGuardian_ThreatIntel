@@ -34,6 +34,7 @@ import json
 import os
 import re
 import secrets
+import shutil
 import socket
 import socketserver
 import ssl
@@ -1205,6 +1206,29 @@ def crgo_store(create=False):
     return d if os.path.isdir(d) else None
 
 
+def carry_installation_store(old_root, new_root):
+    """1.9.3 (known issue fixed) — when the organisation-graph folder changes, the installation store
+    (<org root>/_installation: ontology proposals and approved additions) follows it, so the proposals made earlier are not
+    left behind. Moved only when the old store exists and the new root has none; never merged or overwritten. Returns
+    {"moved": bool, "from": ..., "to": ..., "notice": str} ('' notice when there was nothing to do)."""
+    old_root, new_root = os.path.abspath(old_root), os.path.abspath(new_root)
+    src, dst = os.path.join(old_root, "_installation"), os.path.join(new_root, "_installation")
+    out = {"moved": False, "from": src, "to": dst, "notice": ""}
+    if os.path.realpath(old_root) == os.path.realpath(new_root) or not os.path.isdir(src) or os.path.islink(src):
+        return out
+    if os.path.lexists(dst):
+        out["notice"] = (f"The new organisation-graph folder already holds an installation store ({dst}); the one in the previous "
+                         f"folder ({src}) was left where it is. Its ontology proposals are not shown until you merge the two "
+                         f"folders yourself or set the folder back.")
+        return out
+    _confidential(os.path.join(dst, "crgo-local"))          # the same rules as the store itself (no repository, no app folder)
+    os.makedirs(new_root, exist_ok=True)
+    shutil.move(src, dst)
+    out["moved"] = True
+    out["notice"] = f"The installation store (ontology proposals and approved additions) was moved from {src} to {dst}."
+    return out
+
+
 def _confidential(d):
     cfg = crg_feeds.load_config(FEEDS)
     home = crgo_client.home_of(crgo_client.resolve(cfg, ROOT)) or ""
@@ -1913,8 +1937,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     new_cfg["ai"] = dict(old_cfg.get("ai") or {}) if "ai" not in new_cfg else {}
                 new_cfg["ai"]["tested"] = (old_cfg.get("ai") or {}).get("tested") or {}
                 with _CONFIG_LOCK:
+                    root_before = org_root()
                     cfg = crg_feeds.save_config(new_cfg, FEEDS)
-                return self._json(200, {"config": cfg, "sources": crg_feeds.sources(cfg)})
+                    try:                                # 1.9.3: the installation store follows the organisation-graph folder
+                        carried = carry_installation_store(root_before, org_root())
+                    except (OSError, ValueError) as exc:
+                        carried = {"moved": False, "notice": f"The installation store could not be moved to the new folder: {exc}. "
+                                                             f"Move the _installation folder yourself or set the folder back."}
+                out = {"config": cfg, "sources": crg_feeds.sources(cfg)}
+                if carried.get("notice"):
+                    out["installationStore"] = carried
+                return self._json(200, out)
             except Exception as exc:                    # noqa: BLE001
                 return self._json(400, {"error": str(exc)})
         if path == "/api/ai":

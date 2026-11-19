@@ -61,10 +61,12 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   the last batch; nothing is written until accepted; the why drafts wait until accepted at Select. Switched off in Settings →
   AI, the ontology grouping stays.
 
-### Known issues
-
-- Changing the *organisation graph folder* setting leaves the proposals made earlier (and the approved additions) in the previous
-  folder: move the `_installation` folder with it, or set the folder back.
+### Fixed before release
+- **Ontology proposals follow the organisation-graph folder.** Changing the *organisation graph folder* setting used to leave the
+  proposals made earlier (and the approved additions) in the previous folder. The helper now moves the `_installation` store
+  to the new folder when the setting is saved, under the same rules as the store (never into a repository, the application
+  or the ontology folder). It never merges or overwrites: when the new folder already holds a store, both stay where they
+  are and the screen says so. Regression tests: `test_helper_guard.py` (`InstallationStoreFollowsFolder`).
 
 ### Other changes
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first

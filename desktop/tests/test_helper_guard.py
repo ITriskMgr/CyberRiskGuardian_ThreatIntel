@@ -566,5 +566,44 @@ class KeyStore(unittest.TestCase):
         crg_feeds.set_key("anthropic", "", None)
 
 
+class InstallationStoreFollowsFolder(unittest.TestCase):   # 1.9.3 known issue: proposals left in the previous folder
+    def _roots(self):
+        base = tempfile.mkdtemp(prefix="org-", dir=_TMP)
+        return os.path.join(base, "old"), os.path.join(base, "new")
+
+    def test_store_moves_with_the_folder(self):
+        old, new = self._roots()
+        os.makedirs(os.path.join(old, "_installation", "crgo-local"))
+        with open(os.path.join(old, "_installation", "crgo-local", "p1.json"), "w") as fh:
+            fh.write("{}")
+        r = serve.carry_installation_store(old, new)
+        self.assertTrue(r["moved"])
+        self.assertTrue(os.path.isfile(os.path.join(new, "_installation", "crgo-local", "p1.json")))
+        self.assertFalse(os.path.exists(os.path.join(old, "_installation")))
+
+    def test_existing_store_is_never_overwritten(self):
+        old, new = self._roots()
+        os.makedirs(os.path.join(old, "_installation", "crgo-local"))
+        os.makedirs(os.path.join(new, "_installation", "crgo-local"))
+        r = serve.carry_installation_store(old, new)
+        self.assertFalse(r["moved"])
+        self.assertIn("left where it is", r["notice"])
+        self.assertTrue(os.path.isdir(os.path.join(old, "_installation")))
+
+    def test_nothing_to_move(self):
+        old, new = self._roots()
+        self.assertEqual(serve.carry_installation_store(old, new)["notice"], "")
+        os.makedirs(os.path.join(old, "_installation"))
+        self.assertFalse(serve.carry_installation_store(old, old)["moved"])
+
+    def test_never_into_a_repository(self):
+        old, new = self._roots()
+        os.makedirs(os.path.join(old, "_installation"))
+        os.makedirs(os.path.join(new, ".git"))
+        with self.assertRaises(ValueError):
+            serve.carry_installation_store(old, new)
+        self.assertTrue(os.path.isdir(os.path.join(old, "_installation")))
+
+
 if __name__ == "__main__":
     unittest.main()

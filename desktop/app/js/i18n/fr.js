@@ -5661,6 +5661,8 @@ export default {
 "Organisation context and control evidence": "Contexte de l'organisation et éléments probants des contrôles",
 "Organisation graph": "Graphe de l'organisation",
 "Organisation graph built": "Graphe de l'organisation construit",
+"Ontology proposals moved": "Propositions à l'ontologie déplacées",
+"Ontology proposals not moved": "Propositions à l'ontologie non déplacées",
 "Organisation identifiers may never be under https://w3id.org/crgo/ (the ontology's own namespace).": "Les identifiants de l'organisation ne peuvent jamais se trouver sous https://w3id.org/crgo/ (l'espace de noms propre à l'ontologie).",
 "Organisation identifiers may not be under https://w3id.org/crgo/.": "Les identifiants de l'organisation ne peuvent pas se trouver sous https://w3id.org/crgo/.",
 "Organisation link": "Lien avec l'organisation",
