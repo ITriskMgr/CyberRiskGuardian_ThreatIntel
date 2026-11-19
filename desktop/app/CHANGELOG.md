@@ -88,6 +88,11 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   check now runs in a stand-in home folder, and new tests confirm that a Google Drive or iCloud folder under
   `~/Library/CloudStorage` or `~/Library/Mobile Documents`, also reached through a symbolic link, is accepted as a shared
   folder, while `~/Library/Preferences` and hidden folders are refused. The guard itself is unchanged.
+- **French follows the French book (BL-27, book v2.51 FR).** « appétence pour le risque » replaces the last « appétit »
+  (24 strings of the Excel export, the guide's budget section), with a new gate FR-4 in `tools/fr_terms_check.py`; the
+  French guides show the reference totals with French spacing (84 305 / 41 023, CanaRetail 27 526 / 16 049; the
+  installation and first-time-setup PDFs rebuilt); ten obsolete French entries that still said "about 20 candidates" are
+  removed (the interface already says at least 20, typically 25 to 40).
 - **Release signing in one command (BL-08).** `tools/package_desktop.py --sign <secret key>` signs the release ZIP with
   minisign and verifies the `.minisig` with the application's own verifier against the public key pinned in `serve.py`;
   it exits 1 if the key is not pinned or the signature does not verify. Tested end to end with a throwaway key pair.

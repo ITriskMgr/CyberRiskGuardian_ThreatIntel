@@ -379,17 +379,17 @@ Le bas du menu de gauche doit afficher `© Marc-André Léger · v1.9.3 Beta · 
 toutes les langues) :
 
 ```
-moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049
+moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049
 ```
 
 À chaque démarrage, l’application recalcule le cas pédagogique MediBec fourni — 30 scénarios — et
 compare les totaux à ceux de l’implémentation de référence, puis le MediBec en français (mêmes totaux) et
-le cas CanaRetail en anglais et en français (27,526 / 16,049). S’ils concordent, le moteur de votre
+le cas CanaRetail en anglais et en français (27 526 / 16 049). S’ils concordent, le moteur de votre
 navigateur est d’accord avec la référence.
 
 | Aide → À propos et versions indique (le pied de page affiche) | Ce que cela signifie | Quoi faire |
 |---|---|---|
-| `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` (✓ Moteur vérifié) | Tout est correct. | Continuez. |
+| `moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049` (✓ Moteur vérifié) | Tout est correct. | Continuez. |
 | `chargement du moteur…`, et cela persiste | Ouvert comme fichier au lieu d’être servi. | Section 3. |
 | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` n’a pas été chargé. | Décompressez de nouveau et gardez le dossier intact. |
 | `moteur DIVERGENT` et une bannière rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
@@ -564,7 +564,7 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
 5. **Aide → À propos et versions** doit afficher `1.9.3 beta` et
-   `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, et le pied de page ✓ Moteur vérifié (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
+   `moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049`, et le pied de page ✓ Moteur vérifié (la 1.7.x affichait 84 491 / 41 104 : la référence MediBec a changé
    parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.
