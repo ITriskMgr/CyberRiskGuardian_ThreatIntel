@@ -15,8 +15,8 @@ Lineage: derived from CyberRiskGuardian v1.1.0 (the Core edition, retired on 19 
   with the plain-text export and applies only what changed, keeping tables, headings and emphasis: chapters 2, 4, 6 and 17
   and the appendix *Using CyberRiskGuardian with this book* (risk transfer as a costed line and a management decision;
   the product rule in every track; Excel model v2-6; desktop-only features marked). Chapter 6 question 14 now carries
-  the published wording. One source line was not applied: chapter 2 has a stray ISO link with a `utm_source=chatgpt.com`
-  tag pasted inside a sentence — an erratum for the book.
+  the published wording. A stray ISO link pasted inside a chapter 2 sentence was not
+  applied; the author has corrected it in the book's source.
 
 ## 1.9.4 — with Desktop 1.9.4 Beta — 19 November 2026
 
