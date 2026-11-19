@@ -29,11 +29,11 @@ import gzip
 import hashlib
 import hmac
 import http.server
-import io
 import json
 import os
 import re
 import secrets
+import shutil
 import socket
 import socketserver
 import ssl
@@ -58,7 +58,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
 
-VERSION = "1.9.3"
+VERSION = "1.9.4"
 # 1.9.0 — a random token made at each start. The page reads it from /api/session (same origin only) and sends it
 # with every /api/* call, next to X-CRG; the helper also checks Host and Origin. See Handler._guard.
 TOKEN = secrets.token_urlsafe(32)
@@ -297,7 +297,7 @@ def ai_providers(cfg):
 def ai_provider(pid, cfg):
     p = ai_providers(cfg).get(pid)
     if not p:
-        raise RuntimeError(f"Unknown AI provider '{pid}'. Choose one in Settings → AI.")
+        raise RuntimeError(f"Unknown AI provider '{pid}'. Choose one in Settings → AI — local & remote.")
     return p
 
 MAX_AI_BYTES = 400_000          # a workspace excerpt, not a database dump (system + prompt, measured in bytes — 1.9.2, NV-055)
@@ -898,7 +898,7 @@ def run_nvd(job, params, ev):
                         raise RuntimeError(f"NVD request failed after retries: {exc}") from exc
                     _update(job, message=f"NVD busy or rate-limited, retrying in {10 * (attempt + 1)} s…")
                     if ev.wait(10 * (attempt + 1)):
-                        raise InterruptedError
+                        raise InterruptedError from None
             total = data.get("totalResults", 0)
             for it in data.get("vulnerabilities", []):
                 r = _nvd_compact(it)
@@ -978,7 +978,8 @@ def update_check():
     out = {"current": VERSION, "checked": _now(), "source": UPDATE_URL if os.environ.get("CRG_UPDATE_URL") else f"github.com/{UPDATE_REPO}/releases"}
     req = urllib.request.Request(UPDATE_URL, headers={"User-Agent": UPDATE_UA, "Accept": "application/vnd.github+json"})
     try:
-        with urllib.request.urlopen(req, timeout=15, context=_ctx() if UPDATE_URL.startswith("https") else None) as r:
+        # bandit: fixed GitHub releases URL (loopback only in tests)
+        with urllib.request.urlopen(req, timeout=15, context=_ctx() if UPDATE_URL.startswith("https") else None) as r:  # nosec B310
             data = json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         remaining = exc.headers.get("X-RateLimit-Remaining") if exc.headers else None
@@ -1034,7 +1035,8 @@ def _update_url_ok(url):
 
 def _update_get(url, timeout):
     req = urllib.request.Request(url, headers={"User-Agent": UPDATE_UA, "Accept": "application/octet-stream"})
-    with urllib.request.urlopen(req, timeout=timeout, context=_ctx() if url.startswith("https") else None) as r:
+    # bandit: the caller checks the allowed download hosts
+    with urllib.request.urlopen(req, timeout=timeout, context=_ctx() if url.startswith("https") else None) as r:  # nosec B310
         final = r.geturl()
         if not _update_url_ok(final):           # urllib follows redirects: the address it ended on is checked too
             raise RuntimeError("The download was redirected away from GitHub; nothing was kept.")
@@ -1203,6 +1205,29 @@ def crgo_store(create=False):
     if create:
         os.makedirs(d, exist_ok=True)
     return d if os.path.isdir(d) else None
+
+
+def carry_installation_store(old_root, new_root):
+    """1.9.3 (known issue fixed) — when the organisation-graph folder changes, the installation store
+    (<org root>/_installation: ontology proposals and approved additions) follows it, so the proposals made earlier are not
+    left behind. Moved only when the old store exists and the new root has none; never merged or overwritten. Returns
+    {"moved": bool, "from": ..., "to": ..., "notice": str} ('' notice when there was nothing to do)."""
+    old_root, new_root = os.path.abspath(old_root), os.path.abspath(new_root)
+    src, dst = os.path.join(old_root, "_installation"), os.path.join(new_root, "_installation")
+    out = {"moved": False, "from": src, "to": dst, "notice": ""}
+    if os.path.realpath(old_root) == os.path.realpath(new_root) or not os.path.isdir(src) or os.path.islink(src):
+        return out
+    if os.path.lexists(dst):
+        out["notice"] = (f"The new organisation-graph folder already holds an installation store ({dst}); the one in the previous "
+                         f"folder ({src}) was left where it is. Its ontology proposals are not shown until you merge the two "
+                         f"folders yourself or set the folder back.")
+        return out
+    _confidential(os.path.join(dst, "crgo-local"))          # the same rules as the store itself (no repository, no app folder)
+    os.makedirs(new_root, exist_ok=True)
+    shutil.move(src, dst)
+    out["moved"] = True
+    out["notice"] = f"The installation store (ontology proposals and approved additions) was moved from {src} to {dst}."
+    return out
 
 
 def _confidential(d):
@@ -1913,8 +1938,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     new_cfg["ai"] = dict(old_cfg.get("ai") or {}) if "ai" not in new_cfg else {}
                 new_cfg["ai"]["tested"] = (old_cfg.get("ai") or {}).get("tested") or {}
                 with _CONFIG_LOCK:
+                    root_before = org_root()
                     cfg = crg_feeds.save_config(new_cfg, FEEDS)
-                return self._json(200, {"config": cfg, "sources": crg_feeds.sources(cfg)})
+                    try:                                # 1.9.3: the installation store follows the organisation-graph folder
+                        carried = carry_installation_store(root_before, org_root())
+                    except (OSError, ValueError) as exc:
+                        carried = {"moved": False, "notice": f"The installation store could not be moved to the new folder: {exc}. "
+                                                             f"Move the _installation folder yourself or set the folder back."}
+                out = {"config": cfg, "sources": crg_feeds.sources(cfg)}
+                if carried.get("notice"):
+                    out["installationStore"] = carried
+                return self._json(200, out)
             except Exception as exc:                    # noqa: BLE001
                 return self._json(400, {"error": str(exc)})
         if path == "/api/ai":
@@ -2068,7 +2102,7 @@ def main():
         left = crg_feeds.unmigrated_keys()
         if left:
             print(f"{len(left)} API key(s) could not be moved and wait in {crg_feeds.key_storage()['unmigrated']['path']}: "
-                  f"{', '.join(left)}. Enter them again in Settings → AI.", flush=True)
+                  f"{', '.join(left)}. Enter them again in Settings → AI — local & remote.", flush=True)
     except Exception as exc:                            # noqa: BLE001
         sys.stderr.write(f"helper: the API keys could not be moved out of the feeds folder: {exc}\n")
     global HTTPD

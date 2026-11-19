@@ -113,6 +113,10 @@ def main():
                 continue
             pv = json.loads(pj.read_text(encoding="utf-8")).get("version")
             found.append((f"plugin {entry.get('name')}", pv))
+            # 1.9.4 (author decision): the plugin carries the desktop application's version number
+            if pv != want:
+                bad.append(f"  plugin {entry.get('name')}  {pj.relative_to(repo).as_posix()} says {pv!r}, js/version.js says {want!r} "
+                           "(the plugin and the desktop application share one version number)")
             if entry.get("version") != pv:
                 bad.append(f"  plugin {entry.get('name')}  .claude-plugin/marketplace.json says {entry.get('version')!r}, "
                            f"{pj.relative_to(repo).as_posix()} says {pv!r}")

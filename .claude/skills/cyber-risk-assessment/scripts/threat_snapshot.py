@@ -156,7 +156,8 @@ def _ssl_context() -> "ssl.SSLContext | None":
 def _fetch(url: str, timeout: int = 60) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
-        with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as r:
+        # bandit: fixed https catalogue URLs only
+        with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as r:  # nosec B310
             return r.read()
     except urllib.error.URLError as exc:
         if isinstance(getattr(exc, "reason", None), ssl.SSLError) or "CERTIFICATE_VERIFY_FAILED" in str(exc):
@@ -237,7 +238,9 @@ def build(regions: list[str], epss_date: str | None, expiry_days: int,
         "constraints": {
             "cvss": "Base score only. Exploitation evidence is routed to Pb(psi,A), never to CVSS "
                     "Threat metrics, to avoid double counting in a product (C2).",
-            "exposure_gate": "No parameter uplift without organizational evidence of exposure (C4).",
+            "exposure_gate": ("No parameter uplift without organizational evidence of exposure (C4). KEV and EPSS place "
+                              "Pb(psi,A) only, within a ladder band; Pb(A) stays the analyst's estimate, informed by the "
+                              "regional and sector sources listed here."),
             "never_adjust": ["delta_e", "delta_m", "theta", "mu_E"],
             "calculation_path": "Offline and deterministic. This snapshot is the only intelligence input (C1).",
         },
@@ -339,8 +342,9 @@ def summarize(snap: dict[str, Any], exposure: list[str] | None) -> None:
             r = classify(cve, snap, exposed=True)
             band = f"{r['band'][0]:.2f}-{r['band'][1]:.2f}"
             print(f"  {cve:<18} rung {r['rung']} {r['label']:<42} band {band}  [{r['evidence']}]")
-    print("\nReminder: this snapshot proposes bands for Pb(A) and Pb(psi,A) only. "
-          "It must never adjust delta_e, delta_m, theta or mu(E).")
+    print("\nReminder: KEV and EPSS place Pb(psi,A) in a ladder band, behind the exposure gate; Pb(A) stays the "
+          "analyst's estimate, informed by the regional and sector sources listed. "
+          "The snapshot never adjusts delta_e, delta_m, theta or mu(E).")
 
 
 def main() -> int:

@@ -18,7 +18,7 @@ Cybersecurity Risk Analyst and covers the whole assessment:
 
 People stay accountable for validation and risk decisions.
 
-Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.7.3**
+Methodology and textbook © Marc-André Léger, licensed under **CC BY-NC 4.0**. Plugin version **1.9.4**
 (November 2026), aligned with the textbook *Introduction to Cybersecurity Governance for Business Technology
 Management*, 3rd ed., **v2.51**; desktop application **1.9.2 Beta** — see below. Product site:
 [cyberriskguardian.ca](https://cyberriskguardian.ca) · licence enquiries: sales@cyberriskguardian.ca.
@@ -26,50 +26,29 @@ Management*, 3rd ed., **v2.51**; desktop application **1.9.2 Beta** — see belo
 ## Relationship to the base edition
 
 This repository derives from **CyberRiskGuardian v1.1.0**
-([`ITriskMgr/CyberRiskGuardian`](https://github.com/ITriskMgr/CyberRiskGuardian)). That repository continues as the
-stable, free **Core** edition — now **Core plugin 2.2.1** with the textbook plugin 2.1.1 (November 2026, aligned with
-textbook v2.51b).
+([`ITriskMgr/CyberRiskGuardian`](https://github.com/ITriskMgr/CyberRiskGuardian)). That repository was the
+stable, free **Core** edition; its last release is **Core plugin 2.2.1** with the textbook plugin 2.1.1 (November 2026,
+aligned with textbook v2.51b). **The Core edition was retired on 19 November 2026**: it is no longer maintained, and this
+edition (Threat Live-feed) is the only one. The lineage stays recorded here for history and attribution (CC BY-NC 4.0).
 
 | | Base edition | This edition |
 |---|---|---|
 | Repository | `CyberRiskGuardian` | `CyberRiskGuardian_ThreatIntel` |
 | Plugin id | `cyberriskguardian` | `cyberriskguardian-threatintel` |
-| Version | Core 2.2.1 | 1.7.3 |
+| Version | Core 2.2.1 (retired) | 1.9.4 |
 | Formulas | identical | identical (package reductions combined with the product rule 1 − ∏(1 − rᵢ)) |
 | MediBec baseline | 84,305 / 41,023 with S2/S8 scored AV:L | **84,305 / 41,023** |
 | Threat calibration | — | snapshot lifecycle, Threat Evidence Ladder, revision log |
 | Ontology (CRGO) | — | optional: dss/v1 risk context and proposed write-backs (1.3.0); compliance/v1 and secops/v1 reads (1.4.0) |
 
-**Install both if you like — but keep only one enabled at a time.**
+**If the Core plugin is still installed, disable or uninstall it** (`claude plugin disable cyberriskguardian`, or the
+**Installed** tab of `/plugin`). Both plugins enabled in one session means two `SessionStart` hooks with contradictory
+guardrails, two MCP servers named `crg-calculator` and two `cyber-risk-assessment` skills, so which method answers a
+request becomes arbitrary.
 
-Plugin components are namespaced by plugin name, so nothing collides on disk or in the command
-list: you get `/cyberriskguardian:risk-assessment` and
-`/cyberriskguardian-threatintel:risk-assessment` side by side. The problem is only with both
-**enabled** in the same session:
-
-| What | Why it matters |
-|---|---|
-| Two `SessionStart` hooks fire | Their guardrails disagree. This edition enforces CVSS Base-only and the exposure gate; the base edition knows neither |
-| Two MCP servers named `crg-calculator` | Same name, both running |
-| Two `cyber-risk-assessment` skills with near-identical descriptions | Ask for "a risk assessment" without naming the plugin and the choice is arbitrary — fatal for a method whose value is comparability between assessments |
-| Duplicate subagent and output-style names | Ambiguous selection |
-| Double context cost | An enabled plugin is in *every* session, even those that never use it |
-
-### Choose which edition is active
-
-- **Local scope** (cleanest): install each plugin with local scope, so each is enabled only in
-  the repository where you want it. `/plugin` asks for the scope during installation.
-- **Project scope**: record the choice in a repository's committed `.claude/settings.json`, so it
-  applies to everyone working there.
-- **Switch on demand**: `claude plugin disable` in a shell, or the **Installed** tab of `/plugin`,
-  turns a plugin off without uninstalling it.
-- **Project mode, no plugins at all**: open either repository directly with `claude`. Each carries
-  its own `CLAUDE.md` and `.claude/`, which gives complete isolation.
-
-Nothing in this repository changes a formula, so an assessment produced by the base edition
-re-runs here with identical totals (as long as both editions carry the same MediBec vectors). The `threat_context` block is optional and absent by default.
-That makes this edition a **drop-in replacement** rather than a companion: there is no reason to
-run both at once.
+Nothing in this repository changes a formula, so an assessment produced by the Core edition
+re-runs here with identical totals (as long as both carry the same MediBec vectors). The `threat_context` block is optional
+and absent by default: this edition is a **drop-in replacement** for Core.
 
 ## Desktop application — try it without installing anything else
 
@@ -295,10 +274,13 @@ Rung 5 means an **incident**, not a prospective risk: invoke incident response f
    `test_crg_calc.py` must pass.
 4. Confirm `threat_snapshot.py --offline` works with networking disabled, and that no network
    import exists in `crg_calc.py`, `build_workbook.py`, `budget_calibrator.py` or the `crg_risk`
-   MCP path.
+   MCP path (the Semgrep rule `crg-no-network-in-calculation-path` checks this).
 5. With a CRGO 0.11.2 checkout, run `test_crgo_contract.py --crgo <path>`; all checks must pass.
 6. Regenerate the shipped snapshot if it is over 90 days old.
 7. Bump the version (semver) in `plugin.json` and `marketplace.json`.
+8. Run the full [test procedure](docs/TEST-PROCEDURE.md): engine, ontology bridge, desktop gates, behaviour suites,
+   security and code quality (`pre-commit run --all-files`: ruff, bandit, the Semgrep method rules, the label check),
+   performance and smoke.
 
 ## Deliberately excluded
 - Live feeds inside the calculation path.

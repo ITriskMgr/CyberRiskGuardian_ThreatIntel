@@ -160,6 +160,40 @@ def menu_paths():
     return out, bad
 
 
+CODE_GLOBS = ('*.py', 'crg_writer/*.py', 'js/*.js', 'js/panels/*.js')
+
+
+def code_menu_paths():
+    """1.9.3 (BL-06a): menu paths quoted in the helper's and the page's own messages ("Settings → Ontology" named a
+    screen that does not exist). The first hop after a section name must be a screen of that section."""
+    import glob
+    tree = menu_tree()
+    secs = sorted(tree, key=len, reverse=True)
+    pat = re.compile(r'(?<![\w-])(' + '|'.join(re.escape(x) for x in secs) + r') → ([^"\'`\n]+)')
+    out, bad = 0, []
+    for g in CODE_GLOBS:
+        for f in sorted(glob.glob(os.path.join(ROOT, g))):
+            if f.endswith(('menu.js', 'helpmenu.js')) or os.sep + 'i18n' + os.sep in f:
+                continue
+            src = open(f, encoding='utf-8').read()
+            if f.endswith('.js'):                     # block comments are notes for developers, not messages
+                src = re.sub(r'/\*.*?\*/', lambda m: '\n' * m.group(0).count('\n'), src, flags=re.S)
+            for ln, line in enumerate(src.splitlines(), 1):
+                if any(x in line for x in NOT_PATHS):
+                    continue
+                cut = COMMENT.search(line)            # a code comment is not a message the user reads
+                for m in pat.finditer(line):
+                    if cut and m.start() >= cut.start():
+                        continue
+                    out += 1
+                    if not starts(m.group(2), tree[m.group(1)]):
+                        bad.append((f'{os.path.relpath(f, ROOT)}:{ln}', f'{m.group(1)} → {m.group(2).strip()[:50]}'))
+    return out, bad
+
+
+COMMENT = re.compile(r'^\s*(#|//|/?\*)|\s(#|//)\s')
+
+
 def main():
     has = matcher(interface_strings())
     labels = guideline_labels() + guide_labels()
@@ -176,7 +210,9 @@ def main():
     for w, l in missing:
         print(f'  {w}: “{l}”')
     n, bad = menu_paths()
-    print(f'{n} menu paths checked in the first-time guides and the user guide · {len(bad)} not in the menu')
+    n2, bad2 = code_menu_paths()
+    bad += bad2
+    print(f'{n} menu paths checked in the first-time guides and the user guide, {n2} in the application\'s messages · {len(bad)} not in the menu')
     for w, l in bad:
         print(f'  {w}: {l}')
     sys.exit(1 if missing or bad else 0)

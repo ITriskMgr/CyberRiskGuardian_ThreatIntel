@@ -174,3 +174,13 @@ export function revisionLog(prev, next) {
   }
   return rows;
 }
+
+/** 1.9.3 (BL-06b) — the workspace keeps one revision log (ws.revisionLog) for every kind of change: threat-driven Pb(ψ,A)
+ *  calibrations from a snapshot, IAM/CM findings, accepted AI reduction proposals, the D2 review of the default reductions,
+ *  numeric retyping at import. Only the first kind is threat-driven: those lines carry the snapshot they came from.
+ *  Returns { threat, other } in the stored order; nothing is dropped. */
+export function splitRevisionLog(log) {
+  const threat = [], other = [];
+  for (const r of Array.isArray(log) ? log : []) (r && r.snapshot ? threat : other).push(r);
+  return { threat, other };
+}

@@ -1,4 +1,4 @@
-# CyberRiskGuardian Desktop 1.9.3 Beta (1.9.x) — Installation
+# CyberRiskGuardian Desktop 1.9.4 Beta (1.9.x) — Installation
 
 **English below · [Français plus bas](#français)**
 
@@ -25,7 +25,7 @@ is never reachable from your network, even while it is running.
 
 ## 2. Unpack
 
-Unzip **`CyberRiskGuardian_Desktop_v1.9.3-beta.zip`** anywhere you can write — your Documents folder
+Unzip **`CyberRiskGuardian_Desktop_v1.9.4-beta.zip`** anywhere you can write — your Documents folder
 is fine. Keep the folder intact: the application loads its own files by relative path.
 
 ## 3. Start it
@@ -47,7 +47,7 @@ fetches them. **Control-C** stops it.
 By hand, if you prefer:
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.9.3-beta
+cd CyberRiskGuardian_Desktop_v1.9.4-beta
 python3 serve.py 8099
 ```
 
@@ -62,7 +62,7 @@ another port.
 
 ## 4. Check the engine before trusting a number
 
-The bottom of the left menu must show `© Marc-André Léger · v1.9.3 Beta · ✓ Engine verified`. Click it (or open
+The bottom of the left menu must show `© Marc-André Léger · v1.9.4 Beta · ✓ Engine verified`. Click it (or open
 **Help → About & versions**) to see the totals behind it:
 
 ```
@@ -235,7 +235,7 @@ same either way:
    reason a browser keeps showing the previous version.
 4. Start it with `start.command`, `start.bat` or `start.sh` **on the same port** as before — the default
    8099 — and your workspaces are there.
-5. **Help → About & versions** must read `1.9.3 beta` and `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, and the footer ✓ Engine verified
+5. **Help → About & versions** must read `1.9.4 beta` and `engine verified · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, and the footer ✓ Engine verified
    (1.7.x read 84,491 / 41,104: the MediBec reference changed because S2 and S8 now use AV:L, as the textbook does).
    If an installed desktop application still shows another version, reload it once (⌘R / Ctrl-R).
 6. If you had set a feeds folder (section 5.1), copy your `feeds-dir.txt` into the new folder. Your API keys
@@ -271,7 +271,7 @@ read-only and never saved over.
 **8.1 `start.command` opens in a text editor instead of running (macOS).**
 
 ```bash
-cd /path/to/CyberRiskGuardian_Desktop_v1.9.3-beta
+cd /path/to/CyberRiskGuardian_Desktop_v1.9.4-beta
 chmod +x start.command start.sh
 ```
 
@@ -334,7 +334,7 @@ fonctionne.
 
 ## 2. Décompresser
 
-Décompressez **`CyberRiskGuardian_Desktop_v1.9.3-beta.zip`** à un endroit où vous avez le droit
+Décompressez **`CyberRiskGuardian_Desktop_v1.9.4-beta.zip`** à un endroit où vous avez le droit
 d’écrire ; votre dossier Documents convient. Gardez le dossier intact : l’application charge ses
 propres fichiers par chemin relatif.
 
@@ -358,7 +358,7 @@ téléchargez des sources de menace, l’assistant qui va les chercher. **Contr�
 À la main, si vous préférez :
 
 ```bash
-cd CyberRiskGuardian_Desktop_v1.9.3-beta
+cd CyberRiskGuardian_Desktop_v1.9.4-beta
 python3 serve.py 8099
 ```
 
@@ -374,22 +374,22 @@ puis ouvrez `http://localhost:8099/`. Le port est un argument positionnel :
 
 ## 4. Vérifier le moteur avant de vous fier à un chiffre
 
-Le bas du menu de gauche doit afficher `© Marc-André Léger · v1.9.3 Beta · ✓ Moteur vérifié`. Cliquez dessus (ou ouvrez
+Le bas du menu de gauche doit afficher `© Marc-André Léger · v1.9.4 Beta · ✓ Moteur vérifié`. Cliquez dessus (ou ouvrez
 **Aide → À propos et versions**) pour voir les totaux qu’il résume (les nombres gardent le même format dans
 toutes les langues) :
 
 ```
-moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049
+moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049
 ```
 
 À chaque démarrage, l’application recalcule le cas pédagogique MediBec fourni — 30 scénarios — et
 compare les totaux à ceux de l’implémentation de référence, puis le MediBec en français (mêmes totaux) et
-le cas CanaRetail en anglais et en français (27,526 / 16,049). S’ils concordent, le moteur de votre
+le cas CanaRetail en anglais et en français (27 526 / 16 049). S’ils concordent, le moteur de votre
 navigateur est d’accord avec la référence.
 
 | Aide → À propos et versions indique (le pied de page affiche) | Ce que cela signifie | Quoi faire |
 |---|---|---|
-| `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` (✓ Moteur vérifié) | Tout est correct. | Continuez. |
+| `moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049` (✓ Moteur vérifié) | Tout est correct. | Continuez. |
 | `chargement du moteur…`, et cela persiste | Ouvert comme fichier au lieu d’être servi. | Section 3. |
 | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` n’a pas été chargé. | Décompressez de nouveau et gardez le dossier intact. |
 | `moteur DIVERGENT` et une bannière rouge | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
@@ -563,8 +563,8 @@ installé à votre place. Les étapes sont les mêmes dans les deux cas :
    d’afficher la version précédente.
 4. Démarrez-la avec `start.command`, `start.bat` ou `start.sh` **sur le même port** qu’avant — 8099 par
    défaut — et vos espaces de travail sont là.
-5. **Aide → À propos et versions** doit afficher `1.9.3 beta` et
-   `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`, et le pied de page ✓ Moteur vérifié (la 1.7.x affichait 84,491 / 41,104 : la référence MediBec a changé
+5. **Aide → À propos et versions** doit afficher `1.9.4 beta` et
+   `moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049`, et le pied de page ✓ Moteur vérifié (la 1.7.x affichait 84 491 / 41 104 : la référence MediBec a changé
    parce que S2 et S8 utilisent maintenant AV:L, comme le manuel). Si une application de bureau installée affiche une autre
    version, rechargez-la une fois (⌘R / Ctrl-R).
 6. Si vous aviez défini un dossier de flux (section 5.1), copiez votre fichier `feeds-dir.txt` dans le nouveau dossier.
@@ -605,7 +605,7 @@ récente s’ouvre en lecture seule et n’est jamais écrasé.
 **8.1 `start.command` s’ouvre dans un éditeur de texte au lieu de s’exécuter (macOS).**
 
 ```bash
-cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.3-beta
+cd /chemin/vers/CyberRiskGuardian_Desktop_v1.9.4-beta
 chmod +x start.command start.sh
 ```
 

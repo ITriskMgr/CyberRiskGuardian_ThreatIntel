@@ -1,6 +1,6 @@
 ---
 name: threat-context-calibration
-description: Build, refresh or apply a dated threat-context snapshot (CISA KEV, FIRST EPSS, regional advisories) to calibrate Pb(A) and Pb(psi,A) in a CyberRiskGuardian assessment, and produce the threat-driven revision log. Use when asked to refresh threat intelligence, check whether an assessment is stale, calibrate likelihood against current exploitation evidence, or explain why a scenario crossed tolerance.
+description: Build, refresh or apply a dated threat-context snapshot (CISA KEV, FIRST EPSS, regional advisories) to calibrate Pb(A) and Pb(psi,A) in a CyberRiskGuardian assessment, and produce the threat-driven revision log. Use when asked to refresh threat intelligence, check whether an assessment is stale, calibrate likelihood against current exploitation evidence, explain why a scenario crossed tolerance, or walk an SSVC decision tree (CISA deployer, CERT/CC deployer or supplier: Track, Attend, Act…) to set a CVE's response priority with the ssvc.py script or ssvc_decision tool.
 ---
 
 # Threat-context calibration
@@ -20,6 +20,9 @@ operative summary.
 3. **Bands, not decimals.** Place the scenario on a ladder rung; propose a value inside the band.
 4. **Exposure gate.** No uplift without organizational evidence that the affected technology,
    sector or vector applies. Otherwise record watch-list context and change nothing.
+   **CVE evidence (KEV, EPSS) places `Pb(ψ,A)` only.** `Pb(A)`, the likelihood that the threat
+   event is attempted at all, stays the analyst's estimate, informed by the analyst-reviewed
+   regional and sector sources the snapshot lists; a CVE listing never moves `Pb(A)`.
 5. **Bulk, then join locally.** Never send client CVE lists, scenario text or asset inventories
    to an external endpoint.
 6. **Never touch `δe`, `δm`, `θ`, `μ(E)`.** No feed knows them.
@@ -91,6 +94,9 @@ does.
   `none`. The analyst may choose another value with a written justification.
 - **Walk the tree with the tool, never by eye:** the `ssvc_decision` MCP tool or
   `python3 ../cyber-risk-assessment/scripts/ssvc.py --tree deployer exploitation=… automatable=… …`.
+  When the MCP tool is not available in the session, run the script — never give an outcome from
+  memory: the tables differ by tree and version, and the derived *Mission & Well-being* value is easy
+  to get wrong by hand.
 - **One decision record per CVE:** decision points and values, who, when, justification, outcome.
   Values set without organizational evidence are labelled **Analytical estimate — validation required**.
 - **Never a likelihood.** An SSVC outcome does not move `Pb(A)` or `Pb(ψ,A)` and is not a risk index.

@@ -17,7 +17,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.comments import Comment
 from openpyxl.utils import get_column_letter as L
 from openpyxl.formatting.rule import CellIsRule
-from crg_calc import BAND_LOW, BAND_HIGH, NOT_APPLICABLE, cvss4, run as _crg_run, CRGInputError
+from crg_calc import BAND_LOW, BAND_HIGH, NOT_APPLICABLE, run as _crg_run, CRGInputError
 
 _ap = argparse.ArgumentParser()
 _ap.add_argument("scenarios"); _ap.add_argument("output"); _ap.add_argument("--title", default="CyberRiskGuardian Risk Assessment Workbook")
@@ -176,7 +176,7 @@ ac = ["ID", "Scenario", "Pb(A)", "Pb(psi,A)", "CVSS-B", "de", "dm", "mu(E)", "th
       "Mitigated", "Residual", "Risk-to-tolerance ratio", "Classification", "Cost-effectiveness (risk units removed per $1,000)", "Validity (P,Q in 0-1; CVSS present)"]
 header(wa, 4, ac, [6, 52, 7, 8, 7, 6, 6, 7, 7, 8, 8, 11, 11, 10, 12, 9, 9, 11, 11, 10, 24, 12, 10])
 A0 = 5
-for idx, s in enumerate(SCEN):
+for idx, _s in enumerate(SCEN):
     r = A0 + idx; ir = IR0 + idx
     put(wa, r, 1, f"=Inputs!A{ir}", GRN); put(wa, r, 2, f"=Inputs!B{ir}", GRN, wrap=True)
     put(wa, r, 3, f"=Inputs!C{ir}", GRN, "0.00"); put(wa, r, 4, f"=Inputs!D{ir}", GRN, "0.00")
@@ -225,8 +225,8 @@ for sid in SENS_IDS:
         put(wsn, r, 3, f"={sign}*{DELTA}", fmt="0.00")
         # NV-045: the central row links to Inputs (never shifted, never clamped); a shifted value is clamped in the
         # direction of the shift only (an upward shift never falls below the input, a downward one never rises above it)
-        up = lambda cell: f"={cell}" if sign == 0 else (f"=MAX({cell},MIN(0.99,{cell}+C{r}))" if sign > 0 else f"=MIN({cell},MAX(0.05,{cell}+C{r}))")
-        down = lambda cell: f"={cell}" if sign == 0 else (f"=MIN({cell},MAX(0.05,{cell}-C{r}))" if sign > 0 else f"=MAX({cell},MIN(0.99,{cell}-C{r}))")
+        up = lambda cell: f"={cell}" if sign == 0 else (f"=MAX({cell},MIN(0.99,{cell}+C{r}))" if sign > 0 else f"=MIN({cell},MAX(0.05,{cell}+C{r}))")  # noqa: B023 (used within this iteration)
+        down = lambda cell: f"={cell}" if sign == 0 else (f"=MIN({cell},MAX(0.05,{cell}-C{r}))" if sign > 0 else f"=MAX({cell},MIN(0.99,{cell}-C{r}))")  # noqa: B023 (used within this iteration)
         sty = GRN if sign == 0 else BLK
         put(wsn, r, 4, up(f"Inputs!C{ir}"), sty, "0.00"); put(wsn, r, 5, up(f"Inputs!D{ir}"), sty, "0.00")
         put(wsn, r, 6, up(f"Inputs!E{ir}"), sty, "0.00")

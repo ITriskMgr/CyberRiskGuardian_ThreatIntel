@@ -1,4 +1,4 @@
-# CyberRiskGuardian Desktop 1.9.3 Beta — First-time setup
+# CyberRiskGuardian Desktop 1.9.4 Beta — First-time setup
 
 **English below · [Français plus bas](#français)**
 
@@ -448,7 +448,7 @@ des paiements comme fil conducteur, en français et en anglais.
    ouvre son écran en un clic et dit quand elle est terminée. Regardez, sans rien changer encore.
 3. Ouvrez le **Calculateur de risque** — menu de gauche → **Évaluation des risques** → **Calculateur de
    risque** (ou *Ouvrir le calculateur de risque* dans son groupe sur la page Processus) — et vérifiez les
-   totaux **27,526 / 16,049**.
+   totaux **27 526 / 16 049**.
 4. Changez ensuite un paramètre d’un scénario dans l’**Éditeur de scénarios** (menu de gauche →
    **Évaluation des risques**, ou depuis la page Processus) et voyez le calculateur, le registre et le
    sommaire de gestion suivre. C’est ainsi que se comporte la méthode.

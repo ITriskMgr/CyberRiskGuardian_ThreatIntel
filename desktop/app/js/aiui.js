@@ -106,7 +106,7 @@ export function request(task, opts = {}, { title = 'AI request', ws = S.ws } = {
         kpi('Web search', p.web_search ? 'on' : 'off', p.web_search ? 'for missing information' : (a.provider === AI.WEB_SEARCH_PROVIDER ? 'not needed' : 'available on the Claude API only'))),
       // 1.9.2 (NV-084): everything else the request carries — nothing is sent that this screen does not show
       el('div', 'grid g4', { style: { marginTop: '6px' } },
-        kpi('Model', p.model || tr('provider default'), tr('as set in Settings → AI')),
+        kpi('Model', p.model || tr('provider default'), tr('as set in Settings → AI — local & remote')),
         kpi('Max. output tokens', n0(p.max_tokens), tr('the answer is reported as cut off beyond this')),
         kpi('Temperature', p.temperature != null ? String(p.temperature) : tr('not sent'), p.temperature != null ? tr('local models only') : tr('provider default')),
         p.untrusted ? kpi('Untrusted text', tr('wrapped'), tr('<untrusted_document>: data, never instructions'), 'good') : kpi('Untrusted text', tr('none'), tr('no document, passage or feed text'))),

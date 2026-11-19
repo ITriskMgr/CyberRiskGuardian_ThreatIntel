@@ -1,0 +1,6 @@
+# Quality tools (BL-16 to BL-22): exact versions, as CI installs them. Not needed to use the plugin or the desktop app.
+# Semgrep is in requirements-semgrep.txt: it needs a newer certifi than requirements.txt pins, so install it apart
+# (for example: python3 -m venv ~/.venvs/semgrep && ~/.venvs/semgrep/bin/pip install -r requirements-semgrep.txt).
+ruff==0.16.9
+bandit==1.9.4
+pre-commit==4.7.0

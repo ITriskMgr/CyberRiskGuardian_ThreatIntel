@@ -114,7 +114,7 @@ exacte que vous utilisez, et non dans le dossier ; le même port les retrouve d
 sont pas non plus dans le dossier ; elles se trouvent dans le trousseau de session de macOS, ou dans
 `~/.cyberriskguardian/crg-keys.json` sous Windows et Linux, et `feeds-dir.txt` reporte le chemin des flux. Les lanceurs détectent une copie antérieure qui sert encore le port,
 l'arrêtent et l'indiquent ; rechargez la page une fois si **Aide → À propos et versions** n'affiche pas
-`1.9.3 beta`.
+`1.9.4 beta`.
 
 ### 3.2 Le démarrer
 
@@ -222,11 +222,11 @@ livré avec l'application est CRGO 0.11.2.
 Le bas du menu de gauche doit afficher (une ligne, fixée sous le menu, qui défile seul) :
 
 ```
-© Marc-André Léger · v1.9.3 Beta · ✓ Moteur vérifié
+© Marc-André Léger · v1.9.4 Beta · ✓ Moteur vérifié
 ```
 
 Cliquez dessus, ou ouvrez **Aide → À propos et versions**, pour voir les totaux qu'il résume :
-`moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049`.
+`moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049`.
 
 À chaque démarrage, l'application recalcule le cas pédagogique MediBec fourni — 30 scénarios — et
 compare les totaux aux chiffres que produit `crg_calc.py`. Lorsqu'ils concordent, le moteur de votre
@@ -240,7 +240,7 @@ le nomme.
 
 | Le pied de page affiche | Aide → À propos et versions indique | Signification | Que faire |
 |---|---|---|---|
-| **✓ Moteur vérifié** | `moteur vérifié · 84,305 / 41,023 · CanaRetail 27,526 / 16,049` | Correct. | Poursuivez. |
+| **✓ Moteur vérifié** | `moteur vérifié · 84 305 / 41 023 · CanaRetail 27 526 / 16 049` | Correct. | Poursuivez. |
 | *chargement du moteur…* et il y reste | — | Ouvert comme fichier au lieu d'être servi. | Section 3.2. |
 | **✗ Échec de la vérification du moteur** | `moteur manquant` | `crg.js`, `cvss4.js` ou `sample.js` ne s'est pas chargé. | Décompressez de nouveau ; gardez le dossier intact. |
 | **✗ Échec de la vérification du moteur** + bandeau rouge | `moteur DIVERGENT` | Le moteur est en désaccord avec la référence. | **Ne vous fiez à aucun chiffre.** Restaurez une copie propre. |
@@ -555,7 +555,7 @@ Le risque résiduel et le ratio proviennent du moteur vérifié; l'IA et les flu
 
 *Où :* Calculateur de risque; pied de page
 
-1. Vérifiez que le pied de page indique “moteur vérifié · 84,305 / 41,023” à chaque démarrage.
+1. Vérifiez que le pied de page indique “moteur vérifié · 84 305 / 41 023” à chaque démarrage.
 2. Lisez le risque estimé, toléré, atténué et résiduel, le ratio et sa bande dans le calculateur de risque.
 3. Seules les propositions acceptées modifient une valeur; Contexte des menaces → “Changements proposés de Pb(ψ,A)” est la seule voie entre le renseignement sur les menaces et une note, pour les CVE exposés seulement.
 
@@ -754,7 +754,7 @@ Le menu latéral compte onze sections, dans cet ordre : **Démarrer · Organisa
 risques · Menaces et vulnérabilités · Gouvernance · Gestion de la conformité · Gestion de l'audit ·
 Opérations de sécurité · Registre partagé des risques · Outils · Paramètres**. Ce chapitre le suit écran
 par écran. **Aide** est le bouton de la barre supérieure (section 7.12). Le nom et le logo de
-l'application restent en haut du menu, et le pied de page — **© Marc-André Léger · v1.9.3 Beta · ✓ Moteur vérifié**, qui
+l'application restent en haut du menu, et le pied de page — **© Marc-André Léger · v1.9.4 Beta · ✓ Moteur vérifié**, qui
 ouvre **Aide → À propos et versions** — en bas; seul le menu entre les deux défile, dans le menu complet, le
 rail et le tiroir.
 
@@ -3092,7 +3092,7 @@ ligne, suivies de QC-27 à QC-32 ; chaque vérification apparaît à l'écran a
 | QC-09 | La base de l'organisation appartient à l'organisation. |
 | QC-10 | Les cas fictifs et les valeurs a priori de l'ontologie ne sont pas des éléments probants d'étalonnage. |
 | QC-11 | Les éléments probants sont à jour. |
-| QC-12 | Le moteur reproduit la base de référence MediBec (84,305 / 41,023). |
+| QC-12 | Le moteur reproduit la base de référence MediBec (84 305 / 41 023). |
 | QC-13 | Les normes sous licence sont citées par identifiant seulement. |
 | QC-14 | Aucune obligation n'est déclarée conforme sur la foi d'une correspondance, d'une prise de connaissance ou d'une attestation : chaque détermination *satisfaite* repose sur un élément probant à jour du registre partagé. |
 | QC-15 | Aucun incident n'est inféré d'une alerte : chaque incident est confirmé par une personne nommée, à une date. |
@@ -3749,7 +3749,7 @@ position par rapport à la cible cohérente avec l'appétence (sous la cible pon
 au-dessus de la cible cohérente avec l'appétence, au-dessus de la cible ponctuelle de 12 %). Les
 conventions sont celles des moteurs des modules d'extension : l'**écart** est *dépense − cible* (négatif =
 sous la cible), la **position** nomme les cibles ponctuelles de 4 % / 7,8 % / 12 %, et une dépense sous la
-cible ponctuelle de 4 % ne donne aucun appétit impliqué — elle implique un appétit *supérieur à 0,70, hors de
+cible ponctuelle de 4 % ne donne aucune appétence implicite — elle implique une appétence *supérieure à 0,70, hors de
 la ligne directrice*, une décision que la direction doit prendre explicitement. Le **graphique par année**
 présente, empilées, la base et les
 initiatives engagées, les dépenses prévues (barre) et les dépenses réelles (◆), le tout en proportion du
@@ -4727,7 +4727,7 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 
 **Le moteur et le cas**
 
-1. Le pied de page indique `moteur vérifié · 84,305 / 41,023`.
+1. Le pied de page indique `moteur vérifié · 84 305 / 41 023`.
 2. Le **Registre des scénarios** de l'espace de travail MediBec affiche 30 scénarios, un total estimé de
    84 305 et un résiduel de 41 023.
 3. **Calculateur de risque** → décochez S1. Le nombre inclus passe à 29/30 et les totaux baissent.
@@ -4860,12 +4860,12 @@ elles prévalent là où ce résumé diffère. Rien de ceci ne constitue un avis
 **Installation**
 
 33. **Sauvegarde et restauration** → créez une sauvegarde ; restaurez-la dans un deuxième profil de
-    navigateur : le pied de page indique **84,305 / 41,023** et votre espace de travail, ses politiques
+    navigateur : le pied de page indique **84 305 / 41 023** et votre espace de travail, ses politiques
     et ses exigences sont présents.
 34. **Aide → Pas à pas** → une fenêtre distincte avec les dix-neuf étapes, le rapport et les lignes directrices ; **Aide →
     Guide de l'utilisateur** → ce guide avec une table des matières ; passez l'interface en **FR** et
     rouvrez-le : le guide français.
-35. **Aide → À propos et versions** indique `1.9.3 beta` et `moteur vérifié · 84,305 / 41,023` ;
+35. **Aide → À propos et versions** indique `1.9.4 beta` et `moteur vérifié · 84 305 / 41 023` ;
     **Licence** nomme la licence propriétaire, les quatre fichiers de licence, cyberriskguardian.ca et
     sales@cyberriskguardian.ca ; **Vérifier maintenant** sous *Mises à jour* répond (une version plus
     récente, la dernière version, ou pourquoi elle ne peut le dire).

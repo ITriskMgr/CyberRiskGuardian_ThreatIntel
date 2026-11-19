@@ -52,7 +52,7 @@ def tokens(src):
                 buf.append(src[j]); j += 1
             yield ('s', ''.join(buf)); i = j + 1; prev = 'v'; continue
         if c == '`':
-            j, parts, buf, depth = i + 1, [], [], 0
+            j, parts, buf = i + 1, [], []
             while j < n and src[j] != '`':
                 if src[j] == '\\' and j + 1 < n:
                     buf.append({'n': '\n', 't': '\t'}.get(src[j + 1], src[j + 1])); j += 2; continue
@@ -156,12 +156,12 @@ def collect():
                 for kind, v in tokens(code):
                     if kind == 's':
                         s = v.strip()
-                        if ui_like(s): found.setdefault(s, set()).add(rel)
+                        if ui_like(s): found.setdefault(s, set()).add(rel)  # noqa: B023
                         continue
                     key = template_key(v).strip()
                     lit = re.sub(r'\{\d+\}', ' ', key)
                     if ui_like(lit) and re.search(r'[A-Za-z]{3}', lit) and not re.fullmatch(r'\{0\}', key):
-                        found.setdefault(key, set()).add(rel)
+                        found.setdefault(key, set()).add(rel)  # noqa: B023
                     if depth < 3:                       # strings inside ${…}, e.g. tr('…') in a template
                         for part in v:
                             if isinstance(part, tuple): walk(part[1], depth + 1)

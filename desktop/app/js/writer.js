@@ -95,7 +95,7 @@ export async function setLanguages(ws, langs, by = '') {
 /** 0.1.1 (X-5 / NV-W05): nothing is confirmed, accepted or decided without a named person. */
 export function requireName(by) {
   const n = String(by || '').trim();
-  if (!n) throw new Error('A named person is required: enter your name (Settings → Users, or when asked) before confirming or accepting.');
+  if (!n) throw new Error('A named person is required: enter your name (Settings → Users & RACI, or when asked) before confirming or accepting.');
   return n;
 }
 export function clearAnswer(ws, code) { delete W(ws).answers[code]; touch('isp'); }

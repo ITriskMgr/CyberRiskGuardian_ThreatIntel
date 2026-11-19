@@ -1,7 +1,32 @@
 # Changelog
 
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
-Lineage: derived from CyberRiskGuardian v1.1.0, which remains the stable edition.
+Lineage: derived from CyberRiskGuardian v1.1.0 (the Core edition, retired on 19 November 2026).
+
+## 1.9.4 — with Desktop 1.9.4 Beta — 19 November 2026
+
+**The plugin now carries the desktop application's version number** (author decision, 19 November 2026): 1.7.3 is followed
+by 1.9.4, and `desktop/app/tools/version_check.py` fails when the two differ. Plugin patch from the backlog build. **No formula change: MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049
+unchanged.**
+
+### Changed
+- **KEV and EPSS place Pb(ψ,A) only.** `threat-context-calibration` rule 4 and the `exposure_gate` constraint written into
+  every snapshot (`threat_snapshot.py`, the shipped and example snapshots) now say that CVE evidence places `Pb(ψ,A)` in a
+  ladder band and never moves `Pb(A)`, which stays the analyst's estimate informed by the regional and sector sources. A
+  model reading the old generic wording ("no parameter uplift") answered that a listed CVE could move `Pb(A)` (eval
+  `threat-context-freshness`).
+- **SSVC is discoverable.** The `threat-context-calibration` description names SSVC trees and outcomes, and the skill says
+  to run `ssvc.py` when the `ssvc_decision` MCP tool is not available, never to answer from memory (eval
+  `ssvc-response-priority`: 1 of 5 runs passed before, 2.67 of 3 after).
+- **Quality gates.** `test_snapshot_perf.py` (offline performance budget of the snapshot pipeline); the Semgrep rules
+  forbid network imports in the calculation path; bandit annotations in `threat_snapshot.py`; lint fixes
+  (unused imports, loop variables) in `budget_calibrator.py`, `build_workbook.py`, `test_ssvc.py`.
+
+### Evals
+First run of the full suite with a model (`claude plugin eval`, 19 November 2026, $4.12 in total including the
+re-runs): label-check-cli, quantify-worked-example, quantify-zero-tolerance 100 %; quantify-cvss-base-only,
+quantify-medibec30-regression and threat-context-freshness 100 % on re-run after the fixes above (the first run had one
+judge or regex miss each); ssvc-response-priority 2.67 of 3. Reports stay local (`evals/results/`, git-ignored).
 
 ## 1.7.3 — with Desktop 1.9.3 Beta — 13 November 2026
 

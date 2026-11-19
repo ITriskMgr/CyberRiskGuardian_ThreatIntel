@@ -67,7 +67,7 @@ COMP = {"satisfied": "CompSatisfied", "partially-satisfied": "CompPartial", "uns
 
 def profile_graph(T, X, prof):
     """The organisation profile in CRGO's crgo-org terms (what the applicability evaluator reads)."""
-    from rdflib import Graph, Literal, URIRef
+    from rdflib import Graph, Literal
     from rdflib.namespace import RDF, OWL, RDFS
     g = Graph()
     org = X["org"]
@@ -117,7 +117,7 @@ def applicability(req, T, X, prof_g):
 
 def facts_graph(req, T, X):
     """The application's own records about the organisation, in CRGO terms, under the organisation's base."""
-    from rdflib import Graph, Literal, URIRef
+    from rdflib import Literal, URIRef
     from rdflib.namespace import RDF, OWL, RDFS
     f = req.get("facts") or {}
     g = profile_graph(T, X, f.get("profile") or {})

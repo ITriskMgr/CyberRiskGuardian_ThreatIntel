@@ -1,0 +1,20 @@
+# Ruff configuration (BL-16). The code base deliberately uses long lines and short one-line statements, so the style rules
+# (E501, E701, E702, E731, E741) are not checked; ruff checks for errors and bug-prone patterns: pyflakes (F), syntax and
+# runtime errors (E9), whitespace warnings (W) and flake8-bugbear (B).
+target-version = "py310"
+extend-exclude = [".claude", "node_modules", "CyberRiskGuardian-Ontology*"]
+
+[lint]
+select = ["E9", "F", "W", "B"]
+ignore = [
+  "B905",  # zip() without strict=: lengths are checked where it matters; strict= would change behaviour on bad input
+  "B008",  # function call in a default argument: used deliberately for immutable defaults
+]
+
+[lint.per-file-ignores]
+"**/test_*.py" = ["B017", "B011"]
+# the MediBec generator scripts read their tables with "from data import *" by design
+"examples/*/source/*.py" = ["F403", "F405", "B007"]
+# the Writer engine is pinned by a content hash shared with the stand-alone Writer repository (tools/writer_tree_hash.py):
+# its two lint findings (an unused import, a placeholder-free f-string) are left for a deliberate Writer release
+"desktop/app/crg_writer/*.py" = ["F401", "F541"]

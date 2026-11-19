@@ -125,6 +125,7 @@ export async function saveConfig() {
   if (HS.helper) {
     const r = await post('/api/config', { config: HS.config });
     HS.config = merge(DEFAULT_CONFIG, r.config); HS.sources = r.sources || HS.sources;
+    HS.installationStore = r.installationStore || null;   // 1.9.3: the store followed the organisation-graph folder (or could not)
   }
   return HS.config;
 }

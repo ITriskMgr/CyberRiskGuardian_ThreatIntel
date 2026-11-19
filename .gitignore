@@ -63,3 +63,6 @@ desktop/app/feeds-dir.txt
 desktop/tests/.tmp/
 desktop/tests/node_modules
 desktop/tests/mock/_last.json
+
+# claude plugin eval reports (local runs; results go in the release notes)
+plugins/*/evals/results/

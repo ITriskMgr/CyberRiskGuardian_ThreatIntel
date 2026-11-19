@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Marc-André Léger
 """CanaRetail — 40 candidate scenarios from the case library, their screening, ten families, watch list and
 evidence-collection plan. Scores: BC AC TR EX IM RL OR DC EV RV CU DU (1–5)."""
-from cr_common import T, MGMT
+from cr_common import T
 
 CANDS = []      # assessment.CANDIDATES rows
 SCREEN = {}     # screening.cands

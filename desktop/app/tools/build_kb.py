@@ -19,7 +19,7 @@ def ext(o, src='mitre-attack'):
 def live(o): return not o.get('revoked') and not o.get('x_mitre_deprecated')
 def short(t,n=240):
     t=re.sub(r'\(Citation:[^)]*\)','',t or ''); t=re.sub(r'\[([^\]]+)\]\([^)]*\)',r'\1',t); t=re.sub(r'<[^>]+>','',t)
-    t=' '.join(t.split()); 
+    t=' '.join(t.split());
     if len(t)>n: t=t[:n].rsplit(' ',1)[0]+'…'
     return t
 tac=[o for o in d if o['type']=='x-mitre-tactic' and live(o)]
@@ -75,7 +75,8 @@ for k in TECH:
 capec_ver=[o for o in c if o['type']=='identity']
 # CWE
 ns={'c':'http://cwe.mitre.org/cwe-7'}
-root=ET.parse('cwec.xml').getroot()
+# bandit: the maintainer's own download of the CWE file
+root=ET.parse('cwec.xml').getroot()  # nosec B314
 CWE={}
 for w in root.find('c:Weaknesses',ns):
     if w.get('Status')=='Deprecated': continue

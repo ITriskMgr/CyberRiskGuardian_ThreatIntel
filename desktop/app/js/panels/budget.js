@@ -123,7 +123,7 @@ function years(out, sec) {
 function body(out) {
   const ws = S.ws, a = ws.assessment, b = ws.budget;
   const it = Number(b.it_budget), app = Number(a.APPETITE), spend = Number(b.spend), base = Number(b.baseline) || 0;
-  if (!(it > 0)) { out.append(banner('warn', 'IT budget required', 'Enter the total IT budget, salaries included (Organization → Risk appetite and budget, or above).')); return; }
+  if (!(it > 0)) { out.append(banner('warn', 'IT budget required', 'Enter the total IT budget, salaries included (Organization → Organization profile → Profile & appetite, or above).')); return; }
   // Conventions shared with the reference engine (NV-094): gap = spend − target (negative = below the target); the position
   // names the 4% / 7.8% / 12% point targets; below the 4% point target the implied appetite is "above 0.70, outside the guideline".
   // Numbers follow the interface locale (X-6, D6): pct(), n2(), money().

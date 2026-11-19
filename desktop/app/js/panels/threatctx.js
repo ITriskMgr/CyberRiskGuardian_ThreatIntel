@@ -9,7 +9,7 @@
 'use strict';
 import { el, n0, n2, kpi, banner, card, pill, pillFor, field, toast, download, copyText, today, select } from '../util.js';
 import { S, touch, setSnapshot, compute, scen } from '../state.js';
-import { LADDER, classify as ladderClassify, parseExposure, snapshotAge, snapshotStats, validateSnapshot, SCHEMA } from '../../threat.js';
+import { LADDER, classify as ladderClassify, parseExposure, snapshotAge, snapshotStats, validateSnapshot, splitRevisionLog, SCHEMA } from '../../threat.js';
 import { tr } from '../i18n.js';
 
 const GAP = 'Information gap — organizational validation required';
@@ -316,14 +316,28 @@ function watchList(sec) {
 }
 
 function revisionLog(sec) {
-  const log = S.ws.revisionLog || [];
-  if (!log.length) return;
-  const t = el('table', 'compact');
-  t.append(el('thead', null, el('tr', null, ...['Date', 'Scenario', 'Parameter', 'From → to', 'Ratio', 'Classification', 'Cause'].map(h => el('th', null, h)))));
-  t.append(el('tbody', null, ...log.slice().reverse().map(r => el('tr', null, el('td', 'mono', r.date), el('td', null, el('a', { href: '#/scenario/' + r.scenario }, r.scenario)), el('td', 'mono', r.parameter),
-    el('td', 'num', n2(r.from) + ' → ' + n2(r.to)), el('td', 'num', n2(r.ratioFrom) + ' → ' + n2(r.ratioTo)),
-    el('td', null, r.clsFrom === r.clsTo ? r.clsTo : el('span', null, el('b', null, r.clsFrom + ' → ' + r.clsTo))), el('td', 'small', r.cause)))));
-  sec.append(el('h2', null, 'Revision log'), card(el('div', 'tablewrap', t), el('p', 'note', 'Each line records why a scenario moved: the intelligence, the snapshot date and the before/after tolerance ratio. A classification change caused by the threat landscape — not by the organization — is the signal management needs.')));
+  // 1.9.3 (BL-06b): only the threat-driven lines (they carry their snapshot) belong to this log; the other lines of the
+  // workspace's revision log (IAM/CM findings, AI reduction proposals, the D2 review, import retyping) are listed apart.
+  const { threat, other } = splitRevisionLog(S.ws.revisionLog);
+  if (!threat.length && !other.length) return;
+  const val = v => typeof v === 'number' ? n2(v) : (v == null || v === '' ? '—' : String(v));
+  const scen = r => el('td', null, ...String(r.scenario || '—').split(/,\s*/).flatMap((id, i) => [i ? ', ' : '', /^[A-Z]+\d+$/.test(id) ? el('a', { href: '#/scenario/' + id }, id) : id]));
+  if (threat.length) {
+    const t = el('table', 'compact');
+    t.append(el('thead', null, el('tr', null, ...['Date', 'Scenario', 'Parameter', 'From → to', 'Ratio', 'Classification', 'Cause'].map(h => el('th', null, h)))));
+    t.append(el('tbody', null, ...threat.slice().reverse().map(r => el('tr', null, el('td', 'mono', r.date), scen(r), el('td', 'mono', r.parameter),
+      el('td', 'num', val(r.from) + ' → ' + val(r.to)), el('td', 'num', val(r.ratioFrom) + ' → ' + val(r.ratioTo)),
+      el('td', null, r.clsFrom === r.clsTo ? r.clsTo : el('span', null, el('b', null, r.clsFrom + ' → ' + r.clsTo))), el('td', 'small', r.cause)))));
+    sec.append(el('h2', null, 'Revision log'), card(el('div', 'tablewrap', t), el('p', 'note', 'Each line records why a scenario moved: the intelligence, the snapshot date and the before/after tolerance ratio. A classification change caused by the threat landscape — not by the organization — is the signal management needs.')));
+  } else sec.append(el('h2', null, 'Revision log'), card(el('p', 'empty', 'No parameter has moved because of the threat landscape in this workspace.')));
+  if (other.length) {
+    const t = el('table', 'compact', { id: 'revlog-other' });
+    t.append(el('thead', null, el('tr', null, ...['Date', 'Scenario', 'Parameter', 'From → to', 'Ratio', 'Cause or note'].map(h => el('th', null, h)))));
+    t.append(el('tbody', null, ...other.slice().reverse().map(r => el('tr', null, el('td', 'mono', r.date), scen(r), el('td', 'mono', r.parameter),
+      el('td', 'num', val(r.from) + ' → ' + val(r.to)), el('td', 'num', val(r.ratioFrom) + ' → ' + val(r.ratioTo)), el('td', 'small', r.cause || r.what || '')))));
+    sec.append(el('details', { id: 'revlog-other-box' }, el('summary', null, tr('Other revisions in this workspace ({0})').replace('{0}', other.length)),
+      card(el('div', 'tablewrap', t), el('p', 'note', 'Not caused by the threat landscape: organizational evidence (IAM and configuration management findings), accepted reduction proposals, reviews and data corrections. Listed here so the workspace history stays complete.'))));
+  }
 }
 
 function ladderCard(sec) {

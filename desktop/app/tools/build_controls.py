@@ -93,7 +93,7 @@ CIS71_FIX = {  # spreadsheet numbering artefacts (decimal comma, Excel rounding)
 def user_controls(rows):
     out, flags = [], []
     iso_cat = None
-    for name, src, num in rows:
+    for name, src, _num in rows:
         if src.startswith('ISO') or (not src and re.match(r'^\d+\.\d+ ', name)):
             m = re.match(r'^(\d+(?:\.\d+)+)\s*-?\s*(.*)$', name)
             cid, title = m.group(1), m.group(2).strip()

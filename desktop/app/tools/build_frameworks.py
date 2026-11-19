@@ -24,7 +24,7 @@ SCHEMA = "crg-framework-pack/1"
 
 def framework(a, **extra):
     f = {"id": a.id, "name": a.name or a.short or a.id, "short": a.short or a.id,
-         "edition": a.edition or "", "date": a.date or "", "origin": a.origin or "", 
+         "edition": a.edition or "", "date": a.date or "", "origin": a.origin or "",
          "note": a.note or "", "url": a.url or ""}
     f.update({k: v for k, v in extra.items() if v and not f.get(k)})
     return f

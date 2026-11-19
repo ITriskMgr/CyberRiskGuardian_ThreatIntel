@@ -16,7 +16,7 @@ Offline and deterministic.
 """
 import argparse, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from crg_calc import budget_target, implied_appetite, band_status, budget_position, target_status, POINT_TARGETS, CRGInputError
+from crg_calc import implied_appetite, band_status, budget_position, target_status, POINT_TARGETS, CRGInputError
 
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 ap.add_argument("--it-budget", type=float, required=True, help="Total IT budget including salaries")

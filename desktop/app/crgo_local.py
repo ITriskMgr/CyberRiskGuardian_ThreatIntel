@@ -246,7 +246,7 @@ def _date(date):
         if not RX_DATE.match(d): raise ValueError
         datetime.date.fromisoformat(d)
     except ValueError:
-        raise ProposalError("INVALID_ARGUMENT", "date must be written yyyy-mm-dd.")
+        raise ProposalError("INVALID_ARGUMENT", "date must be written yyyy-mm-dd.") from None
     return d
 
 
