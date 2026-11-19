@@ -37,6 +37,7 @@ Effort: S < 1 h · M ½–1 day · L several days · XL a build of its own.
 | BL-04 | Stale "CRGO 0.11.0" references where 0.11.2 is pinned: `requirements.txt:6`, `desktop/tests/requirements-ci.txt:1`, `desktop/README.md:56` | This session | Open | S | `grep` finds 0.11.0 only in history notes |
 | BL-05 | Release 1.9.3: date the CHANGELOG, rebuild the Community and commercial packages with SHA-256, tag, then follow `PUBLISHING.md` §4 | Release process | Open | M | Release published; `tools/version_check.py` passes |
 | BL-06 | Review the four Dependabot updates (`actions/checkout` 7.0.1, `setup-node` 7.1.0, `setup-python` 7.1.0, Playwright 1.65.0) | Repository | Open | S | Merged or closed with a reason; CI passes |
+| BL-06a | Wrong menu path in 4 helper messages (`crgo_client.py`): "Settings → Ontology" should read "Organization → Ontology · CRGO → Connection" (EN and FR catalogue) | This session (19 Nov, reported by the author) | Open | S | No message names a menu path that does not exist; `label_check.py` menu-path check extended to helper messages |
 
 ## 2. Author actions (P1, Blocked on the author)
 
