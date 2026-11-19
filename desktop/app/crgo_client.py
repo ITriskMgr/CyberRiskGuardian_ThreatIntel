@@ -10,7 +10,7 @@ JSON-RPC 2.0 — with the standard library only, so the application and Claude r
 through the same six read-only tools.
 
 Where the server is found, in this order:
-  1. crg-config.json → "ontology": {"command": ..., "args": [...]}   (Settings → Ontology)
+  1. crg-config.json → "ontology": {"command": ..., "args": [...]}   (Organization → Ontology · CRGO → Connection)
   2. the "crgo-ontology" entry of the Claude desktop configuration, when this computer has one
      (claude_desktop_config.json → mcpServers) — so a server already registered for Claude is reused
      with the same Python interpreter;
@@ -95,7 +95,7 @@ def resolve(cfg, app_root):
     """{command, args, source} for the server, or {error} when none can be found."""
     o = (cfg or {}).get("ontology") or {}
     if o.get("enabled") is False:
-        return {"error": "The ontology server is switched off in Settings → Ontology.", "source": "settings"}
+        return {"error": "The ontology server is switched off in Organization → Ontology · CRGO → Connection.", "source": "settings"}
     if o.get("command") and o.get("args"):
         return {"command": o["command"], "args": list(o["args"]), "source": "settings"}
     p = claude_desktop_config()
@@ -110,7 +110,7 @@ def resolve(cfg, app_root):
     home = find_home(app_root)
     if home:
         return {"command": sys.executable, "args": [os.path.join(home, "pipeline", "mcp", SERVER_NAME)], "source": "found", "home": home}
-    return {"error": "No CyberRiskGuardian Ontology was found on this computer. Set its folder in Settings → Ontology, "
+    return {"error": "No CyberRiskGuardian Ontology was found on this computer. Set its folder in Organization → Ontology · CRGO → Connection, "
                      "or register the crgo-ontology server in Claude.", "source": "none"}
 
 
@@ -118,7 +118,7 @@ PYTHON_NAME = re.compile(r"^(python(3(\.\d{1,2})?)?|pythonw?|py)(\.exe)?$", re.I
 
 
 def settings_problem(command, args):
-    """1.9.0 — what Settings → Ontology may start: a Python interpreter (this helper's own, or an existing
+    """1.9.0 — what Organization → Ontology · CRGO → Connection may start: a Python interpreter (this helper's own, or an existing
     absolute path to a file named python…) and exactly one argument, an existing absolute path to
     …/pipeline/mcp/crgo_server.py. Anything else is refused: this setting starts a program."""
     cmd = os.path.expanduser(str(command or ""))

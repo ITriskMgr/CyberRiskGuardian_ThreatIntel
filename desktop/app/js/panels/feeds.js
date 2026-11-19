@@ -81,7 +81,7 @@ function list(body, sec, relevantOnly) {
     kpi('Scenario techniques seen', n0(new Set(items.flatMap(i => i.attack).filter(a => ws.assessment.SCEN.some(s => (s.attack || []).includes(a)))).size), 'ATT&CK IDs in items'),
     kpi('Match terms', n0(terms.length), 'assets, technologies, CVEs, techniques, sector')));
   body.append(card(el('div', 'filterbar', el('div', 'grow', q), el('div', null, srcSel), el('div', null, typeSel), relevantOnly ? el('div', null, minSel) : null, count), wrap,
-    el('p', 'note', relevantOnly ? 'Score = sum of the weights of the matched terms (hover a score for the reasons). Terms come from the assets, the organization profile, the CVE register (exposed CVEs weigh most), scenario techniques, sector, region, Settings → watch terms and the IOC watch list.' : 'Every item of the loaded files.')));
+    el('p', 'note', relevantOnly ? 'Score = sum of the weights of the matched terms (hover a score for the reasons). Terms come from the assets, the organization profile, the CVE register (exposed CVEs weigh most), scenario techniques, sector, region, Settings → Feed sources & keys (watch terms) and the IOC watch list.' : 'Every item of the loaded files.')));
   body.append(el('details', 'card', el('summary', null, `Match terms used for this workspace (${terms.length})`),
     el('div', 'chips', ...terms.sort((a, b) => b.w - a.w).map(x => chip(`${x.term} · ${x.w}`, { title: x.why }))),
     el('p', 'note', 'Add assets with vendor and product in Information assets, or watch terms in Settings, to sharpen the matching.')));
@@ -156,7 +156,7 @@ async function sources(body, sec) {
       el('button', { class: 'btn ghost', disabled: !HS.helper, onclick: async () => { const n = await loadLatest(accepted.map(s => s.id)); toast(n + ' source file(s) loaded'); render(sec); } }, 'Load latest files'),
       el('button', { class: 'btn ghost', onclick: async () => { cache = { bySrc: {} }; await store.put('blob', 'feeds:items', cache); render(sec); } }, 'Clear loaded items')),
     jobBox,
-    el('p', 'note', 'Only sources in your accepted list are downloaded. Sources needing a key are skipped until the key is stored (Settings → Sources). If a download fails with “blocked by the egress allowlist”, add the domain shown in Settings → Network to your organization\'s allowlist.')));
+    el('p', 'note', 'Only sources in your accepted list are downloaded. Sources needing a key are skipped until the key is stored (Settings → Feed sources & keys). If a download fails with “blocked by the egress allowlist”, add the domain shown in Settings → Network allowlist to your organization\'s allowlist.')));
   // manual load
   const srcSel = select(cat.map(s => [s.id, s.name]), accepted[0]?.id || cat[0]?.id);
   const fileIn = el('input', { type: 'file', multiple: true, accept: '.json,.xml,.rss,.atom,.txt' });

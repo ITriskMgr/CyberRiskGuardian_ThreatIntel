@@ -73,6 +73,10 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   is no longer maintained; Threat Live-feed is the only edition. `AGENTS.md` and `README.md` keep the lineage
   (derived from v1.1.0, CC BY-NC 4.0 attribution), drop the "enable only one edition" and "offer changes upstream"
   guidance, and ask users to disable the Core plugin if it is still installed. No behaviour changes, no version bump.
+- **Menu paths in messages match the menu (BL-06a).** Messages named screens that do not exist ("Settings → Ontology",
+  "Settings → AI", "Settings → Sources", "Organization → Risk appetite and budget", "Programmes · SP 800-53A"…); they now
+  name the real screen (for example *Organization → Ontology · CRGO → Connection*, *Settings → AI — local & remote*), in
+  English and French. `tools/label_check.py` now also checks the menu paths quoted in the helper's and the page's messages.
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
   try no longer misses near midnight.
 - **The anonymizer no longer treats record ids** such as C01 (in the *members* fields) as person names.

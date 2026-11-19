@@ -229,7 +229,7 @@ export async function vectorStatus(ws = S.ws) {
 }
 /** Build the vectors of one source with the configured local model, in batches. progress(done, total). */
 export async function buildVectors(source, ws = S.ws, progress = () => {}) {
-  if (!embedReady()) throw new Error('No local embedding model is configured (Settings → AI → Retrieval).');
+  if (!embedReady()) throw new Error('No local embedding model is configured (Settings → AI — local & remote, Retrieval).');
   const docs = await sourceDocs(source, ws), e = embedConfig();
   const vectors = {}; let dims = 0;
   for (let i = 0; i < docs.length; i += 32) {

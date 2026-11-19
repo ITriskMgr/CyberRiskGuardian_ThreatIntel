@@ -298,7 +298,7 @@ def ai_providers(cfg):
 def ai_provider(pid, cfg):
     p = ai_providers(cfg).get(pid)
     if not p:
-        raise RuntimeError(f"Unknown AI provider '{pid}'. Choose one in Settings → AI.")
+        raise RuntimeError(f"Unknown AI provider '{pid}'. Choose one in Settings → AI — local & remote.")
     return p
 
 MAX_AI_BYTES = 400_000          # a workspace excerpt, not a database dump (system + prompt, measured in bytes — 1.9.2, NV-055)
@@ -2101,7 +2101,7 @@ def main():
         left = crg_feeds.unmigrated_keys()
         if left:
             print(f"{len(left)} API key(s) could not be moved and wait in {crg_feeds.key_storage()['unmigrated']['path']}: "
-                  f"{', '.join(left)}. Enter them again in Settings → AI.", flush=True)
+                  f"{', '.join(left)}. Enter them again in Settings → AI — local & remote.", flush=True)
     except Exception as exc:                            # noqa: BLE001
         sys.stderr.write(f"helper: the API keys could not be moved out of the feeds folder: {exc}\n")
     global HTTPD
