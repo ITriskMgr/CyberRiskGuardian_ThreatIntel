@@ -27,6 +27,26 @@ Effort: S < 1 h · M ½–1 day · L several days · XL a build of its own.
 
 ---
 
+## Status after the backlog build of 19 November 2026
+
+Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with its tests; "you" means an author action.
+
+| Item | Status |
+|---|---|
+| BL-01 proposals follow the folder · BL-03 macOS guard tests · BL-04 stale CRGO refs · BL-06 Dependabot (4) · BL-06a menu paths (all 99 in messages checked) · BL-06b revision log split | **Done** |
+| BL-02 full suite with CRGO 0.11.2 | **Done**: 82 suites, 3,768 checks, 0 failures; rerun on the final commit (see the PR) |
+| BL-16 ruff · BL-17 bandit · BL-18 pre-commit · BL-19 test procedure (`docs/TEST-PROCEDURE.md`) · BL-21 Semgrep method rules · BL-22 snapshot performance · BL-23 Lighthouse budget (+ deferred start-page scripts, first paint −1.3 s) | **Done**; CI workflow `quality.yml` |
+| BL-20 WCAG 2.1 AA | **Done**: t84 on all 159 routes, EN light and FR dark, 0 violations |
+| BL-12 plugin evals | **Done**: first model run ($4.12); two plugin fixes; plugin 1.7.4 |
+| BL-09 CRGO tag and approvals · BL-14 doc checks | **Done** (verified, nothing to change) |
+| BL-27 book alignment | **Mostly done**: items 1 (errata applied), 4, 6, 7 (French terms and spacing, FR-4 gate), 8, 9, 10, 11 done. Open: item 12 (MCQ self-check, part of the Classroom spec), item 13 (standards baseline in policy templates — needs a design choice: catalogues or a guidance field), word-for-word re-ingest of the published v2.51b |
+| BL-07 launcher check · BL-08 signing key · BL-10 French read-through · BL-13 larger local models · BL-15 CIS | **Ready for you**: `docs/AUTHOR-KITS.md` (one-command signing, French review CSV) |
+| BL-28 French reference set · BL-27 exact re-ingest | **Blocked**: the Drive connector reads only to chapter 7 of the French book and downloads nothing over 10 MB — upload the two .docx files or a Markdown export |
+| BL-25 Classroom · BL-26 Exercises and simulations | **Needs a specification session** (no requirements file exists) |
+| BL-05 release · BL-11 Education screenshots · BL-29 Educator Edition | **You**; §6 Education and Pro items: their GitHub repositories are empty, so the source is not reachable |
+| BL-24 licence activation | Excluded (waits for Paddle) |
+| §6 CRGO NV-C01…C08 | **Done in CRGO 0.11.1** (verified) |
+
 ## 1. Release blockers for 1.9.3 (P0)
 
 | ID | Item | Source | Status | Effort | Done when |
