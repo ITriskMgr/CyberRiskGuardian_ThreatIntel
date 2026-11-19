@@ -288,10 +288,10 @@ await setServer(true);
 const hid = await page.evaluate(async () => {
   const PR = await import('/js/ontoprop.js'); const st = await import('/js/state.js');
   const ws = st.S.ws, el = PR.gapFlag({ kind: 'scenario', s: ws.assessment.SCEN[0] }, ws, { theme: 'ThemeX' });
-  return { kind: ws.kind, reason: PR.blockedReason(ws), classroom: PR.blockedReason({ kind: 'classroom' }), normal: PR.blockedReason({ kind: 'user' }), hasBtn: !!el.querySelector('[data-act=add-ontology]'), text: el.textContent };
+  return { kind: ws.kind, reason: PR.blockedReason(ws), classroom: PR.blockedReason({ kind: 'classroom' }), allowedPack: PR.blockedReason({ kind: 'classroom', classroom: { pack: { settings: { proposals: true } } } }), normal: PR.blockedReason({ kind: 'user' }), hasBtn: !!el.querySelector('[data-act=add-ontology]'), text: el.textContent };
 });
 ok(hid.kind === 'example' && /Example workspaces/.test(hid.reason) && !hid.hasBtn && /cannot propose/.test(hid.text), 'MediBec (example): no Add to the ontology button, the flag says why');
-ok(/Classroom workspaces cannot propose/.test(hid.classroom) && hid.normal === null, 'classroom workspaces are blocked, ordinary ones are not');
+ok(/not allowed ontology proposals/.test(hid.classroom) && hid.allowedPack === null && hid.normal === null, 'a classroom workspace proposes only when its pack allows it (BL-25/26); ordinary ones are not blocked');
 
 /* ---------------- 9. a working workspace: ④ findings, actions, creation not blocked ---------------- */
 await page.evaluate(async () => { const st = await import('/js/state.js'); const w = st.newWorkspace({ name: 'Ontology review (t77)' }); w.org.name = 'Acme Clinic'; await st.create(w); });
