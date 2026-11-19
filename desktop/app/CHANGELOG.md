@@ -1,6 +1,63 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
-## 1.9.3 Beta — unreleased
+## 1.9.4 Beta — 19 November 2026
+
+The backlog build after 1.9.3: every open item of the consolidated backlog (`docs/BACKLOG-next-release.md`) that could be
+built without the author's own key, machine or decisions, with **Threat Live-feed plugin 1.9.4** alongside — from this
+release **the plugin carries the desktop application's version number** (author decision), and `tools/version_check.py`
+fails when they differ. **No formula changed**: MediBec **84,305 / 41,023** and CanaRetail **27,526 / 16,049** are unchanged
+in every engine. Data version stays 7 (no migration). Full suite: 84 suites, 3,782 checks, 0 failures, with CRGO 0.11.2.
+
+### Fixed
+- **Ontology proposals follow the organisation-graph folder.** Changing the *organisation graph folder* setting used to leave the
+  proposals made earlier (and the approved additions) in the previous folder. The helper now moves the `_installation` store
+  to the new folder when the setting is saved, under the same rules as the store (never into a repository, the application
+  or the ontology folder). It never merges or overwrites: when the new folder already holds a store, both stay where they
+  are and the screen says so. Regression tests: `test_helper_guard.py` (`InstallationStoreFollowsFolder`).
+- **Core edition retired (19 November 2026).** `ITriskMgr/CyberRiskGuardian` (Core plugin 2.2.1, the former stable edition)
+  is no longer maintained; Threat Live-feed is the only edition. `AGENTS.md` and `README.md` keep the lineage
+  (derived from v1.1.0, CC BY-NC 4.0 attribution), drop the "enable only one edition" and "offer changes upstream"
+  guidance, and ask users to disable the Core plugin if it is still installed. No behaviour change.
+- **Menu paths in messages match the menu (BL-06a).** Messages named screens that do not exist ("Settings → Ontology",
+  "Settings → AI", "Settings → Sources", "Organization → Risk appetite and budget", "Programmes · SP 800-53A"…); they now
+  name the real screen (for example *Organization → Ontology · CRGO → Connection*, *Settings → AI — local & remote*), in
+  English and French. `tools/label_check.py` now also checks the menu paths quoted in the helper's and the page's messages.
+- **The threat revision log shows threat-driven lines only (BL-06b).** The workspace keeps one revision log for every kind of
+  change, and Threat context showed all of it as threat revisions. A line such as the D2 review of the default reductions
+  (17 November in a tester's workspace) appeared with "— → —", no classification and no cause. Threat context and the
+  Threat_Context sheet of the Excel export now list the snapshot-driven lines in the revision log and the other lines (IAM and
+  configuration-management findings, accepted reduction proposals, reviews, import corrections) apart, under *Other
+  revisions in this workspace*, with their own values and notes. Nothing is dropped. Regression test: t83.
+- **Helper guard tests pass on macOS (BL-03, evaluation CRG-004).** `test_problem` checked an "ordinary" folder made in the
+  temporary folder, which macOS keeps under `/private/var` — a system folder the guard rightly refuses. The ordinary-folder
+  check now runs in a stand-in home folder, and new tests confirm that a Google Drive or iCloud folder under
+  `~/Library/CloudStorage` or `~/Library/Mobile Documents`, also reached through a symbolic link, is accepted as a shared
+  folder, while `~/Library/Preferences` and hidden folders are refused. The guard itself is unchanged.
+- **French follows the French book (BL-27, book v2.51 FR).** « appétence pour le risque » replaces the last « appétit »
+  (24 strings of the Excel export, the guide's budget section), with a new gate FR-4 in `tools/fr_terms_check.py`; the
+  French guides show the reference totals with French spacing (84 305 / 41 023, CanaRetail 27 526 / 16 049; the
+  installation and first-time-setup PDFs rebuilt); ten obsolete French entries that still said "about 20 candidates" are
+  removed (the interface already says at least 20, typically 25 to 40).
+- **Release signing in one command (BL-08).** `tools/package_desktop.py --sign <secret key>` signs the release ZIP with
+  minisign and verifies the `.minisig` with the application's own verifier against the public key pinned in `serve.py`;
+  it exits 1 if the key is not pinned or the signature does not verify. Tested end to end with a throwaway key pair.
+- **French review export (BL-10).** `tools/fr_review_export.py` writes every French interface string with its English
+  source and source files to a CSV for the native read-through (12,567 strings; 79 using a variant of a method term come
+  first). `docs/AUTHOR-KITS.md` gathers the author's tasks (signing key, launcher check, French read-through, larger local
+  models, CIS request) as ready-to-run steps.
+- **WCAG 2.1 AA on every screen (BL-20).** New suite t84 runs axe-core on all 159 routes of the screen-code registry, in
+  English (light) and French (dark), and fails on any WCAG 2.0/2.1/2.2 level A or AA violation or a skipped heading level.
+  Fixed for it: disclosure toggles are at least 24 px high (WCAG 2.2, 2.5.8), the Risk Registry preview heading and the
+  three Ontology · Explore cards follow the heading order.
+- **Faster first paint.** The 13 data scripts of the start page load with `defer`: the first content appears about 1.3 s
+  sooner (Lighthouse, simulated desktop: 3.9 s → 2.6 s). Start-up order is unchanged.
+- **Quality gates (BL-16 to BL-23).** `ruff.toml`, bandit (medium and high severity), Semgrep rules for the method
+  (`.semgrep/`: no network in the calculation path, CVSS Base only, product rule for reductions, no retired marker
+  wording), `.pre-commit-config.yaml`, a performance budget for `threat_snapshot.py` (400,000 EPSS rows in about 7 s) and
+  a Lighthouse budget (`desktop/tests/lighthouse.sh`); CI workflow `quality.yml`. The test procedure is written down in
+  `docs/TEST-PROCEDURE.md`.
+
+## 1.9.3 Beta — 13 November 2026
 
 Tester fixes T1–T10 of the 1.9.2 test round, one path from candidate to scenario (C7, Process steps 5–8) and the
 AI-proposed families (C6), with **CRGO 0.11.2** alongside. **No formula changed**: MediBec **84,305 / 41,023** and
@@ -61,56 +118,12 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   the last batch; nothing is written until accepted; the why drafts wait until accepted at Select. Switched off in Settings →
   AI, the ontology grouping stays.
 
-### Fixed before release
-- **Ontology proposals follow the organisation-graph folder.** Changing the *organisation graph folder* setting used to leave the
-  proposals made earlier (and the approved additions) in the previous folder. The helper now moves the `_installation` store
-  to the new folder when the setting is saved, under the same rules as the store (never into a repository, the application
-  or the ontology folder). It never merges or overwrites: when the new folder already holds a store, both stay where they
-  are and the screen says so. Regression tests: `test_helper_guard.py` (`InstallationStoreFollowsFolder`).
+### Known issues
+
+- Changing the *organisation graph folder* setting leaves the proposals made earlier (and the approved additions) in the previous
+  folder: move the `_installation` folder with it, or set the folder back. (Fixed in 1.9.4.)
 
 ### Other changes
-- **Core edition retired (19 November 2026).** `ITriskMgr/CyberRiskGuardian` (Core plugin 2.2.1, the former stable edition)
-  is no longer maintained; Threat Live-feed is the only edition. `AGENTS.md` and `README.md` keep the lineage
-  (derived from v1.1.0, CC BY-NC 4.0 attribution), drop the "enable only one edition" and "offer changes upstream"
-  guidance, and ask users to disable the Core plugin if it is still installed. No behaviour changes, no version bump.
-- **Menu paths in messages match the menu (BL-06a).** Messages named screens that do not exist ("Settings → Ontology",
-  "Settings → AI", "Settings → Sources", "Organization → Risk appetite and budget", "Programmes · SP 800-53A"…); they now
-  name the real screen (for example *Organization → Ontology · CRGO → Connection*, *Settings → AI — local & remote*), in
-  English and French. `tools/label_check.py` now also checks the menu paths quoted in the helper's and the page's messages.
-- **The threat revision log shows threat-driven lines only (BL-06b).** The workspace keeps one revision log for every kind of
-  change, and Threat context showed all of it as threat revisions. A line such as the D2 review of the default reductions
-  (17 November in a tester's workspace) appeared with "— → —", no classification and no cause. Threat context and the
-  Threat_Context sheet of the Excel export now list the snapshot-driven lines in the revision log and the other lines (IAM and
-  configuration-management findings, accepted reduction proposals, reviews, import corrections) apart, under *Other
-  revisions in this workspace*, with their own values and notes. Nothing is dropped. Regression test: t83.
-- **Helper guard tests pass on macOS (BL-03, evaluation CRG-004).** `test_problem` checked an "ordinary" folder made in the
-  temporary folder, which macOS keeps under `/private/var` — a system folder the guard rightly refuses. The ordinary-folder
-  check now runs in a stand-in home folder, and new tests confirm that a Google Drive or iCloud folder under
-  `~/Library/CloudStorage` or `~/Library/Mobile Documents`, also reached through a symbolic link, is accepted as a shared
-  folder, while `~/Library/Preferences` and hidden folders are refused. The guard itself is unchanged.
-- **French follows the French book (BL-27, book v2.51 FR).** « appétence pour le risque » replaces the last « appétit »
-  (24 strings of the Excel export, the guide's budget section), with a new gate FR-4 in `tools/fr_terms_check.py`; the
-  French guides show the reference totals with French spacing (84 305 / 41 023, CanaRetail 27 526 / 16 049; the
-  installation and first-time-setup PDFs rebuilt); ten obsolete French entries that still said "about 20 candidates" are
-  removed (the interface already says at least 20, typically 25 to 40).
-- **Release signing in one command (BL-08).** `tools/package_desktop.py --sign <secret key>` signs the release ZIP with
-  minisign and verifies the `.minisig` with the application's own verifier against the public key pinned in `serve.py`;
-  it exits 1 if the key is not pinned or the signature does not verify. Tested end to end with a throwaway key pair.
-- **French review export (BL-10).** `tools/fr_review_export.py` writes every French interface string with its English
-  source and source files to a CSV for the native read-through (12,567 strings; 79 using a variant of a method term come
-  first). `docs/AUTHOR-KITS.md` gathers the author's tasks (signing key, launcher check, French read-through, larger local
-  models, CIS request) as ready-to-run steps.
-- **WCAG 2.1 AA on every screen (BL-20).** New suite t84 runs axe-core on all 159 routes of the screen-code registry, in
-  English (light) and French (dark), and fails on any WCAG 2.0/2.1/2.2 level A or AA violation or a skipped heading level.
-  Fixed for it: disclosure toggles are at least 24 px high (WCAG 2.2, 2.5.8), the Risk Registry preview heading and the
-  three Ontology · Explore cards follow the heading order.
-- **Faster first paint.** The 13 data scripts of the start page load with `defer`: the first content appears about 1.3 s
-  sooner (Lighthouse, simulated desktop: 3.9 s → 2.6 s). Start-up order is unchanged.
-- **Quality gates (BL-16 to BL-23).** `ruff.toml`, bandit (medium and high severity), Semgrep rules for the method
-  (`.semgrep/`: no network in the calculation path, CVSS Base only, product rule for reductions, no retired marker
-  wording), `.pre-commit-config.yaml`, a performance budget for `threat_snapshot.py` (400,000 EPSS rows in about 7 s) and
-  a Lighthouse budget (`desktop/tests/lighthouse.sh`); CI workflow `quality.yml`. The test procedure is written down in
-  `docs/TEST-PROCEDURE.md`.
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
   try no longer misses near midnight.
 - **The anonymizer no longer treats record ids** such as C01 (in the *members* fields) as person names.

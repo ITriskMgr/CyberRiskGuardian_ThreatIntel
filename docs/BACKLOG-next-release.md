@@ -37,7 +37,7 @@ Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with it
 | BL-02 full suite with CRGO 0.11.2 | **Done**: 82 suites, 3,768 checks, 0 failures; rerun on the final commit (see the PR) |
 | BL-16 ruff · BL-17 bandit · BL-18 pre-commit · BL-19 test procedure (`docs/TEST-PROCEDURE.md`) · BL-21 Semgrep method rules · BL-22 snapshot performance · BL-23 Lighthouse budget (+ deferred start-page scripts, first paint −1.3 s) | **Done**; CI workflow `quality.yml` |
 | BL-20 WCAG 2.1 AA | **Done**: t84 on all 159 routes, EN light and FR dark, 0 violations |
-| BL-12 plugin evals | **Done**: first model run ($4.12); two plugin fixes; plugin 1.7.4 |
+| BL-12 plugin evals | **Done**: first model run ($4.12); two plugin fixes; plugin 1.9.4 (aligned with the desktop) |
 | BL-09 CRGO tag and approvals · BL-14 doc checks | **Done** (verified, nothing to change) |
 | BL-27 book alignment | **Mostly done**: items 1 (errata applied), 4, 6, 7 (French terms and spacing, FR-4 gate), 8, 9, 10, 11 done. Open: item 12 (MCQ self-check, part of the Classroom spec), item 13 (standards baseline in policy templates — needs a design choice: catalogues or a guidance field), word-for-word re-ingest of the published v2.51b |
 | BL-07 launcher check · BL-08 signing key · BL-10 French read-through · BL-13 larger local models · BL-15 CIS | **Ready for you**: `docs/AUTHOR-KITS.md` (one-command signing, French review CSV) |

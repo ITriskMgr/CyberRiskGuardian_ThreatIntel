@@ -11,7 +11,7 @@ set in English and French for ISP management to manage), a local SIEM and SOAR f
 **CyberRiskGuardian Ontology** (CRGO 0.11.2), a shared **Risk Registry**, and a pack that turns the KRI
 dashboard into a **Claude Dashboard** on claude.ai.
 
-**Version 1.9.3 Beta (1.9.x).** For teaching, exploration and method validation; validate every result
+**Version 1.9.4 Beta (1.9.x).** For teaching, exploration and method validation; validate every result
 before it supports a real decision.
 
 **Markers.** Every output follows the book's evidence discipline: provisional values carry *Analytical estimate —

@@ -3,9 +3,10 @@
 All notable changes to **CyberRiskGuardian with Threat Live-feed**.
 Lineage: derived from CyberRiskGuardian v1.1.0 (the Core edition, retired on 19 November 2026).
 
-## 1.7.4 — with Desktop 1.9.3 Beta — unreleased
+## 1.9.4 — with Desktop 1.9.4 Beta — 19 November 2026
 
-Plugin patch from the 1.9.3 backlog build. **No formula change: MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049
+**The plugin now carries the desktop application's version number** (author decision, 19 November 2026): 1.7.3 is followed
+by 1.9.4, and `desktop/app/tools/version_check.py` fails when the two differ. Plugin patch from the backlog build. **No formula change: MediBec 84,305 / 41,023 and CanaRetail 27,526 / 16,049
 unchanged.**
 
 ### Changed
