@@ -38,6 +38,8 @@ Use the author's textbook as the reference for the governance, risk, compliance 
 6. The multiple-choice answer key (`zz-appendix-mcq-answer-key.md`) is for checking a learner's own answers. When a student asks for help on review questions, explain the reasoning from the chapter first; give the key only when asked to check an answer.
 7. Figures are not included in this text version. The figure list is in `00-figures.md`; refer to figures by number when needed. Look up a cited source in `zz-references.md`, and further reading in `zz-bibliography.md`.
 
+8. **French.** For a question in French, or when the user asks for the French text, read `references/fr/`: the French edition (*Introduction à la gouvernance de la cybersécurité pour la gestion des technologies d’affaires*, 3e éd., v2.51), with the same file names as the English set, and cite it in French ("Chapitre N : Titre"). Sections are `##` headings from the French table of contents. Use the book's French terms (for example *appétence pour le risque*, *indices de risque*) and the French markers **Estimation analytique — validation requise**, **Lacune d'information — validation organisationnelle requise**, **Décision de la direction requise**. Regenerate the set with `scripts/ingest_book_fr.py` from a plain-text export of the French .docx.
+
 ## Chapter index (`references/`)
 
 | File | Content |
