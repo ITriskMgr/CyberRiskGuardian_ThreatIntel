@@ -604274,7 +604274,7 @@
  },
  "constraints": {
   "cvss": "Base score only. Exploitation evidence is routed to Pb(psi,A), never to CVSS Threat metrics, to avoid double counting in a product (C2).",
-  "exposure_gate": "No parameter uplift without organizational evidence of exposure (C4).",
+  "exposure_gate": "No parameter uplift without organizational evidence of exposure (C4). KEV and EPSS place Pb(psi,A) only, within a ladder band; Pb(A) stays the analyst's estimate, informed by the regional and sector sources listed here.",
   "never_adjust": [
    "delta_e",
    "delta_m",
