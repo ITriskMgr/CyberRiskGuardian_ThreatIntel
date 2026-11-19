@@ -43,7 +43,7 @@ def main(fix=False):
         want = policy(html)
         if fix:
             tag = f'<meta http-equiv="Content-Security-Policy" content="{want}">'
-            html = META.sub(lambda _: tag, html, 1) if m else html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n' + tag, 1)
+            html = META.sub(lambda _: tag, html, 1)  # noqa: B023 (used at once) if m else html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n' + tag, 1)
             open(p, "w", encoding="utf-8").write(html)
             n += 1
             continue

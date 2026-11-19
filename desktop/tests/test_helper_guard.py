@@ -462,7 +462,6 @@ class WriterEngine(unittest.TestCase):
         self.assertIn("ai_text", A.OPS)
 
     def test_quebec_health_and_crgo_candidates(self):
-        from crg_writer import api as A
         from crg_writer.engine import Profile
         from crg_writer.rulesets import candidates
         p = Profile({"ORG-05": {"value": ["QC"], "status": "answered"}, "DATA-01": {"value": ["health", "customer_pi"], "status": "answered"},

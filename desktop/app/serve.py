@@ -29,7 +29,6 @@ import gzip
 import hashlib
 import hmac
 import http.server
-import io
 import json
 import os
 import re
@@ -899,7 +898,7 @@ def run_nvd(job, params, ev):
                         raise RuntimeError(f"NVD request failed after retries: {exc}") from exc
                     _update(job, message=f"NVD busy or rate-limited, retrying in {10 * (attempt + 1)} s…")
                     if ev.wait(10 * (attempt + 1)):
-                        raise InterruptedError
+                        raise InterruptedError from None
             total = data.get("totalResults", 0)
             for it in data.get("vulnerabilities", []):
                 r = _nvd_compact(it)

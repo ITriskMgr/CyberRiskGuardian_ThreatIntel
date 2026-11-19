@@ -199,7 +199,7 @@ class Client:
             try:
                 msg = self.q.get(timeout=left)
             except queue.Empty:
-                raise TimeoutError("The ontology server did not answer in time.")
+                raise TimeoutError("The ontology server did not answer in time.") from None
             if msg is None:
                 tail = " ".join(self.err_tail[-3:])
                 raise RuntimeError("The ontology server stopped." + (f" {tail}" if tail else ""))

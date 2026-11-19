@@ -5,7 +5,7 @@
 
 Run: python3 test_ssvc.py      (set SSVC_REPO=<CERTCC/SSVC clone> to also diff every row against the CSVs)
 """
-import csv, itertools, json, os, sys, tempfile, unittest
+import csv, itertools, os, sys, unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ssvc as S
 
