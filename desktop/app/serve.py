@@ -352,6 +352,18 @@ def classroom_op(op, body):
     return 404, {"error": "unknown classroom operation"}
 
 
+THINK_BLOCK = re.compile(r"<think>.*?</think>\s*", re.S | re.I)
+
+
+def strip_thinking(text):
+    """1.9.5 (BL-13): the answer without a model's reasoning. Thinking models write <think>…</think> before the answer;
+    an unterminated <think> (the budget ran out while thinking) leaves no answer at all."""
+    t = THINK_BLOCK.sub("", str(text or ""))
+    if re.match(r"\s*<think>", t, re.I):
+        return ""
+    return t.lstrip()
+
+
 AI_DEFAULT_POLICY = {
     "remote_allowed": True, "web_search": True,
     # 1.9.2 (NV-019): the legacy tasks "chat" and "analyst" are gone — they reached a remote provider while every feature
@@ -754,6 +766,10 @@ def ai_complete(provider, cfg, body):
     payload = {"model": model, first: max_tokens, "messages": msgs}
     if temperature is not None:
         payload["temperature"] = temperature
+    if p.get("local"):
+        # 1.9.5 (BL-13): thinking models (Qwen3 and others) spent the whole token budget reasoning and returned no
+        # answer. Ask a local server not to think; servers that do not know the field ignore it or refuse it once.
+        payload["chat_template_kwargs"] = {"enable_thinking": False}
     try:
         out = _post_json(url, payload, _ai_headers(p, key, cfg))
     except RuntimeError as exc:
@@ -762,12 +778,16 @@ def ai_complete(provider, cfg, body):
             payload.pop(first, None)
             payload[other] = max_tokens
             out = _post_json(url, payload, _ai_headers(p, key, cfg))
+        elif "chat_template_kwargs" in str(exc):
+            payload.pop("chat_template_kwargs", None)
+            out = _post_json(url, payload, _ai_headers(p, key, cfg))
         else:
             raise
     choice = (out.get("choices") or [{}])[0]
     text = ((choice.get("message") or {}).get("content")) or choice.get("text") or ""
     if not isinstance(text, str):                       # some servers return content as a list of parts
         text = "".join(part.get("text", "") for part in text if isinstance(part, dict))
+    text = strip_thinking(text)
     usage = out.get("usage") or {}
     return {"text": text, "model": out.get("model") or model, "provider": provider,
             "usage": {"in": usage.get("prompt_tokens"), "out": usage.get("completion_tokens")},

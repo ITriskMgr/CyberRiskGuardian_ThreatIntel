@@ -212,6 +212,42 @@ class AiTaskReview(unittest.TestCase):
         self.assertEqual(serve.ai_task(seen), "test")
 
 
+class LocalThinkingModels(unittest.TestCase):
+    """1.9.5 (BL-13): a local server is asked not to think, its reasoning is stripped, and a server that refuses the field
+    is asked again without it. Remote providers never get the field."""
+
+    def _call(self, provider, replies, seen):
+        def fake(url, payload, headers, timeout=180):
+            seen.append(json.loads(json.dumps(payload)))
+            r = replies.pop(0)
+            if isinstance(r, Exception):
+                raise r
+            return r
+        env = {k: v for k, v in os.environ.items() if k != "CRG_AI_MOCK"}
+        with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(serve, "_post_json", side_effect=fake), \
+                mock.patch.object(serve, "_ai_key", return_value="k", create=True):
+            return serve.ai_complete(provider, {}, {"task": "critique", "prompt": "TASK: critique\nhi", "max_tokens": 50, "model": "Qwen3-32B-4bit-DWQ"})
+
+    def test_local_asks_no_thinking_and_strips_reasoning(self):
+        seen = []
+        ok = {"choices": [{"message": {"content": "<think>long reasoning</think>\n{\"findings\": []}"}, "finish_reason": "stop"}]}
+        out = self._call("local", [ok], seen)
+        self.assertEqual(seen[0]["chat_template_kwargs"], {"enable_thinking": False})
+        self.assertEqual(out["text"], '{"findings": []}')
+
+    def test_refused_field_is_retried_without_it(self):
+        seen = []
+        ok = {"choices": [{"message": {"content": "OK"}, "finish_reason": "stop"}]}
+        out = self._call("local", [RuntimeError("400: unknown field chat_template_kwargs"), ok], seen)
+        self.assertIn("chat_template_kwargs", seen[0])
+        self.assertNotIn("chat_template_kwargs", seen[1])
+        self.assertEqual(out["text"], "OK")
+
+    def test_unterminated_thinking_is_no_answer(self):
+        self.assertEqual(serve.strip_thinking("<think>ran out of tokens"), "")
+        self.assertEqual(serve.strip_thinking("plain answer"), "plain answer")
+
+
 class AiRequestChecks(unittest.TestCase):
     """1.9.2 — NV-055 (size, token cap, model name), NV-033 (stop reason, empty answer), NV-084 (full payload recorded)."""
 
