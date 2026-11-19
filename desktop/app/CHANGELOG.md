@@ -88,6 +88,10 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   check now runs in a stand-in home folder, and new tests confirm that a Google Drive or iCloud folder under
   `~/Library/CloudStorage` or `~/Library/Mobile Documents`, also reached through a symbolic link, is accepted as a shared
   folder, while `~/Library/Preferences` and hidden folders are refused. The guard itself is unchanged.
+- **WCAG 2.1 AA on every screen (BL-20).** New suite t84 runs axe-core on all 159 routes of the screen-code registry, in
+  English (light) and French (dark), and fails on any WCAG 2.0/2.1/2.2 level A or AA violation or a skipped heading level.
+  Fixed for it: disclosure toggles are at least 24 px high (WCAG 2.2, 2.5.8), the Risk Registry preview heading and the
+  three Ontology · Explore cards follow the heading order.
 - **Faster first paint.** The 13 data scripts of the start page load with `defer`: the first content appears about 1.3 s
   sooner (Lighthouse, simulated desktop: 3.9 s → 2.6 s). Start-up order is unchanged.
 - **Quality gates (BL-16 to BL-23).** `ruff.toml`, bandit (medium and high severity), Semgrep rules for the method

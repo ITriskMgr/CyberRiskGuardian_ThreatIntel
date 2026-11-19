@@ -177,8 +177,8 @@ async function explore(body) {
   const fw = select(C.FRAMEWORKS, 'csf2');
   const cq = el('input', { placeholder: 'PR.AA-05, SI-4 or 8.16' });
   body.append(el('div', 'grid g3',
-    card(el('h3', { style: { marginTop: 0 } }, 'One scenario'), field('Identifier', sid), el('button', { class: 'btn sm', onclick: () => sid.value.trim() && showScenario(out, sid.value.trim()) }, 'Show')),
-    card(el('h3', { style: { marginTop: 0 } }, 'Controls for a technique'), field('ATT&CK technique', tq), el('button', { class: 'btn sm', onclick: async () => {
+    card(el('h2', { style: { marginTop: 0 } }, 'One scenario'), field('Identifier', sid), el('button', { class: 'btn sm', onclick: () => sid.value.trim() && showScenario(out, sid.value.trim()) }, 'Show')),
+    card(el('h2', { style: { marginTop: 0 } }, 'Controls for a technique'), field('ATT&CK technique', tq), el('button', { class: 'btn sm', onclick: async () => {
       const t = tq.value.trim().toUpperCase(); if (!t) return;
       try {
         const r = await C.call('crgo_controls_for_technique', { technique: t, min_confidence: opts.min, top: 10 });
@@ -190,7 +190,7 @@ async function explore(body) {
             el('ol', 'small', ...list.map(c => el('li', { 'data-noi18n': '' }, `${c.id} ${c.title} · ${c.scenarios}`))))))));
       } catch (e) { out.replaceChildren(banner('bad', 'No answer', String(e.message || e))); }
     } }, 'Show')),
-    card(el('h3', { style: { marginTop: 0 } }, 'Scenarios a control addresses'), field('Framework', fw), field('Control', cq), el('button', { class: 'btn sm', onclick: async () => {
+    card(el('h2', { style: { marginTop: 0 } }, 'Scenarios a control addresses'), field('Framework', fw), field('Control', cq), el('button', { class: 'btn sm', onclick: async () => {
       if (!cq.value.trim()) return;
       try {
         const r = await C.call('crgo_scenarios_for_control', { framework: fw.value, control_id: cq.value.trim(), min_confidence: opts.min, limit: 50 });

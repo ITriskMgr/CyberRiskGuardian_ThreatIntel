@@ -213,7 +213,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
 details.card > summary { cursor: pointer; font-weight: 700; font-family: var(--display); }
 details.card[open] > summary { margin-bottom: 12px; }
 summary > h2.sumh { display: inline; font: inherit; color: inherit; margin: 0; }   /* 1.9.2 (NV-064): the card's title is a heading for the outline, drawn as before */
-summary { cursor: pointer; }
+summary { cursor: pointer; min-height: 24px; line-height: 24px; }   /* 1.9.3 (BL-20): WCAG 2.2 target size 2.5.8 — every disclosure toggle is at least 24 px high */
 summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
 .grid { display: grid; gap: 14px; }
 /* 1.9.2 (NV-027, T3) — a <table class="grid"> is an editable grid, not a CSS grid: it keeps the table layout so its

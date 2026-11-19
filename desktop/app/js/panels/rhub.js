@@ -182,7 +182,7 @@ async function contribute(body, sec) {
     contrib.anon.enabled ? el('div', 'note', 'Replacements: ' + (ctx ? A.summary(ctx) : '—')) : banner('bad', 'Not anonymized', 'These cards identify your organization. Share them only with recipients authorized to see them.'),
     leaks.length ? banner('bad', 'Identifying terms remain in the cards', 'Still present in the cards: ' + leaks.slice(0, 12).join(', ') + '. Add them under Publish & share → Additional terms to replace, or edit the scenario text.')
       : unknown.pairs.length || unknown.acronyms.length ? banner('warn', 'Check these before sharing', 'Name-like terms and acronyms no replacement covers: ' + [...unknown.pairs, ...unknown.acronyms].slice(0, 12).map(p => p.term).join(', ') + '. Add them under Publish & share → Additional terms to replace if they identify a person, a supplier, a site or the organization.') : null,
-    el('h4', null, `Preview — ${anonCards.length} card(s)`), preview));
+    el('h3', null, `Preview — ${anonCards.length} card(s)`), preview));
   body.append(card(el('h2', { style: { marginTop: 0 } }, '4 · Share'),
     el('div', 'btnrow',
       el('button', { class: 'btn', disabled: !anonCards.length, onclick: async () => {
