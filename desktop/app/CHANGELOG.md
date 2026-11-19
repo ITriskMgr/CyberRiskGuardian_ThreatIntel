@@ -83,6 +83,11 @@ journalled). Decisions taken during the build: `DECISIONS-1.9.3.md`.
   Threat_Context sheet of the Excel export now list the snapshot-driven lines in the revision log and the other lines (IAM and
   configuration-management findings, accepted reduction proposals, reviews, import corrections) apart, under *Other
   revisions in this workspace*, with their own values and notes. Nothing is dropped. Regression test: t83.
+- **Helper guard tests pass on macOS (BL-03, evaluation CRG-004).** `test_problem` checked an "ordinary" folder made in the
+  temporary folder, which macOS keeps under `/private/var` — a system folder the guard rightly refuses. The ordinary-folder
+  check now runs in a stand-in home folder, and new tests confirm that a Google Drive or iCloud folder under
+  `~/Library/CloudStorage` or `~/Library/Mobile Documents`, also reached through a symbolic link, is accepted as a shared
+  folder, while `~/Library/Preferences` and hidden folders are refused. The guard itself is unchanged.
 - **EPSS default date in UTC.** The helper's *run_epss* derives "yesterday" in UTC (EPSS files are dated in UTC), so the first
   try no longer misses near midnight.
 - **The anonymizer no longer treats record ids** such as C01 (in the *members* fields) as person names.

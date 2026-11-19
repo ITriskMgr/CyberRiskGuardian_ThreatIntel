@@ -99,12 +99,48 @@ class RegistryFolder(unittest.TestCase):
         self.assertTrue(serve.registry_dir_problem(home))
         self.assertTrue(serve.registry_dir_problem("/etc"))
         self.assertTrue(serve.registry_dir_problem(serve.ROOT))
-        d = tempfile.mkdtemp(prefix="reg-", dir=_TMP)
-        self.assertEqual(serve.registry_dir_problem(d), "")
-        open(os.path.join(d, "claude_desktop_config.json"), "w").close()
-        self.assertIn("configuration files", serve.registry_dir_problem(d))
         if os.path.isdir(os.path.join(home, ".config")):
             self.assertTrue(serve.registry_dir_problem(os.path.join(home, ".config")))
+
+    # 1.9.3 (BL-03, CRG-004): an ordinary folder is checked inside a stand-in home folder. The temporary folder itself is
+    # under /private/var on macOS, which the guard rightly refuses as a system folder — the earlier test failed there.
+    def _fake_home(self):
+        fake = os.path.realpath(tempfile.mkdtemp(prefix="home-", dir=_TMP))
+        real = os.path.expanduser
+        return fake, mock.patch("os.path.expanduser", lambda p: fake + p[1:] if str(p).startswith("~") else real(p))
+
+    def test_ordinary_folder(self):
+        fake, patch = self._fake_home()
+        with patch:
+            d = os.path.join(fake, "Documents", "CRG-shared")
+            os.makedirs(d)
+            self.assertEqual(serve.registry_dir_problem(d), "")
+            open(os.path.join(d, "claude_desktop_config.json"), "w").close()
+            self.assertIn("configuration files", serve.registry_dir_problem(d))
+
+    def test_cloud_storage_folder_is_accepted(self):
+        fake, patch = self._fake_home()
+        with patch:
+            for sub in (("Library", "CloudStorage", "GoogleDrive-someone@example.org", "Mon disque", "CyberRiskGuardian", "Shared_Tester"),
+                        ("Library", "Mobile Documents", "com~apple~CloudDocs", "CRG")):
+                d = os.path.join(fake, *sub)
+                os.makedirs(d)
+                self.assertEqual(serve.registry_dir_problem(d), "", d)
+            prefs = os.path.join(fake, "Library", "Preferences", "x")
+            os.makedirs(prefs)
+            self.assertIn("application settings", serve.registry_dir_problem(prefs))
+            hidden = os.path.join(fake, ".hidden", "x")
+            os.makedirs(hidden)
+            self.assertIn("hidden", serve.registry_dir_problem(hidden))
+
+    def test_link_into_cloud_storage_is_accepted(self):   # a Drive folder reached through a symbolic link (Finder alias-like)
+        fake, patch = self._fake_home()
+        with patch:
+            target = os.path.join(fake, "Library", "CloudStorage", "GoogleDrive-x", "My Drive", "CRG")
+            os.makedirs(target)
+            link = os.path.join(fake, "Drive-CRG")
+            os.symlink(target, link)
+            self.assertEqual(serve.registry_dir_problem(link), "")
 
 
 class AiTask(unittest.TestCase):
