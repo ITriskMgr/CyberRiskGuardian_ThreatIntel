@@ -69,3 +69,7 @@ CRGO snapshot are content and were not touched.
 Not changed on purpose: the Security Policy Writer's French policy text (*preuve ou soupçon de compromission* — the legal
 sense, Writer 0.1.1 is a separate workstream) and the CRGO snapshot's FR labels (*preuve d'essai*: a CRGO 0.11.1
 content item, NV-C05).
+
+## FR-5 — No space before the semicolon (19 November 2026)
+
+Author decision: Québec usage, no space before « ; » in the interface and the French guide (`tools/fr_terms_check.py` FR-5). « séparés par ; », which names the character, is the one exception. The book's own French text (textbook reference set, quiz bank) is quoted as published.
