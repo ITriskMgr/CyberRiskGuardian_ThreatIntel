@@ -12,7 +12,7 @@ const FILES = ["./", "index.html", "styles.css", "threat.js", "crg.js", "cvss4.j
   "js/panels/calc.js", "js/panels/recs.js", "js/panels/threats.js", "js/panels/vulns.js", "js/panels/threatctx.js",
   "js/panels/cvss.js", "js/panels/budget.js", "js/panels/export.js", "js/panels/online.js",
   "js/panels/assets.js", "js/panels/riskreg.js", "js/panels/mitigation.js", "js/panels/feeds.js", "js/panels/frameworks.js", "js/panels/compliance.js", "js/panels/share.js", "js/panels/ai.js", "js/panels/forecast.js", "js/panels/backup.js", "js/panels/settings.js", "js/panels/settings_more.js", "js/panels/process.js", "js/panels/about.js", "js/panels/links.js", "js/panels/settings_ai.js", "js/panels/importui.js", "js/panels/settings_files.js",
-  "frameworks/nist-800-171r3.json", "frameworks/itsp-10-171.json", "frameworks/cobit-2019.json", "frameworks/nist-800-218-ssdf.json",
+  "frameworks/nist-800-171r3.json", "frameworks/itsp-10-171.json", "frameworks/cobit-2019.json", "frameworks/nist-800-218-ssdf.json", "js/data/quiz.js",
   "examples/threat-context/threat-context-example.json",
   "js/safeguards.js", "js/maturity.js", "js/variety.js", "js/panels/safeguards.js", "js/panels/maturity.js",
   "js/guidelines.js", "js/reset.js", "js/avl.js", "js/panels/reset.js",

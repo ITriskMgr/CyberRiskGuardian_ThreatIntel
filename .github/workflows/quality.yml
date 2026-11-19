@@ -37,6 +37,8 @@ jobs:
           python -m venv "$RUNNER_TEMP/semgrep"
           "$RUNNER_TEMP/semgrep/bin/pip" install --quiet -r requirements-semgrep.txt
           "$RUNNER_TEMP/semgrep/bin/semgrep" scan --config .semgrep --metrics off --error
+      - name: Classroom quiz bank matches the textbook references
+        run: python scripts/build_quiz.py --check
       - name: Threat snapshot performance budget (no network)
         run: python plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_snapshot_perf.py
 
