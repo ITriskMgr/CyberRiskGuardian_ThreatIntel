@@ -1,0 +1,176 @@
+{
+ "schema": "crg-exercise-source/1",
+ "note": {
+  "en": "Four fictional tabletop exercises for the Classroom (BL-26). Teaching material: every organization, person and event is fictional; alerts and indicators are exercise material, never confirmed incidents. No unlock code is stored here: the instructor's application makes fresh codes each time it builds an exercise pack, and prints them on the facilitator sheet. Not legal advice: notification questions need a qualified person. © 2026 Marc-André Léger. CC BY-NC 4.0.",
+  "fr": "Quatre exercices sur table fictifs pour la Classe (BL-26). Matériel pédagogique : toutes les organisations, personnes et situations sont fictives; les alertes et les indicateurs sont du matériel d’exercice, jamais des incidents confirmés. Aucun code de déblocage n’est conservé ici : l’application de l’enseignant crée de nouveaux codes chaque fois qu’elle produit un paquet d’exercice et les imprime sur la fiche de l’animateur. Ceci n’est pas un avis juridique : les questions de notification exigent une personne qualifiée. © 2026 Marc-André Léger. CC BY-NC 4.0."
+ },
+ "roles": {
+  "ic": {"en": "Incident commander", "fr": "Responsable de l’incident"},
+  "soc": {"en": "SOC analyst", "fr": "Analyste du centre des opérations de sécurité (COS)"},
+  "ciso": {"en": "CISO", "fr": "Chef de la sécurité de l’information (CSI)"},
+  "comms": {"en": "Communications", "fr": "Communications"},
+  "legal": {"en": "Legal and privacy", "fr": "Affaires juridiques et protection des renseignements personnels"},
+  "itops": {"en": "IT operations", "fr": "Exploitation des TI"}
+ },
+ "exercises": [
+  {
+   "id": "ex1-medibec-ransomware",
+   "case": "medibec",
+   "title": {"en": "Ransomware across MediBec’s clinics", "fr": "Rançongiciel dans les cliniques de MediBec"},
+   "chapters": [12, 7, 8, 2],
+   "roles": ["ic", "soc", "ciso", "comms", "legal", "itops"],
+   "brief": {
+    "en": "Monday, 07:40. MediBec runs private clinics across Québec. The clinics open at 08:00. The help desk receives calls from two clinics: workstations show a ransom note and the scheduling application does not respond. Your team is MediBec’s incident response team. Work through each inject when the facilitator gives you its code, record your decisions and who took them, then answer the debrief questions.",
+    "fr": "Lundi, 7 h 40. MediBec exploite des cliniques privées au Québec. Les cliniques ouvrent à 8 h. Le centre de services reçoit des appels de deux cliniques : des postes affichent une demande de rançon et l’application de rendez-vous ne répond plus. Votre équipe est l’équipe d’intervention de MediBec. Traitez chaque injection lorsque l’animateur vous en donne le code, consignez vos décisions et qui les a prises, puis répondez aux questions de rétroaction."
+   },
+   "injects": [
+    {"title": {"en": "First calls", "fr": "Premiers appels"},
+     "text": {"en": "Two clinics report ransom notes on reception workstations. The SIEM shows a burst of file renames on a shared drive used by both clinics, starting at 06:55. Patients start arriving at 08:00.", "fr": "Deux cliniques signalent des demandes de rançon sur les postes de l’accueil. Le SIEM montre une série de renommages de fichiers sur un lecteur partagé utilisé par les deux cliniques, depuis 6 h 55. Les patients arrivent dès 8 h."},
+     "ask": {"en": "Who leads? What do you contain first, and what do you tell the clinics now?", "fr": "Qui dirige? Que confinez-vous d’abord, et que dites-vous maintenant aux cliniques?"}},
+    {"title": {"en": "Spread", "fr": "Propagation"},
+     "text": {"en": "IT operations finds the same note on a server in the head office. The backup console still answers, but its service account was used at 06:40 from a workstation in one of the clinics.", "fr": "L’exploitation des TI trouve la même demande sur un serveur du siège social. La console de sauvegarde répond encore, mais son compte de service a été utilisé à 6 h 40 depuis un poste d’une des cliniques."},
+     "ask": {"en": "Do you isolate the head office network? What do you do about the backups and the service account?", "fr": "Isolez-vous le réseau du siège social? Que faites-vous des sauvegardes et du compte de service?"}},
+    {"title": {"en": "Clinical impact", "fr": "Effet sur les soins"},
+     "text": {"en": "The scheduling and patient-record applications are down in four clinics. A clinic manager asks whether to send patients home or to work on paper.", "fr": "Les applications de rendez-vous et de dossiers patients sont arrêtées dans quatre cliniques. Une gestionnaire de clinique demande s’il faut renvoyer les patients ou travailler sur papier."},
+     "ask": {"en": "Which business continuity procedure applies? Who decides, and what is the priority order of services?", "fr": "Quelle procédure de continuité s’applique? Qui décide, et dans quel ordre les services sont-ils rétablis?"}},
+    {"title": {"en": "The demand", "fr": "La demande"},
+     "text": {"en": "The ransom note gives a deadline of 72 hours and claims that patient files were copied. An anonymous message to the general mailbox repeats the claim and attaches a list of 20 file names.", "fr": "La demande de rançon fixe un délai de 72 heures et affirme que des dossiers de patients ont été copiés. Un message anonyme à la boîte générale répète l’affirmation et joint une liste de 20 noms de fichiers."},
+     "ask": {"en": "How do you verify the claim? Who must be involved before any decision about payment, and on what basis?", "fr": "Comment vérifiez-vous l’affirmation? Qui doit participer avant toute décision sur le paiement, et sur quelle base?"}},
+    {"title": {"en": "Personal information", "fr": "Renseignements personnels"},
+     "text": {"en": "The SOC confirms that a large archive left the network on Sunday night through a cloud file-sharing service. The file names match those in the anonymous message.", "fr": "Le COS confirme qu’une grosse archive a quitté le réseau dimanche soir par un service de partage de fichiers infonuagique. Les noms de fichiers correspondent à ceux du message anonyme."},
+     "ask": {"en": "Is this a confidentiality incident under Québec’s private-sector privacy law? What must be recorded, assessed and possibly notified, and who decides?", "fr": "S’agit-il d’un incident de confidentialité au sens de la loi québécoise sur le secteur privé? Que faut-il consigner, évaluer et éventuellement notifier, et qui décide?"}},
+    {"title": {"en": "The media", "fr": "Les médias"},
+     "text": {"en": "A journalist calls the main switchboard: patients have posted on social media that clinics are closed because of a cyberattack.", "fr": "Un journaliste appelle le standard : des patients ont publié sur les réseaux sociaux que les cliniques sont fermées à cause d’une cyberattaque."},
+     "ask": {"en": "What do you say, who says it, and what must not be said yet?", "fr": "Que dites-vous, qui le dit, et que ne faut-il pas encore dire?"}},
+    {"title": {"en": "Recovery", "fr": "Rétablissement"},
+     "text": {"en": "The offline backup copy from Saturday restores cleanly in a test environment. Restoring the patient-record system takes an estimated 30 hours.", "fr": "La copie de sauvegarde hors ligne de samedi se restaure correctement dans un environnement d’essai. La restauration du système de dossiers patients prendrait environ 30 heures."},
+     "ask": {"en": "What do you restore first, how do you make sure the attacker is no longer present, and when do you reconnect the clinics?", "fr": "Que restaurez-vous d’abord, comment vous assurez-vous que l’attaquant n’est plus présent, et quand reconnectez-vous les cliniques?"}},
+    {"title": {"en": "Board update", "fr": "Point au conseil"},
+     "text": {"en": "The chair of the board asks for a one-page update before 17:00: what happened, the impact on patients, the decisions taken, and the decisions the board must take.", "fr": "La présidente du conseil demande une mise à jour d’une page avant 17 h : ce qui s’est passé, l’effet sur les patients, les décisions prises et celles que le conseil doit prendre."},
+     "ask": {"en": "Draft the headline points. Which decisions belong to the board, not to the response team?", "fr": "Rédigez les points principaux. Quelles décisions appartiennent au conseil plutôt qu’à l’équipe d’intervention?"}}
+   ],
+   "debrief": [
+    {"en": "Which decision was the hardest, and what information would have made it easier? Link your answer to the incident lifecycle in chapter 12.", "fr": "Quelle décision a été la plus difficile, et quelle information l’aurait facilitée? Reliez votre réponse au cycle de vie de l’incident du chapitre 12."},
+    {"en": "Which existing controls limited the damage, and which failed? Name one KRI that would have warned you earlier.", "fr": "Quels contrôles existants ont limité les dommages, et lesquels ont échoué? Nommez un indicateur clé de risque qui vous aurait averti plus tôt."},
+    {"en": "How would you revise MediBec’s ransomware scenario in the risk register after this exercise? Which parameters would you revisit, and on what evidence?", "fr": "Comment réviseriez-vous le scénario de rançongiciel de MediBec dans le registre des risques après cet exercice? Quels paramètres revoir, et sur quels éléments probants?"}
+   ]
+  },
+  {
+   "id": "ex2-canaretail-supplier",
+   "case": "canaretail",
+   "title": {"en": "Compromised supplier at CanaRetail", "fr": "Fournisseur compromis chez CanaRetail"},
+   "chapters": [19, 12, 9],
+   "roles": ["ic", "soc", "ciso", "comms", "legal", "itops"],
+   "brief": {
+    "en": "Thursday, 10:15. CanaRetail is a national retailer. Its point-of-sale terminals and its loyalty platform are maintained by an external managed service provider (MSP) with remote access to stores. The MSP calls: it has detected an intrusion in its own network.",
+    "fr": "Jeudi, 10 h 15. CanaRetail est un détaillant national. Ses terminaux de point de vente et sa plateforme de fidélisation sont entretenus par un fournisseur de services gérés (FSG) externe qui a un accès à distance aux magasins. Le FSG appelle : il a détecté une intrusion dans son propre réseau."
+   },
+   "injects": [
+    {"title": {"en": "The call", "fr": "L’appel"},
+     "text": {"en": "The MSP’s security lead says an attacker used a stolen technician account for at least five days. They cannot yet say which customers were reached.", "fr": "Le responsable de la sécurité du FSG indique qu’un attaquant a utilisé un compte de technicien volé pendant au moins cinq jours. Il ne peut pas encore dire quels clients ont été touchés."},
+     "ask": {"en": "What do you ask the MSP for now? Do you cut its remote access, and what does that cost the stores?", "fr": "Que demandez-vous au FSG maintenant? Coupez-vous son accès à distance, et qu’est-ce que cela coûte aux magasins?"}},
+    {"title": {"en": "The contract", "fr": "Le contrat"},
+     "text": {"en": "Procurement finds the contract: it requires incident notification ‘without undue delay’ but sets no hours, and gives CanaRetail a right to audit once a year.", "fr": "L’approvisionnement retrouve le contrat : il exige un avis d’incident « sans délai indu » mais ne fixe aucun nombre d’heures, et donne à CanaRetail un droit de vérification une fois par année."},
+     "ask": {"en": "What can you require today under this contract, and what will you change in the next one?", "fr": "Que pouvez-vous exiger aujourd’hui en vertu de ce contrat, et que changerez-vous dans le prochain?"}},
+    {"title": {"en": "Signals in the stores", "fr": "Signaux dans les magasins"},
+     "text": {"en": "The SOC finds remote sessions from the MSP’s jump host to 14 store servers outside the maintenance window, two days ago.", "fr": "Le COS trouve des sessions à distance depuis l’hôte de rebond du FSG vers 14 serveurs de magasin, en dehors de la fenêtre de maintenance, il y a deux jours."},
+     "ask": {"en": "These are indicator matches, not yet a confirmed incident. What do you do to confirm or rule out compromise of the 14 servers?", "fr": "Ce sont des correspondances d’indicateurs, pas encore un incident confirmé. Que faites-vous pour confirmer ou écarter la compromission des 14 serveurs?"}},
+    {"title": {"en": "Payment cards", "fr": "Cartes de paiement"},
+     "text": {"en": "One of the 14 servers is in the payment card environment of a flagship store. The acquiring bank must be told of a suspected card data compromise under its agreement.", "fr": "L’un des 14 serveurs se trouve dans l’environnement des cartes de paiement d’un magasin phare. La banque acquéreuse doit être avisée de toute compromission soupçonnée des données de cartes en vertu de son entente."},
+     "ask": {"en": "Who contacts the bank, when, and with what facts? What do you preserve for the forensic investigation?", "fr": "Qui communique avec la banque, quand, et avec quels faits? Que préservez-vous pour l’enquête judiciaire?"}},
+    {"title": {"en": "Other suppliers", "fr": "Autres fournisseurs"},
+     "text": {"en": "The CISO asks which other suppliers have the same kind of standing remote access. Nobody has a complete list.", "fr": "Le CSI demande quels autres fournisseurs ont le même genre d’accès à distance permanent. Personne n’a de liste complète."},
+     "ask": {"en": "How do you build that list quickly, and what interim rule do you set for supplier access?", "fr": "Comment dressez-vous rapidement cette liste, et quelle règle provisoire fixez-vous pour l’accès des fournisseurs?"}},
+    {"title": {"en": "The MSP’s report", "fr": "Le rapport du FSG"},
+     "text": {"en": "The MSP sends a two-page summary. It says no CanaRetail data was taken, but it does not say how it reached that conclusion.", "fr": "Le FSG envoie un résumé de deux pages. Il affirme qu’aucune donnée de CanaRetail n’a été prise, mais n’explique pas comment il en arrive à cette conclusion."},
+     "ask": {"en": "Do you accept the conclusion? What evidence do you ask for, and who reviews it?", "fr": "Acceptez-vous la conclusion? Quels éléments probants demandez-vous, et qui les examine?"}},
+    {"title": {"en": "Back to normal", "fr": "Retour à la normale"},
+     "text": {"en": "The stores ask when the MSP can resume maintenance; two terminal updates are overdue.", "fr": "Les magasins demandent quand le FSG pourra reprendre la maintenance; deux mises à jour de terminaux sont en retard."},
+     "ask": {"en": "Under what conditions do you restore the MSP’s access? Who approves, and how is the decision recorded?", "fr": "À quelles conditions rétablissez-vous l’accès du FSG? Qui approuve, et comment la décision est-elle consignée?"}}
+   ],
+   "debrief": [
+    {"en": "Which clauses would you add to the MSP contract? Link them to the third-party governance practices of chapter 19.", "fr": "Quelles clauses ajouteriez-vous au contrat du FSG? Reliez-les aux pratiques de gouvernance des tiers du chapitre 19."},
+    {"en": "How should supplier remote access appear in CanaRetail’s scenario portfolio? Draft the causal chain of a supplier-access scenario.", "fr": "Comment l’accès à distance des fournisseurs devrait-il figurer dans le portefeuille de scénarios de CanaRetail? Rédigez la chaîne causale d’un scénario d’accès fournisseur."},
+    {"en": "What distinguished an indicator match from a confirmed incident in this exercise, and why does the difference matter for decisions?", "fr": "Qu’est-ce qui distinguait une correspondance d’indicateur d’un incident confirmé dans cet exercice, et pourquoi la différence compte-t-elle pour les décisions?"}
+   ]
+  },
+  {
+   "id": "ex3-bec-payment-fraud",
+   "case": "canaretail",
+   "title": {"en": "Business email compromise and payment fraud", "fr": "Compromission de courriel d’affaires et fraude au paiement"},
+   "chapters": [10, 12, 1, 21],
+   "roles": ["ic", "soc", "ciso", "comms", "legal", "itops"],
+   "brief": {
+    "en": "Tuesday, 14:30. CanaRetail’s accounts payable team processes about 400 supplier payments a week. A supplier calls to ask why its last two invoices, totalling $186,000, have not been paid. The finance system shows both as paid, last Friday.",
+    "fr": "Mardi, 14 h 30. L’équipe des comptes fournisseurs de CanaRetail traite environ 400 paiements de fournisseurs par semaine. Un fournisseur appelle pour demander pourquoi ses deux dernières factures, totalisant 186 000 $, n’ont pas été payées. Le système financier les indique comme payées vendredi dernier."
+   },
+   "injects": [
+    {"title": {"en": "The changed account", "fr": "Le compte modifié"},
+     "text": {"en": "The payments went to a new bank account. The change was requested by an email that appears to come from the supplier’s controller, two weeks ago, and approved by an AP clerk.", "fr": "Les paiements sont allés à un nouveau compte bancaire. Le changement a été demandé par un courriel qui semble venir du contrôleur du fournisseur, il y a deux semaines, et approuvé par un commis aux comptes fournisseurs."},
+     "ask": {"en": "What do you do in the next hour to try to recover the funds, and who calls the bank?", "fr": "Que faites-vous dans l’heure qui suit pour tenter de récupérer les fonds, et qui appelle la banque?"}},
+    {"title": {"en": "Look-alike or inside?", "fr": "Domaine imité ou boîte compromise?"},
+     "text": {"en": "The SOC finds the request came from a domain one letter different from the supplier’s. It also finds that the AP clerk’s own mailbox has a rule forwarding messages containing ‘invoice’ to an external address.", "fr": "Le COS découvre que la demande provenait d’un domaine qui diffère d’une lettre de celui du fournisseur. Il découvre aussi que la boîte du commis contient une règle qui transfère vers une adresse externe les messages contenant « facture »."},
+     "ask": {"en": "What does the forwarding rule tell you, and what do you check now on the clerk’s account and on other mailboxes?", "fr": "Que vous apprend la règle de transfert, et que vérifiez-vous maintenant sur le compte du commis et sur les autres boîtes?"}},
+    {"title": {"en": "Multi-factor authentication", "fr": "Authentification multifacteur"},
+     "text": {"en": "The clerk’s account had multi-factor authentication. The sign-in logs show an approved push notification at 02:13 on a Sunday.", "fr": "Le compte du commis avait l’authentification multifacteur. Les journaux de connexion montrent une notification poussée approuvée à 2 h 13 un dimanche."},
+     "ask": {"en": "What does this say about the type of MFA in place? What do you change, for whom, and how fast?", "fr": "Qu’est-ce que cela indique sur le type d’authentification multifacteur en place? Que changez-vous, pour qui, et à quelle vitesse?"}},
+    {"title": {"en": "More requests", "fr": "D’autres demandes"},
+     "text": {"en": "A search of the mail system finds four other bank-change requests in the last month, from three look-alike domains. Two were approved; payments are scheduled for Thursday.", "fr": "Une recherche dans la messagerie trouve quatre autres demandes de changement bancaire au cours du dernier mois, provenant de trois domaines imités. Deux ont été approuvées; les paiements sont prévus jeudi."},
+     "ask": {"en": "What do you stop, how do you verify the legitimate suppliers, and what control should have caught this?", "fr": "Que bloquez-vous, comment vérifiez-vous les fournisseurs légitimes, et quel contrôle aurait dû détecter cela?"}},
+    {"title": {"en": "Insurance and police", "fr": "Assurance et police"},
+     "text": {"en": "The CFO asks whether the cyber insurance policy covers social-engineering fraud and whether to file a police report.", "fr": "Le chef des finances demande si la police d’assurance cyber couvre la fraude par ingénierie sociale et s’il faut déposer une plainte à la police."},
+     "ask": {"en": "Who reads the policy wording, what notice period applies, and what evidence must be kept?", "fr": "Qui lit le libellé de la police, quel délai d’avis s’applique, et quels éléments probants faut-il conserver?"}},
+    {"title": {"en": "The clerk", "fr": "Le commis"},
+     "text": {"en": "The clerk’s manager wants the clerk dismissed for approving the change without calling the supplier.", "fr": "La gestionnaire du commis veut le congédier pour avoir approuvé le changement sans appeler le fournisseur."},
+     "ask": {"en": "Was the procedure clear, trained and enforced? Where does accountability sit for this failure?", "fr": "La procédure était-elle claire, enseignée et appliquée? Où se situe la responsabilité de cet échec?"}},
+    {"title": {"en": "Closing the gap", "fr": "Combler l’écart"},
+     "text": {"en": "Finance proposes a call-back rule for every bank change, to a number on file, with a second approver above $10,000.", "fr": "Les finances proposent une règle de rappel pour chaque changement bancaire, à un numéro déjà au dossier, avec une seconde approbation au-delà de 10 000 $."},
+     "ask": {"en": "Is it enough? What would you add on the technical side, and how will you measure that the rule is followed?", "fr": "Est-ce suffisant? Qu’ajouteriez-vous sur le plan technique, et comment mesurerez-vous que la règle est suivie?"}}
+   ],
+   "debrief": [
+    {"en": "Which control in the payment process failed first, and which identity control (chapter 10) would have stopped the mailbox takeover?", "fr": "Quel contrôle du processus de paiement a échoué en premier, et quel contrôle d’identité (chapitre 10) aurait arrêté la prise de contrôle de la boîte?"},
+    {"en": "Use the fraud triangle (chapter 1) to explain why the attack worked on the organization, not only on the clerk.", "fr": "Utilisez le triangle de la fraude (chapitre 1) pour expliquer pourquoi l’attaque a fonctionné sur l’organisation, et pas seulement sur le commis."},
+    {"en": "Write a KRI with an owner, a source, a frequency and thresholds that would have warned of this pattern.", "fr": "Rédigez un indicateur clé de risque avec un responsable, une source, une fréquence et des seuils qui aurait signalé ce schéma."}
+   ]
+  },
+  {
+   "id": "ex4-cloud-exposure-law25",
+   "case": "medibec",
+   "title": {"en": "Cloud storage exposure of personal information (Québec Law 25)", "fr": "Exposition de renseignements personnels dans un stockage infonuagique (Loi 25)"},
+   "chapters": [16, 15, 12, 3],
+   "roles": ["ic", "soc", "ciso", "comms", "legal", "itops"],
+   "brief": {
+    "en": "Wednesday, 09:00. MediBec moved its appointment reminders to a cloud service last spring. A security researcher writes to the privacy officer: a cloud storage bucket that appears to belong to MediBec is readable by anyone on the internet and holds files with patient names and appointment dates.",
+    "fr": "Mercredi, 9 h. MediBec a transféré ses rappels de rendez-vous vers un service infonuagique au printemps dernier. Un chercheur en sécurité écrit au responsable de la protection des renseignements personnels : un compartiment de stockage infonuagique qui semble appartenir à MediBec est lisible par n’importe qui sur Internet et contient des fichiers avec des noms de patients et des dates de rendez-vous."
+   },
+   "injects": [
+    {"title": {"en": "Is it ours?", "fr": "Est-ce le nôtre?"},
+     "text": {"en": "IT operations confirms the bucket belongs to MediBec’s cloud account. Public read access was enabled seven months ago during a migration and never removed.", "fr": "L’exploitation des TI confirme que le compartiment appartient au compte infonuagique de MediBec. L’accès public en lecture a été activé il y a sept mois lors d’une migration et n’a jamais été retiré."},
+     "ask": {"en": "What do you do first, and what must you preserve before you change anything?", "fr": "Que faites-vous d’abord, et que devez-vous préserver avant de modifier quoi que ce soit?"}},
+    {"title": {"en": "What was exposed", "fr": "Ce qui a été exposé"},
+     "text": {"en": "The bucket held 41,000 reminder files: names, phone numbers, clinic and appointment date. About 3,000 files also name the type of consultation, such as mental health or fertility.", "fr": "Le compartiment contenait 41 000 fichiers de rappel : noms, numéros de téléphone, clinique et date du rendez-vous. Environ 3 000 fichiers indiquent aussi le type de consultation, par exemple santé mentale ou fertilité."},
+     "ask": {"en": "Which information is sensitive, and why does the type of consultation change the assessment?", "fr": "Quels renseignements sont sensibles, et pourquoi le type de consultation change-t-il l’évaluation?"}},
+    {"title": {"en": "Was it accessed?", "fr": "Y a-t-on accédé?"},
+     "text": {"en": "Storage access logs were enabled only three months ago. They show downloads from 11 external addresses, including the researcher’s. For the four months before, there are no logs.", "fr": "La journalisation des accès au stockage n’a été activée qu’il y a trois mois. Elle montre des téléchargements depuis 11 adresses externes, dont celle du chercheur. Pour les quatre mois précédents, il n’y a aucun journal."},
+     "ask": {"en": "What can you state as fact, what is unknown, and how do you describe the gap honestly in the assessment?", "fr": "Que pouvez-vous affirmer comme un fait, qu’est-ce qui est inconnu, et comment décrivez-vous la lacune avec franchise dans l’évaluation?"}},
+    {"title": {"en": "Risk of serious injury", "fr": "Risque de préjudice sérieux"},
+     "text": {"en": "The privacy officer must assess whether the incident presents a risk of serious injury, considering the sensitivity of the information, the anticipated consequences of its use and the likelihood that it will be misused.", "fr": "Le responsable de la protection des renseignements personnels doit évaluer si l’incident présente un risque de préjudice sérieux, en tenant compte de la sensibilité des renseignements, des conséquences appréhendées de leur utilisation et de la probabilité qu’ils soient utilisés à des fins préjudiciables."},
+     "ask": {"en": "Work through the factors. Who must be consulted, and what does a qualified person need to decide on notification to the Commission d’accès à l’information and to the people concerned?", "fr": "Examinez les facteurs. Qui faut-il consulter, et de quoi une personne qualifiée a-t-elle besoin pour décider de l’avis à la Commission d’accès à l’information et aux personnes concernées?"}},
+    {"title": {"en": "The register", "fr": "Le registre"},
+     "text": {"en": "The Commission may ask to see the organization’s register of confidentiality incidents. MediBec’s register has two entries from last year and no template.", "fr": "La Commission peut demander à consulter le registre des incidents de confidentialité de l’organisation. Le registre de MediBec contient deux entrées de l’an dernier et aucun gabarit."},
+     "ask": {"en": "What do you record for this incident, and who keeps the register up to date?", "fr": "Que consignez-vous pour cet incident, et qui tient le registre à jour?"}},
+    {"title": {"en": "Telling patients", "fr": "Informer les patients"},
+     "text": {"en": "Communications drafts a notice that says ‘no sensitive information was involved’.", "fr": "Les communications rédigent un avis qui affirme qu’« aucun renseignement sensible n’était en cause »."},
+     "ask": {"en": "Is that accurate? Rewrite the key sentences so they are true, clear and useful to the people concerned.", "fr": "Est-ce exact? Réécrivez les phrases clés pour qu’elles soient vraies, claires et utiles aux personnes concernées."}},
+    {"title": {"en": "Why it happened", "fr": "Pourquoi c’est arrivé"},
+     "text": {"en": "The migration project had no security review gate, and the cloud account has no rule that blocks public buckets.", "fr": "Le projet de migration n’avait aucune étape d’examen de sécurité, et le compte infonuagique n’a aucune règle qui bloque les compartiments publics."},
+     "ask": {"en": "Which preventive and detective controls do you propose, and how will you know they work?", "fr": "Quels contrôles préventifs et de détection proposez-vous, et comment saurez-vous qu’ils fonctionnent?"}}
+   ],
+   "debrief": [
+    {"en": "Which privacy obligations from chapter 16 did this exercise touch, and which ones needed a qualified person rather than the response team?", "fr": "Quelles obligations de protection des renseignements personnels du chapitre 16 cet exercice a-t-il touchées, et lesquelles exigeaient une personne qualifiée plutôt que l’équipe d’intervention?"},
+    {"en": "Which shared-responsibility misunderstanding (chapter 15) led to the exposure?", "fr": "Quel malentendu sur la responsabilité partagée (chapitre 15) a mené à l’exposition?"},
+    {"en": "How would you write this as a risk scenario for MediBec, and which evidence would you cite for its likelihood?", "fr": "Comment rédigeriez-vous cette situation comme scénario de risque pour MediBec, et quels éléments probants citeriez-vous pour sa vraisemblance?"}
+   ]
+  }
+ ]
+}

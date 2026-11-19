@@ -24,13 +24,17 @@ let REC = null;
 export async function load() {
   if (REC) return REC;
   const r = (await store.get('meta', KEY)) || {};
-  REC = { packs: Array.isArray(r.packs) ? r.packs : [], attempts: Array.isArray(r.attempts) ? r.attempts : [] };
+  REC = { packs: Array.isArray(r.packs) ? r.packs : [], attempts: Array.isArray(r.attempts) ? r.attempts : [],
+    runs: r.runs && typeof r.runs === 'object' ? r.runs : {} };
   return REC;
 }
 async function save() { await store.put('meta', KEY, REC); }
 export function reset() { REC = null; }
 export const packs = () => REC?.packs || [];
 export const attempts = () => REC?.attempts || [];
+/** An exercise team's run for a pack (exercise.js blankRun), kept on this computer until submitted. */
+export const run = id => REC?.runs?.[id] || null;
+export async function saveRun(id, r) { await load(); REC.runs[id] = r; await save(); }
 
 /** A stable id for a pack: course, kind, title and issue date. */
 export const packId = b => [b.course.id, b.kind, b.title, b.issued || ''].join(' · ');

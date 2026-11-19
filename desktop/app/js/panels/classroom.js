@@ -8,6 +8,7 @@ import * as MIG from '../migrate.js';
 import * as CL from '../classroom.js';
 import * as AI from '../ai.js';
 import * as PROC from '../process.js';
+import * as EX from '../exercise.js';
 import { tr, current as lang } from '../i18n.js';
 
 const TABS = [['assignments', 'My assignments'], ['quiz', 'Quiz'], ['exercise', 'Exercise']];
@@ -50,7 +51,7 @@ async function assignments(body, redraw) {
     { key: 'due', label: 'Due', render: r => { const d = CL.settingsOf(r).due; return d ? el('span', null, d, ' ', CL.late(d) && r.status !== 'submitted' ? pill(tr('late'), 'warn') : '') : '—'; } },
     { key: 'status', label: 'Status', render: r => pill(tr(STATUS[r.status] || r.status), r.status === 'submitted' ? 'good' : '') },
     { key: 'ai', label: 'AI allowed', render: r => { const a = CL.settingsOf(r).ai; return a.length ? a.map(f => AI.FEATURES.find(x => x[0] === f)?.[1] || f).join(', ') : tr('none'); } },
-    { key: 'act', label: '', render: r => el('div', 'row', startButton(r, redraw), r.body.kind !== 'quiz' && r.body.kind !== 'course' ? el('button', { class: 'btn sm ghost', onclick: () => submitDialog(r, redraw) }, 'Submit…') : '') },
+    { key: 'act', label: '', render: r => el('div', 'row', startButton(r, redraw), r.body.kind === 'assignment' ? el('button', { class: 'btn sm ghost', onclick: () => submitDialog(r, redraw) }, 'Submit…') : '') },
   ], rows, { class: 'compact' }));
 }
 
@@ -197,10 +198,80 @@ async function quiz(body, redraw) {
 }
 const readMore = (q, L) => el('span', 'muted', tr('Read more:') + ' ' + q.chTitle[L] + ' — ' + q.section[L]);
 
-/* ---------------- Exercise (milestone 4) ---------------- */
-async function exercise(body) {
+/* ---------------- Exercise (spec §6) ---------------- */
+const EXS = { sel: null };
+async function exercise(body, redraw) {
+  const L = lang() === 'fr' ? 'fr' : 'en';
+  const t = o => (o && typeof o === 'object' ? (o[L] || o.en) : String(o || ''));
   const ex = CL.packs().filter(p => p.body.kind === 'exercise');
-  body.append(card(el('h2', { style: { marginTop: 0 } }, 'Tabletop exercise'),
-    el('p', 'note', 'An exercise pack from your instructor opens here: roles, injects unlocked by the facilitator’s codes, your decisions and the after-action report. Alerts in an exercise are exercise material, never confirmed incidents.'),
-    ex.length ? el('p', null, n0(ex.length) + ' ' + tr('exercise pack(s) imported.')) : el('p', 'muted', 'No exercise pack imported yet.')));
+  body.append(banner('good', 'Exercise material', 'A fictional tabletop exercise. Alerts and indicators in it are exercise material, never confirmed incidents.'));
+  if (!ex.length) { body.append(card(el('h2', { style: { marginTop: 0 } }, 'Tabletop exercise'), el('p', 'muted', 'No exercise pack imported yet. Import one on My assignments.'))); return; }
+  if (!ex.some(p => p.id === EXS.sel)) EXS.sel = ex[0].id;
+  const rec = CL.byId(EXS.sel), c = rec.body.content;
+  const run = CL.run(rec.id) || EX.blankRun();
+  const keep = async () => { await CL.saveRun(rec.id, run); if (rec.status === 'new') await CL.update(rec.id, { status: 'progress' }); };
+  const pick = select(ex.map(p => [p.id, p.body.title]), EXS.sel, { 'aria-label': tr('Exercise') });
+  pick.addEventListener('change', () => { EXS.sel = pick.value; redraw(); });
+  body.append(card(el('div', 'row', el('h2', { style: { margin: 0, flex: 1 } }, t(c.title)), ex.length > 1 ? pick : ''),
+    el('p', null, t(c.brief))));
+
+  // roles: the team picks, unless the pack fixes them
+  const roleRows = c.roles.map(r => {
+    const fixed = c.fixedRoles?.[r.id];
+    const inp = el('input', { value: fixed || run.roles[r.id] || '', disabled: !!fixed });
+    inp.addEventListener('change', async () => { run.roles[r.id] = inp.value.trim(); await keep(); });
+    return field(t(r.name), inp, fixed ? tr('Set by your instructor.') : '');
+  });
+  body.append(card(el('h3', null, 'Roles'), el('p', 'small muted', 'Who plays which role. Decisions are recorded with the role that took them.'), el('div', 'grid g3', ...roleRows)));
+
+  // injects
+  const list = el('div');
+  for (const box of c.injects) {
+    const o = EX.opened(run, box.n);
+    if (!o) {
+      const code = el('input', { class: 'mono', size: 8, autocomplete: 'off', 'aria-label': tr('Unlock code for inject') + ' ' + box.n });
+      const go2 = async () => {
+        const inj = await EX.open(box, code.value);
+        if (!inj) { toast(tr('That code does not open this inject.'), 'bad'); return; }
+        run.opened.push({ n: box.n, at: new Date().toISOString(), ...inj }); await keep(); redraw();
+      };
+      code.addEventListener('keydown', e => { if (e.key === 'Enter') go2(); });
+      list.append(el('div', 'card', el('div', 'row', el('b', { style: { flex: 1 } }, tr('Inject') + ' ' + box.n + ' — ' + tr('locked')), code,
+        el('button', { class: 'btn sm', onclick: go2 }, 'Unlock'))));
+      continue;
+    }
+    const roleSel = select(c.roles.map(r => [r.id, t(r.name)]), c.roles[0].id, { 'aria-label': tr('Role') });
+    const txt = el('textarea', { rows: 2, 'aria-label': tr('Decision') });
+    const ds = run.decisions.filter(d => d.n === box.n);
+    list.append(el('div', 'card',
+      el('h3', { style: { marginTop: 0 } }, tr('Inject') + ' ' + box.n + ' — ' + t(o.title)),
+      el('p', 'small muted', tr('Opened') + ' ' + o.at.slice(11, 16)),
+      el('p', null, t(o.text)), el('p', null, el('b', null, t(o.ask))),
+      ds.length ? el('ul', null, ...ds.map(d => el('li', null, `${d.at.slice(11, 16)} · `, el('b', null, t(c.roles.find(r => r.id === d.role)?.name)), ' — ' + d.text))) : '',
+      el('div', 'row', roleSel, txt, el('button', { class: 'btn sm', onclick: async () => {
+        if (!txt.value.trim()) return;
+        run.decisions.push({ n: box.n, role: roleSel.value, text: txt.value.trim(), at: new Date().toISOString() }); await keep(); redraw();
+      } }, 'Record the decision'))));
+  }
+  body.append(el('h3', null, 'Injects'), list);
+
+  // debrief, report, submission
+  const answers = c.debrief.map((q, i) => {
+    const ta = el('textarea', { rows: 3 }, run.debrief[i] || '');
+    ta.addEventListener('change', async () => { run.debrief[i] = ta.value.trim(); await keep(); });
+    return field(`${i + 1}. ${t(q)}`, ta);
+  });
+  const team = el('input', { value: run.team || '' });
+  team.addEventListener('change', async () => { run.team = team.value.trim(); await keep(); });
+  const report = () => EX.afterAction(c, run, L, team.value.trim());
+  body.append(card(el('h3', { style: { marginTop: 0 } }, 'Debrief'), ...answers, field('Team or student name', team),
+    el('div', 'row',
+      el('button', { class: 'btn ghost', onclick: () => download(`after-action-${c.exercise}.md`, report(), 'text/markdown') }, 'Export the after-action report'),
+      el('button', { class: 'btn', onclick: async () => {
+        try {
+          const sub = await CL.submit(rec, { team: team.value.trim(), exercise: { run, report: report() } });
+          download(`submission-${rec.body.course.id}-${(team.value.trim() || 'team').replace(/[^\w-]+/g, '_')}.crgsub`, JSON.stringify(sub, null, 1), 'application/json');
+          toast(tr('Submission file saved. Hand it in on the course page.')); redraw();
+        } catch (e) { toast(String(e.message || e), 'bad'); }
+      } }, 'Save the submission file'))));
 }
