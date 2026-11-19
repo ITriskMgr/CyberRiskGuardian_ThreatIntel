@@ -9,7 +9,7 @@ local run before a release or after a change to the method, the engines or the d
 | Need | Command or source |
 |---|---|
 | Python 3.10+ with the method's packages | `pip install -r requirements.txt` (pins `cvss`, `openpyxl`, `mcp`, `certifi`) |
-| The quality tools | `pip install -r requirements-dev.txt` (ruff, bandit, semgrep, pre-commit) |
+| The quality tools | `pip install -r requirements-dev.txt` (ruff, bandit, pre-commit); Semgrep in its own environment: `python3 -m venv ~/.venvs/semgrep && ~/.venvs/semgrep/bin/pip install -r requirements-semgrep.txt`, then put `~/.venvs/semgrep/bin` on the PATH |
 | The ontology's packages | `pip install -r desktop/tests/requirements-ci.txt` (mcp, pyoxigraph, rdflib, jsonschema, python-docx) |
 | CRGO 0.11.2 | `git clone --depth 1 --branch v0.11.2 https://github.com/ITriskMgr/CyberRiskGuardian-Ontology CyberRiskGuardian-Ontology-0.11.2` (git-ignored), or set `CRGO_HOME` to a checkout elsewhere |
 | Node 18+ and the browser suites | `cd desktop/tests && npm ci && npx playwright install chromium` |

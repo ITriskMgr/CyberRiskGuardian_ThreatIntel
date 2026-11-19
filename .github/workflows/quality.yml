@@ -32,8 +32,11 @@ jobs:
           # the Writer engine is pinned by a tree hash shared with the stand-alone Writer: its SHA-1 record ids and its
           # parsing of the user's own Word files are reviewed findings (BL-17)
           bandit -q -ll -r desktop/app/crg_writer -s B324,B314
-      - name: Semgrep (CyberRiskGuardian method rules)
-        run: semgrep scan --config .semgrep --metrics off --error
+      - name: Semgrep (CyberRiskGuardian method rules, in its own environment)
+        run: |
+          python -m venv "$RUNNER_TEMP/semgrep"
+          "$RUNNER_TEMP/semgrep/bin/pip" install --quiet -r requirements-semgrep.txt
+          "$RUNNER_TEMP/semgrep/bin/semgrep" scan --config .semgrep --metrics off --error
       - name: Threat snapshot performance budget (no network)
         run: python plugins/cyberriskguardian-threatintel/skills/cyber-risk-assessment/scripts/test_snapshot_perf.py
 

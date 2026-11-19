@@ -1,0 +1,3 @@
+# Semgrep for the CyberRiskGuardian method rules (.semgrep/), in its own environment: it requires certifi>=2026.10.19,
+# newer than the certifi pinned in requirements.txt.
+semgrep==1.186.0
