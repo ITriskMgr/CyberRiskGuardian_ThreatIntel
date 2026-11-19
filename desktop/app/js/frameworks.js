@@ -70,7 +70,7 @@ export const SHELLS = [
     bundled: 'frameworks/cobit-2019.json',
     note: '© ISACA. Objective identifiers and titles only, from the ISACA objectives workbook.' },
   { id: 'SSDF', name: 'NIST SP 800-218 — Secure Software Development Framework (SSDF) Version 1.1', short: 'SSDF 1.1',
-    edition: 'Version 1.1', date: '2022-02', origin: 'Declared — import from NIST',
+    edition: 'SSDF version 1.1', date: '2022-02', origin: 'Declared — import from NIST',
     url: 'https://csrc.nist.gov/pubs/sp/800/218/final',
     structure: 'Four practice groups — Prepare the Organization (PO), Protect the Software (PS), Produce Well-Secured Software (PW), Respond to Vulnerabilities (RV) — with 19 practices and 42 tasks.',
     bundled: 'frameworks/nist-800-218-ssdf.json',

@@ -4054,7 +4054,7 @@ export default {
 "SSDF:PW.8.2": "SSDF:PW.8.2",
 "SSDF:RV.1.1": "SSDF:RV.1.1",
 "SSDF 1.1": "SSDF 1.1",
-"Version 1.1": "Version 1.1",
+"SSDF version 1.1": "SSDF version 1.1",
 "NIST SP 800-218 — Secure Software Development Framework (SSDF) Version 1.1": "NIST SP 800-218 — Cadre de développement logiciel sécurisé (SSDF), version 1.1",
 "Four practice groups — Prepare the Organization (PO), Protect the Software (PS), Produce Well-Secured Software (PW), Respond to Vulnerabilities (RV) — with 19 practices and 42 tasks.": "Quatre groupes de pratiques — préparer l'organisation (PO), protéger le logiciel (PS), produire un logiciel bien sécurisé (PW), réagir aux vulnérabilités (RV) — avec 19 pratiques et 42 tâches.",
 "Public domain. Extracted from the NIST SSDF table; task identifiers and task statements only. Revision 1 (SSDF 1.2) is an initial public draft and is not loaded.": "Domaine public. Extrait du tableau SSDF du NIST; identifiants et énoncés des tâches seulement. La révision 1 (SSDF 1.2) est une première ébauche publique et n'est pas chargée.",
