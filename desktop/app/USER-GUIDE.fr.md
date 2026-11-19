@@ -4433,6 +4433,35 @@ rédaction en français.
 
 ---
 
+### 7.13 Classe {#classroom}
+
+**Classe** est le côté étudiant d’un cours fondé sur cette application. Elle se trouve dans toutes les éditions.
+Votre enseignant distribue des **paquets**, des fichiers qu’il signe avec sa propre clé. Vous les importez,
+travaillez sur cet ordinateur et déposez un **fichier de remise** sur la page du cours. Rien ne passe par un serveur.
+
+- **Mes travaux.** Choisissez **Importer un paquet…** et sélectionnez le fichier `.crgpack` publié sur la page du cours.
+  - Avant que quoi que ce soit ne s’ouvre, l’application vérifie la signature de l’enseignant. Un paquet modifié
+    après sa signature est refusé.
+  - Le premier paquet d’un cours **épingle** sa clé et affiche son empreinte (quatre groupes de quatre caractères).
+    Ne l’acceptez que si l’empreinte correspond à celle que votre enseignant a publiée.
+  - Un paquet ultérieur signé par une autre clé est refusé, sauf si votre enseignant a annoncé un changement de clé.
+    Si vous confirmez un changement, il est consigné.
+  - **Commencer** ouvre un espace de travail de classe sur le cas que nomme le paquet (MediBec, CanaRetail ou une
+    organisation vierge). Le paquet décide des fonctions d’IA que vous pouvez utiliser ; l’IA est désactivée sauf si
+    le paquet permet une fonction. Il décide aussi si vous pouvez faire des propositions à l’ontologie.
+  - **Remettre…** enregistre un fichier de remise : l’espace de travail complet, les livrables nommés, le journal
+    d’utilisation de l’IA et l’avancement des 19 étapes, avec une somme de contrôle qui montre à votre enseignant si
+    le fichier a été modifié après son enregistrement.
+  - Après la date de remise, une remise est marquée en retard. Elle n’est jamais refusée.
+- **Questionnaire.** Une autoévaluation tirée des 420 questions de révision du manuel, en anglais ou en français
+  (la langue de l’interface), vérifiée avec le corrigé public du manuel. Chaque réponse indique la section du
+  chapitre à relire. Ce renvoi est choisi par correspondance de mots ; le manuel ne l’indique pas. Un paquet de
+  questionnaire fixe les chapitres, le nombre de questions et le moment où les réponses s’affichent : tout de suite,
+  à la fin, ou jamais.
+- **Exercice.** Des exercices sur table avec des rôles et des injections que l’animateur débloque avec des codes.
+  Les alertes d’un exercice sont du matériel d’exercice, jamais des incidents confirmés.
+
+
 ## 8. L'IA dans l'application
 
 L'IA **propose et explique** ; le moteur vérifié calcule ; vous décidez. Rien de ce que produit une IA ne

@@ -20,6 +20,7 @@ export const ICONS = {
   registry: 'M3 3h10v3H3zM3 7h10v3H3zM3 11h10v3H3z',
   tools: 'M10 2a3 3 0 0 0-3 4L2 11l3 3 5-5a3 3 0 0 0 4-3l-2 1-1.5-1.5L11 3z',
   settings: 'M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3',
+  classroom: 'M2 5l6-3 6 3-6 3zM4 6v4c0 1 2 2 4 2s4-1 4-2V6M14 5v5',
   help: 'M8 8m-6 0a6 6 0 1 0 12 0a6 6 0 1 0-12 0M6.3 6.2a1.8 1.8 0 1 1 2.5 1.7c-.5.3-.8.6-.8 1.1M8 11v.5',
 };
 
@@ -67,6 +68,8 @@ export const MENU = [
   { id: 'registry', label: 'Risk Registry', items: [
     T('registry', 'Browse & search', { arg: 'browse' }), T('registry', 'Contribute risks', { arg: 'contribute' }), T('registry', 'My contributions', { arg: 'mine' }),
     T('registry', 'Moderation', { arg: 'moderate' }), T('share', 'Publish & share'), T('registry', 'Registry settings', { arg: 'settings' })] },
+  { id: 'classroom', label: 'Classroom', items: [
+    sub('classroom', 'Classroom', [['assignments', 'My assignments'], ['quiz', 'Quiz'], ['exercise', 'Exercise']])] },
   { id: 'tools', label: 'Tools', items: [
     T('cvss', 'CVSS v4.0'), T('budget', 'Budget'), T('export', 'Export · Excel'), T('ai', 'Virtual consultant'), T('forecast', 'Forecasts'), T('backup', 'Backup & restore')] },
   { id: 'settings', label: 'Settings', items: [

@@ -83,7 +83,7 @@ export const MENUS = [['process', 'Process'], ['org', 'Organization'], ['dashboa
   ['scenario', 'Scenario editor'], ['batch', 'Batch scenarios'], ['screening', 'From candidates to scenarios'], ['calc', 'Risk calculator'], ['riskreg', 'Risk register'], ['mitigation', 'Risk mitigation'], ['recs', 'Recommendations'], ['summary', 'Management summary'],
   ['threats', 'Threats · ATT&CK'], ['vulns', 'Vulnerabilities · CVE/CWE'], ['feeds', 'Threat feeds & social'], ['threat', 'Threat context'], ['ontology', 'Ontology · CRGO'], ['registry', 'Risk Registry'], ['frameworks', 'Frameworks & standards'], ['isms', 'Information security management'], ['isp', 'Security policies (ISP)'], ['writer', 'Security Policy Writer'], ['csm', 'Cybersecurity management'], ['audit', 'Audit management'], ['qc', 'Quality review'], ['shared', 'Shared registers'], ['iam', 'Identity & access management (IAM/PAM)'], ['cm', 'Configuration management'], ['siem', 'SIEM'], ['soar', 'SOAR'],
   ['compliance', 'Compliance'], ['share', 'Publish & share'], ['reset', 'Reset data'], ['cvss', 'CVSS v4.0'], ['budget', 'Budget'], ['export', 'Export · Excel'], ['ai', 'Virtual consultant'], ['forecast', 'Forecasts'],
-  ['backup', 'Backup & restore'], ['settings', 'Settings'], ['about', 'About']];
+  ['backup', 'Backup & restore'], ['classroom', 'Classroom'], ['settings', 'Settings'], ['about', 'About']];
 /** 1.9.0: a menu right set on the earlier single identity, privilege & configuration screen applies to both of its successors. */
 const LEGACY_PANEL = { iam: 'ipc', cm: 'ipc' };
 export const MODES = [['default', 'Default (RACI)'], ['full', 'Full'], ['view', 'View only'], ['hidden', 'Hidden']];

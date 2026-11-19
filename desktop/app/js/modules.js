@@ -14,6 +14,8 @@ export const MODULES = [
     what: 'Scope, security objectives, management reviews and exceptions to internal policies — scoped, approved, compensated and expiring, never waiving a law.' },
   { id: 'isp', group: 'Governance', label: 'Information Security Policy (ISP) management', panels: ['isp'], def: true,
     what: 'Policy library and families, structured editor with clauses and requirements, versions frozen at approval, applicability and assignments, acknowledgements of an exact version, training and non-compliance.' },
+  { id: 'classroom', group: 'Teaching', label: 'Classroom', panels: ['classroom'], def: true,
+    what: 'Signed packs from your instructor: assessment assignments on a teaching case, a self-check quiz from the book (English and French), tabletop exercises, and a submission file to hand in.' },
   { id: 'writer', group: 'Governance', label: 'Security Policy Writer', panels: ['writer'], def: true,
     what: 'Writes the enterprise policy, topic policies, standards and procedures (English and French) from an interview, the organization’s documents and the ontology, as drafts for ISP management; Word export and re-import; OCR of scanned documents on this computer.' },
   { id: 'csm', group: 'Governance', label: 'Cybersecurity management', panels: ['csm'], def: true,

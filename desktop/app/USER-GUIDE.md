@@ -3935,6 +3935,32 @@ requests ask for French prose.
 
 ---
 
+### 7.13 Classroom {#classroom}
+
+**Classroom** is the student side of a course built on this application. It is in every edition. Your instructor
+hands out **packs**, files they sign with their own key. You import them, work on this computer, and hand in a
+**submission file** on the course page. Nothing goes through a server.
+
+- **My assignments.** Choose **Import a pack…** and pick the `.crgpack` file posted on the course page.
+  - Before anything opens, the application checks the instructor's signature. A pack changed after signing is refused.
+  - The first pack of a course **pins** its key and shows its fingerprint (four groups of four characters). Accept it
+    only if the fingerprint matches the one your instructor posted.
+  - A later pack signed by another key is refused unless your instructor announced a key change. If you confirm a
+    change, it is recorded.
+  - **Start** opens a classroom workspace on the case the pack names (MediBec, CanaRetail or a blank organization).
+    The pack decides which AI features you may use; AI is off unless the pack allows a feature. It also decides
+    whether you may propose to the ontology.
+  - **Submit…** saves a submission file: the full workspace, the named deliverables, the AI-use log and the 19-step
+    progress, with a checksum that shows your instructor whether the file was changed after you saved it.
+  - After the due date, a submission is marked late. It is never refused.
+- **Quiz.** A self-check from the book's 420 review questions, in English or French (the interface language),
+  checked against the book's public answer key. Each answer shows the chapter section to reread. That pointer is
+  chosen by matching words, not stated by the book. A quiz pack sets the chapters, the number of questions and
+  whether answers are shown immediately, after you finish, or not at all.
+- **Exercise.** Tabletop exercises with roles and injects that the facilitator unlocks with codes. Alerts in an
+  exercise are exercise material, never confirmed incidents.
+
+
 ## 8. AI in the application
 
 AI **proposes and explains**; the verified engine calculates; you decide. Nothing an AI produces

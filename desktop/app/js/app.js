@@ -8,6 +8,7 @@ import { isReadOnly, S, on, loadAll, select, emit, reopen, reopened, reopenedDon
 import * as nav from './nav.js';
 import * as FW from './frameworks.js';
 import * as org from './panels/org.js';
+import * as classroom from './panels/classroom.js';
 import * as dashboard from './panels/dashboard.js';
 import * as register from './panels/register.js';
 import * as scenario from './panels/scenario.js';
@@ -74,7 +75,7 @@ import * as HELPMENU from './helpmenu.js';
 import { leaveProfile } from './panels/org.js';
 import { hfetch } from './helper.js';
 
-const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, iam, cm, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings };
+const PANELS = { process: processp, about, reset, org, dashboard, assets, safeguards, maturity, evidence, register, scenario, batch, screening, calc, riskreg, mitigation, recs, threats, vulns, feeds, threat, frameworks, compliance, share, ontology, registry, isp, writer, isms, csm, audit, qc, shared, iam, cm, siem, soar, summary, cvss, budget, export: exportp, ai, forecast, backup, settings, classroom };
 export const ENGINE = { ok: false };
 
 /* ---------------- engine self-check (MediBec reference: 84,305 / 41,023 since 1.8.0, S2 and S8 at AV:L) ---------------- */

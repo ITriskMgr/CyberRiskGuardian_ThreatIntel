@@ -57,6 +57,7 @@ try:                    # 1.7.0 — the Security Policy Writer engine (standard 
     WRITER_ERROR = ""
 except Exception as _exc:                            # noqa: BLE001 — the rest of the helper keeps working
     crg_writer, writer_api, WRITER_ERROR = None, None, f"{type(_exc).__name__}: {_exc}"
+import crg_classroom  # noqa: E402  (BL-25/26: signed classroom packs, pins, submissions)
 
 VERSION = "1.9.4"
 # 1.9.0 — a random token made at each start. The page reads it from /api/session (same origin only) and sends it
@@ -312,6 +313,30 @@ class AiRequestTooLarge(ValueError):
 # go; the helper checks the same policy before calling anything, so a feature set to "local only" (by
 # default the vulnerability-linking task, which carries the organization's CVE list) can never reach
 # api.anthropic.com, whatever a page asks for.
+def classroom_op(op, body):
+    """(status, reply) for /api/classroom/<op>. The instructor secret key never leaves crg_classroom; a pack or a
+    submission is passed in and out as JSON, never stored by the helper except the course pins (spec §2)."""
+    try:
+        if op == "key":
+            k = crg_classroom.instructor_key(create=bool(body.get("create")))
+            return 200, {"key": k}
+        if op == "sign":
+            return 200, {"pack": crg_classroom.sign_pack(body.get("body"))}
+        if op == "verify":
+            return 200, crg_classroom.verify_pack(body.get("pack"))
+        if op == "accept":
+            return 200, crg_classroom.accept_pack(body.get("pack"), confirm_key_change=bool(body.get("confirm_key_change")))
+        if op == "submit":
+            return 200, {"submission": crg_classroom.make_submission(body.get("body"))}
+        if op == "check":
+            return 200, crg_classroom.check_submission(body.get("submission"))
+        if op == "pins":
+            return 200, {"pins": {c: {k: v for k, v in p.items() if k != "key"} for c, p in crg_classroom.pins().items()}}
+    except ValueError as exc:
+        return 400, {"error": str(exc)}
+    return 404, {"error": "unknown classroom operation"}
+
+
 AI_DEFAULT_POLICY = {
     "remote_allowed": True, "web_search": True,
     # 1.9.2 (NV-019): the legacy tasks "chat" and "analyst" are gone — they reached a remote provider while every feature
@@ -1916,6 +1941,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             code, out = writer_api.handle(m.group(1), body)
             if code != 200:
                 sys.stderr.write(f"helper: writer {m.group(1)} → {code}\n")
+            return self._json(code, out)
+        m = re.match(r"^/api/classroom/([a-z_]{2,20})$", path)
+        if m:                                           # BL-25/26 - Classroom: local only, files in and out
+            code, out = classroom_op(m.group(1), body)
             return self._json(code, out)
         if path == "/api/epss/series":                  # 1.9.0 - exploitation forecast: local EPSS history
             try:
