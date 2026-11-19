@@ -11,7 +11,11 @@ import * as PROC from '../process.js';
 import * as EX from '../exercise.js';
 import { tr, current as lang } from '../i18n.js';
 
-const TABS = [['assignments', 'My assignments'], ['quiz', 'Quiz'], ['exercise', 'Exercise']];
+import { INSTRUCTOR } from '../edition.js';
+import * as TEACH from './classroom_teach.js';
+// spec Q3: the student side in every edition; the instructor side in the Educational edition
+const TABS = [['assignments', 'My assignments'], ['quiz', 'Quiz'], ['exercise', 'Exercise'],
+  ...(INSTRUCTOR ? [['packs', 'Packs'], ['grading', 'Submissions & grading'], ['course', 'Course packs']] : [])];
 const KIND = { assignment: 'Assessment steps', quiz: 'Quiz', exercise: 'Exercise', course: 'Course pack' };
 const STATUS = { new: 'Not started', progress: 'In progress', submitted: 'Submitted' };
 const Q = { chapters: [4], count: 10, run: null };
@@ -24,7 +28,7 @@ export async function render(sec, arg) {
   for (const [k, t] of TABS) st.append(el('button', { role: 'tab', 'aria-selected': String(view === k), onclick: () => go('classroom/' + k) }, t));
   const body = el('div');
   sec.append(st, body);
-  await ({ assignments, quiz, exercise }[view])(body, () => render(sec, view));
+  await ({ assignments, quiz, exercise, packs: TEACH.packsTab, grading: TEACH.gradingTab, course: TEACH.courseTab }[view])(body, () => render(sec, view));
 }
 
 /* ---------------- My assignments ---------------- */

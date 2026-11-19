@@ -330,6 +330,18 @@ def classroom_op(op, body):
             return 200, {"submission": crg_classroom.make_submission(body.get("body"))}
         if op == "check":
             return 200, crg_classroom.check_submission(body.get("submission"))
+        if op in ("roster_get", "grades_get", "roster_put", "grades_put"):
+            # spec §3: the roster (and the grades) stay in the instructor's confidential folder, never in a pack or a workspace
+            d = _confidential(os.path.join(org_root(), "_installation", "classroom"))
+            f = os.path.join(d, op.split("_")[0] + ".json")
+            if op.endswith("_get"):
+                return 200, {"data": json.load(open(f, encoding="utf-8")) if os.path.exists(f) else None, "path": f}
+            os.makedirs(d, mode=0o700, exist_ok=True)
+            fd = os.open(f + ".tmp", os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                json.dump(body.get("data"), fh, ensure_ascii=False, indent=1)
+            os.replace(f + ".tmp", f)
+            return 200, {"ok": True, "path": f}
         if op == "pins":
             return 200, {"pins": {c: {k: v for k, v in p.items() if k != "key"} for c, p in crg_classroom.pins().items()}}
     except ValueError as exc:

@@ -6,6 +6,7 @@
    disappears with it.
    © 2026 Marc-André Léger. CC BY-NC 4.0 */
 'use strict';
+import { INSTRUCTOR } from './edition.js';
 
 /* Icons: 16×16 strokes, drawn with currentColor. */
 export const ICONS = {
@@ -69,13 +70,14 @@ export const MENU = [
     T('registry', 'Browse & search', { arg: 'browse' }), T('registry', 'Contribute risks', { arg: 'contribute' }), T('registry', 'My contributions', { arg: 'mine' }),
     T('registry', 'Moderation', { arg: 'moderate' }), T('share', 'Publish & share'), T('registry', 'Registry settings', { arg: 'settings' })] },
   { id: 'classroom', label: 'Classroom', items: [
-    sub('classroom', 'Classroom', [['assignments', 'My assignments'], ['quiz', 'Quiz'], ['exercise', 'Exercise']])] },
+    sub('classroom', 'Classroom', [['assignments', 'My assignments'], ['quiz', 'Quiz'], ['exercise', 'Exercise'],
+      ...(INSTRUCTOR ? [['packs', 'Packs'], ['grading', 'Submissions & grading'], ['course', 'Course packs']] : [])])] },
   { id: 'tools', label: 'Tools', items: [
     T('cvss', 'CVSS v4.0'), T('budget', 'Budget'), T('export', 'Export · Excel'), T('ai', 'Virtual consultant'), T('forecast', 'Forecasts'), T('backup', 'Backup & restore')] },
   { id: 'settings', label: 'Settings', items: [
     sub('settings', 'Settings', [['general', 'Language & detail'], ['modules', 'Modules'], ['logs', 'Logs'], ['ai', 'AI — local & remote'], ['kb', 'Knowledge base'], ['users', 'Users & RACI'],
       ['files', 'Documents & files'], ['links', 'Links & shared folders'], ['sources', 'Feed sources & keys'], ['schedule', 'Scheduled task'],
-      ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import']], { flat: true })] },
+      ['network', 'Network allowlist'], ['simulation', 'Simulation data'], ['backup', 'Export / import'], ...(INSTRUCTOR ? [['classroom', 'Classroom']] : [])], { flat: true })] },
   // 1.9.1 — no Help section here any more: Help is the top-bar button (helpmenu.js), with Step by step, the User guide,
   // Ask and About & versions.
 ];

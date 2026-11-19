@@ -172,6 +172,10 @@ export const CODES = {
   'classroom/assignments': 'SCR-163',
   'classroom/quiz': 'SCR-164',
   'classroom/exercise': 'SCR-165',
+  'classroom/packs': 'SCR-166',
+  'classroom/grading': 'SCR-167',
+  'classroom/course': 'SCR-168',
+  'settings/classroom': 'SCR-169',
   // @@END
 };
 

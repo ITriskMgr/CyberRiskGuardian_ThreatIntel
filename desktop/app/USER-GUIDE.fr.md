@@ -4462,6 +4462,30 @@ travaillez sur cet ordinateur et déposez un **fichier de remise** sur la page d
   Les alertes d’un exercice sont du matériel d’exercice, jamais des incidents confirmés.
 
 
+#### 7.13.1 Le côté enseignant (édition éducative) {#classroom-instructor}
+
+Dans l’édition éducative, **Paramètres → Classe** et trois onglets de plus de la Classe servent à préparer et à noter
+les travaux.
+
+- **Paramètres → Classe.** **Créez votre clé d’enseignant** une fois; publiez son empreinte sur la page du cours.
+  Importez l’exportation des participants de votre environnement numérique d’apprentissage (les colonnes de Moodle sont
+  reconnues en anglais et en français). La liste reste dans votre dossier confidentiel, à côté des graphes
+  d’organisation, jamais dans un paquet.
+- **Classe → Paquets.** Choisissez le type (étapes d’évaluation, questionnaire ou exercice), le cours, la date de
+  remise, les fonctions d’IA permises et si les propositions à l’ontologie sont permises, puis **Signer et exporter le
+  paquet**. Un paquet d’exercice enregistre aussi la **fiche de l’animateur** avec de nouveaux codes de déblocage;
+  gardez-la pour vous.
+- **Classe → Remises et notation.** Ouvrez les fichiers de remise. Chacun indique s’il a été modifié après
+  l’exportation, s’il est en retard, et les éléments probants pour la notation (avancement des 19 étapes, résultats aux
+  questionnaires, chronologie de l’exercice, propositions de l’IA acceptées). Choisissez un niveau par critère de la
+  grille et rédigez un commentaire; **Exporter les notes (.csv)** produit le fichier d’importation des notes de Moodle,
+  une ligne par étudiant, la note d’une équipe étant attribuée à chaque membre de son groupe.
+- **Classe → Paquets de cours.** Préparez les quatre exemples d’exercices en un paquet de cours signé, ou ouvrez le
+  paquet de cours d’un collègue, vérifiez sa signature et signez-le de nouveau avec votre clé.
+
+Les exemples d’exercices sont publics dans le dépôt : pour un travail noté, rédigez vos propres exercices.
+
+
 ## 8. L'IA dans l'application
 
 L'IA **propose et explique** ; le moteur vérifié calcule ; vous décidez. Rien de ce que produit une IA ne

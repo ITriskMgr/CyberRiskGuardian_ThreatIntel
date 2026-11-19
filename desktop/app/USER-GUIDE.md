@@ -3961,6 +3961,26 @@ hands out **packs**, files they sign with their own key. You import them, work o
   exercise are exercise material, never confirmed incidents.
 
 
+#### 7.13.1 The instructor side (Educational edition) {#classroom-instructor}
+
+In the Educational edition, **Settings → Classroom** and three more Classroom tabs build and grade the work.
+
+- **Settings → Classroom.** **Make my instructor key** once; post its fingerprint on your course page. Import the
+  participants export of your LMS (Moodle's columns are recognised in English and French). The roster stays in your
+  confidential folder, next to the organisation graphs, never in a pack.
+- **Classroom → Packs.** Choose the type (assessment steps, quiz or exercise), the course, the due date, the AI
+  features allowed and whether ontology proposals are allowed, then **Sign and export the pack**. An exercise pack also
+  saves the **facilitator sheet** with fresh unlock codes; keep it to yourself.
+- **Classroom → Submissions & grading.** Open the submission files. Each shows whether it was altered after export,
+  whether it is late, and the evidence for grading (19-step progress, quiz scores, exercise timeline, AI proposals
+  accepted). Pick a level per rubric criterion and write a comment; **Export grades (.csv)** writes Moodle's grade
+  import file, one row per student, a team grade going to every member of the team's group.
+- **Classroom → Course packs.** Build the four sample exercises as one signed course pack, or open a colleague's
+  course pack, check its signature and re-sign it under your key.
+
+The sample exercises are public in the repository: for graded work, write your own exercises.
+
+
 ## 8. AI in the application
 
 AI **proposes and explains**; the verified engine calculates; you decide. Nothing an AI produces
