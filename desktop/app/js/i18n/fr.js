@@ -2606,6 +2606,7 @@ export default {
 "Disk encryption on endpoints holding sensitive data": "Chiffrement de disque sur les postes de travail contenant des données sensibles",
 "Disk image": "Image disque",
 "Dismiss": "Écarter",
+"Dismiss this message": "Fermer ce message",
 "Dismiss the observation": "Écarter l'observation",
 "Dismissed": "Écartée",
 "Dismissed by": "Écartée par",

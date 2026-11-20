@@ -396,6 +396,10 @@ table.raci select { min-width: 3.4em !important; padding: 4px; }
   opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; z-index: 1100; background: var(--toast); color: var(--toast-ink); box-shadow: var(--shadow-pop); }
 #toast.show { opacity: 1; transform: none; }
 #toast.bad { background: var(--bad); color: var(--danger-ink); }
+#toast.sticky { display: flex; align-items: flex-start; gap: 10px; max-width: min(520px, calc(100vw - 40px)); }
+#toast .toast-x { pointer-events: auto; flex: none; min-width: 24px; min-height: 24px; margin: -4px -8px -4px 0; padding: 0 6px;
+  border: 0; border-radius: 6px; background: transparent; color: inherit; font: inherit; font-size: 18px; line-height: 24px; cursor: pointer; }
+#toast .toast-x:hover, #toast .toast-x:focus-visible { background: rgba(0, 0, 0, .12); outline: 2px solid currentColor; outline-offset: 1px; }
 .docrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .docrow > .pill, .docrow > span > .pill { align-self: center; justify-self: end; }
 .preview { white-space: pre-wrap; font-size: 13px; max-height: 300px; overflow: auto; background: var(--surface-2); padding: 12px; border-radius: 10px; border: 1px solid var(--line); }

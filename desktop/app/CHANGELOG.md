@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Fixed — error messages stay until they are read (tester report on 1.9.3)
+- **An error message no longer vanishes after a few seconds.** A failed request (for example an AI provider refusing a
+  request for lack of tokens) showed a message that disappeared after 2.6 s; the button came back and nothing on the page
+  said what had happened. An error now stays until it is dismissed (**×** or **Escape**), replaced by the next message, or
+  the screen changes. Other messages still fade after 2.6 s.
+- The message never blocks clicks (only its × button takes them), and an error is announced to screen readers as an
+  alert. French label « Fermer ce message ».
+- Test: t89 (11 checks).
+
 ### Fixed — Windows launcher names the running copy (BL-07)
 - **`start.bat` no longer needs `wmic`**, which recent Windows 11 releases no longer ship. On Windows the "already
   running" prompt said *version unknown, folder unknown*; it still asked and **y** still replaced the running copy.
