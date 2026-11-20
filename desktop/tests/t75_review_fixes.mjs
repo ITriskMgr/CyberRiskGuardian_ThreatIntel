@@ -244,7 +244,7 @@ const m2 = await page.evaluate(async () => {
   const sec = document.querySelector('#panel-calc') || [...document.querySelectorAll('main > section')].find(x => !x.hidden);
   const inputs = [...sec.querySelectorAll('input[type=number]')]; const appIn = inputs[0], facIn = inputs[1];
   const save = [...sec.querySelectorAll('button')].find(b => /Save as workspace values/.test(b.textContent));
-  const toasts = () => [...document.querySelectorAll('.toast, [role=status], .toasts *')].map(t => t.textContent).join(' | ');
+  const toasts = () => [...document.querySelectorAll('#toast, .toast, [role=status], .toasts *')].map(t => t.textContent).join(' | ');
   appIn.value = ''; appIn.dispatchEvent(new Event('input')); save.click(); const afterEmpty = { app: a.APPETITE, t: toasts() };
   appIn.value = '1.5'; appIn.dispatchEvent(new Event('input')); save.click(); const afterBig = a.APPETITE;
   appIn.value = String(before.app); appIn.dispatchEvent(new Event('input')); facIn.value = '0'; facIn.dispatchEvent(new Event('input')); save.click(); const afterFac0 = a.FACTOR;
