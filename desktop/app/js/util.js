@@ -143,11 +143,29 @@ export function flash(btn, label, ms = 1800) {
 }
 
 let toastT;
+/* An error ('bad') stays on screen until it is dismissed (× or Escape), replaced by the next message, or the screen
+   changes: a failed request must not vanish before it is read (tester report on 1.9.3, an AI request refused for
+   lack of tokens). Other messages fade after 2.6 s as before. The message never blocks clicks; only its × button
+   takes them. An error is announced as an alert, other messages as a status. */
+export function hideToast() {
+  const t = $('toast');
+  clearTimeout(toastT);
+  if (t) { t.className = ''; t.replaceChildren(); }
+}
 export function toast(msg, kind = 'good') {
   let t = $('toast');
-  if (!t) { t = el('div', { id: 'toast', role: 'status' }); document.body.append(t); }
-  t.className = 'show ' + kind; t.textContent = msg;
-  clearTimeout(toastT); toastT = setTimeout(() => { t.className = ''; }, 2600);
+  if (!t) {
+    t = el('div', { id: 'toast', role: 'status' }); document.body.append(t);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && t.classList.contains('sticky')) hideToast(); });
+    window.addEventListener('hashchange', () => { if (t.classList.contains('sticky')) hideToast(); });
+  }
+  const sticky = kind === 'bad';
+  clearTimeout(toastT);
+  t.className = 'show ' + kind + (sticky ? ' sticky' : '');
+  t.setAttribute('role', sticky ? 'alert' : 'status');
+  t.replaceChildren(el('span', 'toast-msg', String(msg ?? '')),
+    sticky ? el('button', { type: 'button', class: 'toast-x', 'aria-label': 'Dismiss this message', title: 'Dismiss this message', onclick: hideToast }, '×') : '');
+  if (!sticky) toastT = setTimeout(hideToast, 2600);
 }
 
 /** Simple sortable table builder. cols: [{key, label, num, render(row), sort(row)}] */

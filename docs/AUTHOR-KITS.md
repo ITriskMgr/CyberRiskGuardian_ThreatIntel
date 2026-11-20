@@ -36,6 +36,9 @@ release, then copy the key from the live page and check the signed ZIP with it (
 5. Update cyberriskguardian.ca (website session): the download pages (`/download.html`, `/fr/telecharger.html`) get the
    new version, date, release link, the community ZIP's SHA-256 and the "New in" list. The signing pages need no change
    unless the key changes.
+6. If the Education Package's introductory deck or blank Excel model changed in this release, upload the new files to
+   cyberriskguardian.ca/downloads/ (website session) and update the educators pages if a file name changed (for
+   example `_v2-7`). Both stay free under CC BY-NC 4.0; the rest of the package ships with the Educational edition.
 
 **Done when** Help → About & versions → *Check now* on a test install reports the download as *verified*.
 Back up `crg.key` (encrypted) — a lost key means a new key pair and a release that pins it.
