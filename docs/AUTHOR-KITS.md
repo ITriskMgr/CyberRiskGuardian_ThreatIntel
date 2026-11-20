@@ -8,8 +8,9 @@ Record each result in the release notes; the backlog item is closed when its "Do
 
 The application already verifies a `.minisig` beside each release ZIP (`crg_signing.py`) once a public key is pinned in
 `desktop/app/serve.py` (`UPDATE_MINISIGN_PUBKEY`). **Steps 1–2 done on 20 November 2026**: the key pair is on the
-author's Mac and the public key is pinned (`RWR57THy8GZvqaD2lfamsmwouCcN+NhTPZQ8cumNeZvFZF8WUINkjg84`). Left: publish the key on the product site, then
-steps 3–4 at the next release.
+author's Mac and the public key is pinned (`RWR57THy8GZvqaD2lfamsmwouCcN+NhTPZQ8cumNeZvFZF8WUINkjg84`). The key is published on the product site (20 November 2026:
+https://cyberriskguardian.ca/release-signing.html, French /fr/signature-des-versions.html). Left: steps 3–4 at the next
+release, then copy the key from the live page and check the signed ZIP with it (`minisign -Vm <zip> -P <key>`).
 
 1. Install minisign and make the key pair — the secret key stays on the Mac, outside every repository and synced folder,
    protected by a password you keep in your password manager:
@@ -32,8 +33,11 @@ steps 3–4 at the next release.
    ```
 
 4. Upload `…zip`, `…zip.sha256` **and** `…zip.minisig` to the GitHub release.
+5. Update cyberriskguardian.ca (website session): the download pages (`/download.html`, `/fr/telecharger.html`) get the
+   new version, date, release link, the community ZIP's SHA-256 and the "New in" list. The signing pages need no change
+   unless the key changes.
 
-**Done when** Help → About & versions → *Check for updates* on a test install reports the download as *verified*.
+**Done when** Help → About & versions → *Check now* on a test install reports the download as *verified*.
 Back up `crg.key` (encrypted) — a lost key means a new key pair and a release that pins it.
 
 ## BL-07 — Launcher prompt on the Mac and on Windows (item 3)
