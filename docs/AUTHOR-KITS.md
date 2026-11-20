@@ -52,6 +52,9 @@ Since 1.9.2 a second launcher finds the first one running and asks instead of st
 
 ## BL-10 — Native French read-through
 
+**Done on 20 November 2026**: the author read the 1.9.5 export and found no change required. Kept for the next
+read-through.
+
 1. Export every French interface string with its English source (12,567 strings; 79 flagged to check first because they
    use a variant of a method term):
 
