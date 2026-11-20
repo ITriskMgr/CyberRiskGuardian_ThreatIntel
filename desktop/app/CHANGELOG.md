@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Fixed — Windows launcher names the running copy (BL-07)
+- **`start.bat` no longer needs `wmic`**, which recent Windows 11 releases no longer ship. On Windows the "already
+  running" prompt said *version unknown, folder unknown*; it still asked and **y** still replaced the running copy.
+- **New `launcher_probe.py`** (standard library only): the running copy's version comes from its own
+  `js/version.js` over loopback (works with every 1.9.x copy), its folder from its command line (PowerShell
+  `Get-CimInstance`, `wmic` as a fallback). It never stops or changes the running copy.
+- **`start.bat` starts `serve.py` by its full path**, so a later launcher can name this folder. A copy started by
+  1.9.5 or earlier still shows its version but not its folder (Windows does not expose another process's folder).
+- Tests: `test_launcher_probe.py` (8) and a static check in t74 (no `wmic`, the probe, the full path).
+
 ### Security — signed releases (BL-08)
 - **The author's minisign public key is pinned** in `serve.py` (`UPDATE_MINISIGN_PUBKEY`):
   `RWR57THy8GZvqaD2lfamsmwouCcN+NhTPZQ8cumNeZvFZF8WUINkjg84`.

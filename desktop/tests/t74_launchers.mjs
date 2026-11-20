@@ -16,6 +16,7 @@ ok(sh === cmd, 'start.command is identical to start.sh');
 ok(/Stop it and start this one\? \[y\/N\]/.test(sh) && /is already running \(version/.test(sh) && /Leaving it running/.test(sh), 'start.sh: the decided prompt, keep path');
 ok(/Stop it and start this one\? \[y\/N\]/.test(bat) && /is already running \^\(version/.test(bat) && /set \/p ANS/.test(bat) && /:keep/.test(bat) && /:replace/.test(bat) && /taskkill \/PID %BUSYPID%/.test(bat), 'start.bat: the same prompt with keep / replace paths');
 ok(!/kill "\$P" 2>\/dev\/null \|\| true; sleep 1 ;;/.test(sh), 'the silent kill of 1.9.1 is gone');
+ok(!/wmic/i.test(bat.split('\n').filter(l => !/^REM /i.test(l)).join('\n')) && /launcher_probe\.py" %BUSYPID% %PORT%/.test(bat) && /%PY% "%~dp0serve\.py" %PORT%/.test(bat), 'start.bat: no wmic (gone from recent Windows 11); launcher_probe.py names the running copy; serve.py started by full path (BL-07)');
 ok(spawnSync('bash', ['-n', path.join(APP, 'start.sh')]).status === 0, 'start.sh parses (bash -n)');
 
 const haveLsof = spawnSync('bash', ['-c', 'command -v lsof']).status === 0;

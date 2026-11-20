@@ -36,13 +36,14 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-REM the folder of the running copy is read from its command line (python … serve.py), its version from js/version.js there
+REM After 1.9.5 (BL-07): wmic is gone from recent Windows 11, so launcher_probe.py names the running copy: its version from
+REM http://127.0.0.1:%PORT%/js/version.js, its folder from its command line (PowerShell Get-CimInstance, wmic as fallback).
 set "BUSYDIR=unknown"
 set "BUSYVER=unknown"
-for /f "usebackq tokens=*" %%L in (`wmic process where "ProcessId=%BUSYPID%" get ExecutablePath^,CommandLine /value 2^>nul ^| findstr /i "serve.py"`) do (
-  for %%F in (%%L) do if /i "%%~nxF"=="serve.py" set "BUSYDIR=%%~dpF"
+for /f "usebackq tokens=1,2 delims=|" %%A in (`%PY% "%~dp0launcher_probe.py" %BUSYPID% %PORT% 2^>nul`) do (
+  set "BUSYVER=%%A"
+  set "BUSYDIR=%%B"
 )
-if exist "%BUSYDIR%js\version.js" for /f "tokens=2 delims='" %%V in ('findstr /c:"export const VERSION" "%BUSYDIR%js\version.js"') do set "BUSYVER=%%V"
 echo CyberRiskGuardian is already running ^(version %BUSYVER%, folder %BUSYDIR%^) on port %PORT% ^(Python process %BUSYPID%^).
 if "%CRG_LAUNCH_REPLACE%"=="1" goto :replace
 if "%CRG_LAUNCH_KEEP%"=="1" goto :keep
@@ -70,4 +71,5 @@ echo Leave this window open while you use the app and while downloads run.
 echo Downloaded sources go to %USERPROFILE%\Downloads\CyberRiskGuardian-feeds. Press Ctrl-C to stop.
 echo.
 start "" "%URL%"
-%PY% serve.py %PORT%
+REM the full path of serve.py, so a later launcher can name this folder (launcher_probe.py)
+%PY% "%~dp0serve.py" %PORT%
