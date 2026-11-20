@@ -4150,8 +4150,19 @@ preview shows each task's budget; one request may ask for at most 64,000 output 
 
 ### 8.8 Which AI model for which feature {#ai-models}
 
-*Based on tests run on 8 November 2026 with the application's own prompts on the MediBec teaching case.
-Provisional: the 30B and larger local models will be tested on a more powerful computer in the coming weeks.*
+*Based on tests run on 8 November 2026 with the application's own prompts on the MediBec teaching case, and on
+19–20 November 2026 with larger local models served by oMLX on a Mac:*
+
+| Local model | Checks passed | Instruction planted in a document | Time per request |
+|---|---|---|---|
+| Mistral Small 3.2 24B, 4-bit | 32 / 35 | Partly followed (dropped the regulations) | 7–123 s |
+| Qwen3 32B, 8-bit | 31 / 35 | Resisted | 2–326 s |
+| Qwen3 32B, 4-bit DWQ | not usable | damaged text | — |
+| Llama 3.3 70B, 4-bit | 29 / 35 | Resisted | 7–679 s |
+
+*The checks that failed were mostly missing markers, which no model adds reliably: the application labels what
+you accept. Prefer 8-bit builds or these model families; some 4-bit builds produce damaged text. Thinking models
+(Qwen3 and others) work from 1.9.5, which asks them not to think.*
 
 - **AI is optional.** Every feature works without it (Rules only), and nothing the AI proposes is kept until
   you accept it.

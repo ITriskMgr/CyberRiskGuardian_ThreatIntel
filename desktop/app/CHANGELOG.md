@@ -1,5 +1,16 @@
 # Changelog — CyberRiskGuardian Desktop (with Threat Live-feed)
 
+## Unreleased
+
+### Changed — local-model guidance (BL-13)
+- **Settings → AI and the user guide (§8.8)** carry the November 2026 local-model results, in English and French:
+  - Mistral Small 3.2 24B: 32/35 checks;
+  - Qwen3 32B 8-bit: 31/35, and it resisted an instruction planted in a document;
+  - Llama 3.3 70B: 29/35, also resisted;
+  - Qwen3 32B 4-bit DWQ: not usable (damaged text).
+- **New advice:** prefer 8-bit builds or these model families, because some 4-bit builds produce damaged text.
+- **Threshold confirmed** at about 30B parameters and 48 GB; "provisional" removed.
+
 ## 1.9.5 Beta — 19 November 2026
 
 Classroom and Exercises, the book's October 2026 standards baseline, and French corrections, with **Threat Live-feed
