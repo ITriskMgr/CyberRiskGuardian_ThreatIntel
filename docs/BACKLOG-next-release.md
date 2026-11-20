@@ -106,6 +106,7 @@ Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with it
 | BL-27 | Book v2.51b alignment opportunities | `book-v2-51b-alignment-opportunities.md` | Blocked: author decides when | L | — |
 | BL-28 | Core: French textbook reference set | 8 Nov §C | Blocked: French v2.51b source | M | — |
 | BL-29 | Educator Edition: review what it holds for CanaRetail | 8 Nov §C | **Management decision required** | S | — |
+| BL-30 | Next book revision: the appendix *Using CyberRiskGuardian* (`zz-appendix-using-cyberriskguardian.md`, EN and FR) says the education package and the blank Excel model are part of the free Community Edition in the public repository `ITriskMgr/CyberRiskGuardian`. Since 20 November 2026 the package (2.2.0) is maintained privately and supplied with the Educational edition; the introductory deck stays free (author's decision); the Core repository is retired. Rewrite those lines (§ "Editions", the Excel model paragraph, "Where to find it") and decide whether the blank Excel model stays free | Author decision, 20 Nov 2026 | Next book revision (book text: the plugin's reference set follows the book, never edited ahead of it) | S | — |
 
 ## 6. Other repositories (status to verify where they live)
 
