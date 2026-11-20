@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Security — signed releases (BL-08)
+- **The author's minisign public key is pinned** in `serve.py` (`UPDATE_MINISIGN_PUBKEY`):
+  `RWR57THy8GZvqaD2lfamsmwouCcN+NhTPZQ8cumNeZvFZF8WUINkjg84`.
+- **From this build on, a desktop update must carry its signature.** Help → About & versions → Check for updates keeps a
+  download only if `<zip>.minisig` verifies against this key; an unsigned release is refused (no fall-back to SHA-256
+  only). Releases are built and signed with `tools/package_desktop.py --sign ~/.minisign/crg.key`.
+- Test hook: `CRG_UPDATE_PUBKEY=none` runs the helper without a key; the test launcher sets it so the suites can serve
+  unsigned mock releases.
+
 ### Fixed — screening (author's local fixes, carried over)
 - **Score opens the score card in view.** The score card is drawn under the candidate table, so clicking Score (or a
   shortcut from "Needs attention") seemed to do nothing. The page now scrolls to the card, focuses its first field and

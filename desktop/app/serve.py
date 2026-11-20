@@ -1010,12 +1010,17 @@ UPDATE_UA = "CyberRiskGuardian-Desktop-update-check"
 # 1.9.2 (NV-086) — signed releases. When the author publishes a minisign public key, its text goes here (pinned in the
 # build, like the release repository above); a release then carries "<zip name>.minisig" beside the ZIP and the download
 # is kept only if that signature verifies (crg_signing.py). Empty: the SHA-256 check alone applies and the result says so.
-# CRG_UPDATE_PUBKEY (a file path or the key text) overrides it for the test suite.
-UPDATE_MINISIGN_PUBKEY = ""
+# CRG_UPDATE_PUBKEY (a file path or the key text) overrides it for the test suite; "none" means no key (tests/serve.sh
+# sets it so the suites can serve unsigned mock releases). BL-08: the author's key, pinned on 20 November 2026; the same
+# line is published on the product site so a user can check it independently. Every desktop ZIP released from now on
+# needs its "<zip>.minisig" (tools/package_desktop.py --sign): a build with this key refuses an unsigned release.
+UPDATE_MINISIGN_PUBKEY = "RWR57THy8GZvqaD2lfamsmwouCcN+NhTPZQ8cumNeZvFZF8WUINkjg84"
 
 
 def _update_pubkey():
     env = os.environ.get("CRG_UPDATE_PUBKEY") or ""
+    if env.strip().lower() == "none":
+        return ""
     if env and os.path.isfile(env):
         try:
             with open(env, encoding="utf-8") as fh:
