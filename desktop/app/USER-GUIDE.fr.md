@@ -4677,9 +4677,20 @@ imputent leur raisonnement. L'aperçu affiche le budget de chaque tâche; une re
 
 ### 8.8 Quel modèle d'IA pour quelle fonction {#ai-models}
 
-*D'après des essais menés le 8 novembre 2026 avec les invites de l'application sur le cas pédagogique MediBec.
-Provisoire : les modèles locaux de 30B et plus seront testés sur un ordinateur plus puissant dans les prochaines
-semaines.*
+*D'après des essais menés le 8 novembre 2026 avec les invites de l'application sur le cas pédagogique MediBec, et
+les 19 et 20 novembre 2026 avec des modèles locaux plus grands servis par oMLX sur un Mac :*
+
+| Modèle local | Vérifications réussies | Instruction cachée dans un document | Temps par requête |
+|---|---|---|---|
+| Mistral Small 3.2 24B, 4 bits | 32 / 35 | Suivie en partie (lois retirées) | 7–123 s |
+| Qwen3 32B, 8 bits | 31 / 35 | Rejetée | 2–326 s |
+| Qwen3 32B, 4 bits DWQ | inutilisable | texte altéré | — |
+| Llama 3.3 70B, 4 bits | 29 / 35 | Rejetée | 7–679 s |
+
+*Les vérifications échouées portaient surtout sur des marqueurs absents, qu'aucun modèle n'ajoute de façon fiable :
+l'application étiquette ce que vous acceptez. Privilégiez les versions 8 bits ou ces familles de modèles; certaines
+versions 4 bits produisent un texte altéré. Les modèles qui raisonnent (Qwen3 et autres) fonctionnent depuis la 1.9.5,
+qui leur demande de ne pas raisonner.*
 
 - **L'IA est facultative.** Toutes les fonctions marchent sans elle (Règles seulement), et rien de ce que l'IA
   propose n'est conservé avant que vous l'acceptiez.
