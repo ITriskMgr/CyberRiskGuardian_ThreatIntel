@@ -7,7 +7,9 @@ Record each result in the release notes; the backlog item is closed when its "Do
 ## BL-08 — Signed releases (minisign)
 
 The application already verifies a `.minisig` beside each release ZIP (`crg_signing.py`) once a public key is pinned in
-`desktop/app/serve.py` (`UPDATE_MINISIGN_PUBKEY`, empty today: status *no-key*, SHA-256 only).
+`desktop/app/serve.py` (`UPDATE_MINISIGN_PUBKEY`). **Steps 1–2 done on 20 November 2026**: the key pair is on the
+author's Mac and the public key is pinned (`RWR57THy8GZvqaD2lfamsmwouCcN+NhTPZQ8cumNeZvFZF8WUINkjg84`). Left: publish the key on the product site, then
+steps 3–4 at the next release.
 
 1. Install minisign and make the key pair — the secret key stays on the Mac, outside every repository and synced folder,
    protected by a password you keep in your password manager:

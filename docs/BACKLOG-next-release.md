@@ -65,7 +65,7 @@ Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with it
 | ID | Item | Source | Status | Done when |
 |---|---|---|---|---|
 | BL-07 | Launcher prompt check on the Mac and on Windows (item 3) | 8 Nov §C; DECISIONS-1.9.2 | **macOS passed** 19 Nov 2026 (macOS 27.2.1, steps 1–5; second launch driven by a script, not a double-click). Open: Windows; a different-version prompt (no older package on disk) | `start.command`, `start.sh` and `start.bat` each prompt when a launcher is already running |
-| BL-08 | Pin the minisign public key (NV-086; status *no-key* until pinned) | DECISIONS-1.9.2 | Blocked: author generates the key pair | Public key pinned in `crg_signing.py`; signed update verified end to end |
+| BL-08 | Pin the minisign public key (NV-086; status *no-key* until pinned) | DECISIONS-1.9.2 | **Key pinned** (20 Nov 2026: the author made the key pair; public key in `serve.py`). Left: publish the key on the product site; sign the next release and check it end to end | Public key pinned in `crg_signing.py`; signed update verified end to end |
 | BL-09 | CRGO tag and approval rows: confirm `v0.11.2` is tagged and its approval rows recorded (the open item named v0.11.1) | DECISIONS-1.9.2 | Verify in the CRGO repository | Tag exists; approval rows present |
 | BL-10 | Native French read-through: CanaRetail FR, MediBec FR, chapter help, CRGO FR labels, Detailed-level lines | 8 Nov §C | Blocked: native reader | Findings filed; `fr_terms_check.py` still passes |
 | BL-11 | Education slide screenshots (from 1.9.1) | DECISIONS-1.9.2 | Blocked: Education material | Slides carry current screenshots |

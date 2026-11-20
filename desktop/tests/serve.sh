@@ -11,6 +11,9 @@ TMPD="${CRG_TMP:-${TMPDIR:-/tmp}/crg-desktop-tests${CRG_PORT:+-$CRG_PORT}}"   # 
 export CRG_FEEDS_DIR="${CRG_FEEDS_DIR:-$TMPD/feeds}"
 export CRG_ORG_DIR="${CRG_ORG_DIR:-$TMPD/orggraphs}"
 export CRG_KEYS_DIR="${CRG_KEYS_DIR:-$TMPD/keys}"
+# The build pins the author's release-signing key (BL-08); the mock releases are unsigned, so the suites run without a
+# key unless one is given (t66 passes its own test key). "none" is the helper's explicit no-key value.
+export CRG_UPDATE_PUBKEY="${CRG_UPDATE_PUBKEY:-none}"
 # Canned AI answers: the helper reads (and writes _last.json into) a scratch copy, never the repository's mock/.
 MOCK_SRC="${CRG_AI_MOCK_SRC:-$HERE/mock}"
 export CRG_AI_MOCK="${CRG_AI_MOCK:-$TMPD/mock}"

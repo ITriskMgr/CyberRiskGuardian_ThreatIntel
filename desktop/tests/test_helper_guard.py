@@ -428,10 +428,19 @@ class SignedUpdates(unittest.TestCase):
             name, info = serve.run_update(job, {}, __import__("threading").Event())
             self.assertEqual(info["signature"], "verified")
         with mock.patch.object(serve, "_update_get", lambda url, t: urls[url]), mock.patch.object(serve, "_update_url_ok", lambda u: True), \
-             mock.patch.dict(os.environ, {"CRG_UPDATE_PUBKEY": ""}), \
+             mock.patch.dict(os.environ, {"CRG_UPDATE_PUBKEY": "none"}), \
              mock.patch.dict(serve._update_cache, {"url": "https://github.com/x/releases/download/v1/a.zip", "name": "a.zip", "sig_url": "", "sha_url": ""}, clear=True):
             name, info = serve.run_update({}, {}, __import__("threading").Event())
             self.assertEqual(info["signature"], "no-key")
+
+    def test_author_key_pinned(self):
+        """BL-08: the build pins the author's minisign key; without an override the helper uses it, "none" removes it."""
+        import crg_signing as S
+        self.assertEqual(len(S.parse_public_key(serve.UPDATE_MINISIGN_PUBKEY)["key"]), 32)
+        with mock.patch.dict(os.environ, {"CRG_UPDATE_PUBKEY": ""}):
+            self.assertEqual(serve._update_pubkey(), serve.UPDATE_MINISIGN_PUBKEY)
+        with mock.patch.dict(os.environ, {"CRG_UPDATE_PUBKEY": "none"}):
+            self.assertEqual(serve._update_pubkey(), "")
 
     def test_pinned_key_refuses_unsigned_release(self):
         """1.9.2 review (M6): with a key pinned, a release without its .minisig is refused (no downgrade to SHA-256 only)."""
