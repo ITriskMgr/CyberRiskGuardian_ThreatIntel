@@ -15,11 +15,13 @@ RWR57THy8GZvqaD2lfamsmwouCcN+NhTPZQ8cumNeZvFZF8WUINkjg84
 - Created: 20 November 2026, by Marc-André Léger. The secret key never leaves the author's computer.
 
 The same key is pinned in the application (`desktop/app/serve.py`, `UPDATE_MINISIGN_PUBKEY`) and published on
-cyberriskguardian.ca, so you can compare the three.
+cyberriskguardian.ca, so you can compare the three:
+[Release signing](https://cyberriskguardian.ca/release-signing.html) ·
+[Signature des versions](https://cyberriskguardian.ca/fr/signature-des-versions.html).
 
 ## What the application does
 
-*Help → About & versions → Check for updates* keeps a downloaded release only if its signature verifies against the
+*Help → About & versions → Check now* keeps a downloaded release only if its signature verifies against the
 pinned key. A release without a signature, or with one that does not verify, is refused. Versions 1.9.5 and earlier pin
 no key and check the SHA-256 checksum only.
 
