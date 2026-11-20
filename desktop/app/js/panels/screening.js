@@ -40,6 +40,9 @@ const TABS = [['candidates', 'Candidates'], ['screen', 'Screen\u200b'], ['select
 const NUM = { candidates: '①', screen: '②', select: '③', create: '④' };
 /** The tabs of earlier releases, kept as addresses: they open the stage their content moved to. */
 const LEGACY = { families: 'screen', weights: 'select', coverage: 'select', watch: 'create', final: 'create' };
+
+/** The score card is drawn under the table: after opening one, bring it into view (a click that seems to do nothing otherwise). */
+const reveal = (id) => { if (id) toast(tr('{0}: the score card is open at the bottom of the page.').replace('{0}', id)); requestAnimationFrame(() => { const e = document.getElementById('scr-editor'); if (e) { e.scrollIntoView({ block: 'start', behavior: 'smooth' }); e.querySelector('textarea, input')?.focus?.({ preventScroll: true }); } }); };
 const flagLabel = k => (SC.FLAGS.find(f => f[0] === k) || [k, k])[1];
 const stratLabel = k => (SC.STRATEGIES.find(f => f[0] === k) || [k, k])[1];
 const changed = () => { SC.state().updated = today(); touch(); };
@@ -82,7 +85,7 @@ export function render(sec, arg) {
        recorded review — or a place on the watch list — because excluding a flagged scenario is a management decision.
    An accepted AI rationale counts as the rationale of a candidate; it is not a review of an exclusion, which stays a human act. */
 function attention(sec, A) {
-  const jump = (v, id) => () => { view = v; open = id || null; history.replaceState(null, '', '#/screening/' + v); render(sec); };
+  const jump = (v, id) => () => { view = v; open = id || null; history.replaceState(null, '', '#/screening/' + v); render(sec); if (id) reveal(id); };
   const list = (items, mk) => el('ul', 'sai-attn', ...items.slice(0, 60).map(mk));
   const parts = [];
   if (A.judgmentMissing.length) parts.push(el('div', null, el('h3', null, tr('Selected by judgment, without a rationale ({0})').replace('{0}', A.judgmentMissing.length)),
@@ -111,7 +114,7 @@ function candidatesView(body, sec, A, ws) {
       { key: 'origin', label: 'Origin', render: c => pill(tr(originOf(c)), '') },
       { key: 'scored', label: 'Scored', render: c => SC.complete(C[c.id]) ? '✓' : '—', sort: c => (SC.complete(C[c.id]) ? 1 : 0) },
       { key: 'fam', label: 'Family', render: c => SC.familyOf(c.id, ws)?.id || (SC.isUnique(c.id, ws) ? tr('unique') : '') },
-      { key: 'act', label: '', sortable: false, render: c => el('span', 'btnrow', el('button', { class: 'btn xs ghost', onclick: () => { open = c.id; view = 'screen'; history.replaceState(null, '', '#/screening/screen'); render(sec); } }, 'Score'),
+      { key: 'act', label: '', sortable: false, render: c => el('span', 'btnrow', el('button', { class: 'btn xs ghost', onclick: () => { open = c.id; view = 'screen'; history.replaceState(null, '', '#/screening/screen'); render(sec); reveal(c.id); } }, 'Score'),
         el('button', { class: 'btn xs ghost danger', 'aria-label': tr('Remove {0}').replace('{0}', c.id), title: tr('Remove this candidate'), onclick: () => removeCandidate(c, ws, sec) }, '×')) },
     ], list, { class: 'compact' }));
   };
@@ -147,7 +150,7 @@ function screenView(body, sec, A, ws) {
       { key: 'flags', label: 'Flags', render: c => (C[c.id]?.flags || []).length ? el('span', { class: 'pill bad', title: C[c.id].flags.map(flagLabel).map(tr).join(', ') }, C[c.id].flags.join(' ')) : '' },
       { key: 'disp', label: 'Disposition', render: c => C[c.id]?.disp ? pill(tr(C[c.id].disp), C[c.id].disp === 'Select' ? 'good' : C[c.id].disp === 'Defer' ? '' : 'warn') : el('span', 'muted', '—') },
       { key: 'fam', label: 'Family', render: c => SC.familyOf(c.id, ws)?.id || (SC.isUnique(c.id, ws) ? tr('unique') : '') },
-      { key: 'act', label: '', sortable: false, render: c => el('span', 'btnrow', el('button', { class: 'btn xs ghost', onclick: () => { open = c.id; render(sec); } }, 'Score'),
+      { key: 'act', label: '', sortable: false, render: c => el('span', 'btnrow', el('button', { class: 'btn xs ghost', onclick: () => { open = c.id; render(sec); reveal(c.id); } }, 'Score'),
         el('button', { class: 'btn xs ghost danger', 'aria-label': tr('Remove {0}').replace('{0}', c.id), title: tr('Remove this candidate'), onclick: () => removeCandidate(c, ws, sec) }, '×')) },
     ], list, { class: 'compact' }));
   };
