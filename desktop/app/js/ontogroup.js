@@ -143,6 +143,9 @@ export const markText = mk => tr('Ontology-proposed, accepted by {0} on {1}').re
 /* ---------------- ② Screen: the button and the panel ---------------- */
 export function groupSection(slot, ws, rerender) {
   const out = el('div', { id: 'scr-onto-out' });
+  // one redraw per click, even for « Accept all » (one per proposal before), and the page stays where the analyst is
+  let pending = false;
+  const redraw = () => { if (pending) return; pending = true; const y = window.scrollY; queueMicrotask(() => { pending = false; rerender?.(); requestAnimationFrame(() => window.scrollTo(0, y)); }); };
   const btn = el('button', { class: 'btn', id: 'scr-onto-group', onclick: async () => {
     btn.disabled = true; out.replaceChildren(el('p', 'note', tr('Asking the ontology…')));
     try {
@@ -154,20 +157,20 @@ export function groupSection(slot, ws, rerender) {
   } }, tr('Group with the ontology'));
   const draw = r => {
     const rej = REJECTED.get(ws.id) || new Set();
-    const items = itemsOf(r.res, ws).filter(i => !rej.has(i.key));
+    const all = itemsOf(r.res, ws).filter(i => !rej.has(i.key)), applied = all.filter(i => i.done), items = all.filter(i => !i.done);
     const g = r.res;
     const source = el('span', null, pill(g.via === 'mcp' ? tr('MCP server') : tr('snapshot'), g.via === 'mcp' ? 'good' : 'warn'), ' ', el('span', { 'data-noi18n': '' }, 'CRGO ' + g.release),
       g.local?.count ? ' · ' + tr('{0} addition(s) approved in this installation').replace('{0}', g.local.count) : '', ' · ', tr('{0} candidate(s) grouped').replace('{0}', r.count),
       r.skipped.length ? ' · ' + tr('{0} without a name or statement skipped').replace('{0}', r.skipped.join(', ')) : '', g.why ? el('span', { class: 'muted' }, ' · ' + g.why) : null);
     const panel = reviewPanel({ id: 'scr-onto-panel', title: tr('The ontology proposes'), items, source, lede: tr('Nothing changes until you accept. Library values are calibration priors, not organisational evidence. Accepting writes “Ontology-proposed, accepted by {0} on {1}” on the family or the candidate.').replace('{0}', users.name() || tr('single-user mode')).replace('{1}', new Date().toISOString().slice(0, 10)),
-      onAccept: (it, edits) => { const m = accept(it, edits, r, ws); if (!m) { toast(tr('Accepted: {0}').replace('{0}', it.name)); rerender?.(); } return m; },
+      onAccept: (it, edits) => { const m = accept(it, edits, r, ws); if (!m) { toast(tr('Accepted: {0}').replace('{0}', it.name)); redraw(); } return m; },
       onReject: it => { (REJECTED.get(ws.id) || REJECTED.set(ws.id, new Set()).get(ws.id)).add(it.key); },
       onAcceptAll: true, empty: 'No proposal is left to review.' });
     const unk = [];
     if (g.unknown_techniques?.length) unk.push(tr('Unknown ATT&CK ids') + ': ' + g.unknown_techniques.join(', '));
     for (const [k, v] of Object.entries(g.unknown_values || {})) unk.push(tr('Unknown values') + ' (' + k + '): ' + v.join(', '));
     if (g.unknown_crgo_ids?.length) unk.push(tr('Unknown CRGO ids') + ': ' + g.unknown_crgo_ids.join(', '));
-    out.replaceChildren(panel, unk.length ? el('p', { class: 'small muted' }, unk.join(' · ')) : null,
+    out.replaceChildren(panel, applied.length ? el('p', { class: 'small', id: 'scr-onto-applied' }, pill(tr('{0} proposal(s) applied').replace('{0}', applied.length), 'good'), ' ', ...applied.map(i => chip(i.members.map(m => m.id).join(' + ')))) : null, unk.length ? el('p', { class: 'small muted' }, unk.join(' · ')) : null,
       g.theme_gaps?.length ? el('p', { class: 'small', id: 'scr-onto-gaps' }, el('b', null, tr('Theme gaps')), ': ', ...g.theme_gaps.map(t => chip(t))) : null);
   };
   slot.replaceChildren(el('div', { class: 'btnrow' }, btn, el('span', { class: 'small muted' }, tr('Groups the candidates with the CyberRiskGuardian Ontology on this computer — no AI, nothing leaves it. Complete the CRGO terms of a candidate (asset category, threat source type, themes) in its score card to sharpen the result.'))), out);

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Fixed — screening (author's local fixes, carried over)
+- **Score opens the score card in view.** The score card is drawn under the candidate table, so clicking Score (or a
+  shortcut from "Needs attention") seemed to do nothing. The page now scrolls to the card, focuses its first field and
+  says so in a short message (English and French).
+- **Group with the ontology → Accept all** redraws the screen once instead of once per proposal, and keeps the page
+  where it was. Proposals already applied leave the review list and are shown as one line: "N proposal(s) applied".
+
 ### Changed — local-model guidance (BL-13)
 - **Settings → AI and the user guide (§8.8)** carry the November 2026 local-model results, in English and French:
   - Mistral Small 3.2 24B: 32/35 checks;
