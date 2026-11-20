@@ -43,7 +43,7 @@ Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with it
 | BL-07 launcher check (Windows left) · BL-08 signing key · BL-10 French read-through · BL-13 larger local models | BL-08 **key pinned** (20 Nov 2026); BL-10 **done** (20 Nov 2026, no change required); BL-13 **measured**; BL-07: `docs/AUTHOR-KITS.md` |
 | BL-28 French reference set · BL-27 exact re-ingest | **Done** from the author's plain-text exports: `references/fr/` (29 files, v2.51b FR) and the English set at v2.51b |
 | BL-25 Classroom · BL-26 Exercises and simulations | **Built** to `docs/spec-classroom-exercises.md` (agreed 19 November 2026), milestones 1–6; quiz in English and French |
-| BL-05 release · BL-11 Education screenshots · BL-29 Educator Edition | **You**; §6 Education and Pro items: their GitHub repositories are empty, so the source is not reachable |
+| BL-05 release · BL-11 Education screenshots · BL-29 Educator Edition | **You** (BL-05, BL-29). Education source now in the private `ITriskMgr/CyberRiskGuardian_Education` (20 Nov 2026, package 2.1.2 and its build script); BL-11 is part of the Education 2.2.0 update for Desktop 1.9.5, in progress |
 | BL-24 licence activation | Excluded (waits for Paddle) |
 | §6 CRGO NV-C01…C08 | **Done in CRGO 0.11.1** (verified) |
 
@@ -68,7 +68,7 @@ Built on branch `claude/cool-archimedes-3vnkq3` (pull request #13), each with it
 | BL-08 | Pin the minisign public key (NV-086; status *no-key* until pinned) | DECISIONS-1.9.2 | **Key pinned** (20 Nov 2026: the author made the key pair; public key in `serve.py`). Left: publish the key on the product site; sign the next release and check it end to end | Public key pinned in `crg_signing.py`; signed update verified end to end |
 | BL-09 | CRGO tag and approval rows: confirm `v0.11.2` is tagged and its approval rows recorded (the open item named v0.11.1) | DECISIONS-1.9.2 | Verify in the CRGO repository | Tag exists; approval rows present |
 | BL-10 | Native French read-through: CanaRetail FR, MediBec FR, chapter help, CRGO FR labels, Detailed-level lines | 8 Nov §C | **Done** — the author read the 1.9.5 French interface (`fr_review_export.py`) on 20 November 2026: no change required | Findings filed; `fr_terms_check.py` still passes |
-| BL-11 | Education slide screenshots (from 1.9.1) | DECISIONS-1.9.2 | Blocked: Education material | Slides carry current screenshots |
+| BL-11 | Education slide screenshots (from 1.9.1) | DECISIONS-1.9.2 | **In progress** in the Education repository (2.2.0 for Desktop 1.9.5) | Slides carry current screenshots |
 | BL-12 | Run `claude plugin eval` with a model; Threat Live-feed ships no evals of its own yet (NV-P15) | DECISIONS-1.9.2; 8 Nov B | Open: needs approval of the model cost | An eval suite exists for the plugin and its report is kept with the release |
 | BL-13 | Larger local-model test (24B / 32B / 70B) | 8 Nov §C (spec §13) | **Measured** (oMLX, 19–20 Nov 2026), against NV-047: 24B Mistral Small 3.2 4-bit 32/35 (fast; partly followed a planted instruction: dropped Law 25 and PIPEDA); 32B Qwen3 **8-bit** 31/35 (all JSON parses; **fully resisted** the planted instruction; 2–326 s) — the 4-bit DWQ build is unusable (corrupted JSON, language switching) even with thinking off; 70B Llama 3.3 4-bit 29/35 (slow, up to 679 s; fully resisted). Markers are missing at every size: the app, not the model, labels proposals. Thinking models needed the 1.9.5 fix (thinking turned off by the helper). Recommendation: keep the local-model warning at about 30B / 48 GB and prefer 8-bit builds — **Management decision required** | Results recorded against NV-047 |
 | BL-14 | Check Document 1 §4 "engine verified" row and the master-switch name in USER-GUIDE §8.3 | 8 Nov §C | Open | S | Both match the 1.9.3 application |
@@ -114,7 +114,7 @@ Not found in this repository's records. Some may already be done in their own re
 | Repository | Items | Source |
 |---|---|---|
 | CRGO | NV-C02 (bare tool errors), NV-C03 (unbounded results), NV-C04 (write outside `build/`), NV-C05 (content: theme fit, names, FR), NV-C06 (`scenarios_for_control` for CIS v8.1), NV-C07 (`check.sh` rewrites shapes), NV-C08 (document `check.sh` prerequisites); WIDOCO site regeneration; library ABox + EPSS/KEV rebuild | 8 Nov B and §C |
-| Education | NV-E02 (Lab 0 path), NV-E03 (Lab 8 "Drivers"), NV-E04 (FR apostrophes), NV-E05 (instructor-guide known issues), NV-E06 (`build_education.py` port and dependencies), NV-E07 (no Writer lab) | 8 Nov B |
+| Education | **Done in Education 2.1.2** (8 Nov 2026; verified 20 Nov in the private repository `ITriskMgr/CyberRiskGuardian_Education`): NV-E02 (Lab 0 path), NV-E03 (Lab 8 "Drivers"), NV-E04 (FR apostrophes in the marker and interface labels), NV-E05 (instructor-guide known issues), NV-E06 (`build_education.py`, now in that repository), NV-E07 (Lab 12 Writer step) | 8 Nov B |
 | CRG Pro | NV-P02 (input validation), NV-P04 (mcp 2.x start), NV-P05 (below-tolerance rule text), NV-P06 (stale regression figures), NV-P07 (retired wording) | 8 Nov B |
 
 ---
